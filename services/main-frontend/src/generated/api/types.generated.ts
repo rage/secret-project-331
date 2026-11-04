@@ -53,7 +53,7 @@ export type AccountLinkingCourseCode = {
   fetch_requested_at?: string | null
   is_enrolment_list_empty: boolean
   is_fetch_failing: boolean
-  last_error?: null | CreditRegistrationErrorCode
+  last_error?: CreditRegistrationErrorCode | null
   last_fetched_at?: string | null
   /**
    * Everyone on the last list, however long ago they enrolled.
@@ -63,7 +63,7 @@ export type AccountLinkingCourseCode = {
    * The latest fetch that could send linking emails.
    */
   last_mailing_fetch_started_at?: string | null
-  linking?: null | AccountLinkingCodeCounters
+  linking?: AccountLinkingCodeCounters | null
   modules: Array<AccountLinkingCodeModule>
   /**
    * When it is next due, ignoring the failure backoff.
@@ -111,7 +111,7 @@ export type AccountLinkingEmailRow = {
    * When the `link-emails` phase handed it to the email worker.
    */
   queued_at?: string | null
-  send_status?: null | EmailSendStatusReport
+  send_status?: EmailSendStatusReport | null
   /**
    * The name Sisu held for the student number when the mail went out.
    */
@@ -362,7 +362,6 @@ export type AccountLinkingWaitingStudent = {
 }
 
 /**
- *
  * Indicates what is the user's completion status for a exercise.
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
@@ -436,7 +435,7 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
-  attention?: null | AdminRegistrationAttention
+  attention?: AdminRegistrationAttention | null
   attention_thresholds: AdminAttentionThresholds
   /**
    * Every attempt's events, oldest first, so one timeline covers the whole completion.
@@ -450,12 +449,12 @@ export type AdminCreditRegistrationDetails = {
    * Every mail addressed to this person, on any course.
    */
   linking_emails: Array<AdminLinkingEmail>
-  linking_schedule?: null | AdminLinkingSchedule
+  linking_schedule?: AdminLinkingSchedule | null
   /**
    * Linking emails sent by hand as a guess for this row's student, newest first.
    */
   manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
-  not_improved_attainment?: null | NotImprovedAttainment
+  not_improved_attainment?: NotImprovedAttainment | null
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
    * same send status the student and the teacher are shown.
@@ -480,8 +479,8 @@ export type AdminCreditRegistrationEvent = {
    * addresses read `[redacted]` while their keys survive. The values we sent are on the row.
    */
   details?: unknown
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
@@ -492,7 +491,7 @@ export type AdminCreditRegistrationEvent = {
    * The requestItemId the row went out under in the call behind this event.
    */
   request_item_id?: string | null
-  suotar_answer?: null | SuotarAnswer
+  suotar_answer?: SuotarAnswer | null
   suotar_answered_at?: string | null
   suotar_api_call_id?: string | null
   /**
@@ -500,21 +499,21 @@ export type AdminCreditRegistrationEvent = {
    * sometimes drops. `None` when no item answer came back.
    */
   suotar_code?: string | null
-  suotar_endpoint?: null | SuotarEndpoint
+  suotar_endpoint?: SuotarEndpoint | null
   suotar_requested_at?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
  * What the student did around the completion, with full timestamps, for the timeline.
  */
 export type AdminCreditRegistrationJourney = {
-  check_request_source?: null | EnrolmentCheckSource
+  check_request_source?: EnrolmentCheckSource | null
   /**
    * When they first picked any language version of the course.
    */
   course_started_at?: string | null
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
   /**
    * The first visit to the registration page; a check request recorded before any visit makes
    * this the time of that request instead.
@@ -541,7 +540,7 @@ export type AdminCreditRegistrationRow = {
    * Every reason the Needs attention queue picks the row for; empty when it is not picked.
    */
   attention_reasons: Array<CreditRegistrationAttentionReason>
-  attention_standing?: null | AttentionStanding
+  attention_standing?: AttentionStanding | null
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -555,15 +554,15 @@ export type AdminCreditRegistrationRow = {
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   /**
    * The next scheduled enrolment check.
    */
   enrolment_check_due_at?: string | null
   enrolment_checked_at?: string | null
   enrolment_checks_stopped_at?: string | null
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
-  error_code?: null | CreditRegistrationErrorCode
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
@@ -587,7 +586,7 @@ export type AdminCreditRegistrationRow = {
    * When verify first saw only the assessment item attainment.
    */
   partially_registered_at?: string | null
-  pending_reason?: null | CreditRegistrationPendingReason
+  pending_reason?: CreditRegistrationPendingReason | null
   phase: TimelinePhase
   /**
    * When the row entered its timeline phase: what "In this phase since" shows.
@@ -633,7 +632,7 @@ export type AdminCreditRegistrationRow = {
    */
   verified_student_number?: string | null
   verified_student_number_at?: string | null
-  verified_student_number_via?: null | StudentNumberVerificationMethod
+  verified_student_number_via?: StudentNumberVerificationMethod | null
   verify_attempt_count: number
   waits_on: WaitsOn
 }
@@ -850,7 +849,7 @@ export type AdminPhaseActionPayload = {
  * The row's standing on the Needs attention queue.
  */
 export type AdminRegistrationAttention = {
-  blocking_problem?: null | BlockingProblem
+  blocking_problem?: BlockingProblem | null
   dismissal_reason?: string | null
   dismissed_at?: string | null
   dismissed_by_first_name?: string | null
@@ -904,7 +903,7 @@ export type AdminResendAccountLinkingEmailPayload = {
 export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
-  manual_send?: null | AdminManualLinkingEmailSend
+  manual_send?: AdminManualLinkingEmailSend | null
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
   quiet_period_secs: number
@@ -925,7 +924,7 @@ export type AdminResolveStudentNumberPayload = {
 export type AdminResolveStudentNumberResult = {
   already_linked_to_user_email?: string | null
   already_linked_to_user_id?: string | null
-  already_linked_via?: null | StudentNumberVerificationMethod
+  already_linked_via?: StudentNumberVerificationMethod | null
   /**
    * The registry's own per-item code, an identifier rather than prose.
    */
@@ -970,7 +969,7 @@ export type AdminTransitionCreditRegistrationPayload = {
 export type AdminTransitionCreditRegistrationResult = {
   needs_admin_attention: boolean
   outcome: AdminTransitionOutcome
-  refusal?: null | ResubmissionRefusal
+  refusal?: ResubmissionRefusal | null
   state: CreditRegistrationState
 }
 
@@ -1101,7 +1100,7 @@ export type AnalysisWorkspaceV1 = {
   contributors_subject_matter_experts?: string | null
   contributors_support_staff?: string | null
   course_title?: string | null
-  course_type?: null | AnalysisCourseType
+  course_type?: AnalysisCourseType | null
   credits?: number | null
   degree_programme?: string | null
   language?: string | null
@@ -1293,7 +1292,7 @@ export type CertificateConfiguration = {
   certificate_date_x_pos: string
   certificate_date_y_pos: string
   certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
+  certificate_grade_text_anchor?: CertificateTextAnchor | null
   certificate_grade_text_color?: string | null
   certificate_grade_x_pos?: string | null
   certificate_grade_y_pos?: string | null
@@ -1326,23 +1325,23 @@ export type CertificateConfigurationAndRequirements = {
 export type CertificateConfigurationUpdate = {
   background_svg_file_name?: string | null
   certificate_date_font_size?: string | null
-  certificate_date_text_anchor?: null | CertificateTextAnchor
+  certificate_date_text_anchor?: CertificateTextAnchor | null
   certificate_date_text_color?: string | null
   certificate_date_x_pos?: string | null
   certificate_date_y_pos?: string | null
   certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
+  certificate_grade_text_anchor?: CertificateTextAnchor | null
   certificate_grade_text_color?: string | null
   certificate_grade_x_pos?: string | null
   certificate_grade_y_pos?: string | null
   certificate_locale?: string | null
   certificate_owner_name_font_size?: string | null
-  certificate_owner_name_text_anchor?: null | CertificateTextAnchor
+  certificate_owner_name_text_anchor?: CertificateTextAnchor | null
   certificate_owner_name_text_color?: string | null
   certificate_owner_name_x_pos?: string | null
   certificate_owner_name_y_pos?: string | null
   certificate_validate_url_font_size?: string | null
-  certificate_validate_url_text_anchor?: null | CertificateTextAnchor
+  certificate_validate_url_text_anchor?: CertificateTextAnchor | null
   certificate_validate_url_text_color?: string | null
   certificate_validate_url_x_pos?: string | null
   certificate_validate_url_y_pos?: string | null
@@ -1350,7 +1349,7 @@ export type CertificateConfigurationUpdate = {
   course_instance_id?: string | null
   course_module_id: string
   overlay_svg_file_name?: string | null
-  paper_size?: null | PaperSize
+  paper_size?: PaperSize | null
   render_certificate_grade: boolean
 }
 
@@ -1572,7 +1571,7 @@ export type CmsPageExercise = {
   needs_peer_review: boolean
   needs_self_review: boolean
   order_number: number
-  peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig
+  peer_or_self_review_config?: CmsPeerOrSelfReviewConfig | null
   peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null
   score_maximum: number
   teacher_reviews_answer_after_locking: boolean
@@ -1958,17 +1957,17 @@ export type CourseCreditRegistration = {
   credits?: number | null
   email?: string | null
   enrolment_realisation_name?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   grade_id?: string | null
   id: string
   last_name?: string | null
-  linking_email?: null | TeacherLinkingEmailStatus
+  linking_email?: TeacherLinkingEmailStatus | null
   needs_admin_attention: boolean
   next_attempt_at: string
-  notification_email?: null | NotificationEmailStatus
+  notification_email?: NotificationEmailStatus | null
   registered_at?: string | null
-  resubmission_refusal?: null | ResubmissionRefusal
+  resubmission_refusal?: ResubmissionRefusal | null
   sisu_attainment_id?: string | null
   state: CreditRegistrationState
   state_entered_at: string
@@ -1981,7 +1980,7 @@ export type CourseCreditRegistration = {
    */
   student_number?: string | null
   student_number_verified_at?: string | null
-  student_number_verified_via?: null | StudentNumberVerificationMethod
+  student_number_verified_via?: StudentNumberVerificationMethod | null
   superseded: boolean
   user_id: string
 }
@@ -2001,8 +2000,8 @@ export type CourseCreditRegistrationAction = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   created_at: string
   id: string
   reason?: string | null
@@ -2017,15 +2016,15 @@ export type CourseCreditRegistrationAction = {
 export type CourseCreditRegistrationEvent = {
   actor_user_id?: string | null
   created_at: string
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
    * Our own wording, written by the pipeline or by whoever acted.
    */
   message?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
@@ -2112,7 +2111,7 @@ export type CourseDefaultReviewConfigChange = EntityChange & {
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
 
 export type CourseDesignerPlan = {
-  active_stage?: null | CourseDesignerStage
+  active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
   deleted_at?: string | null
@@ -2178,7 +2177,7 @@ export type CourseDesignerPlanStatus =
   | "Archived"
 
 export type CourseDesignerPlanSummary = {
-  active_stage?: null | CourseDesignerStage
+  active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
   id: string
@@ -2232,7 +2231,7 @@ export type CourseEnrollmentInfo = {
   course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
   is_current: boolean
-  user_course_settings?: null | UserCourseSettings
+  user_course_settings?: UserCourseSettings | null
 }
 
 export type CourseEnrollmentsInfo = {
@@ -2283,7 +2282,6 @@ export type CourseMaterialExerciseTask = {
   assignment: unknown
   deleted_at?: string | null
   /**
-   *
    * If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -2293,10 +2291,9 @@ export type CourseMaterialExerciseTask = {
   id: string
   model_solution_spec?: unknown
   order_number: number
-  previous_submission?: null | ExerciseTaskSubmission
-  previous_submission_grading?: null | ExerciseTaskGrading
+  previous_submission?: ExerciseTaskSubmission | null
+  previous_submission_grading?: ExerciseTaskGrading | null
   /**
-   *
    * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -2617,8 +2614,8 @@ export type CreditRegistrationAdminActionRecord = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   created_at: string
   deleted_at?: string | null
   details?: unknown
@@ -2645,8 +2642,8 @@ export type CreditRegistrationAdminActionRow = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   /**
    * The course the action was about: a teacher's own, a course target, or the course of a
    * targeted registration.
@@ -2757,7 +2754,7 @@ export type CreditRegistrationAttentionDismissal = {
 
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
-  blocking_problem?: null | BlockingProblem
+  blocking_problem?: BlockingProblem | null
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -2767,9 +2764,9 @@ export type CreditRegistrationAttentionItem = {
    * In full: this is the list support works from.
    */
   email?: string | null
-  engagement?: null | Engagement
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
-  error_code?: null | CreditRegistrationErrorCode
+  engagement?: Engagement | null
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   /**
    * What the bulk hand transition would allow on this row.
@@ -2997,7 +2994,7 @@ export type CreditRegistrationCourseStats = {
    * taken against, with `failed_count`.
    */
   success_count: number
-  top_error_code?: null | CreditRegistrationErrorCode
+  top_error_code?: CreditRegistrationErrorCode | null
   uh_course_code?: string | null
   /**
    * The module's "Where registrations stand", Not started left out; each count equals the
@@ -3014,7 +3011,7 @@ export type CreditRegistrationDetails = {
   course_id: string
   course_name: string
   events: Array<CourseCreditRegistrationEvent>
-  not_improved_attainment?: null | NotImprovedAttainment
+  not_improved_attainment?: NotImprovedAttainment | null
   registration: CourseCreditRegistration
 }
 
@@ -3170,7 +3167,7 @@ export type CreditRegistrationHistoryPoint = {
  */
 export type CreditRegistrationHistoryStepPoint = {
   count: number
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   phase: TimelinePhase
   step: TimelineStep
 }
@@ -3225,7 +3222,7 @@ export type CreditRegistrationOverview = {
    * The Needs attention count: the same number as `/attention`'s `total_count` and the tab badge.
    */
   needs_attention_count: number
-  oldest_non_terminal?: null | CreditRegistrationOldestNonTerminal
+  oldest_non_terminal?: CreditRegistrationOldestNonTerminal | null
   /**
    * The `pending` depth split by what each row is waiting on, which the ledger does not store.
    */
@@ -3447,7 +3444,7 @@ export type CreditRegistrationStatsByCourse = {
  */
 export type CreditRegistrationStepCount = {
   count: number
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   phase: TimelinePhase
   step: TimelineStep
 }
@@ -3760,8 +3757,8 @@ export type EmailVerificationMethod =
 export type EmailVerificationStatus = {
   email: string
   email_verified_at?: string | null
-  email_verified_method?: null | EmailVerificationMethod
-  latest_verification_email?: null | EmailVerificationEmailInfo
+  email_verified_method?: EmailVerificationMethod | null
+  latest_verification_email?: EmailVerificationEmailInfo | null
   /**
    * False when `verification_enabled` but the deployment has no `verify_email_address`
    * template: requesting a code would 500, so the frontend hides the feature instead.
@@ -3860,7 +3857,7 @@ export type EnrolmentCheckRosterCode = {
   consecutive_failures: number
   course_code: string
   is_fetched_alone: boolean
-  last_error?: null | CreditRegistrationErrorCode
+  last_error?: CreditRegistrationErrorCode | null
   last_fetch_duration_ms?: number | null
   last_fetched_at?: string | null
   last_listed_person_count?: number | null
@@ -4181,7 +4178,7 @@ export type ExerciseSlideSubmission = {
 export type ExerciseSlideSubmissionAndUserExerciseState = {
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
-  teacher_grading_decision?: null | TeacherGradingDecision
+  teacher_grading_decision?: TeacherGradingDecision | null
   user_exam_enrollment: ExamEnrollment
   user_exercise_state: UserExerciseState
 }
@@ -4212,7 +4209,7 @@ export type ExerciseSlideSubmissionInfo = {
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
   tasks: Array<CourseMaterialExerciseTask>
-  user_exercise_state?: null | UserExerciseState
+  user_exercise_state?: UserExerciseState | null
 }
 
 /**
@@ -4235,11 +4232,11 @@ export type ExerciseStatusSummaryForUser = {
   given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
-  peer_review_queue_entry?: null | PeerReviewQueueEntry
+  peer_review_queue_entry?: PeerReviewQueueEntry | null
   received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
-  teacher_grading_decision?: null | TeacherGradingDecision
-  user_exercise_state?: null | UserExerciseState
+  teacher_grading_decision?: TeacherGradingDecision | null
+  user_exercise_state?: UserExerciseState | null
 }
 
 export type ExerciseSubmissions = {
@@ -4370,9 +4367,9 @@ export type FeedbackEditProposalCounts = {
  * One field a change sets to another value.
  */
 export type FieldChange = {
-  after?: null | FieldValue
-  before?: null | FieldValue
-  exercise?: null | ExerciseFieldOwner
+  after?: FieldValue | null
+  before?: FieldValue | null
+  exercise?: ExerciseFieldOwner | null
   field: EntityField
 }
 
@@ -4484,8 +4481,6 @@ export type GlobalStatEntry = {
 }
 
 /**
- *
- *
  * Tells what's the status of the grading progress for a user and exercise.
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
@@ -4507,8 +4502,8 @@ export type GutenbergBlock = {
  * Clearing the attention flag is refused only on a superseded row, so it is not in here.
  */
 export type HandActionAvailability = {
-  cancel_refusal?: null | ResubmissionRefusal
-  check_now?: null | CheckNowTarget
+  cancel_refusal?: ResubmissionRefusal | null
+  check_now?: CheckNowTarget | null
   resubmission: ResubmissionAvailability
 }
 
@@ -4694,7 +4689,7 @@ export type MyCreditRegistration = {
    */
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   grade_id?: string | null
   /**
    * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
@@ -4706,10 +4701,10 @@ export type MyCreditRegistration = {
    * A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
    */
   is_processing_in_sisu: boolean
-  linking_email?: null | LinkingEmailStatus
+  linking_email?: LinkingEmailStatus | null
   next_attempt_at: string
-  notification_email?: null | NotificationEmailStatus
-  progress?: null | StudentRegistrationProgress
+  notification_email?: NotificationEmailStatus | null
+  progress?: StudentRegistrationProgress | null
   registered_at?: string | null
   /**
    * The registry declined this attempt because it already holds an equal or better grade. Still a
@@ -4764,10 +4759,10 @@ export type MyEnrolmentRoute = {
   course_module_completion_id: string
   enrolment_confirmed_at?: string | null
   has_finnish_personal_identity_code?: boolean | null
-  identification?: null | CreditRegistrationIdentification
-  need?: null | CreditRegistrationNeed
-  need_after_reconsider?: null | CreditRegistrationNeed
-  route?: null | CreditRegistrationEnrolmentRoute
+  identification?: CreditRegistrationIdentification | null
+  need?: CreditRegistrationNeed | null
+  need_after_reconsider?: CreditRegistrationNeed | null
+  route?: CreditRegistrationEnrolmentRoute | null
 }
 
 export type MyStudies = {
@@ -4842,7 +4837,7 @@ export type MyStudiesCourseModule = {
    * completing it.
    */
   automatic_completion: boolean
-  completion?: null | MyStudiesCompletion
+  completion?: MyStudiesCompletion | null
   course_module_id: string
   ects_credits?: number | null
   /**
@@ -5240,8 +5235,8 @@ export type PageAudioFile = {
  * What a change does to a page: its fields, and its content as students see it.
  */
 export type PageChange = EntityChange & {
-  after?: null | PreviewPage
-  base?: null | PreviewPage
+  after?: PreviewPage | null
+  base?: PreviewPage | null
   /**
    * Whether the blocks or exercises differ; always for creates and deletes.
    */
@@ -5407,7 +5402,7 @@ export type PageAccountLinkingEmailRow = {
      * When the `link-emails` phase handed it to the email worker.
      */
     queued_at?: string | null
-    send_status?: null | EmailSendStatusReport
+    send_status?: EmailSendStatusReport | null
     /**
      * The name Sisu held for the student number when the mail went out.
      */
@@ -5425,7 +5420,7 @@ export type PageAdminCreditRegistrationRow = {
      * Every reason the Needs attention queue picks the row for; empty when it is not picked.
      */
     attention_reasons: Array<CreditRegistrationAttentionReason>
-    attention_standing?: null | AttentionStanding
+    attention_standing?: AttentionStanding | null
     completion_date: string
     course_id: string
     course_instance_id: string
@@ -5439,15 +5434,15 @@ export type PageAdminCreditRegistrationRow = {
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
-    engagement?: null | Engagement
+    engagement?: Engagement | null
     /**
      * The next scheduled enrolment check.
      */
     enrolment_check_due_at?: string | null
     enrolment_checked_at?: string | null
     enrolment_checks_stopped_at?: string | null
-    enrolment_route?: null | CreditRegistrationEnrolmentRoute
-    error_code?: null | CreditRegistrationErrorCode
+    enrolment_route?: CreditRegistrationEnrolmentRoute | null
+    error_code?: CreditRegistrationErrorCode | null
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
@@ -5471,7 +5466,7 @@ export type PageAdminCreditRegistrationRow = {
      * When verify first saw only the assessment item attainment.
      */
     partially_registered_at?: string | null
-    pending_reason?: null | CreditRegistrationPendingReason
+    pending_reason?: CreditRegistrationPendingReason | null
     phase: TimelinePhase
     /**
      * When the row entered its timeline phase: what "In this phase since" shows.
@@ -5517,7 +5512,7 @@ export type PageAdminCreditRegistrationRow = {
      */
     verified_student_number?: string | null
     verified_student_number_at?: string | null
-    verified_student_number_via?: null | StudentNumberVerificationMethod
+    verified_student_number_via?: StudentNumberVerificationMethod | null
     verify_attempt_count: number
     waits_on: WaitsOn
   }>
@@ -5571,8 +5566,8 @@ export type PageCreditRegistrationAdminActionRow = {
     actor_role: string
     actor_user_id: string
     affected_row_count?: number | null
-    after_state?: null | CreditRegistrationState
-    before_state?: null | CreditRegistrationState
+    after_state?: CreditRegistrationState | null
+    before_state?: CreditRegistrationState | null
     /**
      * The course the action was about: a teacher's own, a course target, or the course of a
      * targeted registration.
@@ -5704,7 +5699,6 @@ export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubm
 }
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -5888,7 +5882,7 @@ export type PublishBlocker =
       url_path: string
     }
   | {
-      chapter?: null | EntityRef
+      chapter?: EntityRef | null
       kind: "duplicate_page_order_number"
       order_number: number
       pages: Array<EntityRef>
@@ -5980,7 +5974,7 @@ export type PublishRejection =
       status: AgentChangesetStatus
     }
   | {
-      entity?: null | EntityRef
+      entity?: EntityRef | null
       message: string
       reason: "save_failed"
     }
@@ -6032,7 +6026,7 @@ export type RegradingInfo = {
 
 export type RegradingSubmissionInfo = {
   exercise_task_submission_id: string
-  grading_after_regrading?: null | ExerciseTaskGrading
+  grading_after_regrading?: ExerciseTaskGrading | null
   grading_before_regrading: ExerciseTaskGrading
 }
 
@@ -6075,7 +6069,7 @@ export type ResendLinkingEmailPayload = {
 }
 
 export type ResendLinkingEmailResult = {
-  linking_email?: null | TeacherLinkingEmailStatus
+  linking_email?: TeacherLinkingEmailStatus | null
   mails_sent_for_this_course: number
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
@@ -6165,7 +6159,7 @@ export type RetryCreditRegistrationPayload = {
 }
 
 export type RetryCreditRegistrationResult = {
-  refusal?: null | ResubmissionRefusal
+  refusal?: ResubmissionRefusal | null
   /**
    * Where the row stands after the attempt, whatever the answer.
    */
@@ -6236,7 +6230,6 @@ export type ReviewedRevisionRequest = {
 }
 
 /**
- *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export type ReviewingStage =
@@ -6382,9 +6375,9 @@ export type SetCreditJustificationPayload = {
  */
 export type SetEnrolmentRoutePayload = {
   has_finnish_personal_identity_code?: boolean | null
-  identification?: null | CreditRegistrationIdentification
-  need?: null | CreditRegistrationNeed
-  need_after_reconsider?: null | CreditRegistrationNeed
+  identification?: CreditRegistrationIdentification | null
+  need?: CreditRegistrationNeed | null
+  need_after_reconsider?: CreditRegistrationNeed | null
   route: CreditRegistrationEnrolmentRoute
 }
 
@@ -6451,7 +6444,7 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
-  name_change?: null | NameReplacement
+  name_change?: NameReplacement | null
   /**
    * The name Sisu holds for the student number. Sisu does not verify the address the link was
    * mailed to, so the name is what tells someone they are about to link someone else's number.
@@ -6474,7 +6467,7 @@ export type StudentRegistrationProgress = {
    * The steps before `current_step`, in order.
    */
   completed_steps: Array<CompletedProgressStep>
-  current_step?: null | StudentRegistrationProgressStep
+  current_step?: StudentRegistrationProgressStep | null
   /**
    * A send is out and we do not know yet whether it reached Sisu. Only with `current_step`
    * `sent_to_sisu`.
@@ -6561,15 +6554,15 @@ export type SuotarApiCallEvent = {
    * The `{request, response}` pair for this one item, scrubbed at write time.
    */
   details?: unknown
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
    * Our own wording for what the call did to the row.
    */
   message?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
@@ -6581,7 +6574,7 @@ export type SuotarApiCallLedgerReference = {
   course_name: string
   credit_registration_id: string
   email?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -7020,7 +7013,7 @@ export type UserDetail = {
    * by a database trigger on every address change, so a value here always refers to `email`.
    */
   email_verified_at?: string | null
-  email_verified_method?: null | EmailVerificationMethod
+  email_verified_method?: EmailVerificationMethod | null
   first_name?: string | null
   last_name?: string | null
   updated_at: string
@@ -7437,7 +7430,7 @@ export type GetCertificateByConfigurationIdResponses = {
   /**
    * Generated certificate
    */
-  200: null | GeneratedCertificate
+  200: GeneratedCertificate | null
 }
 
 export type GetCertificateByConfigurationIdResponse =
@@ -8645,7 +8638,7 @@ export type GetCourseModuleCompletionResponses = {
   /**
    * Best course module completion for the current user
    */
-  200: null | CourseModuleCompletion
+  200: CourseModuleCompletion | null
 }
 
 export type GetCourseModuleCompletionResponse =
@@ -11671,7 +11664,7 @@ export type GetCourseUserSettingsForUserResponses = {
   /**
    * User course settings
    */
-  200: null | UserCourseSettings
+  200: UserCourseSettings | null
 }
 
 export type GetCourseUserSettingsForUserResponse =
@@ -12827,7 +12820,7 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
   /**
    * The caller's registration for the module
    */
-  200: null | MyCreditRegistrationForCourseModule
+  200: MyCreditRegistrationForCourseModule | null
 }
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
@@ -13063,7 +13056,7 @@ export type GetMyVerifiedStudentNumberResponses = {
   /**
    * The caller's linked student number
    */
-  200: null | MyVerifiedStudentNumber
+  200: MyVerifiedStudentNumber | null
 }
 
 export type GetMyVerifiedStudentNumberResponse =
@@ -16055,7 +16048,7 @@ export type CreateTeacherGradingDecisionResponses = {
   /**
    * Teacher grading decision created
    */
-  200: null | UserExerciseState
+  200: UserExerciseState | null
 }
 
 export type CreateTeacherGradingDecisionResponse =

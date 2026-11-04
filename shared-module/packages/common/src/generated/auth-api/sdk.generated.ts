@@ -59,7 +59,6 @@ export type Options<
 }
 
 /**
- *
  * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
  * *
  */
@@ -78,7 +77,6 @@ export const postAuthAuthorize = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
  * Returns booleans for the authorizations in the same order as the input.
  * *
@@ -103,7 +101,6 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -127,7 +124,6 @@ export const postAuthDeleteUserAccount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/auth/logged-in` Returns the current user's login status.
  * *
  */
@@ -142,7 +138,6 @@ export const getAuthLoggedIn = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/login` Logs in to the system.
  * Returns LoginResponse indicating success, email verification required, or failure.
  * *
@@ -162,7 +157,6 @@ export const postAuthLogin = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/logout` Logs out.
  * *
  */
@@ -176,7 +170,6 @@ export const postAuthLogout = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -195,7 +188,6 @@ export const postAuthSendEmailCode = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
  *
  * # Example
@@ -235,7 +227,6 @@ export const postAuthSignup = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/auth/user-info` Returns the current user's info.
  * *
  */
@@ -250,7 +241,6 @@ export const getAuthUserInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
  * *
  */

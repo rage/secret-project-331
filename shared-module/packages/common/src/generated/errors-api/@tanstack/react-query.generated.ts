@@ -9,7 +9,6 @@ import { type Options, postError } from "../sdk.generated"
 import type { PostErrorData, PostErrorResponse } from "../types.generated"
 
 /**
- *
  * POST `/api/v0/errors` - Reports an error occurrence.
  *
  * Accessible to both authenticated and anonymous users. If the user is logged in, their id is stored with the error occurrence.

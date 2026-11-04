@@ -42,7 +42,6 @@ import type {
 } from "../types.generated"
 
 /**
- *
  * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
  * *
  */
@@ -65,7 +64,6 @@ export const postAuthAuthorizeMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
  * Returns booleans for the authorizations in the same order as the input.
  * *
@@ -93,7 +91,6 @@ export const postAuthAuthorizeMultipleMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -162,7 +159,6 @@ export const getAuthLoggedInQueryKey = (options?: Options<GetAuthLoggedInData>) 
   createQueryKey("getAuthLoggedIn", options)
 
 /**
- *
  * GET `/api/v0/auth/logged-in` Returns the current user's login status.
  * *
  */
@@ -184,7 +180,6 @@ export const getAuthLoggedInOptions = (options?: Options<GetAuthLoggedInData>) =
   })
 
 /**
- *
  * POST `/api/v0/auth/login` Logs in to the system.
  * Returns LoginResponse indicating success, email verification required, or failure.
  * *
@@ -208,7 +203,6 @@ export const postAuthLoginMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/logout` Logs out.
  * *
  */
@@ -227,7 +221,6 @@ export const postAuthLogoutMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -254,7 +247,6 @@ export const postAuthSendEmailCodeMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
  *
  * # Example
@@ -296,7 +288,6 @@ export const getAuthUserInfoQueryKey = (options?: Options<GetAuthUserInfoData>) 
   createQueryKey("getAuthUserInfo", options)
 
 /**
- *
  * GET `/api/v0/auth/user-info` Returns the current user's info.
  * *
  */
@@ -318,7 +309,6 @@ export const getAuthUserInfoOptions = (options?: Options<GetAuthUserInfoData>) =
   })
 
 /**
- *
  * POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
  * *
  */

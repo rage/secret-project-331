@@ -17,7 +17,7 @@
     "/api/v0/exercise-services/client/courses": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses\n *\n * Returns the courses that the user is currently enrolled on that contain exercises this\n * client can be served.",
+        "summary": "* GET /api/v0/exercise-services/client/courses\n *\n * Returns the courses that the user is currently enrolled on that contain exercises this\n * client can be served.",
         "operationId": "getClientCourses",
         "parameters": [
           {
@@ -85,7 +85,7 @@
     "/api/v0/exercise-services/client/courses/{id}": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id\n *\n * Returns the course with the given id.",
+        "summary": "* GET /api/v0/exercise-services/client/courses/:id\n *\n * Returns the course with the given id.",
         "operationId": "getClientCourse",
         "parameters": [
           {
@@ -170,7 +170,7 @@
     "/api/v0/exercise-services/client/courses/{id}/exercises": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks whose exercise service can serve this client.",
+        "summary": "* GET /api/v0/exercise-services/client/courses/:id/exercises\n *\n * Returns the user's exercise slides for the given course.\n * Does not return anything for chapters which are not open yet.\n * Selects slides for exercises with no slide selected yet.\n * Only returns slides which have tasks whose exercise service can serve this client.",
         "operationId": "getClientCourseExercises",
         "parameters": [
           {
@@ -258,7 +258,7 @@
     "/api/v0/exercise-services/client/courses/{id}/progress": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points, completed/attempted signals and standing. One round-trip; course totals are\n * derivable by summing the returned entries.",
+        "summary": "* GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points, completed/attempted signals and standing. One round-trip; course totals are\n * derivable by summing the returned entries.",
         "operationId": "getClientCourseProgress",
         "parameters": [
           {
@@ -343,7 +343,7 @@
     "/api/v0/exercise-services/client/exercises/{id}": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id\n *\n * Returns an exercise slide for the user for the given exercise.",
+        "summary": "* GET /api/v0/exercise-services/client/exercises/:id\n *\n * Returns an exercise slide for the user for the given exercise.",
         "operationId": "getClientExercise",
         "parameters": [
           {
@@ -438,7 +438,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/files": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.\n *\n * Gated on the caller being able to answer the exercise at all, so stored objects cannot be\n * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the\n * whole exercise here, because this route is bound to an exercise rather than a slide.",
+        "summary": "* POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.\n *\n * Gated on the caller being able to answer the exercise at all, so stored objects cannot be\n * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the\n * whole exercise here, because this route is bound to an exercise rather than a slide.",
         "operationId": "uploadClientExerciseFiles",
         "parameters": [
           {
@@ -544,7 +544,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submissions": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded.",
+        "summary": "* GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded.",
         "operationId": "getClientExerciseSubmissions",
         "parameters": [
           {
@@ -622,7 +622,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submit": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. A `file` answer names files previously stored\n * through this exercise's `files` endpoint, in the order they are to be graded; those files are the\n * answer. An answer that names no files is a JSON answer, carried in `data_json`.",
+        "summary": "* POST /api/v0/exercise-services/client/exercises/:id/submit\n *\n * Accepts an exercise submission from the user. A `file` answer names files previously stored\n * through this exercise's `files` endpoint, in the order they are to be graded; those files are the\n * answer. An answer that names no files is a JSON answer, carried in `data_json`.",
         "operationId": "submitClientExercise",
         "parameters": [
           {
@@ -728,7 +728,7 @@
     "/api/v0/exercise-services/client/submissions/{id}/download": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions list, or by\n * a submit's `slide_submission_id`) to the files it was made from, so the client can restore\n * an old submission.",
+        "summary": "* GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions list, or by\n * a submit's `slide_submission_id`) to the files it was made from, so the client can restore\n * an old submission.",
         "operationId": "downloadClientSubmission",
         "parameters": [
           {
@@ -813,7 +813,7 @@
     "/api/v0/exercise-services/client/submissions/{id}/grading": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * GET /api/v0/exercise-services/client/submissions/:id/grading\n *\n * Returns the grading status of the given submission.",
+        "summary": "* GET /api/v0/exercise-services/client/submissions/:id/grading\n *\n * Returns the grading status of the given submission.",
         "operationId": "getClientSubmissionGrading",
         "parameters": [
           {
@@ -898,7 +898,7 @@
     "/api/v0/exercise-services/client/submissions/{id}/share": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "\n * POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and returns\n * its URL.",
+        "summary": "* POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and returns\n * its URL.",
         "operationId": "shareClientSubmission",
         "parameters": [
           {
@@ -1159,11 +1159,11 @@
           "standing": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ExerciseStanding",
                 "description": "Absent only from a host that predates the field."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -1184,11 +1184,11 @@
           "chapter": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ExerciseChapter",
                 "description": "Absent for an exercise outside any chapter, and from a host that predates the field."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -1236,11 +1236,11 @@
           "answer_kind": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AnswerKind",
                 "description": "Absent means `json`. A client answering with files sends `file`."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -1281,10 +1281,10 @@
           "grading_progress": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/GradingProgress"
               },
               {
-                "$ref": "#/components/schemas/GradingProgress"
+                "type": "null"
               }
             ]
           },
@@ -1356,11 +1356,11 @@
                   "exercise_progress": {
                     "oneOf": [
                       {
-                        "type": "null"
-                      },
-                      {
                         "$ref": "#/components/schemas/ExerciseProgress",
                         "description": "The user's progress on the whole exercise as of this poll, so a client can record\ncompletion without a separate `courses/{id}/progress` round-trip. Absent for an exam\nexercise, and from a host that predates the field."
+                      },
+                      {
+                        "type": "null"
                       }
                     ]
                   },

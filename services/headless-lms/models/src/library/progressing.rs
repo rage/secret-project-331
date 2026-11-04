@@ -170,6 +170,19 @@ async fn create_automatic_course_module_completion_if_eligible(
         let eligible =
             user_is_eligible_for_automatic_completion(conn, course_module, user_id).await?;
         if eligible {
+            // ending questions are the last step in a course, so check their
+            // status after eligibility check
+            if course_module.ending_questions_required {
+                if  !course_module_ending_questions_answers::user_has_answered_all_questions_for_module_id(
+                    conn,
+                    &course_module.id,
+                    &course_module.course_id,
+                    &user_id
+                ).await? {
+                    info!("Cannot create completion because ending questions are required and user hasn't answered.");
+                    return Ok(None)
+                }
+            }
             let course = courses::get_course(conn, course_module.course_id).await?;
             let user = users::get_by_id(conn, user_id).await?;
             if user.deleted_at.is_some() {

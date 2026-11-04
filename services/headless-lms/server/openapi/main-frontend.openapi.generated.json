@@ -29846,7 +29846,8 @@
           "automatic_completion",
           "requires_exam",
           "requires_ending_questionnaire",
-          "ending_questionnaire_answered"
+          "ending_questionnaire_answered",
+          "completion_attained"
         ],
         "properties": {
           "attempted_exercises": {
@@ -29860,6 +29861,9 @@
           "automatic_completion": {
             "type": "boolean",
             "description": "False when a teacher grades the module, in which case neither threshold applies."
+          },
+          "completion_attained": {
+            "type": "boolean"
           },
           "course_module_id": {
             "type": "string",

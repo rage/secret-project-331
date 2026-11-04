@@ -7,6 +7,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{
+    course_module_completions::{self},
     course_module_ending_questions_answers::user_has_answered_all_questions_for_course_indexed_by_module_id,
     course_modules::{self, CourseModule},
     courses,
@@ -120,6 +121,7 @@ pub struct UserCourseProgress {
     pub requires_exam: bool,
     pub requires_ending_questionnaire: bool,
     pub ending_questionnaire_answered: bool,
+    pub completion_attained: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -407,11 +409,18 @@ pub async fn get_user_course_progress(
     let user_answered_module_end_questions =
         user_has_answered_all_questions_for_course_indexed_by_module_id(conn, &course_id, &user_id)
             .await?;
+    let user_module_completions =
+        course_module_completions::get_all_by_course_id_and_user_id(conn, course_id, user_id)
+            .await?
+            .iter()
+            .map(|x| (x.course_module_id, true))
+            .collect::<HashMap<Uuid, bool>>();
     merge_modules_with_metrics(
         course_modules,
         &course_metrics,
         &user_metrics,
         &user_answered_module_end_questions,
+        &user_module_completions,
         &course_name,
     )
 }
@@ -565,6 +574,7 @@ fn merge_modules_with_metrics(
     course_metrics_by_course_module_id: &HashMap<Uuid, CourseExerciseMetrics>,
     user_metrics_by_course_module_id: &HashMap<Uuid, UserCourseMetrics>,
     end_questions_answered_by_course_module_id: &HashMap<Uuid, bool>,
+    user_module_completions: &HashMap<Uuid, bool>,
     default_course_module_name_placeholder: &str,
 ) -> ModelResult<Vec<UserCourseProgress>> {
     course_modules
@@ -574,6 +584,9 @@ fn merge_modules_with_metrics(
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
             let requirements = course_module.completion_policy.automatic();
             let answered_module_end_questions = end_questions_answered_by_course_module_id
+                .get(&course_module.id)
+                .unwrap_or(&false);
+            let attained_completion = user_module_completions
                 .get(&course_module.id)
                 .unwrap_or(&false);
             let progress = UserCourseProgress {
@@ -605,6 +618,7 @@ fn merge_modules_with_metrics(
                 requires_exam: requirements.is_some_and(|x| x.requires_exam),
                 requires_ending_questionnaire: course_module.ending_questions_required,
                 ending_questionnaire_answered: *answered_module_end_questions,
+                completion_attained: *attained_completion,
             };
             Ok(progress)
         })
@@ -1605,11 +1619,13 @@ mod tests {
             },
         )]);
         let end_questions_answered_by_course_module_id = HashMap::from([(module_id, false)]);
+        let completions = HashMap::from([(module_id, false)]);
         let metrics = merge_modules_with_metrics(
             course_modules,
             &course_metrics_by_course_module_id,
             &user_metrics_by_course_module_id,
             &end_questions_answered_by_course_module_id,
+            &completions,
             "Default module",
         )
         .unwrap();

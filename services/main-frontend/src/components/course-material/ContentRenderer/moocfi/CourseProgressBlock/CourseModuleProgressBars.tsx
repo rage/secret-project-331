@@ -73,19 +73,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   const setShowEndQuestionnaire = useSetAtom(needsToAnswerEndQuestionnaire)
 
   useEffect(() => {
-    console.log(
-      "given:",
-      points.given,
-      "required:",
-      points.required,
-      "given:",
-      exercises.given,
-      "required:",
-      exercises.required,
-      courseModuleProgress.requires_ending_questionnaire,
-      courseModuleProgress.ending_questionnaire_answered,
-    )
-    let meetsRequirements =
+    let shouldShow =
       points.given !== null &&
       points.required !== null &&
       points.given >= points.required &&
@@ -93,9 +81,10 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
       exercises.required !== null &&
       exercises.given >= exercises.required &&
       courseModuleProgress.requires_ending_questionnaire &&
-      !courseModuleProgress.ending_questionnaire_answered
+      !courseModuleProgress.ending_questionnaire_answered &&
+      !courseModuleProgress.completion_attained
 
-    setShowEndQuestionnaire(meetsRequirements)
+    setShowEndQuestionnaire(shouldShow)
   }, [courseModuleProgress, points, exercises, setShowEndQuestionnaire])
 
   // todo: show the congratulations block and update text for course/module

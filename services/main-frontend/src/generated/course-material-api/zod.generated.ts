@@ -1428,6 +1428,7 @@ export const zUserCourseProgress = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   automatic_completion: z.boolean(),
+  completion_attained: z.boolean(),
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z

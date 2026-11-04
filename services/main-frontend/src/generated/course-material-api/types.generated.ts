@@ -1375,6 +1375,7 @@ export type UserCourseProgress = {
    * False when a teacher grades the module, in which case neither threshold applies.
    */
   automatic_completion: boolean
+  completion_attained: boolean
   course_module_id: string
   course_module_name: string
   course_module_order_number: number

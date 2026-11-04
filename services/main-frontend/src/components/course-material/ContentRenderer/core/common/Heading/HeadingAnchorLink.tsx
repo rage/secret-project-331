@@ -25,23 +25,14 @@ const FEEDBACK_VISIBLE_MS = 2000
 const ICON_SIZE_PX = 16
 const INLINE_SPAN = "span" as const
 
-/* Takes no space, so the icon never wraps onto a line of its own or makes a line taller. At the end of
-   a full line the icon hangs into the margin instead. */
-const slotStyles = css`
-  display: inline-block;
-  position: relative;
-  width: 0;
-  height: 0;
-  vertical-align: middle;
-`
-
+/* Hangs in the margin left of the heading, centered on its first line. Needs a positioned heading. */
 const linkStyles = css`
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 0;
-  left: 0.4rem;
+  top: 0.5lh;
+  right: 100%;
   transform: translateY(-50%);
   padding: 4px;
   border-radius: 4px;
@@ -146,29 +137,27 @@ const HeadingAnchorLink: React.FC<HeadingAnchorLinkProps> = ({ anchorId, heading
 
   return (
     <>
-      <span className={slotStyles}>
-        <a
-          {...mergeProps(triggerProps, { onClick: handleClick })}
-          ref={linkRef}
-          href={`#${anchorId}`}
-          className={cx(HEADING_ANCHOR_LINK_CLASS, linkStyles)}
-          data-status={copyStatus}
-          aria-label={t("copy-link-to-section", { heading: headingText })}
-        >
-          {copyStatus === COPY_STATUS.SUCCESS ? (
-            <CheckCircle size={ICON_SIZE_PX} />
-          ) : copyStatus === COPY_STATUS.ERROR ? (
-            <XmarkCircle size={ICON_SIZE_PX} />
-          ) : (
-            <Link size={ICON_SIZE_PX} />
-          )}
-          {tooltipState.isOpen && (
-            <span {...mergeProps(triggerTooltipProps, tooltipProps)} className={tooltipStyles}>
-              {statusMessage}
-            </span>
-          )}
-        </a>
-      </span>
+      <a
+        {...mergeProps(triggerProps, { onClick: handleClick })}
+        ref={linkRef}
+        href={`#${anchorId}`}
+        className={cx(HEADING_ANCHOR_LINK_CLASS, linkStyles)}
+        data-status={copyStatus}
+        aria-label={t("copy-link-to-section", { heading: headingText })}
+      >
+        {copyStatus === COPY_STATUS.SUCCESS ? (
+          <CheckCircle size={ICON_SIZE_PX} />
+        ) : copyStatus === COPY_STATUS.ERROR ? (
+          <XmarkCircle size={ICON_SIZE_PX} />
+        ) : (
+          <Link size={ICON_SIZE_PX} />
+        )}
+        {tooltipState.isOpen && (
+          <span {...mergeProps(triggerTooltipProps, tooltipProps)} className={tooltipStyles}>
+            {statusMessage}
+          </span>
+        )}
+      </a>
       {/* Rendered even while empty: a live region has to be in the accessibility tree before its
           content changes, or the change goes unannounced. */}
       <VisuallyHidden elementType={INLINE_SPAN} role="status">

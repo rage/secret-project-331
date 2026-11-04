@@ -7,7 +7,7 @@
 FROM node:24-slim AS build
 WORKDIR /app
 
-RUN npm install --global pnpm@11
+RUN npm install --global pnpm@12
 
 # Dependencies before sources, so editing a component does not reinstall them.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./

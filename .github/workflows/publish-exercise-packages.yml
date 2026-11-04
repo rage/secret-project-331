@@ -48,7 +48,7 @@ jobs:
         run: |
           corepack enable
           # Keep in sync with the root packageManager field (>= a fixed pnpm 11.x for OIDC publish).
-          corepack prepare pnpm@11.9.0 --activate
+          corepack prepare pnpm@12.11.2 --activate
           echo "node $(node -v), pnpm $(pnpm -v), npm $(npm -v)"
 
       - name: Derive release version from tag

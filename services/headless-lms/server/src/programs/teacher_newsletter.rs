@@ -3,6 +3,7 @@ use crate::setup_tracing;
 
 use chrono::Utc;
 use dotenvy::dotenv;
+use headless_lms_base::config::ApplicationConfiguration;
 use sqlx::{PgConnection, PgPool};
 
 use headless_lms_models as models;
@@ -16,12 +17,15 @@ use models::library::course_stats::{
     get_total_users_started_course_custom_time_period,
 };
 use models::teacher_newsletter::{create_newsletter_item, get_teacher_newsletter_subscriptions};
+use uuid::Uuid;
 
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
 
+    let app_conf = ApplicationConfiguration::try_from_env()?;
+    let base_url = &app_conf.base_url;
     let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -45,7 +49,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     info!("Period start: {}, Period end: {}", period_start, period_end);
 
-    create_newsletter_items(&mut conn, courses, &period_start, &period_end).await?;
+    create_newsletter_items(&mut conn, courses, &period_start, &period_end, base_url).await?;
 
     let teachers = get_teacher_newsletter_subscriptions(&mut conn).await?;
 
@@ -62,6 +66,8 @@ pub async fn main() -> anyhow::Result<()> {
 }
 
 fn as_html(
+    base_url: &str,
+    course_id: Uuid,
     course_name: &String,
     returned_exercises_count: i64,
     completed_course_count: i64,
@@ -69,12 +75,17 @@ fn as_html(
     flagged_cheaters_count: i64,
 ) -> String {
     format!(
-        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;"><tbody><tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students started course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students flagged as cheaters</p></td></tr></tbody></table>"#,
+        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed"><tbody><tr>{}<tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students started course</p></td></tr></tbody></table>"#,
         course_name,
+        apply_warning_conditional(
+            base_url,
+            flagged_cheaters_count,
+            "Students flagged as cheaters",
+            format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
+        ),
         returned_exercises_count,
         completed_course_count,
         started_course_count,
-        flagged_cheaters_count
     )
 }
 
@@ -86,7 +97,7 @@ fn as_text(
     flagged_cheaters_count: i64,
 ) -> String {
     format!(
-        "{}\n\n* {} students returned exercises\n* {} students completed the course\n* {} students started the course\n* {} students flagged as cheaters\n",
+        "{}\n\n* {} students returned exercises\n* {} students completed the course\n* {} students started the course\n* {} students flagged as cheaters\n\n",
         course_name,
         returned_exercises_count,
         completed_course_count,
@@ -112,6 +123,7 @@ async fn create_newsletter_items(
     courses: Vec<Course>,
     period_start: &String,
     period_end: &String,
+    base_url: &str,
 ) -> anyhow::Result<()> {
     for course in courses {
         let returned_exercises_count = get_total_users_returned_exercises_custom_time_period(
@@ -149,6 +161,8 @@ async fn create_newsletter_items(
             .await?;
 
         let html = as_html(
+            base_url,
+            course.id,
             &course.name,
             returned_exercises_count,
             completed_course_count,
@@ -167,4 +181,25 @@ async fn create_newsletter_items(
         create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;
     }
     Ok(())
+}
+
+fn apply_warning_conditional(base_url: &str, count: i64, label: &str, link: &str) -> String {
+    let border_color = if count > 0 { "#ffd444" } else { "#EBEDEE" };
+    let bg_color = if count > 0 {
+        "rgba(255, 212, 68, 0.12)"
+    } else {
+        "none"
+    };
+
+    // BUILD THE BUTTON AS TABLE INSTEAD!?
+    format!(
+        r#"<td style="border: 3px solid {}; background: {}; border-radius: 12px;">
+            <p style="font-size: 32px; text-align: center; margin-top: 1rem;">{}</p>
+            <p style="text-align: center; font-weight: 700; color: #1a2333;">{}</p>
+            <p style="text-align: center; margin: 0;">
+                <a href="{base_url}/{}" style="text-decoration: none; background-color: #1F6964; color: #ffffff; padding: 12px 24px; font-weight: 600; border-radius: 6px; display: inline-block;">Take action</a>
+            </p>
+        </td>"#,
+        border_color, bg_color, count, label, link
+    )
 }

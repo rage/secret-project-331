@@ -11,9 +11,9 @@ pub const SUBMIT_BASE_BACKOFF: TimeDelta = TimeDelta::minutes(1);
 pub const SUBMIT_MAX_BACKOFF: TimeDelta = TimeDelta::hours(6);
 /// After this long in failure a row stops being retried and becomes a support case.
 pub const SUBMIT_MAX_RETRY_AGE: TimeDelta = TimeDelta::days(7);
-/// Registrations land between about 5 and 29 hours after the submission, most of them in the first
-/// half: polls start shortly before, are close together through the dense part, and back off after.
-const VERIFY_WINDOW_START: TimeDelta = TimeDelta::minutes(270);
+/// When the first verify poll comes after the submission: about when the assessment item
+/// attainment usually shows.
+const VERIFY_WINDOW_START: TimeDelta = TimeDelta::hours(2);
 const VERIFY_DENSE_WINDOW_END: TimeDelta = TimeDelta::minutes(630);
 const VERIFY_WINDOW_END: TimeDelta = TimeDelta::hours(29);
 pub const VERIFY_WINDOW_INTERVAL: TimeDelta = TimeDelta::minutes(30);
@@ -74,9 +74,8 @@ pub fn submit_backoff(retry_count: i32) -> TimeDelta {
     doubling(SUBMIT_BASE_BACKOFF, SUBMIT_MAX_BACKOFF, retry_count)
 }
 
-/// The wait from `now` until the next verify poll of a row submitted at `submitted_at`. Timed from
-/// the submission rather than by counting polls, so a resumed or delayed row still polls at the
-/// times registrations land.
+/// The wait until the next verify poll while the assessment item attainment is not seen yet. Timed
+/// from the submission rather than by counting polls, so a delayed row still polls when it is due.
 pub fn verify_delay(submitted_at: Option<DateTime<Utc>>, now: DateTime<Utc>) -> TimeDelta {
     let Some(submitted_at) = submitted_at else {
         return VERIFY_WINDOW_INTERVAL;
@@ -136,8 +135,8 @@ mod tests {
         let now = Utc::now();
         let delay = |age: TimeDelta| verify_delay(Some(now - age), now);
         assert_eq!(delay(TimeDelta::zero()), VERIFY_WINDOW_START);
-        assert_eq!(delay(TimeDelta::hours(3)), TimeDelta::minutes(90));
-        assert_eq!(delay(TimeDelta::minutes(270)), VERIFY_WINDOW_INTERVAL);
+        assert_eq!(delay(TimeDelta::minutes(90)), TimeDelta::minutes(30));
+        assert_eq!(delay(TimeDelta::hours(2)), VERIFY_WINDOW_INTERVAL);
         assert_eq!(delay(TimeDelta::hours(10)), VERIFY_WINDOW_INTERVAL);
         assert_eq!(delay(TimeDelta::hours(11)), VERIFY_LATE_WINDOW_INTERVAL);
         assert_eq!(delay(TimeDelta::hours(28)), VERIFY_LATE_WINDOW_INTERVAL);

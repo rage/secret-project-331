@@ -9,6 +9,8 @@ use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
+use crate::strings::escape_html;
+
 static ALL_TAG_REGEX: Lazy<Regex> =
     Lazy::new(|| Regex::new(r"<.+?>").expect("invalid all_tags regex"));
 static LINK_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -790,19 +792,10 @@ fn html_to_preformatted_text(html: &str) -> String {
     });
     let with_breaks = with_links.replace("<br>", "\n");
     let text = ALL_TAG_REGEX.replace_all(&with_breaks, "");
-    decode_html_entities(&text)
+    crate::strings::decode_html_entities(&text)
         .trim_start_matches(['\r', '\n'])
         .trim_end()
         .to_string()
-}
-
-fn decode_html_entities(text: &str) -> String {
-    text.replace("&nbsp;", " ")
-        .replace("&lt;", "<")
-        .replace("&gt;", ">")
-        .replace("&quot;", "\"")
-        .replace("&#39;", "'")
-        .replace("&amp;", "&")
 }
 
 /// What a shell's placeholders are filled with.
@@ -914,21 +907,6 @@ pub fn layout_warnings(layout_html: &str) -> Vec<String> {
         }
     }
     warnings
-}
-
-fn escape_html(text: &str) -> String {
-    let mut escaped = String::with_capacity(text.len());
-    for c in text.chars() {
-        match c {
-            '&' => escaped.push_str("&amp;"),
-            '<' => escaped.push_str("&lt;"),
-            '>' => escaped.push_str("&gt;"),
-            '"' => escaped.push_str("&quot;"),
-            '\'' => escaped.push_str("&#39;"),
-            _ => escaped.push(c),
-        }
-    }
-    escaped
 }
 
 #[cfg(test)]

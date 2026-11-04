@@ -173,6 +173,11 @@ pub async fn get_exercise_task_by_id(
     Ok(exercise_task)
 }
 
+/// The stable per-service id an exercise service sees in place of a user's real id.
+pub fn pseudonymous_user_id(exercise_service_id: &Uuid, user_id: &Uuid) -> Uuid {
+    Uuid::new_v5(exercise_service_id, user_id.as_bytes())
+}
+
 pub async fn get_course_material_exercise_tasks(
     conn: &mut PgConnection,
     exercise_slide_id: Uuid,
@@ -244,7 +249,7 @@ pub async fn get_course_material_exercise_tasks(
             exercise_slide_id: exercise_task.exercise_slide_id,
             exercise_iframe_url: Some(exercise_iframe_url.to_string()),
             pseudonumous_user_id: user_id
-                .map(|uid| Uuid::new_v5(&service_info.exercise_service_id, uid.as_bytes())),
+                .map(|uid| pseudonymous_user_id(&service_info.exercise_service_id, &uid)),
             assignment: exercise_task.assignment,
             public_spec: exercise_task.public_spec,
             model_solution_spec,

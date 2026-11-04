@@ -86,6 +86,14 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
       default: true,
     },
   },
+  allowedBlocks: ["moocfi/exercise-settings", "moocfi/exercise-slides"],
+  innerBlocksArea: {
+    template: [
+      ["moocfi/exercise-settings", {}],
+      ["moocfi/exercise-slides", {}],
+    ],
+    templateLock: "all",
+  },
   edit: enforceExerciseIdDefined(ExerciseEditor),
   save: ExerciseSave,
 }

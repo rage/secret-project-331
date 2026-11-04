@@ -4,12 +4,12 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { AdminManualLinkingEmailSend } from "@/generated/api/types.generated"
-import { formatUserName } from "@/hooks/useUserDetails"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { sentenceWithEmailAddress } from "../EmailAddress"
 import { noteCss, stackedCellCss } from "../styles"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
+import { actorName } from "./actorName"
 
 const SENTENCES = {
   candidate: {
@@ -39,13 +39,11 @@ const ManualLinkingEmailSendLines: React.FC<Props> = ({ sends, variant }) => {
     <span className={stackedCellCss}>
       {sends.map((send) => {
         const values = {
-          name:
-            formatUserName({
-              first_name: send.sent_by_first_name,
-              last_name: send.sent_by_last_name,
-            }) ||
-            send.sent_by_email ||
-            t("missing-name"),
+          name: actorName(t, {
+            firstName: send.sent_by_first_name,
+            lastName: send.sent_by_last_name,
+            email: send.sent_by_email,
+          }),
           time: formatZonedTimestamp(new Date(send.sent_at)),
         }
         return (

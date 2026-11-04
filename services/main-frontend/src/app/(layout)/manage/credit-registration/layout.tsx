@@ -15,7 +15,8 @@ import {
   useHasBlockingProblem,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import { CREDIT_REGISTRATION_NS } from "@/components/credit-registration/constants"
-import { pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { flushTabListCss, pageTitleCss, sectionsCss } from "@/components/credit-registration/styles"
+import { ADMINISTRATE_CREDIT_REGISTRATIONS } from "@/components/credit-registration/teacherCreditRegistrations"
 import { cleanTimestampsOnCopy } from "@/components/credit-registration/ZonedTimestamp"
 import { resolveActiveTab } from "@/components/Navigation/RouteTabList/resolveActiveTab"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
@@ -45,11 +46,8 @@ const KEY_LINKING = "linking"
 const KEY_SYSTEM = "system"
 const KEY_ENROLMENT_CHECKS = "enrolment-checks"
 const KEY_AUDIT = "audit"
-
-// The shared tab list carries its own bottom margin; this shell's grid owns every gap instead.
-const flushTabListCss = css`
-  margin-bottom: 0;
-`
+/** Tabs whose deeper routes are sub-tabs, so they keep the tab's heading. */
+const TAB_KEYS_WITH_SUB_TABS: ReadonlySet<string> = new Set([KEY_LINKING])
 
 /** Wider than the site's centred column: the tables here have more columns than it fits. */
 const wideCss = css`
@@ -60,13 +58,6 @@ const wideCss = css`
   /* Inherited: server text, names and ids can hold runs longer than any card here. */
   overflow-wrap: break-word;
 `
-
-const ADMINISTRATE_CREDIT_REGISTRATIONS = [
-  {
-    action: { type: "administrate_credit_registrations" },
-    resource: { type: "global_permissions" },
-  },
-] as const
 
 /** Split out so the breadcrumb and the tab count queries never run for a reader the gate turns away. */
 const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -148,7 +139,9 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
   const activeTab = resolveActiveTab(tabs, pathname ?? "")
   // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
   // heading of its own (the student's name) — the tab title above it would only contradict it.
-  const isTabOwnPage = activeTab !== undefined && pathname === activeTab.href
+  const showsTabHeading =
+    activeTab !== undefined &&
+    (pathname === activeTab.href || TAB_KEYS_WITH_SUB_TABS.has(activeTab.key))
 
   return (
     <BreakFromCentered sidebar={false}>
@@ -156,7 +149,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         <BreadcrumbRenderer inPage />
         <RouteTabPageTitle tabs={tabs} entityName={null} order={20} />
         <RouteTabList tabs={tabs} className={flushTabListCss} />
-        {isTabOwnPage && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
+        {showsTabHeading && <h1 className={pageTitleCss}>{activeTab.title}</h1>}
         {children}
       </div>
     </BreakFromCentered>

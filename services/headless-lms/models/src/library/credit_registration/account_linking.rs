@@ -5,7 +5,7 @@
 //! The token is minted bound to no account: the recipient's Sisu address is routinely not the
 //! address on their account here, so the click while logged in is what creates the binding.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use chrono::TimeDelta;
 use secrecy::ExposeSecret;
@@ -67,8 +67,8 @@ pub struct DiscoveredPerson {
     pub first_names: Option<DbSecret>,
     pub last_name: Option<DbSecret>,
     pub course_id: Uuid,
-    /// Their primary address in Sisu, trimmed: the one students are told to check, and each address
-    /// mailed would spend one of the person's mails for the course. See [`mail_address`].
+    /// The one address in Sisu we mail, trimmed: each address mailed would spend one of the
+    /// person's mails for the course. See [`mail_address`].
     pub address: Option<DbSecret>,
 }
 
@@ -87,14 +87,59 @@ impl DiscoveredPerson {
     }
 }
 
-/// The address a linking mail to `person` goes to, if Sisu holds one.
+/// The address a linking mail to `person` goes to, if Sisu holds one: the primary, else the
+/// secondary.
+///
+/// Sisu verifies neither, so the confirmation page shows the Sisu name to make a planted address
+/// harder to exploit. Open University students without a University account often have only a
+/// secondary address, and Sisu clears old primaries.
 pub fn mail_address(person: &RosterPerson) -> Option<DbSecret> {
-    person
-        .primary_email
-        .as_ref()
+    listed_addresses(person).next().map(DbSecret::new)
+}
+
+/// The person's non-empty Sisu addresses, trimmed, primary first.
+pub fn listed_addresses(person: &RosterPerson) -> impl Iterator<Item = &str> {
+    [&person.primary_email, &person.secondary_email]
+        .into_iter()
+        .flatten()
         .map(|address| address.expose_secret().trim())
         .filter(|address| !address.is_empty())
-        .map(DbSecret::new)
+}
+
+/// For each of the lowercased `addresses` that is the account email of someone with a completion
+/// the push path will register (`credit_registration_eligible_completions`, prerequisites met and
+/// not held for review) on one of `course_ids` created at or after `since`, the courses it is on.
+pub async fn registerable_completion_courses_by_account_email(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+    since: DateTime<Utc>,
+    addresses: &[String],
+) -> ModelResult<HashMap<String, BTreeSet<Uuid>>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT DISTINCT lower(user_details.email) AS "email!",
+  ec.course_id AS "course_id!"
+FROM credit_registration_eligible_completions ec
+  JOIN user_details ON user_details.user_id = ec.user_id
+WHERE ec.course_id = ANY($1::uuid [])
+  AND ec.created_at >= $2
+  AND ec.fully_eligible
+  AND lower(user_details.email) = ANY($3::text [])
+        "#,
+        course_ids,
+        since,
+        addresses,
+    )
+    .fetch_all(conn)
+    .await?;
+    let mut courses_by_email: HashMap<String, BTreeSet<Uuid>> = HashMap::new();
+    for row in rows {
+        courses_by_email
+            .entry(row.email)
+            .or_default()
+            .insert(row.course_id);
+    }
+    Ok(courses_by_email)
 }
 
 /// What claiming a linking mail did for one person. Ordered from weakest to strongest, so the

@@ -26,6 +26,7 @@ FROM eu.gcr.io/moocfi-public/project-331-node-base:latest AS runtime
 # Traced from /app (see next.config.js): source/ plus the pnpm/store/ files its symlinks point into
 COPY --from=builder /app/source/.next/standalone /app
 COPY --from=builder /app/source/.next/static /app/source/.next/static
+COPY --from=builder /app/source/dist/block-validator-worker.cjs /app/source/dist/block-validator-worker.cjs
 
 USER node
 

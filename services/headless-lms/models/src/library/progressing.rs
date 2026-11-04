@@ -758,6 +758,9 @@ pub struct UserCompletionInformation {
     /// The module's own name, `None` on a course's default module.
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
+    /// The module's open university enrolment page: the same link the credit registration carries,
+    /// here so the page has it before the registration exists.
+    pub enrolment_link: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
     /// Whether the module has a course code, without which its completions are never registered.
@@ -862,10 +865,17 @@ pub async fn get_user_completion_information(
         course_name: course.name.clone(),
         course_module_name: course_module.name.clone(),
         uh_course_code: course_module.uh_course_code.clone(),
+        enrolment_link: course_module
+            .completion_registration_link_override
+            .as_deref()
+            .map(str::trim)
+            .filter(|link| !link.is_empty())
+            .map(str::to_owned),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
         registers_credits: course_modules::registers_credits(
             course_module.uh_course_code.as_deref(),
+            course_module.completions_can_be_registered_to_sisu,
         ),
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
         status_before_registration,
@@ -961,6 +971,7 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .is_some_and(|x| x.prerequisite_modules_completed),
                 registers_credits: course_modules::registers_credits(
                     module.uh_course_code.as_deref(),
+                    module.completions_can_be_registered_to_sisu,
                 ),
                 register_credits_via_suotar: completion.is_some()
                     && registers_via_suotar_module_ids.contains(&module.id),
@@ -983,7 +994,10 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
-    if !course_modules::registers_credits(course_module.uh_course_code.as_deref()) {
+    if !course_modules::registers_credits(
+        course_module.uh_course_code.as_deref(),
+        course_module.completions_can_be_registered_to_sisu,
+    ) {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Completion registration is not enabled for this course module.".to_string(),
@@ -1065,11 +1079,13 @@ mod tests {
             conn: &mut PgConnection,
             course_module_id: Uuid,
             certification_enabled: bool,
+            user_id: Uuid,
         ) -> CourseModule {
             course_modules::update_certification_enabled(
                 conn,
                 course_module_id,
                 certification_enabled,
+                user_id,
             )
             .await
             .unwrap();
@@ -1176,7 +1192,7 @@ mod tests {
         #[tokio::test]
         async fn offers_the_certificate_a_passed_completion_has_earned() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             let configuration_id =
                 certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
@@ -1194,7 +1210,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_when_the_module_has_certification_off() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, false).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, false, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1208,7 +1224,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_for_a_failed_completion() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, false).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1222,7 +1238,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_while_the_completion_is_under_review() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
             course_module_completions::update_needs_to_be_reviewed(
@@ -1243,7 +1259,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_this_module_alone_does_not_earn() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let other_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -1260,7 +1276,7 @@ mod tests {
         #[tokio::test]
         async fn carries_back_the_answer_the_student_already_gave() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             crate::completion_registration_credit_justifications::upsert(
                 tx.as_mut(),

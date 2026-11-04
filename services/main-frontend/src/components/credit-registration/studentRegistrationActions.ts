@@ -3,10 +3,7 @@
 import { useTranslation } from "react-i18next"
 
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import {
-  completionRegistrationRoute,
-  userSettingsStudentNumberRoute,
-} from "@/shared-module/common/utils/routes"
+import { userSettingsStudentNumberRoute } from "@/shared-module/common/utils/routes"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import { CREDIT_REGISTRATION_NS } from "./constants"
@@ -15,12 +12,6 @@ import { useRequestEnrolmentRecheck } from "./enrolmentActions"
 import type { FailureAction } from "./registrationFailures"
 import { failureActionLabel, failureActions } from "./registrationFailures"
 import type { RegistrationCardAction } from "./RegistrationStatusCard"
-
-export interface StudentRegistrationActionsOptions {
-  registration: MyCreditRegistration
-  /** Set on a list. The registration's own status page has nowhere further to send the reader. */
-  linkToStatusPage: boolean
-}
 
 export interface StudentRegistrationActions {
   /** Null when nothing this student does helps; the explanation then says who is on it. */
@@ -35,20 +26,15 @@ const ACTION_KEY = {
   enrol: "enrol",
   recheckEnrolment: RECHECK_ENROLMENT_ACTION_KEY,
   checkStudentNumber: "check-student-number",
-  details: "details",
 }
 
 /**
- * The levers one student may pull on one registration, in the order they should be offered.
- *
- * The one place that answers it, so the hub, the status page and the settings card cannot come to
- * offer a state a button on one and a grey note on another. Pair it with
- * `StudentRegistrationExplanation`, which says the matching sentence.
+ * The levers one student may pull on one registration on its status page, in the order they
+ * should be offered. Pair it with `StudentRegistrationExplanation`, which says the matching sentence.
  */
-export const useStudentRegistrationActions = ({
-  registration,
-  linkToStatusPage,
-}: StudentRegistrationActionsOptions): StudentRegistrationActions => {
+export const useStudentRegistrationActions = (
+  registration: MyCreditRegistration,
+): StudentRegistrationActions => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const recheckEnrolment = useRequestEnrolmentRecheck()
 
@@ -113,14 +99,6 @@ export const useStudentRegistrationActions = ({
     if (recheck) {
       levers.push(recheck)
     }
-  }
-
-  if (linkToStatusPage && (state === "failed" || state === "action-needed")) {
-    levers.push({
-      key: ACTION_KEY.details,
-      label: state === "failed" ? t("link-text-see-what-happened") : t("link-text-what-to-do"),
-      href: completionRegistrationRoute(registration.course_module_id),
-    })
   }
 
   const [primaryAction, ...secondaryActions] = levers

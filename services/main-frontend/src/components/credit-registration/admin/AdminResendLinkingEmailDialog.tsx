@@ -8,6 +8,7 @@ import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getAccountLinkingStatsQueryKey,
+  listAccountLinkingEmailsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
@@ -20,6 +21,7 @@ import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { AUDIT_ACTION } from "./auditActions"
 import { ResendOutcomeNotice } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
@@ -83,6 +85,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
         queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: listAccountLinkingEmailsQueryKey() }),
       ])
     }
   }
@@ -135,6 +138,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.RESEND_LINK_EMAIL}
             description={t("credit-registration-admin-resend-reason-description")}
             isRequired={override}
           />

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo } from "react"
+import type { Key } from "react-aria"
 import type {
   Control,
   DefaultValues,
@@ -19,7 +20,7 @@ import usePaginationInfo, {
 import type { QueryParamFilters } from "./useQueryParamFilters"
 import { useQueryParamFilters } from "./useQueryParamFilters"
 
-export type FilterFieldValue = string | boolean
+export type FilterFieldValue = string | boolean | Set<Key>
 
 export interface FilterFieldDescriptor<Fields extends FieldValues> {
   /** The query string parameter this field reads from and writes to. */

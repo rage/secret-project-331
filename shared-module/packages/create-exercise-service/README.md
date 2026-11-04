@@ -13,15 +13,16 @@ bin/create-exercise-service
 pnpm create-exercise-service
 ```
 
-It asks for a project name, a target path, the project type, a package manager, and a dev
-server port, then creates the project at the path you gave.
+It asks for a project name, a target path, the project type and a dev server port, then creates
+the project at the path you gave. The generated project uses pnpm (its Dockerfile, Playwright config
+and `packageManager` field assume it).
 
 After it finishes:
 
 ```bash
 cd <your-project>
-<package-manager> install
-<package-manager> run dev
+pnpm install
+pnpm run dev
 ```
 
 ## What it generates

@@ -70,6 +70,7 @@
     "zstddec": "^0.3.4"
   },
   "devDependencies": {
+    "@react-types/shared": "^3.37.0",
     "@rsbuild/core": "^2.2.14",
     "@rsbuild/plugin-node-polyfill": "^1.4.6",
     "@rsbuild/plugin-react": "^2.1.1",

@@ -19,16 +19,23 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 // whole family is invalidated by query id rather than by the one key the caller happens to know.
 const CREDIT_REGISTRATION_FOR_COURSE_MODULE_QUERY_ID = "getMyCreditRegistrationForCourseModule"
 
-/** Every student-facing view of a registration, for an action that moved the ledger row itself. */
+/**
+ * Every student-facing view of a registration, for an action that moved the ledger row itself.
+ * `courseId` is `null` before the row exists, when no banner can be showing for it either.
+ */
 export const invalidateRegistrationViews = async (
   queryClient: QueryClient,
-  courseId: string,
+  courseId: string | null,
 ): Promise<void> => {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
-    queryClient.invalidateQueries({
-      queryKey: getMyCreditRegistrationEnrolmentBannersQueryKey({ path: { course_id: courseId } }),
-    }),
+    courseId
+      ? queryClient.invalidateQueries({
+          queryKey: getMyCreditRegistrationEnrolmentBannersQueryKey({
+            path: { course_id: courseId },
+          }),
+        })
+      : null,
     queryClient.invalidateQueries({
       predicate: (query) =>
         (query.queryKey[0] as { _id?: string } | undefined)?._id ===

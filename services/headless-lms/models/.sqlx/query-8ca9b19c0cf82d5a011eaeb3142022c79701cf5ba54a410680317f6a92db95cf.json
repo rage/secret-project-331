@@ -1,0 +1,154 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_enrolment_routes\nSET certificate_chosen_at = CASE\n    WHEN $2 THEN COALESCE(certificate_chosen_at, now())\n    ELSE NULL\n  END\nWHERE course_module_completion_id = $1\n  AND deleted_at IS NULL\nRETURNING course_module_completion_id,\n  route AS \"route: _\",\n  has_finnish_personal_identity_code,\n  need AS \"need: _\",\n  identification AS \"identification: _\",\n  need_after_reconsider AS \"need_after_reconsider: _\",\n  enrolment_confirmed_at,\n  certificate_chosen_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "route: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "has_finnish_personal_identity_code",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "has_finnish_personal_identity_code"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "need: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_need",
+            "kind": {
+              "Enum": [
+                "certificate",
+                "credits"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "need"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "identification: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_identification",
+            "kind": {
+              "Enum": [
+                "eidas",
+                "other_suomi_fi",
+                "none"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "identification"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "need_after_reconsider: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_need",
+            "kind": {
+              "Enum": [
+                "certificate",
+                "credits"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "need_after_reconsider"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "enrolment_confirmed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "certificate_chosen_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "certificate_chosen_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "8ca9b19c0cf82d5a011eaeb3142022c79701cf5ba54a410680317f6a92db95cf"
+}

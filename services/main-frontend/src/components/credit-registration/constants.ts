@@ -2,6 +2,8 @@
 
 import type { TFunction } from "i18next"
 
+import type { EmailSendStatus } from "@/generated/api/types.generated"
+
 export { TONE } from "@/shared-module/components"
 
 /**
@@ -66,12 +68,18 @@ export const STATE_SUPERSEDED = "superseded" as const
 /** `Badge.size` for a badge that is a dense table cell's content rather than a chip in a row. */
 export const BADGE_COMPACT = "compact" as const
 
+/** The `EmailSendStatus` a send cell badges as a danger. */
+export const SEND_FAILED: EmailSendStatus = "send_failed"
+
 /** `Button.variant` for the one action a surface leads with, and for the rest beside it. */
 export const BUTTON_PRIMARY = "primary" as const
 export const BUTTON_SECONDARY = "secondary" as const
 
 /** `Button.size` for an action that sits inside a card or a row rather than under a form. */
 export const BUTTON_SMALL = "small" as const
+
+/** `Button.iconPosition` for an icon after the label, like the arrow on a link that leaves the site. */
+export const ICON_AT_END = "end" as const
 
 /** `Button.variant` for a control that reads as a link but changes what is on screen. */
 export const BUTTON_TERTIARY = "tertiary" as const
@@ -94,6 +102,24 @@ export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
 /** Where a student can check that credits actually arrived. */
 export const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
 
+/** Where a student sees all their registered studies, a couple of days after Sisu has them. */
+export const OMA_OPINTOPOLKU_URL = "https://opintopolku.fi/oma-opintopolku/"
+
+const SISU_ENROLMENT_INSTRUCTIONS_URL_FI =
+  "https://studies.helsinki.fi/ohjeet/artikkeli/sisu-ohje-ilmoittautuminen-opetukseen-ja-tentteihin"
+const SISU_ENROLMENT_INSTRUCTIONS_URL_SV =
+  "https://studies.helsinki.fi/instruktioner/artikel/sisu-instruktion-anmalning-till-undervisning-och-tentamen"
+const SISU_ENROLMENT_INSTRUCTIONS_URL_EN =
+  "https://studies.helsinki.fi/instructions/article/sisu-instructions-registering-teaching-and-exams"
+
+/** How a University of Helsinki student enrols on a course in Sisu, which has no per-course link. */
+export const sisuEnrolmentInstructionsUrl = (language: string): string =>
+  /^fi(?:-|$)/.test(language)
+    ? SISU_ENROLMENT_INSTRUCTIONS_URL_FI
+    : /^sv(?:-|$)/.test(language)
+      ? SISU_ENROLMENT_INSTRUCTIONS_URL_SV
+      : SISU_ENROLMENT_INSTRUCTIONS_URL_EN
+
 /** What Suomi.fi says about identifying with a token issued by another European country. */
 export const SUOMI_FI_EIDAS_URL =
   "https://www.suomi.fi/instructions-and-support/identification/information-on-identification-tokens-used-in-suomi-fi-e-identification/using-the-identification-tokens-of-other-european-countries-in-finland"
@@ -108,9 +134,6 @@ export const SEGMENTED = "segmented" as const
 /** The two answers to which university relationship a student has; the wire values of the enum. */
 export const UNIVERSITY_OF_HELSINKI = "university_of_helsinki" as const
 export const OPEN_UNIVERSITY = "open_university" as const
-
-/** The form field the answer is entered in. */
-export const ROUTE_FIELD = "enrolmentRoute" as const
 
 // The Open University only publishes this page in Finnish and English; other languages fall back to
 // the English version.

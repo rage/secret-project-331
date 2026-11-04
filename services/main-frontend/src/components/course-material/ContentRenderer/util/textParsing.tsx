@@ -8,6 +8,7 @@ import "katex/dist/katex.min.css"
 
 import type { Term } from "@/generated/course-material-api/types.generated"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { decodeHtmlEntities } from "@/utils/course-material/htmlEntities"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g
@@ -16,10 +17,14 @@ const HTML_ESCAPED_AMPERSAND = "&amp;"
 const AMPERSAND_CHAR = "&"
 const HTML_MIME_TYPE = "text/html"
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
-const REGEX_MODE = "gm"
+const REGEX_MODE = "gu"
 
-const GLOSSARY_TERM_REGEX_PREFIX = "\\b("
-const GLOSSARY_TERM_REGEX_SUFFIX = ")\\b"
+// A term edge that is a word character must not touch another one. The MCP glossary tool
+// (whole_word_matches in services/headless-lms/mcp/src/text.rs) uses the same rule.
+const WORD_CHAR = "[\\p{Alphabetic}\\p{N}_]"
+const WORD_CHAR_REGEX = new RegExp(`^${WORD_CHAR}$`, "u")
+const NOT_AFTER_WORD_CHAR = `(?<!${WORD_CHAR})`
+const NOT_BEFORE_WORD_CHAR = `(?!${WORD_CHAR})`
 // Simple FIFO cache for compiled glossary term regexes; Map preserves insertion order.
 const TERM_REGEX_CACHE = new Map<string, RegExp>()
 const TERM_REGEX_CACHE_MAX_SIZE = 100
@@ -59,9 +64,13 @@ const getTermRegex = (term: string): RegExp => {
         TERM_REGEX_CACHE.delete(oldestKey)
       }
     }
-    const escapedTerm = escapeRegex(term)
+    const characters = Array.from(term)
+    const startsWithWordChar = WORD_CHAR_REGEX.test(characters[0] ?? "")
+    const endsWithWordChar = WORD_CHAR_REGEX.test(characters.at(-1) ?? "")
     regex = new RegExp(
-      GLOSSARY_TERM_REGEX_PREFIX + escapedTerm + GLOSSARY_TERM_REGEX_SUFFIX,
+      (startsWithWordChar ? NOT_AFTER_WORD_CHAR : "") +
+        escapeRegex(term) +
+        (endsWithWordChar ? NOT_BEFORE_WORD_CHAR : ""),
       REGEX_MODE,
     )
     TERM_REGEX_CACHE.set(term, regex)
@@ -230,41 +239,6 @@ const normalizeCitationNotes = (
   return { prenote, postnote }
 }
 
-const NAMED_HTML_ENTITIES: Record<string, string> = {
-  amp: "&",
-  lt: "<",
-  gt: ">",
-  quot: '"',
-  apos: "'",
-  nbsp: " ",
-}
-const HTML_ENTITY_REGEX = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi
-const MAX_UNICODE_CODE_POINT = 0x10ffff
-
-/**
- * Decodes the HTML entities a citation key can carry once it has been through the CMS's HTML
- * encoding (e.g. `a&amp;b`), so the key extracted from block content matches
- * node.dataset.citationId — which the browser has already decoded to `a&b` — and the reference's
- * stored citation_key. Kept dependency-free (no DOMParser) so it is safe during SSR.
- */
-const decodeHtmlEntities = (value: string): string =>
-  value.replace(HTML_ENTITY_REGEX, (whole, body: string) => {
-    if (body[0] === "#") {
-      let codePoint: number
-      if (body[1] === "x" || body[1] === "X") {
-        codePoint = parseInt(body.slice(2), 16)
-      } else {
-        // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
-        codePoint = parseInt(body.slice(1), 10)
-      }
-      if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {
-        return whole
-      }
-      return String.fromCodePoint(codePoint)
-    }
-    return NAMED_HTML_ENTITIES[body.toLowerCase()] ?? whole
-  })
-
 /**
  * Extracts all \cite{...} occurrences from a raw text/HTML string, in document order.
  *
@@ -286,6 +260,8 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
     const [, prenote, postnote, citationId] = match
     const notes = normalizeCitationNotes(prenote, postnote)
     matches.push({
+      // The CMS stores a key like `a&b` as `a&amp;b`, while data-citation-id and the reference's
+      // citation_key hold it decoded.
       citationKey: decodeHtmlEntities(citationId ?? ""),
       ...omitUndefined({ prenote: notes.prenote, postnote: notes.postnote }),
     })

@@ -72,6 +72,7 @@ Deliver every deranged line with the unshakeable poise of a woman who once stare
             initial_message: "Ah, there you are, my dear old bean. Shall we begin?".to_string(),
             model_id: llm.id,
             publicly_accessible: true,
+            embeddable: true,
             ..Default::default()
         },
     )
@@ -88,6 +89,7 @@ Deliver every deranged line with the unshakeable poise of a woman who once stare
             model_id: llm.id,
             publicly_accessible: true,
             enabled_tool_categories: ToolCategory::ALL.to_vec(),
+            embeddable: true,
             ..Default::default()
         },
     )

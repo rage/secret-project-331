@@ -14,6 +14,7 @@ import {
   useCreditRegistrationCourseStats,
   useInvalidateAttentionItems,
 } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { ReasonField } from "./ReasonConfirmDialog"
 
 interface Fields {
@@ -64,7 +65,7 @@ const AdminRequeueRetryableDialog: React.FC = () => {
               })),
             ]}
           />
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.REQUEUE_BATCH} />
         </>
       )}
       renderResult={(result) => (

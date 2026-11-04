@@ -101,6 +101,28 @@
             "name": "max_reprocessing_submissions_at_once"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_global_admin_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_global_admin_only"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "is_experimental",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "exercise_services",
+            "name": "is_experimental"
+          }
+        }
       }
     ],
     "parameters": {
@@ -115,6 +137,8 @@
       false,
       false,
       true,
+      false,
+      false,
       false
     ]
   },

@@ -1,26 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/columns"]
-
-const LOGO_LINK_TEMPLATE: Template[] = [
-  [
-    "core/columns",
-    { isStackedOnMobile: true },
-    [
-      ["core/column", {}, [["core/image"]]],
-      ["core/column", {}, [["core/image"]]],
-      ["core/column", {}, [["core/image"]]],
-    ],
-  ],
-]
 
 const LogoLinkEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
@@ -34,11 +20,7 @@ const LogoLinkEditor: React.FC<
         `}
       >
         <div>
-          <InnerBlocks
-            template={LOGO_LINK_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            templateLock="all"
-          />
+          <RegisteredInnerBlocks />
         </div>
       </div>
     </BlockWrapper>

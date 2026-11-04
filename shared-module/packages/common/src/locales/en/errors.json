@@ -112,6 +112,7 @@
   "errorNotice.page": "Page",
   "errorNotice.rawResponse": "Raw response",
   "errorNotice.requestId": "Request ID",
+  "errorNotice.retry": "Retry",
   "errorNotice.retryAfter": "Retry after",
   "errorNotice.seconds": "{{seconds}} s",
   "errorNotice.stackTrace": "Stack trace",

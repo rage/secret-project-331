@@ -154,11 +154,7 @@ export {
 } from "./lib/utils/rhfAdapters"
 export { tokensGlobal } from "./styles/tokens"
 
-export {
-  AnimatedQueryFrame,
-  DefaultBlockingError,
-  DefaultStaleError,
-} from "./components/queryResult/AnimatedQueryFrame"
+export { AnimatedQueryFrame } from "./components/queryResult/AnimatedQueryFrame"
 export type {
   AnimatedQueryFrameProps,
   FallbackArgs,

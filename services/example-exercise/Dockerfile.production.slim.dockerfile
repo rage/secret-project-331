@@ -29,6 +29,7 @@ WORKDIR /app
 COPY --from=builder /app/source/dist /app/dist
 COPY --from=builder /app/source/server.mjs /app/server.mjs
 COPY --from=builder /app/source/iframe-headers.mjs /app/iframe-headers.mjs
+COPY --from=builder /app/source/graceful-shutdown.mjs /app/graceful-shutdown.mjs
 COPY --from=builder /app/source/package.json /app/package.json
 
 USER node

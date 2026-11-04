@@ -218,5 +218,15 @@
       "textAlign": "right"
     },
     "innerBlocks": []
+  },
+  {
+    "clientId": "a1b2c3d4-0b1a-4f3c-9c2e-7d5a6b4c3e2f",
+    "isValid": true,
+    "name": "core/heading",
+    "attributes": {
+      "content": "<div>Heading without an anchor</div>",
+      "level": 2
+    },
+    "innerBlocks": []
   }
 ]

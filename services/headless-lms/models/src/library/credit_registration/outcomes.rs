@@ -32,6 +32,9 @@ pub struct RowFacts {
     pub is_waiting_for_enrolment: bool,
     /// The code the row carries now, which a waiting row keeps through a failed lookup.
     pub error_code: Option<CreditRegistrationErrorCode>,
+    /// The row's next course unit poll if it is or becomes partially registered, from
+    /// [`super::course_unit_poll_slots`]. Only verify's lease looks it up; `None` elsewhere.
+    pub course_unit_poll_at: Option<DateTime<Utc>>,
 }
 
 impl RowFacts {
@@ -45,6 +48,7 @@ impl RowFacts {
             submitted_at: row.submitted_at,
             is_waiting_for_enrolment: row.is_waiting_for_enrolment(),
             error_code: row.error_code,
+            course_unit_poll_at: None,
         }
     }
 }
@@ -211,25 +215,38 @@ pub fn verify_error_outcome(
 
 /// A `verify` poll with no usable answer: nothing came back, or nothing we act on.
 pub fn verify_inconclusive_outcome(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
-    let expired = verify_window_expired(facts.submitted_at, facts.now);
-    let outcome = Outcome::to(state).after(if expired {
-        VERIFY_GIVE_UP_POLL
-    } else {
-        verify_delay(facts.submitted_at, facts.now)
-    });
-    if expired {
-        outcome.needing_admin()
-    } else {
-        outcome
+    if verify_window_expired(facts.submitted_at, facts.now) {
+        return Outcome::to(state)
+            .after(VERIFY_GIVE_UP_POLL)
+            .needing_admin();
     }
+    still_verifying(state, facts)
+}
+
+/// The row stays in `state` until its next verify poll: the next course unit slot once only the
+/// course unit attainment is missing, else timed from the submission.
+fn still_verifying(state: CreditRegistrationState, facts: &RowFacts) -> Outcome {
+    Outcome {
+        next: course_unit_poll_at(state, facts).map_or_else(
+            || NextAttempt::After(verify_delay(facts.submitted_at, facts.now)),
+            NextAttempt::At,
+        ),
+        ..Outcome::to(state)
+    }
+}
+
+/// The next course unit slot, only for a row that has nothing left to verify but the course unit.
+fn course_unit_poll_at(state: CreditRegistrationState, facts: &RowFacts) -> Option<DateTime<Utc>> {
+    facts
+        .course_unit_poll_at
+        .filter(|_| state == CreditRegistrationState::PartiallyRegistered)
 }
 
 /// A `verify` poll that found only the assessment item attainment. The submission landed, so an
 /// uncertain row stops being uncertain, but the row is not registered until the course unit
 /// attainment appears. `partially_registered_at` is when a poll first saw this.
 pub fn verify_partial_outcome(facts: &RowFacts, partially_registered_at: DateTime<Utc>) -> Outcome {
-    let outcome = Outcome::to(CreditRegistrationState::PartiallyRegistered)
-        .after(verify_delay(facts.submitted_at, facts.now));
+    let outcome = still_verifying(CreditRegistrationState::PartiallyRegistered, facts);
     if facts.now - partially_registered_at >= PARTIAL_REGISTRATION_ADMIN_AFTER {
         outcome.needing_admin()
     } else {
@@ -398,18 +415,23 @@ pub fn import_success_outcome(state: CreditRegistrationState, facts: &RowFacts) 
     outcome
 }
 
-/// How long a verify poll pushes the row out of reach while its request is out, so a concurrent
-/// iteration cannot poll it twice. The poll's own outcome overwrites this. `calls` is the longest
-/// the iteration's registry calls may take together: the poll and the recovery lookup after it.
+/// How long a verify poll pushes a row in `state` out of reach while its request is out, so a
+/// concurrent iteration cannot poll it twice: until its next poll would be due anyway. The poll's
+/// own outcome overwrites this. `calls` is the longest the iteration's registry calls may take
+/// together: the poll and the recovery lookup after it.
 pub fn verify_poll_lease_until(
-    now: DateTime<Utc>,
-    submitted_at: Option<DateTime<Utc>>,
+    state: CreditRegistrationState,
+    facts: &RowFacts,
     calls: TimeDelta,
 ) -> DateTime<Utc> {
-    next_attempt_at(
-        now,
-        verify_delay(submitted_at, now).max(calls + TimeDelta::minutes(5)),
-    )
+    let min_lease = calls + TimeDelta::minutes(5);
+    match course_unit_poll_at(state, facts) {
+        Some(at) => at.max(next_attempt_at(facts.now, min_lease)),
+        None => next_attempt_at(
+            facts.now,
+            verify_delay(facts.submitted_at, facts.now).max(min_lease),
+        ),
+    }
 }
 
 /// A move a phase makes on a claimed row without an answer to decide from: the outcome, and the
@@ -543,7 +565,7 @@ pub fn missing_context(facts: &RowFacts) -> UnaskedMove {
 
 #[cfg(test)]
 mod tests {
-    use super::super::backoff::UNCERTAIN_MAX_RECHECK;
+    use super::super::backoff::{UNCERTAIN_MAX_RECHECK, VERIFY_WINDOW_INTERVAL};
     use super::*;
     use CreditRegistrationErrorCode as Code;
     use CreditRegistrationState as State;
@@ -557,6 +579,7 @@ mod tests {
             submitted_at: None,
             is_waiting_for_enrolment: false,
             error_code: None,
+            course_unit_poll_at: None,
         }
     }
 
@@ -820,6 +843,34 @@ mod tests {
         assert_eq!(outcome.to_state, State::AwaitingVerification);
         assert_eq!(outcome.needs_admin_attention, Some(AdminAttention::Raise));
         assert_eq!(outcome.next, NextAttempt::After(VERIFY_GIVE_UP_POLL));
+    }
+
+    #[test]
+    fn only_a_partially_registered_row_waits_for_the_course_unit_slot() {
+        let slot = Utc::now() + chrono::Duration::hours(14);
+        let facts = RowFacts {
+            submitted_at: Some(Utc::now() - chrono::Duration::hours(3)),
+            course_unit_poll_at: Some(slot),
+            ..facts()
+        };
+        let partial = verify_partial_outcome(&facts, facts.now);
+        assert_eq!(partial.next, NextAttempt::At(slot));
+        assert_eq!(
+            verify_inconclusive_outcome(State::PartiallyRegistered, &facts).next,
+            NextAttempt::At(slot)
+        );
+        assert_eq!(
+            verify_inconclusive_outcome(State::AwaitingVerification, &facts).next,
+            NextAttempt::After(VERIFY_WINDOW_INTERVAL)
+        );
+        assert_eq!(
+            verify_poll_lease_until(
+                State::PartiallyRegistered,
+                &facts,
+                chrono::Duration::minutes(1)
+            ),
+            slot
+        );
     }
 
     /// A row the phase can build no request for has to accrue retry age like any other failure, or

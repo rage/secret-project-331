@@ -38,6 +38,8 @@ pub enum CreditRegistrationAdminAction {
     /// Took a registration off the Needs attention queue; `details.attention_reasons` holds what the
     /// dismissal covers. Not `mark_resolved`, which clears the pipeline's own flag.
     DismissAttention,
+    /// A note on a registration for whoever handles it next; the note is the `reason`.
+    AddNote,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Hash, Type, ToSchema)]
@@ -251,6 +253,77 @@ ORDER BY a.created_at DESC,
   a.id
         "#,
         course_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// A note an admin left on a registration for whoever handles it next.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationNote {
+    pub id: Uuid,
+    pub credit_registration_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub note: String,
+    pub written_by_user_id: Uuid,
+    pub written_by_first_name: Option<String>,
+    pub written_by_last_name: Option<String>,
+    pub written_by_email: Option<String>,
+}
+
+/// The notes on these registrations, newest first.
+pub async fn get_notes_by_registrations(
+    conn: &mut PgConnection,
+    credit_registration_ids: &[Uuid],
+) -> ModelResult<Vec<CreditRegistrationNote>> {
+    let res = sqlx::query_as!(
+        CreditRegistrationNote,
+        r#"
+SELECT a.id,
+  a.target_id AS "credit_registration_id!",
+  a.created_at,
+  a.reason AS "note!",
+  a.actor_user_id AS written_by_user_id,
+  ud.first_name AS "written_by_first_name?",
+  ud.last_name AS "written_by_last_name?",
+  ud.email AS "written_by_email?"
+FROM credit_registration_admin_actions a
+  LEFT JOIN user_details ud ON ud.user_id = a.actor_user_id
+WHERE a.target_kind = 'credit_registration'
+  AND a.target_id = ANY($1)
+  AND a.action = 'add_note'
+  AND a.reason IS NOT NULL
+  AND a.deleted_at IS NULL
+ORDER BY a.created_at DESC,
+  a.id
+        "#,
+        credit_registration_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The distinct reasons given for `action`, most recently used first.
+pub async fn get_earlier_reasons(
+    conn: &mut PgConnection,
+    action: CreditRegistrationAdminAction,
+    limit: i64,
+) -> ModelResult<Vec<String>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT TRIM(reason) AS "reason!"
+FROM credit_registration_admin_actions
+WHERE action = $1
+  AND TRIM(reason) <> ''
+  AND deleted_at IS NULL
+GROUP BY TRIM(reason)
+ORDER BY MAX(created_at) DESC
+LIMIT $2
+        "#,
+        action as CreditRegistrationAdminAction,
+        limit,
     )
     .fetch_all(conn)
     .await?;

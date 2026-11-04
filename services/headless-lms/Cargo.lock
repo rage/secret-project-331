@@ -3104,6 +3104,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-mcp"
+version = "0.1.0"
+dependencies = [
+ "actix-web",
+ "async-trait",
+ "base64 0.23.1",
+ "blake3",
+ "chrono",
+ "futures",
+ "headless-lms-authorization",
+ "headless-lms-base",
+ "headless-lms-mcp",
+ "headless-lms-models",
+ "headless-lms-utils",
+ "indexmap 2.14.2",
+ "mime_guess",
+ "mockito",
+ "pretty_assertions",
+ "regex",
+ "reqwest 0.13.5",
+ "rmcp",
+ "schemars 1.2.3",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "thiserror 2.0.21",
+ "tokio",
+ "tracing",
+ "url",
+ "utoipa",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-models"
 version = "0.1.0"
 dependencies = [
@@ -3186,6 +3221,7 @@ dependencies = [
  "headless-lms-certificates",
  "headless-lms-chatbot",
  "headless-lms-credit-registration",
+ "headless-lms-mcp",
  "headless-lms-models",
  "headless-lms-utils",
  "hmac 0.13.0",
@@ -6251,6 +6287,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "rmcp"
+version = "3.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ece64e19631fc38758181e637c15509a2c2709ee53bfde1e1d58f9dc991f919e"
+dependencies = [
+ "base64 0.23.1",
+ "chrono",
+ "futures",
+ "hmac 0.13.0",
+ "indexmap 2.14.2",
+ "libc",
+ "pin-project-lite",
+ "schemars 1.2.3",
+ "serde",
+ "serde_json",
+ "sha2 0.11.1",
+ "thiserror 2.0.21",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "url",
+ "zeroize",
+]
+
+[[package]]
 name = "roxmltree"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6492,11 +6553,13 @@ version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab508826f74a77ca9d5aba6ff19b522583ee3eaf28a19384ff3d0e5835fadf6e"
 dependencies = [
+ "chrono",
  "dyn-clone",
  "ref-cast",
  "schemars_derive",
  "serde",
  "serde_json",
+ "uuid",
 ]
 
 [[package]]

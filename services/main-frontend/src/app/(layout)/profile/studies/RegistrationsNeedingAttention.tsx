@@ -15,8 +15,6 @@ import {
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
 import RegistrationStatusCard from "@/components/credit-registration/RegistrationStatusCard"
-import { useStudentRegistrationActions } from "@/components/credit-registration/studentRegistrationActions"
-import { StudentRegistrationExplanation } from "@/components/credit-registration/StudentRegistrationExplanation"
 import {
   cardCss,
   headingCss,
@@ -26,9 +24,12 @@ import {
 } from "@/components/credit-registration/styles"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
+import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { RegistrationStatusState } from "@/shared-module/components"
 import { QueryResult, RelativeTime } from "@/shared-module/components"
+
+const DETAILS_ACTION_KEY = "details"
 
 /**
  * The registrations a student is being asked to do something about, and the ones that did not go
@@ -38,6 +39,9 @@ import { QueryResult, RelativeTime } from "@/shared-module/components"
  * Everything simply on its way lives beside the course further down the page. Renders nothing when
  * there is nothing to show: a heading over "nothing needs your attention" tells a student nothing
  * the course list below does not.
+ *
+ * A card only says that something is needed and links to the registration's page: a summary here
+ * cannot tell a student who has not enrolled from one waiting for a linking email.
  */
 const RegistrationsNeedingAttention: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -89,10 +93,11 @@ const AttentionSection: React.FC<{
 const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ registration }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const status = registration.student_facing_status
-  const { primaryAction, secondaryActions } = useStudentRegistrationActions({
-    registration,
-    linkToStatusPage: true,
-  })
+  const state = registrationStatusState(status)
+  const [explanation, detailsLabel] =
+    state === STATE_FAILED
+      ? [t("credit-registration-attention-failed"), t("link-text-see-what-happened")]
+      : [t("credit-registration-attention-action-needed"), t("link-text-what-to-do")]
 
   const subject = registration.course_module_name
     ? t("credit-registration-course-and-module", {
@@ -104,12 +109,15 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
   return (
     <RegistrationStatusCard
       className={cardCss}
-      state={registrationStatusState(status)}
+      state={state}
       headline={registrationStatusLabel(t, status)}
       subject={subject}
-      explanation={<StudentRegistrationExplanation registration={registration} />}
-      primaryAction={primaryAction}
-      secondaryActions={secondaryActions}
+      explanation={<p>{explanation}</p>}
+      primaryAction={{
+        key: DETAILS_ACTION_KEY,
+        label: detailsLabel,
+        href: completionRegistrationRoute(registration.course_module_id),
+      }}
       meta={
         <p className={noteCss}>
           {t("label-completed")}{" "}

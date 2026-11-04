@@ -40,7 +40,8 @@
                 "override_rate_cap",
                 "request_enrolment_list_fetch",
                 "dismiss_study_registry_conflict",
-                "dismiss_attention"
+                "dismiss_attention",
+                "add_note"
               ]
             }
           }

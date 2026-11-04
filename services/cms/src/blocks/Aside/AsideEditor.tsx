@@ -1,9 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import type { JSX } from "react"
 
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -42,7 +43,7 @@ const AsideEditor = ({
           margin: 3rem 0;
         `}
       >
-        <InnerBlocks />
+        <RegisteredInnerBlocks />
       </div>
     </BlockWrapper>
   )

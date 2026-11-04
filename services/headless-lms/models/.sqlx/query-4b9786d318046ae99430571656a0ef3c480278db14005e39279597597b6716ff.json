@@ -1,0 +1,153 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT course_module_completion_id,\n  route AS \"route: _\",\n  has_finnish_personal_identity_code,\n  need AS \"need: _\",\n  identification AS \"identification: _\",\n  need_after_reconsider AS \"need_after_reconsider: _\",\n  enrolment_confirmed_at,\n  certificate_chosen_at\nFROM credit_registration_enrolment_routes\nWHERE course_module_completion_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "route: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_enrolment_route",
+            "kind": {
+              "Enum": [
+                "university_of_helsinki",
+                "open_university"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "route"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "has_finnish_personal_identity_code",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "has_finnish_personal_identity_code"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "need: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_need",
+            "kind": {
+              "Enum": [
+                "certificate",
+                "credits"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "need"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "identification: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_identification",
+            "kind": {
+              "Enum": [
+                "eidas",
+                "other_suomi_fi",
+                "none"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "identification"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "need_after_reconsider: _",
+        "type_info": {
+          "Custom": {
+            "name": "credit_registration_need",
+            "kind": {
+              "Enum": [
+                "certificate",
+                "credits"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "need_after_reconsider"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "enrolment_confirmed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "enrolment_confirmed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "certificate_chosen_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_enrolment_routes",
+            "name": "certificate_chosen_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4b9786d318046ae99430571656a0ef3c480278db14005e39279597597b6716ff"
+}

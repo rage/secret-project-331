@@ -2,27 +2,14 @@
 
 import { css } from "@emotion/css"
 import { Padlock } from "@vectopus/atlas-icons-react"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import { Notice } from "@wordpress/components"
 import React from "react"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/heading",
-  "core/paragraph",
-  "core/image",
-  "core/video",
-  "core/code",
-  "core/list",
-  "core/quote",
-  "core/table",
-  "moocfi/latex",
-  "moocfi/iframe",
-  "moocfi/audio-upload",
-]
 
 const LockChapterEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>
@@ -137,7 +124,7 @@ const LockChapterEditor: React.FC<
               }
             `}
           >
-            <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+            <RegisteredInnerBlocks />
           </div>
         </div>
       </div>

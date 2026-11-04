@@ -1,5 +1,6 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -9,10 +10,14 @@ import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/Ro
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
+import { getAgentChangesetCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
+import createOpenAgentChangeCountHook from "@/hooks/count/useOpenAgentChangeCount"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
+import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import {
   courseChatbotSettingsRoute,
+  manageCourseAgentChangesetsRoute,
   manageCourseOtherCheatersRoute,
   manageCourseOtherCheatersSuspectedRoute,
   manageCourseOtherCodeGiveawaysRoute,
@@ -27,6 +32,7 @@ const KEY_CHATBOT = "chatbot"
 const KEY_CHEATERS = "cheaters"
 const KEY_CODE_GIVEAWAYS = "code-giveaways"
 const KEY_EXERCISE_RESET_TOOL = "exercise-reset-tool"
+const KEY_AGENT_CHANGESETS = "agent-changesets"
 
 export default function OtherLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
@@ -49,6 +55,17 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
 
   const showChatbotTab = courseQuery.data?.can_add_chatbot === true
   const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
+  const openAgentChangeCountHook = createOpenAgentChangeCountHook(courseId)
+  const permissionsQuery = useAuthorizeMultiple([
+    { action: { type: "edit" }, resource: { type: "course", id: courseId } },
+  ])
+  const [canEdit = false] = permissionsQuery.data ?? []
+  // Only teachers whose AI agent has staged changes in the course get the tab.
+  const { data: hasAgentChangesets = false } = useQuery({
+    ...getAgentChangesetCountsOptions({ query: { course_id: courseId } }),
+    select: (counts) => counts.has_changesets,
+    enabled: canEdit,
+  })
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [
@@ -89,8 +106,24 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
         href: manageCourseOtherExerciseResetToolRoute(courseId),
       },
     )
+    if (hasAgentChangesets) {
+      base.push({
+        key: KEY_AGENT_CHANGESETS,
+        title: t("link-agent-changes"),
+        href: manageCourseAgentChangesetsRoute(courseId),
+        pathPrefix: manageCourseAgentChangesetsRoute(courseId),
+        countHook: openAgentChangeCountHook,
+      })
+    }
     return base
-  }, [courseId, t, showChatbotTab, flaggedCheaterCountHook])
+  }, [
+    courseId,
+    t,
+    showChatbotTab,
+    flaggedCheaterCountHook,
+    hasAgentChangesets,
+    openAgentChangeCountHook,
+  ])
 
   return (
     <RouteTabListProvider tabs={tabs}>

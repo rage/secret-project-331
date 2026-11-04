@@ -88,6 +88,13 @@ async fn post_new_page(
         )
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
+    domain::authorization::ensure_user_can_add_exercise_tasks(
+        &mut conn,
+        user.id,
+        None,
+        &new_page.exercise_tasks,
+    )
+    .await?;
 
     let page = models::pages::create_for_course_id(
         &mut conn,
@@ -133,8 +140,12 @@ async fn delete_page(
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let deleted_page =
-        models::pages::delete_page_and_exercises(&mut conn, *page_id, user.id).await?;
+    let deleted_page = models::pages::delete_page_and_exercises(
+        &mut conn,
+        *page_id,
+        models::entity_history::HistoryAuthor::user(user.id),
+    )
+    .await?;
 
     token.authorized_ok(web::Json(deleted_page))
 }

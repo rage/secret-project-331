@@ -19,6 +19,23 @@ const OPTIONS: [{ id: string; name: string }, { id: string; name: string }] = [
   { id: "11111111-1111-1111-1111-111111111111", name: "Helsinki" },
   { id: "22222222-2222-2222-2222-222222222222", name: "Tampere" },
 ]
+const PRIVATE_SPEC = {
+  version: "1",
+  alternatives: [{ id: OPTIONS[0].id, name: "Helsinki", correct: true }],
+}
+const PUBLIC_SPEC = { version: "1", options: OPTIONS }
+const GRADED_SUBMISSION = {
+  public_spec: PUBLIC_SPEC,
+  user_answer: { version: "1", selectedOptionId: OPTIONS[0].id },
+  model_solution_spec: { version: "1", correctOptionIds: [OPTIONS[0].id] },
+  grading: {
+    grading_progress: "FullyGraded" as const,
+    score_given: 1,
+    score_maximum: 1,
+    feedback_text: null,
+    feedback_json: { version: "1", selectedOptionIsCorrect: true },
+  },
+}
 
 contractTest.beforeEach(async ({ page }) => {
   // Open the plugin's iframe page first so it mounts and starts the handshake.
@@ -27,15 +44,9 @@ contractTest.beforeEach(async ({ page }) => {
 
 contractTest("exercise-editor emits the private spec as current-state", async ({ page }) => {
   const host = await createHostEmulator(page)
-  await host.setState(
-    exerciseEditorState({
-      private_spec: [{ id: OPTIONS[0].id, name: "Helsinki", correct: true }],
-    }),
-  )
+  await host.setState(exerciseEditorState({ private_spec: PRIVATE_SPEC }))
   await host.waitForViewType("exercise-editor")
 
-  // The editor persists the versioned envelope `{ version, alternatives }` (reference/07 #1); a
-  // legacy bare array pushed in via set-state is migrated on read and re-emitted in this shape.
   const state = await host.waitForCurrentState((message) =>
     Array.isArray(
       (message.data as { private_spec?: { alternatives?: unknown } }).private_spec?.alternatives,
@@ -52,7 +63,7 @@ contractTest("exercise-editor emits the private spec as current-state", async ({
 
 contractTest("answer-exercise reports the selected option as current-state", async ({ page }) => {
   const host = await createHostEmulator(page)
-  await host.setState(answerExerciseState({ public_spec: OPTIONS }))
+  await host.setState(answerExerciseState({ public_spec: PUBLIC_SPEC }))
   await host.waitForViewType("answer-exercise")
 
   await page.getByRole("checkbox", { name: "Tampere" }).click()
@@ -65,20 +76,32 @@ contractTest("answer-exercise reports the selected option as current-state", asy
 
 contractTest("view-submission renders the graded submission", async ({ page }) => {
   const host = await createHostEmulator(page)
-  await host.setState(
-    viewSubmissionState({
-      public_spec: OPTIONS,
-      user_answer: { selectedOptionId: OPTIONS[0].id },
-      model_solution_spec: { correctOptionIds: [OPTIONS[0].id] },
-      grading: {
-        grading_progress: "FullyGraded",
-        score_given: 1,
-        score_maximum: 1,
-        feedback_text: null,
-        feedback_json: { selectedOptionIsCorrect: true },
-      },
-    }),
-  )
+  await host.setState(viewSubmissionState(GRADED_SUBMISSION))
   await host.waitForViewType("view-submission")
   await expect(page.getByRole("checkbox", { name: "Helsinki" })).toBeVisible()
+})
+
+// Libraries hard-code CDN URLs in CSS and at runtime; a failed-request check only sees the ones that
+// fail. Push every view so each one's assets load.
+contractTest("loads nothing from outside this service", async ({ page, baseURL }) => {
+  const ownOrigin = new URL(baseURL ?? "").origin
+  const outside: string[] = []
+  page.on("request", (request) => {
+    const url = new URL(request.url())
+    if (url.origin !== ownOrigin && url.protocol !== "data:" && url.protocol !== "blob:") {
+      outside.push(url.href)
+    }
+  })
+
+  await page.reload()
+  const host = await createHostEmulator(page)
+  await host.setState(exerciseEditorState({ private_spec: PRIVATE_SPEC }))
+  await host.waitForViewType("exercise-editor")
+  await host.setState(answerExerciseState({ public_spec: PUBLIC_SPEC }))
+  await host.waitForViewType("answer-exercise")
+  await host.setState(viewSubmissionState(GRADED_SUBMISSION))
+  await host.waitForViewType("view-submission")
+  await page.waitForLoadState("networkidle")
+
+  expect(outside).toEqual([])
 })

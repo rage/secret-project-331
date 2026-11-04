@@ -52,6 +52,8 @@ import type {
   GetCmsPageInfoResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponses,
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
@@ -66,12 +68,14 @@ import type {
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
+  UpdateCmsCourseDefaultPeerReviewErrors,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
   UpdateCmsEmailTemplateResponses,
   UpdateCmsExamInstructionsData,
   UpdateCmsExamInstructionsResponses,
   UpdateCmsPageData,
+  UpdateCmsPageErrors,
   UpdateCmsPageResponses,
   UploadCmsCourseMediaData,
   UploadCmsCourseMediaResponses,
@@ -82,8 +86,6 @@ import type {
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponses,
   UpsertCmsCourseResearchFormResponses,
 } from "./types.generated"
 import {
@@ -106,6 +108,7 @@ import {
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
   zGetCmsPageNavigationResponse,
+  zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
@@ -120,7 +123,6 @@ import {
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
   zUploadFilesFromExerciseServiceResponse,
-  zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
 
@@ -312,10 +314,15 @@ export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = tru
 
 export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsCourseDefaultPeerReviewData, ThrowOnError>,
-): RequestResult<UpdateCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
+): RequestResult<
+  UpdateCmsCourseDefaultPeerReviewResponses,
+  UpdateCmsCourseDefaultPeerReviewErrors,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).put<
     UpdateCmsCourseDefaultPeerReviewResponses,
-    unknown,
+    UpdateCmsCourseDefaultPeerReviewErrors,
     ThrowOnError,
     "data"
   >({
@@ -457,7 +464,7 @@ export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+ * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
  */
 export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCourseResearchFormData, ThrowOnError>,
@@ -471,30 +478,6 @@ export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>
     responseValidator: async (data) => await zUpsertCmsCourseResearchFormResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/courses/{course_id}/research-consent-form",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
- */
-export const upsertCmsCourseResearchFormQuestions = <ThrowOnError extends boolean = true>(
-  options: Options<UpsertCmsCourseResearchFormQuestionsData, ThrowOnError>,
-): RequestResult<UpsertCmsCourseResearchFormQuestionsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<
-    UpsertCmsCourseResearchFormQuestionsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zUpsertCmsCourseResearchFormQuestionsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/courses/{course_id}/research-consent-form-questions",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -750,17 +733,19 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsPageData, ThrowOnError>,
-): RequestResult<UpdateCmsPageResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdateCmsPageResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/pages/{page_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
+): RequestResult<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/pages/{page_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     },
-  })
+  )
 
 /**
  *
@@ -815,6 +800,27 @@ export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCmsPageNavigationResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/page-navigation",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPagePendingAgentChangesData, ThrowOnError>,
+): RequestResult<GetCmsPagePendingAgentChangesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPagePendingAgentChangesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
     ...options,
   })
 

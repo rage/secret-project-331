@@ -32,6 +32,8 @@ export interface CreditJustificationFormProps {
   courseModuleId: string
   /** What the student wrote the last time they got this far, if they did. */
   savedJustification: string | null | undefined
+  /** The submit label before a reason is saved. Default: "Continue", for a form that opens what follows. */
+  saveLabel?: string
   onSaved: () => void
 }
 
@@ -45,6 +47,7 @@ export interface CreditJustificationFormProps {
 export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = ({
   courseModuleId,
   savedJustification,
+  saveLabel,
   onSaved,
 }) => {
   // Default namespace, like the registration page this band belongs to, not the
@@ -113,7 +116,7 @@ export const CreditJustificationForm: React.FC<CreditJustificationFormProps> = (
             with nothing to read about why it is greyed out. */}
         <div className={rowCss}>
           <Button type="submit" variant={BUTTON_PRIMARY} size="medium" isLoading={save.isPending}>
-            {hasSavedAnswer ? t("update-reason") : t("continue")}
+            {hasSavedAnswer ? t("update-reason") : (saveLabel ?? t("continue"))}
           </Button>
         </div>
       </form>

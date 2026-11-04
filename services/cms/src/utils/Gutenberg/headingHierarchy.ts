@@ -1,5 +1,6 @@
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
+import { resolveAsideHeadingLevel } from "../../blocks/AsideWithImage/headingLevel"
 import { extractPlainTextFromHtml } from "./paragraphAiSource"
 
 type HeadingIssueType = "heading-h1-reserved" | "heading-first-should-be-h2" | "heading-level-jump"
@@ -102,7 +103,8 @@ const extractBlockHeadingEntries = (block: BlockInstance): RawHeadingEntry[] => 
       return entry ? [entry] : []
     }
     case "moocfi/aside-with-image": {
-      const entry = createRawHeadingEntry(block, 4, block.attributes?.title)
+      const level = resolveAsideHeadingLevel(block.attributes?.headingLevel)
+      const entry = createRawHeadingEntry(block, level, block.attributes?.title)
       return entry ? [entry] : []
     }
     case "moocfi/expandable-content-inner-block": {

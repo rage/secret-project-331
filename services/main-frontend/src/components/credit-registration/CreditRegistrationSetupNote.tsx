@@ -31,7 +31,7 @@ const CreditRegistrationSetupNote: React.FC<Props> = ({ courseId }) => {
   const structureQuery = useCourseStructure(courseId)
 
   const configs = configsQuery.data ?? []
-  const enabled = configs.filter((config) => registersCredits(config.uh_course_code))
+  const enabled = configs.filter((config) => registersCredits(config))
 
   if (enabled.length === 0) {
     return null

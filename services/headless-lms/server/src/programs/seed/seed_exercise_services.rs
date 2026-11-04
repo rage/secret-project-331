@@ -16,6 +16,8 @@ pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<(
                 .to_string()
             ),
             max_reprocessing_submissions_at_once: 5,
+            is_global_admin_only: false,
+            is_experimental: false,
         }
     )
     .await?;
@@ -31,6 +33,8 @@ pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<(
                     .to_string(),
             ),
             max_reprocessing_submissions_at_once: 5,
+            is_global_admin_only: false,
+            is_experimental: false,
         },
     )
     .await?;
@@ -45,6 +49,8 @@ pub async fn seed_exercise_services(db_pool: Pool<Postgres>) -> anyhow::Result<(
                 "http://tmc.default.svc.cluster.local:3005/tmc/api/service-info".to_string(),
             ),
             max_reprocessing_submissions_at_once: 5,
+            is_global_admin_only: false,
+            is_experimental: false,
         },
     )
     .await?;

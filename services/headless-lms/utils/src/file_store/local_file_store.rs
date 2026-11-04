@@ -79,6 +79,20 @@ impl FileStore for LocalFileStore {
         Ok(format!("{}/{}", self.base_url, path_str))
     }
 
+    /// The dev upload handler turns these parameters into the attachment header.
+    async fn get_direct_attachment_download_url(
+        &self,
+        path: &Path,
+        file_name: &str,
+    ) -> UtilResult<String> {
+        let encoded_file_name =
+            percent_encoding::utf8_percent_encode(file_name, percent_encoding::NON_ALPHANUMERIC);
+        Ok(format!(
+            "{}?download=1&name={encoded_file_name}",
+            self.get_direct_download_url(path).await?
+        ))
+    }
+
     async fn upload_stream(
         &self,
         path: &Path,

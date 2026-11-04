@@ -42,7 +42,7 @@ import {
   studentNumberCss,
   subheadingCss,
 } from "./styles"
-import { useIsAccountLinkingEnabled } from "./useIsAccountLinkingEnabled"
+import { useAccountLinkingSetting } from "./useIsAccountLinkingEnabled"
 
 /** A student disputing a wrong number needs to know how the link was proved. */
 const PROVENANCE_VALUE_KEYS = {
@@ -67,7 +67,7 @@ export interface StudentNumberCardProps {
 /** The account's University of Helsinki student number: what it is, or how one gets linked. */
 const StudentNumberCard: React.FC<StudentNumberCardProps> = ({ showStudiesLink = true }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
+  const isAccountLinkingEnabled = useAccountLinkingSetting()
   const linkQuery = useQuery({ ...getMyVerifiedStudentNumberOptions() })
   const registrationsQuery = useQuery({ ...getMyCreditRegistrationsOptions() })
   const myStudiesQuery = useQuery({ ...getMyStudiesOptions() })
@@ -103,7 +103,7 @@ const StudentNumberCard: React.FC<StudentNumberCardProps> = ({ showStudiesLink =
               link={link}
               hasRegisteringCourse={hasRegisteringCourse}
               showStudiesLink={showStudiesLink}
-              isAccountLinkingEnabled={isAccountLinkingEnabled}
+              isAccountLinkingEnabled={isAccountLinkingEnabled === true}
             />
           ) : null
         }
@@ -205,7 +205,7 @@ const Linked: React.FC<{
 /** No number linked: how one gets linked, since nothing on this page can start it. */
 const NotLinked: React.FC<{
   linkingEmail: LinkingEmailStatus | null
-  isAccountLinkingEnabled: boolean
+  isAccountLinkingEnabled: boolean | undefined
 }> = ({ linkingEmail, isAccountLinkingEnabled }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const sent = sentLinkingEmail(linkingEmail)
@@ -229,11 +229,13 @@ const NotLinked: React.FC<{
         </ol>
       ) : (
         <>
-          <p>
-            {isAccountLinkingEnabled
-              ? t("student-number-linked-on-registration-by-email")
-              : t("student-number-linked-on-registration")}
-          </p>
+          {isAccountLinkingEnabled !== undefined && (
+            <p>
+              {isAccountLinkingEnabled
+                ? t("student-number-linked-after-enrolment-by-email")
+                : t("student-number-linked-by-support")}
+            </p>
+          )}
           <LinkingEmailLine linkingEmail={linkingEmail} />
         </>
       )}

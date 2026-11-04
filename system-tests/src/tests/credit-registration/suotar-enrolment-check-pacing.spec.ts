@@ -93,6 +93,7 @@ const suotarModuleSettings = (courseCode: string) => ({
   ects_credits: 5,
   completion_policy: { policy: "manual" },
   completion_registration_link_override: `https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=${courseCode}`,
+  completions_can_be_registered_to_sisu: true,
 })
 
 /** A Suotar course with `moduleCount` modules, each on a course code of its own. */

@@ -35,6 +35,7 @@ import {
 } from "@/components/credit-registration/admin/timelineRows"
 import type { TimelineContext } from "@/components/credit-registration/admin/timelineRows"
 import { timelineStepLabel } from "@/components/credit-registration/admin/timelineSteps"
+import { useRegistrationPageTitle } from "@/components/credit-registration/admin/useRegistrationPageTitle"
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
@@ -77,7 +78,7 @@ import type {
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   creditRegistrationItemRoute,
@@ -746,7 +747,10 @@ const RegistrationDetailPage: React.FC = () => {
   )
 
   const studentName = row ? formatUserName(row) || t("missing-name") : null
-  usePageTitle(studentName)
+  useRegistrationPageTitle(
+    details,
+    isAppApiError(detailsQuery.error) && detailsQuery.error.status === 404,
+  )
   const crumbs = useMemo(
     () => [
       {

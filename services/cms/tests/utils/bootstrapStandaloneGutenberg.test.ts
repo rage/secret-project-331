@@ -134,6 +134,12 @@ const loadBootstrapModule = async ({
   await jest.unstable_mockModule("../../src/utils/Gutenberg/ai/abilities", () => ({
     registerEditorAiAbilities: jest.fn(),
   }))
+  await jest.unstable_mockModule("../../src/utils/Gutenberg/paste/normalizePasteEvent", () => ({
+    registerGutenbergMathStandIn: jest.fn(),
+  }))
+  await jest.unstable_mockModule("../../src/utils/Gutenberg/paste/pasteTransforms", () => ({
+    addPasteTransforms: jest.fn((settings: unknown) => settings),
+  }))
   await jest.unstable_mockModule("../../src/utils/Gutenberg/modifyBlockAttributes", () => ({
     modifyCodeBlockAttributes: jest.fn((settings: unknown) => settings),
     modifyEmbedBlockAttributes: jest.fn((settings: unknown) => settings),

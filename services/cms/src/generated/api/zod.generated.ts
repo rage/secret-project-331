@@ -5,6 +5,23 @@
 
 import * as z from "zod"
 
+export const zAgentChangesetStatus = z.enum(["open", "published", "discarded", "expired"])
+
+export const zAgentChangeset = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  expires_at: z.iso.datetime(),
+  id: z.uuid(),
+  published_at: z.iso.datetime().nullish(),
+  revision: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  status: zAgentChangesetStatus,
+  updated_at: z.iso.datetime(),
+  user_id: z.uuid(),
+})
+
 export const zAutomaticCompletionRequirements = z.object({
   course_module_id: z.uuid(),
   number_of_exercises_attempted_treshold: z
@@ -18,6 +35,45 @@ export const zAutomaticCompletionRequirements = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   requires_exam: z.boolean(),
+})
+
+/**
+ * One block type's registration: its attributes, where it may be nested and an example.
+ */
+export const zBlockSchema = z.object({
+  allowed_children: z.array(z.string()).nullish(),
+  allowed_parents: z.array(z.string()).nullish(),
+  attributes: z.record(z.string(), z.unknown()),
+  description: z.string(),
+  example: z.unknown(),
+  template: z.unknown().optional(),
+  template_lock: z.unknown().optional(),
+  title: z.string(),
+})
+
+/**
+ * What kind of rule a block breaks.
+ */
+export const zBlockValidationErrorCode = z.enum([
+  "invalid_block",
+  "duplicate_client_id",
+  "unknown_block",
+  "not_allowed_here",
+  "invalid_nesting",
+  "invalid_attribute",
+  "forbidden_attribute",
+  "disallowed_markup",
+])
+
+/**
+ * A problem the validator found in a block, with how to fix it.
+ */
+export const zBlockValidationError = z.object({
+  clientId: z.uuid().nullish(),
+  code: zBlockValidationErrorCode,
+  fix: z.string(),
+  message: z.string(),
+  path: z.array(z.unknown()),
 })
 
 export const zChartSpecGenerationRequest = z.object({
@@ -128,6 +184,19 @@ export const zCourse = z.object({
   organization_id: z.uuid(),
   slug: z.string(),
   updated_at: z.iso.datetime(),
+})
+
+/**
+ * The name of one of the course settings in [`CourseBlockFeatures`].
+ */
+export const zCourseBlockFeature = z.enum(["chapter_locking_enabled", "can_add_chatbot"])
+
+/**
+ * The course settings that make blocks available, named as in the course settings.
+ */
+export const zCourseBlockFeatures = z.object({
+  can_add_chatbot: z.boolean(),
+  chapter_locking_enabled: z.boolean(),
 })
 
 export const zCourseInstance = z.object({
@@ -265,6 +334,11 @@ export const zExamInstructionsUpdate = z.object({
 })
 
 /**
+ * The exercise block a list of blocks is validated as the children of.
+ */
+export const zExerciseContext = z.enum(["task_instructions", "review_instructions"])
+
+/**
  * Exercise service definition that the CMS can use to render the editor view.
  */
 export const zExerciseServiceIframeRenderingInfo = z.object({
@@ -346,6 +420,12 @@ export const zPageNavigationInformation = z.object({
   next_page: zPageRoutingData.nullish(),
   previous_page: zPageRoutingData.nullish(),
 })
+
+/**
+ * The editor (and validator) context a page's blocks are checked against. A chapter's front
+ * page takes the same blocks as its other pages.
+ */
+export const zPageType = z.enum(["course-page", "top-level-page", "course-front-page"])
 
 export const zParagraphSuggestionAction = z.enum([
   "moocfi/ai/generate-draft-from-notes",
@@ -501,10 +581,30 @@ export const zCmsPageUpdate = z.object({
   url_path: z.string(),
 })
 
+/**
+ * A CMS page save. It is refused as stale when `expected_updated_at` is set and the page has
+ * changed since that version; leave it unset to overwrite.
+ */
+export const zCmsPageSave = zCmsPageUpdate.and(
+  z.object({
+    expected_updated_at: z.iso.datetime().nullish(),
+  }),
+)
+
 export const zCmsPeerOrSelfReviewConfiguration = z.object({
   peer_or_self_review_config: zCmsPeerOrSelfReviewConfig,
   peer_or_self_review_questions: z.array(zCmsPeerOrSelfReviewQuestion),
 })
+
+/**
+ * Save of a course's default configuration. A save is refused as stale when `expected_updated_at`
+ * is set and the configuration has changed since that version; leave it unset to overwrite.
+ */
+export const zCmsPeerOrSelfReviewConfigurationSave = zCmsPeerOrSelfReviewConfiguration.and(
+  z.object({
+    expected_updated_at: z.iso.datetime().nullish(),
+  }),
+)
 
 export const zContentManagementPage = z.object({
   exercise_slides: z.array(zCmsPageExerciseSlide),
@@ -540,6 +640,28 @@ export const zResearchForm = z.object({
 })
 
 /**
+ * An inline format rich text may use, and the tag it is stored as.
+ */
+export const zRichTextFormat = z.object({
+  description: z.string(),
+  name: z.string(),
+  tag: z.string(),
+})
+
+/**
+ * The CMS's export of block registrations, the single source of block schemas, from
+ * `GET /api/agent/block-schemas`.
+ */
+export const zBlockSchemas = z.object({
+  blocks: z.record(z.string(), zBlockSchema),
+  course_feature_gated_blocks: z.record(z.string(), zCourseBlockFeature),
+  max_request_bytes: z.int().gte(0),
+  page_types: z.record(z.string(), z.array(z.string())),
+  rich_text_formats: z.array(zRichTextFormat),
+  version: z.string(),
+})
+
+/**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
  * this kind of tool", not "may this caller use it".
@@ -560,6 +682,53 @@ export const zToolCategory = z.enum([
  */
 export const zUploadResult = z.object({
   url: z.string(),
+})
+
+/**
+ * The validator's verdict on one page: valid when `errors` is empty.
+ */
+export const zValidationOutcome = z.object({
+  blocks: z.array(z.unknown()),
+  errors: z.array(zBlockValidationError),
+  warnings: z.array(zBlockValidationError),
+})
+
+/**
+ * The answer of the CMS's `POST /api/agent/validate-blocks`, a verdict per page in request order.
+ */
+export const zValidateBlocksResponse = z.object({
+  pages: z.array(zValidationOutcome),
+})
+
+/**
+ * Where the validated blocks sit, which decides the blocks they may use.
+ */
+export const zValidationTarget = z.union([
+  z.object({
+    page_type: zPageType,
+  }),
+  z.object({
+    exercise_context: zExerciseContext,
+  }),
+])
+
+/**
+ * One list of blocks to validate: a page's, or an exercise's instructions.
+ */
+export const zPageValidationRequest = zValidationTarget.and(
+  z.object({
+    blocks: z.array(z.unknown()),
+    unchanged_client_ids: z.array(z.uuid()).optional(),
+  }),
+)
+
+/**
+ * The body of the CMS's `POST /api/agent/validate-blocks`: one HTTP request's share of the pages
+ * a write call validates, its pages already serialized.
+ */
+export const zValidateBlocksRequest = z.object({
+  course_features: zCourseBlockFeatures,
+  pages: z.array(zPageValidationRequest),
 })
 
 export const zVerbosityLevel = z.enum(["low", "medium", "high"])
@@ -604,6 +773,16 @@ export const zChatbotConfiguration = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
+
+/**
+ * A course's default configuration as the CMS loaded it. `updated_at` is the version the editor
+ * sends back on save.
+ */
+export const zVersionedCmsPeerOrSelfReviewConfiguration = zCmsPeerOrSelfReviewConfiguration.and(
+  z.object({
+    updated_at: z.iso.datetime(),
+  }),
+)
 
 export const zRequestChartSpecGenerationBody = zChartSpecGenerationRequest
 
@@ -680,9 +859,9 @@ export const zGetCmsCourseDefaultPeerReviewPath = z.object({
 /**
  * Default peer review configuration
  */
-export const zGetCmsCourseDefaultPeerReviewResponse = zCmsPeerOrSelfReviewConfiguration
+export const zGetCmsCourseDefaultPeerReviewResponse = zVersionedCmsPeerOrSelfReviewConfiguration
 
-export const zUpdateCmsCourseDefaultPeerReviewBody = zCmsPeerOrSelfReviewConfiguration
+export const zUpdateCmsCourseDefaultPeerReviewBody = zCmsPeerOrSelfReviewConfigurationSave
 
 export const zUpdateCmsCourseDefaultPeerReviewPath = z.object({
   course_id: z.uuid(),
@@ -691,7 +870,7 @@ export const zUpdateCmsCourseDefaultPeerReviewPath = z.object({
 /**
  * Updated default peer review configuration
  */
-export const zUpdateCmsCourseDefaultPeerReviewResponse = zCmsPeerOrSelfReviewConfiguration
+export const zUpdateCmsCourseDefaultPeerReviewResponse = zVersionedCmsPeerOrSelfReviewConfiguration
 
 export const zGetCmsCourseModulesPath = z.object({
   course_id: z.uuid(),
@@ -871,7 +1050,7 @@ export const zGetCmsPagePath = z.object({
  */
 export const zGetCmsPageResponse = zContentManagementPage
 
-export const zUpdateCmsPageBody = zCmsPageUpdate
+export const zUpdateCmsPageBody = zCmsPageSave
 
 export const zUpdateCmsPagePath = z.object({
   page_id: z.uuid(),
@@ -910,6 +1089,15 @@ export const zGetCmsPageNavigationPath = z.object({
  * Page navigation
  */
 export const zGetCmsPageNavigationResponse = zPageNavigationInformation
+
+export const zGetCmsPagePendingAgentChangesPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The open changeset changing the page, if any
+ */
+export const zGetCmsPagePendingAgentChangesResponse = zAgentChangeset.nullable()
 
 export const zGetCmsRepositoryExercisesForCoursePath = z.object({
   course_id: z.uuid(),

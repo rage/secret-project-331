@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
-import { LinesClipboard, LinkChain, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { LinesClipboard, XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -13,7 +13,6 @@ import {
   getUserDetailsForAuthenticatedUserOptions,
   getUserResearchFormQuestionAnswersOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -24,6 +23,8 @@ import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
 import { Button, Link, QueryResult } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
+import OAuthGrantsSection from "./OAuthGrantsSection"
+
 const PermissionsSettingsPage: React.FC = () => {
   const { t } = useTranslation()
   // Higher order than the parent user-settings layout so this specific page title wins deterministically.
@@ -32,7 +33,6 @@ const PermissionsSettingsPage: React.FC = () => {
   const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
-  const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
   const getUserDetails = useQuery({
     ...getUserDetailsForAuthenticatedUserOptions(),
@@ -269,133 +269,7 @@ const PermissionsSettingsPage: React.FC = () => {
         )}
       </div>
 
-      <div data-testid="authorized-applications-section" className={settingsCardCss}>
-        <div
-          className={css`
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-          `}
-        >
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 32px;
-              height: 32px;
-              background: ${baseTheme.colors.green[75]};
-              border-radius: 6px;
-              flex-shrink: 0;
-            `}
-          >
-            <LinkChain
-              size={16}
-              className={css`
-                color: ${baseTheme.colors.green[700]};
-              `}
-            />
-          </div>
-          <h2
-            className={css`
-              font-size: 1.0625rem;
-              font-weight: ${fontWeights.semibold};
-              color: ${baseTheme.colors.gray[700]};
-              margin: 0;
-            `}
-          >
-            {t("user-settings-authorized-apps")}
-          </h2>
-        </div>
-
-        {loginStateContext.signedIn === true && (
-          <QueryResult
-            query={listQuery}
-            emptyFallback={
-              <div
-                data-testid="authorized-applications-list"
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 0.625rem;
-                `}
-              >
-                <p
-                  className={css`
-                    color: ${baseTheme.colors.gray[500]};
-                    font-size: 0.875rem;
-                    margin: 0;
-                  `}
-                >
-                  {t("no-authorized-applications")}
-                </p>
-              </div>
-            }
-          >
-            {(data) => (
-              <div
-                data-testid="authorized-applications-list"
-                className={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 0.625rem;
-                `}
-              >
-                {data.map((client) => (
-                  <div
-                    key={client.client_id}
-                    data-testid={`authorized-app-${client.client_id}`}
-                    className={css`
-                      display: flex;
-                      justify-content: space-between;
-                      align-items: center;
-                      padding: 0.875rem 1rem;
-                      background: ${baseTheme.colors.gray[50]};
-                      border: 1px solid ${baseTheme.colors.gray[100]};
-                      border-radius: 8px;
-                    `}
-                  >
-                    <div>
-                      <div
-                        data-testid={`app-name-${client.client_id}`}
-                        className={css`
-                          font-weight: 500;
-                          color: ${baseTheme.colors.gray[700]};
-                          font-size: 0.9375rem;
-                          margin-bottom: 0.125rem;
-                        `}
-                      >
-                        {client.client_name}
-                      </div>
-                      <div
-                        data-testid={`app-scopes-${client.client_id}`}
-                        className={css`
-                          font-size: 0.8125rem;
-                          color: ${baseTheme.colors.gray[400]};
-                        `}
-                      >
-                        {client.scopes.join(", ")}
-                      </div>
-                    </div>
-                    <Button
-                      data-testid={`revoke-app-${client.client_id}`}
-                      variant="tertiary"
-                      size="small"
-                      onClick={() => revokeMutation.mutate(client.client_id)}
-                      disabled={revokeMutation.isPending}
-                    >
-                      {t("revoke")}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </QueryResult>
-        )}
-      </div>
+      <OAuthGrantsSection />
 
       {getUserDetails.isSuccess && getUserDetails.data?.email && (
         <div

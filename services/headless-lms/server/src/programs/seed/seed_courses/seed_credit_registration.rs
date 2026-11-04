@@ -597,7 +597,7 @@ async fn seed_certificate_detour_course(
     .seed(conn, app_config, &cx)
     .await?;
 
-    course_modules::update_certification_enabled(conn, module.id, true).await?;
+    course_modules::update_certification_enabled(conn, module.id, true, teacher_user_id).await?;
     open_university_registration_links::upsert(conn, CRS_DETOUR_101, "https://www.example.com")
         .await?;
     for enrolled_student in [student, failed_save_student] {

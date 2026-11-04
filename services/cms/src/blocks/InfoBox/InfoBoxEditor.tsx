@@ -1,12 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { Checkbox } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -56,7 +57,7 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
                 padding: 10px;
               `}
             >
-              <InnerBlocks />
+              <RegisteredInnerBlocks />
             </div>
           </Centered>
         </div>

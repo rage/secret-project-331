@@ -4,7 +4,7 @@
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
-import React from "react"
+import React, { createContext, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -26,6 +26,7 @@ import ListBlock from "./core/common/List/ListBlock"
 import ListItemBlock from "./core/common/List/ListItemBlock"
 import ParagraphBlock from "./core/common/Paragraph"
 import QuoteBlock from "./core/common/Quote/QuoteBlock"
+import VideoBlock from "./core/common/Video/VideoBlock"
 import EmbedBlock from "./core/embeds/EmbedBlock"
 import CodeBlock from "./core/formatting/CodeBlock"
 import CustomHTMLBlock from "./core/formatting/CustomHTMLBlock"
@@ -118,6 +119,7 @@ export const blockToRendererMap: Record<string, any> = {
   "core/list-item": ListItemBlock,
   "core/paragraph": ParagraphBlock,
   "core/quote": QuoteBlock,
+  "core/video": VideoBlock,
 
   // core / embeds
   "core/embed": EmbedBlock, // This is used by youtube, twitter etc.
@@ -188,6 +190,13 @@ export const blockToRendererMap: Record<string, any> = {
   "moocfi/aside-with-image": AsideWithImageBlock,
 }
 
+/**
+ * Renderers that replace the regular ones by block name in this subtree, e.g. read-only stand-ins
+ * for interactive blocks in a preview.
+ */
+// oxlint-disable-next-line typescript/no-explicit-any
+export const BlockRendererOverridesContext = createContext<Record<string, any>>({})
+
 const highlightedBlockStyles = css`
   outline: 2px solid ${baseTheme.colors.red[400]};
   outline-offset: 10px;
@@ -210,6 +219,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     .split(",")
     .filter((id) => id !== "")
   const { t } = useTranslation()
+  const blockRendererOverrides = useContext(BlockRendererOverridesContext)
   if (data.constructor !== Array) {
     return (
       <div>
@@ -259,7 +269,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
   const content = (
     <>
       {data.map((block) => {
-        const Component = blockToRendererMap[block.name] ?? DefaultBlock
+        const Component =
+          blockRendererOverrides[block.name] ?? blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
         const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
         const wrapperClassName = cx(

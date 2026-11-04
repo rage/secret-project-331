@@ -3,6 +3,7 @@ use crate::{
     setup_tracing,
 };
 use headless_lms_base::config::ApplicationConfiguration;
+pub use headless_lms_models::test_helper::init_file_store;
 
 use headless_lms_utils::{
     file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
@@ -13,45 +14,14 @@ use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
 
-/// Returns true if the current process appears to run inside Kubernetes.
-fn running_in_kubernetes() -> bool {
-    // `KUBERNETES_SERVICE_HOST` is injected into all pods by default.
-    env::var_os("KUBERNETES_SERVICE_HOST").is_some()
-}
-
-/// Default database URL for tests when no DB env vars are set.
-fn default_database_url_for_tests() -> String {
-    if running_in_kubernetes() {
-        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
-            .to_string()
-    } else {
-        // Matches the local dev convention (e.g. local Postgres or port-forwarded Postgres).
-        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
-    }
-}
-
 pub fn init_app_conf() -> anyhow::Result<ApplicationConfiguration> {
     let app_config = ApplicationConfiguration::mock_conf()?;
     Ok(app_config)
 }
 
-/// A file store for tests that only need download URLs, not stored bytes.
-///
-/// Built field-wise because `LocalFileStore::new` insists on `HEADLESS_LMS_CACHE_FILES_PATH`, which
-/// no test environment sets; nothing here reaches the cache, and setting the variable from one test
-/// would race every other test in the binary.
-pub fn init_file_store() -> LocalFileStore {
-    LocalFileStore {
-        base_path: "uploads".into(),
-        base_url: "http://localhost:3000".to_string(),
-        cache_files_path: env::temp_dir(),
-    }
-}
-
 pub async fn test_config() -> ServerConfig {
-    let database_url = env::var("DATABASE_URL_TEST")
-        .or_else(|_| env::var("DATABASE_URL"))
-        .unwrap_or_else(|_| default_database_url_for_tests());
+    let database_url = env::var("DATABASE_URL")
+        .unwrap_or_else(|_| headless_lms_models::test_helper::test_database_url());
     ServerConfigBuilder {
         database_url: SecretString::new(database_url.into()),
         oauth_application_id: "some-id".to_string(),
@@ -83,7 +53,7 @@ pub fn test_redis_url() -> Option<String> {
 
 /// Database URL for tests that need a pool of their own rather than a single connection, resolved
 /// the same way `Conn::init` resolves it so both see the same fixtures.
-pub fn test_database_url() -> String {
+pub fn dev_database_url() -> String {
     dotenvy::dotenv().ok();
     env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string())

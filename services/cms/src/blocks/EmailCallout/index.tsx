@@ -37,6 +37,8 @@ const EmailCalloutConfiguration: BlockConfiguration<EmailCalloutAttributes> = {
     },
   },
   icon: info,
+  allowedBlocks: ["core/paragraph", "core/list", "core/buttons"],
+  innerBlocksArea: { template: [["core/paragraph", {}]] },
   edit: EmailCalloutEditor,
   save: EmailCalloutSave,
 }

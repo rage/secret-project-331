@@ -1,39 +1,7 @@
-// Require imports needs to happen in a specific order.
-
-import * as jsdom from "jsdom"
-
+// Must run before the @wordpress requires below, which read `window` while loading.
+import "../src/utils/Gutenberg/headlessDom"
 import type { BlockType } from "@/utils/Gutenberg/types"
-const { JSDOM } = jsdom
 
-const dom = new JSDOM(`<body>
-<script>document.body.appendChild(document.createElement("hr"));</script>
-</body>`)
-const mock = () => {
-  // No op
-}
-Object.defineProperty(dom.window, "matchMedia", {
-  writable: true,
-  value: (query: unknown) => {
-    return {
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: mock, // deprecated
-      removeListener: mock, // deprecated
-      addEventListener: mock,
-      removeEventListener: mock,
-      dispatchEvent: mock,
-    }
-  },
-})
-// @ts-expect-error: Just to prevent a crash, not used
-global.window = dom.window
-global.document = dom.window.document
-global.navigator = dom.window.navigator
-// @ts-expect-error: Just to prevent a crash, not used
-global.CSS = {}
-
-// The following import order matters and are dependant on above window definition.
 // oxlint-disable-next-line typescript/no-require-imports
 const blockLibrary = require("@wordpress/block-library")
 // oxlint-disable-next-line typescript/no-require-imports

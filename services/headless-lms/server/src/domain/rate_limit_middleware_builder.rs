@@ -2,7 +2,7 @@ use crate::config::server_runtime_config;
 use crate::domain::authentication::{constant_time_eq_str, session_user_id};
 use actix_session::SessionExt;
 use actix_web::{
-    Error, HttpResponse,
+    Error, HttpMessage, HttpResponse,
     body::{EitherBody, MessageBody},
     dev::{Service, ServiceRequest, ServiceResponse, Transform},
     http::{StatusCode, header},
@@ -13,6 +13,7 @@ use governor::{
     clock::{Clock, DefaultClock},
     state::keyed::DefaultKeyedStateStore,
 };
+use headless_lms_models::library::oauth::bearer::TokenSubject;
 use secrecy::ExposeSecret;
 #[cfg(test)]
 use secrecy::SecretString;
@@ -40,9 +41,14 @@ pub struct RateLimitConfig {
 pub enum RateLimitKey {
     #[default]
     ClientIp,
-    /// The signed-in user, falling back to the client IP for anonymous requests. For endpoints
-    /// that act on the caller's own data, where users behind one NAT address must not share a quota.
+    /// The user of the request's access token, else the signed-in user, falling back to the client
+    /// IP for anonymous requests. For endpoints that act on the caller's own data, where users
+    /// behind one NAT address must not share a quota.
     User,
+    /// The grant of the request's access token. Must sit inside the middleware that authenticates
+    /// the token and puts its [`TokenSubject`] in the request extensions; falls back to the client
+    /// IP without one.
+    Grant,
 }
 
 /// Request header whose value, when equal to `RATELIMIT_PROTECTION_SAFE_API_KEY`, skips a
@@ -267,9 +273,15 @@ where
         }
 
         let clock = DefaultClock::default();
+        let token_subject = req.extensions().get::<TokenSubject>().copied();
         let key = match self.key {
-            RateLimitKey::User => session_user_id(&req.get_session())
+            RateLimitKey::User => token_subject
+                .map(|subject| subject.user_id)
+                .or_else(|| session_user_id(&req.get_session()))
                 .map(|id| format!("user:{id}"))
+                .unwrap_or_else(|| extract_client_ip_key(&req)),
+            RateLimitKey::Grant => token_subject
+                .map(|subject| format!("grant:{}", subject.grant_id))
                 .unwrap_or_else(|| extract_client_ip_key(&req)),
             RateLimitKey::ClientIp => extract_client_ip_key(&req),
         };

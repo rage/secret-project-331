@@ -12,6 +12,7 @@
     "test:playwright:focused": "playwright test --project=plugin-contract-chromium",
     "test:playwright:iframe-boundary": "playwright test --project=iframe-boundary-chromium --project=iframe-boundary-firefox --project=iframe-boundary-webkit",
     "test:playwright:plugin-contract": "playwright test --project=plugin-contract-chromium",
+    "test:playwright:system": "playwright test --project=system-chromium",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "verify": "pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:playwright"

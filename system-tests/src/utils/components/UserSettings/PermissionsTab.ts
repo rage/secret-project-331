@@ -107,38 +107,37 @@ export class PermissionsTab {
     await expect(this.page.getByRole("heading", { name: "Authorized Applications" })).toBeVisible()
   }
 
+  /** The listed grants, once the list has loaded. */
   public async getAuthorizedApplications(): Promise<
-    { name: string; scopes: string; clientId: string; revokeButton: Locator }[]
+    { name: string; scopes: string; row: Locator; revokeButton: Locator }[]
   > {
     const listContainer = this.page.getByTestId("authorized-applications-list")
-    if (!(await listContainer.isVisible())) {
-      return []
-    }
+    await listContainer.waitFor()
 
     const appItems = listContainer.locator('[data-testid^="authorized-app-"]')
     const count = await appItems.count()
 
     const apps = await Promise.all(
       Array.from({ length: count }, async (_, i) => {
-        const item = appItems.nth(i)
-        const testId = await item.getAttribute("data-testid")
+        const testId = await appItems.nth(i).getAttribute("data-testid")
         if (!testId) {
           return null
         }
+        const row = listContainer.getByTestId(testId)
 
-        const clientId = testId.replace("authorized-app-", "")
-        const name = await item.getByTestId(`app-name-${clientId}`).textContent()
+        const grantId = testId.replace("authorized-app-", "")
+        const name = await row.getByTestId(`app-name-${grantId}`).textContent()
         if (!name) {
           return null
         }
 
-        const scopes = await item.getByTestId(`app-scopes-${clientId}`).textContent()
-        const revokeButton = item.getByTestId(`revoke-app-${clientId}`)
+        const scopes = await row.getByTestId(`app-scopes-${grantId}`).textContent()
+        const revokeButton = row.getByTestId(`revoke-app-${grantId}`)
 
         return {
           name: name.trim(),
           scopes: scopes?.trim() ?? "",
-          clientId,
+          row,
           revokeButton,
         }
       }),
@@ -147,25 +146,29 @@ export class PermissionsTab {
     return apps.filter((app): app is NonNullable<typeof app> => app !== null)
   }
 
-  public async revokeAuthorizedApplication(appName: string): Promise<void> {
-    const apps = await this.getAuthorizedApplications()
-    const app = apps.find((a) => a.name === appName)
-    if (app) {
-      try {
-        await waitForSuccessNotification(this.page, async () => {
-          await app.revokeButton.click()
-        })
-      } catch {
-        const appsAfterClick = await this.getAuthorizedApplications()
-        const stillExists = appsAfterClick.some((a) => a.name === appName)
-        if (stillExists) {
-          throw new Error(
-            `Failed to revoke "${appName}": notification timeout and application still exists`,
-          )
-        }
-      }
-    } else {
+  public async getAuthorizedApplication(appName: string) {
+    const app = (await this.getAuthorizedApplications()).find((a) => a.name === appName)
+    if (!app) {
       throw new Error(`Authorized application "${appName}" not found`)
+    }
+    return app
+  }
+
+  public async revokeAuthorizedApplication(appName: string): Promise<void> {
+    const app = await this.getAuthorizedApplication(appName)
+    try {
+      await waitForSuccessNotification(this.page, async () => {
+        await app.revokeButton.click()
+        await this.page.getByTestId("oauth-grant-revoke-confirm-button").click()
+      })
+    } catch {
+      const appsAfterClick = await this.getAuthorizedApplications()
+      const stillExists = appsAfterClick.some((a) => a.name === appName)
+      if (stillExists) {
+        throw new Error(
+          `Failed to revoke "${appName}": notification timeout and application still exists`,
+        )
+      }
     }
   }
 

@@ -55,14 +55,13 @@ test.describe("Uploading media as admin", () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    const uploadedImageLink = page.getByRole("link", { name: "Add alt" }).first()
-    await expect(uploadedImageLink).toBeVisible()
-    await expect(uploadedImageLink).toHaveAttribute("href", /\/images\/.+\.png$/)
-    const href = await uploadedImageLink.getAttribute("href")
-    expect(href).not.toBeNull()
+    const uploadedImage = page.locator('[data-type="core/image"] img').first()
+    await expect(uploadedImage).toHaveAttribute("src", /\/images\/.+\.png$/)
+    const src = await uploadedImage.getAttribute("src")
+    expect(src).not.toBeNull()
 
     const newPage = await page.context().newPage()
-    await newPage.goto(new URL(String(href), page.url()).toString(), {
+    await newPage.goto(new URL(String(src), page.url()).toString(), {
       waitUntil: "domcontentloaded",
     })
 

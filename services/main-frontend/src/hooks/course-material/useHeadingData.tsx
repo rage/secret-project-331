@@ -12,12 +12,19 @@ export interface Heading {
   element: HTMLHeadingElement
 }
 
+/** The element the heading is labelled by, whose text leaves out the controls inside the heading. */
+function headingLabel(heading: HTMLHeadingElement): HTMLElement | null {
+  const labelId = heading.getAttribute("aria-labelledby")
+  return labelId === null ? null : document.querySelector<HTMLElement>(`#${CSS.escape(labelId)}`)
+}
+
 const getHeadings = (headingElements: HTMLHeadingElement[]) => {
   const headings: Heading[] = []
 
   headingElements.forEach((heading) => {
     try {
-      const { innerText: title, tagName, dataset } = heading
+      const { tagName, dataset } = heading
+      const title = headingLabel(heading)?.innerText ?? heading.innerText
       const headingsNavigationIndex = dataset.headingsNavigationIndex
       // oxlint-disable-next-line unicorn/prefer-number-coercion -- parseInt intended; Number() differs
       const level = parseInt(tagName.replaceAll(/[^0-6]+/g, ""), 10)

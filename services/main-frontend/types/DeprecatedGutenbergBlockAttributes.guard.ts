@@ -2,7 +2,7 @@
  * Generated type guards for "DeprecatedGutenbergBlockAttributes.ts".
  * WARNING: Do not manually change this file.
  */
-import type { AudioDeprecated1Attributes, BlockDeprecated1Attributes, BlockDeprecated2Attributes, ButtonDeprecated10Attributes, ButtonDeprecated11Attributes, ButtonDeprecated12Attributes, ButtonDeprecated13Attributes, ButtonDeprecated14Attributes, ButtonDeprecated1Attributes, ButtonDeprecated2Attributes, ButtonDeprecated3Attributes, ButtonDeprecated4Attributes, ButtonDeprecated5Attributes, ButtonDeprecated6Attributes, ButtonDeprecated7Attributes, ButtonDeprecated8Attributes, ButtonDeprecated9Attributes, ButtonsDeprecated1Attributes, ButtonsDeprecated2Attributes, ColumnDeprecated1Attributes, ColumnsDeprecated1Attributes, ColumnsDeprecated2Attributes, ColumnsDeprecated3Attributes, EmbedDeprecated1Attributes, EmbedDeprecated2Attributes, FileDeprecated1Attributes, FileDeprecated2Attributes, FileDeprecated3Attributes, HeadingDeprecated1Attributes, HeadingDeprecated2Attributes, HeadingDeprecated3Attributes, HeadingDeprecated4Attributes, HeadingDeprecated5Attributes, HeadingDeprecated6Attributes, ImageDeprecated1Attributes, ImageDeprecated2Attributes, ImageDeprecated3Attributes, ImageDeprecated4Attributes, ImageDeprecated5Attributes, ImageDeprecated6Attributes, ImageDeprecated7Attributes, ImageDeprecated8Attributes, ImageDeprecated9Attributes, ListDeprecated1Attributes, ListDeprecated2Attributes, ListDeprecated3Attributes, ListDeprecated4Attributes, ParagraphDeprecated1Attributes, ParagraphDeprecated2Attributes, ParagraphDeprecated3Attributes, ParagraphDeprecated4Attributes, ParagraphDeprecated5Attributes, ParagraphDeprecated6Attributes, ParagraphDeprecated7Attributes, PullquoteDeprecated1Attributes, PullquoteDeprecated2Attributes, PullquoteDeprecated3Attributes, PullquoteDeprecated4Attributes, PullquoteDeprecated5Attributes, PullquoteDeprecated6Attributes, PullquoteDeprecated7Attributes, QuoteDeprecated1Attributes, QuoteDeprecated2Attributes, QuoteDeprecated3Attributes, QuoteDeprecated4Attributes, QuoteDeprecated5Attributes, SeparatorDeprecated1Attributes, SpacerDeprecated1Attributes, VerseDeprecated1Attributes, VerseDeprecated2Attributes, VerseDeprecated3Attributes } from "./DeprecatedGutenbergBlockAttributes";
+import type { AudioDeprecated1Attributes, BlockDeprecated1Attributes, BlockDeprecated2Attributes, ButtonDeprecated10Attributes, ButtonDeprecated11Attributes, ButtonDeprecated12Attributes, ButtonDeprecated13Attributes, ButtonDeprecated14Attributes, ButtonDeprecated1Attributes, ButtonDeprecated2Attributes, ButtonDeprecated3Attributes, ButtonDeprecated4Attributes, ButtonDeprecated5Attributes, ButtonDeprecated6Attributes, ButtonDeprecated7Attributes, ButtonDeprecated8Attributes, ButtonDeprecated9Attributes, ButtonsDeprecated1Attributes, ButtonsDeprecated2Attributes, ColumnDeprecated1Attributes, ColumnsDeprecated1Attributes, ColumnsDeprecated2Attributes, ColumnsDeprecated3Attributes, EmbedDeprecated1Attributes, EmbedDeprecated2Attributes, FileDeprecated1Attributes, FileDeprecated2Attributes, FileDeprecated3Attributes, HeadingDeprecated1Attributes, HeadingDeprecated2Attributes, HeadingDeprecated3Attributes, HeadingDeprecated4Attributes, HeadingDeprecated5Attributes, HeadingDeprecated6Attributes, ImageDeprecated1Attributes, ImageDeprecated2Attributes, ImageDeprecated3Attributes, ImageDeprecated4Attributes, ImageDeprecated5Attributes, ImageDeprecated6Attributes, ImageDeprecated7Attributes, ImageDeprecated8Attributes, ImageDeprecated9Attributes, ListDeprecated1Attributes, ListDeprecated2Attributes, ListDeprecated3Attributes, ListDeprecated4Attributes, ParagraphDeprecated1Attributes, ParagraphDeprecated2Attributes, ParagraphDeprecated3Attributes, ParagraphDeprecated4Attributes, ParagraphDeprecated5Attributes, ParagraphDeprecated6Attributes, ParagraphDeprecated7Attributes, PullquoteDeprecated1Attributes, PullquoteDeprecated2Attributes, PullquoteDeprecated3Attributes, PullquoteDeprecated4Attributes, PullquoteDeprecated5Attributes, PullquoteDeprecated6Attributes, PullquoteDeprecated7Attributes, QuoteDeprecated1Attributes, QuoteDeprecated2Attributes, QuoteDeprecated3Attributes, QuoteDeprecated4Attributes, QuoteDeprecated5Attributes, SeparatorDeprecated1Attributes, SpacerDeprecated1Attributes, VerseDeprecated1Attributes, VerseDeprecated2Attributes, VerseDeprecated3Attributes, VideoDeprecated1Attributes } from "./DeprecatedGutenbergBlockAttributes";
 
 export function isAudioDeprecated1Attributes(obj: unknown): obj is AudioDeprecated1Attributes {
     const typedObj = obj as AudioDeprecated1Attributes
@@ -3401,6 +3401,71 @@ export function isVerseDeprecated3Attributes(obj: unknown): obj is VerseDeprecat
         typeof typedObj["content"] === "string" &&
         (typeof typedObj["textAlign"] === "undefined" ||
             typeof typedObj["textAlign"] === "string") &&
+        (typeof typedObj["lock"] === "undefined" ||
+            (typedObj["lock"] !== null &&
+                typeof typedObj["lock"] === "object" ||
+                typeof typedObj["lock"] === "function") &&
+            Object.entries<any>(typedObj["lock"])
+                .every(([key, _value]) => (typeof key === "string"))) &&
+        (typeof typedObj["className"] === "undefined" ||
+            typeof typedObj["className"] === "string") &&
+        (typeof typedObj["style"] === "undefined" ||
+            (typedObj["style"] !== null &&
+                typeof typedObj["style"] === "object" ||
+                typeof typedObj["style"] === "function") &&
+            Object.entries<any>(typedObj["style"])
+                .every(([key, _value]) => (typeof key === "string"))) &&
+        (typeof typedObj["metadata"] === "undefined" ||
+            (typedObj["metadata"] !== null &&
+                typeof typedObj["metadata"] === "object" ||
+                typeof typedObj["metadata"] === "function") &&
+            Object.entries<any>(typedObj["metadata"])
+                .every(([key, _value]) => (typeof key === "string")))
+    )
+}
+
+export function isVideoDeprecated1Attributes(obj: unknown): obj is VideoDeprecated1Attributes {
+    const typedObj = obj as VideoDeprecated1Attributes
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typeof typedObj["autoplay"] === "undefined" ||
+            typedObj["autoplay"] === false ||
+            typedObj["autoplay"] === true) &&
+        (typeof typedObj["caption"] === "undefined" ||
+            typeof typedObj["caption"] === "string") &&
+        typeof typedObj["controls"] === "boolean" &&
+        (typeof typedObj["id"] === "undefined" ||
+            typeof typedObj["id"] === "number") &&
+        (typeof typedObj["loop"] === "undefined" ||
+            typedObj["loop"] === false ||
+            typedObj["loop"] === true) &&
+        (typeof typedObj["muted"] === "undefined" ||
+            typedObj["muted"] === false ||
+            typedObj["muted"] === true) &&
+        (typeof typedObj["poster"] === "undefined" ||
+            typeof typedObj["poster"] === "string") &&
+        typeof typedObj["preload"] === "string" &&
+        (typeof typedObj["blob"] === "undefined" ||
+            typeof typedObj["blob"] === "string") &&
+        (typeof typedObj["src"] === "undefined" ||
+            typeof typedObj["src"] === "string") &&
+        (typeof typedObj["width"] === "undefined" ||
+            typeof typedObj["width"] === "number") &&
+        (typeof typedObj["height"] === "undefined" ||
+            typeof typedObj["height"] === "number") &&
+        (typeof typedObj["playsInline"] === "undefined" ||
+            typedObj["playsInline"] === false ||
+            typedObj["playsInline"] === true) &&
+        Array.isArray(typedObj["tracks"]) &&
+        typedObj["tracks"].every((e: any) =>
+            (e !== null &&
+                typeof e === "object" ||
+                typeof e === "function") &&
+            Object.entries<any>(e)
+                .every(([key, _value]) => (typeof key === "string"))
+        ) &&
         (typeof typedObj["lock"] === "undefined" ||
             (typedObj["lock"] !== null &&
                 typeof typedObj["lock"] === "object" ||

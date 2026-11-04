@@ -65,6 +65,7 @@ async fn update_course_auditing_data(
         app_conf.as_ref(),
         *course_id,
         payload.0,
+        user.id,
     )
     .await?;
 

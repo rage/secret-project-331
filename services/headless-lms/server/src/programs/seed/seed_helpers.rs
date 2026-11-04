@@ -91,7 +91,7 @@ pub async fn create_page(
         conn,
         PageUpdateArgs {
             page_id: page.id,
-            author,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(author),
             cms_page_update: CmsPageUpdate {
                 content: page_data.content,
                 exercises: page_data.exercises,

@@ -2,9 +2,11 @@
 
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React, { useContext, useEffect } from "react"
 
+import { getCmsPageNavigationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -26,8 +28,14 @@ const HeroSectionEditor: React.FC<
   const direction = alignCenter || alignCenter === undefined ? "center" : "left"
   const defaultLabel = useDefaultTextForLabel === undefined || useDefaultTextForLabel
 
-  const path = useContext(PageContext)?.page?.url_path
-  const formattedPath = path?.replace("-", " ").replace("/", "")
+  const page = useContext(PageContext)?.page
+  const formattedPath = page?.url_path.replace("-", " ").replace("/", "")
+  const navigationQuery = useQuery({
+    ...getCmsPageNavigationOptions({ path: { page_id: page?.id ?? "" } }),
+    enabled: page !== undefined,
+  })
+  const isChapterFrontPage =
+    page !== undefined && navigationQuery.data?.chapter_front_page?.page_id === page?.id
 
   const { backgroundColor, backgroundImage, backgroundRepeatX, partiallyTransparent, alignBottom } =
     attributes
@@ -101,7 +109,7 @@ const HeroSectionEditor: React.FC<
               text-align: center;
             `}
           >
-            {defaultLabel ? (
+            {defaultLabel && isChapterFrontPage ? (
               <h6>{formattedPath}</h6>
             ) : (
               <RichText

@@ -25,12 +25,18 @@ fn in_http_test_mode() -> bool {
         || bool_env_false_by_default("TEST_MODE")
 }
 
-/// The settings both clients share, timeouts other than the connect one left to the caller.
-pub(crate) fn base_client_builder() -> reqwest::ClientBuilder {
+/// The settings every HTTP client shares: rustls, https only outside test mode, and the connect
+/// timeout. Other timeouts are left to the caller.
+pub fn base_client_builder() -> reqwest::ClientBuilder {
     reqwest::Client::builder()
         .use_rustls_tls()
         .https_only(!in_http_test_mode())
         .connect_timeout(CONNECT_TIMEOUT)
+}
+
+/// Escapes a value for a quoted-string auth-param of a `WWW-Authenticate` header (RFC 9110 §11.2).
+pub fn escape_auth_param(value: &str) -> String {
+    value.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {

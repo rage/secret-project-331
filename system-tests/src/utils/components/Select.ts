@@ -164,10 +164,13 @@ export class Select {
   private async openIfClosed(): Promise<void> {
     // Not `expect().toBeVisible()`: its 5s timeout is too short for a page that is still loading.
     await this.trigger.waitFor()
-    if ((await this.trigger.getAttribute("aria-expanded")) !== "true") {
-      await this.trigger.click()
-    }
-    await expect(this.trigger).toHaveAttribute("aria-expanded", "true")
+    // A click before hydration or during a re-render is dropped, so retry until it sticks.
+    await expect(async () => {
+      if ((await this.trigger.getAttribute("aria-expanded")) !== "true") {
+        await this.trigger.click()
+      }
+      await expect(this.trigger).toHaveAttribute("aria-expanded", "true", { timeout: 1000 })
+    }).toPass()
   }
 
   private listBox(): Promise<Locator> {

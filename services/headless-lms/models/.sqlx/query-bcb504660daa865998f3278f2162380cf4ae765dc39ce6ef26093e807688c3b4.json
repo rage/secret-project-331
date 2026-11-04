@@ -1,0 +1,39 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE agent_changeset_entities e\nSET risk_reasons = k.risk_reasons\nFROM UNNEST($2::content_entity_type [], $3::uuid [], $4::jsonb []) AS k(entity_type, entity_id, risk_reasons)\nWHERE e.changeset_id = $1\n  AND e.entity_type = k.entity_type\n  AND e.entity_id = k.entity_id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "content_entity_type[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "content_entity_type",
+                  "kind": {
+                    "Enum": [
+                      "page",
+                      "chapter",
+                      "module",
+                      "course_settings",
+                      "glossary_term",
+                      "reference",
+                      "course_default_review_config"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "UuidArray",
+        "JsonbArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bcb504660daa865998f3278f2162380cf4ae765dc39ce6ef26093e807688c3b4"
+}

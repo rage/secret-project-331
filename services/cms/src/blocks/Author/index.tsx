@@ -14,6 +14,8 @@ const AuthorConfiguration: BlockConfiguration = {
   description: "Section displaying brief bios and photos of the page author(s)",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["moocfi/author-inner-block"],
+  innerBlocksArea: { template: [["moocfi/author-inner-block"]] },
   edit: AuthorEditor,
   save: AuthorSave,
 }

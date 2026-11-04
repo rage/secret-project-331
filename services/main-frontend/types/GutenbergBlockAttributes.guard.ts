@@ -2,7 +2,7 @@
  * Generated type guards for "GutenbergBlockAttributes.ts".
  * WARNING: Do not manually change this file.
  */
-import type { AudioAttributes, BlockAttributes, ButtonAttributes, ButtonsAttributes, CodeAttributes, ColumnAttributes, ColumnsAttributes, EmbedAttributes, FileAttributes, HeadingAttributes, HtmlAttributes, ImageAttributes, ListAttributes, ListItemAttributes, ParagraphAttributes, PreformattedAttributes, PullquoteAttributes, QuoteAttributes, SeparatorAttributes, SpacerAttributes, TableAttributes, Cells, CellAttributes, VerseAttributes } from "./GutenbergBlockAttributes";
+import type { AudioAttributes, BlockAttributes, ButtonAttributes, ButtonsAttributes, CodeAttributes, ColumnAttributes, ColumnsAttributes, EmbedAttributes, FileAttributes, HeadingAttributes, HtmlAttributes, ImageAttributes, ListAttributes, ListItemAttributes, ParagraphAttributes, PreformattedAttributes, PullquoteAttributes, QuoteAttributes, SeparatorAttributes, SpacerAttributes, TableAttributes, Cells, CellAttributes, VerseAttributes, VideoAttributes } from "./GutenbergBlockAttributes";
 
 export function isAudioAttributes(obj: unknown): obj is AudioAttributes {
     const typedObj = obj as AudioAttributes
@@ -1184,6 +1184,80 @@ export function isVerseAttributes(obj: unknown): obj is VerseAttributes {
             typeof typedObj["fontFamily"] === "string") &&
         (typeof typedObj["fontSize"] === "undefined" ||
             typeof typedObj["fontSize"] === "string") &&
+        (typeof typedObj["lock"] === "undefined" ||
+            (typedObj["lock"] !== null &&
+                typeof typedObj["lock"] === "object" ||
+                typeof typedObj["lock"] === "function") &&
+            Object.entries<any>(typedObj["lock"])
+                .every(([key, _value]) => (typeof key === "string"))) &&
+        (typeof typedObj["anchor"] === "undefined" ||
+            typeof typedObj["anchor"] === "string") &&
+        (typeof typedObj["className"] === "undefined" ||
+            typeof typedObj["className"] === "string") &&
+        (typeof typedObj["style"] === "undefined" ||
+            (typedObj["style"] !== null &&
+                typeof typedObj["style"] === "object" ||
+                typeof typedObj["style"] === "function") &&
+            Object.entries<any>(typedObj["style"])
+                .every(([key, _value]) => (typeof key === "string"))) &&
+        (typeof typedObj["metadata"] === "undefined" ||
+            (typedObj["metadata"] !== null &&
+                typeof typedObj["metadata"] === "object" ||
+                typeof typedObj["metadata"] === "function") &&
+            Object.entries<any>(typedObj["metadata"])
+                .every(([key, _value]) => (typeof key === "string")))
+    )
+}
+
+export function isVideoAttributes(obj: unknown): obj is VideoAttributes {
+    const typedObj = obj as VideoAttributes
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typeof typedObj["autoplay"] === "undefined" ||
+            typedObj["autoplay"] === false ||
+            typedObj["autoplay"] === true) &&
+        (typeof typedObj["caption"] === "undefined" ||
+            typeof typedObj["caption"] === "string") &&
+        typeof typedObj["controls"] === "boolean" &&
+        (typeof typedObj["id"] === "undefined" ||
+            typeof typedObj["id"] === "number") &&
+        (typeof typedObj["loop"] === "undefined" ||
+            typedObj["loop"] === false ||
+            typedObj["loop"] === true) &&
+        (typeof typedObj["muted"] === "undefined" ||
+            typedObj["muted"] === false ||
+            typedObj["muted"] === true) &&
+        (typeof typedObj["poster"] === "undefined" ||
+            typeof typedObj["poster"] === "string") &&
+        typeof typedObj["preload"] === "string" &&
+        (typeof typedObj["blob"] === "undefined" ||
+            typeof typedObj["blob"] === "string") &&
+        (typeof typedObj["src"] === "undefined" ||
+            typeof typedObj["src"] === "string") &&
+        (typeof typedObj["width"] === "undefined" ||
+            typeof typedObj["width"] === "number") &&
+        (typeof typedObj["height"] === "undefined" ||
+            typeof typedObj["height"] === "number") &&
+        (typeof typedObj["playsInline"] === "undefined" ||
+            typedObj["playsInline"] === false ||
+            typedObj["playsInline"] === true) &&
+        Array.isArray(typedObj["tracks"]) &&
+        typedObj["tracks"].every((e: any) =>
+            (e !== null &&
+                typeof e === "object" ||
+                typeof e === "function") &&
+            Object.entries<any>(e)
+                .every(([key, _value]) => (typeof key === "string"))
+        ) &&
+        (typeof typedObj["align"] === "undefined" ||
+            typedObj["align"] === "" ||
+            typedObj["align"] === "left" ||
+            typedObj["align"] === "center" ||
+            typedObj["align"] === "right" ||
+            typedObj["align"] === "wide" ||
+            typedObj["align"] === "full") &&
         (typeof typedObj["lock"] === "undefined" ||
             (typedObj["lock"] !== null &&
                 typeof typedObj["lock"] === "object" ||

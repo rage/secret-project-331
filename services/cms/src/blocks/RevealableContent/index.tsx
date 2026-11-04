@@ -17,6 +17,13 @@ const RevealableContentConfiguration: BlockConfiguration<ConditionAttributes> = 
   description: "Add text and then hidden content that can be revealed with button",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: [
+    "core/heading",
+    "core/paragraph",
+    "core/image",
+    "core/list",
+    "moocfi/revealable-hidden-content",
+  ],
   edit: RevealableContentEditor,
   save: RevealableContentSave,
 }

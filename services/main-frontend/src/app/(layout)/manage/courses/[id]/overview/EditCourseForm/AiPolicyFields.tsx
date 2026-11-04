@@ -1,10 +1,12 @@
 "use client"
 
 import styled from "@emotion/styled"
+import type { TFunction } from "i18next"
 import React from "react"
 import { useController, useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import type { CourseAiPolicy } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Radio, RadioGroup } from "@/shared-module/components"
 
@@ -27,6 +29,28 @@ const HelpText = styled.p`
   font-size: 0.9rem;
   color: ${baseTheme.colors.gray[500]};
 `
+
+const AI_POLICIES: CourseAiPolicy[] = [
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+]
+
+/** The label of an AI policy option in the course settings. */
+export function aiPolicyLabel(policy: CourseAiPolicy, t: TFunction): string {
+  const labels: Record<CourseAiPolicy, string> = {
+    NotSet: t("ai-policy-option-not-set"),
+    NoAi: t("ai-policy-option-no-ai"),
+    PlanningOnly: t("ai-policy-option-planning-only"),
+    Limited: t("ai-policy-option-limited"),
+    FullUse: t("ai-policy-option-full-use"),
+    Required: t("ai-policy-option-required"),
+  }
+  return labels[policy]
+}
 
 const AiPolicyFields = (): React.ReactElement => {
   const { t } = useTranslation()
@@ -65,12 +89,9 @@ const AiPolicyFields = (): React.ReactElement => {
           label={t("ai-policy-label")}
           description={t("ai-policy-help")}
         >
-          <Radio label={t("ai-policy-option-not-set")} value="NotSet" />
-          <Radio label={t("ai-policy-option-no-ai")} value="NoAi" />
-          <Radio label={t("ai-policy-option-planning-only")} value="PlanningOnly" />
-          <Radio label={t("ai-policy-option-limited")} value="Limited" />
-          <Radio label={t("ai-policy-option-full-use")} value="FullUse" />
-          <Radio label={t("ai-policy-option-required")} value="Required" />
+          {AI_POLICIES.map((policy) => (
+            <Radio key={policy} label={aiPolicyLabel(policy, t)} value={policy} />
+          ))}
         </RadioGroup>
       </FieldSet>
     </>

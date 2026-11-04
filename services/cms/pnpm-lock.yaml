@@ -194,6 +194,12 @@ importers:
       '@wordpress/keycodes':
         specifier: ^4.53.0
         version: 4.53.0(@types/react@19.2.18)
+      '@wordpress/latex-to-mathml':
+        specifier: ^1.21.0
+        version: 1.21.0
+      '@wordpress/rich-text':
+        specifier: ^7.53.0
+        version: 7.53.0(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -321,6 +327,9 @@ importers:
       '@wordpress/scripts':
         specifier: ^34.1.0
         version: 34.1.0(@playwright/test@1.55.1)(@types/node@26.3.0)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(@typescript-eslint/eslint-plugin@8.68.0(@typescript-eslint/parser@8.68.0(@typescript/typescript6@6.0.2)(eslint@10.9.1(supports-color@10.2.2))(supports-color@10.2.2))(@typescript/typescript6@6.0.2)(eslint@10.9.1(supports-color@10.2.2))(supports-color@10.2.2))(@typescript-eslint/parser@8.68.0(@typescript/typescript6@6.0.2)(eslint@10.9.1(supports-color@10.2.2))(supports-color@10.2.2))(@typescript/typescript6@6.0.2)(babel-plugin-macros@3.1.0)(csso@5.0.5)(debug@4.4.3(supports-color@10.2.2))(esbuild@0.28.2)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(stylelint-scss@6.14.0(stylelint@17.14.1(@typescript/typescript6@6.0.2)(supports-color@10.2.2)))(supports-color@10.2.2)(ts-node@10.9.2(@types/node@26.3.0)(@typescript/typescript6@6.0.2))(type-fest@4.41.0)
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
       jest:
         specifier: ^30.4.2
         version: 30.4.2(@types/node@26.3.0)(babel-plugin-macros@3.1.0)(supports-color@10.2.2)(ts-node@10.9.2(@types/node@26.3.0)(@typescript/typescript6@6.0.2))
@@ -2332,6 +2341,7 @@ packages:
   '@opentelemetry/sdk-trace-base@1.30.1':
     resolution: {integrity: sha512-jVPgBbH1gCy2Lb7X0AVQ8XAfgg0pJ4nvl8/IiQA6nxOsPvS+0zMJaFSs2ltXe0J6C8dqjcnpyqINDJmU30+uOg==}
     engines: {node: '>=14'}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': '>=1.0.0 <1.10.0'
 
@@ -22126,11 +22136,14 @@ time:
   '@wordpress/icons@15.4.0': '2026-08-12T08:35:35.993Z'
   '@wordpress/keyboard-shortcuts@5.53.0': '2026-08-12T08:35:36.774Z'
   '@wordpress/keycodes@4.53.0': '2026-08-12T08:35:28.610Z'
+  '@wordpress/latex-to-mathml@1.21.0': '2026-08-12T08:35:14.936Z'
+  '@wordpress/rich-text@7.53.0': '2026-08-12T08:35:37.612Z'
   '@wordpress/scripts@34.1.0': '2026-08-12T08:35:42.395Z'
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   date-fns@4.4.0: '2026-05-29T23:23:42.628Z'
   diff@9.0.0: '2026-04-13T12:39:24.498Z'
   dompurify@3.4.14: '2026-08-19T10:25:15.825Z'
+  esbuild@0.28.2: '2026-08-08T20:00:55.454Z'
   express@5.2.1: '2025-12-01T20:49:43.268Z'
   http-proxy-middleware@4.2.0: '2026-07-04T21:49:09.221Z'
   i18next@26.4.0: '2026-08-20T09:25:14.621Z'

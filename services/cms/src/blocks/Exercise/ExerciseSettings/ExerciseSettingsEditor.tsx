@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 import { useWatch } from "react-hook-form"
 
@@ -11,6 +11,7 @@ import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.gener
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Checkbox, Disclosure, TextField } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -18,8 +19,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
 import PageContext from "../../../contexts/PageContext"
-
-const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
 interface SettingsValues {
   name: string
@@ -199,7 +198,7 @@ const ExerciseSettingsEditor = () => {
                   padding: 1rem;
                 `}
               >
-                <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} templateLock={false} />
+                <RegisteredInnerBlocks />
               </div>
             }
           />

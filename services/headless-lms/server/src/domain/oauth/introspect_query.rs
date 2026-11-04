@@ -1,6 +1,6 @@
+use super::helpers::{oauth_invalid_client, oauth_invalid_request};
 use super::oauth_validate::OAuthValidate;
 use crate::prelude::*;
-use domain::error::{OAuthErrorCode, OAuthErrorData};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -40,17 +40,7 @@ impl OAuthValidate for IntrospectQuery {
         let client_id = self.client_id.as_deref().unwrap_or_default();
 
         if client_id.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidClient.as_str().into(),
-                    error_description: "client_id is required".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Missing client_id",
-                None::<anyhow::Error>,
-            ));
+            return Err(oauth_invalid_client("client_id is required"));
         }
 
         let token = self
@@ -59,17 +49,7 @@ impl OAuthValidate for IntrospectQuery {
             .map(|t| t.expose_secret())
             .unwrap_or_default();
         if token.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                    error_description: "token is required".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Missing token",
-                None::<anyhow::Error>,
-            ));
+            return Err(oauth_invalid_request("token is required", None, None));
         }
 
         // RFC 7662 §2.1: "The resource server MAY ignore the hint."

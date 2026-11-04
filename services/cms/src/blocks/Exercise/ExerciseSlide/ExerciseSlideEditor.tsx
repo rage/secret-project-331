@@ -2,19 +2,17 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext } from "react"
 
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import { gutenbergControlsHidden } from "../../../styles/EditorStyles"
-
-const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-task"]
-const INNER_BLOCKS_TEMPLATE: TemplateArray = [["moocfi/exercise-task", {}]]
 
 const ExerciseSlideEditorCard = styled.div`
   padding: 2rem 2rem;
@@ -51,11 +49,7 @@ const ExerciseSlideEditor: React.FC<
           {t("slide-title", { number: attributes.order_number + 1 })}
         </div>
         <div className={gutenbergControlsHidden}>
-          <InnerBlocks
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            template={INNER_BLOCKS_TEMPLATE}
-            templateLock={false}
-          />
+          <RegisteredInnerBlocks />
         </div>
         <div>
           <Button variant="secondary" size="medium" onClick={handleAddNewTask}>

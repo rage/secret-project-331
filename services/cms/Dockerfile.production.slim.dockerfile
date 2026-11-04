@@ -25,6 +25,7 @@ FROM eu.gcr.io/moocfi-public/project-331-node-base:latest AS runtime
 
 COPY --from=builder /app/.next/standalone /app
 COPY --from=builder /app/.next/static /app/.next/static
+COPY --from=builder /app/dist/block-validator-worker.cjs /app/dist/block-validator-worker.cjs
 
 USER node
 

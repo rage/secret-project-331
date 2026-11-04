@@ -1,6 +1,7 @@
 pub mod authorize_query;
 pub mod authorized_client;
 pub mod claims;
+pub mod client_metadata_document;
 pub mod consent_deny_query;
 pub mod consent_query;
 pub mod consent_response;
@@ -16,6 +17,7 @@ pub mod oauth_validated;
 pub mod oidc;
 pub mod pkce;
 pub mod redirects;
+pub mod resource_indicator;
 pub mod revoke_query;
 pub mod token_query;
 pub mod token_response;

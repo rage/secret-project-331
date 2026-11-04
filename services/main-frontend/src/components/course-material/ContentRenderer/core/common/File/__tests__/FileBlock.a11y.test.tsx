@@ -45,6 +45,25 @@ describe("FileBlock accessibility (issue #69)", () => {
     expect(downloadLink.querySelector("button")).toBeNull()
   })
 
+  it("renders rich-text file names as formatted text and downloads under the plain name", () => {
+    const { container } = render(
+      <FileBlock
+        {...makeProps({
+          fileName: "<strong>Tom</strong> &amp; Jerry.pdf",
+          showDownloadButton: true,
+          downloadButtonText: "Get <em>it</em>",
+        })}
+      />,
+    )
+
+    const fileLink = container.querySelector('a[href="https://example.com/syllabus.pdf"]')
+    expect(fileLink).toHaveTextContent("Tom & Jerry.pdf")
+    expect(fileLink?.querySelector("strong")).toHaveTextContent("Tom")
+    const downloadLink = screen.getByRole("link", { name: "Get it" })
+    expect(downloadLink).toHaveAttribute("download", "Tom & Jerry.pdf")
+    expect(downloadLink.querySelector("em")).toHaveTextContent("it")
+  })
+
   it("disables the download control when the file has no href, so it does not link to the current page", () => {
     render(
       <FileBlock

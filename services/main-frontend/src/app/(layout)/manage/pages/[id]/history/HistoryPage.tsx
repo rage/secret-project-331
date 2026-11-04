@@ -76,6 +76,9 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
                       user: h.author_user_id,
                       time: h.created_at,
                     })}
+                  {h.agent_client_name && (
+                    <> {t("edited-via-agent-client", { client: h.agent_client_name })}</>
+                  )}
                 </div>
                 <div>
                   <Button variant={"primary"} size={"medium"} onClick={() => onCompare(h)}>

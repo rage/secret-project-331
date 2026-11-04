@@ -1434,6 +1434,7 @@
   "label-status": "Status",
   "label-time": "Time",
   "label-verified-student-number": "Verified student number",
+  "link-credit-registration-admin-page": "Open the registration status page",
   "link-edit-course-modules": "Edit the course modules",
   "link-export-credit-registration-statuses": "Export registration statuses as CSV",
   "link-student-number-already-linked-to-this-account": "Student number {{studentNumber}} was already linked to this account.",

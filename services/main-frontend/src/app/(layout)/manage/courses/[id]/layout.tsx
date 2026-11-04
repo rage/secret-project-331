@@ -49,12 +49,12 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const courseId = params.id
   const { t } = useTranslation()
 
-  const canViewStudentsQuery = useAuthorizeMultiple([
+  const permissionsQuery = useAuthorizeMultiple([
     { action: { type: "administrate" }, resource: { type: "global_permissions" } },
     { action: { type: "teach" }, resource: { type: "course", id: courseId } },
   ])
-  const canViewStudents =
-    (canViewStudentsQuery.isSuccess && canViewStudentsQuery.data?.some(Boolean)) ?? false
+  const [isGlobalAdmin = false, canTeach = false] = permissionsQuery.data ?? []
+  const canViewStudents = isGlobalAdmin || canTeach
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 

@@ -62,9 +62,26 @@ pub struct ApplicationConfiguration {
     /// use. Carried here because the answer readers that mint those URLs live below the crate that
     /// owns the claims.
     pub jwt_password: SecretString,
+    pub mcp_configuration: Option<McpConfiguration>,
 }
 
 impl ApplicationConfiguration {
+    /// `path` (starting with `/`) on the public site.
+    pub fn public_url(&self, path: &str) -> String {
+        format!("{}{path}", self.base_url.trim_end_matches('/'))
+    }
+
+    /// The issuer of this server's OAuth authorization server: the `iss` of its tokens, metadata
+    /// and RFC 9207 authorization responses.
+    pub fn oauth_issuer(&self) -> String {
+        self.public_url("/api/v0/main-frontend/oauth")
+    }
+
+    /// The canonical URL of the MCP server: the RFC 8707 resource its tokens are bound to.
+    pub fn mcp_resource_url(&self) -> String {
+        self.public_url("/api/v0/mcp")
+    }
+
     /// Attempts to create an ApplicationConfiguration from environment variables.
     pub fn try_from_env() -> anyhow::Result<Self> {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
@@ -118,6 +135,7 @@ impl ApplicationConfiguration {
                 .context("JWT_PASSWORD must be defined")?
                 .into(),
         );
+        let mcp_configuration = McpConfiguration::try_from_env()?;
 
         Ok(Self {
             base_url,
@@ -134,6 +152,7 @@ impl ApplicationConfiguration {
             tmc_admin_access_token,
             oauth_server_configuration,
             jwt_password,
+            mcp_configuration,
         })
     }
 
@@ -160,6 +179,7 @@ impl ApplicationConfiguration {
             ))),
         };
         let jwt_password = SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into());
+        let mcp_configuration = None;
         Ok(Self {
             base_url,
             test_mode,
@@ -175,7 +195,35 @@ impl ApplicationConfiguration {
             tmc_admin_access_token,
             oauth_server_configuration,
             jwt_password,
+            mcp_configuration,
         })
+    }
+}
+
+/// What the MCP server at `/api/v0/mcp` needs to validate agent writes: the CMS's block validator.
+#[derive(Clone)]
+pub struct McpConfiguration {
+    /// The CMS base the validator routes are under, e.g. `http://cms:3000/cms/`. Ends in `/`
+    /// because it is a [`Url::join`] base.
+    pub cms_internal_url: Url,
+    /// Shared with the CMS's validator routes.
+    pub agent_validator_secret: SecretString,
+}
+
+impl McpConfiguration {
+    /// Reads `CMS_INTERNAL_URL` and `AGENT_VALIDATOR_SECRET`. Either missing gives `Ok(None)`:
+    /// agent writes then fail closed and reads keep working. Errors only on an unparseable URL.
+    pub fn try_from_env() -> anyhow::Result<Option<Self>> {
+        let (Some(url), Some(secret)) = (
+            non_empty_env("CMS_INTERNAL_URL"),
+            non_empty_env("AGENT_VALIDATOR_SECRET"),
+        ) else {
+            return Ok(None);
+        };
+        Ok(Some(Self {
+            cms_internal_url: parse_join_base(&url).context("Invalid URL in CMS_INTERNAL_URL")?,
+            agent_validator_secret: SecretString::from(secret),
+        }))
     }
 }
 

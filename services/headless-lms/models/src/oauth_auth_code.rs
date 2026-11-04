@@ -38,6 +38,8 @@ pub struct OAuthAuthCode {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub metadata: serde_json::Value,
+    /// RFC 8707 resource indicator the tokens are bound to.
+    pub resource: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -56,6 +58,7 @@ pub struct NewAuthCodeParams<'a> {
 
     pub expires_at: DateTime<Utc>,
     pub metadata: serde_json::Map<String, serde_json::Value>,
+    pub resource: Option<&'a str>,
 }
 
 impl<'a> NewAuthCodeParams<'a> {
@@ -92,10 +95,11 @@ impl OAuthAuthCode {
                 code_challenge_method,
                 dpop_jkt,
                 expires_at,
-                metadata
+                metadata,
+                resource
             )
             VALUES (
-                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11
+                $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12
             )
             "#,
             params.digest.as_bytes(),
@@ -109,7 +113,8 @@ impl OAuthAuthCode {
             params.code_challenge_method as Option<PkceMethod>,
             params.dpop_jkt,
             params.expires_at,
-            serde_json::Value::Object(params.metadata)
+            serde_json::Value::Object(params.metadata),
+            params.resource
         )
         .execute(conn)
         .await?;

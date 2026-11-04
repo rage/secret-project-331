@@ -1,5 +1,11 @@
-use crate::prelude::*;
+use std::path::Path;
+
+use anyhow::Context;
 use chrono::Duration;
+use headless_lms_utils::file_store::{FileStore, GenericPayload};
+use sqlx::{Acquire, Postgres};
+
+use crate::prelude::*;
 
 /// Records a stored object under a fresh id. `size_bytes` is the byte count measured while
 /// receiving it; `None` where the upload path does not count bytes.
@@ -14,6 +20,48 @@ pub async fn insert(
     let id = Uuid::new_v4();
     insert_with_id(conn, id, name, path, mime, uploader, size_bytes).await?;
     Ok(id)
+}
+
+/// An upload for [`store_and_insert`] to store and record.
+#[derive(Debug, Clone, Copy)]
+pub struct NewUpload<'a> {
+    /// Where in the file store the contents go.
+    pub path: &'a Path,
+    /// The file name the uploader gave.
+    pub name: &'a str,
+    pub mime: &'a str,
+    pub uploader: Option<Uuid>,
+    /// See [`insert`].
+    pub size_bytes: Option<i64>,
+}
+
+/// Stores an upload at its path, then records it like [`insert`] on a connection taken from `db`
+/// only then, so none is held during the upload. Deletes the stored file again if the row can't be
+/// written.
+pub async fn store_and_insert<'c>(
+    db: impl Acquire<'c, Database = Postgres>,
+    file_store: &dyn FileStore,
+    upload: NewUpload<'_>,
+    contents: GenericPayload,
+) -> ModelResult<Uuid> {
+    let NewUpload {
+        path,
+        name,
+        mime,
+        uploader,
+        size_bytes,
+    } = upload;
+    let path_string = path.to_str().context("the upload path isn't valid UTF-8")?;
+    file_store.upload_stream(path, contents, mime).await?;
+    let inserted = async {
+        let mut conn = db.acquire().await?;
+        insert(&mut conn, name, path_string, mime, uploader, size_bytes).await
+    }
+    .await;
+    if inserted.is_err() && file_store.delete(path).await.is_err() {
+        warn!("Couldn't delete an uploaded file whose row wasn't written: {path_string}");
+    }
+    inserted
 }
 
 /// Records a stored object under an id the caller has already chosen.

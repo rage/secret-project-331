@@ -225,6 +225,30 @@ pub struct ExerciseStatus {
     pub reviewing_stage: ReviewingStage,
 }
 
+/// How many exercises of the course with peer or self reviews use its default review config.
+pub async fn count_using_course_default_review_config(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM exercises
+WHERE course_id = $1
+  AND use_course_default_peer_or_self_review_config
+  AND (
+    needs_peer_review
+    OR needs_self_review
+  )
+  AND deleted_at IS NULL
+        "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub async fn insert(
     conn: &mut PgConnection,
@@ -346,6 +370,29 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
+/// The course's exercises among `ids`, skipping deleted ones and other courses' exercises.
+pub async fn get_course_exercises_by_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND id = ANY($2)
+  AND deleted_at IS NULL
+"#,
+        course_id,
+        ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -425,19 +472,20 @@ WHERE chapter_id = ANY($1)
     Ok(exercises)
 }
 
-pub async fn get_exercises_by_page_id(
+/// The undeleted exercises on the pages.
+pub async fn get_exercises_by_page_ids(
     conn: &mut PgConnection,
-    page_id: Uuid,
+    page_ids: &[Uuid],
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
         r#"
 SELECT *
   FROM exercises
-WHERE page_id = $1
+WHERE page_id = ANY($1)
   AND deleted_at IS NULL;
 "#,
-        page_id,
+        page_ids,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -1687,6 +1735,7 @@ mod test {
                 opens_at: chapter.opens_at,
                 course_module_id: Some(chapter.course_module_id),
             },
+            user_id,
         )
         .await
         .unwrap();
@@ -1728,24 +1777,12 @@ mod test {
             &app_config,
             course_id,
             courses::CourseUpdate {
-                name: existing_course.name,
-                description: existing_course.description,
-                is_draft: existing_course.is_draft,
-                is_test_mode: existing_course.is_test_mode,
-                can_add_chatbot: existing_course.can_add_chatbot,
-                is_unlisted: existing_course.is_unlisted,
-                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
-                ask_marketing_consent: existing_course.ask_marketing_consent,
                 flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
-                flagged_answers_skip_manual_review_and_allow_retry: existing_course
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: existing_course.closed_at,
-                closed_additional_message: existing_course.closed_additional_message,
-                closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
-                ai_policy: existing_course.ai_policy,
-                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+                ..courses::CourseUpdate::from(&existing_course)
             },
+            user_id,
+            false,
         )
         .await
         .unwrap();

@@ -113,6 +113,7 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+/// Inserts or updates the course's audiences by id, bringing back deleted ones.
 pub async fn upsert_course_audiences(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -153,8 +154,9 @@ SELECT $1,
 FROM UNNEST ($2::UUID [], $3::TEXT [], $4::VECTOR []) AS course_audience(id, audience, embedding) ON CONFLICT (id) DO
 UPDATE
 SET audience = EXCLUDED.audience,
-  embedding = EXCLUDED.embedding
-WHERE course_audiences.deleted_at IS NULL
+  embedding = EXCLUDED.embedding,
+  deleted_at = NULL
+WHERE course_audiences.course_id = EXCLUDED.course_id
 RETURNING *
 ",
         course_id,

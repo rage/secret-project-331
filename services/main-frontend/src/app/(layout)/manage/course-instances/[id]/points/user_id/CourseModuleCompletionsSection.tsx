@@ -2,8 +2,11 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import CreditRegistrationStatusCell from "@/components/credit-registration/CreditRegistrationStatusCell"
+import { useTeacherCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
 import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
@@ -11,7 +14,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { QueryResults } from "@/shared-module/components"
+import { ErrorNotice, QueryResults, Spinner } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -90,6 +93,12 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const { t } = useTranslation()
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
+  const userIds = useMemo(() => [userId], [userId])
+  const {
+    byCompletionId: registrationsByCompletionId,
+    error: registrationsError,
+    isFetching: isFetchingRegistrations,
+  } = useTeacherCreditRegistrations(courseId, userIds)
 
   const heading = (
     <h2
@@ -122,10 +131,13 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       renderData={([courseModuleCompletions, courseStructureData]) => (
         <Section>
           {heading}
+          {isFetchingRegistrations && <Spinner size="sm" />}
+          {registrationsError && <ErrorNotice error={registrationsError} />}
           {courseModuleCompletions.map((courseModuleCompletion) => {
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,
             )
+            const registration = registrationsByCompletionId.get(courseModuleCompletion.id)
             return (
               <ModuleCard key={courseModuleCompletion.id}>
                 <ModuleHeader>
@@ -178,6 +190,12 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                         : t("label-null")}
                     </Value>
                   </InfoItem>
+                  {registration && (
+                    <InfoItem>
+                      <Label>{t("credit-registration-column-registration")}</Label>
+                      <CreditRegistrationStatusCell registration={registration} />
+                    </InfoItem>
+                  )}
                   {courseModuleCompletion.completion_granter_user_id && (
                     <InfoItem>
                       <Label>{t("label-completion-granter-user-id")}</Label>

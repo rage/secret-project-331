@@ -55,7 +55,7 @@ tracing = "0.1.44"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.76"
+backtrace = "0.3.77"
 # An implementation of regular expressions for Rust.
 regex = "1.13.1"
 # Single assignment cells and lazy values.
@@ -63,7 +63,7 @@ once_cell = "1.21.4"
 # HTML Sanitization
 ammonia = "4.2.4"
 # Moves email shells' CSS into style attributes, since many email clients drop <style>
-css-inline = { version = "0.23.0", default-features = false }
+css-inline = { version = "0.23.1", default-features = false }
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
@@ -79,7 +79,7 @@ flate2 = "1.1.10"
 # higher level HTTP client library
 reqwest = { version = "0.13.5", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Redis driver for Rust.
-redis = { version = "1.8.0", features = ["aio", "tokio-comp", "connection-manager"] }
+redis = { version = "1.8.1", features = ["aio", "tokio-comp", "connection-manager"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.

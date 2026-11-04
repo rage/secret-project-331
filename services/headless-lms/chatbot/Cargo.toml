@@ -62,12 +62,12 @@ pin-project = "1.1.13"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
-backtrace = "0.3.76"
+backtrace = "0.3.77"
 # Utilities for random number generation
 rand = "0.10.3"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
-jsonschema = { version = "0.60.1", default-features = false }
+jsonschema = { version = "0.60.2", default-features = false }
 
 [dev-dependencies]
 # `#[tokio::test]`, for the tool permission tests, which need a database connection.

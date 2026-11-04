@@ -38,7 +38,7 @@ anyhow = "1.0.104"
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 # A library to acquire a stack trace (backtrace) at runtime in a Rust program.
-backtrace = "0.3.76"
+backtrace = "0.3.77"
 
 [dev-dependencies]
 # HTTP mocking for Rust.

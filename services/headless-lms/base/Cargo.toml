@@ -17,7 +17,7 @@ tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tracing-error = "0.2.1"
 tracing-log = "0.2.0"
-backtrace = "0.3.76"
+backtrace = "0.3.77"
 url = "2.5.8"
 anyhow = "1.0.104"
 secrecy.workspace = true

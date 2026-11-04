@@ -20,7 +20,7 @@ utoipa.workspace = true
 tracing = "0.1.44"
 tracing-error = "0.2.1"
 # Should be removed after Rust 1.65.
-backtrace = "0.3.76"
+backtrace = "0.3.77"
 anyhow = "1.0.104"
 
 [lints.clippy]

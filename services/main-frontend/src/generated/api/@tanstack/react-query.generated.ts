@@ -408,6 +408,7 @@ import {
   updateOrganization,
   updateOrganizationImage,
   updatePageDetails,
+  updatePageReadStatus,
   updatePlaygroundExample,
   updateUserInfo,
   uploadCourseMedia,
@@ -1146,6 +1147,8 @@ import type {
   UpdateOrganizationImageData,
   UpdatePageDetailsData,
   UpdatePageDetailsResponse,
+  UpdatePageReadStatusData,
+  UpdatePageReadStatusResponse,
   UpdatePlaygroundExampleData,
   UpdatePlaygroundExampleResponse,
   UpdateUserInfoData,
@@ -11316,6 +11319,32 @@ export const updatePageDetailsMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updatePageDetails({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ *
+ * POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
+ */
+export const updatePageReadStatusMutation = (
+  options?: Partial<Options<UpdatePageReadStatusData>>,
+): UseMutationOptions<
+  UpdatePageReadStatusResponse,
+  DefaultError,
+  Options<UpdatePageReadStatusData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdatePageReadStatusResponse,
+    DefaultError,
+    Options<UpdatePageReadStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updatePageReadStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -107,6 +107,7 @@ pub mod page_audio_files;
 pub mod page_history;
 pub mod page_history_spec_files;
 pub mod page_language_groups;
+pub mod page_read_statuses;
 pub mod page_visit_datum;
 pub mod page_visit_datum_daily_visit_hashing_keys;
 pub mod page_visit_datum_summary_by_courses;

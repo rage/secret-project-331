@@ -4884,6 +4884,14 @@ export type PageProposal = {
   user_id?: string | null
 }
 
+export type PageReadStatusUpdate = {
+  block_statuses: unknown
+  page_id: string
+  page_read: boolean
+  read_at?: string | null
+  user_id: string
+}
+
 export type PageVisitDatumSummaryByCourse = {
   course_id?: string | null
   created_at: string
@@ -14536,6 +14544,28 @@ export type UpdatePageDetailsResponses = {
 }
 
 export type UpdatePageDetailsResponse = UpdatePageDetailsResponses[keyof UpdatePageDetailsResponses]
+
+export type UpdatePageReadStatusData = {
+  body: PageReadStatusUpdate
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/pages/{page_id}/page-read-status"
+}
+
+export type UpdatePageReadStatusResponses = {
+  /**
+   * Updated page read status
+   */
+  200: boolean
+}
+
+export type UpdatePageReadStatusResponse =
+  UpdatePageReadStatusResponses[keyof UpdatePageReadStatusResponses]
 
 export type RestorePageHistoryData = {
   body: HistoryRestoreData

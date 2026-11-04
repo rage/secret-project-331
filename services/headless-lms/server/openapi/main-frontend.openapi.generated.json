@@ -12822,6 +12822,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/pages/{page_id}/page-read-status": {
+      "put": {
+        "tags": ["pages"],
+        "summary": "\nPOST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.",
+        "operationId": "updatePageReadStatus",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageReadStatusUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated page read status",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/pages/{page_id}/restore": {
       "post": {
         "tags": ["pages"],
@@ -26942,6 +26983,28 @@
           },
           "user_id": {
             "type": ["string", "null"],
+            "format": "uuid"
+          }
+        }
+      },
+      "PageReadStatusUpdate": {
+        "type": "object",
+        "required": ["user_id", "page_id", "page_read", "block_statuses"],
+        "properties": {
+          "block_statuses": {},
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "page_read": {
+            "type": "boolean"
+          },
+          "read_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
             "format": "uuid"
           }
         }

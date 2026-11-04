@@ -845,6 +845,8 @@ import type {
   UpdateOrganizationResponses,
   UpdatePageDetailsData,
   UpdatePageDetailsResponses,
+  UpdatePageReadStatusData,
+  UpdatePageReadStatusResponses,
   UpdatePlaygroundExampleData,
   UpdatePlaygroundExampleResponses,
   UpdateUserInfoData,
@@ -1199,6 +1201,7 @@ import {
   zUpdateGeneratedCertificateResponse,
   zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
+  zUpdatePageReadStatusResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
   zUploadCourseMediaResponse,
@@ -8540,6 +8543,24 @@ export const updatePageDetails = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zUpdatePageDetailsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/pages/{page_id}/page-details",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
+ */
+export const updatePageReadStatus = <ThrowOnError extends boolean = true>(
+  options: Options<UpdatePageReadStatusData, ThrowOnError>,
+): RequestResult<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdatePageReadStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/pages/{page_id}/page-read-status",
     ...options,
     headers: {
       "Content-Type": "application/json",

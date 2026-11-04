@@ -4089,6 +4089,14 @@ export const zPageInfo = z.object({
   page_title: z.string(),
 })
 
+export const zPageReadStatusUpdate = z.object({
+  block_statuses: z.unknown(),
+  page_id: z.uuid(),
+  page_read: z.boolean(),
+  read_at: z.iso.datetime().nullish(),
+  user_id: z.uuid(),
+})
+
 export const zPageVisitDatumSummaryByCourse = z.object({
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
@@ -10526,6 +10534,17 @@ export const zUpdatePageDetailsPath = z.object({
  * Updated page details
  */
 export const zUpdatePageDetailsResponse = z.boolean()
+
+export const zUpdatePageReadStatusBody = zPageReadStatusUpdate
+
+export const zUpdatePageReadStatusPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Updated page read status
+ */
+export const zUpdatePageReadStatusResponse = z.boolean()
 
 export const zRestorePageHistoryBody = zHistoryRestoreData
 

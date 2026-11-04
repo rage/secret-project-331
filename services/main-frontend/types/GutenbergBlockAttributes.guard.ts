@@ -462,6 +462,10 @@ export function isFileAttributes(obj: unknown): obj is FileAttributes {
             typeof typedObj["textColor"] === "string") &&
         (typeof typedObj["gradient"] === "undefined" ||
             typeof typedObj["gradient"] === "string") &&
+        (typeof typedObj["fontFamily"] === "undefined" ||
+            typeof typedObj["fontFamily"] === "string") &&
+        (typeof typedObj["fontSize"] === "undefined" ||
+            typeof typedObj["fontSize"] === "string") &&
         (typeof typedObj["align"] === "undefined" ||
             typedObj["align"] === "" ||
             typedObj["align"] === "left" ||

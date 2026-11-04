@@ -210,6 +210,8 @@ export interface FileAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown

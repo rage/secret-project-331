@@ -136,6 +136,7 @@ pub async fn user_has_answered_all_questions_for_module_id(
     user_id: &Uuid,
 ) -> ModelResult<bool> {
     // todo verify if works
+    // todo if more answers than questions
     let res = sqlx::query!(
         r#"
 SELECT COUNT(questions) = COUNT(user_answers) AS has_answered
@@ -167,20 +168,25 @@ pub async fn user_has_answered_all_questions_for_course_indexed_by_module_id(
     course_id: &Uuid,
     user_id: &Uuid,
 ) -> ModelResult<HashMap<Uuid, bool>> {
-    // todo placeholder
+    // todo this is bad and only a placeholder
     let res = sqlx::query!(
         r#"
-SELECT eq.id,
-  eq.course_id
-FROM course_module_ending_questions AS eq
-  JOIN course_module_ending_questions_answers AS eqa ON eqa.question_id = eq.id
-WHERE eq.course_id = $1
-  AND eq.deleted_at IS NULL
-  AND eqa.deleted_at IS NULL
-  AND eqa.user_id = $2
-GROUP BY eq.course_id,
-  eq.id
-;
+SELECT COUNT( DISTINCT a.question_id) = COUNT(DISTINCT q.id) AS lol, cm.id AS cm_id  FROM
+course_modules AS cm
+FULL OUTER JOIN
+(
+	SELECT q.id FROM course_module_ending_questions AS q
+	WHERE q.course_id = $1
+	OR q.course_id IS NULL
+) AS q ON TRUE
+FULL OUTER JOIN
+(
+	SELECT a.question_id, a.course_module_id FROM course_module_ending_questions_answers AS a
+	WHERE a.user_id = $2
+) AS a ON TRUE
+WHERE cm.course_id = $1
+	AND cm.id = a.course_module_id
+GROUP BY cm_id
 
         "#,
         course_id,
@@ -189,7 +195,7 @@ GROUP BY eq.course_id,
     .fetch_all(&mut *conn)
     .await?
     .iter()
-    .map(|x| (x.id, false))
+    .map(|x| (x.cm_id, x.lol.unwrap_or(false)))
     .collect::<HashMap<Uuid, bool>>();
     Ok(res)
 }

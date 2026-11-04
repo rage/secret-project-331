@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT( DISTINCT a.question_id) = COUNT(DISTINCT q.id) AS lol, cm.id AS cm_id  FROM\ncourse_modules AS cm\nFULL OUTER JOIN\n(\n\tSELECT q.id FROM course_module_ending_questions AS q\n\tWHERE q.course_id = $1\n\tOR q.course_id IS NULL\n) AS q ON TRUE\nFULL OUTER JOIN\n(\n\tSELECT a.question_id, a.course_module_id FROM course_module_ending_questions_answers AS a\n\tWHERE a.user_id = $2\n) AS a ON TRUE\nWHERE cm.course_id = $1\n\tAND cm.id = a.course_module_id\nGROUP BY cm_id\n\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "lol",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "cm_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      false
+    ]
+  },
+  "hash": "84f516111ee6e791c859996744a4a4d06abeedc09dddb84661bebf65982cc5b5"
+}

@@ -166,6 +166,7 @@ pub async fn update_user_exercise_state_with_some_already_loaded_data(
 
     // Always when the user_exercise_state updates, we need to also check if the user has completed the course.
     // Skip when the exercise belongs to an exam, as exams are not tied to course modules.
+    // todo maybe skip if end questions are required bc in that case it always not eligible
     if !exercise_is_part_of_exam {
         let course_module = course_modules::get_by_exercise_id(conn, exercise_id).await?;
         super::progressing::update_automatic_completion_status_and_grant_if_eligible(

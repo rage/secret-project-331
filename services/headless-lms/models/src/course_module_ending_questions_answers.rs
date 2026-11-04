@@ -66,7 +66,15 @@ RETURNING *
     .await?;
 
     if answered_all {
+        println!("🐸🐸🐸🐸🐸🐸 USER has answered all, try to create completion");
         // save the status
+        let course_module = super::course_modules::get_by_id(conn, *course_module_id).await?;
+        super::library::progressing::update_automatic_completion_status_and_grant_if_eligible(
+            conn,
+            &course_module,
+            *user_id,
+        )
+        .await?;
     }
 
     Ok(res)
@@ -153,8 +161,8 @@ FROM (
       AND a.deleted_at IS NULL
   )
         "#,
-        course_id,
         user_id,
+        course_id,
         course_module_id
     )
     .fetch_one(&mut *conn)

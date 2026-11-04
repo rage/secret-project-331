@@ -10,11 +10,6 @@ minimumReleaseAgeExcludePrune: true
 
 nodeVersion: 26.13.0
 
-overrides:
-  picomatch@<2.3.2: ">=2.3.2"
-  picomatch@>=4.0.0 <4.0.4: ">=4.0.4"
-  yaml@>=1.0.0 <1.10.3: ">=1.10.3"
-
 preferFrozenLockfile: true
 
 preferWorkspacePackages: true
@@ -56,3 +51,7 @@ autoDedupe: true
 
 lockfile:
   includeResolutionSettings: true
+overrides:
+  '@vitest/mocker@>=2.1.0-beta.7 <4.1.12': ^4.1.12
+  source-map-js@>=1.0.0 <1.2.2: ^1.2.2
+  vite@>=8.0.0 <=8.1.5: ^8.1.6

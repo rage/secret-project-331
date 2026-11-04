@@ -10,9 +10,6 @@ minimumReleaseAgeExcludePrune: true
 
 nodeVersion: 26.13.0
 
-overrides:
-  picomatch@>=4.0.0 <4.0.4: ">=4.0.4"
-
 preferFrozenLockfile: true
 
 preferWorkspacePackages: true

@@ -2,7 +2,6 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -24,13 +23,8 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import type {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "@/generated/course-material-api/types.generated"
-import useCourseMaterialExerciseQuery, {
-  courseMaterialExerciseQueryKey,
-} from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import type { StudentExerciseSlideSubmission } from "@/generated/course-material-api/types.generated"
+import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -61,7 +55,6 @@ import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
-import { withSubmissionResult } from "./withSubmissionResult"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -175,7 +168,6 @@ const ExerciseBlock: React.FC<
   )
   const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
-  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const courseMaterialState = useAtomValue(courseMaterialAtom)
@@ -762,24 +754,15 @@ const ExerciseBlock: React.FC<
                         },
                         {
                           onSuccess: (res) => {
-                            queryClient.setQueryData(
-                              courseMaterialExerciseQueryKey(id),
-                              (old: CourseMaterialExercise | undefined) => {
-                                if (!old) {
-                                  throw new Error("No CourseMaterialExercise found")
-                                }
-                                // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                if (
-                                  isExam &&
-                                  res.exercise_task_submission_results.some(
-                                    (result) => result.grading !== null,
-                                  )
-                                ) {
-                                  throw new Error("Exams should have hidden gradings")
-                                }
-                                return withSubmissionResult(old, res)
-                              },
-                            )
+                            // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                            if (
+                              isExam &&
+                              res.exercise_task_submission_results.some(
+                                (result) => result.grading !== null,
+                              )
+                            ) {
+                              throw new Error("Exams should have hidden gradings")
+                            }
                           },
                         },
                       )

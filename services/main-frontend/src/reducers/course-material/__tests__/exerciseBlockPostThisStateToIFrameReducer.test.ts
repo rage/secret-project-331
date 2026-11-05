@@ -60,6 +60,36 @@ describe("exerciseBlockPostThisStateToIFrameReducer", () => {
     ])
   })
 
+  it("gives the iframe nothing new when the refetch after a submit matches its grading", () => {
+    const answering = exerciseBlockPostThisStateToIFrameReducer(null, download({}))
+    const graded = exerciseBlockPostThisStateToIFrameReducer(answering, {
+      type: "submissionGraded",
+      payload: {
+        exercise_task_submission_results: [
+          {
+            submission: { ...SUBMISSION, exercise_task_id: "task-1" },
+            grading: GRADING,
+            model_solution_spec: null,
+            exercise_task_exercise_service_slug: "quizzes",
+          },
+        ],
+        user_course_instance_exercise_service_variables: [],
+      } as never,
+      signedIn: true,
+    })
+
+    const refetched = exerciseBlockPostThisStateToIFrameReducer(
+      graded,
+      download({
+        previous_submission: { ...SUBMISSION, exercise_task_id: "task-1" } as never,
+        previous_submission_grading: GRADING as never,
+        model_solution_spec: null,
+      }),
+    )
+
+    expect(refetched).toEqual(graded)
+  })
+
   it("returns to answering when a refetch has no submission", () => {
     const viewing = exerciseBlockPostThisStateToIFrameReducer(
       null,

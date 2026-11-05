@@ -47,11 +47,7 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
   const { t } = useTranslation()
   const userInfo = useUserInfo()
 
-  const mapToAnswer = (
-    question: string,
-    answer: PeerOrSelfReviewAnswer,
-    peerOrSelfReviewQuestionId: string,
-  ) => {
+  const mapToAnswer = (question: string, answer: PeerOrSelfReviewAnswer) => {
     switch (answer.type) {
       case "essay":
         return (
@@ -71,7 +67,6 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
               setSelectedOption={() => {
                 // No-op
               }}
-              peerOrSelfReviewQuestionId={peerOrSelfReviewQuestionId}
             />
           </div>
         )
@@ -144,7 +139,6 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
                 {mapToAnswer(
                   `${t("question-n", { n: i + 1 })}: ${x.question}${x.answer_required ? " *" : ""}`,
                   x.answer,
-                  x.peer_or_self_review_question_id,
                 )}
               </QuestionWrapper>
             ))}
@@ -171,7 +165,6 @@ const PeerOrSelfReviewAccordion: React.FC<PeerOrSelfReviewAccordionProps> = ({
                     x.answer_required ? " *" : ""
                   }`,
                   x.answer,
-                  x.peer_or_self_review_question_id,
                 )}
               </QuestionWrapper>
             ))}

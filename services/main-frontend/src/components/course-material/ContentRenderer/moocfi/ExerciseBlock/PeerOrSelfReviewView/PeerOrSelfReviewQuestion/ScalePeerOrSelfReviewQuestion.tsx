@@ -21,7 +21,6 @@ const ScalePeerOrSelfReviewQuestion: React.FC<PeerOrSelfReviewQuestionProps> = (
             number_data: value,
           })
         }
-        peerOrSelfReviewQuestionId={peerOrSelfReviewQuestion.id}
       />
     </div>
   )

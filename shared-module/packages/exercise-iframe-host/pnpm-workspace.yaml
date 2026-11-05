@@ -52,6 +52,6 @@ autoDedupe: true
 lockfile:
   includeResolutionSettings: true
 overrides:
-  '@vitest/mocker@>=2.1.0-beta.7 <4.1.12': ^4.1.12
+  "@vitest/mocker@>=2.1.0-beta.7 <4.1.12": ^4.1.12
   source-map-js@>=1.0.0 <1.2.2: ^1.2.2
   vite@>=8.0.0 <=8.1.5: ^8.1.6

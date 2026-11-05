@@ -4,7 +4,6 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
-import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
@@ -62,6 +61,7 @@ import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+import { withSubmissionResult } from "./withSubmissionResult"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -768,30 +768,16 @@ const ExerciseBlock: React.FC<
                                 if (!old) {
                                   throw new Error("No CourseMaterialExercise found")
                                 }
-                                return produce(old, (draft: CourseMaterialExercise) => {
-                                  res.exercise_task_submission_results.forEach(
-                                    (et_submission_result) => {
-                                      // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                      const receivedExerciseTaskSubmission =
-                                        et_submission_result.submission
-                                      const draftExerciseTask =
-                                        draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                          return (
-                                            et.id ===
-                                            et_submission_result.submission.exercise_task_id
-                                          )
-                                        })
-                                      if (draftExerciseTask) {
-                                        draftExerciseTask.previous_submission =
-                                          receivedExerciseTaskSubmission
-                                      }
-                                      // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                      if (isExam && et_submission_result.grading !== null) {
-                                        throw new Error("Exams should have hidden gradings")
-                                      }
-                                    },
+                                // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                                if (
+                                  isExam &&
+                                  res.exercise_task_submission_results.some(
+                                    (result) => result.grading !== null,
                                   )
-                                })
+                                ) {
+                                  throw new Error("Exams should have hidden gradings")
+                                }
+                                return withSubmissionResult(old, res)
                               },
                             )
                           },

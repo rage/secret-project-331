@@ -334,3 +334,77 @@ GROUP BY category_id
         categories: c,
     })
 }
+
+pub async fn get_feedback_count_for_course_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<FeedbackCount> {
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res_categories = sqlx::query!(
+        r#"
+SELECT COUNT(*) filter (
+    WHERE marked_as_read
+  ) AS READ,
+  COUNT(*) filter (
+    WHERE NOT(marked_as_read)
+  ) AS unread,
+  category_id
+FROM feedback
+WHERE course_id = $1
+  AND created_at >= $2
+  AND created_at <= $3
+  AND deleted_at IS NULL
+GROUP BY category_id
+        "#,
+        course_id,
+        start_dt,
+        end_dt,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    let mut all_read = 0;
+    let mut all_unread = 0;
+
+    let c: Vec<CategoryFeedbackCount> = res_categories
+        .iter()
+        .filter_map(|x| {
+            let read = x.read.unwrap_or_default().try_into().ok()?;
+            let unread = x.unread.unwrap_or_default().try_into().ok()?;
+            all_read += read;
+            all_unread += unread;
+            Some(CategoryFeedbackCount {
+                category_id: x.category_id?,
+                read_feedback: read,
+                unread_feedback: unread,
+            })
+        })
+        .collect();
+
+    Ok(FeedbackCount {
+        read: all_read,
+        unread: all_unread,
+        categories: c,
+    })
+}

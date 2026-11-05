@@ -363,6 +363,59 @@ AND proposed_page_edits.deleted_at IS NULL
     Ok(count)
 }
 
+pub async fn get_proposal_count_for_course_custom_time_period(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    start_date: &str,
+    end_date: &str,
+) -> ModelResult<ProposalCount> {
+    let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid start_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!("Invalid end_date: {}", e),
+                None,
+            )
+        })?
+        .with_timezone(&Utc);
+
+    let res = sqlx::query!(
+        "
+SELECT COUNT(*) filter (
+  where proposed_page_edits.pending = true
+) AS pending,
+COUNT(*) filter (
+  where proposed_page_edits.pending = false
+) AS handled
+FROM proposed_page_edits
+WHERE proposed_page_edits.course_id = $1
+AND created_at >= $2
+AND created_at <= $3
+AND proposed_page_edits.deleted_at IS NULL
+",
+        course_id,
+        start_dt,
+        end_dt,
+    )
+    .fetch_one(conn)
+    .await?;
+    let count = ProposalCount {
+        pending: res.pending.unwrap_or_default().try_into()?,
+        handled: res.handled.unwrap_or_default().try_into()?,
+    };
+    Ok(count)
+}
+
 pub async fn process_proposal(
     conn: &mut PgConnection,
     page_id: Uuid,

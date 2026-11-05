@@ -65,59 +65,6 @@ pub async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-fn as_html(
-    base_url: &str,
-    course_id: Uuid,
-    course_name: &String,
-    returned_exercises_count: i64,
-    completed_course_count: i64,
-    started_course_count: i64,
-    flagged_cheaters_count: i64,
-) -> String {
-    format!(
-        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed"><tbody><tr>{}<tr><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students returned exercises</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students completed course</p></td><td style="border: 3px solid #EBEDEE; border-radius: 12px;"><p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{}</p><p style="text-align: center; font-weight: 700;">Students started course</p></td></tr></tbody></table>"#,
-        course_name,
-        apply_warning_conditional(
-            base_url,
-            flagged_cheaters_count,
-            "Students flagged as cheaters",
-            format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
-        ),
-        returned_exercises_count,
-        completed_course_count,
-        started_course_count,
-    )
-}
-
-fn as_text(
-    course_name: &String,
-    returned_exercises_count: i64,
-    completed_course_count: i64,
-    started_course_count: i64,
-    flagged_cheaters_count: i64,
-) -> String {
-    format!(
-        "{}\n\n* {} students returned exercises\n* {} students completed the course\n* {} students started the course\n* {} students flagged as cheaters\n\n",
-        course_name,
-        returned_exercises_count,
-        completed_course_count,
-        started_course_count,
-        flagged_cheaters_count
-    )
-}
-
-pub fn get_newsletter_period() -> (String, String) {
-    let date_today = Utc::now().date_naive();
-    let date_yesterday = date_today - chrono::Duration::days(1);
-
-    let start_date = date_today - chrono::Duration::days(7);
-
-    let period_end = date_today.format("%Y-%m-%d").to_string();
-    let period_start = start_date.format("%Y-%m-%d").to_string();
-
-    (period_start, period_end)
-}
-
 async fn create_newsletter_items(
     conn: &mut PgConnection,
     courses: Vec<Course>,
@@ -159,7 +106,26 @@ async fn create_newsletter_items(
                 period_end,
             )
             .await?;
-
+        let unread_feedback_count_unsigned =
+            models::feedback::get_feedback_count_for_course_custom_time_period(
+                conn,
+                course.id,
+                period_start,
+                period_end,
+            )
+            .await?
+            .unread;
+        let unread_feedback_count = i64::from(unread_feedback_count_unsigned);
+        let proposal_count_unsigned =
+            models::proposed_page_edits::get_proposal_count_for_course_custom_time_period(
+                conn,
+                course.id,
+                period_start,
+                period_end,
+            )
+            .await?
+            .pending;
+        let proposal_count = i64::from(proposal_count_unsigned);
         let html = as_html(
             base_url,
             course.id,
@@ -168,6 +134,8 @@ async fn create_newsletter_items(
             completed_course_count,
             started_course_count,
             flagged_cheaters_count,
+            unread_feedback_count,
+            proposal_count,
         );
 
         let text = as_text(
@@ -176,6 +144,7 @@ async fn create_newsletter_items(
             completed_course_count,
             started_course_count,
             flagged_cheaters_count,
+            unread_feedback_count,
         );
 
         create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;
@@ -183,23 +152,97 @@ async fn create_newsletter_items(
     Ok(())
 }
 
-fn apply_warning_conditional(base_url: &str, count: i64, label: &str, link: &str) -> String {
+fn as_html(
+    base_url: &str,
+    course_id: Uuid,
+    course_name: &String,
+    returned_exercises_count: i64,
+    completed_course_count: i64,
+    started_course_count: i64,
+    flagged_cheaters_count: i64,
+    unread_feedback_count: i64,
+    proposal_count: i64,
+) -> String {
+    format!(
+        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed"><tbody><tr>{}{}{}<tr>{}{}{}</tr></tbody></table>"#,
+        course_name,
+        warning_box_html(
+            base_url,
+            flagged_cheaters_count,
+            "Students flagged as cheaters",
+            format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
+        ),
+        warning_box_html(
+            base_url,
+            unread_feedback_count,
+            "Unread feedback",
+            format!("manage/courses/{course_id}/feedback/feedback/unread").as_str()
+        ),
+        warning_box_html(
+            base_url,
+            proposal_count,
+            "Pending proposals",
+            format!("manage/courses/{course_id}/feedback/change-requests/pending").as_str()
+        ),
+        regular_box_html(returned_exercises_count, "Students returned exercises"),
+        regular_box_html(completed_course_count, "Students completed course"),
+        regular_box_html(started_course_count, "Students started course"),
+    )
+}
+
+fn as_text(
+    course_name: &String,
+    returned_exercises_count: i64,
+    completed_course_count: i64,
+    started_course_count: i64,
+    flagged_cheaters_count: i64,
+    unread_feedback_count: i64,
+) -> String {
+    format!(
+        "{course_name}\n\n* {returned_exercises_count} students returned exercises\n* {completed_course_count} students completed the course\n* {started_course_count} students started the course\n* {flagged_cheaters_count} students flagged as cheaters\n* {unread_feedback_count} unread feedback\n\n"
+    )
+}
+
+fn warning_box_html(base_url: &str, count: i64, label: &str, link: &str) -> String {
     let border_color = if count > 0 { "#ffd444" } else { "#EBEDEE" };
     let bg_color = if count > 0 {
         "rgba(255, 212, 68, 0.12)"
     } else {
         "none"
     };
+    let button_display = if count > 0 { "inline-block" } else { "none" };
 
     // BUILD THE BUTTON AS TABLE INSTEAD!?
     format!(
-        r#"<td style="border: 3px solid {}; background: {}; border-radius: 12px;">
-            <p style="font-size: 32px; text-align: center; margin-top: 1rem;">{}</p>
-            <p style="text-align: center; font-weight: 700; color: #1a2333;">{}</p>
+        r#"<td style="border: 3px solid {border_color}; background: {bg_color}; border-radius: 12px;">
+            <p style="font-size: 32px; text-align: center; margin-top: 1rem;">{count}</p>
+            <p style="text-align: center; font-weight: 700; color: #1a2333;">{label}</p>
             <p style="text-align: center; margin: 0;">
-                <a href="{base_url}/{}" style="text-decoration: none; background-color: #1F6964; color: #ffffff; padding: 12px 24px; font-weight: 600; border-radius: 6px; display: inline-block;">Take action</a>
+                <a href="{base_url}/{link}" style="text-decoration: none; background-color: #1F6964; color: #ffffff; padding: 12px 24px; font-weight: 600; border-radius: 6px; display: {button_display};">Take action</a>
             </p>
-        </td>"#,
-        border_color, bg_color, count, label, link
+        </td>"#
     )
+}
+
+fn regular_box_html(count: i64, label: &str) -> String {
+    format!(
+        r#"
+        <td style="border: 3px solid #EBEDEE; border-radius: 12px;">
+        <p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{count}</p>
+        <p style="text-align: center; font-weight: 700;">{label}</p>
+        </td>
+        "#
+    )
+}
+
+pub fn get_newsletter_period() -> (String, String) {
+    let date_today = Utc::now().date_naive();
+    let date_yesterday = date_today - chrono::Duration::days(1);
+
+    let start_date = date_today - chrono::Duration::days(7);
+
+    let period_end = date_today.format("%Y-%m-%d").to_string();
+    let period_start = start_date.format("%Y-%m-%d").to_string();
+
+    (period_start, period_end)
 }

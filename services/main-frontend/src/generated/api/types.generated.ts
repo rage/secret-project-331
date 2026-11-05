@@ -3950,7 +3950,6 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
-  | "reauthentication_code"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we

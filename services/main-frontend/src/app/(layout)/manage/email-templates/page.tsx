@@ -142,8 +142,6 @@ const EmailTemplatesList: React.FC = () => {
           return t("email-template-type-credit-registration-action-needed")
         case "credit_registration_registered":
           return t("email-template-type-credit-registration-registered")
-        case "reauthentication_code":
-          return t("email-template-type-reauthentication-code")
       }
     },
     [t],

@@ -8,7 +8,6 @@ import { useTranslation } from "react-i18next"
 import EmailVerificationSection from "@/components/EmailVerificationSection"
 import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
 import { EditUserInformationForm } from "@/components/forms/EditUserInformationForm"
-import ReauthenticationSection from "@/components/ReauthenticationSection"
 import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -37,8 +36,6 @@ const AccountSettingsPage: React.FC = () => {
     >
       {(data) => (
         <>
-          <ReauthenticationSection email={data.email} />
-
           <EditUserInformationForm
             firstName={data.first_name ?? ""}
             lastName={data.last_name ?? ""}
@@ -79,7 +76,7 @@ const AccountSettingsPage: React.FC = () => {
                   `}
                 />
               </div>
-              <h2
+              <h3
                 className={css`
                   font-size: 1.0625rem;
                   font-weight: ${fontWeights.semibold};
@@ -88,7 +85,7 @@ const AccountSettingsPage: React.FC = () => {
                 `}
               >
                 {t("user-settings-password-security")}
-              </h2>
+              </h3>
             </div>
             <ChangeUserPasswordForm />
           </div>

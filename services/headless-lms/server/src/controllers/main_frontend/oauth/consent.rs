@@ -125,7 +125,7 @@ pub async fn get_consent_info(
 /// ```json
 /// {"redirect_uri": "/api/v0/main-frontend/oauth/authorize?client_id=..."}
 /// ```
-#[instrument(skip(pool, session))]
+#[instrument(skip(pool))]
 #[utoipa::path(
     post,
     path = "/consent",
@@ -140,10 +140,7 @@ pub async fn approve_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentQuery>,
     user: AuthUser,
-    session: actix_session::Session,
 ) -> ControllerResult<HttpResponse> {
-    // A grant outlives the session, so it counts as an account security change.
-    crate::domain::authentication::require_reauthenticated(&session)?;
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 

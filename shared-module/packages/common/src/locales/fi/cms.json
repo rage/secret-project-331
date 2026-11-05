@@ -167,7 +167,6 @@
   "email-template-type-credit-registration-registered": "Opintopisteiden kirjaus: kirjattu",
   "email-template-type-delete-user-email": "Käyttäjän poistamisen sähköposti",
   "email-template-type-generic": "Yleinen",
-  "email-template-type-reauthentication-code": "Tilin vahvistuskoodi",
   "email-template-type-reset-password-email": "Salasanan palautussähköposti",
   "email-template-type-verify-email-address": "Sähköpostiosoitteen vahvistus",
   "error": "Virhe",

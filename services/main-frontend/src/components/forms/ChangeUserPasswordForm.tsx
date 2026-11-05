@@ -5,7 +5,6 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useIsReauthenticationRequired } from "@/components/ReauthenticationSection"
 import { changeUserPassword } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
@@ -21,7 +20,6 @@ interface ChangePasswordFormFields {
 const ChangeUserPasswordForm: React.FC = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const isReauthenticationRequired = useIsReauthenticationRequired()
 
   const { handleSubmit, control, reset, watch } = useForm<ChangePasswordFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -67,17 +65,13 @@ const ChangeUserPasswordForm: React.FC = () => {
     setIsOpen(false)
   }
 
-  if (!isOpen || isReauthenticationRequired !== false) {
+  if (!isOpen) {
     return (
       <div>
-        {isReauthenticationRequired === true && (
-          <p>{t("reauthentication-required-to-change-password")}</p>
-        )}
         <Button
           data-testid="change-password-button"
           variant="primary"
           size="small"
-          disabled={isReauthenticationRequired !== false}
           onClick={() => setIsOpen(true)}
         >
           {t("change-password")}

@@ -4,8 +4,6 @@ use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use models::user_details::UserDetail;
 use utoipa::{OpenApi, ToSchema};
 
-use actix_session::Session;
-
 use crate::prelude::*;
 
 #[derive(OpenApi)]
@@ -60,19 +58,15 @@ POST `/api/v0/course-material/user-details/update-user-info` - Updates the users
         (status = 200, description = "Updated user details", body = UserDetail)
     )
 )]
-#[instrument(skip(pool, app_conf, session))]
+#[instrument(skip(pool, app_conf))]
 pub async fn update_user_info(
     user: AuthUser,
-    session: Session,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
     let existing = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-    if existing.email != payload.email {
-        crate::domain::authentication::require_reauthenticated(&session)?;
-    }
     let res = models::user_details::update_user_info(
         &mut conn,
         user.id,

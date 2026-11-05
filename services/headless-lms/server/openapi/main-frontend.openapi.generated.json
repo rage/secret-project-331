@@ -14915,7 +14915,7 @@
     "/api/v0/main-frontend/user-details/update-user-info": {
       "post": {
         "tags": ["user-details"],
-        "summary": "\nPOST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent\n\nA new email reaches TMC only once it is verified, through\n[`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email\nownership verification is off. 403 for an email change from a delegated session.",
+        "summary": "\nPOST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent\n\nA new email reaches TMC only once it is verified, through\n[`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email\nownership verification is off.",
         "operationId": "updateUserInfo",
         "requestBody": {
           "content": {
@@ -24870,8 +24870,7 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered",
-          "reauthentication_code"
+          "credit_registration_registered"
         ]
       },
       "EmailVerificationEmailInfo": {

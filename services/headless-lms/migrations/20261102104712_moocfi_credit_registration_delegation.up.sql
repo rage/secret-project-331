@@ -785,9 +785,3 @@ COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.updated_at IS 'Timestamp when
 COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.jti IS 'The jti claim of the redeemed handoff token.';
 COMMENT ON COLUMN moocfi_redeemed_inbound_handoffs.expires_at IS 'When the handoff token itself expires.';
-
--- Neither value is used here: an enum value added in a transaction cannot be used in it.
-ALTER TYPE user_email_code_purpose
-ADD VALUE 'reauthentication';
-ALTER TYPE email_template_type
-ADD VALUE 'reauthentication_code';

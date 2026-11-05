@@ -426,7 +426,7 @@ pub async fn device_verification(
 /// `OAuthUserClientScopes::insert` the web consent flow uses (consent is always
 /// recorded — never short-circuited on a pre-existing grant), then marks the
 /// device code approved and bound to the signed-in user.
-#[instrument(skip(pool, body, session))]
+#[instrument(skip(pool, body))]
 #[utoipa::path(
     post,
     path = "/device_verification/approve",
@@ -442,10 +442,7 @@ pub async fn approve_device_verification(
     pool: web::Data<PgPool>,
     body: web::Json<DeviceDecisionBody>,
     user: AuthUser,
-    session: actix_session::Session,
 ) -> ControllerResult<HttpResponse> {
-    // A grant outlives the session, so it counts as an account security change.
-    crate::domain::authentication::require_reauthenticated(&session)?;
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 

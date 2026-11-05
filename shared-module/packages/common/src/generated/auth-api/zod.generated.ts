@@ -63,36 +63,6 @@ export const zLoginResponse = z.union([
   }),
 ])
 
-export const zReauthenticateWithPasswordPayload = z.object({
-  password: z.string(),
-})
-
-/**
- * Outcome of a reauthentication attempt.
- */
-export const zReauthenticationResult = z.union([
-  z.object({
-    type: z.enum(["reauthenticated"]),
-  }),
-  z.object({
-    type: z.enum(["incorrect_password"]),
-  }),
-  z.object({
-    type: z.enum(["invalid_code"]),
-  }),
-  z.object({
-    type: z.enum(["too_many_attempts"]),
-  }),
-])
-
-/**
- * Whether a session signed in by a handoff still has to prove the account is the student's before
- * changing its email or password or deleting it.
- */
-export const zReauthenticationStatus = z.object({
-  is_required: z.boolean(),
-})
-
 /**
  * The target of an action.
  */
@@ -193,27 +163,6 @@ export const zSendEmailCodeData = z.object({
   language: z.string(),
   password: z.string(),
 })
-
-export const zSendReauthenticationCodePayload = z.object({
-  language: z.string(),
-})
-
-export const zSendReauthenticationCodeResult = z.union([
-  z.object({
-    type: z.enum(["queued"]),
-  }),
-  z.object({
-    retry_after_seconds: z.coerce
-      .bigint()
-      .min(BigInt("-9223372036854775808"), {
-        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
-      })
-      .max(BigInt("9223372036854775807"), {
-        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-      }),
-    type: z.enum(["recently_sent"]),
-  }),
-])
 
 export const zSignupResponse = z.union([
   z.object({
@@ -354,38 +303,12 @@ export const zPostAuthLoginBody = zLogin
  */
 export const zPostAuthLoginResponse = zLoginResponse
 
-export const zPostAuthReauthenticateWithCodeBody = zEmailCode
-
-/**
- * Outcome of the attempt
- */
-export const zPostAuthReauthenticateWithCodeResponse = zReauthenticationResult
-
-export const zPostAuthReauthenticateWithPasswordBody = zReauthenticateWithPasswordPayload
-
-/**
- * Outcome of the attempt
- */
-export const zPostAuthReauthenticateWithPasswordResponse = zReauthenticationResult
-
-/**
- * Whether reauthentication is required
- */
-export const zGetAuthReauthenticationStatusResponse = zReauthenticationStatus
-
 export const zPostAuthSendEmailCodeBody = zSendEmailCodeData
 
 /**
  * What the request did
  */
 export const zPostAuthSendEmailCodeResponse = zSendDeleteUserEmailCodeResult
-
-export const zPostAuthSendReauthenticationCodeBody = zSendReauthenticationCodePayload
-
-/**
- * What the request did
- */
-export const zPostAuthSendReauthenticationCodeResponse = zSendReauthenticationCodeResult
 
 export const zPostAuthSignupBody = zCreateAccountDetails
 

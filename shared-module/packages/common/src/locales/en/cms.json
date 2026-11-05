@@ -173,7 +173,6 @@
   "email-template-type-credit-registration-registered": "Credit registration: registered",
   "email-template-type-delete-user-email": "Delete User Email",
   "email-template-type-generic": "Generic",
-  "email-template-type-reauthentication-code": "Confirm account code",
   "email-template-type-reset-password-email": "Reset Password Email",
   "email-template-type-verify-email-address": "Verify Email Address",
   "error": "Error",

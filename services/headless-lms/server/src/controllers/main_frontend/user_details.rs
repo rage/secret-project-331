@@ -5,7 +5,6 @@ use models::{
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
-use actix_session::Session;
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use std::net::IpAddr;
 
@@ -373,9 +372,9 @@ POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users i
 
 A new email reaches TMC only once it is verified, through
 [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
-ownership verification is off. 403 for an email change from a delegated session.
+ownership verification is off.
 */
-#[instrument(skip(pool, app_conf, tmc_client, session))]
+#[instrument(skip(pool, app_conf, tmc_client))]
 #[utoipa::path(
     post,
     path = "/update-user-info",
@@ -388,7 +387,6 @@ ownership verification is off. 403 for an email change from a delegated session.
 )]
 pub async fn update_user_info(
     user: AuthUser,
-    session: Session,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
     tmc_client: web::Data<TmcClient>,
@@ -399,10 +397,6 @@ pub async fn update_user_info(
     let existing_user = models::user_details::get_user_details_by_user_id(&mut tx, user.id)
         .await
         .context("Failed to fetch existing user data")?;
-    let email_changed = existing_user.email != payload.email;
-    if email_changed {
-        crate::domain::authentication::require_reauthenticated(&session)?;
-    }
 
     let user = models::users::get_by_id(&mut tx, user.id)
         .await
@@ -420,6 +414,7 @@ pub async fn update_user_info(
     .await
     .context("Failed to update database")?;
 
+    let email_changed = existing_user.email != payload.email;
     let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
     let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
 

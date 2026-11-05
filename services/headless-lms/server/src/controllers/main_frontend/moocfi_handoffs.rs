@@ -17,7 +17,7 @@ never JSON:
   never signs anyone in.
 
 A handoff is single use: signing in or starting a continuation spends it. Sessions it signs in are
-delegated; see [`authentication::remember_delegated`].
+delegated; see [`authentication::remember`].
 */
 
 use actix_session::Session;
@@ -220,7 +220,7 @@ pub async fn redeem_moocfi_handoff(
     };
     // Against session fixation: the signed-in session must not reuse an id issued before sign-in.
     session.renew();
-    authentication::remember_delegated(&session, user)?;
+    authentication::remember(&session, user)?;
     log_outcome(RedeemOutcome::SignedIn);
     token.authorized_ok(see_other(&registration_page_path(&claim)))
 }
@@ -373,7 +373,7 @@ pub async fn continue_moocfi_handoff(
         let user = models::users::get_by_id(&mut conn, continuation.user_id).await?;
         session.clear();
         session.renew();
-        authentication::remember_delegated(&session, user)?;
+        authentication::remember(&session, user)?;
     }
     info!(outcome = "continued", "Continued a mooc.fi handoff");
     token.authorized_ok(clearing_continuation(HttpResponse::Ok().json(

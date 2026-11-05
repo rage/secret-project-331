@@ -13218,7 +13218,7 @@ export const searchUserDetailsFuzzyMutation = (
  *
  * A new email reaches TMC only once it is verified, through
  * [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
- * ownership verification is off. 403 for an email change from a delegated session.
+ * ownership verification is off.
  */
 export const updateUserInfoMutation = (
   options?: Partial<Options<UpdateUserInfoData>>,

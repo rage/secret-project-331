@@ -46,8 +46,7 @@
               "Enum": [
                 "staff_login",
                 "account_deletion",
-                "email_ownership_verification",
-                "reauthentication"
+                "email_ownership_verification"
               ]
             }
           }
@@ -136,8 +135,7 @@
               "Enum": [
                 "staff_login",
                 "account_deletion",
-                "email_ownership_verification",
-                "reauthentication"
+                "email_ownership_verification"
               ]
             }
           }

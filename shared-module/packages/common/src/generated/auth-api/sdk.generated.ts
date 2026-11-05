@@ -8,8 +8,6 @@ import { client } from "./client.generated"
 import type {
   GetAuthLoggedInData,
   GetAuthLoggedInResponses,
-  GetAuthReauthenticationStatusData,
-  GetAuthReauthenticationStatusResponses,
   GetAuthUserInfoData,
   GetAuthUserInfoResponses,
   PostAuthAuthorizeData,
@@ -22,14 +20,8 @@ import type {
   PostAuthLoginResponses,
   PostAuthLogoutData,
   PostAuthLogoutResponses,
-  PostAuthReauthenticateWithCodeData,
-  PostAuthReauthenticateWithCodeResponses,
-  PostAuthReauthenticateWithPasswordData,
-  PostAuthReauthenticateWithPasswordResponses,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponses,
-  PostAuthSendReauthenticationCodeData,
-  PostAuthSendReauthenticationCodeResponses,
   PostAuthSignupData,
   PostAuthSignupErrors,
   PostAuthSignupResponses,
@@ -38,16 +30,12 @@ import type {
 } from "./types.generated"
 import {
   zGetAuthLoggedInResponse,
-  zGetAuthReauthenticationStatusResponse,
   zGetAuthUserInfoResponse,
   zPostAuthAuthorizeMultipleResponse,
   zPostAuthAuthorizeResponse,
   zPostAuthDeleteUserAccountResponse,
   zPostAuthLoginResponse,
-  zPostAuthReauthenticateWithCodeResponse,
-  zPostAuthReauthenticateWithPasswordResponse,
   zPostAuthSendEmailCodeResponse,
-  zPostAuthSendReauthenticationCodeResponse,
   zPostAuthSignupResponse,
   zPostAuthVerifyEmailResponse,
 } from "./zod.generated"
@@ -189,81 +177,6 @@ export const postAuthLogout = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST `/api/v0/auth/reauthenticate-with-code` - Ends the delegation of the session if `code` is the
- * one [`send_reauthentication_code`] mailed.
- */
-export const postAuthReauthenticateWithCode = <ThrowOnError extends boolean = true>(
-  options: Options<PostAuthReauthenticateWithCodeData, ThrowOnError>,
-): RequestResult<PostAuthReauthenticateWithCodeResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    PostAuthReauthenticateWithCodeResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zPostAuthReauthenticateWithCodeResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/auth/reauthenticate-with-code",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
- * POST `/api/v0/auth/reauthenticate-with-password` - Ends the delegation of the session if `password`
- * is the account's.
- *
- * An account only ever signed in through handoffs has no password stored here, so its password is
- * checked with TMC under the email TMC has, which an unverified change here has not reached. Nothing is
- * stored.
- */
-export const postAuthReauthenticateWithPassword = <ThrowOnError extends boolean = true>(
-  options: Options<PostAuthReauthenticateWithPasswordData, ThrowOnError>,
-): RequestResult<PostAuthReauthenticateWithPasswordResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    PostAuthReauthenticateWithPasswordResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zPostAuthReauthenticateWithPasswordResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/auth/reauthenticate-with-password",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
- * GET `/api/v0/auth/reauthentication` - Whether the session must reauthenticate before account
- * security changes; see [`authentication::remember_delegated`].
- */
-export const getAuthReauthenticationStatus = <ThrowOnError extends boolean = true>(
-  options?: Options<GetAuthReauthenticationStatusData, ThrowOnError>,
-): RequestResult<GetAuthReauthenticationStatusResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).get<
-    GetAuthReauthenticationStatusResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetAuthReauthenticationStatusResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/auth/reauthentication",
-    ...options,
-  })
-
-/**
- *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -274,31 +187,6 @@ export const postAuthSendEmailCode = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zPostAuthSendEmailCodeResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/auth/send-email-code",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
- * POST `/api/v0/auth/send-reauthentication-code` - Mails a code to the account's current address
- * that [`reauthenticate_with_code`] takes.
- */
-export const postAuthSendReauthenticationCode = <ThrowOnError extends boolean = true>(
-  options: Options<PostAuthSendReauthenticationCodeData, ThrowOnError>,
-): RequestResult<PostAuthSendReauthenticationCodeResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    PostAuthSendReauthenticationCodeResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zPostAuthSendReauthenticationCodeResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/auth/send-reauthentication-code",
     ...options,
     headers: {
       "Content-Type": "application/json",

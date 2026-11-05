@@ -36,10 +36,6 @@ use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
 
-/// Present while the session was started by a handoff and the student has not entered their
-/// password or an emailed code in it since.
-const DELEGATED_SESSION_KEY: &str = "delegated";
-
 pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
     left.as_bytes().ct_eq(right.as_bytes()).into()
 }
@@ -161,7 +157,7 @@ async fn verify_auth_user_exists(
         info!("Checking whether the user saved in the session still exists in the database.");
         let mut conn = pool.acquire().await?;
         let user = models::users::get_by_id(&mut conn, auth_user.id).await?;
-        store_auth_user(session, user)?;
+        remember(session, user)?;
         match session.get::<AuthUser>(SESSION_KEY) {
             Ok(Some(session_user)) => Ok(session_user),
             Ok(None) => Err(controller_err!(
@@ -184,52 +180,8 @@ async fn verify_auth_user_exists(
     }
 }
 
-/// Stores the user as authenticated in the given session, by their own credentials. Ends a
-/// delegated session; see [`remember_delegated`].
+/// Stores the user as authenticated in the given session.
 pub fn remember(session: &Session, user: models::users::User) -> Result<()> {
-    store_auth_user(session, user)?;
-    session.remove(DELEGATED_SESSION_KEY);
-    Ok(())
-}
-
-/// Stores the user as authenticated on another service's word, such as a mooc.fi handoff. The
-/// session cannot change the account's email or password, or delete it, until
-/// [`mark_reauthenticated`].
-pub fn remember_delegated(session: &Session, user: models::users::User) -> Result<()> {
-    store_auth_user(session, user)?;
-    session
-        .insert(DELEGATED_SESSION_KEY, true)
-        .map_err(|_| anyhow::anyhow!("Failed to insert to session"))
-}
-
-/// Whether the session was signed in by [`remember_delegated`] and not reauthenticated since.
-pub fn is_delegated(session: &Session) -> bool {
-    session
-        .get::<bool>(DELEGATED_SESSION_KEY)
-        .ok()
-        .flatten()
-        .unwrap_or(false)
-}
-
-/// Records that the student proved, in this session, that the account is theirs.
-pub fn mark_reauthenticated(session: &Session) {
-    session.remove(DELEGATED_SESSION_KEY);
-}
-
-/// Refuses an account-security change, such as a new email or password or a deletion, from a
-/// delegated session.
-pub fn require_reauthenticated(session: &Session) -> Result<(), ControllerError> {
-    if is_delegated(session) {
-        return Err(controller_err!(
-            Forbidden,
-            "Confirm that this is your account first: enter your password or a code we email you."
-                .to_string()
-        ));
-    }
-    Ok(())
-}
-
-fn store_auth_user(session: &Session, user: models::users::User) -> Result<()> {
     let auth_user = AuthUser {
         id: user.id,
         created_at: user.created_at,

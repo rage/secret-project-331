@@ -46,6 +46,8 @@ export interface CreditRegistrationStatusProps {
   uhCourseCode: string | null | undefined
   /** Where an Open University student enrols, known before the registration exists. */
   enrolmentLink: string | null | undefined
+  /** Shown in the title band when the page signed the student in on their behalf. */
+  signedInEmail?: string | undefined
 }
 
 const MOVING_REFETCH_INTERVAL_MS = 10_000
@@ -64,6 +66,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
   certificate,
   uhCourseCode,
   enrolmentLink,
+  signedInEmail,
 }) => {
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
   const query = useQuery({
@@ -114,6 +117,7 @@ const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = ({
               courseName={courseName}
               moduleName={moduleName}
               ectsCredits={ectsCredits}
+              signedInEmail={signedInEmail}
             />
           }
           courseName={courseName}
@@ -140,7 +144,8 @@ export const CardHeading: React.FC<{
   courseName: string
   moduleName: string | null | undefined
   ectsCredits: number | null | undefined
-}> = ({ courseName, moduleName, ectsCredits }) => {
+  signedInEmail?: string | undefined
+}> = ({ courseName, moduleName, ectsCredits, signedInEmail }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <header className={cardTitleBandCss}>
@@ -155,6 +160,9 @@ export const CardHeading: React.FC<{
       ) : null}
       {typeof ectsCredits === "number" ? (
         <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+      ) : null}
+      {signedInEmail ? (
+        <p className={noteCss}>{t("credit-registration-signed-in-as", { email: signedInEmail })}</p>
       ) : null}
     </header>
   )

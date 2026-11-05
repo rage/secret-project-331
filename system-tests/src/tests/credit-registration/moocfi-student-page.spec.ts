@@ -88,8 +88,10 @@ test("Each completion says how it is registered, and stale or missing data says 
 }) => {
   await openRegistrationFromMoocfi(page, MOOCFI_TIERED_COURSE, STUDENT)
 
-  await test.step("Every status reads as its own card", async () => {
-    await expect(page.getByRole("heading", { name: "Registered on mooc.fi" })).toBeVisible()
+  await test.step("Every completion reads as its own row", async () => {
+    await expect(
+      page.getByRole("heading", { name: "Register on the older version of the platform" }),
+    ).toBeVisible()
     await expect(
       page.getByRole("heading", { name: "No credits for this completion" }),
     ).toBeVisible()
@@ -125,10 +127,14 @@ test("Each completion says how it is registered, and stale or missing data says 
   await test.step("A completion deleted on mooc.fi reads as removed", async () => {
     await deleteMockMoocfiCompletion(request, REMOVED_ID)
     await page.reload()
-    await expect(page.getByRole("heading", { name: "Completion removed" })).toBeVisible()
-    // With one completion left registering, the page opens its stepper by itself.
+    // With one completion left registering, the page opens its stepper alone.
+    await expect(page.getByRole("button", { name: "Start" })).toBeVisible()
     await expect(page.getByRole("link", { name: "Show registration" })).toHaveCount(0)
-    await expect(page.getByRole("heading", { name: "Your other completions" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Already registered" })).toHaveCount(0)
+    const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
+    expect(
+      completions.find((completion) => completion.moocfi_completion_id === REMOVED_ID)?.status,
+    ).toBe("removed_from_moocfi")
   })
 
   await test.step("When mooc.fi cannot be reached, the stored completions show with a notice", async () => {
@@ -136,12 +142,14 @@ test("Each completion says how it is registered, and stale or missing data says 
     await page.reload()
     await expect(
       page.getByText(
-        "We could not reach mooc.fi just now, so your latest completions may be missing",
+        "We could not check the older version of the platform just now, so your latest completions may be missing",
       ),
     ).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Already registered" })).toBeVisible()
+    const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_TIERED_COURSE)
+    const statuses = completions.map((completion) => completion.status)
+    expect(statuses).toContain("registered_on_moocfi")
     // Never stored, so nothing remembers it while mooc.fi is away.
-    await expect(page.getByRole("heading", { name: "Not registered here" })).toHaveCount(0)
+    expect(statuses).not.toContain("no_credit_unit")
     await setMockMoocfiAvailableFor(request, STUDENT, true)
   })
 
@@ -156,7 +164,7 @@ test("Each completion says how it is registered, and stale or missing data says 
     await page.goto(moocfiRegistrationUrl(MOOCFI_COURSE))
     await expect(page.getByRole("heading", { name: "No completion found" })).toBeVisible()
     await expect(
-      page.getByText("If you completed the course recently, try again from mooc.fi"),
+      page.getByText("If you completed the course just now, wait a moment"),
     ).toBeVisible()
   })
 })

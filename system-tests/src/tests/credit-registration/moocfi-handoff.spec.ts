@@ -47,7 +47,7 @@ test("The mooc.fi button signs the student in on the course's registration page"
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
   const redeemUrl = (await redeemRequest).url()
 
-  await expect(page.getByRole("link", { name: "Back to mooc.fi" })).toBeVisible()
+  await expect(page.getByRole("link", { name: "Back to the course" })).toBeVisible()
   await expect(page.getByRole("heading", { name: "No completion found" })).toBeVisible()
   await expect(page.getByText(`Course: ${MOOCFI_TARGET_NAME}`)).toBeVisible()
   await accessibilityCheck(page, "mooc.fi registration page after a handoff")
@@ -138,17 +138,16 @@ test("Arriving from another site, the student confirms the account and continues
   // Elements of AI.
   await page.goto(redeemUrl)
   await page.waitForURL(`${moocfiRegistrationUrl(MOOCFI_COURSE)}/handoff?reason=confirm`)
-  await expect(
-    page.getByRole("heading", { name: "Continue to your credit registration" }),
-  ).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Confirm your account" })).toBeVisible()
   await expect(
     page.getByText(
-      `This link signs you in as ${STUDENT.email}. Continue only if you just pressed the button on mooc.fi or Elements of AI.`,
+      "This link signs you in with the account below. Continue only if you just pressed the credit registration button on the older version of the platform.",
     ),
   ).toBeVisible()
+  await expect(page.getByText(STUDENT.email, { exact: true })).toBeVisible()
   await accessibilityCheck(page, "mooc.fi handoff confirmation after a cross-site arrival")
 
-  await page.getByRole("button", { name: `Continue as ${STUDENT.email}` }).click()
+  await page.getByRole("button", { name: "Continue with this account" }).click()
   await page.waitForURL(moocfiRegistrationUrl(MOOCFI_COURSE))
   await expect(page.getByText(`Signed in as ${STUDENT.email}`)).toBeVisible()
 })
@@ -166,12 +165,8 @@ test.describe("Another account already signed in", () => {
     await expect(
       page.getByRole("heading", { name: "You are signed in with another account" }),
     ).toBeVisible()
-    await expect(
-      page.getByText(
-        `You are signed in as user@example.com. This link signs you in as ${STUDENT.email}.`,
-        { exact: false },
-      ),
-    ).toBeVisible()
+    await expect(page.getByText("user@example.com", { exact: true })).toBeVisible()
+    await expect(page.getByText(STUDENT.email, { exact: true })).toBeVisible()
     await accessibilityCheck(page, "mooc.fi handoff with another account signed in")
 
     await page.getByRole("button", { name: "Log out and continue" }).click()

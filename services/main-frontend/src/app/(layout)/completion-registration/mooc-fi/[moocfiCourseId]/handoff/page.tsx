@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useContext, useEffect } from "react"
@@ -11,12 +12,12 @@ import {
   CREDIT_REGISTRATION_NS,
   TONE,
 } from "@/components/credit-registration/constants"
+import { CardHeading } from "@/components/credit-registration/CreditRegistrationStatus"
 import {
   bandCss,
   bandedCardCss,
-  cardTitleBandCss,
+  headingCss,
   narrowPageCss,
-  pageTitleCss,
   rowCss,
 } from "@/components/credit-registration/styles"
 import {
@@ -31,7 +32,15 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { loginRoute, moocfiCompletionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Infobox, Link, Spinner } from "@/shared-module/components"
+import { Button, DescriptionList, Infobox, Link, Spinner } from "@/shared-module/components"
+
+/** The account the student must recognise before a sign-in happens on their behalf. */
+const accountBoxCss = css`
+  padding: var(--space-4);
+  border: 1px solid var(--color-clear-400);
+  border-radius: var(--surface-radius);
+  background: var(--color-clear-100);
+`
 
 /** Must match the reasons the backend's handoff redeem redirects here with. */
 const REASON_DIFFERENT_ACCOUNT = "different_account"
@@ -101,9 +110,13 @@ const MoocfiHandoffPage: React.FC = () => {
   }
 
   const moocfiCourseUrl = linkQuery.data?.moocfi_course_url
+  const courseName = linkQuery.data?.course_name ?? ""
   const backToMoocfi = moocfiCourseUrl ? (
     <Link href={moocfiCourseUrl}>{t("credit-registration-back-to-moocfi")}</Link>
   ) : null
+  const signedInNow = userQuery.data
+    ? [{ label: t("label-signed-in-now"), value: <strong>{userQuery.data.email}</strong> }]
+    : []
   const continueFailed = continueHandoff.isError ? (
     <Infobox tone={TONE.DANGER} announce>
       {t("credit-registration-handoff-continue-failed")}
@@ -122,7 +135,7 @@ const MoocfiHandoffPage: React.FC = () => {
 
   if (pendingQuery.isPending || pending?.signed_in_account === "same") {
     return (
-      <LandingCard heading={t("register-completion")}>
+      <LandingCard courseName={courseName}>
         <Spinner label={t("credit-registration-handoff-continuing")} />
       </LandingCard>
     )
@@ -130,15 +143,24 @@ const MoocfiHandoffPage: React.FC = () => {
 
   if (pending?.signed_in_account === "different") {
     return (
-      <LandingCard heading={t("credit-registration-handoff-different-account-heading")}>
+      <LandingCard
+        courseName={courseName}
+        heading={t("credit-registration-handoff-different-account-heading")}
+      >
         <p>
           {userQuery.data
-            ? t("credit-registration-handoff-different-account", {
-                handoffEmail: pending.email,
-                signedInEmail: userQuery.data.email,
-              })
-            : t("credit-registration-handoff-confirm", { email: pending.email })}
+            ? t("credit-registration-handoff-different-account")
+            : t("credit-registration-handoff-confirm")}
         </p>
+        <AccountBox
+          items={[
+            ...signedInNow,
+            {
+              label: t(userQuery.data ? "label-handoff-signs-in-as" : "label-handoff-account"),
+              value: <strong>{pending.email}</strong>,
+            },
+          ]}
+        />
         {continueFailed}
         <div className={rowCss}>
           {continueButton(t("credit-registration-handoff-log-out-and-continue"))}
@@ -150,11 +172,17 @@ const MoocfiHandoffPage: React.FC = () => {
 
   if (pending?.signed_in_account === "none") {
     return (
-      <LandingCard heading={t("credit-registration-handoff-confirm-heading")}>
-        <p>{t("credit-registration-handoff-confirm", { email: pending.email })}</p>
+      <LandingCard
+        courseName={courseName}
+        heading={t("credit-registration-handoff-confirm-heading")}
+      >
+        <p>{t("credit-registration-handoff-confirm")}</p>
+        <AccountBox
+          items={[{ label: t("label-handoff-account"), value: <strong>{pending.email}</strong> }]}
+        />
         {continueFailed}
         <div className={rowCss}>
-          {continueButton(t("credit-registration-handoff-continue-as", { email: pending.email }))}
+          {continueButton(t("credit-registration-handoff-continue-with-account"))}
           <Link href={loginRoute(moocfiCompletionRegistrationRoute(moocfiCourseId))}>
             {t("credit-registration-handoff-sign-in-another-account")}
           </Link>
@@ -166,9 +194,15 @@ const MoocfiHandoffPage: React.FC = () => {
   // Nothing is waiting: the handoff expired, or came from another IP, so nobody is signed in by it.
   if (reason === REASON_DIFFERENT_ACCOUNT && isSignedIn) {
     return (
-      <LandingCard heading={t("credit-registration-handoff-different-account-heading")}>
-        <p>{t("credit-registration-handoff-different-account-unknown")}</p>
-        <p>{t("credit-registration-handoff-different-account-sign-in")}</p>
+      <LandingCard
+        courseName={courseName}
+        heading={t("credit-registration-handoff-different-account-heading")}
+      >
+        <p>
+          {t("credit-registration-handoff-different-account-unknown")}{" "}
+          {t("credit-registration-handoff-different-account-sign-in")}
+        </p>
+        {signedInNow.length > 0 ? <AccountBox items={signedInNow} /> : null}
         <div className={rowCss}>
           <Button
             variant={BUTTON_SECONDARY}
@@ -184,31 +218,57 @@ const MoocfiHandoffPage: React.FC = () => {
     )
   }
 
+  const deadEnd =
+    reason === REASON_RATE_LIMITED
+      ? {
+          heading: t("credit-registration-handoff-rate-limited-heading"),
+          body: t("credit-registration-handoff-rate-limited"),
+        }
+      : isSignedIn
+        ? {
+            heading: t("credit-registration-handoff-failed-heading"),
+            body: t("credit-registration-handoff-failed"),
+          }
+        : {
+            heading: t("credit-registration-handoff-signed-out-heading"),
+            body: t("credit-registration-handoff-signed-out"),
+          }
   return (
-    <LandingCard heading={t("register-completion")}>
-      <p>
-        {reason === REASON_RATE_LIMITED
-          ? t("credit-registration-handoff-rate-limited")
-          : isSignedIn
-            ? t("credit-registration-handoff-failed")
-            : t("credit-registration-handoff-signed-out")}
-      </p>
-      <div className={rowCss}>{backToMoocfi}</div>
+    <LandingCard courseName={courseName} heading={deadEnd.heading}>
+      <p>{deadEnd.body}</p>
+      {moocfiCourseUrl ? (
+        <div className={rowCss}>
+          <Link href={moocfiCourseUrl} styledAsButton variant={BUTTON_PRIMARY} size="medium">
+            {t("credit-registration-back-to-moocfi")}
+          </Link>
+        </div>
+      ) : null}
     </LandingCard>
   )
 }
 
-const LandingCard: React.FC<{ heading: string; children: React.ReactNode }> = ({
-  heading,
-  children,
-}) => (
+/** The registration card's title band, with this page's state as the band below it. */
+const LandingCard: React.FC<{
+  courseName: string
+  heading?: string
+  children: React.ReactNode
+}> = ({ courseName, heading, children }) => (
   <div className={narrowPageCss}>
     <article className={bandedCardCss}>
-      <header className={cardTitleBandCss}>
-        <h1 className={pageTitleCss}>{heading}</h1>
-      </header>
-      <section className={bandCss}>{children}</section>
+      <CardHeading courseName={courseName} moduleName={null} ectsCredits={null} />
+      <section className={bandCss}>
+        {heading ? <h2 className={headingCss}>{heading}</h2> : null}
+        {children}
+      </section>
     </article>
+  </div>
+)
+
+const AccountBox: React.FC<{ items: { label: string; value: React.ReactNode }[] }> = ({
+  items,
+}) => (
+  <div className={accountBoxCss}>
+    <DescriptionList items={items} />
   </div>
 )
 

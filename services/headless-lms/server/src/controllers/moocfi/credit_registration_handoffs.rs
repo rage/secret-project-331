@@ -179,7 +179,7 @@ pub async fn create_credit_registration_handoff(
             return token.authorized_ok(refusal(
                 StatusCode::FORBIDDEN,
                 "untrusted_token",
-                "The TMC token was not issued to mooc.fi or Elements of AI.",
+                "The TMC token was issued to an application that may not hand off sign-ins.",
             ));
         }
         Err(TmcFailure::Unavailable) => {

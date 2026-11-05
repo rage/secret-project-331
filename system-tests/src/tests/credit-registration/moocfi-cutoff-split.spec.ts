@@ -41,10 +41,11 @@ test("A completion from before the cutoff stays with mooc.fi and only the later 
   ])
 
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
-  await expect(page.getByRole("heading", { name: "Registered on mooc.fi" })).toBeVisible()
+  // The later completion is the only one registering here, so the page opens its stepper alone.
+  await expect(page.getByRole("button", { name: "Start" })).toBeVisible()
   await expect(
-    page.getByText("This completion is from before credit registration moved here"),
-  ).toBeVisible()
+    page.getByRole("heading", { name: "Register on the older version of the platform" }),
+  ).toHaveCount(0)
 
   const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_COURSE)
   const before = completions.find(

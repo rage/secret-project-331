@@ -11,6 +11,7 @@ import {
   CREDIT_REGISTRATION_NS,
   QUIET_REFRESH,
   TIME_DATE,
+  TONE,
 } from "@/components/credit-registration/constants"
 import {
   moocfiCompletionStatusCopy,
@@ -26,8 +27,9 @@ import {
 import {
   bandCss,
   bandedCardCss,
-  narrowPageCss,
+  dividedListCss,
   headingCss,
+  narrowPageCss,
   noteCss,
   sectionsCss,
   subheadingCss,
@@ -42,7 +44,7 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { moocfiCompletionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Link, QueryResult, RelativeTime } from "@/shared-module/components"
+import { Infobox, Link, QueryResult, RelativeTime } from "@/shared-module/components"
 
 const BACK_ARROW_SIZE = 16
 
@@ -50,6 +52,28 @@ const backLinkCss = css`
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+`
+
+const completionRowCss = css`
+  display: grid;
+  gap: var(--space-2);
+
+  p {
+    margin: 0;
+  }
+
+  /* dividedListCss spaces rows for tables; a row here holds a paragraph. */
+  && {
+    padding-block: var(--space-4-5);
+  }
+
+  &&:first-of-type {
+    padding-top: 0;
+  }
+
+  &&:last-of-type {
+    padding-bottom: 0;
+  }
 `
 
 /** The pipeline takes up a stored completion within minutes, so until then it reads as under way. */
@@ -98,16 +122,14 @@ const MoocfiCompletionRegistrationPage: React.FC = () => {
                 </Link>
               </div>
             ) : null}
-            <p className={noteCss}>
-              {t("credit-registration-signed-in-as", { email: data.signed_in_email })}
-            </p>
             {data.is_up_to_date ? null : (
-              <p className={noteCss}>{t("credit-registration-moocfi-may-be-stale")}</p>
+              <Infobox tone={TONE.WARNING}>{t("credit-registration-moocfi-may-be-stale")}</Infobox>
             )}
             {data.completions.length === 0 ? (
               <StatusCard
                 courseName={data.course_name}
                 ectsCredits={null}
+                signedInEmail={data.signed_in_email}
                 heading={t("credit-registration-moocfi-nothing-found-heading")}
                 body={t("credit-registration-moocfi-nothing-found")}
               />
@@ -115,6 +137,7 @@ const MoocfiCompletionRegistrationPage: React.FC = () => {
               <Completions
                 completions={data.completions}
                 courseName={data.course_name}
+                signedInEmail={data.signed_in_email}
                 moocfiCourseId={moocfiCourseId}
                 requestedCompletionId={requestedCompletionId}
               />
@@ -127,15 +150,16 @@ const MoocfiCompletionRegistrationPage: React.FC = () => {
 }
 
 /**
- * The chosen completion's stepper, or a card per completion to choose from. The usual student has
- * one completion registering, which is chosen for them.
+ * The chosen completion's stepper, or every completion to choose from. The usual student has one
+ * completion registering, which is chosen for them.
  */
 const Completions: React.FC<{
   completions: MoocfiCompletionRegistration[]
   courseName: string | null | undefined
+  signedInEmail: string
   moocfiCourseId: string
   requestedCompletionId: string
-}> = ({ completions, courseName, moocfiCourseId, requestedCompletionId }) => {
+}> = ({ completions, courseName, signedInEmail, moocfiCourseId, requestedCompletionId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const registering = completions.filter((completion) => isRegistering(completion))
   const requested = completions.find(
@@ -145,10 +169,10 @@ const Completions: React.FC<{
   const chosen = requested ?? (registering.length === 1 ? registering[0] : undefined)
   const pageRoute = moocfiCompletionRegistrationRoute(moocfiCourseId)
 
-  if (requested) {
+  if (chosen) {
     return (
       <>
-        {completions.length > 1 ? (
+        {requested && completions.length > 1 ? (
           <div>
             <Link href={pageRoute} className={backLinkCss}>
               <ArrowLeft size={BACK_ARROW_SIZE} aria-hidden="true" />
@@ -156,85 +180,95 @@ const Completions: React.FC<{
             </Link>
           </div>
         ) : null}
-        <MoocfiCompletion completion={requested} courseName={courseName} />
+        <MoocfiCompletion
+          completion={chosen}
+          courseName={courseName}
+          signedInEmail={signedInEmail}
+        />
       </>
     )
   }
-  const others = completions.filter((completion) => completion !== chosen)
-  const cards = others.map((completion) =>
-    isRegistering(completion) ? (
-      <RegisteringCard
-        key={completion.moocfi_completion_id}
-        completion={completion}
-        courseName={courseName}
-        href={`${pageRoute}?${COMPLETION_PARAM}=${completion.external_completion_id}`}
-      />
-    ) : (
-      <MoocfiCompletion
-        key={completion.moocfi_completion_id}
-        completion={completion}
-        courseName={courseName}
-      />
-    ),
-  )
-  if (chosen) {
+  if (completions.length === 1 && completions[0]) {
     return (
-      <>
-        <MoocfiCompletion completion={chosen} courseName={courseName} />
-        {cards.length > 0 ? (
-          <>
-            <h2 className={headingCss}>{t("credit-registration-moocfi-other-completions")}</h2>
-            {cards}
-          </>
-        ) : null}
-      </>
+      <MoocfiCompletion
+        completion={completions[0]}
+        courseName={courseName}
+        signedInEmail={signedInEmail}
+      />
     )
   }
-  return (
-    <>
-      {registering.length > 1 ? <p>{t("credit-registration-moocfi-choose-completion")}</p> : null}
-      {cards}
-    </>
-  )
-}
-
-/** A completion registering here, as a link to its own stepper. */
-const RegisteringCard: React.FC<{
-  completion: MoocfiCompletionRegistration
-  courseName: string | null | undefined
-  href: string
-}> = ({ completion, courseName, href }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <article className={bandedCardCss}>
       <CardHeading
-        courseName={completion.credit_unit?.name ?? courseName ?? ""}
+        courseName={courseName ?? ""}
         moduleName={null}
-        ectsCredits={completion.credit_unit?.ects_credits}
+        ectsCredits={null}
+        signedInEmail={signedInEmail}
       />
       <section className={bandCss}>
-        <h2 className={subheadingCss}>
-          {registrationStatusLabel(
-            t,
-            completion.student_facing_status ?? STATUS_BEFORE_REGISTRATION,
-          )}
-        </h2>
-        <p className={noteCss}>
-          {t("label-completed")}{" "}
-          <RelativeTime at={completion.completion_date} absoluteTime={TIME_DATE} />
-        </p>
+        {registering.length > 1 ? <p>{t("credit-registration-moocfi-choose-completion")}</p> : null}
+        <ul className={dividedListCss}>
+          {completions.map((completion) => (
+            <CompletionRow
+              key={completion.moocfi_completion_id}
+              completion={completion}
+              courseName={courseName}
+              href={
+                isRegistering(completion)
+                  ? `${pageRoute}?${COMPLETION_PARAM}=${completion.external_completion_id}`
+                  : null
+              }
+            />
+          ))}
+        </ul>
+      </section>
+    </article>
+  )
+}
+
+/** One completion in the list to choose from: where it stands, and a link to its stepper. */
+const CompletionRow: React.FC<{
+  completion: MoocfiCompletionRegistration
+  courseName: string | null | undefined
+  href: string | null
+}> = ({ completion, courseName, href }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const unitName = completion.credit_unit?.name
+  const ectsCredits = completion.credit_unit?.ects_credits
+  const copy = href ? null : moocfiCompletionStatusCopy(t, completion.status)
+  return (
+    <li className={completionRowCss}>
+      <h2 className={subheadingCss}>
+        {copy
+          ? copy.heading
+          : registrationStatusLabel(
+              t,
+              completion.student_facing_status ?? STATUS_BEFORE_REGISTRATION,
+            )}
+      </h2>
+      <p className={noteCss}>
+        {t("label-completed")}{" "}
+        <RelativeTime at={completion.completion_date} absoluteTime={TIME_DATE} />
+      </p>
+      {unitName && unitName !== courseName ? <p className={noteCss}>{unitName}</p> : null}
+      {typeof ectsCredits === "number" ? (
+        <p className={noteCss}>{t("credits-n-ects", { n: ectsCredits })}</p>
+      ) : null}
+      {copy ? <p>{copy.body}</p> : null}
+      {href ? (
         <div>
           <Link href={href}>{t("credit-registration-moocfi-show-registration")}</Link>
         </div>
-      </section>
-    </article>
+      ) : null}
+    </li>
   )
 }
 
 const MoocfiCompletion: React.FC<{
   completion: MoocfiCompletionRegistration
   courseName: string | null | undefined
-}> = ({ completion, courseName }) => {
+  signedInEmail: string
+}> = ({ completion, courseName, signedInEmail }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const name = completion.credit_unit?.name ?? courseName
   const ectsCredits = completion.credit_unit?.ects_credits
@@ -254,6 +288,7 @@ const MoocfiCompletion: React.FC<{
         )}
         uhCourseCode={completion.credit_unit?.uh_course_code}
         enrolmentLink={completion.credit_unit?.enrolment_link}
+        signedInEmail={signedInEmail}
       />
     )
   }
@@ -262,6 +297,7 @@ const MoocfiCompletion: React.FC<{
     <StatusCard
       courseName={name}
       ectsCredits={ectsCredits}
+      signedInEmail={signedInEmail}
       heading={copy.heading}
       body={copy.body}
       completionDate={completion.completion_date}
@@ -269,20 +305,26 @@ const MoocfiCompletion: React.FC<{
   )
 }
 
-/** A completion courses does not register, in the same card the registered ones get. */
+/** A completion courses does not register, in the same card the stepper uses. */
 const StatusCard: React.FC<{
   courseName: string | null | undefined
   ectsCredits: number | null | undefined
+  signedInEmail: string
   heading: string
   body: string
   completionDate?: string
-}> = ({ courseName, ectsCredits, heading, body, completionDate }) => {
+}> = ({ courseName, ectsCredits, signedInEmail, heading, body, completionDate }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <article className={bandedCardCss}>
-      <CardHeading courseName={courseName ?? ""} moduleName={null} ectsCredits={ectsCredits} />
+      <CardHeading
+        courseName={courseName ?? ""}
+        moduleName={null}
+        ectsCredits={ectsCredits}
+        signedInEmail={signedInEmail}
+      />
       <section className={bandCss}>
-        <h2 className={subheadingCss}>{heading}</h2>
+        <h2 className={headingCss}>{heading}</h2>
         <p>{body}</p>
         {completionDate ? (
           <p className={noteCss}>

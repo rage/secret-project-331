@@ -64,8 +64,11 @@ pub struct SuotarApiCallLedgerReference {
     pub last_name: Option<String>,
     pub email: Option<String>,
     pub student_number: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
+    pub external_credit_target_id: Option<Uuid>,
     pub state: CreditRegistrationState,
     pub error_code: Option<CreditRegistrationErrorCode>,
 }
@@ -273,6 +276,7 @@ async fn resolve_ledger_references(
             student_number: expose_option(&row.student_number).map(str::to_owned),
             course_id: row.course_id,
             course_name: row.course_name,
+            external_credit_target_id: row.external_credit_target_id,
             state: row.state,
             error_code: row.error_code,
         })

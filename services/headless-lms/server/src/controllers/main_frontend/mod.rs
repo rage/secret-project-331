@@ -32,6 +32,8 @@ pub mod external_courses;
 pub mod feedback;
 pub mod global_stats;
 pub mod glossary;
+pub mod moocfi_credit_registrations;
+pub mod moocfi_handoffs;
 pub mod oauth;
 pub mod org;
 pub mod organizations;
@@ -80,6 +82,8 @@ use utoipa::OpenApi;
         (path = "/feedback", api = feedback::MainFrontendFeedbackApiDoc),
         (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
         (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
+        (path = "/moocfi-credit-registrations", api = moocfi_credit_registrations::MainFrontendMoocfiCreditRegistrationsApiDoc),
+        (path = "/moocfi-handoffs", api = moocfi_handoffs::MainFrontendMoocfiHandoffsApiDoc),
         (path = "/oauth", api = oauth::MainFrontendOauthApiDoc),
         (path = "/org", api = org::MainFrontendOrgApiDoc),
         (path = "/organizations", api = organizations::MainFrontendOrganizationsApiDoc),
@@ -158,5 +162,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes))
         .service(web::scope("/chatbot-embed").configure(chatbot_embed::_add_routes))
+        .service(
+            web::scope("/moocfi-credit-registrations")
+                .configure(moocfi_credit_registrations::_add_routes),
+        )
+        .service(web::scope("/moocfi-handoffs").configure(moocfi_handoffs::_add_routes))
         .service(web::scope("/external-courses").configure(external_courses::_add_routes));
 }

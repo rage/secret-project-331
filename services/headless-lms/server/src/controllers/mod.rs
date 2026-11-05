@@ -19,14 +19,17 @@ pub mod helpers;
 pub mod main_frontend;
 pub mod mock_azure;
 pub mod mock_document_storage;
+pub mod mock_moocfi;
 pub mod mock_sisu;
 pub mod mock_suotar;
+pub mod moocfi;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
 pub mod well_known;
 use crate::domain::error::{ControllerError, ControllerErrorType};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
+use actix_web::dev::Service as _;
 use actix_web::{
     HttpRequest, HttpResponse, ResponseError,
     web::{self, ServiceConfig},
@@ -51,7 +54,25 @@ pub fn configure_controllers(
         .service(web::scope("/cms").configure(cms::_add_routes))
         .service(web::scope("/files").configure(files::_add_routes))
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
-        .service(web::scope("/auth").configure(auth::_add_routes))
+        .service(
+            web::scope("/auth")
+                // A mooc.fi sign-in left waiting must not outlive the session it was shown beside.
+                .wrap_fn(|request, service| {
+                    let changes_session = auth::changes_session(request.path());
+                    let response = service.call(request);
+                    async move {
+                        let mut response = response.await?;
+                        if changes_session {
+                            // Only fails on a cookie that cannot be a header value.
+                            let _ = response.response_mut().add_cookie(
+                                &main_frontend::moocfi_handoffs::continuation_cookie_removal(),
+                            );
+                        }
+                        Ok(response)
+                    }
+                })
+                .configure(auth::_add_routes),
+        )
         .service(web::scope("/errors").configure(errors::_add_routes))
         .service(web::scope("/study-registry").configure(study_registry::_add_routes))
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
@@ -60,6 +81,7 @@ pub fn configure_controllers(
         )
         .service(web::scope("/health").configure(health::_add_routes))
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
+        .service(web::scope("/moocfi").configure(moocfi::_add_routes))
         .service({
             let [per_grant, per_user] = mcp_rate_limits(app_conf.test_mode);
             // Registered inside out: authentication runs first and gives the limits their key.
@@ -83,6 +105,9 @@ pub fn configure_controllers(
     }
     if app_conf.test_suotar && app_conf.test_mode {
         cfg.service(mock_suotar::scope());
+    }
+    if app_conf.test_moocfi && app_conf.test_mode {
+        cfg.service(web::scope("/mock-moocfi").configure(mock_moocfi::_add_routes));
     }
 }
 

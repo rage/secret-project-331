@@ -59,8 +59,7 @@ WHERE course_module_id = $1
         crate::library::credit_registration::enrolment_checks::shift_past_pause(
             &mut tx,
             course_module_id,
-            // Whole seconds: Postgres intervals hold no nanoseconds, which the clock has.
-            chrono::TimeDelta::seconds((Utc::now() - paused_at).num_seconds()),
+            paused_at,
         )
         .await?;
     }

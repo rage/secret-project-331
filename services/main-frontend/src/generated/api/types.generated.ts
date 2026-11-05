@@ -28,15 +28,27 @@ export type AccountLinkingCodeCounters = {
 }
 
 /**
- * A module on a course code, which shares the code's enrolment list.
+ * A module or mooc.fi target on a course code, which shares the code's enrolment list.
  */
 export type AccountLinkingCodeModule = {
-  course_id: string
-  course_module_id: string
+  /**
+   * The module's course; `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
+   * `None` for a mooc.fi target.
+   */
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   /**
-   * When an enrolment list last fed account linking for the module.
+   * The module's or target's id.
+   */
+  credit_unit_id: string
+  /**
+   * When an enrolment list last fed account linking for the module or target.
    */
   last_listed_at?: string | null
 }
@@ -96,8 +108,14 @@ export type AccountLinkingEmailRow = {
   claimed_at: string
   claimed_by_email?: string | null
   claimed_by_user_id?: string | null
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
   /**
    * In full: support finds a student's mail by it.
    */
@@ -166,9 +184,12 @@ export type AccountLinkingFunnel = {
  */
 export type AccountLinkingPresser = {
   completion_date: string
-  course_id: string
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
@@ -244,11 +265,17 @@ export type AccountLinkingSendStatusTotals = {
 }
 
 /**
- * A person mailed to the cap for one course whose number was never claimed.
+ * A person mailed to the cap for one course or mooc.fi target whose number was never claimed.
  */
 export type AccountLinkingStaleAddress = {
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mails were sent for.
+   */
+  course_or_target_id: string
   first_sent_at: string
   last_sent_at: string
   mail_count: number
@@ -325,8 +352,14 @@ export type AccountLinkingStats = {
  */
 export type AccountLinkingUnusedLink = {
   claimed_at: string
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
   /**
    * In full: support tells the recipients apart by it.
    */
@@ -341,9 +374,12 @@ export type AccountLinkingUnusedLink = {
  */
 export type AccountLinkingWaitingStudent = {
   completion_date: string
-  course_id: string
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
@@ -455,6 +491,7 @@ export type AdminCreditRegistrationDetails = {
    * Linking emails sent by hand as a guess for this row's student, newest first.
    */
   manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
+  moocfi_completion?: null | AdminMoocfiCompletion
   not_improved_attainment?: null | NotImprovedAttainment
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
@@ -543,12 +580,19 @@ export type AdminCreditRegistrationRow = {
   attention_reasons: Array<CreditRegistrationAttentionReason>
   attention_standing?: null | AttentionStanding
   completion_date: string
-  course_id: string
-  course_instance_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as are the module, instance and course module completion.
+   */
+  course_id?: string | null
+  course_instance_id?: string | null
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   created_at: string
   credits?: number | null
   /**
@@ -564,6 +608,11 @@ export type AdminCreditRegistrationRow = {
   enrolment_checks_stopped_at?: string | null
   enrolment_route?: null | CreditRegistrationEnrolmentRoute
   error_code?: null | CreditRegistrationErrorCode
+  external_completion_id?: string | null
+  /**
+   * Set on a mooc.fi registration only, as is `external_completion_id`.
+   */
+  external_credit_target_id?: string | null
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
@@ -643,6 +692,10 @@ export type AdminCreditRegistrationRow = {
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
 
+export type AdminDeleteExternalCreditTargetPayload = {
+  reason: string
+}
+
 export type AdminDismissAttentionPayload = {
   reason: string
 }
@@ -656,6 +709,34 @@ export type AdminDismissAttentionResult = {
 
 export type AdminDismissStudyRegistryConflictPayload = {
   reason: string
+}
+
+/**
+ * A mooc.fi target's configuration as the admin form sends it, with the audit reason.
+ */
+export type AdminExternalCreditTargetPayload = {
+  /**
+   * Must equal mooc.fi's `credit_registration_delegated_at` and the other live targets' cutoff
+   * of the same mooc.fi course. Cannot change once the target has registrations.
+   */
+  delegated_at: string
+  ects_credits: number
+  enabled: boolean
+  enrolment_link?: string | null
+  grading: ExternalGrading
+  /**
+   * BCP 47, e.g. `fi-FI`.
+   */
+  language_code: string
+  /**
+   * The handler course on mooc.fi, which the completions are stored on.
+   */
+  moocfi_course_id: string
+  moocfi_course_slug: string
+  name: string
+  reason: string
+  tiers?: null | TierRange
+  uh_course_code: string
 }
 
 /**
@@ -701,8 +782,14 @@ export type AdminLinkingCandidates = {
    */
   candidates: Array<AdminLinkingCandidate>
   course_code: string
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The registration's course or mooc.fi target, which mails to a candidate are sent for.
+   */
+  course_or_target_id: string
   /**
    * The study registry gave no usable answer, so an empty `candidates` says nothing.
    */
@@ -724,11 +811,15 @@ export type AdminLinkingCourse = {
 
 export type AdminLinkingEmail = {
   claimed_at: string
-  course_id: string
+  /**
+   * `None` for a mooc.fi target's mail.
+   */
+  course_id?: string | null
   /**
    * In full.
    */
   emailed_to: string
+  external_credit_target_id?: string | null
   id: string
   send_status: EmailSendStatusReport
   sisu_person_id: string
@@ -809,11 +900,57 @@ export type AdminMaterializePayload = {
 
 export type AdminMaterializeResult = {
   /**
-   * Rows created, both for newly eligible completions and for grades that improved on a
-   * registered one.
+   * Rows created: for newly eligible completions, for grades that improved on a registered one,
+   * and for completions registrable again after a withdrawal.
    */
   created_registration_count: number
   moved_registration_count: number
+}
+
+/**
+ * A mooc.fi completion as courses last read it, and how reporting this registration back went.
+ */
+export type AdminMoocfiCompletion = {
+  moocfi_completion_id: string
+  /**
+   * mooc.fi's grade verbatim, before parsing.
+   */
+  raw_grade?: string | null
+  /**
+   * When another organization's registration of it was first seen on mooc.fi.
+   */
+  registered_upstream_at?: string | null
+  registration_report: AdminMoocfiRegistrationReport
+  tier?: number | null
+  /**
+   * The last successful read from mooc.fi.
+   */
+  upstream_checked_at: string
+  /**
+   * When mooc.fi stopped returning the completion.
+   */
+  upstream_missing_at?: string | null
+}
+
+/**
+ * Reporting this registration back to mooc.fi.
+ */
+export type AdminMoocfiRegistrationReport = {
+  attempt_count: number
+  /**
+   * A success mooc.fi is never told about: a duplicate or not-improved row after an earlier
+   * success of the same completion.
+   */
+  is_skipped: boolean
+  last_error?: string | null
+  /**
+   * `None` until a report has been tried.
+   */
+  next_attempt_at?: string | null
+  /**
+   * When this registration was reported to mooc.fi, or found already there.
+   */
+  reported_at?: string | null
 }
 
 /**
@@ -877,7 +1014,11 @@ export type AdminRequestEnrolmentListFetchResult = {
 
 export type AdminRequeueRetryablePayload = {
   course_id?: string | null
+  /**
+   * A course module, or a mooc.fi target.
+   */
   course_module_id?: string | null
+  external_credit_target_id?: string | null
   reason: string
 }
 
@@ -887,10 +1028,13 @@ export type AdminRequeueRetryableResult = {
 }
 
 export type AdminResendAccountLinkingEmailPayload = {
-  course_id: string
+  /**
+   * The course or mooc.fi target to mail for.
+   */
+  course_or_target_id: string
   /**
    * The registration whose student the mail is a guess for, from the linking candidates. Must be
-   * on `course_id`; recorded on the audit row.
+   * on the course or target; recorded on the audit row.
    */
   credit_registration_id?: string | null
   /**
@@ -1788,6 +1932,25 @@ export type ContentEntityType =
   | "reference"
   | "course_default_review_config"
 
+export type ContinueMoocfiHandoffPayload = {
+  /**
+   * Who was signed in when the student confirmed, as `pending` said. If it has changed since,
+   * the student confirmed something else, so nothing is switched.
+   */
+  expected_signed_in_account: SignedInAccount
+  /**
+   * The course whose landing page the student confirmed on.
+   */
+  moocfi_course_id: string
+}
+
+export type ContinuedMoocfiHandoff = {
+  /**
+   * The registration page; open it with a full navigation so the new session takes over.
+   */
+  redirect_path: string
+}
+
 export type CopyCourseMode =
   | {
       mode: "duplicate"
@@ -2581,6 +2744,18 @@ export type CreateCourseDesignerStageTaskRequest = {
 }
 
 /**
+ * Where the caller asks to be sent on mooc.fi.
+ */
+export type CreateMoocfiHandoffPayload = {
+  destination: MoocfiHandoffDestination
+  /**
+   * The language the caller is using courses in; see
+   * [`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`].
+   */
+  ui_language?: string | null
+}
+
+/**
  * A redirect from a page's old path, created when the page moved to a new one.
  */
 export type CreatedRedirect = {
@@ -2610,6 +2785,9 @@ export type CreditRegistrationAdminAction =
   | "dismiss_study_registry_conflict"
   | "dismiss_attention"
   | "add_note"
+  | "configure_external_credit_target"
+  | "pause_external_credit_target"
+  | "resume_external_credit_target"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2685,6 +2863,7 @@ export type CreditRegistrationAdminActionTarget =
   | "student_number_verification_token"
   | "roster_schedule"
   | "study_registry_student_number_conflict"
+  | "external_credit_target"
 
 export type CreditRegistrationAlert = {
   /**
@@ -2740,7 +2919,13 @@ export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
  * A dismissal made recently, for the "Dismissed recently" section.
  */
 export type CreditRegistrationAttentionDismissal = {
-  course_id: string
+  /**
+   * `None` on a mooc.fi registration.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   dismissed_at: string
@@ -2749,6 +2934,7 @@ export type CreditRegistrationAttentionDismissal = {
   dismissed_by_user_id: string
   dismissed_reasons: Array<CreditRegistrationAttentionReason>
   email?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   reason: string
@@ -2758,10 +2944,17 @@ export type CreditRegistrationAttentionDismissal = {
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
   blocking_problem?: null | BlockingProblem
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   /**
    * In full: this is the list support works from.
@@ -2884,6 +3077,7 @@ export type CreditRegistrationAttentionReason =
   | "verification_gave_up"
   | "repeatedly_not_registered"
   | "student_number_stuck"
+  | "report_back_overdue"
   | "flagged_by_pipeline"
 
 export type CreditRegistrationAttentionReasonCount = {
@@ -2941,6 +3135,9 @@ export type CreditRegistrationCourseConfigCheck = {
   message?: string | null
 }
 
+/**
+ * One row of the Courses tab: a course module or a mooc.fi target.
+ */
 export type CreditRegistrationCourseStats = {
   /**
    * Of `success_count`, already in Sisu or with a better grade there.
@@ -2956,28 +3153,40 @@ export type CreditRegistrationCourseStats = {
    * which the stored verdict beside it cannot express on its own.
    */
   config_checked_at?: string | null
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` for a mooc.fi target, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The module's or target's id, which the Registrations list's `course_module_id` filter takes.
+   */
+  credit_unit_id: string
   ects_credits?: number | null
   /**
    * Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
    * what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
    * a module keeps a permanent gap against `registration_count` for the completions that predate
-   * the push path.
+   * the push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn
+   * ones left out.
    */
   eligible_completion_count: number
   /**
    * Where a student with no usable enrolment is sent to enrol.
    */
   enrolment_link?: string | null
+  external_credit_target?: null | ExternalCreditTarget
   failed_count: number
   in_flight_count: number
   last_listed_at?: string | null
   last_registered_at?: string | null
   /**
-   * The module's rows counted in Needs attention: the Registrations list with
+   * The row's registrations counted in Needs attention: the Registrations list with
    * `course_module_id` and `needs_attention=true` holds exactly these.
    */
   needs_attention_count: number
@@ -3434,10 +3643,13 @@ export type CreditRegistrationStateTotal = {
 
 export type CreditRegistrationStatsByCourse = {
   /**
-   * Modules whose current facts fail the check, which is the tab badge.
+   * Modules first, then mooc.fi targets.
+   */
+  credit_units: Array<CreditRegistrationCourseStats>
+  /**
+   * Modules and targets whose current facts fail the check, which is the tab badge.
    */
   misconfigured_count: number
-  modules: Array<CreditRegistrationCourseStats>
 }
 
 /**
@@ -4324,6 +4536,65 @@ export type ExternalCourseOutput = {
   url: string
 }
 
+/**
+ * A mooc.fi course, or a tier range of one, whose completions courses registers under one course
+ * code.
+ */
+export type ExternalCreditTarget = {
+  /**
+   * The course code `course_code_allowed` is a verdict on.
+   */
+  checked_course_code?: string | null
+  config_check_message?: string | null
+  config_checked_at?: string | null
+  consecutive_listing_failures: number
+  /**
+   * `None` means never checked, which is not the same as a failed check.
+   */
+  course_code_allowed?: boolean | null
+  course_code_rejection?: string | null
+  created_at: string
+  /**
+   * The cutoff: completions dated at or after it are ours, earlier ones mooc.fi's pull path's.
+   */
+  delegated_at: string
+  deleted_at?: string | null
+  ects_credits: number
+  /**
+   * `None` keeps every phase away from the target.
+   */
+  enabled_at?: string | null
+  enrolment_link?: string | null
+  grading: ExternalGrading
+  id: string
+  language_code: string
+  last_listed_at?: string | null
+  last_listing_attempted_at?: string | null
+  last_listing_error?: null | CreditRegistrationErrorCode
+  moocfi_course_checked_at?: string | null
+  /**
+   * The mooc.fi course the completions are stored on, never the slug.
+   */
+  moocfi_course_id: string
+  moocfi_course_slug: string
+  /**
+   * What mooc.fi last said; `None` until it has answered.
+   */
+  moocfi_has_certificate?: boolean | null
+  name: string
+  pause_reason?: string | null
+  paused_at?: string | null
+  paused_by_user_id?: string | null
+  tiers?: null | TierRange
+  uh_course_code: string
+  updated_at: string
+}
+
+/**
+ * How a mooc.fi completion with no grade reads on a target.
+ */
+export type ExternalGrading = "pass_fail" | "numeric"
+
 export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
@@ -4539,25 +4810,34 @@ export type JoinCourseWithJoinCodePayload = {
 }
 
 /**
- * A ledger row the legacy study-registry ledger contradicts.
+ * A ledger row the legacy study-registry ledger, or for a mooc.fi row mooc.fi, contradicts.
  */
 export type LegacyLedgerDivergenceRow = {
-  course_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  course_id?: string | null
+  /**
+   * `None` on a mooc.fi registration, as are the course and the module.
+   */
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
+  external_completion_id?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
    * We registered it and the legacy ledger has no row of ours, so the teacher views and the pull
-   * stream still call the completion unregistered.
+   * stream still call the completion unregistered. Never set on a mooc.fi row.
    */
   mirror_missing: boolean
   /**
    * A registrar took the completion through the pull path while our pipeline had not finished
-   * with it: the shape a double registration would have.
+   * with it, or another organization registered a mooc.fi completion we had already submitted:
+   * the shape a double registration would have.
    */
   registered_by_a_registrar: boolean
   state: CreditRegistrationState
@@ -4651,6 +4931,112 @@ export type ModuleUpdates = {
   new_modules: Array<NewModule>
 }
 
+/**
+ * One mooc.fi completion and what is happening to its credits.
+ */
+export type MoocfiCompletionRegistration = {
+  completion_date: string
+  /**
+   * The student's saved reason for needing the credits rather than the certificate.
+   */
+  credit_justification?: string | null
+  /**
+   * The live ledger row, once the pipeline has created one.
+   */
+  credit_registration_id?: string | null
+  credit_unit?: null | MoocfiCreditUnit
+  /**
+   * Set for completions courses has taken up.
+   */
+  external_completion_id?: string | null
+  moocfi_completion_id: string
+  /**
+   * Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
+   * answer is unknown: its certificate page copes with a course that has none.
+   */
+  offers_certificate: boolean
+  status: MoocfiCompletionStatus
+  student_facing_status?: null | StudentFacingCreditRegistrationStatus
+  tier?: number | null
+}
+
+/**
+ * Why a completion is or is not registered through courses.
+ */
+export type MoocfiCompletionStatus =
+  | "registering_on_courses"
+  | "registration_paused"
+  | "before_cutoff"
+  | "not_eligible"
+  | "registered_on_moocfi"
+  | "no_credit_unit"
+  | "removed_from_moocfi"
+
+/**
+ * A mooc.fi course's name and registration page, for pages that only link back to it.
+ */
+export type MoocfiCourseLink = {
+  /**
+   * `None` when no target is configured for the course, as is the URL.
+   */
+  course_name?: string | null
+  moocfi_course_url?: string | null
+}
+
+/**
+ * What the registration page shows for one mooc.fi course.
+ */
+export type MoocfiCreditRegistrations = {
+  /**
+   * Newest first.
+   */
+  completions: Array<MoocfiCompletionRegistration>
+  /**
+   * `None` when no target is configured for the course.
+   */
+  course_name?: string | null
+  /**
+   * False when mooc.fi could not be asked just now, so `completions` is only what was stored
+   * earlier and the page should offer to try again.
+   */
+  is_up_to_date: boolean
+  moocfi_course_id: string
+  /**
+   * The course's registration page on mooc.fi, for links back.
+   */
+  moocfi_course_url?: string | null
+  /**
+   * The page must show it: a handoff signs in whichever account the TMC token belongs to.
+   */
+  signed_in_email: string
+}
+
+/**
+ * The study-registry course a completion registers as.
+ */
+export type MoocfiCreditUnit = {
+  ects_credits: number
+  /**
+   * Where an Open University student enrols.
+   */
+  enrolment_link?: string | null
+  external_credit_target_id: string
+  name: string
+  uh_course_code: string
+}
+
+export type MoocfiHandoff = {
+  /**
+   * Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads.
+   */
+  redirect_url: string
+}
+
+/**
+ * Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.
+ */
+export type MoocfiHandoffDestination = "certificate"
+
 export type MyCourse = Course & {
   /**
    * Whether the course can be hidden from the "My courses" list. False for courses the user has
@@ -4663,7 +5049,6 @@ export type MyCourse = Course & {
  * What the caller wrote about needing the credits rather than a certificate.
  */
 export type MyCreditJustification = {
-  course_module_completion_id: string
   justification: string
   updated_at: string
 }
@@ -4672,11 +5057,17 @@ export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
   completion_date: string
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as are the slug and the module.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the mooc.fi course's.
+   */
   course_name: string
-  course_slug: string
+  course_slug?: string | null
   credits?: number | null
   ects_credits?: number | null
   /**
@@ -4695,6 +5086,10 @@ export type MyCreditRegistration = {
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null
   error_code?: null | CreditRegistrationErrorCode
+  /**
+   * Set on a mooc.fi registration only, as is `moocfi_course_id`.
+   */
+  external_completion_id?: string | null
   grade_id?: string | null
   /**
    * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
@@ -4707,6 +5102,10 @@ export type MyCreditRegistration = {
    */
   is_processing_in_sisu: boolean
   linking_email?: null | LinkingEmailStatus
+  /**
+   * The mooc.fi course whose registration page shows this registration.
+   */
+  moocfi_course_id?: string | null
   next_attempt_at: string
   notification_email?: null | NotificationEmailStatus
   progress?: null | StudentRegistrationProgress
@@ -4739,11 +5138,12 @@ export type MyCreditRegistration = {
 }
 
 /**
- * The live registration for one course module, with the attempts a newer one replaced.
+ * The live registration for one course module or mooc.fi completion, with the attempts a newer one
+ * replaced.
  */
-export type MyCreditRegistrationForCourseModule = {
+export type MyCreditRegistrationForSubject = {
   /**
-   * The module's other rows, newest completion first. Shown because the study registry may hold an
+   * The other rows, newest completion first. Shown because the study registry may hold an
    * earlier attempt's attainment as well as the current one's.
    */
   earlier_attempts: Array<MyCreditRegistration>
@@ -4751,7 +5151,8 @@ export type MyCreditRegistrationForCourseModule = {
 }
 
 /**
- * The caller's answer about where they enrol one module, and whether it can still be changed.
+ * The caller's answer about where they enrol for one completion, and whether it can still be
+ * changed.
  */
 export type MyEnrolmentRoute = {
   /**
@@ -4761,13 +5162,16 @@ export type MyEnrolmentRoute = {
    */
   can_change: boolean
   certificate_chosen_at?: string | null
-  course_module_completion_id: string
   enrolment_confirmed_at?: string | null
   has_finnish_personal_identity_code?: boolean | null
   identification?: null | CreditRegistrationIdentification
   need?: null | CreditRegistrationNeed
   need_after_reconsider?: null | CreditRegistrationNeed
   route?: null | CreditRegistrationEnrolmentRoute
+  /**
+   * The course module completion or mooc.fi completion the answer is for.
+   */
+  subject_id: string
 }
 
 export type MyStudies = {
@@ -4939,13 +5343,21 @@ export type NameReplacement = {
  */
 export type NeverEnteredCompletion = {
   completion_date: string
-  course_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  course_id?: string | null
+  /**
+   * `None` for a mooc.fi completion, as are the course and the module.
+   */
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   created_at: string
   email?: string | null
+  external_completion_id?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -5392,8 +5804,14 @@ export type PageAccountLinkingEmailRow = {
     claimed_at: string
     claimed_by_email?: string | null
     claimed_by_user_id?: string | null
-    course_id: string
+    /**
+     * The course's name, or "mooc.fi: " and the target's name.
+     */
     course_name: string
+    /**
+     * The course or mooc.fi target the mail was sent for.
+     */
+    course_or_target_id: string
     /**
      * In full: support finds a student's mail by it.
      */
@@ -5427,12 +5845,19 @@ export type PageAdminCreditRegistrationRow = {
     attention_reasons: Array<CreditRegistrationAttentionReason>
     attention_standing?: null | AttentionStanding
     completion_date: string
-    course_id: string
-    course_instance_id: string
-    course_module_completion_id: string
-    course_module_id: string
+    /**
+     * `None` on a mooc.fi registration, as are the module, instance and course module completion.
+     */
+    course_id?: string | null
+    course_instance_id?: string | null
+    course_module_completion_id?: string | null
+    course_module_id?: string | null
     course_module_name?: string | null
+    /**
+     * The course's name, or "mooc.fi: " and the target's name.
+     */
     course_name: string
+    course_or_target_id: string
     created_at: string
     credits?: number | null
     /**
@@ -5448,6 +5873,11 @@ export type PageAdminCreditRegistrationRow = {
     enrolment_checks_stopped_at?: string | null
     enrolment_route?: null | CreditRegistrationEnrolmentRoute
     error_code?: null | CreditRegistrationErrorCode
+    external_completion_id?: string | null
+    /**
+     * Set on a mooc.fi registration only, as is `external_completion_id`.
+     */
+    external_credit_target_id?: string | null
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
@@ -5735,6 +6165,26 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 /**
+ * Which account a pending continuation would sign in, beside whoever is signed in now.
+ */
+export type PendingMoocfiHandoff = {
+  /**
+   * The handoff account's email, in full: the student confirms by recognising it, and only the
+   * browser the handoff was minted for, from its IP, gets this far.
+   */
+  email: string
+  moocfi_course_id: string
+  /**
+   * The registration page to open once the right account is signed in.
+   */
+  redirect_path: string
+  /**
+   * When `Same`, the continuation is already spent: open `redirect_path`.
+   */
+  signed_in_account: SignedInAccount
+}
+
+/**
  * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export type PendingReasonCounts = {
@@ -5992,12 +6442,19 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
  * onwards.
  */
 export type ReconciliationRegistration = {
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   registered_at?: string | null
@@ -6388,6 +6845,8 @@ export type SetEnrolmentRoutePayload = {
   route: CreditRegistrationEnrolmentRoute
 }
 
+export type SignedInAccount = "same" | "different" | "none"
+
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
@@ -6577,11 +7036,18 @@ export type SuotarApiCallEvent = {
  * for the redacted body: the identifiers are here, beside the item they belong to.
  */
 export type SuotarApiCallLedgerReference = {
-  course_id: string
+  /**
+   * `None` on a mooc.fi registration.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
   error_code?: null | CreditRegistrationErrorCode
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -6798,6 +7264,14 @@ export type TermUpdate = {
 
 export type ThresholdData = {
   duration_seconds: number
+}
+
+/**
+ * The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.
+ */
+export type TierRange = {
+  highest?: number | null
+  lowest?: number | null
 }
 
 export type TimeGranularity = "Year" | "Month" | "Day"
@@ -12062,6 +12536,127 @@ export type GetCreditRegistrationStatsByCourseResponses = {
 export type GetCreditRegistrationStatsByCourseResponse =
   GetCreditRegistrationStatsByCourseResponses[keyof GetCreditRegistrationStatsByCourseResponses]
 
+export type AdminCreateExternalCreditTargetData = {
+  body: AdminExternalCreditTargetPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets"
+}
+
+export type AdminCreateExternalCreditTargetErrors = {
+  /**
+   * Invalid configuration, overlapping tiers or a course code the mooc.fi course already has
+   */
+  422: unknown
+}
+
+export type AdminCreateExternalCreditTargetResponses = {
+  /**
+   * The new target's id
+   */
+  200: string
+}
+
+export type AdminCreateExternalCreditTargetResponse =
+  AdminCreateExternalCreditTargetResponses[keyof AdminCreateExternalCreditTargetResponses]
+
+export type AdminUpdateExternalCreditTargetData = {
+  body: AdminExternalCreditTargetPayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}"
+}
+
+export type AdminUpdateExternalCreditTargetErrors = {
+  /**
+   * Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions
+   */
+  422: unknown
+}
+
+export type AdminUpdateExternalCreditTargetResponses = {
+  /**
+   * Saved
+   */
+  200: unknown
+}
+
+export type AdminDeleteExternalCreditTargetData = {
+  body: AdminDeleteExternalCreditTargetPayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete"
+}
+
+export type AdminDeleteExternalCreditTargetErrors = {
+  /**
+   * No reason given
+   */
+  422: unknown
+}
+
+export type AdminDeleteExternalCreditTargetResponses = {
+  /**
+   * Deleted
+   */
+  200: unknown
+}
+
+export type AdminPauseExternalCreditTargetData = {
+  body: AdminPauseCourseModulePayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause"
+}
+
+export type AdminPauseExternalCreditTargetErrors = {
+  /**
+   * No reason given
+   */
+  422: unknown
+}
+
+export type AdminPauseExternalCreditTargetResponses = {
+  /**
+   * Paused
+   */
+  200: unknown
+}
+
+export type AdminResumeExternalCreditTargetData = {
+  body: AdminResumeCourseModulePayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume"
+}
+
+export type AdminResumeExternalCreditTargetResponses = {
+  /**
+   * Resumed
+   */
+  200: unknown
+}
+
 export type AdminPauseCourseModuleCreditRegistrationData = {
   body: AdminPauseCourseModulePayload
   path: {
@@ -12353,11 +12948,11 @@ export type ListCreditRegistrationsForAdminData = {
      */
     error_code?: Array<CreditRegistrationErrorCode>
     /**
-     * Course filter
+     * Course or mooc.fi target filter
      */
     course_id?: string
     /**
-     * Course module filter
+     * Course module or mooc.fi target filter
      */
     course_module_id?: string
     /**
@@ -12827,7 +13422,7 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
   /**
    * The caller's registration for the module
    */
-  200: null | MyCreditRegistrationForCourseModule
+  200: null | MyCreditRegistrationForSubject
 }
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
@@ -13012,6 +13607,248 @@ export type ConfirmMyEnrolmentResponses = {
 
 export type ConfirmMyEnrolmentResponse =
   ConfirmMyEnrolmentResponses[keyof ConfirmMyEnrolmentResponses]
+
+export type GetMyCreditRegistrationForExternalCompletionData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}"
+}
+
+export type GetMyCreditRegistrationForExternalCompletionResponses = {
+  /**
+   * The caller's registration for the mooc.fi completion
+   */
+  200: null | MyCreditRegistrationForSubject
+}
+
+export type GetMyCreditRegistrationForExternalCompletionResponse =
+  GetMyCreditRegistrationForExternalCompletionResponses[keyof GetMyCreditRegistrationForExternalCompletionResponses]
+
+export type SetMyExternalCompletionCreditJustificationData = {
+  body: SetCreditJustificationPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification"
+}
+
+export type SetMyExternalCompletionCreditJustificationErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type SetMyExternalCompletionCreditJustificationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyCreditJustification
+}
+
+export type SetMyExternalCompletionCreditJustificationResponse =
+  SetMyExternalCompletionCreditJustificationResponses[keyof SetMyExternalCompletionCreditJustificationResponses]
+
+export type RecordMyExternalCompletionEnrolmentPageVisitData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit"
+}
+
+export type RecordMyExternalCompletionEnrolmentPageVisitErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type RecordMyExternalCompletionEnrolmentPageVisitResponses = {
+  /**
+   * The visit is recorded
+   */
+  200: unknown
+}
+
+export type GetMyExternalCompletionEnrolmentRouteData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
+}
+
+export type GetMyExternalCompletionEnrolmentRouteResponses = {
+  /**
+   * The caller's answer for the mooc.fi completion
+   */
+  200: MyEnrolmentRoute
+}
+
+export type GetMyExternalCompletionEnrolmentRouteResponse =
+  GetMyExternalCompletionEnrolmentRouteResponses[keyof GetMyExternalCompletionEnrolmentRouteResponses]
+
+export type SetMyExternalCompletionEnrolmentRouteData = {
+  body: SetEnrolmentRoutePayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
+}
+
+export type SetMyExternalCompletionEnrolmentRouteResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type SetMyExternalCompletionEnrolmentRouteResponse =
+  SetMyExternalCompletionEnrolmentRouteResponses[keyof SetMyExternalCompletionEnrolmentRouteResponses]
+
+export type WithdrawMyExternalCompletionCertificateChoiceData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+}
+
+export type WithdrawMyExternalCompletionCertificateChoiceResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyExternalCompletionCertificateChoiceResponse =
+  WithdrawMyExternalCompletionCertificateChoiceResponses[keyof WithdrawMyExternalCompletionCertificateChoiceResponses]
+
+export type ChooseMyExternalCompletionCertificateData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+}
+
+export type ChooseMyExternalCompletionCertificateResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ChooseMyExternalCompletionCertificateResponse =
+  ChooseMyExternalCompletionCertificateResponses[keyof ChooseMyExternalCompletionCertificateResponses]
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+}
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationResponse =
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses[keyof WithdrawMyExternalCompletionEnrolmentConfirmationResponses]
+
+export type ConfirmMyExternalCompletionEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+}
+
+export type ConfirmMyExternalCompletionEnrolmentResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ConfirmMyExternalCompletionEnrolmentResponse =
+  ConfirmMyExternalCompletionEnrolmentResponses[keyof ConfirmMyExternalCompletionEnrolmentResponses]
+
+export type CreateMyMoocfiHandoffData = {
+  body: CreateMoocfiHandoffPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff"
+}
+
+export type CreateMyMoocfiHandoffErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+  /**
+   * Handoffs to mooc.fi are not configured
+   */
+  503: unknown
+}
+
+export type CreateMyMoocfiHandoffResponses = {
+  /**
+   * Where to send the browser
+   */
+  200: MoocfiHandoff
+}
+
+export type CreateMyMoocfiHandoffResponse =
+  CreateMyMoocfiHandoffResponses[keyof CreateMyMoocfiHandoffResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never
@@ -14456,6 +15293,104 @@ export type UpdateGlossaryTermResponses = {
    */
   200: unknown
 }
+
+export type GetMyMoocfiCreditRegistrationsData = {
+  body?: never
+  path: {
+    /**
+     * The handler course id on mooc.fi
+     */
+    moocfi_course_id: string
+  }
+  query?: {
+    ui_language?: string
+  }
+  url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}"
+}
+
+export type GetMyMoocfiCreditRegistrationsResponses = {
+  /**
+   * The caller's completions of the course
+   */
+  200: MoocfiCreditRegistrations
+}
+
+export type GetMyMoocfiCreditRegistrationsResponse =
+  GetMyMoocfiCreditRegistrationsResponses[keyof GetMyMoocfiCreditRegistrationsResponses]
+
+export type GetMoocfiCourseLinkData = {
+  body?: never
+  path: {
+    /**
+     * The handler course id on mooc.fi
+     */
+    moocfi_course_id: string
+  }
+  query?: {
+    ui_language?: string
+  }
+  url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link"
+}
+
+export type GetMoocfiCourseLinkResponses = {
+  /**
+   * The course's name and registration page
+   */
+  200: MoocfiCourseLink
+}
+
+export type GetMoocfiCourseLinkResponse =
+  GetMoocfiCourseLinkResponses[keyof GetMoocfiCourseLinkResponses]
+
+export type ContinueMoocfiHandoffData = {
+  body: ContinueMoocfiHandoffPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/moocfi-handoffs/continue"
+}
+
+export type ContinueMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type ContinueMoocfiHandoffResponses = {
+  /**
+   * Signed in; where to go next
+   */
+  200: ContinuedMoocfiHandoff
+}
+
+export type ContinueMoocfiHandoffResponse =
+  ContinueMoocfiHandoffResponses[keyof ContinueMoocfiHandoffResponses]
+
+export type GetPendingMoocfiHandoffData = {
+  body?: never
+  path?: never
+  query: {
+    moocfi_course_id: string
+  }
+  url: "/api/v0/main-frontend/moocfi-handoffs/pending"
+}
+
+export type GetPendingMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type GetPendingMoocfiHandoffResponses = {
+  /**
+   * The waiting handoff
+   */
+  200: PendingMoocfiHandoff
+}
+
+export type GetPendingMoocfiHandoffResponse =
+  GetPendingMoocfiHandoffResponses[keyof GetPendingMoocfiHandoffResponses]
 
 export type GetOauthOpenidConfigurationData = {
   body?: never

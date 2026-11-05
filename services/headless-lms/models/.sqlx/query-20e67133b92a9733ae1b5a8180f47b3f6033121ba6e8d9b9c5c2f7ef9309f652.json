@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH scoped AS (\n  SELECT cr.id,\n    cr.next_attempt_at,\n    cr.enrolment_check_due_at,\n    cr.last_attempt_at,\n    cr.enrolment_check_claimed_until\n  FROM credit_registrations cr\n    JOIN credit_registration_active_units au ON au.credit_unit_id = cr.credit_unit_id\n  WHERE cr.state = 'no_usable_enrolment'\n    AND cr.is_enrolment_check_batched\n    AND cr.superseded_by_id IS NULL\n    AND cr.deleted_at IS NULL\n    AND ($1::uuid IS NULL OR cr.course_id = $1)\n    AND ($6::uuid IS NULL OR cr.external_credit_target_id = $6)\n    AND ($2::uuid IS NULL OR cr.user_id = $2)\n    AND (\n      cardinality($3::uuid []) = 0\n      OR cr.id = ANY($3::uuid [])\n    )\n)\nUPDATE credit_registrations cr\nSET next_attempt_at = now()\nFROM scoped\nWHERE cr.id = scoped.id\n  AND scoped.next_attempt_at > now()\n  AND scoped.enrolment_check_due_at > now()\n  AND scoped.enrolment_check_due_at <= now() + $4::interval\n  AND (\n    scoped.last_attempt_at IS NULL\n    OR scoped.last_attempt_at <= now() - $5::interval\n  )\n  AND EXISTS (\n    SELECT 1\n    FROM scoped released\n    WHERE released.next_attempt_at <= now()\n      AND (\n        released.enrolment_check_claimed_until IS NULL\n        OR released.enrolment_check_claimed_until <= now()\n      )\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray",
+        "Interval",
+        "Interval",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "20e67133b92a9733ae1b5a8180f47b3f6033121ba6e8d9b9c5c2f7ef9309f652"
+}

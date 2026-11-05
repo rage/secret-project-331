@@ -184,7 +184,7 @@ const ResendAction: React.FC<{ row: AccountLinkingEmailRow }> = ({ row }) => {
         isOpen={isResendOpen}
         onClose={() => setResendOpen(false)}
         studentNumber={row.student_number}
-        courseId={row.course_id}
+        courseOrTargetId={row.course_or_target_id}
         courseName={row.course_name}
       />
     </>

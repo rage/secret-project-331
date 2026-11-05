@@ -14,11 +14,21 @@ pub struct CreditRegistration {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
-    pub course_module_completion_id: Uuid,
+    /// Set on a course module row; see `subject_id`.
+    pub course_module_completion_id: Option<Uuid>,
     pub user_id: Uuid,
-    pub course_id: Uuid,
-    pub course_module_id: Uuid,
-    pub course_instance_id: Uuid,
+    /// Set on a course module row only, as are `course_module_id` and `course_instance_id`.
+    pub course_id: Option<Uuid>,
+    pub course_module_id: Option<Uuid>,
+    pub course_instance_id: Option<Uuid>,
+    /// Set on a mooc.fi row; see `subject_id`.
+    pub external_completion_id: Option<Uuid>,
+    /// Set on a mooc.fi row only, in place of `course_module_id`.
+    pub external_credit_target_id: Option<Uuid>,
+    /// The completion being registered, whichever kind of row this is.
+    pub subject_id: Uuid,
+    /// The module or mooc.fi target the row registers for, whichever kind of row this is.
+    pub credit_unit_id: Uuid,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
     pub error_code: Option<CreditRegistrationErrorCode>,
@@ -140,13 +150,118 @@ pub fn is_waiting_for_enrolment(
         && (enrolment_check_anchor_at.is_some() || no_usable_enrolment_since.is_some())
 }
 
+/// A completion a ledger row can register, named by its own id and kind: what the per-completion
+/// side tables (enrolment check signals, enrolment routes) are keyed by. Its [`id`](Self::id) is the
+/// ledger's `subject_id`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SubjectId {
+    CourseModuleCompletion(Uuid),
+    ExternalCompletion(Uuid),
+}
+
+impl SubjectId {
+    /// The completion's id in its own table, which is also the ledger's `subject_id`.
+    pub fn id(self) -> Uuid {
+        match self {
+            Self::CourseModuleCompletion(id) | Self::ExternalCompletion(id) => id,
+        }
+    }
+
+    /// The id for a `course_module_completion_id` column, `None` for a mooc.fi completion.
+    pub fn course_module_completion_id(self) -> Option<Uuid> {
+        match self {
+            Self::CourseModuleCompletion(id) => Some(id),
+            Self::ExternalCompletion(_) => None,
+        }
+    }
+
+    /// The id for an `external_completion_id` column, `None` for a course module completion.
+    pub fn external_completion_id(self) -> Option<Uuid> {
+        match self {
+            Self::CourseModuleCompletion(_) => None,
+            Self::ExternalCompletion(id) => Some(id),
+        }
+    }
+
+    /// The completion `registration` registers.
+    pub fn of(registration: &CreditRegistration) -> Self {
+        match registration.external_completion_id {
+            Some(id) => Self::ExternalCompletion(id),
+            None => Self::CourseModuleCompletion(registration.subject_id),
+        }
+    }
+}
+
+/// The completion a new ledger row registers, with the ids its kind of row carries.
+#[derive(Debug, Clone, PartialEq)]
+pub enum NewRegistrationSubject {
+    CourseModule {
+        course_module_completion_id: Uuid,
+        course_id: Uuid,
+        course_module_id: Uuid,
+        course_instance_id: Uuid,
+    },
+    Moocfi {
+        external_completion_id: Uuid,
+        external_credit_target_id: Uuid,
+    },
+}
+
+impl NewRegistrationSubject {
+    /// The subject a ledger row's id columns name, as read back from the row; errors on a mix
+    /// `credit_registrations_one_subject` refuses.
+    pub fn from_columns(
+        course_module_completion_id: Option<Uuid>,
+        course_id: Option<Uuid>,
+        course_module_id: Option<Uuid>,
+        course_instance_id: Option<Uuid>,
+        external_completion_id: Option<Uuid>,
+        external_credit_target_id: Option<Uuid>,
+    ) -> ModelResult<Self> {
+        match (
+            course_module_completion_id,
+            course_id,
+            course_module_id,
+            course_instance_id,
+            external_completion_id,
+            external_credit_target_id,
+        ) {
+            (
+                Some(course_module_completion_id),
+                Some(course_id),
+                Some(course_module_id),
+                Some(course_instance_id),
+                None,
+                None,
+            ) => Ok(Self::CourseModule {
+                course_module_completion_id,
+                course_id,
+                course_module_id,
+                course_instance_id,
+            }),
+            (
+                None,
+                None,
+                None,
+                None,
+                Some(external_completion_id),
+                Some(external_credit_target_id),
+            ) => Ok(Self::Moocfi {
+                external_completion_id,
+                external_credit_target_id,
+            }),
+            _ => Err(model_err!(
+                Generic,
+                "A ledger row names neither exactly a course module completion nor a mooc.fi one."
+            )),
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewCreditRegistration {
-    pub course_module_completion_id: Uuid,
+    pub subject: NewRegistrationSubject,
     pub user_id: Uuid,
-    pub course_id: Uuid,
-    pub course_module_id: Uuid,
-    pub course_instance_id: Uuid,
     pub attempt_number: i32,
 }
 
@@ -158,6 +273,39 @@ pub async fn insert(
     event_message: Option<&str>,
 ) -> ModelResult<Uuid> {
     let id = pkey_policy.into_uuid();
+    let (
+        course_module_completion_id,
+        course_id,
+        course_module_id,
+        course_instance_id,
+        external_completion_id,
+        external_credit_target_id,
+    ) = match new.subject {
+        NewRegistrationSubject::CourseModule {
+            course_module_completion_id,
+            course_id,
+            course_module_id,
+            course_instance_id,
+        } => (
+            Some(course_module_completion_id),
+            Some(course_id),
+            Some(course_module_id),
+            Some(course_instance_id),
+            None,
+            None,
+        ),
+        NewRegistrationSubject::Moocfi {
+            external_completion_id,
+            external_credit_target_id,
+        } => (
+            None,
+            None,
+            None,
+            None,
+            Some(external_completion_id),
+            Some(external_credit_target_id),
+        ),
+    };
     let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
@@ -168,16 +316,20 @@ INSERT INTO credit_registrations (
     course_id,
     course_module_id,
     course_instance_id,
+    external_completion_id,
+    external_credit_target_id,
     attempt_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         "#,
         id,
-        new.course_module_completion_id,
+        course_module_completion_id,
         new.user_id,
-        new.course_id,
-        new.course_module_id,
-        new.course_instance_id,
+        course_id,
+        course_module_id,
+        course_instance_id,
+        external_completion_id,
+        external_credit_target_id,
         new.attempt_number,
     )
     .execute(&mut *tx)

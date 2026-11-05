@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id AS external_credit_target_id,\n  uh_course_code,\n  CASE\n    WHEN checked_course_code = TRIM(uh_course_code) THEN course_code_allowed\n  END AS \"stored_course_code_allowed?\",\n  CASE\n    WHEN checked_course_code = TRIM(uh_course_code) THEN course_code_rejection\n  END AS \"stored_course_code_rejection?\"\nFROM external_credit_targets\nWHERE enabled_at IS NOT NULL\n  AND deleted_at IS NULL\n  AND ($1::uuid IS NULL OR id = $1)\nORDER BY moocfi_course_id,\n  LOWER(tiers) NULLS FIRST\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "uh_course_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "uh_course_code"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "stored_course_code_allowed?",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "stored_course_code_rejection?",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "c4b7f3c262557116d6e0d91a5ae02d049560b5008838ac44faeeced5a71764d5"
+}

@@ -1,0 +1,36 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT sisu_person_id AS \"sisu_person_id!\",\n  COUNT(*) AS \"mail_count!\"\nFROM credit_registration_account_linking_emails\nWHERE sisu_person_id = ANY($1::text [])\n  AND (\n    course_id = $2\n    OR external_credit_target_id = $2\n  )\n  AND deleted_at IS NULL\nGROUP BY sisu_person_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sisu_person_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "mail_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "1acd7fde11a755027d6352326a6a9300beee598807efce5052c23f9057e4c163"
+}

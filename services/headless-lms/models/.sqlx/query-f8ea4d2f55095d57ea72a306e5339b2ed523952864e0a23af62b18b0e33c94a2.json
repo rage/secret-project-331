@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_credit_targets\nSET moocfi_course_checked_at = now()\nWHERE moocfi_course_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f8ea4d2f55095d57ea72a306e5339b2ed523952864e0a23af62b18b0e33c94a2"
+}

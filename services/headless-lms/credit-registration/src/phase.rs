@@ -13,9 +13,11 @@ pub enum CreditRegistrationPhase {
     Materialize,
     Preconditions,
     ResolveEnrolments,
+    MoocfiRecheck,
     Import,
     Verify,
     LegacyMirror,
+    MoocfiReport,
     StudentNotifications,
     EnrolmentDiscovery,
     LinkEmails,
@@ -69,6 +71,8 @@ pub struct PhaseSpec {
     /// Sends attainments, so sits out the nightly
     /// [`sisu_day_gap`](headless_lms_models::library::credit_registration::sisu_day_gap).
     pub waits_out_sisu_day_gap: bool,
+    /// Calls mooc.fi, so is skipped while the deployment has delegated credit registration off.
+    pub calls_moocfi: bool,
 }
 
 /// What a spec below leaves as it is: a `credit-registrar` phase over ledger rows that calls no
@@ -82,14 +86,16 @@ const DEFAULTS: PhaseSpec = PhaseSpec {
     owned_states: &[],
     is_account_linking_only: false,
     waits_out_sisu_day_gap: false,
+    calls_moocfi: false,
 };
 
 const STUDY_REGISTRY: &[BreakerTarget] = &[BreakerTarget::StudyRegistry];
 
-/// These reach their rows through the course module, which has no user dimension: a roster and a
-/// module configuration are facts about a course, not about one of our accounts.
-const COURSE_MODULES: ScopeSupport = ScopeSupport {
+/// These reach their rows through the module or mooc.fi target, which has no user dimension: a
+/// roster and a configuration are facts about a course, not about one of our accounts.
+const CREDIT_UNITS: ScopeSupport = ScopeSupport {
     course: true,
+    external_credit_target: true,
     user: false,
     registration_ids: false,
 };
@@ -99,6 +105,7 @@ const MATERIALIZE: PhaseSpec = PhaseSpec {
     // No ledger row exists yet, so there is no registration id to narrow on.
     scope: ScopeSupport {
         course: true,
+        external_credit_target: true,
         user: true,
         registration_ids: false,
     },
@@ -126,6 +133,11 @@ const RESOLVE_ENROLMENTS: PhaseSpec = PhaseSpec {
         CreditRegistrationState::ResolvingEnrolment,
         CreditRegistrationState::NoUsableEnrolment,
     ],
+    ..DEFAULTS
+};
+const MOOCFI_RECHECK: PhaseSpec = PhaseSpec {
+    name: "moocfi-recheck",
+    calls_moocfi: true,
     ..DEFAULTS
 };
 const IMPORT: PhaseSpec = PhaseSpec {
@@ -160,6 +172,11 @@ const LEGACY_MIRROR: PhaseSpec = PhaseSpec {
     name: "legacy-mirror",
     ..DEFAULTS
 };
+const MOOCFI_REPORT: PhaseSpec = PhaseSpec {
+    name: "moocfi-report",
+    calls_moocfi: true,
+    ..DEFAULTS
+};
 const STUDENT_NOTIFICATIONS: PhaseSpec = PhaseSpec {
     name: "student-notifications",
     ..DEFAULTS
@@ -167,7 +184,7 @@ const STUDENT_NOTIFICATIONS: PhaseSpec = PhaseSpec {
 const ENROLMENT_DISCOVERY: PhaseSpec = PhaseSpec {
     name: "enrolment-discovery",
     process: WorkerProcess::SuotarSyncer,
-    scope: COURSE_MODULES,
+    scope: CREDIT_UNITS,
     operations: &[RegistryOperation::ListCourseRoster],
     breakers: STUDY_REGISTRY,
     ..DEFAULTS
@@ -175,14 +192,14 @@ const ENROLMENT_DISCOVERY: PhaseSpec = PhaseSpec {
 const LINK_EMAILS: PhaseSpec = PhaseSpec {
     name: "link-emails",
     process: WorkerProcess::SuotarSyncer,
-    scope: COURSE_MODULES,
+    scope: CREDIT_UNITS,
     is_account_linking_only: true,
     ..DEFAULTS
 };
 const CONFIG_VALIDATION: PhaseSpec = PhaseSpec {
     name: "config-validation",
     process: WorkerProcess::SuotarSyncer,
-    scope: COURSE_MODULES,
+    scope: CREDIT_UNITS,
     operations: &[RegistryOperation::ValidateCourseCodes],
     breakers: STUDY_REGISTRY,
     ..DEFAULTS
@@ -205,13 +222,15 @@ const LEDGER_SNAPSHOT: PhaseSpec = PhaseSpec {
 
 impl CreditRegistrationPhase {
     /// Every phase, in pipeline order.
-    pub const ALL: [Self; 12] = [
+    pub const ALL: [Self; 14] = [
         Self::Materialize,
         Self::Preconditions,
         Self::ResolveEnrolments,
+        Self::MoocfiRecheck,
         Self::Import,
         Self::Verify,
         Self::LegacyMirror,
+        Self::MoocfiReport,
         Self::StudentNotifications,
         Self::EnrolmentDiscovery,
         Self::LinkEmails,
@@ -226,9 +245,11 @@ impl CreditRegistrationPhase {
             Self::Materialize => &MATERIALIZE,
             Self::Preconditions => &PRECONDITIONS,
             Self::ResolveEnrolments => &RESOLVE_ENROLMENTS,
+            Self::MoocfiRecheck => &MOOCFI_RECHECK,
             Self::Import => &IMPORT,
             Self::Verify => &VERIFY,
             Self::LegacyMirror => &LEGACY_MIRROR,
+            Self::MoocfiReport => &MOOCFI_REPORT,
             Self::StudentNotifications => &STUDENT_NOTIFICATIONS,
             Self::EnrolmentDiscovery => &ENROLMENT_DISCOVERY,
             Self::LinkEmails => &LINK_EMAILS,
@@ -294,6 +315,7 @@ impl CreditRegistrationPhase {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ScopeSupport {
     pub course: bool,
+    pub external_credit_target: bool,
     pub user: bool,
     pub registration_ids: bool,
 }
@@ -301,18 +323,21 @@ pub struct ScopeSupport {
 impl ScopeSupport {
     pub const NONE: Self = Self {
         course: false,
+        external_credit_target: false,
         user: false,
         registration_ids: false,
     };
-    /// The phases that claim ledger rows, which carry all three keys themselves.
+    /// The phases that claim ledger rows, which carry every key themselves.
     pub const LEDGER: Self = Self {
         course: true,
+        external_credit_target: true,
         user: true,
         registration_ids: true,
     };
 
     pub(crate) fn covers(self, scope: &RegistrationScope) -> bool {
         let requested_unsupported = (scope.course_id.is_some() && !self.course)
+            || (scope.external_credit_target_id.is_some() && !self.external_credit_target)
             || (scope.user_id.is_some() && !self.user)
             || (!scope.credit_registration_ids.is_empty() && !self.registration_ids);
         !requested_unsupported
@@ -335,7 +360,7 @@ mod tests {
             .map(|phase| phase.as_str())
             .collect();
         assert_eq!(from_enum, PHASES);
-        assert_eq!(from_enum.len(), 12);
+        assert_eq!(from_enum.len(), 14);
     }
 
     /// A phase that cannot honour the narrowing it was handed has to say so, or a caller that

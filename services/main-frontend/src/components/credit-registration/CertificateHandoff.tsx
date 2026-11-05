@@ -7,22 +7,19 @@ import { Button, Link, useDialog } from "@/shared-module/components"
 
 import { certificateHref } from "./certificateHref"
 import { BUTTON_PRIMARY } from "./constants"
+import type { ModuleCertificateOffer } from "./creditRegistrationSubject"
 import { useIsDemoMode } from "./demoMode"
 import { bandCss, headingCss, rowCss } from "./styles"
 
 export interface CertificateHandoffProps {
-  courseModuleId: string
-  certificateConfigurationId: string
+  certificate: ModuleCertificateOffer
 }
 
 /**
  * Where the detour ends for a student a certificate serves: nothing more to answer, and no email
  * matching to warn about, because a certificate is issued to the account rather than matched to it.
  */
-export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
-  courseModuleId,
-  certificateConfigurationId,
-}) => {
+export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({ certificate }) => {
   // Default namespace, like the registration page this band belongs to, not the
   // `credit-registration` one the rest of this folder reads.
   const { t } = useTranslation()
@@ -48,7 +45,7 @@ export const CertificateHandoff: React.FC<CertificateHandoffProps> = ({
           </Button>
         ) : (
           <Link
-            href={certificateHref(courseModuleId, certificateConfigurationId)}
+            href={certificateHref(certificate)}
             styledAsButton
             variant={BUTTON_PRIMARY}
             size="medium"

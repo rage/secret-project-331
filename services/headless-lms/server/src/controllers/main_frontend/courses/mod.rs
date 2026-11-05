@@ -10,6 +10,7 @@ use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     course_audiences::CourseAudience,
+    course_module_ending_questions_answers::CourseModuleEndingQuestionWithAnswer,
     course_prerequisites::CoursePrerequisite,
     courses::CompleteCourseMetadata,
     feedback::CategoryFeedbackCount,
@@ -72,6 +73,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_course_breadcrumb_info,
         get_all_exercise_statuses_by_course_id,
         get_all_course_module_completions_for_user_by_course_id,
+        get_all_course_module_end_question_answers_for_user_by_course_id,
         get_user_progress_for_course,
         get_user_course_settings,
         post_reprocess_module_completions,
@@ -271,6 +273,46 @@ async fn get_all_course_module_completions_for_user_by_course_id(
         &mut conn, course_id, user_id,
     )
     .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-module-end-questions/{user_id}",
+    operation_id = "getCourseModuleEndQuestionsForUser",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Course module end questions and answers for course user", body = [CourseModuleEndingQuestionWithAnswer])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_all_course_module_end_question_answers_for_user_by_course_id(
+    params: web::Path<(Uuid, Uuid)>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleEndingQuestionWithAnswer>>> {
+    let (course_id, user_id) = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res = models::course_module_ending_questions_answers::get_all_for_user_by_course_id(
+        &mut conn, &course_id, &user_id,
+    )
+    .await?;
+
     token.authorized_ok(web::Json(res))
 }
 
@@ -2964,6 +3006,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/course-module-completions/{user_id}",
             web::get().to(get_all_course_module_completions_for_user_by_course_id),
+        )
+        .route(
+            "/{course_id}/course-module-end-questions/{user_id}",
+            web::get().to(get_all_course_module_end_question_answers_for_user_by_course_id),
         )
         .route(
             "/{course_id}/daily-submission-counts",

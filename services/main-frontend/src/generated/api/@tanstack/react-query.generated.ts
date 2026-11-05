@@ -179,6 +179,7 @@ import {
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
   getCourseModuleCompletionsForUser,
+  getCourseModuleEndQuestionsForUser,
   getCourseModuleStatsByCompletionsRegisteredToStudyRegistry,
   getCourseModuleUserCompletion,
   getCoursePages,
@@ -710,6 +711,8 @@ import type {
   GetCourseModuleCompletionsForUserData,
   GetCourseModuleCompletionsForUserResponse,
   GetCourseModuleData,
+  GetCourseModuleEndQuestionsForUserData,
+  GetCourseModuleEndQuestionsForUserResponse,
   GetCourseModuleResponse,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse,
@@ -3609,6 +3612,33 @@ export const getCourseModuleCompletionsForUserOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseModuleCompletionsForUserQueryKey(options),
+  })
+
+export const getCourseModuleEndQuestionsForUserQueryKey = (
+  options: Options<GetCourseModuleEndQuestionsForUserData>,
+) => createQueryKey("getCourseModuleEndQuestionsForUser", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+ */
+export const getCourseModuleEndQuestionsForUserOptions = (
+  options: Options<GetCourseModuleEndQuestionsForUserData>,
+) =>
+  queryOptions<
+    GetCourseModuleEndQuestionsForUserResponse,
+    DefaultError,
+    GetCourseModuleEndQuestionsForUserResponse,
+    ReturnType<typeof getCourseModuleEndQuestionsForUserQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseModuleEndQuestionsForUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseModuleEndQuestionsForUserQueryKey(options),
   })
 
 export const updateCourseModulesMutation = (

@@ -258,13 +258,7 @@ async fn user_is_eligible_for_automatic_completion(
                     .await?
                 {
                     info!("To complete this module automatically, the user must pass an exam.");
-                    return Ok(false);
-                }
-                if course_module.ending_questions_required {
-                    info!(
-                        "The user needs to answered the course module's end questions, which are required for completion."
-                    );
-                    return course_module_ending_questions_answers::user_has_answered_all_questions_for_module_id(conn, &course_module.id, &course_module.course_id, &user_id).await;
+                    Ok(false)
                 } else {
                     Ok(true)
                 }

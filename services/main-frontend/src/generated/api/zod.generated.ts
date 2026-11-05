@@ -1460,6 +1460,26 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
   uh_course_code: z.string().nullish(),
 })
 
+export const zCourseModuleEndingQuestionWithAnswer = z.object({
+  answer_created_at: z.iso.datetime(),
+  answer_deleted_at: z.iso.datetime().nullish(),
+  answer_multi_select_value: z.array(z.string()).nullish(),
+  answer_select_value: z.string().nullish(),
+  answer_text_value: z.string().nullish(),
+  answer_updated_at: z.iso.datetime(),
+  course_module_id: z.uuid(),
+  multi_select_labels: z.array(z.string()).nullish(),
+  question_free_text_instruction: z.string().nullish(),
+  question_id: z.uuid(),
+  question_serial_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  question_text: z.string(),
+  select_labels: z.array(z.string()).nullish(),
+  user_id: z.uuid(),
+})
+
 /**
  * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
  * render and validate the threshold form. Computed server-side so the exemption rule and the
@@ -7893,6 +7913,18 @@ export const zGetCourseModuleCompletionsForUserPath = z.object({
  * Course module completions for course user
  */
 export const zGetCourseModuleCompletionsForUserResponse = z.array(zCourseModuleCompletion)
+
+export const zGetCourseModuleEndQuestionsForUserPath = z.object({
+  course_id: z.uuid(),
+  user_id: z.uuid(),
+})
+
+/**
+ * Course module end questions and answers for course user
+ */
+export const zGetCourseModuleEndQuestionsForUserResponse = z.array(
+  zCourseModuleEndingQuestionWithAnswer,
+)
 
 export const zUpdateCourseModulesBody = zModuleUpdates
 

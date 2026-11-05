@@ -1,0 +1,185 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT q.id AS question_id,\n  a.created_at AS answer_created_at,\n  a.updated_at AS answer_updated_at,\n  a.deleted_at AS answer_deleted_at,\n  a.user_id,\n  a.course_module_id,\n  q.question_serial_number,\n  q.question_text,\n  q.question_free_text_instruction,\n  q.select_labels,\n  q.multi_select_labels,\n  a.answer_text_value,\n  a.answer_select_value,\n  a.answer_multi_select_value\nFROM course_module_ending_questions_answers AS a\n  JOIN course_module_ending_questions AS q ON a.question_id = q.id\nWHERE q.course_id = $1\n  OR course_id IS NULL\n  AND a.user_id = $2\n  AND q.deleted_at IS NULL\n  AND a.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "question_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "answer_created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "answer_updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "answer_deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "question_serial_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "question_serial_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "question_text",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "question_text"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "question_free_text_instruction",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "question_free_text_instruction"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "select_labels",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "select_labels"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "multi_select_labels",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions",
+            "name": "multi_select_labels"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "answer_text_value",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_text_value"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "answer_select_value",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_select_value"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "answer_multi_select_value",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "answer_multi_select_value"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "ed4f3d17f7d655ab4b0ceec2c3b5956ee9a97cc14f5074ac7c77e550f391daf3"
+}

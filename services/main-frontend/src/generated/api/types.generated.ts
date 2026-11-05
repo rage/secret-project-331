@@ -2231,6 +2231,23 @@ export type CourseModuleCreditRegistrationConfig = {
   uh_course_code?: string | null
 }
 
+export type CourseModuleEndingQuestionWithAnswer = {
+  answer_created_at: string
+  answer_deleted_at?: string | null
+  answer_multi_select_value?: Array<string> | null
+  answer_select_value?: string | null
+  answer_text_value?: string | null
+  answer_updated_at: string
+  course_module_id: string
+  multi_select_labels?: Array<string> | null
+  question_free_text_instruction?: string | null
+  question_id: string
+  question_serial_number: number
+  question_text: string
+  select_labels?: Array<string> | null
+  user_id: string
+}
+
 /**
  * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
  * without a separate course-structure fetch. Default (base) module has `name = None`.
@@ -8271,6 +8288,32 @@ export type GetCourseModuleCompletionsForUserResponses = {
 
 export type GetCourseModuleCompletionsForUserResponse =
   GetCourseModuleCompletionsForUserResponses[keyof GetCourseModuleCompletionsForUserResponses]
+
+export type GetCourseModuleEndQuestionsForUserData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}"
+}
+
+export type GetCourseModuleEndQuestionsForUserResponses = {
+  /**
+   * Course module end questions and answers for course user
+   */
+  200: Array<CourseModuleEndingQuestionWithAnswer>
+}
+
+export type GetCourseModuleEndQuestionsForUserResponse =
+  GetCourseModuleEndQuestionsForUserResponses[keyof GetCourseModuleEndQuestionsForUserResponses]
 
 export type UpdateCourseModulesData = {
   body: ModuleUpdates

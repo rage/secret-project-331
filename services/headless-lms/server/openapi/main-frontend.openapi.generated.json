@@ -3257,6 +3257,50 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nGET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.",
+        "operationId": "getCourseModuleEndQuestionsForUser",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course module end questions and answers for course user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleEndingQuestionWithAnswer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/course-modules": {
       "post": {
         "tags": ["courses"],
@@ -20304,6 +20348,78 @@
           },
           "uh_course_code": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "CourseModuleEndingQuestionWithAnswer": {
+        "type": "object",
+        "required": [
+          "question_id",
+          "answer_created_at",
+          "answer_updated_at",
+          "user_id",
+          "course_module_id",
+          "question_serial_number",
+          "question_text"
+        ],
+        "properties": {
+          "answer_created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "answer_deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "answer_multi_select_value": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "answer_select_value": {
+            "type": ["string", "null"]
+          },
+          "answer_text_value": {
+            "type": ["string", "null"]
+          },
+          "answer_updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "multi_select_labels": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "question_free_text_instruction": {
+            "type": ["string", "null"]
+          },
+          "question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question_serial_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "question_text": {
+            "type": "string"
+          },
+          "select_labels": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },

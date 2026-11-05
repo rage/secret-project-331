@@ -1483,6 +1483,7 @@
   "model-solution-spec-explanation": "Model solution spec annetaan view submission -näkymälle, kun käyttäjä saa nähdä mallivastauksen, Tämä tapahtuu esimerkiksi kun oppilas on saanut täydet pisteet tehtävästä tai yritykset ovat loppuneet kesken.",
   "model-tuning": "Mallin säädöt",
   "module": "Moduuli",
+  "module-has-been-completed": "Moduuli on suoritettu",
   "module-is-completed-but-requires-completion-of-prerequisite-modules": "Moduuli on suoritettu, mutta edellyttää vielä muiden moduulien suorittamista.",
   "module-not-completed-yet": "Ei vielä suoritettu",
   "module-summary-credits_one": "{{count}} opintopiste",

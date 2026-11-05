@@ -16,6 +16,25 @@ pub struct CourseModuleEndingQuestionsAnswer {
     pub answer_multi_select_value: Option<Vec<String>>,
 }
 
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
+pub struct CourseModuleEndingQuestionWithAnswer {
+    pub question_id: Uuid,
+    pub answer_id: Uuid,
+    pub answer_created_at: DateTime<Utc>,
+    pub answer_updated_at: DateTime<Utc>,
+    pub answer_deleted_at: Option<DateTime<Utc>>,
+    pub user_id: Uuid,
+    pub course_module_id: Uuid,
+    pub question_serial_number: i32,
+    pub question_text: String,
+    pub question_free_text_instruction: Option<String>,
+    pub select_labels: Option<Vec<String>>,
+    pub multi_select_labels: Option<Vec<String>>,
+    pub answer_text_value: Option<String>,
+    pub answer_select_value: Option<String>,
+    pub answer_multi_select_value: Option<Vec<String>>,
+}
+
 #[derive(Clone, PartialEq, Deserialize, Debug, Serialize, ToSchema)]
 pub struct NewCourseModuleEndingQuestionsAnswer {
     pub question_id: Uuid,
@@ -32,6 +51,8 @@ pub async fn insert(
     input: &NewCourseModuleEndingQuestionsAnswer,
 ) -> ModelResult<CourseModuleEndingQuestionsAnswer> {
     // todo validate!!!!!
+    // check that the answer fields are not null based on
+    // what the questions were
 
     let res = sqlx::query_as!(
         CourseModuleEndingQuestionsAnswer,
@@ -66,7 +87,6 @@ RETURNING *
     .await?;
 
     if answered_all {
-        println!("🐸🐸🐸🐸🐸🐸 USER has answered all, try to create completion");
         // save the status
         let course_module = super::course_modules::get_by_id(conn, *course_module_id).await?;
         super::library::progressing::update_automatic_completion_status_and_grant_if_eligible(
@@ -205,5 +225,45 @@ GROUP BY cm_id
     .iter()
     .map(|x| (x.cm_id, x.lol.unwrap_or(false)))
     .collect::<HashMap<Uuid, bool>>();
+    Ok(res)
+}
+
+pub async fn get_all_for_user_by_course_id(
+    conn: &mut PgConnection,
+    course_id: &Uuid,
+    user_id: &Uuid,
+) -> ModelResult<Vec<CourseModuleEndingQuestionWithAnswer>> {
+    let res = sqlx::query_as!(
+        CourseModuleEndingQuestionWithAnswer,
+        r#"
+SELECT q.id AS question_id,
+  a.id AS answer_id,
+  a.created_at AS answer_created_at,
+  a.updated_at AS answer_updated_at,
+  a.deleted_at AS answer_deleted_at,
+  a.user_id,
+  a.course_module_id,
+  q.question_serial_number,
+  q.question_text,
+  q.question_free_text_instruction,
+  q.select_labels,
+  q.multi_select_labels,
+  a.answer_text_value,
+  a.answer_select_value,
+  a.answer_multi_select_value
+FROM course_module_ending_questions_answers AS a
+  JOIN course_module_ending_questions AS q ON a.question_id = q.id
+WHERE q.course_id = $1
+  OR course_id IS NULL
+  AND a.user_id = $2
+  AND q.deleted_at IS NULL
+  AND a.deleted_at IS NULL
+        "#,
+        course_id,
+        user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
     Ok(res)
 }

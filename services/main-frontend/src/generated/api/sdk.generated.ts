@@ -368,6 +368,8 @@ import type {
   GetCourseModuleCompletionsForUserData,
   GetCourseModuleCompletionsForUserResponses,
   GetCourseModuleData,
+  GetCourseModuleEndQuestionsForUserData,
+  GetCourseModuleEndQuestionsForUserResponses,
   GetCourseModuleResponses,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses,
@@ -984,6 +986,7 @@ import {
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
+  zGetCourseModuleEndQuestionsForUserResponse,
   zGetCourseModuleResponse,
   zGetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse,
   zGetCourseModuleUserCompletionResponse,
@@ -2962,6 +2965,26 @@ export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean =
       await zGetCourseModuleCompletionsForUserResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/course-module-completions/{user_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+ */
+export const getCourseModuleEndQuestionsForUser = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseModuleEndQuestionsForUserData, ThrowOnError>,
+): RequestResult<GetCourseModuleEndQuestionsForUserResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseModuleEndQuestionsForUserResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseModuleEndQuestionsForUserResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}",
     ...options,
   })
 

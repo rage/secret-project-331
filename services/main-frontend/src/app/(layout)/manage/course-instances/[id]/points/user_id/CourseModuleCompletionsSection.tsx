@@ -91,6 +91,13 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
 
+  const mapGradeToText = (grade: number | null | undefined, passed: boolean): string => {
+    if (grade !== null && grade !== undefined) {
+      return grade.toString()
+    }
+    return passed ? t("label-passed") : t("label-not-passed")
+  }
+
   const heading = (
     <h2
       className={css`
@@ -152,7 +159,9 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                   </InfoItem>
                   <InfoItem>
                     <Label>{t("label-grade")}</Label>
-                    <Value>{courseModuleCompletion.grade}</Value>
+                    <Value>
+                      {mapGradeToText(courseModuleCompletion.grade, courseModuleCompletion.passed)}
+                    </Value>
                   </InfoItem>
                   <InfoItem>
                     <Label>{t("label-prerequisite-modules-completed")}</Label>

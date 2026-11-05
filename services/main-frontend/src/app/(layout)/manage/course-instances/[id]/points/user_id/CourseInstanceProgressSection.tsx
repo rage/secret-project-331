@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
+import { useCourseEndQuestionsWithAnswers } from "@/hooks/useCourseEndQuestionsWithAnswers"
 import { useCourseInstanceProgress } from "@/hooks/useCourseInstanceProgress"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -68,6 +69,15 @@ const Value = styled.span`
   font-weight: 600;
 `
 
+const AnswersCard = styled.div`
+  background: ${baseTheme.colors.clear[100]};
+  border: 1px solid ${baseTheme.colors.clear[200]};
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+`
+
 const ProgressBar = styled.div<{ progress: number }>`
   width: 100%;
   height: 0.5rem;
@@ -109,6 +119,11 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
   const courseInstanceProgresses = useCourseInstanceProgress(courseId, userId)
+  const endQuestionsWithAnswers = useCourseEndQuestionsWithAnswers(courseId, userId)
+
+  const booleanToYesNoText = (x: boolean) => {
+    return x ? t("yes") : t("no")
+  }
 
   const heading = (
     <h2
@@ -166,6 +181,9 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                     courseInstanceProgress.total_exercises) *
                   100
                 : 0
+              const endAnswers = endQuestionsWithAnswers.data
+                ?.filter((x) => (x.course_module_id = courseInstanceProgress.course_module_id))
+                .toSorted((y) => y.question_serial_number)
 
               return (
                 <ModuleCard key={courseInstanceProgress.course_module_id}>
@@ -176,6 +194,12 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                     <DebugModal data={courseInstanceProgress} variant="minimal" />
                   </ModuleHeader>
                   <InfoGrid>
+                    <InfoItem>
+                      <Label>{t("module-has-been-completed")}</Label>
+                      <Value>
+                        {booleanToYesNoText(courseInstanceProgress.completion_attained)}
+                      </Value>
+                    </InfoItem>
                     {courseInstanceProgress.attempted_exercises_required !== null && (
                       <InfoItem>
                         <Label>{t("label-attempted-exercises-required")}</Label>
@@ -206,6 +230,27 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                       <ProgressBar progress={exercisesProgress} />
                       <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
                     </InfoItem>
+                    <InfoItem>
+                      <Label>{t("end-questions-answered")}</Label>
+                      <Value>
+                        {courseInstanceProgress.requires_ending_questionnaire
+                          ? booleanToYesNoText(courseInstanceProgress.ending_questionnaire_answered)
+                          : t("not-required")}
+                      </Value>
+                      {
+                        // suspected of cheating?
+                      }
+                    </InfoItem>
+                    {endAnswers && (
+                      <AnswersCard>
+                        {endAnswers.map((a) => (
+                          <div key={a.question_id}>
+                            <p>Question {a.question_serial_number}</p>
+                            <p>{a.question_text}</p>
+                          </div>
+                        ))}
+                      </AnswersCard>
+                    )}
                   </InfoGrid>
                 </ModuleCard>
               )

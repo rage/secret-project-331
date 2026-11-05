@@ -156,6 +156,136 @@ def remove_pnpm_overrides(folder: Path, use_color: bool) -> bool:
     return True
 
 
+def split_workspace_overrides(text: str) -> tuple[list[str], list[list[str]], list[str]] | None:
+    """Split pnpm-workspace.yaml around its top-level `overrides:` map.
+
+    Returns (lines before, entries, lines after), where each entry is its comment
+    lines followed by its `key: value` line; None when there is no overrides map.
+    """
+    lines = text.splitlines()
+    try:
+        start = lines.index("overrides:")
+    except ValueError:
+        return None
+    end = start + 1
+    while end < len(lines) and (not lines[end].strip() or lines[end].startswith((" ", "\t"))):
+        end += 1
+    entries: list[list[str]] = []
+    pending: list[str] = []
+    for line in lines[start + 1 : end]:
+        if not line.strip():
+            continue
+        pending.append(line)
+        if not line.strip().startswith("#"):
+            entries.append(pending)
+            pending = []
+    return lines[:start], entries, lines[end:]
+
+
+def join_workspace_overrides(before: list[str], entries: list[list[str]], after: list[str]) -> str:
+    block = ["overrides:", *(line for entry in entries for line in entry)] if entries else []
+    return "\n".join([*before, *block, *after]).rstrip("\n") + "\n"
+
+
+def is_commented_override(entry: list[str]) -> bool:
+    return len(entry) > 1
+
+
+def strip_workspace_overrides(folder: Path, use_color: bool) -> bool:
+    """Drop overrides earlier audit runs left in pnpm-workspace.yaml.
+
+    An override with a comment above it is a deliberate pin and is kept.
+    """
+    path = folder / "pnpm-workspace.yaml"
+    if not path.exists():
+        return False
+    text = path.read_text()
+    parts = split_workspace_overrides(text)
+    if parts is None:
+        return False
+    before, entries, after = parts
+    kept = [entry for entry in entries if is_commented_override(entry)]
+    if len(kept) == len(entries):
+        return False
+    print(
+        colorize(
+            f"Removing uncommented overrides from {folder.name}/pnpm-workspace.yaml",
+            BLUE,
+            use_color,
+        )
+    )
+    path.write_text(join_workspace_overrides(before, kept, after))
+    return True
+
+
+OVERRIDE_BOUND = re.compile(r"(>=|<=|<|>)\d+\.\d+\.\d+\S*")
+
+
+def unquote_yaml(value: str) -> str:
+    value = value.strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1]
+    return value
+
+
+def narrow_override_to_fix_major(key: str, value: str) -> tuple[str | None, str | None]:
+    """Limit an audit override's selector to versions in the fix's major.
+
+    `pnpm audit --fix=override` selects every vulnerable version, so a minimatch
+    `<11.0.1: ^11.0.1` fix would also move minimatch 3 dependents onto 11, which
+    breaks them. Returns the new key, or None when no version is left to override,
+    and a warning when the selector was cut.
+    """
+    name, _, selector = key.rpartition("@")
+    fix = unquote_yaml(value)
+    fix_parts = semver_parts(fix)
+    if not name or not fix.startswith("^") or fix_parts is None:
+        return key, None
+    bounds = selector.split()
+    if not bounds or not all(OVERRIDE_BOUND.fullmatch(bound) for bound in bounds):
+        return key, f"{key}: unrecognised selector, kept as is"
+    major, minor, _ = fix_parts
+    floor = (major, 0, 0) if major > 0 else (0, minor, 0)
+    lower = next((b for b in bounds if b.startswith(">")), None)
+    upper = next((b for b in bounds if b.startswith("<")), None)
+    warning = None
+    if lower is None or semver_parts(lower) < floor:  # type: ignore[operator]
+        floor_text = ".".join(map(str, floor))
+        warning = f"{name}: override limited to >={floor_text}; any older vulnerable version needs a manual move to {fix}"
+        lower = f">={floor_text}"
+    if upper is not None:
+        upper_parts = semver_parts(upper)
+        if upper_parts < floor or (upper_parts == floor and not upper.startswith("<=")):  # type: ignore[operator]
+            return None, warning
+    return f"{name}@{' '.join(b for b in (lower, upper) if b)}", warning
+
+
+def narrow_workspace_overrides(folder: Path) -> list[str]:
+    """Narrow each uncommented override with narrow_override_to_fix_major; returns its warnings."""
+    path = folder / "pnpm-workspace.yaml"
+    if not path.exists():
+        return []
+    parts = split_workspace_overrides(path.read_text())
+    if parts is None:
+        return []
+    before, entries, after = parts
+    warnings: list[str] = []
+    narrowed: list[list[str]] = []
+    for entry in entries:
+        if is_commented_override(entry):
+            narrowed.append(entry)
+            continue
+        raw_key, _, value = entry[-1].strip().partition(": ")
+        key, warning = narrow_override_to_fix_major(unquote_yaml(raw_key), value)
+        if warning:
+            warnings.append(warning)
+        if key is not None:
+            yaml_key = json.dumps(key) if key.startswith("@") else key
+            narrowed.append([f"  {yaml_key}: {value.strip()}"])
+    path.write_text(join_workspace_overrides(before, narrowed, after))
+    return warnings
+
+
 def sync_package_manager_field(folder: Path, root_package_manager: str | None, use_color: bool) -> bool:
     """Copy the workspace root's pinned pnpm version into a service's package.json.
 
@@ -1030,12 +1160,14 @@ class StepRunner(StepRunnerProtocol):
         self, step: Step, substep_id: str, substep_record: dict[str, Any]
     ) -> None:
         changed = remove_pnpm_overrides(step.cwd, self.use_color)
+        changed = strip_workspace_overrides(step.cwd, self.use_color) or changed
         substep_record["changed"] = changed
-        if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
+        paths = existing_paths(step.cwd, ["package.json", "pnpm-workspace.yaml"])
+        if changed and git_has_changes_for_paths(step.cwd, paths):
             commit = self.git_commit(
                 cwd=step.cwd,
-                add_args=["package.json"],
-                message=f"Remove pnpm.overrides from {step.target_name}",
+                add_args=paths,
+                message=f"Remove pnpm overrides from {step.target_name}",
                 step_id=step.id,
                 substep_id=substep_id,
             )
@@ -1126,24 +1258,27 @@ class StepRunner(StepRunnerProtocol):
         self, step: Step, substep_id: str, substep_record: dict[str, Any]
     ) -> None:
         audit_fix = self.command_runner.run(
-            ["pnpm", "audit", "--fix=update"],
+            ["pnpm", "audit", "--fix=override"],
             check=False,
             cwd=step.cwd,
             step_id=step.id,
             substep_id=substep_id,
         )
         if audit_fix.returncode != 0:
-            warning = f"pnpm audit --fix=update exited with {audit_fix.returncode}; continuing"
+            warning = f"pnpm audit --fix=override exited with {audit_fix.returncode}; continuing"
             substep_record.setdefault("warnings", []).append(warning)
             self.record_event(
                 "non_fatal_command_failed",
                 {
                     "step_id": step.id,
                     "substep_id": substep_id,
-                    "command": "pnpm audit --fix=update",
+                    "command": "pnpm audit --fix=override",
                     "exit_code": audit_fix.returncode,
                 },
             )
+            print(colorize(warning, BLUE, self.use_color))
+        for warning in narrow_workspace_overrides(step.cwd):
+            substep_record.setdefault("warnings", []).append(warning)
             print(colorize(warning, BLUE, self.use_color))
         install = self.command_runner.run(
             ["pnpm", "install"],
@@ -1167,7 +1302,7 @@ class StepRunner(StepRunnerProtocol):
             print(colorize(warning, BLUE, self.use_color))
         # Keep fix/install output live; the separate JSON pass is only for reports.
         self.capture_pnpm_audit_json(step, substep_id)
-        # The fix can add minimumReleaseAgeExclude entries to pnpm-workspace.yaml.
+        # The fix writes overrides and minimumReleaseAgeExclude entries to pnpm-workspace.yaml.
         to_add = existing_paths(step.cwd, ["pnpm-lock.yaml", "pnpm-workspace.yaml"])
         if to_add and git_has_changes_for_paths(step.cwd, to_add):
             self.command_runner.run(

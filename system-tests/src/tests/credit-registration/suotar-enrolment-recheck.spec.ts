@@ -105,7 +105,7 @@ const openDetails = async (page: Page) => {
     await page
       .getByRole("row")
       .filter({ hasText: STUDENT.lastName })
-      .getByRole("button", { name: /Show credit registration details/ })
+      .locator('button[aria-haspopup="dialog"]')
       .click()
     await expect(dialog).toBeVisible({ timeout: 2000 })
   }).toPass()

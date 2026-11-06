@@ -88,7 +88,7 @@ async fn fetch_and_update_completion_links(
             course_codes.len()
         );
 
-        let url = format!("{}{}", &open_university_course_url, &trimmed_code);
+        let url = format!("{}{}", open_university_course_url, trimmed_code);
         tracing::debug!("Fetching data from URL: {}", url);
 
         // TODO: Handle error if no info found for single course code

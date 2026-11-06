@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - "docs/**"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths-ignore:
@@ -25,6 +26,7 @@ env:
 
 jobs:
   build-and-system-tests:
+    if: ${{ !github.event.pull_request.draft }}
     permissions:
       contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
@@ -437,6 +439,7 @@ jobs:
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 
   typecheck:
+    if: ${{ !github.event.pull_request.draft }}
     permissions:
       contents: read
     runs-on: ubuntu-24.04

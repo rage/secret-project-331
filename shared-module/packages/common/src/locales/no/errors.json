@@ -4,8 +4,14 @@
   "default-toast-error-title": "Feil",
   "dynamic-import-error-boundary-reload": "Last inn siden på nytt",
   "dynamic-import-error-boundary-title": "Noe gikk galt ved lasting av denne delen av siden.",
+  "error-code": "Kode: {{code}}",
   "error-hide-details": "Skjul detaljer",
   "error-issue": "Problem: {{issue}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Oppgaven mangler oppgavetype."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Logg inn for å se eksamensoppgaver.",
@@ -14,18 +20,107 @@
     "chapter_not_open_yet": {
       "message": "Dette kapittelet er ikke åpent ennå.",
       "title": "Kapittelet er stengt"
+    },
+    "course_slug_already_taken": {
+      "message": "Et annet kurs bruker allerede denne slugen. Velg en annen.",
+      "title": "Slugen er allerede i bruk"
+    },
+    "forbidden": {
+      "message": "Du har ikke tillatelse til å gjøre dette.",
+      "title": "Ikke tillatt"
+    },
+    "foreign_key_violation": {
+      "message": "Innsetting eller oppdatering i tabellen «{{table}}» feilet på grunn av begrensningen «{{constraint}}». Kontroller dataene som hører til begrensningen, og prøv igjen.",
+      "title": "Brudd på fremmednøkkel"
+    },
+    "generic_sisu_error": {
+      "message": "Noe gikk galt under opprettelsen av beskrivelsen",
+      "title": "Kunne ikke opprette beskrivelsen"
+    },
+    "internal_error": {
+      "message": "Prøv igjen om litt.",
+      "title": "Noe gikk galt"
+    },
+    "invalid_course_code": {
+      "message": "Kontroller at emnekodene fra Universitetet i Helsinki i modulene er gyldige.",
+      "title": "Kunne ikke opprette beskrivelsen"
+    },
+    "not_found": {
+      "message": "Fant ikke den forespurte ressursen.",
+      "title": "Ikke funnet"
+    },
+    "oauth_error": {
+      "message": "Logg inn på nytt.",
+      "title": "Autentiseringen feilet"
+    },
+    "rate_limited": {
+      "message": "Vent litt og prøv igjen.",
+      "title": "For mange forespørsler"
+    },
+    "response_validation_error": {
+      "message": "Serveren svarte, men dataene hadde ikke det forventede formatet.",
+      "title": "Kunne ikke vise dataene"
+    },
+    "sisu_resource_not_found": {
+      "message": "Fant ikke ressursene i Sisu.",
+      "title": "Fant ikke ressursene"
+    },
+    "unauthorized": {
+      "message": "Logg inn og prøv igjen.",
+      "title": "Ikke innlogget"
+    },
+    "validation_error": {
+      "message": "Kontroller det du skrev inn, og prøv igjen.",
+      "title": "Ugyldig inndata"
+    },
+    "validation_error_with_metadata": {
+      "message": "Kontroller det markerte innholdet, og prøv igjen.",
+      "title": "Ugyldig inndata"
     }
   },
+  "error-message-key-line": "Meldingsnøkkel: {{messageKey}}",
+  "error-multiple-errors-occurred": "Flere feil oppstod",
   "error-original-message": "Original melding",
   "error-page-without-course": "Feil: Siden er ikke tilknyttet noe kurs",
   "error-part-of-page-has-crashed-error": "En del av siden har krasjet: {{error}}",
+  "error-request-cancelled": "Forespørselen ble avbrutt",
+  "error-request-failed": "Forespørselen feilet",
   "error-request-id": "Forespørsel-ID: {{requestId}}",
+  "error-retry-after": "Prøv igjen etter: {{seconds}} s",
   "error-show-details": "Vis detaljer",
+  "error-source-method": "Metode: {{method}}",
+  "error-source-url": "URL: {{url}}",
   "error-status": "Status: {{status}}",
   "error-title": "Feil",
+  "error-too-many-requests": "For mange forespørsler. Prøv igjen senere.",
   "error-type": "Type: {{type}}",
+  "error-unexpected-error": "Uventet feil",
+  "error-zod-issue": {
+    "invalid_format": "Forventet {{format}}",
+    "invalid_format_pattern": "Forventet format som samsvarer med {{pattern}}",
+    "invalid_type": "Forventet {{expected}}, fikk {{received}}",
+    "too_big": "Må være {{comparator}} {{maximum}}",
+    "too_small": "Må være {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Ukjente nøkler: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Valideringsfeil i",
+  "errorNotice.code": "Kode",
+  "errorNotice.copyReport": "Kopier feilrapport",
+  "errorNotice.detail": "Detaljer",
+  "errorNotice.messageKey": "Meldingsnøkkel",
+  "errorNotice.method": "Metode",
+  "errorNotice.page": "Side",
+  "errorNotice.rawResponse": "Rått svar",
+  "errorNotice.requestId": "Forespørsels-ID",
+  "errorNotice.retry": "Prøv igjen",
+  "errorNotice.retryAfter": "Prøv igjen etter",
+  "errorNotice.seconds": "{{seconds}} s",
+  "errorNotice.stackTrace": "Stakksporing",
   "errorNotice.status": "Status",
+  "errorNotice.technicalDetails": "Tekniske detaljer",
+  "errorNotice.time": "Tid",
   "errorNotice.type": "Type",
+  "errorNotice.url": "URL",
   "failed-to-send-message": "Mislyktes å sende melding",
   "go-to-error": "Gå til feil",
   "label-error-loading": "Feil ved innlasting av data.",

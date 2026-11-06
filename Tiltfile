@@ -399,7 +399,7 @@ def node_rebuild_deps(service):
 # Live-update rules: rebuild on lockfile/Dockerfile changes, sync src otherwise.
 def node_live_update(service):
     return [fall_back_on(path) for path in node_rebuild_deps(service)] + [
-        sync("services/%s/src" % service, "/app/src"),
+        sync("services/%s/src" % service, "/app/source/src"),
     ]
 
 

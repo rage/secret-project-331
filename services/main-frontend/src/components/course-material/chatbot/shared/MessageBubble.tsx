@@ -121,7 +121,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   let { hoverProps: hoverCitationProps, isHovered: isCitationHovered } = useHover({
     onHoverStart: (e) => {
       if (!(e.target instanceof HTMLButtonElement)) {
-        throw new Error("This hover is meant to be used on buttons only.")
+        throw new TypeError("This hover is meant to be used on buttons only.")
       }
       triggerElement.current = e.target
       setTriggerElementId(e.target.id)

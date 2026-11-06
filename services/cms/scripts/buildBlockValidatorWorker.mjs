@@ -20,7 +20,7 @@ const stub = new Proxy(function () { return stub }, {
   construct: () => stub,
 })
 export default stub
-export const canvas = stub, image = stub, VegaLite = stub, Editor = stub, DiffEditor = stub,
+export const canvas = stub, image = stub, VegaEmbed = stub, Editor = stub, DiffEditor = stub,
   loader = stub, useMonaco = stub, editor = stub, languages = stub, Uri = stub, KeyCode = stub,
   KeyMod = stub
 `

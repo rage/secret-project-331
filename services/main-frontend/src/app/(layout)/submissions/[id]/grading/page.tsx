@@ -27,6 +27,12 @@ interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
+const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
+  // oxlint-disable-next-line typescript/no-explicit-any
+  const assignments = task.assignment as Block<any>[]
+  return assignments.map((assignment) => assignment.attributes?.content)
+}
+
 const Submission: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
@@ -39,12 +45,6 @@ const Submission: React.FC = () => {
       },
     }),
   })
-
-  const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
-    // oxlint-disable-next-line typescript/no-explicit-any
-    const assignments = task.assignment as Block<any>[]
-    return assignments.map((assignment) => assignment.attributes?.content)
-  }
 
   const examId = getSubmissionInfo.data?.exercise.exam_id
   const exerciseId = getSubmissionInfo.data?.exercise.id

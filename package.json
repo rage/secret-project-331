@@ -22,40 +22,40 @@
     "lint": "oxlint --fix",
     "lint:ci": "oxlint --max-warnings=0",
     "lint:css": "stylelint '**/*.tsx'",
-    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/playground-views/page.tsx' --glob '!**/playground-views/PlaygroundPreview.tsx' --glob '!**/utils/exportDownloadUrls.ts' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
+    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/playground-views/page.tsx' --glob '!**/playground-views/PlaygroundPreview.tsx' --glob '!**/utils/exportDownloadUrls.ts' --glob '!**/completion-registration/demo/demoServer.ts' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.99.0",
-    "@tanstack/eslint-plugin-query": "5.102.3",
-    "@types/node": "^26.3.0",
+    "@tanstack/eslint-plugin-query": "5.105.0",
+    "@types/node": "^26.6.5",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "concurrently": "^10.0.5",
+    "concurrently": "^10.0.6",
     "esbuild": "^0.28.2",
     "eslint-plugin-explicit-use-directives": "0.0.3",
     "eslint-plugin-i18next": "6.1.5",
-    "eslint-plugin-playwright": "2.11.0",
-    "eslint-plugin-storybook": "10.5.10",
+    "eslint-plugin-playwright": "2.12.1",
+    "eslint-plugin-storybook": "10.6.5",
     "husky": "^9.1.7",
-    "lint-staged": "^17.3.0",
-    "oxfmt": "0.65.0",
-    "oxlint": "1.80.0",
-    "postcss": "^8.5.26",
-    "postcss-styled-syntax": "^0.7.2",
+    "lint-staged": "^17.6.0",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
+    "postcss": "^8.5.32",
+    "postcss-styled-syntax": "^0.7.4",
     "postcss-syntax": "^0.36.2",
-    "stylelint": "^17.14.1",
+    "stylelint": "^17.16.0",
     "stylelint-config-recommended": "^18.0.0",
     "ts-auto-guard": "^5.1.3",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.15",
     "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.19.0",
+      "version": "26.13.0",
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@12.17.0"
 }

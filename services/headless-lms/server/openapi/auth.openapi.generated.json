@@ -17,7 +17,7 @@
     "/api/v0/auth/authorize": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.\n*",
+        "summary": "POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.\n*",
         "operationId": "postAuthAuthorize",
         "requestBody": {
           "content": {
@@ -46,7 +46,7 @@
     "/api/v0/auth/authorize-multiple": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.\nReturns booleans for the authorizations in the same order as the input.\n*",
+        "summary": "POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.\nReturns booleans for the authorizations in the same order as the input.\n*",
         "operationId": "postAuthAuthorizeMultiple",
         "requestBody": {
           "content": {
@@ -81,7 +81,7 @@
     "/api/v0/auth/delete-user-account": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account\n*",
+        "summary": "POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account\n*",
         "operationId": "postAuthDeleteUserAccount",
         "requestBody": {
           "content": {
@@ -110,7 +110,7 @@
     "/api/v0/auth/logged-in": {
       "get": {
         "tags": ["auth"],
-        "summary": "\nGET `/api/v0/auth/logged-in` Returns the current user's login status.\n*",
+        "summary": "GET `/api/v0/auth/logged-in` Returns the current user's login status.\n*",
         "operationId": "getAuthLoggedIn",
         "responses": {
           "200": {
@@ -129,7 +129,7 @@
     "/api/v0/auth/login": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
+        "summary": "POST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
         "operationId": "postAuthLogin",
         "requestBody": {
           "content": {
@@ -158,7 +158,7 @@
     "/api/v0/auth/logout": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/logout` Logs out.\n*",
+        "summary": "POST `/api/v0/auth/logout` Logs out.\n*",
         "operationId": "postAuthLogout",
         "responses": {
           "200": {
@@ -170,7 +170,7 @@
     "/api/v0/auth/send-email-code": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion\n*",
+        "summary": "POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion\n*",
         "operationId": "postAuthSendEmailCode",
         "requestBody": {
           "content": {
@@ -199,7 +199,7 @@
     "/api/v0/auth/signup": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
+        "summary": "POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
         "operationId": "postAuthSignup",
         "requestBody": {
           "content": {
@@ -231,7 +231,7 @@
     "/api/v0/auth/user-info": {
       "get": {
         "tags": ["auth"],
-        "summary": "\nGET `/api/v0/auth/user-info` Returns the current user's info.\n*",
+        "summary": "GET `/api/v0/auth/user-info` Returns the current user's info.\n*",
         "operationId": "getAuthUserInfo",
         "responses": {
           "200": {
@@ -241,10 +241,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/UserInfo"
                     },
                     {
-                      "$ref": "#/components/schemas/UserInfo"
+                      "type": "null"
                     }
                   ]
                 }
@@ -257,7 +257,7 @@
     "/api/v0/auth/verify-email": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/verify-email` Verifies email verification code and completes login.\n*",
+        "summary": "POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.\n*",
         "operationId": "postAuthVerifyEmail",
         "requestBody": {
           "content": {

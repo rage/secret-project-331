@@ -21,6 +21,8 @@ interface NewExamFormProps {
   onCreateNewExam: (form: NewExam) => void
   onDuplicateExam: (parentId: string, newExam: NewExam) => void
   onCancel: () => void
+  /** Receives the `<form>` element; the dialog's submit button is outside it and must stay disabled until it mounts. */
+  formRef?: React.Ref<HTMLFormElement>
 }
 
 interface NewExamFields {
@@ -41,6 +43,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   exams,
   onCreateNewExam,
   onDuplicateExam,
+  formRef,
 }) => {
   const { t } = useTranslation()
   const [startTimeWarning, setStartTimeWarning] = useState<string | null>(null)
@@ -212,6 +215,7 @@ const NewExamForm: React.FC<React.PropsWithChildren<NewExamFormProps>> = ({
   return (
     <div>
       <form
+        ref={formRef}
         id={NEW_EXAM_FORM_ID}
         onSubmit={duplicateExam ? onDuplicateExamWrapper : onCreateNewExamWrapper}
       >

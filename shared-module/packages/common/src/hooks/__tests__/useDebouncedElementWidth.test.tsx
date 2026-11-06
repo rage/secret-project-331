@@ -36,11 +36,13 @@ let measuredWidth = 0
 const originalResizeObserver = global.ResizeObserver
 const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect
 
+function getBoundingClientRect() {
+  return { width: measuredWidth } as DOMRect
+}
+
 beforeAll(() => {
   global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver
-  HTMLElement.prototype.getBoundingClientRect = function getBoundingClientRect() {
-    return { width: measuredWidth } as DOMRect
-  }
+  HTMLElement.prototype.getBoundingClientRect = getBoundingClientRect
 })
 
 afterAll(() => {

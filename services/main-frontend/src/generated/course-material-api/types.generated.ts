@@ -8,7 +8,6 @@ export type ClientOptions = {
 }
 
 /**
- *
  * Indicates what is the user's completion status for a exercise.
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
@@ -158,7 +157,7 @@ export type ChatbotConversation = {
 export type ChatbotConversationInfo = {
   chatbot_name: string
   course_name?: string | null
-  current_conversation?: null | ChatbotConversation
+  current_conversation?: ChatbotConversation | null
   current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
   current_conversation_messages?: Array<ChatbotConversationMessage> | null
   hide_citations: boolean
@@ -467,11 +466,11 @@ export type CourseMaterialExercise = {
   exercise_slide_submission_counts: {
     [key: string]: number
   }
-  exercise_status?: null | ExerciseStatus
-  peer_or_self_review_config?: null | CourseMaterialPeerOrSelfReviewConfig
-  previous_exercise_slide_submission?: null | ExerciseSlideSubmission
+  exercise_status?: ExerciseStatus | null
+  peer_or_self_review_config?: CourseMaterialPeerOrSelfReviewConfig | null
+  previous_exercise_slide_submission?: ExerciseSlideSubmission | null
   should_show_reset_message?: string | null
-  teacher_grading_decision?: null | CourseMaterialTeacherGradingDecision
+  teacher_grading_decision?: CourseMaterialTeacherGradingDecision | null
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 
@@ -487,7 +486,6 @@ export type CourseMaterialExerciseTask = {
   assignment: unknown
   deleted_at?: string | null
   /**
-   *
    * If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -497,10 +495,9 @@ export type CourseMaterialExerciseTask = {
   id: string
   model_solution_spec?: unknown
   order_number: number
-  previous_submission?: null | ExerciseTaskSubmission
-  previous_submission_grading?: null | ExerciseTaskGrading
+  previous_submission?: ExerciseTaskSubmission | null
+  previous_submission_grading?: ExerciseTaskGrading | null
   /**
-   *
    * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -530,7 +527,7 @@ export type CourseMaterialPeerOrSelfReviewConfig = {
 }
 
 export type CourseMaterialPeerOrSelfReviewData = {
-  answer_to_review?: null | CourseMaterialPeerOrSelfReviewDataAnswerToReview
+  answer_to_review?: CourseMaterialPeerOrSelfReviewDataAnswerToReview | null
   num_peer_reviews_given: number
   peer_or_self_review_config: PeerOrSelfReviewConfig
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
@@ -598,13 +595,13 @@ export type CourseModuleCompletion = {
 }
 
 export type CoursePageWithUserData = {
-  course?: null | CourseMaterialCourse
-  instance?: null | CourseInstance
+  course?: CourseMaterialCourse | null
+  instance?: CourseInstance | null
   is_test_mode: boolean
-  lock_chapter_content_state?: null | LockChapterContentState
-  organization?: null | Organization
+  lock_chapter_content_state?: LockChapterContentState | null
+  organization?: Organization | null
   page: Page
-  settings?: null | UserCourseSettings
+  settings?: UserCourseSettings | null
   /**
    * If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
    */
@@ -896,8 +893,6 @@ export type FlaggedAnswer = {
 }
 
 /**
- *
- *
  * Tells what's the status of the grading progress for a user and exercise.
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
@@ -938,7 +933,7 @@ export type NewCourseBackgroundQuestionAnswer = {
 }
 
 export type NewFeedback = {
-  category?: null | NewFeedbackCategory
+  category?: NewFeedbackCategory | null
   feedback_given: string
   page_id: string
   related_blocks: Array<FeedbackBlock>
@@ -1026,9 +1021,9 @@ export type PageChapterAndCourseInformation = {
 }
 
 export type PageNavigationInformation = {
-  chapter_front_page?: null | PageRoutingData
-  next_page?: null | PageRoutingData
-  previous_page?: null | PageRoutingData
+  chapter_front_page?: PageRoutingData | null
+  next_page?: PageRoutingData | null
+  previous_page?: PageRoutingData | null
 }
 
 /**
@@ -1140,7 +1135,6 @@ export type PeerOrSelfReviewsReceived = {
 }
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -1193,7 +1187,6 @@ export type ResearchFormQuestionAnswer = {
 }
 
 /**
- *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export type ReviewingStage =
@@ -1219,7 +1212,7 @@ export type SendChatbotMessage = {
    * What the learner wrote.
    */
   message: string
-  page_context?: null | ChatbotPageContext
+  page_context?: ChatbotPageContext | null
 }
 
 export type ShowExerciseAnswers = {
@@ -1250,13 +1243,13 @@ export type StudentExerciseSlideSubmission = {
 }
 
 export type StudentExerciseSlideSubmissionResult = {
-  exercise_status?: null | ExerciseStatus
+  exercise_status?: ExerciseStatus | null
   exercise_task_submission_results: Array<StudentExerciseTaskSubmissionResult>
   user_course_instance_exercise_service_variables: Array<UserCourseExerciseServiceVariable>
 }
 
 export type StudentExerciseTaskSubmission = {
-  answer_kind?: null | AnswerKind
+  answer_kind?: AnswerKind | null
   /**
    * The uploads that are the answer, in the order they are to be graded and displayed. Every id
    * must be an upload this user made for this exercise.
@@ -1272,7 +1265,7 @@ export type StudentExerciseTaskSubmission = {
 
 export type StudentExerciseTaskSubmissionResult = {
   exercise_task_exercise_service_slug: string
-  grading?: null | ExerciseTaskGrading
+  grading?: ExerciseTaskGrading | null
   model_solution_spec?: unknown
   submission: ExerciseTaskSubmission
 }
@@ -1393,7 +1386,7 @@ export type UserDetail = {
    * by a database trigger on every address change, so a value here always refers to `email`.
    */
   email_verified_at?: string | null
-  email_verified_method?: null | EmailVerificationMethod
+  email_verified_method?: EmailVerificationMethod | null
   first_name?: string | null
   last_name?: string | null
   updated_at: string
@@ -2282,7 +2275,7 @@ export type GetCurrentCourseMaterialCourseInstanceResponses = {
   /**
    * Current course instance
    */
-  200: null | CourseInstance
+  200: CourseInstance | null
 }
 
 export type GetCurrentCourseMaterialCourseInstanceResponse =
@@ -2347,7 +2340,7 @@ export type GetCourseMaterialUserMarketingConsentResponses = {
   /**
    * User marketing consent
    */
-  200: null | UserMarketingConsent
+  200: UserMarketingConsent | null
 }
 
 export type GetCourseMaterialUserMarketingConsentResponse =
@@ -2465,7 +2458,7 @@ export type GetCourseMaterialPartnersBlockResponses = {
   /**
    * Partners block
    */
-  200: null | PartnersBlock
+  200: PartnersBlock | null
 }
 
 export type GetCourseMaterialPartnersBlockResponse =
@@ -2531,7 +2524,7 @@ export type GetCourseMaterialResearchConsentFormResponses = {
   /**
    * Research consent form
    */
-  200: null | ResearchForm
+  200: ResearchForm | null
 }
 
 export type GetCourseMaterialResearchConsentFormResponse =
@@ -2729,7 +2722,7 @@ export type GetCourseMaterialUserCourseSettingsResponses = {
   /**
    * User course settings
    */
-  200: null | UserCourseSettings
+  200: UserCourseSettings | null
 }
 
 export type GetCourseMaterialUserCourseSettingsResponse =
@@ -2940,7 +2933,7 @@ export type FetchExamEnrollmentResponses = {
   /**
    * Exam enrollment
    */
-  200: null | ExamEnrollment
+  200: ExamEnrollment | null
 }
 
 export type FetchExamEnrollmentResponse =
@@ -3229,7 +3222,7 @@ export type GetCourseMaterialChapterFrontPageResponses = {
   /**
    * Chapter front page
    */
-  200: null | Page
+  200: Page | null
 }
 
 export type GetCourseMaterialChapterFrontPageResponse =

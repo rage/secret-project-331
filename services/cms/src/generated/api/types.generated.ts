@@ -178,7 +178,7 @@ export type CmsPageExercise = {
   needs_peer_review: boolean
   needs_self_review: boolean
   order_number: number
-  peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig
+  peer_or_self_review_config?: CmsPeerOrSelfReviewConfig | null
   peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null
   score_maximum: number
   teacher_reviews_answer_after_locking: boolean
@@ -547,9 +547,9 @@ export type PageInfo = {
 }
 
 export type PageNavigationInformation = {
-  chapter_front_page?: null | PageRoutingData
-  next_page?: null | PageRoutingData
-  previous_page?: null | PageRoutingData
+  chapter_front_page?: PageRoutingData | null
+  next_page?: PageRoutingData | null
+  previous_page?: PageRoutingData | null
 }
 
 export type PageRoutingData = {
@@ -636,9 +636,9 @@ export type ParagraphSuggestionMeta = {
 export type ParagraphSuggestionRequest = {
   action: ParagraphSuggestionAction
   content: string
-  context?: null | ParagraphSuggestionContext
+  context?: ParagraphSuggestionContext | null
   is_html: boolean
-  meta?: null | ParagraphSuggestionMeta
+  meta?: ParagraphSuggestionMeta | null
 }
 
 export type ParagraphSuggestionResponse = {
@@ -657,7 +657,6 @@ export type PartnersBlock = {
 export type PeerOrSelfReviewQuestionType = "Essay" | "Scale"
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -1131,7 +1130,7 @@ export type GetCmsCourseResearchFormResponses = {
   /**
    * Research form
    */
-  200: null | ResearchForm
+  200: ResearchForm | null
 }
 
 export type GetCmsCourseResearchFormResponse =
@@ -1504,7 +1503,7 @@ export type GetCmsPagePendingAgentChangesResponses = {
   /**
    * The open changeset changing the page, if any
    */
-  200: null | AgentChangeset
+  200: AgentChangeset | null
 }
 
 export type GetCmsPagePendingAgentChangesResponse =

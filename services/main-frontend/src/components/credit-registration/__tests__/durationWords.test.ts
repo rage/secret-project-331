@@ -16,6 +16,8 @@ describe("formatIntervalInWords", () => {
   })
 })
 
+const inMs = (ms: number) => formatFutureInWords(new Date(NOW + ms), "en")
+
 describe("formatFutureInWords", () => {
   beforeEach(() => {
     jest.useFakeTimers()
@@ -25,8 +27,6 @@ describe("formatFutureInWords", () => {
   afterEach(() => {
     jest.useRealTimers()
   })
-
-  const inMs = (ms: number) => formatFutureInWords(new Date(NOW + ms), "en")
 
   it("reads just under an hour as in 1 hour, not in 60 minutes", () => {
     expect(inMs(59.6 * 60_000)).toBe("in 1 hour")

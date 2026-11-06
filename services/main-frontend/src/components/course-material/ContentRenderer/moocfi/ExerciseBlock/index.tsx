@@ -2,9 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
-import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
@@ -25,13 +23,8 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import type {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "@/generated/course-material-api/types.generated"
-import useCourseMaterialExerciseQuery, {
-  courseMaterialExerciseQueryKey,
-} from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import type { StudentExerciseSlideSubmission } from "@/generated/course-material-api/types.generated"
+import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -175,7 +168,6 @@ const ExerciseBlock: React.FC<
   )
   const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
-  const queryClient = useQueryClient()
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const courseMaterialState = useAtomValue(courseMaterialAtom)
@@ -762,38 +754,15 @@ const ExerciseBlock: React.FC<
                         },
                         {
                           onSuccess: (res) => {
-                            queryClient.setQueryData(
-                              courseMaterialExerciseQueryKey(id),
-                              (old: CourseMaterialExercise | undefined) => {
-                                if (!old) {
-                                  throw new Error("No CourseMaterialExercise found")
-                                }
-                                return produce(old, (draft: CourseMaterialExercise) => {
-                                  res.exercise_task_submission_results.forEach(
-                                    (et_submission_result) => {
-                                      // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                      const receivedExerciseTaskSubmission =
-                                        et_submission_result.submission
-                                      const draftExerciseTask =
-                                        draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                          return (
-                                            et.id ===
-                                            et_submission_result.submission.exercise_task_id
-                                          )
-                                        })
-                                      if (draftExerciseTask) {
-                                        draftExerciseTask.previous_submission =
-                                          receivedExerciseTaskSubmission
-                                      }
-                                      // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                      if (isExam && et_submission_result.grading !== null) {
-                                        throw new Error("Exams should have hidden gradings")
-                                      }
-                                    },
-                                  )
-                                })
-                              },
-                            )
+                            // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                            if (
+                              isExam &&
+                              res.exercise_task_submission_results.some(
+                                (result) => result.grading !== null,
+                              )
+                            ) {
+                              throw new Error("Exams should have hidden gradings")
+                            }
                           },
                         },
                       )

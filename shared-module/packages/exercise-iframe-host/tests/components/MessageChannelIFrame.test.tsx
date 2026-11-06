@@ -59,6 +59,19 @@ describe("MessageChannelIFrame", () => {
     removeEventListenerSpy.mockRestore()
   })
 
+  const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
+    const readyEvent = createMockMessageEvent("ready", {
+      source: iframeWindow as unknown as Window,
+      origin: "null",
+    })
+
+    act(() => {
+      messageListeners.forEach((listener) => {
+        listener(readyEvent)
+      })
+    })
+  }
+
   test("It renders", async () => {
     window.MessageChannel = jest.fn().mockImplementation(function () {
       return { port1: { postMessage: jest.fn() }, port2: {} }
@@ -313,19 +326,6 @@ describe("MessageChannelIFrame", () => {
         </I18nextProvider>,
       )
 
-      const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
-        const readyEvent = createMockMessageEvent("ready", {
-          source: iframeWindow as unknown as Window,
-          origin: "null",
-        })
-
-        act(() => {
-          messageListeners.forEach((listener) => {
-            listener(readyEvent)
-          })
-        })
-      }
-
       const firstIframe = (await waitFor(() => {
         const iframe = container.querySelector("iframe")
         expect(iframe).not.toBeNull()
@@ -445,19 +445,6 @@ describe("MessageChannelIFrame", () => {
           />
         </I18nextProvider>,
       )
-
-      const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
-        const readyEvent = createMockMessageEvent("ready", {
-          source: iframeWindow as unknown as Window,
-          origin: "null",
-        })
-
-        act(() => {
-          messageListeners.forEach((listener) => {
-            listener(readyEvent)
-          })
-        })
-      }
 
       // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
@@ -1476,15 +1463,15 @@ describe("MessageChannelIFrame", () => {
     beforeEach(() => {
       openSpy = jest.spyOn(window, "open").mockReturnValue({} as Window)
       clickedAnchors = []
-      clickSpy = jest
-        .spyOn(HTMLAnchorElement.prototype, "click")
-        .mockImplementation(function (this: HTMLAnchorElement) {
-          clickedAnchors.push({
-            href: this.href,
-            download: this.download,
-            target: this.target,
-          })
+      clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+        this: HTMLAnchorElement,
+      ) {
+        clickedAnchors.push({
+          href: this.href,
+          download: this.download,
+          target: this.target,
         })
+      })
       // startFileDownload's blob path is covered in parentLinkActions.test.ts; here a rejected fetch
       // keeps these wiring tests on the same fallback path they asserted before that path existed.
       jest.stubGlobal("fetch", jest.fn().mockRejectedValue(new Error("network error")))

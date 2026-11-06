@@ -4277,11 +4277,7 @@ export const zPageInfo = z.object({
 })
 
 export const zPageReadStatusUpdate = z.object({
-  block_statuses: z.unknown(),
-  page_id: z.uuid(),
   page_read: z.boolean(),
-  read_at: z.iso.datetime().nullish(),
-  user_id: z.uuid(),
 })
 
 export const zPageVisitDatumSummaryByCourse = z.object({

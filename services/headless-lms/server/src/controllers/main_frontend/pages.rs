@@ -363,7 +363,7 @@ POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the pag
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
-    put,
+    post,
     path = "/{page_id}/page-read-status",
     operation_id = "updatePageReadStatus",
     tag = "pages",
@@ -382,13 +382,18 @@ async fn update_page_read_status(
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let status = payload.0;
+
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
-    models::page_read_statuses::upsert_page_read_status(&mut conn, status).await?;
+    let status = PageReadStatusUpdate {
+        page_read: payload.page_read,
+    };
+
+    models::page_read_statuses::upsert_page_read_status(&mut conn, user.id, *page_id, status)
+        .await?;
+
     token.authorized_ok(web::Json(true))
 }
-
 /**
 Add a route for each controller in this module.
 

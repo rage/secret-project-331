@@ -13,6 +13,7 @@ use url::Url;
 use utoipa::ToSchema;
 
 use crate::error::{TryToOptional, ensure_version};
+use crate::page_read_statuses;
 use crate::{
     CourseOrExamId, SpecFetcher,
     chapters::{
@@ -555,6 +556,7 @@ pub struct PageNavigationInformation {
     pub chapter_front_page: Option<PageRoutingData>,
     pub next_page: Option<PageRoutingData>,
     pub previous_page: Option<PageRoutingData>,
+    pub current_page_read: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
@@ -3887,6 +3889,7 @@ where p.chapter_id = $1
 pub async fn get_page_navigation_data(
     conn: &mut PgConnection,
     page_id: Uuid,
+    user_id: Option<Uuid>,
     visibility: PageVisibility,
 ) -> ModelResult<PageNavigationInformation> {
     let previous_page_data = get_previous_page(conn, page_id, visibility).await?;
@@ -3924,10 +3927,21 @@ pub async fn get_page_navigation_data(
             }
         })
         .transpose()?;
+
+    let current_page_read = if let Some(user_id) = user_id {
+        page_read_statuses::get_by_user_and_page(conn, user_id, page_id)
+            .await?
+            .map(|status| status.page_read)
+            .unwrap_or(false)
+    } else {
+        false
+    };
+
     Ok(PageNavigationInformation {
         chapter_front_page,
         next_page: next_page_data,
         previous_page: previous_page_data,
+        current_page_read,
     })
 }
 

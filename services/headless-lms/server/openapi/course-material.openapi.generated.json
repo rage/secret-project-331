@@ -6085,6 +6085,7 @@
       },
       "PageNavigationInformation": {
         "type": "object",
+        "required": ["current_page_read"],
         "properties": {
           "chapter_front_page": {
             "oneOf": [
@@ -6095,6 +6096,9 @@
                 "$ref": "#/components/schemas/PageRoutingData"
               }
             ]
+          },
+          "current_page_read": {
+            "type": "boolean"
           },
           "next_page": {
             "oneOf": [

@@ -8,6 +8,7 @@ import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { updatePageReadStatus } from "@/generated/api/sdk.generated"
 import {
   getCourseMaterialChapterProgress,
   getCourseMaterialPageNavigation,
@@ -19,6 +20,7 @@ import type {
 import useTime from "@/hooks/course-material/useTime"
 import type { NextSectionLinkProps } from "@/shared-module/common/components/NextSectionLink"
 import NextSectionLink from "@/shared-module/common/components/NextSectionLink"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -90,6 +92,10 @@ const ChapterProgress = styled.div`
     }
   }
 `
+type NextPageNavigationProps = Omit<
+  NextSectionLinkProps,
+  "onPageReadChange" | "isUpdatingPageReadStatus"
+>
 
 function calculatePercentage(attempted: number, total: number): string {
   if (total === 0) {
@@ -118,6 +124,20 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
         },
       }),
   })
+
+  const updatePageReadStatusMutation = useToastMutation(
+    async (checked: boolean) => {
+      await updatePageReadStatus({
+        path: {
+          page_id: currentPageId,
+        },
+        body: {
+          page_read: checked,
+        },
+      })
+    },
+    { method: "POST", notify: true },
+  )
 
   // Compute `shouldFetchChapterProgress` inside `useMemo`
   const shouldFetchChapterProgress = useMemo(
@@ -194,7 +214,11 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
                 </div>
               </ChapterProgress>
             )}
-            <NextSectionLink {...nextPageProps} />
+            <NextSectionLink
+              {...nextPageProps}
+              onPageReadChange={(checked) => updatePageReadStatusMutation.mutate(checked)}
+              isUpdatingPageReadStatus={updatePageReadStatusMutation.isPending}
+            />
           </>
         )
       }}
@@ -210,8 +234,8 @@ function deriveNextpageProps(
   organizationSlug: string,
   courseSlug: string,
   currentPageId: string,
-): NextSectionLinkProps {
-  const res: NextSectionLinkProps = {
+): NextPageNavigationProps {
+  const res: NextPageNavigationProps = {
     title: t("reached-end-of-topic"),
     subtitle: t("proceed-to-next-topic"),
     nextTitle: "",
@@ -220,6 +244,7 @@ function deriveNextpageProps(
       courseSlug,
       info.chapter_front_page?.url_path ?? "",
     ),
+    currentPageRead: info.current_page_read,
   }
 
   const endOfCourse = info.next_page === null || info.next_page === undefined

@@ -8726,7 +8726,7 @@ export const updatePageDetails = <ThrowOnError extends boolean = true>(
 export const updatePageReadStatus = <ThrowOnError extends boolean = true>(
   options: Options<UpdatePageReadStatusData, ThrowOnError>,
 ): RequestResult<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data">({
+  (options.client ?? client).post<UpdatePageReadStatusResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zUpdatePageReadStatusResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/pages/{page_id}/page-read-status",

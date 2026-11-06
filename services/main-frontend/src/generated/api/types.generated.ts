@@ -5332,11 +5332,7 @@ export type PageProposal = {
 }
 
 export type PageReadStatusUpdate = {
-  block_statuses: unknown
-  page_id: string
   page_read: boolean
-  read_at?: string | null
-  user_id: string
 }
 
 export type PageVisitDatumSummaryByCourse = {

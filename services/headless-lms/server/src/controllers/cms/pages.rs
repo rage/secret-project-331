@@ -244,7 +244,8 @@ async fn get_page_navigation(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let res =
-        models::pages::get_page_navigation_data(&mut conn, *page_id, PageVisibility::Any).await?;
+        models::pages::get_page_navigation_data(&mut conn, *page_id, None, PageVisibility::Any)
+            .await?;
 
     token.authorized_ok(web::Json(res))
 }

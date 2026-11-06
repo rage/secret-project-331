@@ -12,16 +12,12 @@ pub struct PageReadStatus {
     pub page_id: Uuid,
     pub page_read: bool,
     pub read_at: Option<DateTime<Utc>>,
-    pub block_statuses: serde_json::Value,
+    pub block_statuses: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, ToSchema)]
 pub struct PageReadStatusUpdate {
-    pub user_id: Uuid,
-    pub page_id: Uuid,
     pub page_read: bool,
-    pub read_at: Option<DateTime<Utc>>,
-    pub block_statuses: serde_json::Value,
 }
 
 pub async fn get_by_user_and_page(
@@ -49,6 +45,8 @@ AND deleted_at IS NULL
 
 pub async fn upsert_page_read_status(
     conn: &mut PgConnection,
+    user_id: Uuid,
+    page_id: Uuid,
     status: PageReadStatusUpdate,
 ) -> ModelResult<PageReadStatus> {
     let res = sqlx::query_as!(
@@ -58,15 +56,13 @@ INSERT INTO page_read_statuses (
     user_id,
     page_id,
     page_read,
-    read_at,
-    block_statuses
+    read_at
 )
 VALUES (
     $1,
     $2,
     $3,
-    CASE WHEN $3 THEN NOW() ELSE NULL END,
-    $4
+    CASE WHEN $3 THEN NOW() ELSE NULL END
 )
 ON CONFLICT (user_id, page_id)
 DO UPDATE SET
@@ -74,17 +70,15 @@ DO UPDATE SET
     read_at = CASE
         WHEN EXCLUDED.page_read
         THEN COALESCE(page_read_statuses.read_at, NOW())
-        ELSE page_read_statuses.read_at
+        ELSE NULL
     END,
-    block_statuses = EXCLUDED.block_statuses,
     updated_at = NOW(),
     deleted_at = NULL
 RETURNING *
 "#,
-        status.user_id,
-        status.page_id,
-        status.page_read,
-        status.block_statuses
+        user_id,
+        page_id,
+        status.page_read
     )
     .fetch_one(conn)
     .await?;

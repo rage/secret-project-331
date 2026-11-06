@@ -13128,7 +13128,7 @@
       }
     },
     "/api/v0/main-frontend/pages/{page_id}/page-read-status": {
-      "put": {
+      "post": {
         "tags": ["pages"],
         "summary": "\nPOST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.",
         "operationId": "updatePageReadStatus",
@@ -28166,23 +28166,10 @@
       },
       "PageReadStatusUpdate": {
         "type": "object",
-        "required": ["user_id", "page_id", "page_read", "block_statuses"],
+        "required": ["page_read"],
         "properties": {
-          "block_statuses": {},
-          "page_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "page_read": {
             "type": "boolean"
-          },
-          "read_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
           }
         }
       },

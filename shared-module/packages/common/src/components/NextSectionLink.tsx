@@ -2,12 +2,16 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { OpenBook } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+
+import { Button } from "@/shared-module/components/components/Button"
 
 import ArrowSVGIcon from "../img/arrow.svg"
 import BackArrowIcon from "../img/backarrow.svg"
+import StrikedBook from "../img/striked-book.svg"
 import TopArrowSVGIcon from "../img/up-arrow.svg"
 import { baseTheme, headingFont, typography } from "../styles"
 import { respondToOrLarger } from "../styles/respond"
@@ -21,6 +25,9 @@ export interface NextSectionLinkProps {
   url?: string
   previous?: string
   chapterFrontPageURL?: string
+  currentPageRead: boolean
+  onPageReadChange: (checked: boolean) => void
+  isUpdatingPageReadStatus: boolean
 }
 
 const Wrapper = styled.div`
@@ -85,8 +92,17 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
   url,
   previous,
   chapterFrontPageURL,
+  currentPageRead,
+  onPageReadChange,
+  isUpdatingPageReadStatus,
 }) => {
   const { t } = useTranslation()
+  const [pageRead, setPageRead] = useState(currentPageRead)
+
+  useEffect(() => {
+    setPageRead(currentPageRead)
+  }, [currentPageRead])
+
   return (
     <Wrapper>
       <div
@@ -104,7 +120,6 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
             <span>{t("chapter-front-page")}</span>
           </StyledLink>
         )}
-
         <h2
           className={css`
             font-size: clamp(28px, 3vw, 2rem);
@@ -116,7 +131,7 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
         >
           {title}
         </h2>
-        <p
+        {/* <p
           className={css`
             font-size: 18px;
             color: ${baseTheme.colors.gray[700]};
@@ -131,7 +146,20 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
           `}
         >
           {subtitle}
-        </p>
+        </p> */}
+        <Button
+          variant="tertiary"
+          icon={pageRead ? <StrikedBook /> : <OpenBook />}
+          onPress={() => {
+            const newValue = !pageRead
+            setPageRead(newValue)
+            onPageReadChange(newValue)
+          }}
+          isLoading={isUpdatingPageReadStatus}
+        >
+          {pageRead ? t("mark-page-as-unread") : t("mark-page-as-read")}
+        </Button>
+
         <div
           className={css`
             display: grid;
@@ -246,7 +274,7 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
                   }
                 `}
               >
-                <span className="next-page-subtitle">{t("next-page")}:</span>
+                <span className="next-page-subtitle">{subtitle}:</span>
                 <span className="next-page-title">
                   <HideTextInSystemTests
                     text={nextTitle}

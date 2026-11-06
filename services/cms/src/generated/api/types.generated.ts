@@ -548,6 +548,7 @@ export type PageInfo = {
 
 export type PageNavigationInformation = {
   chapter_front_page?: null | PageRoutingData
+  current_page_read: boolean
   next_page?: null | PageRoutingData
   previous_page?: null | PageRoutingData
 }

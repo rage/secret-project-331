@@ -129,6 +129,8 @@
   "listBox.noResults": "No results found",
   "log-in": "Log in",
   "log-out": "Log out",
+  "mark-page-as-read": "Mark the page as read",
+  "mark-page-as-unread": "Mark the page as unread",
   "modules": "Modules",
   "mooc-project-description": "This website is powered by an open source software developed by the University of Helsinki MOOC Center.",
   "multiSelect.nothingPicked": "Nothing selected",

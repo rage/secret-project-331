@@ -151,9 +151,9 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
           variant="tertiary"
           icon={pageRead ? <StrikedBook /> : <OpenBook />}
           onPress={() => {
-            const newValue = !pageRead
-            setPageRead(newValue)
-            onPageReadChange(newValue)
+            const checked = !pageRead
+            setPageRead(checked)
+            onPageReadChange(checked)
           }}
           isLoading={isUpdatingPageReadStatus}
         >

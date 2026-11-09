@@ -13,6 +13,7 @@ import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
   getChatbotModelsOptions,
+  setChatbotCourseDesignerAssistantMutation as setCourseDesignerAssistantMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   ChatbotConfiguration,
@@ -67,13 +68,18 @@ type ConfigureChatbotFields = Omit<
   | "weekly_tokens_per_user"
   | "max_output_tokens"
   | "enabled_tool_categories"
-> & { suggested_messages: Message[]; tool_categories: Record<ToolCategory, boolean> }
+> & {
+  suggested_messages: Message[]
+  tool_categories: Record<ToolCategory, boolean>
+  course_designer_assistant: boolean
+}
 
 type ToolCategoryUiGroup =
   | "course-assistance"
   | "course-discovery"
   | "interaction"
   | "admin-support"
+  | "course-planning"
 
 /**
  * One entry per `ToolCategory` variant -- missing one here is a compile error. `labelKey` is a
@@ -104,6 +110,7 @@ const TOOL_CATEGORY_META = {
     group: "admin-support",
     labelKey: "tool-category-admin-support-academic-integrity-label",
   },
+  course_planning: { group: "course-planning", labelKey: "tool-category-course-planning-label" },
 } as const satisfies Record<ToolCategory, { group: ToolCategoryUiGroup; labelKey: string }>
 
 const TOOL_CATEGORY_GROUP_HEADING_KEY = {
@@ -118,6 +125,7 @@ const TOOL_CATEGORY_GROUP_ORDER: ToolCategoryUiGroup[] = [
   "course-discovery",
   "interaction",
   "admin-support",
+  "course-planning",
 ]
 
 function categoriesInGroup(group: ToolCategoryUiGroup): ToolCategory[] {
@@ -166,6 +174,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           oldChatbotConf.enabled_tool_categories.includes(category),
         ]),
       ) as Record<ToolCategory, boolean>,
+      course_designer_assistant: oldChatbotConf.course_designer_assistant,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
@@ -219,6 +228,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     {
       notify: true,
       method: "POST",
+    },
+    {
+      onSuccess: () => {
+        chatbotQueryRefetch()
+      },
+    },
+  )
+
+  const setCourseDesignerAssistantMutation = useToastMutationOptions(
+    setCourseDesignerAssistantMutationOptions(),
+    {
+      notify: false,
     },
     {
       onSuccess: () => {
@@ -291,6 +312,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
       },
     })
+
+    if (
+      canEditAdminToolCategories &&
+      data.course_designer_assistant !== oldChatbotConf.course_designer_assistant
+    ) {
+      await setCourseDesignerAssistantMutation.mutateAsync({
+        body: { course_designer_assistant: data.course_designer_assistant },
+        path: {
+          chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
+        },
+      })
+    }
 
     if (event.submitter.name === "preview") {
       // The preview modal starts a fresh conversation on open so it reflects the just-saved config.
@@ -573,6 +606,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           </div>
                         )
                       })}
+                      {canEditAdminToolCategories && oldChatbotConf.course_id && (
+                        <Checkbox
+                          control={control}
+                          label={t("chatbot-course-designer-assistant-label")}
+                          name={"course_designer_assistant"}
+                        />
+                      )}
                       {noToolCategoriesEnabled && (
                         <Infobox
                           // oxlint-disable-next-line i18next/no-literal-string

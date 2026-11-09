@@ -167,6 +167,7 @@ export const makeChatBodyProps = ({
     chatbotMessageAnnouncement: "",
     newMessageMutation,
     toolResponseMutation,
+    answerErrorByToolCallId: {},
     isTurnInFlight,
     stopTurn,
     setDialogOpen: jest.fn(),

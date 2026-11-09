@@ -715,6 +715,7 @@ export type ToolCategory =
   | "admin_support_courses"
   | "admin_support_learning_progress"
   | "admin_support_academic_integrity"
+  | "course_planning"
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.

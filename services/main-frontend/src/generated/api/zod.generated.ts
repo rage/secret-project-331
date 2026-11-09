@@ -838,6 +838,60 @@ export const zChapterUpdate = z.object({
   opens_at: z.iso.datetime().nullish(),
 })
 
+export const zChatbotConversation = z.object({
+  anonymous_token: z.string().nullish(),
+  chatbot_configuration_id: z.uuid(),
+  conversation_title: z.string().nullish(),
+  course_designer_plan_id: z.uuid().nullish(),
+  course_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+  user_id: z.uuid().nullish(),
+})
+
+export const zChatbotConversationMessageCitation = z.object({
+  citation_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  content: z.string(),
+  conversation_id: z.uuid(),
+  conversation_message_id: z.uuid(),
+  course_material_chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  document_url: z.string(),
+  id: z.uuid(),
+  title: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zChatbotConversationMessageReasoning = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  reasoning_id: z.string(),
+  response_id: z.string(),
+  summary: z.string().nullish(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zChatbotConversationSuggestedMessage = z.object({
+  conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  message: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
 /**
  * What checking a row now brings forward.
  */
@@ -875,6 +929,46 @@ export const zClaimStudentNumberVerificationTokenResult = z.object({
     }),
   outcome: zClaimStudentNumberVerificationTokenOutcome,
   student_number: z.string().nullish(),
+})
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export const zClientToolAnswer = z.object({
+  data: z.object({
+    result: z.record(z.string(), z.unknown()),
+  }),
+  type: z.enum(["Data"]),
+})
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export const zClientToolName = z.enum([
+  "ask_multiple_choice_question",
+  "generate_password_reset_link",
+  "reset_exercises",
+  "update_cheating_status",
+  "edit_user_account",
+  "update_certificate",
+  "propose_workspace_edit",
+  "propose_add_task",
+  "propose_update_task",
+  "propose_schedule_adjustment",
+  "propose_section_status",
+  "propose_vision_edit",
+])
+
+export const zChatbotToolResponse = z.object({
+  answer: zClientToolAnswer,
+  tool_call_id: z.string(),
+  tool_name: zClientToolName,
 })
 
 export const zCmsPageExerciseSlide = z.object({
@@ -1311,6 +1405,11 @@ export const zCourseCreditRegistrationSummary = z.object({
 export const zCourseCreditRegistrationUserIdsPayload = z.object({
   course_instance_id: z.uuid().nullish(),
   user_ids: z.array(z.uuid()),
+})
+
+export const zCourseDesignerAssistantStatus = z.object({
+  available: z.boolean(),
+  has_guide_course: z.boolean(),
 })
 
 export const zCourseDesignerCourseSize = z.enum(["small", "medium", "large"])
@@ -4005,6 +4104,24 @@ export const zMaterialReference = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zMessageRole = z.enum(["assistant", "user", "developer", "system"])
+
+export const zChatbotConversationMessageMessage = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  message_is_complete: z.boolean(),
+  message_role: zMessageRole,
+  response_id: z.string().nullish(),
+  text: z.string(),
+  updated_at: z.iso.datetime(),
+  used_tokens: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zModelType = z.enum(["GPTThinking", "GPTNonThinking", "GPTHardThinking", "Mistral"])
 
 export const zChatbotConfigurationModel = z.object({
@@ -5928,6 +6045,10 @@ export const zSearchRequest = z.object({
   query: z.string(),
 })
 
+export const zSendCourseDesignerAssistantMessage = z.object({
+  message: z.string(),
+})
+
 export const zServicePortInfo = z.object({
   name: z.string().nullish(),
   port: z
@@ -5942,6 +6063,10 @@ export const zServiceInfo = z.object({
   cluster_ip: z.string().nullish(),
   name: z.string(),
   ports: z.array(zServicePortInfo),
+})
+
+export const zSetCourseDesignerAssistantRequest = z.object({
+  course_designer_assistant: z.boolean(),
 })
 
 export const zSetCourseDesignerSectionStatusRequest = z.object({
@@ -5983,6 +6108,54 @@ export const zSisuDescriptionResponse = z.object({
   course_description: z.string(),
   modules: z.array(zModule),
 })
+
+export const zStreamEventError = z.object({
+  details: z.string().nullish(),
+  message: z.string(),
+})
+
+export const zChatbotChatStreamEvent = z.union([
+  z.object({
+    data: z.object({
+      message_id: z.uuid(),
+      text: z.string(),
+    }),
+    type: z.enum(["Delta"]),
+  }),
+  z.object({
+    data: z.object({
+      finished: z.boolean(),
+      reasoning_id: z.string(),
+    }),
+    type: z.enum(["Reasoning"]),
+  }),
+  z.object({
+    data: z.object({
+      arguments: z.string().nullish(),
+      finished: z.boolean(),
+      tool_call_id: z.string(),
+      tool_name: z.string().nullish(),
+    }),
+    type: z.enum(["ToolCall"]),
+  }),
+  z.object({
+    type: z.enum(["Done"]),
+  }),
+  z.object({
+    type: z.enum(["Suspended"]),
+  }),
+  z.object({
+    data: z.object({
+      payload: z.unknown(),
+      tool_call_id: z.string(),
+    }),
+    type: z.enum(["ActionExecuted"]),
+  }),
+  z.object({
+    data: zStreamEventError,
+    type: z.enum(["Error"]),
+  }),
+])
 
 /**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
@@ -7193,7 +7366,72 @@ export const zToolCategory = z.enum([
   "admin_support_courses",
   "admin_support_learning_progress",
   "admin_support_academic_integrity",
+  "course_planning",
 ])
+
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export const zToolKind = z.enum(["function", "azure_ai_search", "client_tool"])
+
+export const zChatbotConversationMessageToolCall = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  response_id: z.string(),
+  tool_arguments: z.string(),
+  tool_call_id: z.string(),
+  tool_kind: zToolKind,
+  tool_name: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zChatbotConversationMessageToolOutput = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  client_answer: z.record(z.string(), z.unknown()).nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  output: z.string(),
+  response_id: z.string(),
+  tool_call_id: z.string(),
+  tool_kind: zToolKind,
+  updated_at: z.iso.datetime(),
+})
+
+export const zMessage = z.union([
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageToolCall,
+  zChatbotConversationMessageToolOutput,
+  zChatbotConversationMessageReasoning,
+])
+
+export const zChatbotConversationMessage = z.object({
+  conversation_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  message: zMessage,
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * Everything needed to display the chatbot to the user.
+ */
+export const zChatbotConversationInfo = z.object({
+  chatbot_name: z.string(),
+  course_name: z.string().nullish(),
+  current_conversation: zChatbotConversation.nullish(),
+  current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
+  current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),
+  hide_citations: z.boolean(),
+  suggested_messages: z.array(zChatbotConversationSuggestedMessage).nullish(),
+})
 
 export const zUnlinkMyStudentNumberResult = z.object({
   affected_registration_count: z.coerce
@@ -8320,6 +8558,17 @@ export const zConfigureChatbotPath = z.object({
  */
 export const zConfigureChatbotResponse = zChatbotConfiguration
 
+export const zSetChatbotCourseDesignerAssistantBody = zSetCourseDesignerAssistantRequest
+
+export const zSetChatbotCourseDesignerAssistantPath = z.object({
+  chatbot_configuration_id: z.uuid(),
+})
+
+/**
+ * Updated chatbot configuration
+ */
+export const zSetChatbotCourseDesignerAssistantResponse = zChatbotConfiguration
+
 export const zCreateCodeGiveawayBody = zNewCodeGiveaway
 
 /**
@@ -8756,6 +9005,68 @@ export const zArchiveCourseDesignerPlanPath = z.object({
  * Archived plan
  */
 export const zArchiveCourseDesignerPlanResponse = zCourseDesignerPlan
+
+export const zGetCourseDesignerAssistantStatusPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Assistant status
+ */
+export const zGetCourseDesignerAssistantStatusResponse = zCourseDesignerAssistantStatus
+
+export const zGetCurrentCourseDesignerAssistantConversationPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Current conversation
+ */
+export const zGetCurrentCourseDesignerAssistantConversationResponse =
+  zChatbotConversationInfo.nullable()
+
+export const zNewCourseDesignerAssistantConversationPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Created conversation
+ */
+export const zNewCourseDesignerAssistantConversationResponse = zChatbotConversation
+
+export const zGetCourseDesignerAssistantConversationInfoPath = z.object({
+  plan_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Conversation
+ */
+export const zGetCourseDesignerAssistantConversationInfoResponse = zChatbotConversationInfo
+
+export const zSendCourseDesignerAssistantMessageBody = zSendCourseDesignerAssistantMessage
+
+export const zSendCourseDesignerAssistantMessagePath = z.object({
+  plan_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Chatbot response stream
+ */
+export const zSendCourseDesignerAssistantMessageResponse = zChatbotChatStreamEvent
+
+export const zSendCourseDesignerAssistantToolResponseBody = zChatbotToolResponse
+
+export const zSendCourseDesignerAssistantToolResponsePath = z.object({
+  plan_id: z.uuid(),
+  conversation_id: z.uuid(),
+})
+
+/**
+ * Chatbot response stream
+ */
+export const zSendCourseDesignerAssistantToolResponseResponse = zChatbotChatStreamEvent
 
 export const zCreateCourseFromCourseDesignerPlanBody = zCreateCourseFromPlanRequest
 

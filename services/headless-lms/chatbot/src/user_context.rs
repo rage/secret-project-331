@@ -18,6 +18,9 @@ pub struct ChatbotTurnContext {
     /// The conversation this turn belongs to. `None` only in tests that build a context without
     /// one; every production call site has a conversation id in scope.
     pub conversation_id: Option<Uuid>,
+    /// The course design plan the conversation is about. Plan tools act on this plan only, never
+    /// on one the model names.
+    pub course_designer_plan_id: Option<Uuid>,
     pub enabled_tool_categories: EnabledToolCategories,
     roles: OnceCell<Vec<Role>>,
 }
@@ -37,8 +40,30 @@ impl ChatbotTurnContext {
             course_id,
             course_name,
             conversation_id: Some(conversation_id),
+            course_designer_plan_id: None,
             enabled_tool_categories: EnabledToolCategories::from_configuration(configuration),
             roles: OnceCell::new(),
+        }
+    }
+
+    /// Like [Self::new], for a turn of the course design assistant about a plan. The caller must
+    /// have checked that `user_id` is a member of the plan and that the conversation is about it.
+    pub fn new_for_course_plan(
+        user_id: Uuid,
+        course_name: Option<String>,
+        conversation_id: Uuid,
+        configuration: &ChatbotConfiguration,
+        course_designer_plan_id: Uuid,
+    ) -> Self {
+        Self {
+            course_designer_plan_id: Some(course_designer_plan_id),
+            ..Self::new(
+                Some(user_id),
+                configuration.course_id,
+                course_name,
+                conversation_id,
+                configuration,
+            )
         }
     }
 
@@ -98,6 +123,7 @@ impl ChatbotTurnContext {
             course_id,
             course_name,
             conversation_id: None,
+            course_designer_plan_id: None,
             enabled_tool_categories,
             roles: OnceCell::new_with(Some(roles)),
         }

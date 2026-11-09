@@ -19,6 +19,10 @@ export interface ConfirmActionBubbleProps<TCall> extends ClientToolBubbleProps<T
   /** Whether this action is destructive or hard to reverse, which styles it red instead of green. */
   danger: boolean
   confirmLabel: string
+  /** Defaults to "Cancel". */
+  declineLabel?: string
+  /** Shown above the buttons while the call waits, e.g. why the last confirmation failed. */
+  notice?: React.ReactNode
   /** Extra content to show once the action has executed, built from `executionPayload`. */
   executedContent?: React.ReactNode
 }
@@ -141,6 +145,8 @@ const ConfirmActionBubble = <TCall,>({
   rows,
   danger,
   confirmLabel,
+  declineLabel,
+  notice,
   executedContent,
   toolCallId,
   isOpen,
@@ -215,6 +221,7 @@ const ConfirmActionBubble = <TCall,>({
 
       {visualState === "open" && (
         <>
+          {notice}
           <p className={hintStyle}>{t("chatbot-action-pending-confirmation")}</p>
           <div className={buttonsStyle}>
             <Button
@@ -231,7 +238,7 @@ const ConfirmActionBubble = <TCall,>({
               disabled={buttonsDisabled}
               onClick={handleCancel}
             >
-              {t("button-text-cancel")}
+              {declineLabel ?? t("button-text-cancel")}
             </Button>
           </div>
         </>

@@ -183,6 +183,12 @@ export const zClientToolName = z.enum([
   "update_cheating_status",
   "edit_user_account",
   "update_certificate",
+  "propose_workspace_edit",
+  "propose_add_task",
+  "propose_update_task",
+  "propose_schedule_adjustment",
+  "propose_section_status",
+  "propose_vision_edit",
 ])
 
 export const zChatbotToolResponse = z.object({

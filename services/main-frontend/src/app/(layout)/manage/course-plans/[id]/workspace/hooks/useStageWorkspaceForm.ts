@@ -22,6 +22,7 @@ import type {
 } from "@/generated/api/types.generated"
 import { getErrorMessage } from "@/shared-module/components"
 
+import { useRegisterPendingSave } from "../../components/PendingSavesContext"
 import { AUTOSAVE_DEBOUNCE_MS } from "../components/analysis-form/analysisFormDomain"
 
 export type WorkspaceSaveState = "idle" | "unsaved" | "saving" | "saved" | "error"
@@ -166,6 +167,8 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
     saveChainRef.current = saveChainRef.current.then(saveOnce, saveOnce)
     return saveChainRef.current
   }, [saveOnce])
+
+  useRegisterPendingSave(saveNow)
 
   const debouncedSave = useDebouncedCallback(() => {
     void saveNow()

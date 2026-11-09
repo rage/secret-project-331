@@ -192,6 +192,7 @@ async fn authorize_access_to_conversation(
         || conversation.chatbot_configuration_id != chatbot_configuration_id
         || conversation.course_id != chatbot_configuration.course_id
         || conversation.anonymous_token != anonymous_token
+        || conversation.course_designer_plan_id.is_some()
     {
         return Err(controller_err!(
             Forbidden,

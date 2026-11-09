@@ -341,6 +341,10 @@ import type {
   GetCourseData,
   GetCourseDefaultPeerReviewData,
   GetCourseDefaultPeerReviewResponses,
+  GetCourseDesignerAssistantConversationInfoData,
+  GetCourseDesignerAssistantConversationInfoResponses,
+  GetCourseDesignerAssistantStatusData,
+  GetCourseDesignerAssistantStatusResponses,
   GetCourseDesignerPlanData,
   GetCourseDesignerPlanResponses,
   GetCourseDesignerPlansData,
@@ -478,6 +482,8 @@ import type {
   GetCreditRegistrationStatsByCourseResponses,
   GetCreditRegistrationThresholdsData,
   GetCreditRegistrationThresholdsResponses,
+  GetCurrentCourseDesignerAssistantConversationData,
+  GetCurrentCourseDesignerAssistantConversationResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalsData,
@@ -731,6 +737,8 @@ import type {
   ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
+  NewCourseDesignerAssistantConversationData,
+  NewCourseDesignerAssistantConversationResponses,
   PostOauthUserInfoData,
   PostOauthUserInfoErrors,
   PostOauthUserInfoResponses,
@@ -797,8 +805,14 @@ import type {
   SearchUserDetailsExactResponses,
   SearchUserDetailsFuzzyData,
   SearchUserDetailsFuzzyResponses,
+  SendCourseDesignerAssistantMessageData,
+  SendCourseDesignerAssistantMessageResponses,
+  SendCourseDesignerAssistantToolResponseData,
+  SendCourseDesignerAssistantToolResponseResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
+  SetChatbotCourseDesignerAssistantData,
+  SetChatbotCourseDesignerAssistantResponses,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponses,
   SetCourseChatbotAsNonDefaultData,
@@ -1022,6 +1036,8 @@ import {
   zGetCourseCreditRegistrationSummaryResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
+  zGetCourseDesignerAssistantConversationInfoResponse,
+  zGetCourseDesignerAssistantStatusResponse,
   zGetCourseDesignerPlanResponse,
   zGetCourseDesignerPlansResponse,
   zGetCourseDesignerSectionStatusesResponse,
@@ -1085,6 +1101,7 @@ import {
   zGetCreditRegistrationSettingsResponse,
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
+  zGetCurrentCourseDesignerAssistantConversationResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
@@ -1202,6 +1219,7 @@ import {
   zListOwnSubmissionSharesResponse,
   zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
+  zNewCourseDesignerAssistantConversationResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
   zPublishAgentChangesetResponse,
@@ -1224,7 +1242,10 @@ import {
   zSaveCourseDesignerScheduleResponse,
   zSearchUserDetailsExactResponse,
   zSearchUserDetailsFuzzyResponse,
+  zSendCourseDesignerAssistantMessageResponse,
+  zSendCourseDesignerAssistantToolResponseResponse,
   zSendResetPasswordEmailResponse,
+  zSetChatbotCourseDesignerAssistantResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseDesignerGreatMoocVisionResponse,
@@ -1840,6 +1861,32 @@ export const configureChatbot = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zConfigureChatbotResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
+ *
+ * Makes the chatbot the course design assistant on every plan page, taking the role from any
+ * other configuration, or removes the role from it.
+ */
+export const setChatbotCourseDesignerAssistant = <ThrowOnError extends boolean = true>(
+  options: Options<SetChatbotCourseDesignerAssistantData, ThrowOnError>,
+): RequestResult<SetChatbotCourseDesignerAssistantResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetChatbotCourseDesignerAssistantResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetChatbotCourseDesignerAssistantResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2735,6 +2782,151 @@ export const archiveCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}/archive",
     ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`
+ *
+ * Whether the assistant can be offered on this plan's pages.
+ */
+export const getCourseDesignerAssistantStatus = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerAssistantStatusData, ThrowOnError>,
+): RequestResult<GetCourseDesignerAssistantStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseDesignerAssistantStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerAssistantStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`
+ *
+ * The user's latest conversation about the plan with the current assistant, or null when there is
+ * none yet.
+ */
+export const getCurrentCourseDesignerAssistantConversation = <ThrowOnError extends boolean = true>(
+  options: Options<GetCurrentCourseDesignerAssistantConversationData, ThrowOnError>,
+): RequestResult<
+  GetCurrentCourseDesignerAssistantConversationResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCurrentCourseDesignerAssistantConversationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCurrentCourseDesignerAssistantConversationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`
+ *
+ * Starts a new conversation about the plan, which becomes the user's current one.
+ */
+export const newCourseDesignerAssistantConversation = <ThrowOnError extends boolean = true>(
+  options: Options<NewCourseDesignerAssistantConversationData, ThrowOnError>,
+): RequestResult<NewCourseDesignerAssistantConversationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    NewCourseDesignerAssistantConversationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zNewCourseDesignerAssistantConversationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`
+ */
+export const getCourseDesignerAssistantConversationInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerAssistantConversationInfoData, ThrowOnError>,
+): RequestResult<
+  GetCourseDesignerAssistantConversationInfoResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseDesignerAssistantConversationInfoResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerAssistantConversationInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`
+ *
+ * Sends the user's message and streams the assistant's turn, as the course material chatbot's
+ * `send-message` does.
+ */
+export const sendCourseDesignerAssistantMessage = <ThrowOnError extends boolean = true>(
+  options: Options<SendCourseDesignerAssistantMessageData, ThrowOnError>,
+): RequestResult<SendCourseDesignerAssistantMessageResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    SendCourseDesignerAssistantMessageResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSendCourseDesignerAssistantMessageResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`
+ *
+ * Answers a tool call the turn suspended on, such as applying or discarding a proposed change, and
+ * streams the resumed turn, as the course material chatbot's `tool-response` does.
+ */
+export const sendCourseDesignerAssistantToolResponse = <ThrowOnError extends boolean = true>(
+  options: Options<SendCourseDesignerAssistantToolResponseData, ThrowOnError>,
+): RequestResult<SendCourseDesignerAssistantToolResponseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    SendCourseDesignerAssistantToolResponseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSendCourseDesignerAssistantToolResponseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

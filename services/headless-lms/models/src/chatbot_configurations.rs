@@ -31,6 +31,7 @@ pub enum ToolCategoryGroup {
     CourseDiscovery,
     Interaction,
     AdminSupport,
+    CoursePlanning,
 }
 
 /// A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -48,12 +49,15 @@ pub enum ToolCategory {
     AdminSupportCourses,
     AdminSupportLearningProgress,
     AdminSupportAcademicIntegrity,
+    /// Reading and proposing changes to the course design plan the conversation is about. Offered
+    /// only on course design plan pages, where the turn names a plan.
+    CoursePlanning,
 }
 
 impl ToolCategory {
     /// Canonical order for the UI, seeds, and normalization -- keep in sync with the enum
     /// definition above and with the `chatbot_tool_category` Postgres enum's value order.
-    pub const ALL: [ToolCategory; 8] = [
+    pub const ALL: [ToolCategory; 9] = [
         ToolCategory::CourseMaterial,
         ToolCategory::CourseInfo,
         ToolCategory::CourseCatalog,
@@ -62,6 +66,7 @@ impl ToolCategory {
         ToolCategory::AdminSupportCourses,
         ToolCategory::AdminSupportLearningProgress,
         ToolCategory::AdminSupportAcademicIntegrity,
+        ToolCategory::CoursePlanning,
     ];
 
     pub const fn group(self) -> ToolCategoryGroup {
@@ -75,6 +80,7 @@ impl ToolCategory {
             | ToolCategory::AdminSupportCourses
             | ToolCategory::AdminSupportLearningProgress
             | ToolCategory::AdminSupportAcademicIntegrity => ToolCategoryGroup::AdminSupport,
+            ToolCategory::CoursePlanning => ToolCategoryGroup::CoursePlanning,
         }
     }
 
@@ -618,4 +624,86 @@ WHERE id = $1
     .await?;
     tx.commit().await?;
     Ok(())
+}
+
+/// Removes the course design assistant role from this configuration. Plan pages then fall back
+/// to the built-in assistant.
+pub async fn clear_course_designer_assistant(
+    conn: &mut PgConnection,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = FALSE
+WHERE id = $1
+"#,
+        chatbot_configuration_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The live configuration flagged as the course design assistant, if any.
+pub async fn get_course_designer_assistant(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+SELECT *
+FROM chatbot_configurations
+WHERE course_designer_assistant
+  AND deleted_at IS NULL
+"#
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Inserts `input` as the course design assistant unless another configuration already holds the
+/// role, and returns whichever configuration holds it afterwards.
+///
+/// Flagging a guide course's configuration later with [set_course_designer_assistant] takes the
+/// role over, leaving this one an ordinary configuration.
+pub async fn insert_course_designer_assistant_if_missing(
+    conn: &mut PgConnection,
+    input: NewChatbotConf,
+) -> ModelResult<ChatbotConfiguration> {
+    let mut tx = conn.begin().await?;
+    if let Some(existing) = get_course_designer_assistant(&mut tx).await? {
+        tx.commit().await?;
+        return Ok(existing);
+    }
+    let inserted = insert(&mut tx, PKeyPolicy::Generate, input).await?;
+    let flagged = sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = TRUE
+WHERE id = $1
+"#,
+        inserted.id
+    )
+    .execute(&mut *tx)
+    .await;
+    match flagged {
+        Ok(_) => {
+            tx.commit().await?;
+            get_by_id(conn, inserted.id).await
+        }
+        // A concurrent request flagged its own configuration first; the unique index refused ours.
+        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => {
+            tx.rollback().await?;
+            get_course_designer_assistant(conn).await?.ok_or_else(|| {
+                model_err!(
+                    PreconditionFailed,
+                    "The course design assistant disappeared while it was being created."
+                        .to_string()
+                )
+            })
+        }
+        Err(e) => Err(e.into()),
+    }
 }

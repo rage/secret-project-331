@@ -25,6 +25,9 @@ pub enum ToolRequirement {
     /// state, joinability and anonymous access included. Not expressible as an action on a
     /// resource, which is why it is its own variant.
     CourseMaterial(Uuid),
+    /// Active membership in the course design plan the turn is about. Never passes for a turn
+    /// that names no plan, so a plan tool cannot be offered or run outside a plan conversation.
+    CoursePlanMember,
 }
 
 impl ToolRequirement {
@@ -65,6 +68,12 @@ async fn authorize_requirements(
 ) -> ChatbotResult<Option<AuthorizationToken>> {
     let mut token = skip_authorize();
     for requirement in requirements {
+        if *requirement == ToolRequirement::CoursePlanMember {
+            if !is_member_of_turn_plan(conn, user_context).await? {
+                return Ok(None);
+            }
+            continue;
+        }
         let roles = user_context.roles(conn).await?;
         let outcome = match requirement {
             ToolRequirement::ActionOnResource(action, resource) => {
@@ -79,6 +88,7 @@ async fn authorize_requirements(
                 )
                 .await
             }
+            ToolRequirement::CoursePlanMember => unreachable!("checked above"),
         };
         match outcome {
             Ok(granted) => token = granted,
@@ -94,6 +104,23 @@ async fn authorize_requirements(
         }
     }
     Ok(Some(token))
+}
+
+async fn is_member_of_turn_plan(
+    conn: &mut PgConnection,
+    user_context: &ChatbotTurnContext,
+) -> ChatbotResult<bool> {
+    let (Some(plan_id), Some(user_id)) =
+        (user_context.course_designer_plan_id, user_context.user_id)
+    else {
+        return Ok(false);
+    };
+    Ok(
+        models::course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id)
+            .await
+            .optional()?
+            .is_some(),
+    )
 }
 
 /// Whether `requirements` all pass, for the callers that decide what to offer or whether to abort
@@ -117,6 +144,8 @@ pub async fn requirements_are_satisfied(
 /// only way to obtain one.
 pub struct ToolAuthorization<Tool> {
     acting_user_id: Uuid,
+    /// Set when the check included [ToolRequirement::CoursePlanMember]: the plan it verified.
+    course_designer_plan_id: Option<Uuid>,
     /// Kept only as evidence that the ordinary `authorize` path produced a token for this caller.
     _authorization: AuthorizationToken,
     _tool: PhantomData<fn() -> Tool>,
@@ -127,6 +156,12 @@ impl<Tool> ToolAuthorization<Tool> {
     /// the actor.
     pub fn acting_user_id(&self) -> Uuid {
         self.acting_user_id
+    }
+
+    /// The plan the acting user's membership was verified in, or `None` when the tool did not
+    /// require [ToolRequirement::CoursePlanMember]. The only plan a plan tool may act on.
+    pub fn course_designer_plan_id(&self) -> Option<Uuid> {
+        self.course_designer_plan_id
     }
 }
 
@@ -148,8 +183,13 @@ pub async fn authorize_tool_call<Tool>(
     else {
         return Ok(None);
     };
+    let course_designer_plan_id = requirements
+        .contains(&ToolRequirement::CoursePlanMember)
+        .then_some(user_context.course_designer_plan_id)
+        .flatten();
     Ok(Some(ToolAuthorization {
         acting_user_id,
+        course_designer_plan_id,
         _authorization: authorization,
         _tool: PhantomData,
     }))

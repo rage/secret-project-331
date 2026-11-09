@@ -165,6 +165,8 @@ import {
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
+  getCourseDesignerAssistantConversationInfo,
+  getCourseDesignerAssistantStatus,
   getCourseDesignerPlan,
   getCourseDesignerPlans,
   getCourseDesignerSectionStatuses,
@@ -231,6 +233,7 @@ import {
   getCreditRegistrationSettings,
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
+  getCurrentCourseDesignerAssistantConversation,
   getCurrentTime,
   getEditProposals,
   getEmailTemplates,
@@ -355,6 +358,7 @@ import {
   listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
+  newCourseDesignerAssistantConversation,
   type Options,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
@@ -385,7 +389,10 @@ import {
   saveCourseDesignerSchedule,
   searchUserDetailsExact,
   searchUserDetailsFuzzy,
+  sendCourseDesignerAssistantMessage,
+  sendCourseDesignerAssistantToolResponse,
   sendResetPasswordEmail,
+  setChatbotCourseDesignerAssistant,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
   setCourseDesignerGreatMoocVision,
@@ -709,6 +716,10 @@ import type {
   GetCourseDailyUsersWhoSubmittedSomethingResponse,
   GetCourseData,
   GetCourseDefaultPeerReviewData,
+  GetCourseDesignerAssistantConversationInfoData,
+  GetCourseDesignerAssistantConversationInfoResponse,
+  GetCourseDesignerAssistantStatusData,
+  GetCourseDesignerAssistantStatusResponse,
   GetCourseDesignerPlanData,
   GetCourseDesignerPlanResponse,
   GetCourseDesignerPlansData,
@@ -838,6 +849,8 @@ import type {
   GetCreditRegistrationStatsByCourseResponse,
   GetCreditRegistrationThresholdsData,
   GetCreditRegistrationThresholdsResponse,
+  GetCurrentCourseDesignerAssistantConversationData,
+  GetCurrentCourseDesignerAssistantConversationResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalsData,
@@ -1079,6 +1092,8 @@ import type {
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
+  NewCourseDesignerAssistantConversationData,
+  NewCourseDesignerAssistantConversationResponse,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
@@ -1130,8 +1145,14 @@ import type {
   SearchUserDetailsExactResponse,
   SearchUserDetailsFuzzyData,
   SearchUserDetailsFuzzyResponse,
+  SendCourseDesignerAssistantMessageData,
+  SendCourseDesignerAssistantMessageResponse,
+  SendCourseDesignerAssistantToolResponseData,
+  SendCourseDesignerAssistantToolResponseResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
+  SetChatbotCourseDesignerAssistantData,
+  SetChatbotCourseDesignerAssistantResponse,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponse,
   SetCourseChatbotAsNonDefaultData,
@@ -2092,6 +2113,34 @@ export const configureChatbotMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await configureChatbot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
+ *
+ * Makes the chatbot the course design assistant on every plan page, taking the role from any
+ * other configuration, or removes the role from it.
+ */
+export const setChatbotCourseDesignerAssistantMutation = (
+  options?: Partial<Options<SetChatbotCourseDesignerAssistantData>>,
+): UseMutationOptions<
+  SetChatbotCourseDesignerAssistantResponse,
+  DefaultError,
+  Options<SetChatbotCourseDesignerAssistantData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetChatbotCourseDesignerAssistantResponse,
+    DefaultError,
+    Options<SetChatbotCourseDesignerAssistantData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setChatbotCourseDesignerAssistant({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -3352,6 +3401,172 @@ export const archiveCourseDesignerPlanMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await archiveCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantStatusQueryKey = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) => createQueryKey("getCourseDesignerAssistantStatus", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`
+ *
+ * Whether the assistant can be offered on this plan's pages.
+ */
+export const getCourseDesignerAssistantStatusOptions = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantStatusResponse,
+    DefaultError,
+    GetCourseDesignerAssistantStatusResponse,
+    ReturnType<typeof getCourseDesignerAssistantStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantStatusQueryKey(options),
+  })
+
+export const getCurrentCourseDesignerAssistantConversationQueryKey = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) => createQueryKey("getCurrentCourseDesignerAssistantConversation", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`
+ *
+ * The user's latest conversation about the plan with the current assistant, or null when there is
+ * none yet.
+ */
+export const getCurrentCourseDesignerAssistantConversationOptions = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) =>
+  queryOptions<
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    ReturnType<typeof getCurrentCourseDesignerAssistantConversationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCurrentCourseDesignerAssistantConversation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCurrentCourseDesignerAssistantConversationQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`
+ *
+ * Starts a new conversation about the plan, which becomes the user's current one.
+ */
+export const newCourseDesignerAssistantConversationMutation = (
+  options?: Partial<Options<NewCourseDesignerAssistantConversationData>>,
+): UseMutationOptions<
+  NewCourseDesignerAssistantConversationResponse,
+  DefaultError,
+  Options<NewCourseDesignerAssistantConversationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    NewCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    Options<NewCourseDesignerAssistantConversationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await newCourseDesignerAssistantConversation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantConversationInfoQueryKey = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) => createQueryKey("getCourseDesignerAssistantConversationInfo", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`
+ */
+export const getCourseDesignerAssistantConversationInfoOptions = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantConversationInfoResponse,
+    DefaultError,
+    GetCourseDesignerAssistantConversationInfoResponse,
+    ReturnType<typeof getCourseDesignerAssistantConversationInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantConversationInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantConversationInfoQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`
+ *
+ * Sends the user's message and streams the assistant's turn, as the course material chatbot's
+ * `send-message` does.
+ */
+export const sendCourseDesignerAssistantMessageMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantMessageData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantMessageResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantMessageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantMessageResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantMessageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantMessage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`
+ *
+ * Answers a tool call the turn suspended on, such as applying or discarding a proposed change, and
+ * streams the resumed turn, as the course material chatbot's `tool-response` does.
+ */
+export const sendCourseDesignerAssistantToolResponseMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantToolResponseData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantToolResponseResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantToolResponseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantToolResponseResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantToolResponseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantToolResponse({
         ...options,
         ...fnOptions,
         throwOnError: true,

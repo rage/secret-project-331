@@ -2,6 +2,7 @@
 
 import React from "react"
 
+import { COURSE_PLAN_TOOL_REGISTRY } from "@/app/(layout)/manage/course-plans/[id]/assistant/coursePlanToolRegistry"
 import type {
   ClientToolAnswer,
   ClientToolName,
@@ -59,6 +60,8 @@ export interface ClientToolBubbleProps<TCall> {
    * call by `tool_call_id` when the `ActionExecuted` stream event arrived. `undefined` for a call
    * that never executed (a pure client tool, an unconfirmed action, or one from before reload). */
   executionPayload?: unknown
+  /** Why the last attempt to answer this call failed, for an entry with `showsAnswerError`. */
+  answerError?: unknown
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
 }
 
@@ -76,6 +79,8 @@ export interface ClientToolRegistryEntry {
    * for the same call, so the entry narrows it back to its own type before rendering.
    */
   renderBubble: (props: ClientToolRowProps) => React.ReactNode
+  /** Whether the bubble shows `answerError` itself, so the chat leaves it out of its own error area. */
+  showsAnswerError?: boolean
 }
 
 /**
@@ -138,4 +143,5 @@ export const CLIENT_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> = {
       return <EditUserAccountBubble {...props} call={props.call} />
     },
   },
+  ...COURSE_PLAN_TOOL_REGISTRY,
 }

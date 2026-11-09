@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
@@ -14,6 +14,7 @@ import {
 import { baseTheme } from "@/shared-module/common/styles"
 import { getErrorMessage, TextArea } from "@/shared-module/components"
 
+import { useRegisterPendingSave } from "../../../components/PendingSavesContext"
 import { AUTOSAVE_DEBOUNCE_MS } from "../analysis-form/analysisFormDomain"
 
 const statusStyles = css`
@@ -62,18 +63,31 @@ export default function GreatMoocVisionField(props: {
     }
   }, [savedVision, getValues, reset])
 
-  const debouncedSave = useDebouncedCallback((text: string) => {
+  const { mutateAsync } = mutation
+  const saveNow = useCallback(async (): Promise<boolean> => {
+    const text = getValues("vision")
     if (text === lastSavedRef.current) {
-      return
+      return true
     }
-    mutation.mutate({
-      path: { plan_id: planId },
-      body: { great_mooc_vision: text.trim() === "" ? null : text },
-    })
+    try {
+      await mutateAsync({
+        path: { plan_id: planId },
+        body: { great_mooc_vision: text.trim() === "" ? null : text },
+      })
+      return true
+    } catch {
+      return false
+    }
+  }, [getValues, mutateAsync, planId])
+
+  useRegisterPendingSave(saveNow)
+
+  const debouncedSave = useDebouncedCallback(() => {
+    void saveNow()
   }, AUTOSAVE_DEBOUNCE_MS)
 
   useEffect(() => {
-    debouncedSave(vision)
+    debouncedSave()
   }, [vision, debouncedSave])
 
   const isUnsaved = vision !== lastSavedRef.current

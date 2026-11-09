@@ -72,6 +72,10 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
     {
         let writer = self.csv_writer.clone();
         let handle = tokio::task::spawn_blocking(move || {
+            let csv_row: Vec<Vec<u8>> = csv_row
+                .into_iter()
+                .map(|cell| neutralize_formula(cell.as_ref()))
+                .collect();
             writer
                 .lock()
                 .map_err(|_| anyhow::anyhow!("Failed to lock mutex"))?
@@ -102,6 +106,26 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
         })
         .await??;
         Ok(writer)
+    }
+}
+
+/// Prefixes a cell that a spreadsheet would run as a formula with `'`, so text students control
+/// (names, answers) can't execute when a teacher opens the export. Numbers like `-1` stay as is.
+fn neutralize_formula(cell: &[u8]) -> Vec<u8> {
+    let starts_formula = match cell.first() {
+        Some(b'=' | b'@' | b'\t' | b'\r') => true,
+        Some(b'+' | b'-') => {
+            cell.len() > 1
+                && std::str::from_utf8(cell)
+                    .map(|text| text.trim().parse::<f64>().is_err())
+                    .unwrap_or(true)
+        }
+        _ => false,
+    };
+    if starts_formula {
+        [b"'".as_slice(), cell].concat()
+    } else {
+        cell.to_vec()
     }
 }
 
@@ -265,6 +289,34 @@ pub async fn general_export(
                 receiver,
             ))),
     )
+}
+
+#[cfg(test)]
+mod neutralize_formula_test {
+    use super::neutralize_formula;
+
+    #[test]
+    fn prefixes_cells_a_spreadsheet_would_run() {
+        for cell in [
+            "=HYPERLINK(\"x\")",
+            "+cmd|' /C calc'!A0",
+            "-2+3+cmd",
+            "@SUM(A1)",
+            "\tx",
+        ] {
+            assert_eq!(
+                neutralize_formula(cell.as_bytes()),
+                format!("'{cell}").into_bytes()
+            );
+        }
+    }
+
+    #[test]
+    fn leaves_numbers_and_plain_text_alone() {
+        for cell in ["-1", "+3.5", "-", "Alice", "", "5"] {
+            assert_eq!(neutralize_formula(cell.as_bytes()), cell.as_bytes());
+        }
+    }
 }
 
 #[cfg(test)]

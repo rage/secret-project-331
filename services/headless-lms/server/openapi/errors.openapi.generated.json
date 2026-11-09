@@ -67,6 +67,37 @@
             }
           },
           {
+            "type": "object",
+            "required": ["database_constraint"],
+            "properties": {
+              "database_constraint": {
+                "type": "object",
+                "required": ["constraint"],
+                "properties": {
+                  "constraint": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["invalid_cms_anchor_block"],
+            "properties": {
+              "invalid_cms_anchor_block": {
+                "type": "object",
+                "required": ["block_id"],
+                "properties": {
+                  "block_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          },
+          {
             "type": "string",
             "description": "The user is not enrolled on the course the requested exercise belongs to.",
             "enum": ["not_enrolled"]
@@ -85,6 +116,26 @@
             "type": "string",
             "description": "A submission named the same uploaded file more than once.",
             "enum": ["duplicate_upload"]
+          },
+          {
+            "type": "string",
+            "enum": ["invalid_course_code"]
+          },
+          {
+            "type": "string",
+            "enum": ["generic_sisu_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["sisu_resource_not_found"]
+          },
+          {
+            "type": "string",
+            "enum": ["chapter_not_open_yet"]
+          },
+          {
+            "type": "string",
+            "enum": ["authentication_required_for_exam_exercise"]
           }
         ]
       },

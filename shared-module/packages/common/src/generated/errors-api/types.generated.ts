@@ -10,6 +10,15 @@ export type ClientOptions = {
 export type ErrorSource = "backend" | "frontend"
 
 export type MessageKey =
+  | "internal_error"
+  | "validation_error"
+  | "obsolete_client"
+  | "not_found"
+  | "rate_limited"
+  | "unauthorized"
+  | "forbidden"
+  | "oauth_error"
+  | "sisu_error"
   | "course_slug_already_taken"
   | {
       foreign_key_violation: {
@@ -17,10 +26,26 @@ export type MessageKey =
         table?: string | null
       }
     }
+  | {
+      database_constraint: {
+        constraint: string
+      }
+    }
+  | {
+      validation_error_with_cms_anchor_block_id: {
+        block_id: string
+      }
+    }
   | "not_enrolled"
   | "upload_expired"
   | "unknown_upload"
   | "duplicate_upload"
+  | "stale_version"
+  | "invalid_course_code"
+  | "generic_sisu_error"
+  | "sisu_resource_not_found"
+  | "chapter_not_open_yet"
+  | "authentication_required_for_exam_exercise"
 
 export type NewErrorReport = {
   app_version?: string | null

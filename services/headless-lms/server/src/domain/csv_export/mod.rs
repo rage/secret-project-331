@@ -111,7 +111,7 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
 
 /// Prefixes a cell that a spreadsheet would run as a formula with `'`, so text students control
 /// (names, answers) can't execute when a teacher opens the export. Numbers like `-1` stay as is.
-fn neutralize_formula(cell: &[u8]) -> Vec<u8> {
+pub(crate) fn neutralize_formula(cell: &[u8]) -> Vec<u8> {
     let starts_formula = match cell.first() {
         Some(b'=' | b'@' | b'\t' | b'\r') => true,
         Some(b'+' | b'-') => {

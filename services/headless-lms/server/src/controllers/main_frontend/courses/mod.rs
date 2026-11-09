@@ -429,6 +429,10 @@ async fn post_new_course(
         Res::Organization(new_course.organization_id),
     )
     .await?;
+    if new_course.can_add_chatbot {
+        // Same gate as update_course: only global admins enable chatbots.
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+    }
 
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
@@ -2440,6 +2444,7 @@ async fn teacher_dismiss_suspected_cheater(
 
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    reject_own_suspected_cheater_case(&user, user_id)?;
 
     models::suspected_cheaters::dismiss_by_user_id_and_course_id(&mut conn, user_id, course_id)
         .await?;
@@ -2473,6 +2478,7 @@ async fn teacher_confirm_suspected_cheater(
 
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    reject_own_suspected_cheater_case(&user, user_id)?;
 
     // Confirming sets the status and fails the student's completions (snapshotting the previous
     // grade so a later dismiss can restore it); see confirm_cheater_by_user_id_and_course_id.
@@ -2482,6 +2488,22 @@ async fn teacher_confirm_suspected_cheater(
     .await?;
 
     token.authorized_ok(web::Json(()))
+}
+
+/// Refuses a review decision on the reviewer's own case: assistants are often students on the same
+/// course.
+fn reject_own_suspected_cheater_case(
+    reviewer: &AuthUser,
+    suspected_user_id: Uuid,
+) -> Result<(), ControllerError> {
+    if reviewer.id == suspected_user_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "You cannot review your own case.".to_string(),
+            None,
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
@@ -2732,8 +2754,8 @@ async fn get_sisu_course_llm_descriptions(
     let (course_modules, course_lang, message_suggest_llm, token) = {
         let mut conn = pool.acquire().await?;
 
-        let token =
-            authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+        // Each call reaches Sisu and an LLM, so only course editors (its one caller) may trigger it.
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
         let course_modules =
             models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
         let course_lang = models::courses::get_course(&mut conn, *course_id)

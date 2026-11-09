@@ -1046,7 +1046,7 @@ async fn insert_student(
     first_name: &str,
     last_name: &str,
 ) -> Result<SeededStudent> {
-    let user_id = users::insert(
+    let user_id = crate::programs::seed::seed_helpers::insert_user_with_verified_email(
         conn,
         PKeyPolicy::Fixed(user_id),
         email,

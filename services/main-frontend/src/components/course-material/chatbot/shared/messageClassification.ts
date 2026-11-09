@@ -6,7 +6,7 @@ import {
   zChatbotConversationMessageToolOutput,
 } from "@/generated/course-material-api/zod.generated"
 
-import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
+import type { ClientToolRegistry } from "./clientToolRegistry"
 
 /**
  * What a conversation message is, decided by zod once per message so a caller that re-runs on
@@ -22,10 +22,13 @@ export type MessageClassification =
   | { kind: "reasoning" }
   | { kind: "other" }
 
-export const classifyMessage = (message: ChatbotConversationMessage): MessageClassification => {
+export const classifyMessage = (
+  message: ChatbotConversationMessage,
+  clientToolRegistry: ClientToolRegistry,
+): MessageClassification => {
   const toolCall = zChatbotConversationMessageToolCall.safeParse(message.message)
   if (toolCall.success) {
-    const entry = CLIENT_TOOL_REGISTRY[toolCall.data.tool_name]
+    const entry = clientToolRegistry[toolCall.data.tool_name]
     const call = entry
       ? entry.parseCall(toolCall.data.tool_call_id, toolCall.data.tool_arguments)
       : null
@@ -126,9 +129,16 @@ export const openClientToolCallsFromClassified = (
   return open
 }
 
-export const openClientToolCalls = (messages: ChatbotConversationMessage[]): OpenClientToolCall[] =>
-  openClientToolCallsFromClassified(messages.map((message) => classifyMessage(message)))
+export const openClientToolCalls = (
+  messages: ChatbotConversationMessage[],
+  clientToolRegistry: ClientToolRegistry,
+): OpenClientToolCall[] =>
+  openClientToolCallsFromClassified(
+    messages.map((message) => classifyMessage(message, clientToolRegistry)),
+  )
 
 /** Whether any client tool call in the conversation is still waiting for the learner. */
-export const hasOpenClientToolCall = (messages: ChatbotConversationMessage[]): boolean =>
-  openClientToolCalls(messages).length > 0
+export const hasOpenClientToolCall = (
+  messages: ChatbotConversationMessage[],
+  clientToolRegistry: ClientToolRegistry,
+): boolean => openClientToolCalls(messages, clientToolRegistry).length > 0

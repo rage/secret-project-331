@@ -30,6 +30,8 @@ interface PlanQueryData {
 
 interface UseCoursePlanWorkspacePageStateOptions {
   planData: PlanQueryData | undefined
+  /** The `stage` search parameter (e.g. `design`), opened instead of the active stage. */
+  requestedStageSlug: string | null
   t: TFunction
   stageLabel: (stage: CourseDesignerStage) => string
   buildStageDescriptionItems: (stage: CourseDesignerStage | null, t: TFunction) => string[]
@@ -48,6 +50,7 @@ interface UseCoursePlanWorkspacePageStateOptions {
 /** Workspace chrome state: overview panel, viewed tab, and unsaved-form tracking. */
 export function useCoursePlanWorkspacePageState({
   planData,
+  requestedStageSlug,
   t,
   stageLabel,
   buildStageDescriptionItems,
@@ -184,7 +187,10 @@ export function useCoursePlanWorkspacePageState({
       (viewedTab !== null && planData.stages.some((stage) => stage.stage === viewedTab))
 
     if (!hasViewedTab) {
-      setViewedTab(nextActiveStage ?? firstAvailableStage ?? MOOC_DESIGN_TAB)
+      const requestedStage =
+        planData.stages.find((stage) => stage.stage.toLowerCase() === requestedStageSlug)?.stage ??
+        null
+      setViewedTab(requestedStage ?? nextActiveStage ?? firstAvailableStage ?? MOOC_DESIGN_TAB)
       previousActiveStageRef.current = nextActiveStage
       return
     }
@@ -199,7 +205,7 @@ export function useCoursePlanWorkspacePageState({
     }
 
     previousActiveStageRef.current = nextActiveStage
-  }, [planData, viewedTab])
+  }, [planData, requestedStageSlug, viewedTab])
 
   return {
     isOverviewOpen,

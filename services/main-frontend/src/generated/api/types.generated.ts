@@ -2426,6 +2426,10 @@ export type CourseDesignerPlanStage = {
   status: CourseDesignerPlanStageStatus
   updated_at: string
   workspace_data?: unknown
+  /**
+   * Bumped on every save of `workspace_data`; saves must name the revision they were based on.
+   */
+  workspace_revision: number
 }
 
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
@@ -7356,6 +7360,15 @@ export type UpdateCourseDesignerStageTaskRequest = {
   title?: string | null
 }
 
+export type UpdateCourseDesignerStageWorkspaceRequest = {
+  /**
+   * The stage's `workspace_revision` the edit started from. A save based on an older revision
+   * is refused with `stale_version`.
+   */
+  base_revision: number
+  workspace: CourseDesignerStageWorkspace
+}
+
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
  */
@@ -9795,7 +9808,7 @@ export type ExtendCourseDesignerStageResponse =
   ExtendCourseDesignerStageResponses[keyof ExtendCourseDesignerStageResponses]
 
 export type UpdateCourseDesignerStageWorkspaceData = {
-  body: CourseDesignerStageWorkspace
+  body: UpdateCourseDesignerStageWorkspaceRequest
   path: {
     /**
      * Plan id

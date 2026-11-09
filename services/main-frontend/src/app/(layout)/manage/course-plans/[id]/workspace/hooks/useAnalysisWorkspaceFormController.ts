@@ -33,13 +33,17 @@ export default function useAnalysisWorkspaceFormController(props: {
   onDirtyChange?: (dirty: boolean) => void
   planId: string
   workspaceData: unknown
+  workspaceRevision: number
+  isReadOnly: boolean
 }) {
-  const { onDirtyChange, planId, workspaceData } = props
+  const { onDirtyChange, planId, workspaceData, workspaceRevision, isReadOnly } = props
   const { t } = useTranslation()
-  const { form, saveStatus, saveNow } = useStageWorkspaceForm({
+  const { form, saveStatus, saveNow, loadLatest } = useStageWorkspaceForm({
     planId,
     stage: STAGE_ANALYSIS,
     workspaceData,
+    workspaceRevision,
+    isReadOnly,
     toFormValues: toAnalysisFormValues,
     toWorkspace: toAnalysisWorkspace,
     ...(onDirtyChange ? { onDirtyChange } : {}),
@@ -58,6 +62,7 @@ export default function useAnalysisWorkspaceFormController(props: {
     setValue: form.setValue,
     saveStatus,
     saveNow,
+    loadLatest,
     sectionNav,
     creditsFieldRules,
     uhLines,

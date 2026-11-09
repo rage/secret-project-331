@@ -160,6 +160,8 @@ interface WorkspaceTaskRowProps {
   onSave: (changes: TaskChanges) => Promise<void>
   isUpdating: boolean
   isDeleting: boolean
+  /** Hides editing and deleting, and disables the completion checkbox. */
+  isReadOnly: boolean
 }
 
 /** One task: completion checkbox, details, and an inline editor for title, description and assignee. */
@@ -171,6 +173,7 @@ export default function WorkspaceTaskRow({
   onSave,
   isUpdating,
   isDeleting,
+  isReadOnly,
 }: WorkspaceTaskRowProps) {
   const { t } = useTranslation()
   const { control: completionControl } = useWorkspaceTaskCompletionField(
@@ -324,7 +327,7 @@ export default function WorkspaceTaskRow({
         control={completionControl}
         label=""
         aria-label={task.title}
-        isDisabled={isUpdating}
+        isDisabled={isUpdating || isReadOnly}
         className={taskRowCheckboxWrapperStyles}
       />
       <div className={taskContentStyles}>
@@ -351,28 +354,30 @@ export default function WorkspaceTaskRow({
           </div>
         )}
       </div>
-      <div className={cx(taskRowActionsStyles, "task-row-actions")}>
-        <Button
-          ref={editButtonRef}
-          variant="secondary"
-          size="small"
-          onClick={startEditing}
-          aria-label={t("course-plans-task-edit", { task: task.title })}
-          className={taskActionButtonStyles}
-        >
-          <Pencil size={16} />
-        </Button>
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={onDelete}
-          disabled={isDeleting}
-          aria-label={t("course-plans-task-delete", { task: task.title })}
-          className={cx(taskActionButtonStyles, taskDeleteButtonStyles)}
-        >
-          <Trash size={16} />
-        </Button>
-      </div>
+      {isReadOnly ? null : (
+        <div className={cx(taskRowActionsStyles, "task-row-actions")}>
+          <Button
+            ref={editButtonRef}
+            variant="secondary"
+            size="small"
+            onClick={startEditing}
+            aria-label={t("course-plans-task-edit", { task: task.title })}
+            className={taskActionButtonStyles}
+          >
+            <Pencil size={16} />
+          </Button>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={onDelete}
+            disabled={isDeleting}
+            aria-label={t("course-plans-task-delete", { task: task.title })}
+            className={cx(taskActionButtonStyles, taskDeleteButtonStyles)}
+          >
+            <Trash size={16} />
+          </Button>
+        </div>
+      )}
     </li>
   )
 }

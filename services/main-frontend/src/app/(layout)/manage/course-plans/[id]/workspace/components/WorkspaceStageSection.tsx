@@ -167,6 +167,8 @@ interface WorkspaceStageSectionProps {
   isActive: boolean
   onInvalidate: () => void
   showStageTitle?: boolean
+  /** Archived plans: tasks are shown without controls for changing them. */
+  isReadOnly: boolean
 }
 
 const NEW_TASK_FIELD_NAME = "newTaskTitle" as const
@@ -178,6 +180,7 @@ export default function WorkspaceStageSection({
   isActive,
   onInvalidate,
   showStageTitle = true,
+  isReadOnly,
 }: WorkspaceStageSectionProps) {
   const { t } = useTranslation()
   const {
@@ -316,30 +319,32 @@ export default function WorkspaceStageSection({
           />
         </div>
       </div>
-      <form
-        className={addRowStyles}
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleAddTask()
-        }}
-      >
-        <TextField
-          id={`stage-task-input-${stage.id}`}
-          name={NEW_TASK_FIELD_NAME}
-          control={newTaskControl}
-          label={t("course-plans-task-placeholder")}
-          placeholder={t("course-plans-task-placeholder")}
-          className={taskFieldStyles}
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          size="medium"
-          disabled={createMutation.isPending || !newTaskTitle.trim()}
+      {isReadOnly ? null : (
+        <form
+          className={addRowStyles}
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleAddTask()
+          }}
         >
-          {t("course-plans-add-task")}
-        </Button>
-      </form>
+          <TextField
+            id={`stage-task-input-${stage.id}`}
+            name={NEW_TASK_FIELD_NAME}
+            control={newTaskControl}
+            label={t("course-plans-task-placeholder")}
+            placeholder={t("course-plans-task-placeholder")}
+            className={taskFieldStyles}
+          />
+          <Button
+            type="submit"
+            variant="secondary"
+            size="medium"
+            disabled={createMutation.isPending || !newTaskTitle.trim()}
+          >
+            {t("course-plans-add-task")}
+          </Button>
+        </form>
+      )}
       <ul className={taskListStyles}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>
@@ -363,6 +368,7 @@ export default function WorkspaceStageSection({
               }
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
+              isReadOnly={isReadOnly}
             />
           ))
         )}

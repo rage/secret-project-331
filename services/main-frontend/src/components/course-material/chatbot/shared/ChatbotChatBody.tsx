@@ -24,8 +24,7 @@ import { useChatbotContext } from "./ChatbotContext"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import { hasStreamedAssistantContent } from "./chatbotReducer"
 import ChatbotStatusRow from "./ChatbotStatusRow"
-import type { ClosedClientToolAnswer } from "./clientToolRegistry"
-import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
+import type { ClientToolRegistry, ClosedClientToolAnswer } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
 import type { ChatbotComposerValues } from "./hooks/useChatbotStateAndData"
 import { MESSAGE_FIELD } from "./hooks/useChatbotStateAndData"
@@ -312,6 +311,7 @@ const stopButtonClass = cx(composerButtonStyle, stopButtonStyle)
 
 interface ConversationRowProps {
   row: ConversationRowData
+  clientToolRegistry: ClientToolRegistry
   isTurnInFlight: boolean
   citations: Map<string, ChatbotConversationMessageCitation[]>
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
@@ -321,6 +321,7 @@ interface ConversationRowProps {
  * preceding tool-call and reasoning items, if any. */
 const ConversationRow: React.FC<ConversationRowProps> = ({
   row,
+  clientToolRegistry,
   isTurnInFlight,
   citations,
   onAnswer,
@@ -336,7 +337,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
   }
 
   if (row.kind === "clientToolCall") {
-    const entry = CLIENT_TOOL_REGISTRY[row.call.toolName]
+    const entry = clientToolRegistry[row.call.toolName]
     if (!entry) {
       // Classification only produces this kind once a registry entry has validated the call, so
       // this is unreachable outside a registry/classification drift.
@@ -380,6 +381,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
 
 interface ChatbotConversationViewProps {
   rows: ConversationRowData[]
+  clientToolRegistry: ClientToolRegistry
   citations: Map<string, ChatbotConversationMessageCitation[]>
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
   isTurnInFlight: boolean
@@ -400,6 +402,7 @@ interface ChatbotConversationViewProps {
 /** The conversation history, composer and suggestion chips, once a conversation exists to show. */
 const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   rows,
+  clientToolRegistry,
   citations,
   onAnswer,
   isTurnInFlight,
@@ -435,6 +438,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
           <ConversationRow
             key={row.messageId}
             row={row}
+            clientToolRegistry={clientToolRegistry}
             isTurnInFlight={isTurnInFlight}
             citations={citations}
             onAnswer={onAnswer}
@@ -526,6 +530,7 @@ const ChatbotChatBody: React.FC = () => {
     error,
     stopTurn,
     chatbotMessageAnnouncement,
+    clientToolRegistry,
     handlePickSuggestionMutation,
   } = useChatbotContext()
 
@@ -559,15 +564,18 @@ const ChatbotChatBody: React.FC = () => {
         finished: true,
         message,
         optimistic: false,
-        classification: classifyMessage(message),
+        classification: classifyMessage(message, clientToolRegistry),
       })),
-    [currentConversationInfo.data?.current_conversation_messages],
+    [currentConversationInfo.data?.current_conversation_messages, clientToolRegistry],
   )
 
   const classifiedStreamed = useMemo(
     (): ClassifiedMessage[] =>
-      messageState.messages.map((m) => ({ ...m, classification: classifyMessage(m.message) })),
-    [messageState.messages],
+      messageState.messages.map((m) => ({
+        ...m,
+        classification: classifyMessage(m.message, clientToolRegistry),
+      })),
+    [messageState.messages, clientToolRegistry],
   )
 
   const allClassifications = useMemo(
@@ -707,6 +715,7 @@ const ChatbotChatBody: React.FC = () => {
       ) : (
         <ChatbotConversationView
           rows={rows}
+          clientToolRegistry={clientToolRegistry}
           citations={citations}
           onAnswer={handleAnswer}
           isTurnInFlight={isTurnInFlight}

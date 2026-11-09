@@ -23,6 +23,9 @@ const statusStyles = css`
   margin: 0;
 `
 
+/** Matches the backend limit on the vision text. */
+const MAX_VISION_CHARS = 10_000
+
 const errorStyles = css`
   color: ${baseTheme.colors.red[700]};
 `
@@ -31,8 +34,9 @@ const errorStyles = css`
 export default function GreatMoocVisionField(props: {
   planId: string
   greatMoocVision: string | null | undefined
+  isReadOnly: boolean
 }) {
-  const { planId, greatMoocVision } = props
+  const { planId, greatMoocVision, isReadOnly } = props
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const savedVision = greatMoocVision ?? ""
@@ -66,7 +70,7 @@ export default function GreatMoocVisionField(props: {
   const { mutateAsync } = mutation
   const saveNow = useCallback(async (): Promise<boolean> => {
     const text = getValues("vision")
-    if (text === lastSavedRef.current) {
+    if (isReadOnly || text === lastSavedRef.current) {
       return true
     }
     try {
@@ -78,7 +82,7 @@ export default function GreatMoocVisionField(props: {
     } catch {
       return false
     }
-  }, [getValues, mutateAsync, planId])
+  }, [getValues, isReadOnly, mutateAsync, planId])
 
   useRegisterPendingSave(saveNow)
 
@@ -101,19 +105,22 @@ export default function GreatMoocVisionField(props: {
         description={t("course-plans-mooc-design-vision-description")}
         rows={5}
         autoResize
-        maxLength={20000}
+        maxLength={MAX_VISION_CHARS}
+        isDisabled={isReadOnly}
       />
-      <p className={cx(statusStyles, mutation.isError && errorStyles)} role="status">
-        {mutation.isPending
-          ? t("course-plans-save-status-saving")
-          : mutation.isError
-            ? t("course-plans-save-status-error", { message: getErrorMessage(mutation.error) })
-            : isUnsaved
-              ? t("course-plans-save-status-unsaved")
-              : hasSaved
-                ? t("course-plans-save-status-saved")
-                : t("course-plans-save-status-autosave")}
-      </p>
+      {isReadOnly ? null : (
+        <p className={cx(statusStyles, mutation.isError && errorStyles)} role="status">
+          {mutation.isPending
+            ? t("course-plans-save-status-saving")
+            : mutation.isError
+              ? t("course-plans-save-status-error", { message: getErrorMessage(mutation.error) })
+              : isUnsaved
+                ? t("course-plans-save-status-unsaved")
+                : hasSaved
+                  ? t("course-plans-save-status-saved")
+                  : t("course-plans-save-status-autosave")}
+        </p>
+      )}
     </>
   )
 }

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -478,6 +478,7 @@ function CoursePlanWorkspacePage() {
   const { t, i18n } = useTranslation()
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
+  const requestedStageSlug = useSearchParams().get("stage")
   const queryClient = useQueryClient()
   const { alert: showDialogAlert, confirm } = useDialog()
   const planQuery = useQuery(
@@ -524,6 +525,7 @@ function CoursePlanWorkspacePage() {
     handleAdvanceStage,
   } = useCoursePlanWorkspacePageState({
     planData: planQuery.data,
+    requestedStageSlug,
     t,
     stageLabel,
     buildStageDescriptionItems,
@@ -624,6 +626,7 @@ function CoursePlanWorkspacePage() {
                     stageLabel={stageLabel(viewedStage)}
                     isActive={viewedStage === currentStage}
                     showStageTitle={false}
+                    isReadOnly={plan.status === "Archived"}
                     onInvalidate={() =>
                       void queryClient.invalidateQueries({
                         queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
@@ -724,6 +727,7 @@ function CoursePlanWorkspacePage() {
                         <MoocDesignOverview
                           planId={planId}
                           greatMoocVision={plan.great_mooc_vision}
+                          isReadOnly={plan.status === "Archived"}
                         />
                       </>
                     ) : (

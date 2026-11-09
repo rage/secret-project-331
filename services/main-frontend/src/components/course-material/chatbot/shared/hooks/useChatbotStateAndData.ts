@@ -18,7 +18,8 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { ChatbotEndpoints, ChatbotTurnRequest } from "../chatbotEndpoints"
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
-import { CLIENT_TOOL_REGISTRY } from "../clientToolRegistry"
+import type { ClientToolRegistry } from "../clientToolRegistry"
+import { BASE_CLIENT_TOOL_REGISTRY } from "../clientToolRegistry"
 import { hasOpenClientToolCall } from "../messageClassification"
 import readChatbotResponseStream from "../readChatbotResponseStream"
 
@@ -54,6 +55,8 @@ export interface ChatbotStateAndData {
   dispatch: (action: ChatbotAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   chatbotMessageAnnouncement: string
+  /** The tools this chatbot renders: its endpoints' registry, or the base one. */
+  clientToolRegistry: ClientToolRegistry
   newMessageMutation: UseMutationResult<void, unknown, string, unknown>
   toolResponseMutation: UseMutationResult<void, unknown, ClientToolResponse, unknown>
   /** Why answering a call failed, for the calls whose bubble shows it (`showsAnswerError`). */
@@ -92,6 +95,7 @@ const useChatbotStateAndData = (
   onActionExecuted?: ActionExecutedHandler,
 ): ChatbotStateAndData => {
   const { t } = useTranslation()
+  const clientToolRegistry = endpoints.clientToolRegistry ?? BASE_CLIENT_TOOL_REGISTRY
   const composerForm = useForm<ChatbotComposerValues>({ defaultValues: { [MESSAGE_FIELD]: "" } })
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
@@ -167,7 +171,10 @@ const useChatbotStateAndData = (
     dispatch({ type: "TURN_ENDED" })
     const refetched = await currentConversationInfo.refetch()
     dispatch({ type: "RESPONSE_COMPLETED" })
-    const waiting = hasOpenClientToolCall(refetched.data?.current_conversation_messages ?? [])
+    const waiting = hasOpenClientToolCall(
+      refetched.data?.current_conversation_messages ?? [],
+      clientToolRegistry,
+    )
     setChatbotMessageAnnouncement(
       waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
@@ -330,7 +337,7 @@ const useChatbotStateAndData = (
       onSuccess: settleFinishedTurn,
       onError: (err, { toolCallId, toolName }) => {
         const isShownOnBubble =
-          CLIENT_TOOL_REGISTRY[toolName]?.showsAnswerError === true &&
+          clientToolRegistry[toolName]?.showsAnswerError === true &&
           !(err instanceof TurnAlreadyRunningError) &&
           !isAbortError(err)
         if (isShownOnBubble && isMountedRef.current) {
@@ -353,6 +360,7 @@ const useChatbotStateAndData = (
     dispatch,
     error,
     chatbotMessageAnnouncement,
+    clientToolRegistry,
     isTurnInFlight,
     stopTurn,
     setDialogOpen,

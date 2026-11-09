@@ -130,8 +130,9 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
             None => None,
         };
 
+        let mut tx = conn.begin().await?;
         let task = course_designer_plan_members::create_stage_task_for_user(
-            conn,
+            &mut tx,
             plan_id,
             stage_id,
             user_id,
@@ -141,7 +142,7 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
         .await?;
         if let Some(assignee) = assignee {
             course_designer_plan_members::set_task_assignee_for_user(
-                conn,
+                &mut tx,
                 plan_id,
                 task.id,
                 user_id,
@@ -149,6 +150,7 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
             )
             .await?;
         }
+        tx.commit().await?;
 
         Ok((
             ExecutedAction {

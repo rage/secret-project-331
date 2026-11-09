@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { Plus, Trash } from "@vectopus/atlas-icons-react"
+import { Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import { useEffect, useRef } from "react"
 import { type Control, useFieldArray, type UseFormSetValue, useWatch } from "react-hook-form"
@@ -12,11 +12,14 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button, NumberField, Select, TextField } from "@/shared-module/components"
 
+import AddListItemButton from "./AddListItemButton"
 import {
   defaultMinutesFor,
+  DESIGN_FORM_LIMITS,
   type DesignFormValues,
   HOURS_PER_CREDIT,
   MAX_WORKLOAD_AMOUNT,
+  maxLengthRules,
   newWorkloadActivity,
   totalWorkloadMinutes,
   WORKLOAD_ACTIVITY_TYPES,
@@ -128,6 +131,7 @@ function WorkloadActivityRow(props: {
         <TextField
           name={`workload_activities.${index}.title`}
           control={control}
+          rules={maxLengthRules(t, DESIGN_FORM_LIMITS.shortTextChars)}
           label={t("course-plans-design-workload-activity-title", { number: position })}
         />
         <Select
@@ -203,17 +207,12 @@ export default function WorkloadCalculator(props: {
           onRemove={() => remove(index)}
         />
       ))}
-      <div>
-        <Button
-          type="button"
-          variant="tertiary"
-          size="small"
-          icon={<Plus size={ICON_SIZE_BUTTON} />}
-          onClick={() => append(newWorkloadActivity())}
-        >
-          {t("course-plans-design-workload-add")}
-        </Button>
-      </div>
+      <AddListItemButton
+        label={t("course-plans-design-workload-add")}
+        itemCount={fields.length}
+        maxItems={DESIGN_FORM_LIMITS.workloadActivities}
+        onAdd={() => append(newWorkloadActivity())}
+      />
       <p className={summaryStyles} role="status">
         <span>
           {t("course-plans-design-workload-total")}{" "}

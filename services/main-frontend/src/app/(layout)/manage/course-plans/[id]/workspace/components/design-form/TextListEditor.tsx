@@ -1,19 +1,16 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { Plus, Trash } from "@vectopus/atlas-icons-react"
+import { Trash } from "@vectopus/atlas-icons-react"
 import { type Control, type Path, useFieldArray } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
 import { Button, TextArea } from "@/shared-module/components"
 
-import type { DesignFormValues } from "./designFormDomain"
+import AddListItemButton from "./AddListItemButton"
+import { DESIGN_FORM_LIMITS, type DesignFormValues, maxLengthRules } from "./designFormDomain"
 import { designListRowStyles, designListStyles, ICON_SIZE_BUTTON } from "./designFormStyles"
 
 type TextListPath = "learning_goals" | `chapters.${number}.learning_objectives`
-
-const addButtonRowStyles = css`
-  display: flex;
-`
 
 /** Editable list of free-text items (learning goals, learning objectives) with add and remove. */
 export default function TextListEditor(props: {
@@ -25,6 +22,7 @@ export default function TextListEditor(props: {
   rows?: number
 }) {
   const { control, name, itemLabel, removeLabel, addLabel, rows = 2 } = props
+  const { t } = useTranslation()
   const { fields, append, remove } = useFieldArray({ control, name })
 
   return (
@@ -34,6 +32,7 @@ export default function TextListEditor(props: {
           <TextArea
             name={`${name}.${index}.text` as Path<DesignFormValues>}
             control={control}
+            rules={maxLengthRules(t, DESIGN_FORM_LIMITS.longTextChars)}
             label={itemLabel(index + 1)}
             rows={rows}
             autoResize
@@ -48,17 +47,12 @@ export default function TextListEditor(props: {
           />
         </div>
       ))}
-      <div className={addButtonRowStyles}>
-        <Button
-          type="button"
-          variant="tertiary"
-          size="small"
-          icon={<Plus size={ICON_SIZE_BUTTON} />}
-          onClick={() => append({ text: "" })}
-        >
-          {addLabel}
-        </Button>
-      </div>
+      <AddListItemButton
+        label={addLabel}
+        itemCount={fields.length}
+        maxItems={DESIGN_FORM_LIMITS.listItems}
+        onAdd={() => append({ text: "" })}
+      />
     </div>
   )
 }

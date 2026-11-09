@@ -2,7 +2,6 @@
 
 import React from "react"
 
-import { COURSE_PLAN_TOOL_REGISTRY } from "@/app/(layout)/manage/course-plans/[id]/assistant/coursePlanToolRegistry"
 import type {
   ClientToolAnswer,
   ClientToolName,
@@ -83,12 +82,16 @@ export interface ClientToolRegistryEntry {
   showsAnswerError?: boolean
 }
 
+/** Registry entries keyed by the tool name the model calls them with. */
+export type ClientToolRegistry = Record<string, ClientToolRegistryEntry>
+
 /**
- * Client tools the frontend knows how to recognize, validate and render, keyed by the name the
- * model calls them with. Each entry owns everything specific to its own argument and answer
- * shape; code that dispatches through this registry only ever sees `unknown`.
+ * Client tools every chatbot backend shares, keyed by the name the model calls them with. Each
+ * entry owns everything specific to its own argument and answer shape; code that dispatches
+ * through a registry only ever sees `unknown`. A backend with more tools extends this through
+ * `ChatbotEndpoints.clientToolRegistry`.
  */
-export const CLIENT_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> = {
+export const BASE_CLIENT_TOOL_REGISTRY: ClientToolRegistry = {
   [ASK_MULTIPLE_CHOICE_QUESTION_TOOL]: {
     parseCall: parseMultipleChoiceQuestion,
     renderBubble: (props) => {
@@ -143,5 +146,4 @@ export const CLIENT_TOOL_REGISTRY: Record<string, ClientToolRegistryEntry> = {
       return <EditUserAccountBubble {...props} call={props.call} />
     },
   },
-  ...COURSE_PLAN_TOOL_REGISTRY,
 }

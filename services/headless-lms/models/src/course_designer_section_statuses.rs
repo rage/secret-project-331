@@ -99,6 +99,9 @@ pub async fn upsert_for_user(
             None,
         ));
     }
+    let mut tx = conn.begin().await?;
+    crate::course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+        .await?;
     let row = sqlx::query_as!(
         CourseDesignerPlanSectionStatus,
         r#"
@@ -142,7 +145,7 @@ RETURNING
         status as CourseDesignerSectionStatus,
         comment
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *tx)
     .await?
     .ok_or_else(|| {
         ModelError::new(
@@ -151,5 +154,6 @@ RETURNING
             None,
         )
     })?;
+    tx.commit().await?;
     Ok(row)
 }

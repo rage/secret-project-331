@@ -53,7 +53,7 @@ pub async fn create_course_from_plan(
 ) -> ModelResult<Course> {
     let mut tx = conn.begin().await?;
     let plan =
-        crate::course_designer_plan_members::get_plan_for_stage_extend(&mut tx, plan_id, user_id)
+        crate::course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
             .await?;
     if plan.created_course_id.is_some() {
         return Err(ModelError::new(

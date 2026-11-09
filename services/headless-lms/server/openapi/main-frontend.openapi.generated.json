@@ -3529,7 +3529,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CourseDesignerStageWorkspace"
+                "$ref": "#/components/schemas/UpdateCourseDesignerStageWorkspaceRequest"
               }
             }
           },
@@ -21732,7 +21732,8 @@
           "stage",
           "status",
           "planned_starts_on",
-          "planned_ends_on"
+          "planned_ends_on",
+          "workspace_revision"
         ],
         "properties": {
           "actual_completed_at": {
@@ -21769,7 +21770,12 @@
             "type": "string",
             "format": "date-time"
           },
-          "workspace_data": {}
+          "workspace_data": {},
+          "workspace_revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Bumped on every save of `workspace_data`; saves must name the revision they were based on."
+          }
         }
       },
       "CourseDesignerPlanStageStatus": {
@@ -34049,6 +34055,20 @@
           },
           "title": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "UpdateCourseDesignerStageWorkspaceRequest": {
+        "type": "object",
+        "required": ["workspace", "base_revision"],
+        "properties": {
+          "base_revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The stage's `workspace_revision` the edit started from. A save based on an older revision\nis refused with `stale_version`."
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/CourseDesignerStageWorkspace"
           }
         }
       },

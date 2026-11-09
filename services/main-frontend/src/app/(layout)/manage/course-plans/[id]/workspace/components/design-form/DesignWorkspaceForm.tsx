@@ -47,16 +47,29 @@ export default function DesignWorkspaceForm(props: {
   planName: string | null | undefined
   createdCourseId: string | null | undefined
   workspaceData: unknown
+  workspaceRevision: number
+  isReadOnly: boolean
   /** The saved Analysis form, for course title, language and credits. */
   analysis: AnalysisWorkspaceV1
   onDirtyChange?: (dirty: boolean) => void
 }) {
-  const { planId, planName, createdCourseId, workspaceData, analysis, onDirtyChange } = props
+  const {
+    planId,
+    planName,
+    createdCourseId,
+    workspaceData,
+    workspaceRevision,
+    isReadOnly,
+    analysis,
+    onDirtyChange,
+  } = props
   const { t } = useTranslation()
-  const { form, saveStatus, saveNow } = useStageWorkspaceForm({
+  const { form, saveStatus, saveNow, loadLatest } = useStageWorkspaceForm({
     planId,
     stage: STAGE_DESIGN,
     workspaceData,
+    workspaceRevision,
+    isReadOnly,
     toFormValues: toDesignFormValues,
     toWorkspace: toDesignWorkspace,
     ...(onDirtyChange ? { onDirtyChange } : {}),
@@ -76,6 +89,7 @@ export default function DesignWorkspaceForm(props: {
       accentClassName: sectionAccentByIndex[index % sectionAccentByIndex.length] ?? "",
       expanded: sectionNav.isExpanded(section.domId),
       onToggle: () => sectionNav.toggleSection(section.domId),
+      isReadOnly,
     }
   }
 
@@ -99,6 +113,8 @@ export default function DesignWorkspaceForm(props: {
         scrollToSection={sectionNav.scrollToSection}
         saveStatus={saveStatus}
         onSaveNow={() => void saveNow()}
+        onLoadLatest={loadLatest}
+        isReadOnly={isReadOnly}
       />
 
       <WorkspaceFormSection {...sectionProps(0)}>

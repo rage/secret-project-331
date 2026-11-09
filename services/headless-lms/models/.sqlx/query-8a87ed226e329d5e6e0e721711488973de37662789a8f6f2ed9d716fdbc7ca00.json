@@ -1,16 +1,27 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_designer_plan_stages s\nSET workspace_data = $3\nFROM course_designer_plan_members m\nWHERE s.course_designer_plan_id = $1\n  AND s.stage = $2\n  AND s.deleted_at IS NULL\n  AND m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $4\n  AND m.deleted_at IS NULL\nRETURNING s.id\n",
+  "query": "\nSELECT workspace_data,\n  workspace_revision\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND stage = $2\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id",
-        "type_info": "Uuid",
+        "name": "workspace_data",
+        "type_info": "Jsonb",
         "origin": {
           "Table": {
             "table": "course_designer_plan_stages",
-            "name": "id"
+            "name": "workspace_data"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "workspace_revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_revision"
           }
         }
       }
@@ -31,14 +42,13 @@
               ]
             }
           }
-        },
-        "Jsonb",
-        "Uuid"
+        }
       ]
     },
     "nullable": [
+      true,
       false
     ]
   },
-  "hash": "26178cc3484f37a70436ec618697f827231e41fc350755e5812ee673c0b8a612"
+  "hash": "8a87ed226e329d5e6e0e721711488973de37662789a8f6f2ed9d716fdbc7ca00"
 }

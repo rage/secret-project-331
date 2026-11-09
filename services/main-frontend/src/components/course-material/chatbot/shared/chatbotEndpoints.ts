@@ -8,6 +8,8 @@ import type {
   ClientToolName,
 } from "@/generated/course-material-api/types.generated"
 
+import type { ClientToolRegistry } from "./clientToolRegistry"
+
 /** One turn's request, before a backend maps it onto its own endpoint and body. */
 export type ChatbotTurnRequest =
   | { kind: "message"; message: string; pageContext: ChatbotPageContext | undefined }
@@ -46,6 +48,8 @@ export interface ChatbotEndpoints {
   useUpdateConversationTitleMutation: (
     conversationId: string | null | undefined,
   ) => UseMutationResult<unknown, unknown, string | null | undefined, unknown> | null
+  /** Client tools this backend renders; defaults to `BASE_CLIENT_TOOL_REGISTRY`. */
+  clientToolRegistry?: ClientToolRegistry
   /** Sends one turn and resolves to its NDJSON response stream. */
   postTurn: (
     request: ChatbotTurnRequest,

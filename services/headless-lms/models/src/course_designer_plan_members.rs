@@ -138,7 +138,8 @@ SELECT
   stages.planned_ends_on,
   stages.actual_started_at,
   stages.actual_completed_at,
-  stages.workspace_data
+  stages.workspace_data,
+  stages.workspace_revision
 FROM course_designer_plan_stages stages
 JOIN course_designer_plan_members self_member
   ON self_member.course_designer_plan_id = stages.course_designer_plan_id
@@ -221,6 +222,7 @@ pub async fn create_stage_task_for_user(
         ));
     }
     let mut tx = conn.begin().await?;
+    lock_editable_plan_for_user(&mut tx, plan_id, user_id).await?;
     let stage_ok = sqlx::query_scalar!(
         r#"
 SELECT s.id AS "id?"
@@ -307,6 +309,7 @@ pub async fn update_stage_task_for_user(
     is_completed: Option<bool>,
 ) -> ModelResult<CourseDesignerPlanStageTask> {
     let mut tx = conn.begin().await?;
+    lock_editable_plan_for_user(&mut tx, plan_id, user_id).await?;
     let row = sqlx::query!(
         r#"
 SELECT
@@ -454,6 +457,8 @@ pub async fn set_task_assignee_for_user(
     user_id: Uuid,
     assignee_user_id: Option<Uuid>,
 ) -> ModelResult<CourseDesignerPlanStageTask> {
+    let mut tx = conn.begin().await?;
+    lock_editable_plan_for_user(&mut tx, plan_id, user_id).await?;
     if let Some(assignee_user_id) = assignee_user_id {
         let is_member = sqlx::query_scalar!(
             r#"
@@ -468,7 +473,7 @@ SELECT EXISTS (
             plan_id,
             assignee_user_id
         )
-        .fetch_one(&mut *conn)
+        .fetch_one(&mut *tx)
         .await?;
         if !is_member {
             return Err(ModelError::new(
@@ -509,7 +514,7 @@ RETURNING
         task_id,
         assignee_user_id
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *tx)
     .await?
     .ok_or_else(|| {
         ModelError::new(
@@ -518,6 +523,7 @@ RETURNING
             None,
         )
     })?;
+    tx.commit().await?;
     Ok(task)
 }
 
@@ -528,6 +534,8 @@ pub async fn delete_stage_task_for_user(
     task_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    lock_editable_plan_for_user(&mut tx, plan_id, user_id).await?;
     let updated = sqlx::query!(
         r#"
 UPDATE course_designer_plan_stage_tasks t
@@ -543,7 +551,7 @@ WHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1
         task_id,
         Utc::now()
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
     if updated.rows_affected() == 0 {
         return Err(ModelError::new(
@@ -552,6 +560,7 @@ WHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1
             None,
         ));
     }
+    tx.commit().await?;
     Ok(())
 }
 
@@ -606,6 +615,25 @@ pub async fn get_plan_for_schedule_finalize(
     user_id: Uuid,
 ) -> ModelResult<CourseDesignerPlan> {
     get_plan_for_stage_extend(tx, plan_id, user_id).await
+}
+
+/// Locks a plan the user is a member of before changing its content, refusing archived plans.
+///
+/// The lock is held until `tx` ends, so a concurrent archive or member removal waits for it.
+pub async fn lock_editable_plan_for_user(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<CourseDesignerPlan> {
+    let plan = get_plan_for_stage_extend(tx, plan_id, user_id).await?;
+    if plan.status == CourseDesignerPlanStatus::Archived {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "The plan is archived. Restore it before making changes.".to_string(),
+            None,
+        ));
+    }
+    Ok(plan)
 }
 
 /// Returns all members with user details.
@@ -979,7 +1007,8 @@ SELECT id, created_at, updated_at,
   planned_ends_on,
   actual_started_at,
   actual_completed_at,
-  workspace_data
+  workspace_data,
+  workspace_revision
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1 AND deleted_at IS NULL
 ORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END
@@ -1183,8 +1212,8 @@ WHERE id = $1 AND deleted_at IS NULL
 
 /// Completes the active stage and starts the next one, or completes the plan after the last stage.
 ///
-/// Completing a stage before its planned end moves its end to yesterday (or its start) and pulls
-/// later stages forward by the same amount.
+/// Completing a stage before its planned end moves its end to yesterday in Finnish time (or to its
+/// start) and pulls later stages forward by the same amount.
 pub async fn advance_to_next_stage_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -1223,8 +1252,13 @@ pub async fn advance_to_next_stage_for_user(
                 None,
             )
         })?;
-    // Finishing early pulls the rest of the schedule forward so the next stage starts today.
-    let today = now.date_naive();
+    // Finishing early pulls the rest of the schedule forward so the next stage starts today, or
+    // tomorrow when this stage started today, since a stage lasts at least a day. Plan dates are
+    // Finnish calendar days.
+    let today =
+        sqlx::query_scalar!(r#"SELECT (NOW() AT TIME ZONE 'Europe/Helsinki')::DATE AS "today!""#)
+            .fetch_one(&mut *tx)
+            .await?;
     if today <= current_row.planned_ends_on {
         let new_ends_on = (today - Duration::days(1)).max(current_row.planned_starts_on);
         if new_ends_on < current_row.planned_ends_on {
@@ -1410,7 +1444,8 @@ SELECT
   planned_ends_on,
   actual_started_at,
   actual_completed_at,
-  workspace_data
+  workspace_data,
+  workspace_revision
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1
   AND deleted_at IS NULL

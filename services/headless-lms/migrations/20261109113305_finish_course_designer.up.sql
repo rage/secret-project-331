@@ -10,6 +10,11 @@ ADD COLUMN receives_weekly_digest BOOLEAN NOT NULL DEFAULT TRUE;
 
 COMMENT ON COLUMN course_designer_plan_members.receives_weekly_digest IS 'Whether this member gets the weekly progress email for this plan. Each member opts out for themselves.';
 
+ALTER TABLE course_designer_plan_stages
+ADD COLUMN workspace_revision INTEGER NOT NULL DEFAULT 0;
+
+COMMENT ON COLUMN course_designer_plan_stages.workspace_revision IS 'Incremented on every save of workspace_data. A save names the revision it was based on and is refused when another save happened in between, so members do not overwrite each other.';
+
 ALTER TABLE course_designer_plan_stage_tasks
 ADD COLUMN assignee_user_id UUID REFERENCES users(id);
 

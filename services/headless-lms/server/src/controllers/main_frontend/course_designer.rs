@@ -89,6 +89,14 @@ pub struct UpdateCourseDesignerStageTaskRequest {
     pub is_completed: Option<bool>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, ToSchema)]
+pub struct UpdateCourseDesignerStageWorkspaceRequest {
+    pub workspace: CourseDesignerStageWorkspace,
+    /// The stage's `workspace_revision` the edit started from. A save based on an older revision
+    /// is refused with `stale_version`.
+    pub base_revision: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct SetCourseDesignerTaskAssigneeRequest {
     /// A current plan member, or `null` to unassign.
@@ -484,12 +492,12 @@ async fn post_advance_stage(
         ("plan_id" = Uuid, Path, description = "Plan id"),
         ("stage" = String, Path, description = "Stage name")
     ),
-    request_body = CourseDesignerStageWorkspace,
+    request_body = UpdateCourseDesignerStageWorkspaceRequest,
     responses((status = 200, description = "Updated plan details", body = CourseDesignerPlanDetails))
 )]
 async fn patch_stage_workspace(
     path: web::Path<(Uuid, String)>,
-    payload: web::Json<CourseDesignerStageWorkspace>,
+    payload: web::Json<UpdateCourseDesignerStageWorkspaceRequest>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
@@ -501,13 +509,18 @@ async fn patch_stage_workspace(
             None,
         )
     })?;
+    let UpdateCourseDesignerStageWorkspaceRequest {
+        workspace,
+        base_revision,
+    } = payload.into_inner();
     let mut conn = pool.acquire().await?;
     let details = models::course_designer_plans::update_stage_workspace_for_user(
         &mut conn,
         plan_id,
         user.id,
         stage,
-        payload.into_inner(),
+        workspace,
+        base_revision,
     )
     .await?;
     let token = skip_authorize();

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id, created_at, updated_at,\n  stage,\n  status,\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at,\n  workspace_data\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1 AND deleted_at IS NULL\nORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END\n",
+  "query": "\nSELECT id, created_at, updated_at,\n  stage,\n  status,\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at,\n  workspace_data,\n  workspace_revision\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1 AND deleted_at IS NULL\nORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END\n",
   "describe": {
     "columns": [
       {
@@ -136,6 +136,17 @@
             "name": "workspace_data"
           }
         }
+      },
+      {
+        "ordinal": 10,
+        "name": "workspace_revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_revision"
+          }
+        }
       }
     ],
     "parameters": {
@@ -153,8 +164,9 @@
       false,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "4ca78147f4c443b9f1f07e185ed620c609d87eb2f3208b39b3c48e4b415c1628"
+  "hash": "a451cc96004de20d0b24556cdb3bdda20466377dea15b33baba6a37983b1f587"
 }

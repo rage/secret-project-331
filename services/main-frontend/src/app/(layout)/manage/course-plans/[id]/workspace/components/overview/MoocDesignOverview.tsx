@@ -125,8 +125,9 @@ const MOOC_LETTERS = [
 export default function MoocDesignOverview(props: {
   planId: string
   greatMoocVision: string | null | undefined
+  isReadOnly: boolean
 }) {
-  const { planId, greatMoocVision } = props
+  const { planId, greatMoocVision, isReadOnly } = props
   const { t } = useTranslation()
   const showUhInfo = process.env.NEXT_PUBLIC_SHOW_UH_ANALYSIS_RESOURCES !== "false"
 
@@ -167,7 +168,11 @@ export default function MoocDesignOverview(props: {
           {t("course-plans-mooc-design-great-heading")}
         </h3>
         <GuidanceText text={t("course-plans-mooc-design-great")} />
-        <GreatMoocVisionField planId={planId} greatMoocVision={greatMoocVision} />
+        <GreatMoocVisionField
+          planId={planId}
+          greatMoocVision={greatMoocVision}
+          isReadOnly={isReadOnly}
+        />
       </section>
 
       <section className={cardStyles} aria-labelledby="mooc-design-structure">

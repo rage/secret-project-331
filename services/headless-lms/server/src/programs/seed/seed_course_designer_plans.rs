@@ -81,6 +81,7 @@ pub async fn seed_course_designer_plans(
             wishes_content_format_video: true,
             ..Default::default()
         }),
+        0,
     )
     .await?;
     let details = course_designer_plans::update_stage_workspace_for_user(
@@ -152,6 +153,7 @@ pub async fn seed_course_designer_plans(
             ],
             ..Default::default()
         }),
+        0,
     )
     .await?;
 

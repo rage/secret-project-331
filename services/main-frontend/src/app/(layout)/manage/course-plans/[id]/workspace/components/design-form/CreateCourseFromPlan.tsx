@@ -102,8 +102,14 @@ function CreateCourseDialog(props: {
     },
   })
 
+  const [hasPendingSaveFailed, setHasPendingSaveFailed] = useState(false)
+
   const onSubmit = async (values: CreateCourseFormValues) => {
-    await savePendingChanges()
+    const isSaved = await savePendingChanges()
+    setHasPendingSaveFailed(!isSaved)
+    if (!isSaved) {
+      return
+    }
     mutation.mutate({
       path: { plan_id: planId },
       body: {
@@ -170,6 +176,11 @@ function CreateCourseDialog(props: {
             label: t(`course-plans-analysis-lang-${option.key}`),
           }))}
         />
+        {hasPendingSaveFailed ? (
+          <Infobox tone={TONE.DANGER} announce>
+            {t("course-plans-design-create-course-save-failed")}
+          </Infobox>
+        ) : null}
         {mutation.isError ? <ErrorNotice error={mutation.error} /> : null}
       </div>
     </Dialog>

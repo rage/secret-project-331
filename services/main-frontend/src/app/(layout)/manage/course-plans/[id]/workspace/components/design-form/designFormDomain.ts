@@ -7,6 +7,7 @@ import {
   PencilPaper,
   TargetArrowBullseye,
 } from "@vectopus/atlas-icons-react"
+import type { TFunction } from "i18next"
 import { v4 } from "uuid"
 
 import type {
@@ -26,6 +27,19 @@ export const DEFAULT_LEARNING_GOAL_COUNT = 3
 /** Student workload per credit in Finnish higher education. */
 export const HOURS_PER_CREDIT = 27
 export const MAX_WORKLOAD_AMOUNT = 10_000
+
+/** Limits the backend checks when saving; one value over a limit fails the whole save. */
+export const DESIGN_FORM_LIMITS = {
+  shortTextChars: 500,
+  longTextChars: 20_000,
+  listItems: 100,
+  workloadActivities: 200,
+} as const
+
+/** Field rules refusing text longer than `max` characters. */
+export function maxLengthRules(t: TFunction, max: number) {
+  return { maxLength: { value: max, message: t("course-plans-field-too-long", { max }) } }
+}
 
 /** One entry of a string list; react-hook-form field arrays need objects. */
 export interface TextListItem {

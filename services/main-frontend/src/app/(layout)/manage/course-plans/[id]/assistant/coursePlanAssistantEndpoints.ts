@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import type { ChatbotEndpoints } from "@/components/course-material/chatbot/shared/chatbotEndpoints"
+import { BASE_CLIENT_TOOL_REGISTRY } from "@/components/course-material/chatbot/shared/clientToolRegistry"
 import {
   getCourseDesignerAssistantConversationInfoQueryKey,
   getCurrentCourseDesignerAssistantConversationOptions,
@@ -23,6 +24,8 @@ import {
 } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
+import { COURSE_PLAN_TOOL_REGISTRY } from "./coursePlanToolRegistry"
+
 const SEND_MESSAGE_PATH: SendCourseDesignerAssistantMessageData["url"] =
   "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message"
 
@@ -37,6 +40,7 @@ const NO_CONVERSATION_QUERY_KEY = "courseDesignerAssistantNoConversation"
  * the other.
  */
 const coursePlanAssistantEndpoints = (planId: string): ChatbotEndpoints => ({
+  clientToolRegistry: { ...BASE_CLIENT_TOOL_REGISTRY, ...COURSE_PLAN_TOOL_REGISTRY },
   useCurrentConversationId: () =>
     useQuery({
       ...getCurrentCourseDesignerAssistantConversationOptions({ path: { plan_id: planId } }),

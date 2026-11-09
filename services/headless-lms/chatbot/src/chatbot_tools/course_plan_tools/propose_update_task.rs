@@ -249,9 +249,10 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
             }
         }
 
+        let mut tx = conn.begin().await?;
         if title.is_some() || description.is_some() || is_completed.is_some() {
             course_designer_plan_members::update_stage_task_for_user(
-                conn,
+                &mut tx,
                 plan_id,
                 arguments.task_id,
                 user_id,
@@ -263,7 +264,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
         }
         if let Some(assignee) = assignee {
             course_designer_plan_members::set_task_assignee_for_user(
-                conn,
+                &mut tx,
                 plan_id,
                 arguments.task_id,
                 user_id,
@@ -271,6 +272,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
             )
             .await?;
         }
+        tx.commit().await?;
 
         let fields = arguments
             .changes

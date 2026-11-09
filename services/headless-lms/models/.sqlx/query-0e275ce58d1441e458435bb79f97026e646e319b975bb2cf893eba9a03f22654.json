@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  stages.id,\n  stages.created_at,\n  stages.updated_at,\n  stages.stage,\n  stages.status,\n  stages.planned_starts_on,\n  stages.planned_ends_on,\n  stages.actual_started_at,\n  stages.actual_completed_at,\n  stages.workspace_data\nFROM course_designer_plan_stages stages\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = stages.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nWHERE stages.course_designer_plan_id = $1\n  AND stages.deleted_at IS NULL\nORDER BY\n  CASE stages.stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  stages.id\n",
+  "query": "\nSELECT\n  id,\n  created_at,\n  updated_at,\n  stage,\n  status,\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at,\n  workspace_data,\n  workspace_revision\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND deleted_at IS NULL\nORDER BY\n  CASE stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  id\n",
   "describe": {
     "columns": [
       {
@@ -136,11 +136,21 @@
             "name": "workspace_data"
           }
         }
+      },
+      {
+        "ordinal": 10,
+        "name": "workspace_revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_revision"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -154,8 +164,9 @@
       false,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "ae9e40e3ca560c3ca9d0be3e716010bf78205f00f7a0bf32c33cb8edc8ffa8d5"
+  "hash": "0e275ce58d1441e458435bb79f97026e646e319b975bb2cf893eba9a03f22654"
 }

@@ -48,14 +48,17 @@ export default function AnalysisWorkspaceForm(props: {
   onDirtyChange?: (dirty: boolean) => void
   planId: string
   workspaceData: unknown
+  workspaceRevision: number
+  isReadOnly: boolean
 }) {
-  const { onDirtyChange, planId, workspaceData } = props
+  const { onDirtyChange, planId, workspaceData, workspaceRevision, isReadOnly } = props
   const { t } = useTranslation()
   const {
     control,
     setValue,
     saveStatus,
     saveNow,
+    loadLatest,
     sectionNav,
     creditsFieldRules,
     uhLines,
@@ -63,6 +66,8 @@ export default function AnalysisWorkspaceForm(props: {
   } = useAnalysisWorkspaceFormController({
     planId,
     workspaceData,
+    workspaceRevision,
+    isReadOnly,
     ...omitUndefined({ onDirtyChange }),
   })
   const sectionLinks = ANALYSIS_SECTIONS.map((section) => ({
@@ -84,6 +89,7 @@ export default function AnalysisWorkspaceForm(props: {
       accentClassName: sectionAccentByIndex[index]!,
       expanded: sectionNav.isExpanded(section.domId),
       onToggle: () => sectionNav.toggleSection(section.domId),
+      isReadOnly,
     }
   }
 
@@ -103,6 +109,8 @@ export default function AnalysisWorkspaceForm(props: {
         scrollToSection={sectionNav.scrollToSection}
         saveStatus={saveStatus}
         onSaveNow={() => void saveNow()}
+        onLoadLatest={loadLatest}
+        isReadOnly={isReadOnly}
       />
 
       <WorkspaceFormSection {...sectionProps(0)}>

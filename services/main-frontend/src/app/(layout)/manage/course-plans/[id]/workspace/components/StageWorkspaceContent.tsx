@@ -19,13 +19,18 @@ export default function StageWorkspaceContent(props: {
   onDirtyChange: (dirty: boolean) => void
 }) {
   const { plan, stage, stages, onDirtyChange } = props
-  const workspaceData = stages.find((candidate) => candidate.stage === stage)?.workspace_data
+  const stageData = stages.find((candidate) => candidate.stage === stage)
+  const workspaceData = stageData?.workspace_data
+  const workspaceRevision = stageData?.workspace_revision ?? 0
+  const isReadOnly = plan.status === "Archived"
   switch (stage) {
     case "Analysis":
       return (
         <AnalysisWorkspaceForm
           planId={plan.id}
           workspaceData={workspaceData}
+          workspaceRevision={workspaceRevision}
+          isReadOnly={isReadOnly}
           onDirtyChange={onDirtyChange}
         />
       )
@@ -36,6 +41,8 @@ export default function StageWorkspaceContent(props: {
           planName={plan.name}
           createdCourseId={plan.created_course_id}
           workspaceData={workspaceData}
+          workspaceRevision={workspaceRevision}
+          isReadOnly={isReadOnly}
           analysis={parseAnalysisWorkspaceFromApi(
             stages.find((candidate) => candidate.stage === "Analysis")?.workspace_data,
           )}

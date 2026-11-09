@@ -20,12 +20,13 @@ import type {
   CourseDesignerStage,
   CourseDesignerStageWorkspace,
 } from "@/generated/api/types.generated"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { getErrorMessage } from "@/shared-module/components"
 
 import { useRegisterPendingSave } from "../../components/PendingSavesContext"
 import { AUTOSAVE_DEBOUNCE_MS } from "../components/analysis-form/analysisFormDomain"
 
-export type WorkspaceSaveState = "idle" | "unsaved" | "saving" | "saved" | "error"
+export type WorkspaceSaveState = "idle" | "unsaved" | "saving" | "saved" | "error" | "conflict"
 
 export interface WorkspaceSaveStatus {
   state: WorkspaceSaveState
@@ -40,6 +41,10 @@ interface UseStageWorkspaceFormOptions<TValues extends FieldValues> {
   stage: CourseDesignerStage
   /** The stage's stored `workspace_data`. */
   workspaceData: unknown
+  /** The stage's `workspace_revision`, read together with `workspaceData`. */
+  workspaceRevision: number
+  /** Archived plans: nothing is saved. */
+  isReadOnly: boolean
   /** Must be referentially stable (a module-level function). */
   toFormValues: (workspaceData: unknown) => TValues
   /** Must be referentially stable (a module-level function). */
@@ -61,16 +66,24 @@ function collectErrorPaths(errors: FieldErrors, prefix = ""): string[] {
   })
 }
 
+function isStaleVersionError(error: unknown): boolean {
+  return isAppApiError(error) && error.messageKey === "stale_version"
+}
+
 /**
  * Form state with debounced autosave for one stage's workspace form.
  *
  * Invalid fields never block saving the rest: they are saved with their last saved value and
  * keep their error until fixed. Server data replaces the form only while it has no unsaved edits.
+ * When another member saved the form first, saving stops in the `conflict` state and the user's
+ * edits stay in the form until they call `loadLatest`.
  */
 export default function useStageWorkspaceForm<TValues extends FieldValues>({
   planId,
   stage,
   workspaceData,
+  workspaceRevision,
+  isReadOnly,
   toFormValues,
   toWorkspace,
   onDirtyChange,
@@ -80,6 +93,8 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
   isDirty: boolean
   /** Saves pending edits now; resolves to whether everything was saved. */
   saveNow: () => Promise<boolean>
+  /** Replaces the form, unsaved edits included, with the latest saved version. */
+  loadLatest: () => void
 } {
   const queryClient = useQueryClient()
   const form = useForm<TValues>({
@@ -88,7 +103,10 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
   const { getValues, reset, trigger, watch } = form
 
   const lastSavedRef = useRef<TValues>(getValues())
+  const baseRevisionRef = useRef(workspaceRevision)
+  const serverStateRef = useRef({ workspaceData, workspaceRevision })
   const isDirtyRef = useRef(false)
+  const hasConflictRef = useRef(false)
   const saveChainRef = useRef<Promise<boolean>>(Promise.resolve(true))
   const [isDirty, setIsDirty] = useState(false)
   const [saveStatus, setSaveStatus] = useState<WorkspaceSaveStatus>({
@@ -101,7 +119,10 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
     isDirtyRef.current = dirty
     setIsDirty(dirty)
     setSaveStatus((previous) =>
-      dirty && previous.state !== "saving" && previous.state !== "error"
+      dirty &&
+      previous.state !== "saving" &&
+      previous.state !== "error" &&
+      previous.state !== "conflict"
         ? { ...previous, state: "unsaved" }
         : previous,
     )
@@ -112,18 +133,23 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
   }, [isDirty, onDirtyChange])
 
   useEffect(() => {
+    serverStateRef.current = { workspaceData, workspaceRevision }
     if (isDirtyRef.current) {
       return
     }
     const serverValues = toFormValues(workspaceData)
     lastSavedRef.current = serverValues
+    baseRevisionRef.current = workspaceRevision
     reset(serverValues)
-  }, [workspaceData, toFormValues, reset])
+  }, [workspaceData, workspaceRevision, toFormValues, reset])
 
   const { mutateAsync } = useMutation(updateCourseDesignerStageWorkspaceMutation())
 
   const saveOnce = useCallback(async (): Promise<boolean> => {
-    if (!isDirtyRef.current) {
+    if (hasConflictRef.current) {
+      return false
+    }
+    if (!isDirtyRef.current || isReadOnly) {
       return true
     }
     const isValid = await trigger()
@@ -135,11 +161,25 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
     }
     setSaveStatus((previous) => ({ ...previous, state: "saving" }))
     try {
-      await mutateAsync({
-        body: toWorkspace(submitted),
+      const details = await mutateAsync({
+        body: { workspace: toWorkspace(submitted), base_revision: baseRevisionRef.current },
         path: { plan_id: planId, stage: stage.toLowerCase() },
       })
+      const savedRevision = details.stages.find(
+        (candidate) => candidate.stage === stage,
+      )?.workspace_revision
+      if (savedRevision !== undefined) {
+        baseRevisionRef.current = savedRevision
+      }
     } catch (error) {
+      if (isStaleVersionError(error)) {
+        hasConflictRef.current = true
+        setSaveStatus({ state: "conflict", errorMessage: null, hasSkippedInvalidFields: false })
+        await queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
+        return false
+      }
       setSaveStatus({
         state: "error",
         errorMessage: getErrorMessage(error),
@@ -160,7 +200,29 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
       queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
     })
     return isValid
-  }, [form.formState, getValues, mutateAsync, planId, queryClient, stage, toWorkspace, trigger])
+  }, [
+    form.formState,
+    getValues,
+    isReadOnly,
+    mutateAsync,
+    planId,
+    queryClient,
+    stage,
+    toWorkspace,
+    trigger,
+  ])
+
+  const loadLatest = useCallback(() => {
+    const latest = serverStateRef.current
+    const serverValues = toFormValues(latest.workspaceData)
+    hasConflictRef.current = false
+    lastSavedRef.current = serverValues
+    baseRevisionRef.current = latest.workspaceRevision
+    isDirtyRef.current = false
+    reset(serverValues)
+    setIsDirty(false)
+    setSaveStatus({ state: "idle", errorMessage: null, hasSkippedInvalidFields: false })
+  }, [reset, toFormValues])
 
   // Saves run one at a time so an older payload can never overwrite a newer one.
   const saveNow = useCallback((): Promise<boolean> => {
@@ -192,5 +254,5 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
     return () => window.removeEventListener("beforeunload", onBeforeUnload)
   }, [])
 
-  return { form, saveStatus, isDirty, saveNow }
+  return { form, saveStatus, isDirty, saveNow, loadLatest }
 }

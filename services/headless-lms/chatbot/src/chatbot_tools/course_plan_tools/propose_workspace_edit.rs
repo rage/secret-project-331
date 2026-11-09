@@ -6,7 +6,7 @@ use serde_json::{Map, Value};
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plans::{self, CourseDesignerStage};
 use headless_lms_models::course_designer_stage_workspace::{
-    AnalysisWorkspaceV1, CourseDesignerStageWorkspace, DesignWorkspaceV1, parse_workspace_data,
+    AnalysisWorkspaceV1, CourseDesignerStageWorkspace, DesignWorkspaceV1,
 };
 use headless_lms_utils::json_schema_types::{
     ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
@@ -201,14 +201,14 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let details =
-            course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await?;
-        let stored = details
-            .stages
-            .into_iter()
-            .find(|s| s.stage.stage == arguments.stage)
-            .and_then(|s| s.stage.workspace_data);
-        let workspace = parse_workspace_data(stored)?;
+        let mut tx = conn.begin().await?;
+        let (workspace, revision) = course_designer_plans::lock_stage_workspace_for_user(
+            &mut tx,
+            plan_id,
+            user_id,
+            arguments.stage,
+        )
+        .await?;
 
         let mut payload = match (arguments.stage, workspace) {
             (_, Some(CourseDesignerStageWorkspace::AnalysisV1(analysis))) => to_value(&analysis)?,
@@ -265,13 +265,15 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
         }
 
         let updated = course_designer_plans::update_stage_workspace_for_user(
-            conn,
+            &mut tx,
             plan_id,
             user_id,
             arguments.stage,
             workspace,
+            revision,
         )
         .await?;
+        tx.commit().await?;
 
         let fields = arguments
             .changes

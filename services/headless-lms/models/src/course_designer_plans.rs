@@ -101,6 +101,8 @@ pub struct CourseDesignerPlanStage {
     pub actual_started_at: Option<DateTime<Utc>>,
     pub actual_completed_at: Option<DateTime<Utc>>,
     pub workspace_data: Option<serde_json::Value>,
+    /// Bumped on every save of `workspace_data`; saves must name the revision they were based on.
+    pub workspace_revision: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
@@ -385,13 +387,55 @@ pub async fn get_plan_details_for_user(
     })
 }
 
+/// Locks the plan for editing and returns a stage's saved workspace with its `workspace_revision`,
+/// for read-modify-write edits that save with [`update_stage_workspace_for_user`] in the same
+/// transaction.
+pub async fn lock_stage_workspace_for_user(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+    user_id: Uuid,
+    stage: CourseDesignerStage,
+) -> ModelResult<(Option<CourseDesignerStageWorkspace>, i32)> {
+    course_designer_plan_members::lock_editable_plan_for_user(tx, plan_id, user_id).await?;
+    let row = sqlx::query!(
+        r#"
+SELECT workspace_data,
+  workspace_revision
+FROM course_designer_plan_stages
+WHERE course_designer_plan_id = $1
+  AND stage = $2
+  AND deleted_at IS NULL
+"#,
+        plan_id,
+        stage as CourseDesignerStage
+    )
+    .fetch_optional(&mut **tx)
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "The plan has no schedule yet.".to_string(),
+            None,
+        )
+    })?;
+    Ok((
+        course_designer_stage_workspace::parse_workspace_data(row.workspace_data)?,
+        row.workspace_revision,
+    ))
+}
+
 /// Saves a stage's workspace form. The workspace schema must belong to `stage`.
+///
+/// `base_revision` is the `workspace_revision` the edit started from. When another save has
+/// happened since, refuses with [`ModelErrorType::StaleVersion`] so members never overwrite each
+/// other's work unseen.
 pub async fn update_stage_workspace_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
     user_id: Uuid,
     stage: CourseDesignerStage,
     workspace: CourseDesignerStageWorkspace,
+    base_revision: i32,
 ) -> ModelResult<CourseDesignerPlanDetails> {
     if workspace.stage() != stage {
         return Err(ModelError::new(
@@ -402,33 +446,29 @@ pub async fn update_stage_workspace_for_user(
     }
     let workspace_json = course_designer_stage_workspace::workspace_to_json(&workspace)?;
     let mut tx = conn.begin().await?;
-    let updated: Option<Uuid> = sqlx::query_scalar!(
+    let (_, current_revision) =
+        lock_stage_workspace_for_user(&mut tx, plan_id, user_id, stage).await?;
+    if current_revision != base_revision {
+        return Err(model_err!(
+            StaleVersion,
+            "Someone else saved this form after you opened it.".to_string()
+        ));
+    }
+    sqlx::query!(
         r#"
-UPDATE course_designer_plan_stages s
-SET workspace_data = $3
-FROM course_designer_plan_members m
-WHERE s.course_designer_plan_id = $1
-  AND s.stage = $2
-  AND s.deleted_at IS NULL
-  AND m.course_designer_plan_id = s.course_designer_plan_id
-  AND m.user_id = $4
-  AND m.deleted_at IS NULL
-RETURNING s.id
+UPDATE course_designer_plan_stages
+SET workspace_data = $3,
+  workspace_revision = workspace_revision + 1
+WHERE course_designer_plan_id = $1
+  AND stage = $2
+  AND deleted_at IS NULL
 "#,
         plan_id,
         stage as CourseDesignerStage,
-        workspace_json,
-        user_id
+        workspace_json
     )
-    .fetch_optional(&mut *tx)
+    .execute(&mut *tx)
     .await?;
-    if updated.is_none() {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Stage not found or user is not a plan member.".to_string(),
-            None,
-        ));
-    }
     // Autosave fires on every edit; one event per member and stage an hour keeps the timeline readable.
     sqlx::query!(
         r#"
@@ -478,6 +518,8 @@ pub async fn set_great_mooc_vision_for_user(
             None,
         ));
     }
+    let mut tx = conn.begin().await?;
+    course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id).await?;
     let plan = sqlx::query_as!(
         CourseDesignerPlan,
         r#"
@@ -506,7 +548,7 @@ RETURNING
         user_id,
         great_mooc_vision
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *tx)
     .await?
     .ok_or_else(|| {
         ModelError::new(
@@ -515,6 +557,7 @@ RETURNING
             None,
         )
     })?;
+    tx.commit().await?;
     Ok(plan)
 }
 

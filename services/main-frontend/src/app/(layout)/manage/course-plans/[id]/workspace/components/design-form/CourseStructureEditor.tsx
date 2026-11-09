@@ -1,14 +1,21 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { ArrowDown, Plus, Trash, UpArrow } from "@vectopus/atlas-icons-react"
+import { ArrowDown, Trash, UpArrow } from "@vectopus/atlas-icons-react"
 import { type Control, useFieldArray } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
 
-import { type DesignFormValues, newChapter, newTopic } from "./designFormDomain"
+import AddListItemButton from "./AddListItemButton"
+import {
+  DESIGN_FORM_LIMITS,
+  type DesignFormValues,
+  maxLengthRules,
+  newChapter,
+  newTopic,
+} from "./designFormDomain"
 import { designListStyles, ICON_SIZE_BUTTON } from "./designFormStyles"
 import TextListEditor from "./TextListEditor"
 
@@ -150,6 +157,7 @@ function ChapterTopics(props: {
             <TextField
               name={`chapters.${chapterIndex}.topics.${index}.title`}
               control={control}
+              rules={maxLengthRules(t, DESIGN_FORM_LIMITS.shortTextChars)}
               label={t("course-plans-design-topic-label", { number: index + 1 })}
             />
             <RowActions
@@ -179,17 +187,12 @@ function ChapterTopics(props: {
           </span>
         </li>
       </ol>
-      <div>
-        <Button
-          type="button"
-          variant="tertiary"
-          size="small"
-          icon={<Plus size={ICON_SIZE_BUTTON} />}
-          onClick={() => append(newTopic())}
-        >
-          {t("course-plans-design-topic-add")}
-        </Button>
-      </div>
+      <AddListItemButton
+        label={t("course-plans-design-topic-add")}
+        itemCount={fields.length}
+        maxItems={DESIGN_FORM_LIMITS.listItems}
+        onAdd={() => append(newTopic())}
+      />
     </div>
   )
 }
@@ -230,6 +233,7 @@ export default function CourseStructureEditor(props: { control: Control<DesignFo
             <TextField
               name={`chapters.${index}.title`}
               control={control}
+              rules={maxLengthRules(t, DESIGN_FORM_LIMITS.shortTextChars)}
               label={t("course-plans-design-chapter-title")}
             />
             <p className={subheadingStyles}>{t("course-plans-design-chapter-objectives")}</p>
@@ -252,17 +256,13 @@ export default function CourseStructureEditor(props: { control: Control<DesignFo
           </section>
         )
       })}
-      <div>
-        <Button
-          type="button"
-          variant="secondary"
-          size="small"
-          icon={<Plus size={ICON_SIZE_BUTTON} />}
-          onClick={() => append(newChapter())}
-        >
-          {t("course-plans-design-chapter-add")}
-        </Button>
-      </div>
+      <AddListItemButton
+        label={t("course-plans-design-chapter-add")}
+        itemCount={fields.length}
+        maxItems={DESIGN_FORM_LIMITS.listItems}
+        onAdd={() => append(newChapter())}
+        variant="secondary"
+      />
     </div>
   )
 }

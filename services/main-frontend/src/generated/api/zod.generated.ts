@@ -1503,6 +1503,10 @@ export const zCourseDesignerPlanStage = z.object({
   status: zCourseDesignerPlanStageStatus,
   updated_at: z.iso.datetime(),
   workspace_data: z.unknown().optional(),
+  workspace_revision: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zCourseDesignerPlanStageWithTasks = zCourseDesignerPlanStage.and(
@@ -7453,6 +7457,14 @@ export const zUpdateCourseDesignerStageTaskRequest = z.object({
   title: z.string().nullish(),
 })
 
+export const zUpdateCourseDesignerStageWorkspaceRequest = z.object({
+  base_revision: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  workspace: zCourseDesignerStageWorkspace,
+})
+
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
  */
@@ -9205,7 +9217,7 @@ export const zExtendCourseDesignerStagePath = z.object({
  */
 export const zExtendCourseDesignerStageResponse = zCourseDesignerPlanDetails
 
-export const zUpdateCourseDesignerStageWorkspaceBody = zCourseDesignerStageWorkspace
+export const zUpdateCourseDesignerStageWorkspaceBody = zUpdateCourseDesignerStageWorkspaceRequest
 
 export const zUpdateCourseDesignerStageWorkspacePath = z.object({
   plan_id: z.uuid(),

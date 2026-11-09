@@ -43,7 +43,10 @@ export interface WorkspaceFormSectionLink {
   title: string
 }
 
-/** Sticky bar of a stage form: section links with their marks, save status and Save now. */
+/**
+ * Sticky bar of a stage form: section links with their marks, save status and Save now, or Load
+ * latest after another member saved first. Read-only forms show only the section links.
+ */
 export default function WorkspaceFormToolbar(props: {
   stage: CourseDesignerStage
   sections: readonly WorkspaceFormSectionLink[]
@@ -51,8 +54,19 @@ export default function WorkspaceFormToolbar(props: {
   scrollToSection: (domId: string) => (event: MouseEvent<HTMLAnchorElement>) => void
   saveStatus: WorkspaceSaveStatus
   onSaveNow: () => void
+  onLoadLatest: () => void
+  isReadOnly: boolean
 }) {
-  const { stage, sections, activeSectionId, scrollToSection, saveStatus, onSaveNow } = props
+  const {
+    stage,
+    sections,
+    activeSectionId,
+    scrollToSection,
+    saveStatus,
+    onSaveNow,
+    onLoadLatest,
+    isReadOnly,
+  } = props
   const { t } = useTranslation()
 
   let statusText: string | null = null
@@ -69,11 +83,14 @@ export default function WorkspaceFormToolbar(props: {
     case "error":
       statusText = t("course-plans-save-status-error", { message: saveStatus.errorMessage ?? "" })
       break
+    case "conflict":
+      statusText = t("course-plans-save-status-conflict")
+      break
     case "idle":
       statusText = t("course-plans-save-status-autosave")
       break
   }
-  const isError = saveStatus.state === "error"
+  const isError = saveStatus.state === "error" || saveStatus.state === "conflict"
 
   return (
     <div className={stickyToolbarStyles}>
@@ -94,26 +111,34 @@ export default function WorkspaceFormToolbar(props: {
             </a>
           ))}
         </nav>
-        <div className={saveAreaStyles}>
-          <p className={cx(statusTextStyles, isError && statusErrorStyles)} role="status">
-            {statusText}
-            {saveStatus.hasSkippedInvalidFields && saveStatus.state !== "saving"
-              ? ` ${t("course-plans-save-status-invalid-fields")}`
-              : null}
-          </p>
-          <Button
-            type="button"
-            variant="primary"
-            size="medium"
-            onClick={onSaveNow}
-            disabled={saveStatus.state === "saving"}
-            aria-label={t("course-plans-analysis-sticky-save-aria")}
-          >
-            {saveStatus.state === "saving"
-              ? t("course-plans-analysis-saving")
-              : t("course-plans-analysis-save-now")}
-          </Button>
-        </div>
+        {isReadOnly ? null : (
+          <div className={saveAreaStyles}>
+            <p className={cx(statusTextStyles, isError && statusErrorStyles)} role="status">
+              {statusText}
+              {saveStatus.hasSkippedInvalidFields && saveStatus.state !== "saving"
+                ? ` ${t("course-plans-save-status-invalid-fields")}`
+                : null}
+            </p>
+            {saveStatus.state === "conflict" ? (
+              <Button type="button" variant="primary" size="medium" onClick={onLoadLatest}>
+                {t("course-plans-save-status-load-latest")}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="primary"
+                size="medium"
+                onClick={onSaveNow}
+                disabled={saveStatus.state === "saving"}
+                aria-label={t("course-plans-analysis-sticky-save-aria")}
+              >
+                {saveStatus.state === "saving"
+                  ? t("course-plans-analysis-saving")
+                  : t("course-plans-analysis-save-now")}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

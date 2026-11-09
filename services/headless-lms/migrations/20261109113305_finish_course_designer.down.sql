@@ -69,6 +69,8 @@ DROP TYPE course_designer_section_status;
 
 ALTER TABLE course_designer_plan_stage_tasks DROP COLUMN assignee_user_id;
 
+ALTER TABLE course_designer_plan_stages DROP COLUMN workspace_revision;
+
 ALTER TABLE course_designer_plan_members DROP COLUMN receives_weekly_digest;
 
 ALTER TABLE course_designer_plans DROP COLUMN great_mooc_vision,

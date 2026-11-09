@@ -4,6 +4,8 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
+import { DialogProvider } from "@/shared-module/components"
+
 import RegisterCompletion, { type RegisterCompletionProps } from "../RegisterCompletion"
 
 jest.mock("@/generated/api/sdk.generated", () => ({
@@ -23,19 +25,24 @@ const renderPage = (overrides: Partial<RegisterCompletionProps> = {}) => {
   })
   return render(
     <QueryClientProvider client={queryClient}>
-      <RegisterCompletion
-        courseModuleId="module-1"
-        email="teacher@example.com"
-        courseName="Automatic Completions"
-        ectsCredits={5}
-        registrationFormUrl="/completion-registration/module-1/redirect"
-        certificateConfigurationId={null}
-        creditJustification={null}
-        {...overrides}
-      />
+      <DialogProvider>
+        <RegisterCompletion
+          courseModuleId="module-1"
+          email="teacher@example.com"
+          courseName="Automatic Completions"
+          ectsCredits={5}
+          registrationFormUrl="/completion-registration/module-1/redirect"
+          certificateConfigurationId={null}
+          creditJustification={null}
+          {...overrides}
+        />
+      </DialogProvider>
     </QueryClientProvider>,
   )
 }
+
+const renderWithCertificate = (overrides: Partial<RegisterCompletionProps> = {}) =>
+  renderPage({ certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID, ...overrides })
 
 /** Every question on the page answers yes/no or certificate/credits, so queries have to be scoped. */
 const question = (name: string) => within(screen.getByRole("radiogroup", { name }))
@@ -159,9 +166,6 @@ describe("RegisterCompletion", () => {
   })
 
   describe("with a certificate the student could take instead", () => {
-    const renderWithCertificate = (overrides: Partial<RegisterCompletionProps> = {}) =>
-      renderPage({ certificateConfigurationId: CERTIFICATE_CONFIGURATION_ID, ...overrides })
-
     it("holds back the Open University instructions until the detour has been answered", () => {
       renderWithCertificate()
 

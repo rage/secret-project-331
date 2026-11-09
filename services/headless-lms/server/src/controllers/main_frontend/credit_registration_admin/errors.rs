@@ -2,13 +2,11 @@
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::credit_registration_admin_actions::{
-    CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
-    NewCreditRegistrationAdminAction,
+    self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget,
+    CreditRegistrationNote, GLOBAL_ADMIN_ROLE, NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registration_enrolment_routes::CreditRegistrationEnrolmentRoute;
-use headless_lms_models::credit_registration_events::{
-    self, CreditRegistrationEventKind, ErrorCodeWindowCounts, NewCreditRegistrationEvent,
-};
+use headless_lms_models::credit_registration_events::{self, ErrorCodeWindowCounts};
 use headless_lms_models::credit_registrations::{
     self, AttentionDismissal, AttentionReason, AttentionRegistration, AttentionStanding,
     BlockingProblem, BlockingProblems, CreditRegistrationErrorCode, CreditRegistrationState,
@@ -21,7 +19,7 @@ use headless_lms_models::library::credit_registration::timeline::{
     Engagement, TimelinePhase, TimelineStep, WaitsOn,
 };
 use headless_lms_models::suotar_api_calls::SuotarEndpoint;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use utoipa::ToSchema;
 
 use crate::domain::credit_registration::health::stuck_thresholds;
@@ -30,11 +28,9 @@ use headless_lms_utils::secret_string::expose_option;
 
 use super::{
     AdminManualLinkingEmailSend, attention_rules, authorize_credit_registration_admin,
-    manual_linking_email_sends_by_registration, required_reason,
+    insert_admin_action_event, manual_linking_email_sends_by_registration, required_reason,
 };
 
-/// Rows listed per section of the Needs attention tab when the caller names no limit.
-const ATTENTION_SECTION_SIZE: u32 = 50;
 const RECENT_DISMISSAL_DAYS: i64 = 14;
 const RECENT_DISMISSAL_LIMIT: i64 = 200;
 const DEFAULT_ERROR_WINDOW_SECS: i64 = 24 * 60 * 60;
@@ -83,6 +79,30 @@ pub struct CreditRegistrationAttentionItem {
     pub hand_actions: HandActionAvailability,
     /// Linking emails sent by hand as a guess for this row's student, newest first.
     pub manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
+    /// Newest first.
+    pub notes: Vec<CreditRegistrationNote>,
+}
+
+impl CreditRegistrationAttentionItem {
+    /// Someone has done something about the row since it entered its phase, without taking it off
+    /// the queue. An older reaction was to a problem the row may no longer have.
+    fn is_reacted_to(&self) -> bool {
+        self.notes
+            .iter()
+            .any(|note| note.created_at >= self.phase_started_at)
+            || self
+                .manual_linking_email_sends
+                .iter()
+                .any(|send| send.sent_at >= self.phase_started_at)
+    }
+}
+
+/// How many listed rows someone has reacted to, over the problem groups, the phases and running
+/// late alike.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CreditRegistrationAttentionReactionCounts {
+    pub reacted_count: i64,
+    pub not_reacted_count: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -95,9 +115,7 @@ pub struct CreditRegistrationAttentionReasonCount {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationBlockingProblemRows {
     pub problem: BlockingProblem,
-    /// Every row the problem accounts for, however many `items` lists.
-    pub total_count: i64,
-    /// The oldest of them, at most `limit`.
+    /// Every row the problem accounts for, oldest first.
     pub items: Vec<CreditRegistrationAttentionItem>,
 }
 
@@ -105,9 +123,7 @@ pub struct CreditRegistrationBlockingProblemRows {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationAttentionPhaseRows {
     pub phase: TimelinePhase,
-    /// Every row of the phase matching `reason`, however many `items` lists.
-    pub total_count: i64,
-    /// The first of them in the requested order, at most `limit`.
+    /// Every row of the phase matching the filters, in the requested order.
     pub items: Vec<CreditRegistrationAttentionItem>,
 }
 
@@ -139,20 +155,25 @@ pub struct CreditRegistrationAttentionItems {
     /// The rows needing attention that match `reason`, one entry per timeline phase that has any,
     /// in timeline order.
     pub phases: Vec<CreditRegistrationAttentionPhaseRows>,
-    /// Over a timing threshold with no person-level cause, oldest first, at most `limit`. Not in
-    /// the count.
+    /// Over a timing threshold with no person-level cause, oldest first. Not in the count.
     pub running_late: Vec<CreditRegistrationAttentionItem>,
-    /// Every running late row, however many `running_late` lists.
-    pub running_late_count: i64,
     /// Rows a blocking problem accounts for, under that problem. Not in the count.
     pub explained_by_problem: Vec<CreditRegistrationBlockingProblemRows>,
     /// Dismissals of the last 14 days, newest first, whether or not the row has come back since.
     pub dismissed_recently: Vec<CreditRegistrationAttentionDismissal>,
+    /// Before `reacted` narrows the rows, so both stay usable as facets.
+    pub reaction_counts: CreditRegistrationAttentionReactionCounts,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminDismissAttentionPayload {
     pub reason: String,
+}
+
+/// The body of `POST /registrations/{credit_registration_id}/notes`.
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminAddCreditRegistrationNotePayload {
+    pub note: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -231,9 +252,9 @@ pub async fn get_credit_registration_thresholds(
 
 #[derive(Debug, Deserialize)]
 pub struct AttentionQuery {
-    limit: Option<u32>,
     reason: Option<Vec<AttentionReason>>,
     sort: Option<String>,
+    reacted: Option<bool>,
 }
 
 /**
@@ -252,9 +273,9 @@ number.
     operation_id = "getCreditRegistrationAttentionItems",
     tag = "credit-registration-admin",
     params(
-        ("limit" = Option<u32>, Query, description = "Rows listed per section; the counts cover every row"),
         ("reason" = Option<Vec<AttentionReason>>, Query, description = "Only rows carrying one of these reasons; repeat the parameter for several"),
-        ("sort" = Option<String>, Query, description = "time_in_phase, next_attempt or course")
+        ("sort" = Option<String>, Query, description = "time_in_phase, next_attempt or course"),
+        ("reacted" = Option<bool>, Query, description = "Only rows someone has, or has not, left a note on or sent a linking email for by hand since the row entered its phase; the counts cover every row")
     ),
     responses(
         (status = 200, description = "The Needs attention sections", body = CreditRegistrationAttentionItems)
@@ -269,9 +290,6 @@ pub async fn get_credit_registration_attention_items(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
-    let section_size =
-        usize::try_from(parse_pagination(None, query.limit, ATTENTION_SECTION_SIZE)?.limit())
-            .unwrap_or(usize::MAX);
     let reasons: &[AttentionReason] = query.reason.as_deref().unwrap_or_default();
     let rules = attention_rules(&mut conn, &app_conf).await?;
     let rows = credit_registrations::get_attention_items(&mut conn, &rules, None).await?;
@@ -282,6 +300,17 @@ pub async fn get_credit_registration_attention_items(
         .into_iter()
         .collect();
     let mut sends = manual_linking_email_sends_by_registration(&mut conn, &course_ids).await?;
+    let registration_ids: Vec<Uuid> = rows.iter().map(|row| row.id).collect();
+    let mut notes: HashMap<Uuid, Vec<CreditRegistrationNote>> = HashMap::new();
+    for note in
+        credit_registration_admin_actions::get_notes_by_registrations(&mut conn, &registration_ids)
+            .await?
+    {
+        notes
+            .entry(note.credit_registration_id)
+            .or_default()
+            .push(note);
+    }
     let dismissed_recently = credit_registrations::get_dismissals_since(
         &mut conn,
         Utc::now() - chrono::Duration::days(RECENT_DISMISSAL_DAYS),
@@ -295,10 +324,32 @@ pub async fn get_credit_registration_attention_items(
     let mut needing: Vec<CreditRegistrationAttentionItem> = Vec::new();
     let mut running_late = Vec::new();
     let mut explained_by_problem: Vec<CreditRegistrationBlockingProblemRows> = Vec::new();
+    let matches_reacted = |item: &CreditRegistrationAttentionItem| {
+        query
+            .reacted
+            .is_none_or(|reacted| reacted == item.is_reacted_to())
+    };
+    let mut reaction_counts = CreditRegistrationAttentionReactionCounts {
+        reacted_count: 0,
+        not_reacted_count: 0,
+    };
     for item in rows.into_iter().map(|row| {
         let row_sends = sends.remove(&row.id).unwrap_or_default();
-        to_attention_item(row, &rules.blocking, row_sends)
+        let row_notes = notes.remove(&row.id).unwrap_or_default();
+        to_attention_item(row, &rules.blocking, row_sends, row_notes)
     }) {
+        if item.standing != AttentionStanding::Dismissed {
+            if item.is_reacted_to() {
+                reaction_counts.reacted_count += 1;
+            } else {
+                reaction_counts.not_reacted_count += 1;
+            }
+        }
+        // The tab badge and the reason facets count the whole queue, so needing rows are narrowed
+        // only after counting.
+        if item.standing != AttentionStanding::NeedsAttention && !matches_reacted(&item) {
+            continue;
+        }
         match item.standing {
             AttentionStanding::NeedsAttention => needing.push(item),
             AttentionStanding::RunningLate => running_late.push(item),
@@ -313,7 +364,6 @@ pub async fn get_credit_registration_attention_items(
                     Some(group) => group.items.push(item),
                     None => explained_by_problem.push(CreditRegistrationBlockingProblemRows {
                         problem,
-                        total_count: 0,
                         items: vec![item],
                     }),
                 }
@@ -321,13 +371,6 @@ pub async fn get_credit_registration_attention_items(
             AttentionStanding::Dismissed => {}
         }
     }
-    for group in &mut explained_by_problem {
-        group.total_count = group.items.len() as i64;
-        group.items.truncate(section_size);
-    }
-    let running_late_count = running_late.len() as i64;
-    running_late.truncate(section_size);
-
     let mut reason_counts: BTreeMap<AttentionReason, i64> = BTreeMap::new();
     for reason in needing.iter().flat_map(|item| item.reasons.iter()) {
         *reason_counts.entry(*reason).or_insert(0) += 1;
@@ -341,7 +384,8 @@ pub async fn get_credit_registration_attention_items(
     let mut by_phase: BTreeMap<TimelinePhase, Vec<CreditRegistrationAttentionItem>> =
         BTreeMap::new();
     for item in needing.into_iter().filter(|item| {
-        reasons.is_empty() || item.reasons.iter().any(|reason| reasons.contains(reason))
+        (reasons.is_empty() || item.reasons.iter().any(|reason| reasons.contains(reason)))
+            && matches_reacted(item)
     }) {
         by_phase.entry(item.phase).or_default().push(item);
     }
@@ -353,13 +397,7 @@ pub async fn get_credit_registration_attention_items(
                 Some("course") => items.sort_by(|a, b| a.course_name.cmp(&b.course_name)),
                 _ => items.sort_by_key(|item| item.phase_started_at),
             }
-            let total_count = items.len() as i64;
-            items.truncate(section_size);
-            CreditRegistrationAttentionPhaseRows {
-                phase,
-                total_count,
-                items,
-            }
+            CreditRegistrationAttentionPhaseRows { phase, items }
         })
         .collect();
 
@@ -368,9 +406,9 @@ pub async fn get_credit_registration_attention_items(
         counts_by_reason,
         phases,
         running_late,
-        running_late_count,
         explained_by_problem,
         dismissed_recently,
+        reaction_counts,
     }))
 }
 
@@ -422,15 +460,7 @@ pub async fn admin_dismiss_credit_registration_attention(
 
     let mut tx = conn.begin().await?;
     credit_registrations::dismiss_attention(&mut tx, id, &reasons, user.id, reason).await?;
-    models::credit_registration_events::insert(
-        &mut tx,
-        &NewCreditRegistrationEvent {
-            actor_user_id: Some(user.id),
-            message: Some(reason.to_string()),
-            ..NewCreditRegistrationEvent::new(id, CreditRegistrationEventKind::AdminAction)
-        },
-    )
-    .await?;
+    insert_admin_action_event(&mut tx, id, user.id, reason).await?;
     models::credit_registration_admin_actions::record(
         &mut tx,
         &NewCreditRegistrationAdminAction {
@@ -452,6 +482,61 @@ pub async fn admin_dismiss_credit_registration_attention(
     token.authorized_ok(web::Json(AdminDismissAttentionResult {
         dismissed_reasons: reasons,
     }))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+- Leaves a note on a registration for whoever handles it next.
+
+Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/registrations/{credit_registration_id}/notes",
+    operation_id = "adminAddCreditRegistrationNote",
+    tag = "credit-registration-admin",
+    params(("credit_registration_id" = Uuid, Path, description = "Credit registration id")),
+    request_body = AdminAddCreditRegistrationNotePayload,
+    responses(
+        (status = 200, description = "The note was added"),
+        (status = 400, description = "The note is empty"),
+    )
+)]
+pub async fn admin_add_credit_registration_note(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    credit_registration_id: web::Path<Uuid>,
+    payload: web::Json<AdminAddCreditRegistrationNotePayload>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let note = required_reason(&payload.note)?;
+    let id = *credit_registration_id;
+    // Refuses an unknown id with a 404 rather than an orphan audit row.
+    credit_registrations::get_by_id(&mut conn, id).await?;
+
+    let mut tx = conn.begin().await?;
+    insert_admin_action_event(&mut tx, id, user.id, note).await?;
+    models::credit_registration_admin_actions::record(
+        &mut tx,
+        &NewCreditRegistrationAdminAction {
+            target_id: Some(id),
+            reason: Some(note.to_string()),
+            affected_row_count: Some(1),
+            ..NewCreditRegistrationAdminAction::new(
+                CreditRegistrationAdminAction::AddNote,
+                CreditRegistrationAdminActionTarget::CreditRegistration,
+                user.id,
+                GLOBAL_ADMIN_ROLE,
+            )
+        },
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(()))
 }
 
 /**
@@ -520,6 +605,7 @@ pub(super) fn to_attention_item(
     row: AttentionRegistration,
     problems: &BlockingProblems,
     manual_linking_email_sends: Vec<AdminManualLinkingEmailSend>,
+    notes: Vec<CreditRegistrationNote>,
 ) -> CreditRegistrationAttentionItem {
     let position = row.position();
     let standing = row.standing(problems);
@@ -565,6 +651,7 @@ pub(super) fn to_attention_item(
         is_enrolment_list_empty: row.is_enrolment_list_empty,
         needs_admin_attention: row.needs_admin_attention,
         manual_linking_email_sends,
+        notes,
     }
 }
 
@@ -620,5 +707,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/registrations/{credit_registration_id}/dismiss-attention",
         web::post().to(admin_dismiss_credit_registration_attention),
+    )
+    .route(
+        "/registrations/{credit_registration_id}/notes",
+        web::post().to(admin_add_credit_registration_note),
     );
 }

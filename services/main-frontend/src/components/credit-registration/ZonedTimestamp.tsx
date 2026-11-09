@@ -103,6 +103,8 @@ export const ZonedTimestamp: React.FC<{ at: string | null | undefined }> = ({ at
 /** The translations with a `<time/>` tag. */
 type TimestampSentenceKey =
   | "credit-registration-admin-journey-sisu-enrolment-time"
+  | "credit-registration-admin-link-usable-until"
+  | "credit-registration-admin-link-used-at"
   | "credit-registration-admin-status-enrolment-checks-stopped"
   | "credit-registration-admin-status-next-attempt"
   | "credit-registration-admin-status-next-enrolment-list-fetch"

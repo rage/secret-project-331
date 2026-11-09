@@ -11,17 +11,20 @@ function post(body: object): Request {
   })
 }
 
-const SPEC = [
-  { id: "a", name: "Right", correct: true },
-  { id: "b", name: "Wrong", correct: false },
-]
+const SPEC = {
+  version: "1",
+  alternatives: [
+    { id: "a", name: "Right", correct: true },
+    { id: "b", name: "Wrong", correct: false },
+  ],
+}
 
 describe("POST /api/grade", () => {
   it("gives full score for the correct option", async () => {
     const res = await handleGrade(
       post({
         exercise_spec: SPEC,
-        submission_data: { selectedOptionId: "a" },
+        submission_data: { version: "1", selectedOptionId: "a" },
       }),
     )
     expect(res.status).toBe(200)
@@ -35,7 +38,7 @@ describe("POST /api/grade", () => {
     const res = await handleGrade(
       post({
         exercise_spec: SPEC,
-        submission_data: { selectedOptionId: "b" },
+        submission_data: { version: "1", selectedOptionId: "b" },
       }),
     )
     const result = (await res.json()) as Record<string, unknown>
@@ -47,7 +50,7 @@ describe("POST /api/grade", () => {
     const res = await handleGrade(
       post({
         exercise_spec: SPEC,
-        submission_data: {},
+        submission_data: { version: "1", selectedOptionId: "" },
       }),
     )
     const result = (await res.json()) as Record<string, unknown>
@@ -55,17 +58,14 @@ describe("POST /api/grade", () => {
     expect(result.feedback_json).toBeNull()
   })
 
-  it("grades a versioned exercise_spec envelope and versioned answer (migrate-on-read)", async () => {
-    const res = await handleGrade(
-      post({
-        exercise_spec: { version: "1", alternatives: SPEC },
-        submission_data: { version: "1", selectedOptionId: "a" },
-      }),
-    )
+  it.each([
+    ["an unknown spec version", { ...SPEC, version: "2" }, { version: "1", selectedOptionId: "a" }],
+    ["an unreadable spec", { version: "1" }, { version: "1", selectedOptionId: "a" }],
+    ["an unversioned answer", SPEC, { choice: "a" }],
+  ])("answers %s with Failed, not an error status", async (_case, spec, answer) => {
+    const res = await handleGrade(post({ exercise_spec: spec, submission_data: answer }))
     expect(res.status).toBe(200)
-    const result = (await res.json()) as Record<string, unknown>
-    expect(result.score_given).toBe(1)
-    expect(result.feedback_json).toEqual({ version: "1", selectedOptionIsCorrect: true })
+    expect(await res.json()).toMatchObject({ grading_progress: "Failed", score_given: 0 })
   })
 
   it("rejects a malformed grading request with 400", async () => {

@@ -430,7 +430,8 @@ fn grading_request_files(
 /// report back and to read a file-typed answer's files.
 ///
 /// `base_url` is the host's own public base url, so both the callback and the file urls point at a
-/// host the service can reach.
+/// host the service can reach. The sender's last argument is the submitter's pseudonymous id for
+/// the service.
 pub fn make_grading_request_sender(
     jwt_key: Arc<JwtKey>,
     base_url: String,
@@ -438,8 +439,9 @@ pub fn make_grading_request_sender(
     Url,
     &ExerciseTask,
     &ExerciseTaskSubmission,
+    Uuid,
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
-    move |grade_url, exercise_task, submission| {
+    move |grade_url, exercise_task, submission, pseudonymous_user_id| {
         let client = reqwest::Client::new();
         let grading_update_url = format!(
             "{base_url}/api/v0/exercise-services/grading/grading-update/{}",
@@ -485,6 +487,7 @@ pub fn make_grading_request_sender(
                 exercise_spec: &exercise_task.private_spec,
                 submission_data: submission.data_json.as_ref(),
                 submission_files: &submission_files,
+                pseudonymous_user_id: Some(pseudonymous_user_id),
             });
         async move {
             let res = req.send().await.map_err(ModelError::from)?;

@@ -1,6 +1,7 @@
 "use client"
 
 import { fireEvent, render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import { useState } from "react"
 
 import { ComboBox } from "../src/components/ComboBox"
@@ -17,6 +18,31 @@ const items: Item[] = [
   { id: "beta", label: "Beta" },
   { id: "gamma", label: "Gamma" },
 ]
+
+function FilterableCombo() {
+  const [filterText, setFilterText] = useState("")
+  const filtered = items.filter((item) =>
+    item.label.toLowerCase().includes(filterText.toLowerCase()),
+  )
+  return (
+    <FormHarness<{ c: string | number | null }> defaultValues={{ c: null }}>
+      {(control) => (
+        <ComboBox<Item, { c: string | number | null }>
+          name="c"
+          control={control}
+          getItemKey={(item) => item.id}
+          getItemTextValue={(item) => item.label}
+          label="Framework"
+          items={filtered}
+          inputValue={filterText}
+          onInputChange={setFilterText}
+        >
+          {(item) => item.label}
+        </ComboBox>
+      )}
+    </FormHarness>
+  )
+}
 
 describe("ComboBox", () => {
   test("opens and closes from the toggle button", () => {
@@ -44,6 +70,28 @@ describe("ComboBox", () => {
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument()
   })
 
+  test("shows every option when opened with a value already selected", async () => {
+    renderWithForm<{ c: string | number | null }>(
+      (control) => (
+        <ComboBox<Item, { c: string | number | null }>
+          name="c"
+          control={control}
+          getItemKey={(item) => item.id}
+          getItemTextValue={(item) => item.label}
+          label="Framework"
+          items={items}
+        >
+          {(item) => item.label}
+        </ComboBox>
+      ),
+      { defaultValues: { c: "alpha" } },
+    )
+
+    await userEvent.click(screen.getByRole("combobox"))
+    expect(screen.getByRole("option", { name: "Beta" })).toBeInTheDocument()
+    expect(screen.getByRole("option", { name: "Gamma" })).toBeInTheDocument()
+  })
+
   test("opens from the keyboard and filters results", () => {
     renderWithForm<{ c: string | number | null }>((control) => (
       <ComboBox<Item, { c: string | number | null }>
@@ -64,6 +112,8 @@ describe("ComboBox", () => {
 
     fireEvent.change(input, { target: { value: "be" } })
     expect(screen.getByRole("option", { name: "Beta" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Alpha" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "Gamma" })).not.toBeInTheDocument()
   })
 
   test("closes without a dangling aria-controls when the caller's filtered items become empty", () => {
@@ -73,31 +123,6 @@ describe("ComboBox", () => {
     // useComboBoxState's `!allowsEmptyCollection && filteredCollection.size === 0` guard) rather than
     // rendering ListBox's "no results" placeholder, so assert it closes cleanly instead of leaving
     // aria-controls pointed at a listbox that's no longer in the document.
-    function FilterableCombo() {
-      const [filterText, setFilterText] = useState("")
-      const filtered = items.filter((item) =>
-        item.label.toLowerCase().includes(filterText.toLowerCase()),
-      )
-      return (
-        <FormHarness<{ c: string | number | null }> defaultValues={{ c: null }}>
-          {(control) => (
-            <ComboBox<Item, { c: string | number | null }>
-              name="c"
-              control={control}
-              getItemKey={(item) => item.id}
-              getItemTextValue={(item) => item.label}
-              label="Framework"
-              items={filtered}
-              inputValue={filterText}
-              onInputChange={setFilterText}
-            >
-              {(item) => item.label}
-            </ComboBox>
-          )}
-        </FormHarness>
-      )
-    }
-
     render(<FilterableCombo />)
 
     const input = screen.getByRole("combobox", { name: "Framework" })

@@ -5,6 +5,9 @@ Each submodule corresponds to a database table.
 */
 // we always use --document-private-items, so this warning is moot
 #![allow(rustdoc::private_intra_doc_links)]
+pub mod agent_changeset_calls;
+pub mod agent_changeset_entities;
+pub mod agent_changesets;
 pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
@@ -61,6 +64,7 @@ pub mod email_layouts;
 pub mod email_templates;
 pub mod email_verification_tokens;
 pub mod ended_processed_exams;
+pub mod entity_history;
 pub mod error;
 pub mod errors;
 pub mod exams;

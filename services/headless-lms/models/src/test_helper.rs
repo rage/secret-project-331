@@ -37,6 +37,18 @@ async fn get_or_init_db() -> String {
     db
 }
 
+/// The database for tests that commit their own fixtures: `DATABASE_URL_TEST`, else the test
+/// database of the dev cluster.
+pub fn test_database_url() -> String {
+    env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
+        if env::var_os("KUBERNETES_SERVICE_HOST").is_some() {
+            "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test".to_string()
+        } else {
+            "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+        }
+    })
+}
+
 pub fn init_app_conf() -> ModelResult<ApplicationConfiguration> {
     let app_config = ApplicationConfiguration::mock_conf()?;
     Ok(app_config)

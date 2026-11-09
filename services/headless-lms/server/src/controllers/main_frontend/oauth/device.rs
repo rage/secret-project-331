@@ -902,6 +902,7 @@ mod tests {
             issued_token_type: TokenType::Bearer,
             dpop_jkt: None,
             token_hmac_key: &key,
+            resource: None,
         };
         let result = process_token_grant(
             tx.as_mut(),

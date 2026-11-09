@@ -49,6 +49,8 @@ interface AIMetadataFormProps {
   hasPrerequisites: boolean
   hasAudiences: boolean
   onSubmit: (data: CourseMetadataUpdate) => void
+  /** Receives the `<form>` element; the dialog's submit button is outside it and must stay disabled until it mounts. */
+  formRef?: React.Ref<HTMLFormElement>
 }
 
 interface EditCourseMetadataData extends CourseMetadataUpdate {
@@ -89,6 +91,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
   hasPrerequisites,
   hasAudiences,
   onSubmit,
+  formRef,
 }) => {
   const { t } = useTranslation()
 
@@ -177,7 +180,7 @@ const AIMetadataFormFields: React.FC<React.PropsWithChildren<AIMetadataFormProps
 
   return (
     <FormProvider {...methods}>
-      <form id="ai-metadata-form" onSubmit={submit}>
+      <form ref={formRef} id="ai-metadata-form" onSubmit={submit}>
         <FieldSet>
           <Legend>{t("description-fieldset-title")}</Legend>
           <div

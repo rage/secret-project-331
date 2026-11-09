@@ -450,6 +450,8 @@ mod tests {
                 public_url: "http://example.com/api/service".to_string(),
                 internal_url: Some(internal_url),
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await
@@ -956,7 +958,7 @@ mod tests {
             task,
         };
         let submitting = actix_web::rt::spawn(async move {
-            let mut conn = PgConnection::connect(&test_database_url())
+            let mut conn = PgConnection::connect(&dev_database_url())
                 .await
                 .expect("submit connection");
             let store = temp_file_store();
@@ -991,7 +993,7 @@ mod tests {
             "the submit must reach the grading hop, which is what holds its transaction open"
         );
 
-        let mut reaper_conn = PgConnection::connect(&test_database_url())
+        let mut reaper_conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("reaper connection");
         // Scoped so the pinned future releases its borrow before the connection is dropped.

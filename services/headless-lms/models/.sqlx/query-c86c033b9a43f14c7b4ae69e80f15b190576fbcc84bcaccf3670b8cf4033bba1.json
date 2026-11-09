@@ -358,6 +358,17 @@
             "name": "enabled_tool_categories"
           }
         }
+      },
+      {
+        "ordinal": 28,
+        "name": "embeddable",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "embeddable"
+          }
+        }
       }
     ],
     "parameters": {
@@ -391,6 +402,7 @@
       false,
       false,
       true,
+      false,
       false,
       false,
       false

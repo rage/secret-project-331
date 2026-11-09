@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH moved AS (\n  UPDATE pages\n  SET url_path = new.url_path\n  FROM UNNEST($1::uuid [], $2::text []) AS new(id, url_path)\n    JOIN pages old ON old.id = new.id\n  WHERE pages.id = new.id\n    AND pages.deleted_at IS NULL\n    AND old.url_path <> new.url_path\n  RETURNING pages.id,\n    pages.course_id,\n    old.url_path AS old_url_path,\n    pages.url_path AS new_url_path\n),\nredirected AS (\n  INSERT INTO url_redirections (destination_page_id, old_url_path, course_id)\n  SELECT id,\n    old_url_path,\n    course_id\n  FROM moved\n  WHERE course_id IS NOT NULL ON CONFLICT (old_url_path, course_id, deleted_at) DO\n  UPDATE\n  SET destination_page_id = EXCLUDED.destination_page_id\n)\nSELECT id AS \"page_id!\",\n  old_url_path AS \"old_url_path!\",\n  new_url_path AS \"new_url_path!\"\nFROM moved\nWHERE course_id IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "page_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "old_url_path!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "new_url_path!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "url_path"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ab46c5f8c71992be9b3bcc0b840c976bc285c3fcddaba98f33de8d9999a1a301"
+}

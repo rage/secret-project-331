@@ -48,6 +48,8 @@ pub struct ExerciseTaskGradingRequest<'a> {
     pub submission_data: Option<&'a serde_json::Value>,
     /// The answer's files, in answer order. Empty for a JSON-typed submission.
     pub submission_files: &'a [GradingRequestFile],
+    /// The submitter's pseudonym for this service, also on a regrade by someone else.
+    pub pseudonymous_user_id: Option<Uuid>,
 }
 
 /// One file of a file-typed answer, as an exercise service is handed it for grading.
@@ -329,6 +331,7 @@ pub async fn grade_submission(
         Url,
         &ExerciseTask,
         &ExerciseTaskSubmission,
+        Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
 ) -> ModelResult<ExerciseTaskGrading> {
     let exercise_service_info =
@@ -337,8 +340,13 @@ pub async fn grade_submission(
     let exercise_service =
         get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
-    let exercise_task_grading_result =
-        send_grading_request(grade_url, exercise_task, submission).await?;
+    let exercise_task_grading_result = send_grading_request(
+        grade_url,
+        exercise_task,
+        submission,
+        exercise_tasks::pseudonymous_user_id(&exercise_service.id, &user_exercise_state.user_id),
+    )
+    .await?;
     let mut tx = conn.begin().await?;
     let updated_grading =
         update_grading(&mut tx, grading, &exercise_task_grading_result, exercise).await?;

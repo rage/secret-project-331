@@ -414,40 +414,16 @@ pub async fn update_user_info(
     let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
     let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
 
-    if !app_conf.test_mode && (email_changed || first_name_changed || last_name_changed) {
-        let email_opt = if email_changed {
-            Some(payload.email.clone())
-        } else {
-            None
-        };
-
-        let upstream_id = user
-            .upstream_id
-            .ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Missing upstream_id".to_string(),
-                    None,
-                )
-            })?
-            .to_string();
-
+    if email_changed || first_name_changed || last_name_changed {
         controllers::auth::update_user_information_to_tmc(
+            user.upstream_id,
             payload.first_name.clone(),
             payload.last_name.clone(),
-            email_opt,
-            upstream_id,
-            tmc_client.clone(),
-            app_conf.clone(),
+            email_changed.then(|| payload.email.clone()),
+            &tmc_client,
+            &app_conf,
         )
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to update user info to tmc",
-                e,
-            )
-        })?;
+        .await?;
     } else {
         info!("User info unchanged, skipping update to TMC.");
     }

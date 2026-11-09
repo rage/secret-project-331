@@ -555,7 +555,7 @@ export type GetAuthUserInfoResponses = {
   /**
    * Profile when signed in; null when anonymous
    */
-  200: null | UserInfo
+  200: UserInfo | null
 }
 
 export type GetAuthUserInfoResponse = GetAuthUserInfoResponses[keyof GetAuthUserInfoResponses]

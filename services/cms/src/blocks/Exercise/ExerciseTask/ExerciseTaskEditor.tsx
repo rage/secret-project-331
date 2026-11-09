@@ -3,9 +3,10 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
 import React, { useContext, useState } from "react"
 
+import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -14,6 +15,7 @@ import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessib
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -23,31 +25,6 @@ import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/paragraph",
-  "core/image",
-  "core/heading",
-  "core/list",
-  "core/list-item",
-  "core/quote",
-  "core/audio",
-  "core/code",
-  "core/columns",
-  "core/column", // core/column is child of core/columns
-  "core/embed", // This is used by youtube, twitter etc.
-  "core/file",
-  "core/html",
-  "core/preformatted",
-  "core/pullquote",
-  "core/separator",
-  "core/block",
-  "core/spacer",
-  "core/table",
-  "core/verse",
-  "moocfi/latex",
-  "moocfi/iframe",
-]
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -145,7 +122,8 @@ const ExerciseTaskEditor: React.FC<
 
   const renderEditor = (exerciseServices: NonNullable<typeof exerciseServicesQuery.data>) => {
     const exerciseType = attributes.exercise_type
-    const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
+    const exerciseService = exerciseServices.find((o) => o.slug === exerciseType)
+    const url = exerciseService?.public_iframe_url
 
     if (exerciseType && !url) {
       return (
@@ -183,6 +161,7 @@ const ExerciseTaskEditor: React.FC<
               `}
             >
               {t("task")}
+              {exerciseService && <ExerciseServiceBadges exerciseService={exerciseService} />}
             </div>
             <div
               className={cx(svgSquare, gray500WithHover)}
@@ -246,7 +225,7 @@ const ExerciseTaskEditor: React.FC<
                     className={cx(assignmentBox, gutenbergControlsVisible)}
                   >
                     <h3>{t("title-assignment")}</h3>
-                    <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+                    <RegisteredInnerBlocks />
                   </div>
                   {!exerciseType ? (
                     <ChooseExerciseTaskType

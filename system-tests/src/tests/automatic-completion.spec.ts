@@ -5,6 +5,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
+import { runMaterializeTick } from "../utils/suotarControl"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -51,12 +52,22 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
 
   // Only the completed module's CTA is an enabled link; others render as disabled buttons
   await page.getByRole("link", { name: "Register completion", exact: true }).click()
+  // The background worker creates the registration on its own schedule, so the page shows it
+  // either before or after; ticking now pins the screenshot to after.
+  await runMaterializeTick(page.request, {
+    courseSlug: "automatic-completions",
+    userEmail: "teacher@example.com",
+  })
+  await page.getByText("Link your student number", { exact: true }).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "automatic-completion-registration-page",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Register completion" })],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Register completion" }),
+      page.getByRole("button", { name: "Start" }),
+    ],
   })
 })

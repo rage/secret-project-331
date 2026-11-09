@@ -3,6 +3,7 @@
 /* oxlint-disable i18next/no-literal-string */
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { HEX_COLOR_OR_EMPTY, URL_REFERENCE } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
@@ -34,44 +35,47 @@ const HeroSectionConfiguration: BlockConfiguration<HeroSectionAttributes> = {
   attributes: {
     label: {
       type: "string",
-      source: "html",
-      selector: "h6",
+      isRichText: true,
       default: "Chapter number...",
     },
     title: {
       type: "string",
-      source: "html",
-      selector: "h2",
+      isRichText: true,
       default: "Hero section title...",
     },
     subtitle: {
       type: "string",
-      source: "html",
-      selector: "h3",
+      isRichText: true,
       default: "Hero section subtitle...",
     },
     backgroundColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: baseTheme.colors.green[200],
     },
     fontColor: {
       type: "string",
+      agentSchema: HEX_COLOR_OR_EMPTY,
       default: baseTheme.colors.gray[700],
     },
     backgroundImage: {
       type: "string",
+      agentSchema: URL_REFERENCE,
       default: undefined,
     },
     backgroundImageMedium: {
       type: "string",
+      agentSchema: URL_REFERENCE,
       default: undefined,
     },
     backgroundImageLarge: {
       type: "string",
+      agentSchema: URL_REFERENCE,
       default: undefined,
     },
     backgroundImageXLarge: {
       type: "string",
+      agentSchema: URL_REFERENCE,
       default: undefined,
     },
     backgroundRepeatX: {

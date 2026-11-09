@@ -85,7 +85,7 @@ export function isLargePaste(pastedText: string): boolean {
   if (!pastedText) {
     return false
   }
-  const text = pastedText.replace(CITATION_MARKERS, "")
+  const text = pastedText.replaceAll(CITATION_MARKERS, "")
   const tokens = /\S+/g
   let proseWords = 0
   let proseChars = 0

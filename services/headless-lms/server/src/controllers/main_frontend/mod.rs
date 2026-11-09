@@ -5,8 +5,11 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
+pub mod agent_changesets;
+pub mod agent_preview;
 pub mod certificates;
 pub mod chapters;
+pub mod chatbot_embed;
 pub mod chatbot_models;
 pub mod chatbots;
 pub mod code_giveaways;
@@ -52,6 +55,8 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     nest(
+        (path = "/agent-changesets", api = agent_changesets::MainFrontendAgentChangesetsApiDoc),
+        (path = "/agent-preview", api = agent_preview::MainFrontendAgentPreviewApiDoc),
         (path = "/certificates", api = certificates::MainFrontendCertificatesApiDoc),
         (path = "/chapters", api = chapters::MainFrontendChaptersApiDoc),
         (path = "/chatbot-models", api = chatbot_models::MainFrontendChatbotModelsApiDoc),
@@ -91,6 +96,7 @@ use utoipa::OpenApi;
         (path = "/time", api = time::MainFrontendTimeApiDoc),
         (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
         (path = "/users", api = users::MainFrontendUsersApiDoc),
+        (path = "/chatbot-embed", api = chatbot_embed::MainFrontendChatbotEmbedApiDoc),
         (path = "/external-courses", api = external_courses::MainFrontendExternalCoursesApiDoc)
     )
 )]
@@ -98,7 +104,9 @@ pub struct MainFrontendRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/chapters").configure(chapters::_add_routes))
+    cfg.service(web::scope("/agent-changesets").configure(agent_changesets::_add_routes))
+        .service(web::scope("/agent-preview").configure(agent_preview::_add_routes))
+        .service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-auditing").configure(course_auditing::_add_routes))
         .service(
             web::scope("/course-credit-registrations")
@@ -149,5 +157,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/time").configure(time::_add_routes))
         .service(web::scope("/shared-submissions").configure(shared_submissions::_add_routes))
         .service(web::scope("/status").configure(status::_add_routes))
+        .service(web::scope("/chatbot-embed").configure(chatbot_embed::_add_routes))
         .service(web::scope("/external-courses").configure(external_courses::_add_routes));
 }

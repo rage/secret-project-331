@@ -139,6 +139,8 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       ref={containerRef}
       onPointerDown={onPointerDown}
       className={css`
+        position: relative;
+        overflow: hidden;
         width: 100%;
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);

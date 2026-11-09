@@ -1,6 +1,7 @@
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
-const UNCOMMON_SPACES_REGEX = /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/g
+const UNCOMMON_SPACES_REGEX = /[\u00A0\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/
+const UNCOMMON_SPACES_GLOBAL_REGEX = new RegExp(UNCOMMON_SPACES_REGEX.source, "g")
 
 export const modifyBlocks = (
   blocks: BlockInstance[],
@@ -30,58 +31,30 @@ export const modifyBlocks = (
   })
 }
 
-/**
- * Internal helper function used by removeUncommonSpacesFromBlocks.
- * Replaces various Unicode space characters (like non-breaking spaces,
- * mathematical spaces, etc.) with standard spaces.
- *
- * @param text - The text to process
- * @returns Text with standardized spaces
- */
-const replaceUncommonSpaces = (text: string): string => {
-  return text.replace(UNCOMMON_SPACES_REGEX, " ")
-}
+/** The fields where the page save turns non-breaking and other uncommon spaces into plain ones. */
+export const UNCOMMON_SPACE_FIELDS: ReadonlyMap<string, readonly string[]> = new Map([
+  ["core/paragraph", ["content"]],
+  ["core/heading", ["content"]],
+  ["moocfi/hero-section", ["title", "subtitle"]],
+])
+
+/** Whether text has a space the page save would replace; see `UNCOMMON_SPACE_FIELDS`. */
+export const hasUncommonSpaces = (text: string): boolean => UNCOMMON_SPACES_REGEX.test(text)
 
 /**
- * Recursively removes uncommon space characters from paragraph blocks and returns a new array with the changes.
- * This function creates deep copies and does not modify the original blocks.
- *
- * Handles the following Unicode space characters:
- * - U+00A0 (Non-breaking space)
- * - U+2000 to U+200A (Various width spaces)
- * - U+2028 (Line separator)
- * - U+2029 (Paragraph separator)
- * - U+202F (Narrow non-breaking space)
- * - U+205F (Medium mathematical space)
- * - U+3000 (Ideographic space)
- *
- * @param blocks - Array of Gutenberg block instances to process
- * @returns A new array of blocks with uncommon spaces replaced
+ * Replaces U+00A0, U+2000–U+200A, U+2028, U+2029, U+202F, U+205F and U+3000 with plain spaces in
+ * `UNCOMMON_SPACE_FIELDS`, recursively. Returns new blocks and leaves the input unchanged.
  */
 export const removeUncommonSpacesFromBlocks = (blocks: BlockInstance[]): BlockInstance[] => {
   return blocks.map((block) => {
     const newBlock = { ...block }
     const attributes = { ...block.attributes }
-
-    // Handle different block types
-    switch (block.name) {
-      case "core/paragraph":
-      case "core/heading":
-        if (attributes.content) {
-          attributes.content = replaceUncommonSpaces(attributes.content)
-        }
-        break
-
-      case "moocfi/hero-section":
-        if (attributes.title) {
-          attributes.title = replaceUncommonSpaces(attributes.title)
-        }
-        if (attributes.subtitle) {
-          attributes.subtitle = replaceUncommonSpaces(attributes.subtitle)
-        }
-        break
+    for (const field of UNCOMMON_SPACE_FIELDS.get(block.name) ?? []) {
+      const value = attributes[field]
+      if (typeof value === "string" && value !== "") {
+        attributes[field] = value.replaceAll(UNCOMMON_SPACES_GLOBAL_REGEX, " ")
+      }
     }
-
     newBlock.attributes = attributes
 
     if (block.innerBlocks && block.innerBlocks.length > 0) {

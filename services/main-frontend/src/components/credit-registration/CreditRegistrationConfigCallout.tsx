@@ -30,7 +30,7 @@ export const hasCreditRegistrationConfigProblem = (
   config: CourseModuleCreditRegistrationConfig | undefined,
 ): config is CourseModuleCreditRegistrationConfig =>
   config !== undefined &&
-  registersCredits(config.uh_course_code) &&
+  registersCredits(config) &&
   Boolean(config.credit_registration_config_check_message)
 
 /** One callout naming every module whose last configuration check failed; the raw diagnostic sits behind a Disclosure. */

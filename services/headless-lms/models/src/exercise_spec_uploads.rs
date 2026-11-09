@@ -254,6 +254,8 @@ mod test {
                 public_url: format!("http://{slug}.example.com/api/service-info"),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await
@@ -404,7 +406,7 @@ mod test {
                 peer_or_self_review_questions: vec![],
             },
             crate::page_history::HistoryChangeReason::PageSaved,
-            user_id,
+            crate::entity_history::HistoryAuthor::user(user_id),
             None,
         )
         .await

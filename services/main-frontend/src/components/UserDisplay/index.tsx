@@ -162,13 +162,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedI
 
   const renderBadgeAndPopover = (displayText: string, initial: string) => (
     <>
-      <button
-        ref={triggerRef}
-        {...buttonProps}
-        type="button"
-        aria-label={t("view-details")}
-        className={badgeStyle}
-      >
+      <button ref={triggerRef} {...buttonProps} type="button" className={badgeStyle}>
         <span
           className={css`
             display: flex;

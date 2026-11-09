@@ -19,6 +19,10 @@ metadata:
       location ^~ /wp/v2/themes {
         return 301 /api/v0/cms/gutenberg/themes?$args;
       }
+      # In-cluster only: headless-lms calls the CMS block validator directly.
+      location ^~ /cms/api/agent/ {
+        return 404;
+      }
 
     nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
@@ -27,6 +31,20 @@ spec:
       http:
         paths:
           - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /.well-known/oauth-protected-resource
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /.well-known/oauth-authorization-server
             pathType: Prefix
             backend:
               service:

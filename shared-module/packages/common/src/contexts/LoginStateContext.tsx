@@ -63,6 +63,7 @@ const DEFAULT_DISPLAY_NAME = "Component"
 export function withSignedIn<T>(Component: ComponentType<T>): React.FC<T> {
   const displayName = Component.displayName || Component.name || DEFAULT_DISPLAY_NAME
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures Component from HOC scope
   const InnerComponent: React.FC<T> = (props) => {
     const { t } = useTranslation()
     const router = useRouter()

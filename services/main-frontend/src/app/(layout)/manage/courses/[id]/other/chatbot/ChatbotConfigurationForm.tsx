@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ContentDisplayBox from "@/app/(layout)/manage/course-auditing/CourseCard/ContentDisplayBox"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
@@ -43,6 +44,7 @@ import {
   TextField,
   useDialog,
 } from "@/shared-module/components"
+import { sanitizeChatbotName } from "@/utils/sanitizeChatbotName"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
 import { headingsCss, itemsContainerCss } from "./styles"
@@ -156,6 +158,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
+      publicly_accessible: oldChatbotConf.publicly_accessible,
+      embeddable: oldChatbotConf.embeddable,
       tool_categories: Object.fromEntries(
         TOOL_CATEGORY_LEAVES.map((category) => [
           category,
@@ -194,6 +198,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
+  const embeddableFieldValue = watch("embeddable")
   const useAzureSearchFieldValue = watch("use_azure_search")
   const toolCategoriesFieldValue = watch("tool_categories")
   const noToolCategoriesEnabled = TOOL_CATEGORY_LEAVES.every(
@@ -238,7 +243,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       },
     },
   )
-
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
       throw new Error("handleSubmit triggered without an event")
@@ -278,7 +282,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         ),
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
-        publicly_accessible: oldChatbotConf.publicly_accessible, // not editable in this form
+        publicly_accessible: data.publicly_accessible,
+        embeddable: data.embeddable ?? false,
         default_chatbot: oldChatbotConf.default_chatbot, // not editable in this form
         chatbotconf_id: null,
       },
@@ -578,24 +583,55 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       )}
                     </div>
                     <div className={itemsContainerCss}>
-                      <h4>{t("citations-and-search-tuning")}</h4>
-                      <div
-                        className={css`
-                          margin: 20px 20px;
-                        `}
-                      >
-                        <Checkbox
-                          control={control}
-                          label={t("hide-citations")}
-                          name={"hide_citations"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
-                        <Checkbox
-                          control={control}
-                          label={t("use-semantic-reranking")}
-                          name={"use_semantic_reranking"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
+                      <div className={itemsContainerCss}>
+                        <h4>{t("citations-and-search-tuning")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("hide-citations")}
+                            name={"hide_citations"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                          <Checkbox
+                            control={control}
+                            label={t("use-semantic-reranking")}
+                            name={"use_semantic_reranking"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                        </div>
+                      </div>
+                      <div className={itemsContainerCss}>
+                        <h4>{t("chatbot-access-title")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("publicly-accessible")}
+                            name={"publicly_accessible"}
+                          />
+                          <Checkbox control={control} label={t("embeddable")} name={"embeddable"} />
+                          <ContentDisplayBox
+                            label={t("iframe-embed-code-title")}
+                            content={
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '<iframe title="' +
+                              sanitizeChatbotName(oldChatbotConf.chatbot_name) +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '" width="100%" height="600" src="https://courses.mooc.fi/chatbot-embed/' +
+                              oldChatbotConf.id +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '"></iframe>'
+                            }
+                            isVisible={embeddableFieldValue ?? false}
+                          ></ContentDisplayBox>
+                        </div>
                       </div>
                     </div>
                     {!selectedModelThinking && (

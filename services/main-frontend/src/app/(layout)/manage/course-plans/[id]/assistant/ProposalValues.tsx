@@ -56,7 +56,7 @@ const proposedValueStyle = css`
 `
 
 /** Shows an empty value as such instead of as nothing. */
-export const EmptyValue: React.FC = () => {
+const EmptyValue: React.FC = () => {
   const { t } = useTranslation()
   return <span className={emptyStyle}>{t("course-plans-assistant-value-empty")}</span>
 }

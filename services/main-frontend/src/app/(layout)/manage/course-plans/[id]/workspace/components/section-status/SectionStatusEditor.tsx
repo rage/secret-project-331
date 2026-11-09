@@ -1,15 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  getCourseDesignerPlanQueryKey,
-  setCourseDesignerSectionStatusMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { setCourseDesignerSectionStatusMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseDesignerSectionStatus,
   CourseDesignerStage,
@@ -17,6 +14,7 @@ import type {
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, getErrorMessage, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
+import { useInvalidatePlan } from "../../../../hooks/useInvalidatePlan"
 import { useSectionStatuses } from "./SectionStatusContext"
 
 const editorStyles = css`
@@ -64,8 +62,8 @@ export default function SectionStatusEditor(props: {
 }) {
   const { stage, sectionKey } = props
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
   const { planId, findStatus } = useSectionStatuses()
+  const invalidatePlan = useInvalidatePlan(planId)
   const savedStatus = findStatus(stage, sectionKey)
   const [savedJustNow, setSavedJustNow] = useState(false)
 
@@ -88,9 +86,7 @@ export default function SectionStatusEditor(props: {
     ...setCourseDesignerSectionStatusMutation(),
     onSuccess: async () => {
       setSavedJustNow(true)
-      await queryClient.invalidateQueries({
-        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-      })
+      await invalidatePlan()
     },
   })
 

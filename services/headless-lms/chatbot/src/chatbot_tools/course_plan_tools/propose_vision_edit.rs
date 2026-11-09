@@ -1,22 +1,21 @@
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
-use headless_lms_models::course_designer_plans;
+use headless_lms_models::{course_designer_plan_members, course_designer_plans};
 use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
-    DECLINED_OUTPUT, authorized_plan_id, non_blank, outcome_instructions, parse_raw_arguments,
-    plan_member_requirements, text_property, updated_plan_payload, verify_current_value,
+    authorized_plan_id, parse_raw_arguments, plan_proposal_items, plan_tool_declaration_items,
+    text_property, updated_plan_payload, verify_current_value,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 /// Proposes new text for the plan's "what makes this MOOC great" vision.
@@ -36,11 +35,7 @@ struct RawArguments {
 impl ChatbotToolDeclaration for ProposeVisionEditTool {
     const NAME: &'static str = "propose_vision_edit";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -61,20 +56,13 @@ impl ChatbotToolDeclaration for ProposeVisionEditTool {
 
 impl ConfirmableActionTool for ProposeVisionEditTool {
     type Arguments = ProposeVisionEditArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
         Ok(ProposeVisionEditArguments {
             current_vision: raw.current_vision,
-            proposed_vision: non_blank(&raw.proposed_vision),
+            proposed_vision: non_empty_trimmed(&raw.proposed_vision).map(str::to_string),
         })
     }
 
@@ -86,10 +74,7 @@ impl ConfirmableActionTool for ProposeVisionEditTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let plan = headless_lms_models::course_designer_plan_members::get_plan_for_user(
-            conn, plan_id, user_id,
-        )
-        .await?;
+        let plan = course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id).await?;
         verify_current_value(
             "vision",
             plan.great_mooc_vision.as_deref().unwrap_or(""),
@@ -114,17 +99,5 @@ impl ConfirmableActionTool for ProposeVisionEditTool {
             },
             (),
         ))
-    }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
     }
 }

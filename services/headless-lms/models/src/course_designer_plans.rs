@@ -21,6 +21,37 @@ pub enum CourseDesignerStage {
     Evaluation,
 }
 
+impl CourseDesignerStage {
+    /// The snake_case name the API, URLs and chatbot tools use for the stage.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Analysis => "analysis",
+            Self::Design => "design",
+            Self::Development => "development",
+            Self::Implementation => "implementation",
+            Self::Evaluation => "evaluation",
+        }
+    }
+}
+
+impl std::str::FromStr for CourseDesignerStage {
+    type Err = ModelError;
+
+    /// Parses [`Self::as_str`] exactly; callers normalize case and whitespace themselves.
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        fixed_stage_order()
+            .into_iter()
+            .find(|stage| stage.as_str() == value)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    format!("'{value}' is not a stage."),
+                    None,
+                )
+            })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "course_designer_plan_status", rename_all = "snake_case")]
 pub enum CourseDesignerPlanStatus {
@@ -345,18 +376,16 @@ VALUES ($1, $2)
     Ok(plan)
 }
 
+/// A plan with its members, stages, tasks and section marks, if `user_id` is a member.
 pub async fn get_plan_details_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<CourseDesignerPlanDetails> {
     let plan = course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id).await?;
-    let members =
-        course_designer_plan_members::get_plan_members_for_user(conn, plan_id, user_id).await?;
-    let stages =
-        course_designer_plan_members::get_plan_stages_for_user(conn, plan_id, user_id).await?;
-    let tasks =
-        course_designer_plan_members::get_plan_tasks_for_user(conn, plan_id, user_id).await?;
+    let members = course_designer_plan_members::get_plan_members(conn, plan_id).await?;
+    let stages = course_designer_plan_members::get_plan_stages(conn, plan_id).await?;
+    let tasks = course_designer_plan_members::get_plan_tasks(conn, plan_id).await?;
     let section_statuses =
         crate::course_designer_section_statuses::get_for_plan(conn, plan_id).await?;
     let mut tasks_by_stage: std::collections::HashMap<Uuid, Vec<CourseDesignerPlanStageTask>> =
@@ -388,7 +417,7 @@ pub async fn get_plan_details_for_user(
 }
 
 /// Locks the plan for editing and returns a stage's saved workspace with its `workspace_revision`,
-/// for read-modify-write edits that save with [`update_stage_workspace_for_user`] in the same
+/// for read-modify-write edits that save with [`update_locked_stage_workspace`] in the same
 /// transaction.
 pub async fn lock_stage_workspace_for_user(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
@@ -444,7 +473,6 @@ pub async fn update_stage_workspace_for_user(
             None,
         ));
     }
-    let workspace_json = course_designer_stage_workspace::workspace_to_json(&workspace)?;
     let mut tx = conn.begin().await?;
     let (_, current_revision) =
         lock_stage_workspace_for_user(&mut tx, plan_id, user_id, stage).await?;
@@ -454,6 +482,22 @@ pub async fn update_stage_workspace_for_user(
             "Someone else saved this form after you opened it.".to_string()
         ));
     }
+    update_locked_stage_workspace(&mut tx, plan_id, user_id, &workspace).await?;
+    tx.commit().await?;
+    get_plan_details_for_user(conn, plan_id, user_id).await
+}
+
+/// Saves the workspace of the stage its schema belongs to and bumps the stage's
+/// `workspace_revision`, for edits that read the workspace with [`lock_stage_workspace_for_user`]
+/// earlier in `tx` and so need no revision check of their own.
+pub async fn update_locked_stage_workspace(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+    user_id: Uuid,
+    workspace: &CourseDesignerStageWorkspace,
+) -> ModelResult<()> {
+    let stage = workspace.stage();
+    let workspace_json = course_designer_stage_workspace::workspace_to_json(workspace)?;
     sqlx::query!(
         r#"
 UPDATE course_designer_plan_stages
@@ -467,7 +511,7 @@ WHERE course_designer_plan_id = $1
         stage as CourseDesignerStage,
         workspace_json
     )
-    .execute(&mut *tx)
+    .execute(&mut **tx)
     .await?;
     // Autosave fires on every edit; one event per member and stage an hour keeps the timeline readable.
     sqlx::query!(
@@ -494,10 +538,9 @@ WHERE NOT EXISTS (
         user_id,
         stage as CourseDesignerStage
     )
-    .execute(&mut *tx)
+    .execute(&mut **tx)
     .await?;
-    tx.commit().await?;
-    get_plan_details_for_user(conn, plan_id, user_id).await
+    Ok(())
 }
 
 /// Saves the plan's "what makes this MOOC great" text; blank text clears it.
@@ -572,8 +615,7 @@ pub async fn set_archived_for_user(
     archived: bool,
 ) -> ModelResult<CourseDesignerPlan> {
     let mut tx = conn.begin().await?;
-    let plan =
-        course_designer_plan_members::get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    let plan = course_designer_plan_members::lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     let is_archived = plan.status == CourseDesignerPlanStatus::Archived;
     if is_archived == archived {
         return Err(ModelError::new(
@@ -658,6 +700,17 @@ pub struct PlanMemberWithDetails {
     pub email: String,
     pub created_at: DateTime<Utc>,
     pub receives_weekly_digest: bool,
+}
+
+impl PlanMemberWithDetails {
+    /// The member's name as the plan pages show it; see [`crate::user_details::full_name_or_email`].
+    pub fn display_name(&self) -> String {
+        crate::user_details::full_name_or_email(
+            self.first_name.as_deref(),
+            self.last_name.as_deref(),
+            &self.email,
+        )
+    }
 }
 
 /// One plan as global admins see it in the MOOC support listing.

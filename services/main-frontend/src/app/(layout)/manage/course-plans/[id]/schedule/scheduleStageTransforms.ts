@@ -1,10 +1,11 @@
-import { addMonths, endOfMonth, format, parseISO, startOfMonth } from "date-fns"
+import { addMonths, endOfMonth, parseISO, startOfMonth } from "date-fns"
 
 import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
 
+import { toIsoDate } from "../../coursePlanDates"
 import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 
 const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
@@ -83,8 +84,8 @@ const toStageRanges = (months: MonthWithStage[]): StageInput[] | null => {
     }
     result.push({
       stage,
-      planned_starts_on: format(startOfMonth(first.date), "yyyy-MM-dd"),
-      planned_ends_on: format(endOfMonth(last.date), "yyyy-MM-dd"),
+      planned_starts_on: toIsoDate(startOfMonth(first.date)),
+      planned_ends_on: toIsoDate(endOfMonth(last.date)),
     })
   }
 

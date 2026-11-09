@@ -26,21 +26,24 @@ SELECT
   p.status,
   p.active_stage,
   p.last_weekly_stage_email_sent_at,
-  COUNT(DISTINCT members.user_id)::BIGINT AS "member_count!",
-  COUNT(DISTINCT stages.stage)::BIGINT AS "stage_count!"
+  (
+    SELECT COUNT(DISTINCT members.user_id)
+    FROM course_designer_plan_members members
+    WHERE members.course_designer_plan_id = p.id
+      AND members.deleted_at IS NULL
+  )::BIGINT AS "member_count!",
+  (
+    SELECT COUNT(DISTINCT stages.stage)
+    FROM course_designer_plan_stages stages
+    WHERE stages.course_designer_plan_id = p.id
+      AND stages.deleted_at IS NULL
+  )::BIGINT AS "stage_count!"
 FROM course_designer_plans p
 JOIN course_designer_plan_members self_member
   ON self_member.course_designer_plan_id = p.id
   AND self_member.user_id = $1
   AND self_member.deleted_at IS NULL
-LEFT JOIN course_designer_plan_members members
-  ON members.course_designer_plan_id = p.id
-  AND members.deleted_at IS NULL
-LEFT JOIN course_designer_plan_stages stages
-  ON stages.course_designer_plan_id = p.id
-  AND stages.deleted_at IS NULL
 WHERE p.deleted_at IS NULL
-GROUP BY p.id
 ORDER BY p.updated_at DESC, p.id DESC
 "#,
         user_id
@@ -87,43 +90,36 @@ WHERE p.id = $1
     Ok(plan)
 }
 
-/// Returns active members of a plan for member user.
-pub async fn get_plan_members_for_user(
+/// Active members of a plan. Callers check access to the plan themselves.
+pub async fn get_plan_members(
     conn: &mut PgConnection,
     plan_id: Uuid,
-    user_id: Uuid,
 ) -> ModelResult<Vec<CourseDesignerPlanMember>> {
     let members = sqlx::query_as!(
         CourseDesignerPlanMember,
         r#"
 SELECT
-  members.id,
-  members.created_at,
-  members.updated_at,
-  members.user_id,
-  members.receives_weekly_digest
-FROM course_designer_plan_members members
-JOIN course_designer_plan_members self_member
-  ON self_member.course_designer_plan_id = members.course_designer_plan_id
-  AND self_member.user_id = $2
-  AND self_member.deleted_at IS NULL
-WHERE members.course_designer_plan_id = $1
-  AND members.deleted_at IS NULL
-ORDER BY members.created_at ASC, members.id ASC
+  id,
+  created_at,
+  updated_at,
+  user_id,
+  receives_weekly_digest
+FROM course_designer_plan_members
+WHERE course_designer_plan_id = $1
+  AND deleted_at IS NULL
+ORDER BY created_at ASC, id ASC
 "#,
-        plan_id,
-        user_id
+        plan_id
     )
     .fetch_all(conn)
     .await?;
     Ok(members)
 }
 
-/// Returns stages of a plan for member user.
-pub async fn get_plan_stages_for_user(
+/// A plan's stages in workflow order. Callers check access to the plan themselves.
+pub async fn get_plan_stages(
     conn: &mut PgConnection,
     plan_id: Uuid,
-    user_id: Uuid,
 ) -> ModelResult<Vec<CourseDesignerPlanStage>> {
     let stages = sqlx::query_as!(
         CourseDesignerPlanStage,
@@ -141,10 +137,6 @@ SELECT
   stages.workspace_data,
   stages.workspace_revision
 FROM course_designer_plan_stages stages
-JOIN course_designer_plan_members self_member
-  ON self_member.course_designer_plan_id = stages.course_designer_plan_id
-  AND self_member.user_id = $2
-  AND self_member.deleted_at IS NULL
 WHERE stages.course_designer_plan_id = $1
   AND stages.deleted_at IS NULL
 ORDER BY
@@ -157,19 +149,17 @@ ORDER BY
   END,
   stages.id
 "#,
-        plan_id,
-        user_id
+        plan_id
     )
     .fetch_all(conn)
     .await?;
     Ok(stages)
 }
 
-/// Returns tasks of a plan for member user.
-pub async fn get_plan_tasks_for_user(
+/// A plan's tasks, ordered within each stage. Callers check access to the plan themselves.
+pub async fn get_plan_tasks(
     conn: &mut PgConnection,
     plan_id: Uuid,
-    user_id: Uuid,
 ) -> ModelResult<Vec<CourseDesignerPlanStageTask>> {
     let tasks = sqlx::query_as!(
         CourseDesignerPlanStageTask,
@@ -190,15 +180,11 @@ SELECT
   t.assignee_user_id
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
-JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
-  AND m.user_id = $2
-  AND m.deleted_at IS NULL
 WHERE s.course_designer_plan_id = $1
   AND t.deleted_at IS NULL
 ORDER BY s.id, t.order_number, t.id
 "#,
-        plan_id,
-        user_id
+        plan_id
     )
     .fetch_all(conn)
     .await?;
@@ -564,8 +550,8 @@ WHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1
     Ok(())
 }
 
-/// Locks and returns plan for extending stage.
-pub async fn get_plan_for_stage_extend(
+/// Like [`get_plan_for_user`], but locks the plan row until `tx` ends.
+pub async fn lock_plan_for_user(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     plan_id: Uuid,
     user_id: Uuid,
@@ -599,24 +585,6 @@ FOR UPDATE
     Ok(plan)
 }
 
-/// Locks and returns plan for stage advance.
-pub async fn get_plan_for_stage_advance(
-    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    plan_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<CourseDesignerPlan> {
-    get_plan_for_stage_extend(tx, plan_id, user_id).await
-}
-
-/// Locks and returns plan for finalize.
-pub async fn get_plan_for_schedule_finalize(
-    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    plan_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<CourseDesignerPlan> {
-    get_plan_for_stage_extend(tx, plan_id, user_id).await
-}
-
 /// Locks a plan the user is a member of before changing its content, refusing archived plans.
 ///
 /// The lock is held until `tx` ends, so a concurrent archive or member removal waits for it.
@@ -625,7 +593,7 @@ pub async fn lock_editable_plan_for_user(
     plan_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<CourseDesignerPlan> {
-    let plan = get_plan_for_stage_extend(tx, plan_id, user_id).await?;
+    let plan = lock_plan_for_user(tx, plan_id, user_id).await?;
     if plan.status == CourseDesignerPlanStatus::Archived {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
@@ -798,7 +766,7 @@ pub async fn remove_plan_member(
     target_user_id: Uuid,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
-    let plan = get_plan_for_stage_extend(&mut tx, plan_id, requesting_user_id).await?;
+    let plan = lock_plan_for_user(&mut tx, plan_id, requesting_user_id).await?;
     if plan.created_by_user_id == target_user_id && requesting_user_id != target_user_id {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
@@ -908,7 +876,7 @@ pub async fn replace_schedule_for_user(
     stages: &[CourseDesignerScheduleStageInput],
 ) -> ModelResult<CourseDesignerPlanDetails> {
     let mut tx = conn.begin().await?;
-    let locked_plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    let locked_plan = lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     if matches!(
         locked_plan.status,
         CourseDesignerPlanStatus::InProgress
@@ -1094,7 +1062,7 @@ pub async fn extend_stage_for_user(
         ));
     }
     let mut tx = conn.begin().await?;
-    let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    let plan = lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     if plan.status != CourseDesignerPlanStatus::InProgress {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
@@ -1149,7 +1117,7 @@ pub async fn adjust_schedule_for_user(
 ) -> ModelResult<CourseDesignerPlanDetails> {
     validate_schedule_input(stages)?;
     let mut tx = conn.begin().await?;
-    let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    let plan = lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     if plan.status != CourseDesignerPlanStatus::InProgress {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
@@ -1220,7 +1188,7 @@ pub async fn advance_to_next_stage_for_user(
     user_id: Uuid,
 ) -> ModelResult<CourseDesignerPlanDetails> {
     let mut tx = conn.begin().await?;
-    let plan = get_plan_for_stage_advance(&mut tx, plan_id, user_id).await?;
+    let plan = lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     if plan.status != CourseDesignerPlanStatus::InProgress {
         tx.rollback().await?;
         return Err(ModelError::new(
@@ -1369,7 +1337,7 @@ pub async fn finalize_schedule_for_user(
     user_id: Uuid,
 ) -> ModelResult<CourseDesignerPlan> {
     let mut tx = conn.begin().await?;
-    let plan = get_plan_for_schedule_finalize(&mut tx, plan_id, user_id).await?;
+    let plan = lock_plan_for_user(&mut tx, plan_id, user_id).await?;
     if matches!(
         plan.status,
         CourseDesignerPlanStatus::InProgress

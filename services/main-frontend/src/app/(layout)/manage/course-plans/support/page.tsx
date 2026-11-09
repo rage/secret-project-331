@@ -10,7 +10,6 @@ import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCourseDesignerSupportPlansOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseDesignerPlanStatus,
-  CourseDesignerStage,
   CourseDesignerSupportPlan,
 } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -30,6 +29,7 @@ import { SCHEDULE_STAGE_ORDER } from "../[id]/schedule/scheduleConstants"
 import { sectionKeyLabel } from "../[id]/workspace/components/section-status/sectionKeys"
 import { daysUntilPlanDate, formatPlanDate } from "../coursePlanDates"
 import { formatPlanMemberName } from "../coursePlanMembers"
+import { stageLabel } from "../coursePlanStages"
 
 const introStyles = css`
   margin: 0 0 1.5rem;
@@ -92,21 +92,6 @@ const commentStyles = css`
   color: ${baseTheme.colors.gray[700]};
   white-space: pre-wrap;
 `
-
-function stageLabel(stage: CourseDesignerStage, t: TFunction): string {
-  switch (stage) {
-    case "Analysis":
-      return t("course-plans-stage-analysis")
-    case "Design":
-      return t("course-plans-stage-design")
-    case "Development":
-      return t("course-plans-stage-development")
-    case "Implementation":
-      return t("course-plans-stage-implementation")
-    case "Evaluation":
-      return t("course-plans-stage-evaluation")
-  }
-}
 
 function planStatusLabel(status: CourseDesignerPlanStatus, t: TFunction): string {
   switch (status) {

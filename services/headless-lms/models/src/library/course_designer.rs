@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 use futures::future::BoxFuture;
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_utils::strings::{is_ietf_language_code_like, slugify};
+use headless_lms_utils::strings::{is_ietf_language_code_like, non_empty_trimmed, slugify};
 use serde_json::json;
 use url::Url;
 
@@ -67,9 +67,9 @@ pub async fn create_course_from_plan(
     let name = options
         .name
         .as_deref()
-        .and_then(non_blank)
-        .or_else(|| analysis.course_title.as_deref().and_then(non_blank))
-        .or_else(|| plan.name.as_deref().and_then(non_blank))
+        .and_then(non_empty_trimmed)
+        .or_else(|| analysis.course_title.as_deref().and_then(non_empty_trimmed))
+        .or_else(|| plan.name.as_deref().and_then(non_empty_trimmed))
         .unwrap_or("Untitled course")
         .chars()
         .take(MAX_COURSE_NAME_CHARS)
@@ -77,7 +77,7 @@ pub async fn create_course_from_plan(
     let language_code = options
         .language_code
         .as_deref()
-        .and_then(non_blank)
+        .and_then(non_empty_trimmed)
         .map(|code| {
             if is_ietf_language_code_like(code) {
                 Ok(code.to_string())
@@ -92,11 +92,11 @@ pub async fn create_course_from_plan(
         .transpose()?
         .unwrap_or_else(|| language_code_from_analysis(analysis.language.as_deref()));
     let teacher = crate::user_details::get_user_details_by_user_id(&mut tx, user_id).await?;
-    let teacher_name = [teacher.first_name.as_deref(), teacher.last_name.as_deref()]
-        .into_iter()
-        .flatten()
-        .collect::<Vec<_>>()
-        .join(" ");
+    let teacher_name = crate::user_details::full_name_or_email(
+        teacher.first_name.as_deref(),
+        teacher.last_name.as_deref(),
+        &teacher.email,
+    );
     let slug = unique_course_slug(&mut tx, &name).await?;
 
     let new_course = NewCourse {
@@ -104,11 +104,7 @@ pub async fn create_course_from_plan(
         slug,
         organization_id: options.organization_id,
         language_code,
-        teacher_in_charge_name: if teacher_name.is_empty() {
-            teacher.email.clone()
-        } else {
-            teacher_name
-        },
+        teacher_in_charge_name: teacher_name,
         teacher_in_charge_email: teacher.email,
         description: String::new(),
         is_draft: true,
@@ -147,7 +143,7 @@ pub async fn create_course_from_plan(
                 None,
             )
         })?;
-        let chapter_name = non_blank(&planned_chapter.title)
+        let chapter_name = non_empty_trimmed(&planned_chapter.title)
             .map(str::to_string)
             .unwrap_or_else(|| format!("Chapter {chapter_number}"));
         let (chapter, _) = content_management::create_new_chapter(
@@ -174,7 +170,7 @@ pub async fn create_course_from_plan(
                 planned_chapter
                     .topics
                     .iter()
-                    .filter_map(|topic| non_blank(&topic.title)),
+                    .filter_map(|topic| non_empty_trimmed(&topic.title)),
             )
             .chain(std::iter::once("Conclusion"));
         let mut used_segments = HashSet::new();
@@ -257,14 +253,9 @@ WHERE course_designer_plan_id = $1
     Ok((analysis, design))
 }
 
-fn non_blank(value: &str) -> Option<&str> {
-    let trimmed = value.trim();
-    (!trimmed.is_empty()).then_some(trimmed)
-}
-
 /// The Analysis form's language is free text, so accept a code or a few common language names.
 fn language_code_from_analysis(language: Option<&str>) -> String {
-    let Some(language) = language.and_then(non_blank) else {
+    let Some(language) = language.and_then(non_empty_trimmed) else {
         return FALLBACK_LANGUAGE_CODE.to_string();
     };
     if is_ietf_language_code_like(language) {
@@ -423,19 +414,34 @@ ORDER BY m.created_at, m.id
     )
     .fetch_all(&mut *conn)
     .await?;
-    let task_rows = sqlx::query!(
+    let task_counts = sqlx::query!(
         r#"
-SELECT t.title,
-  t.is_completed,
-  t.completed_at
+SELECT COUNT(*)::BIGINT AS "task_count!",
+  COUNT(*) FILTER (WHERE t.is_completed)::BIGINT AS "completed_task_count!"
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id
 WHERE s.course_designer_plan_id = $1
   AND s.deleted_at IS NULL
   AND t.deleted_at IS NULL
-ORDER BY t.completed_at, t.order_number
 "#,
         plan_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    let tasks_completed_since = sqlx::query_scalar!(
+        r#"
+SELECT t.title
+FROM course_designer_plan_stage_tasks t
+JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id
+WHERE s.course_designer_plan_id = $1
+  AND s.deleted_at IS NULL
+  AND t.deleted_at IS NULL
+  AND t.is_completed
+  AND t.completed_at > $2
+ORDER BY t.completed_at, t.order_number
+"#,
+        plan_id,
+        since
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -454,15 +460,21 @@ ORDER BY stage
     )
     .fetch_all(&mut *conn)
     .await?;
-    let (analysis, _) = get_analysis_and_design(conn, plan_id).await?;
+    let analysis_language = sqlx::query_scalar!(
+        r#"
+SELECT workspace_data->'payload'->>'language' AS language
+FROM course_designer_plan_stages
+WHERE course_designer_plan_id = $1
+  AND stage = 'analysis'
+  AND workspace_data->>'schema' = 'analysis_v1'
+  AND deleted_at IS NULL
+"#,
+        plan_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?
+    .flatten();
 
-    let task_count = task_rows.len() as i64;
-    let completed_task_count = task_rows.iter().filter(|t| t.is_completed).count() as i64;
-    let tasks_completed_since = task_rows
-        .into_iter()
-        .filter(|t| t.is_completed && t.completed_at.is_some_and(|at| at > since))
-        .map(|t| t.title)
-        .collect();
     Ok(WeeklyDigest {
         plan_id,
         plan_name: plan.name,
@@ -470,13 +482,13 @@ ORDER BY stage
         active_stage_planned_ends_on: plan.active_stage_planned_ends_on,
         recipient_user_ids,
         tasks_completed_since,
-        task_count,
-        completed_task_count,
+        task_count: task_counts.task_count,
+        completed_task_count: task_counts.completed_task_count,
         unfinished_section_counts: unfinished_rows
             .into_iter()
             .map(|r| (r.stage, r.count))
             .collect(),
-        language_code: language_code_from_analysis(analysis.language.as_deref()),
+        language_code: language_code_from_analysis(analysis_language.as_deref()),
     })
 }
 

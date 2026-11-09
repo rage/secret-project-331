@@ -22,8 +22,8 @@ import type {
 import { SECTION_KEYS } from "../section-status/sectionKeys"
 
 export const STAGE_DESIGN: CourseDesignerStage = "Design"
-export const DESIGN_WORKSPACE_SCHEMA_V1 = "design_v1" as const
-export const DEFAULT_LEARNING_GOAL_COUNT = 3
+const DESIGN_WORKSPACE_SCHEMA_V1 = "design_v1" as const
+const DEFAULT_LEARNING_GOAL_COUNT = 3
 /** Student workload per credit in Finnish higher education. */
 export const HOURS_PER_CREDIT = 27
 export const MAX_WORKLOAD_AMOUNT = 10_000
@@ -296,7 +296,7 @@ export const DESIGN_SECTIONS = [
 export type DesignSectionDomId = (typeof DESIGN_SECTIONS)[number]["domId"]
 
 /** A fresh client-generated id for chapters, topics and workload rows. */
-export function newDesignItemId(): string {
+function newDesignItemId(): string {
   return v4()
 }
 

@@ -1,17 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
-import { addMonths, format, parseISO } from "date-fns"
+import { addMonths, parseISO } from "date-fns"
 import type { TFunction } from "i18next"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  adjustCourseDesignerScheduleMutation,
-  getCourseDesignerPlanQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { adjustCourseDesignerScheduleMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
@@ -20,7 +16,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import { Badge, Button, DateField, Dialog, Select, TONE } from "@/shared-module/components"
 
-import { formatPlanDate } from "../../../coursePlanDates"
+import { formatPlanDate, toIsoDate } from "../../../coursePlanDates"
+import { useInvalidatePlan } from "../../../hooks/useInvalidatePlan"
 import { useAdjustScheduleDialogState } from "../../workspace/hooks/useAdjustScheduleDialogState"
 import {
   type AdjustableStage,
@@ -159,7 +156,7 @@ export default function AdjustScheduleDialog({
   isExtendPending,
 }: AdjustScheduleDialogProps) {
   const { t, i18n } = useTranslation()
-  const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const {
     control: extendControl,
     extendMonths,
@@ -235,9 +232,7 @@ export default function AdjustScheduleDialog({
     { notify: true, method: "PUT" },
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        await invalidatePlan()
         onClose()
       },
     },
@@ -258,7 +253,7 @@ export default function AdjustScheduleDialog({
   const extendedActiveStageEnd = useMemo(
     () =>
       activeStageData
-        ? format(addMonths(parseISO(activeStageData.planned_ends_on), extendMonths), "yyyy-MM-dd")
+        ? toIsoDate(addMonths(parseISO(activeStageData.planned_ends_on), extendMonths))
         : null,
     [activeStageData, extendMonths],
   )

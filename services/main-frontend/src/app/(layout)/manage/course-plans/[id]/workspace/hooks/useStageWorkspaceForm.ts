@@ -7,6 +7,7 @@ import {
   type DefaultValues,
   type FieldErrors,
   type FieldValues,
+  type Path,
   useForm,
   type UseFormReturn,
 } from "react-hook-form"
@@ -17,12 +18,14 @@ import {
   updateCourseDesignerStageWorkspaceMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
+  CourseDesignerPlanDetails,
   CourseDesignerStage,
   CourseDesignerStageWorkspace,
 } from "@/generated/api/types.generated"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { getErrorMessage } from "@/shared-module/components"
 
+import { useInvalidatePlan } from "../../../hooks/useInvalidatePlan"
 import { useRegisterPendingSave } from "../../components/PendingSavesContext"
 import { AUTOSAVE_DEBOUNCE_MS } from "../components/analysis-form/analysisFormDomain"
 
@@ -97,10 +100,11 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
   loadLatest: () => void
 } {
   const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const form = useForm<TValues>({
     defaultValues: toFormValues(workspaceData) as DefaultValues<TValues>,
   })
-  const { getValues, reset, trigger, watch } = form
+  const { getFieldState, getValues, reset, trigger, watch } = form
 
   const lastSavedRef = useRef<TValues>(getValues())
   const baseRevisionRef = useRef(workspaceRevision)
@@ -155,13 +159,22 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
     const isValid = await trigger()
     const submitted = cloneDeep(getValues())
     if (!isValid) {
-      for (const path of collectErrorPaths(form.formState.errors)) {
+      // getFieldState reads the errors trigger() just set; formState is the last render's snapshot.
+      const errors: FieldErrors = {}
+      for (const key of Object.keys(submitted)) {
+        const { error } = getFieldState(key as Path<TValues>)
+        if (error) {
+          errors[key] = error
+        }
+      }
+      for (const path of collectErrorPaths(errors)) {
         set(submitted, path, cloneDeep(get(lastSavedRef.current, path)))
       }
     }
     setSaveStatus((previous) => ({ ...previous, state: "saving" }))
+    let details: CourseDesignerPlanDetails
     try {
-      const details = await mutateAsync({
+      details = await mutateAsync({
         body: { workspace: toWorkspace(submitted), base_revision: baseRevisionRef.current },
         path: { plan_id: planId, stage: stage.toLowerCase() },
       })
@@ -175,9 +188,7 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
       if (isStaleVersionError(error)) {
         hasConflictRef.current = true
         setSaveStatus({ state: "conflict", errorMessage: null, hasSkippedInvalidFields: false })
-        await queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        await invalidatePlan()
         return false
       }
       setSaveStatus({
@@ -196,13 +207,12 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
       errorMessage: null,
       hasSkippedInvalidFields: !isValid,
     })
-    await queryClient.invalidateQueries({
-      queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-    })
+    queryClient.setQueryData(getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }), details)
     return isValid
   }, [
-    form.formState,
+    getFieldState,
     getValues,
+    invalidatePlan,
     isReadOnly,
     mutateAsync,
     planId,

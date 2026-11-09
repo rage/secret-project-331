@@ -68,7 +68,6 @@ export const scheduleAdjustmentCallSchema = z.object({
 export type ScheduleAdjustmentCall = z.infer<typeof scheduleAdjustmentCallSchema>
 
 export const sectionStatusCallSchema = z.object({
-  stage: z.string(),
   section_key: z.string(),
   current_status: z.string(),
   current_comment: z.string(),

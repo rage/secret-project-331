@@ -37,10 +37,7 @@ const proposalEntry = <TCall,>(
   Bubble: React.FC<ClientToolBubbleProps<TCall>>,
 ): ClientToolRegistryEntry => ({
   parseCall: (_toolCallId, toolArguments) => parseJsonWithSchema(toolArguments, schema),
-  renderBubble: (props) => {
-    const parsed = schema.safeParse(props.call)
-    return parsed.success ? <Bubble {...props} call={parsed.data} /> : null
-  },
+  renderBubble: (props) => <Bubble {...props} call={props.call as TCall} />,
   showsAnswerError: true,
 })
 

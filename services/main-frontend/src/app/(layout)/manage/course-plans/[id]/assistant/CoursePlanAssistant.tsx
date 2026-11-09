@@ -16,6 +16,7 @@ import {
 import { zCourseDesignerPlanDetails } from "@/generated/api/zod.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
+import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
 import coursePlanAssistantEndpoints from "./coursePlanAssistantEndpoints"
 
 const noticeStyle = css`
@@ -34,6 +35,7 @@ const executedProposalSchema = z.object({ plan_details: zCourseDesignerPlanDetai
 export default function CoursePlanAssistant({ planId }: { planId: string }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const statusQuery = useQuery(
     getCourseDesignerAssistantStatusOptions({ path: { plan_id: planId } }),
   )
@@ -41,16 +43,18 @@ export default function CoursePlanAssistant({ planId }: { planId: string }) {
 
   const handleActionExecuted = useCallback(
     (_toolName: string, payload: unknown) => {
-      const planQueryKey = getCourseDesignerPlanQueryKey({ path: { plan_id: planId } })
       const executed = executedProposalSchema.safeParse(payload)
       if (executed.success) {
-        queryClient.setQueryData(planQueryKey, executed.data.plan_details)
+        queryClient.setQueryData(
+          getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+          executed.data.plan_details,
+        )
       } else {
-        void queryClient.invalidateQueries({ queryKey: planQueryKey })
+        void invalidatePlan()
       }
       void queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
     },
-    [planId, queryClient],
+    [invalidatePlan, planId, queryClient],
   )
 
   if (!statusQuery.data?.available) {

@@ -1,5 +1,7 @@
 //! Queues the weekly progress email for every in-progress course design plan.
 
+use std::collections::HashMap;
+
 use chrono::{DateTime, Utc};
 use dotenvy::dotenv;
 use headless_lms_base::error::backend_error::BackendError;
@@ -11,6 +13,7 @@ use headless_lms_models::{
 };
 use serde_json::json;
 use sqlx::{Connection, PgConnection, PgPool};
+use uuid::Uuid;
 
 use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
@@ -33,9 +36,12 @@ async fn send_weekly_digests(
     let plan_ids =
         models::library::course_designer::get_plan_ids_due_for_weekly_digest(conn, now).await?;
     info!("Sending weekly digests for {} plans.", plan_ids.len());
+    let mut template_ids_by_language = HashMap::new();
     let mut failed = 0;
     for plan_id in &plan_ids {
-        if let Err(err) = send_plan_digest(conn, base_url, *plan_id, now).await {
+        if let Err(err) =
+            send_plan_digest(conn, base_url, *plan_id, now, &mut template_ids_by_language).await
+        {
             failed += 1;
             error!("Failed to send the weekly digest of plan {plan_id}: {err:#?}");
         }
@@ -51,31 +57,27 @@ async fn send_weekly_digests(
 async fn send_plan_digest(
     conn: &mut PgConnection,
     base_url: &str,
-    plan_id: uuid::Uuid,
+    plan_id: Uuid,
     now: DateTime<Utc>,
+    template_ids_by_language: &mut HashMap<String, Uuid>,
 ) -> anyhow::Result<()> {
     let mut tx = conn.begin().await?;
     let digest = models::library::course_designer::get_weekly_digest(&mut tx, plan_id, now).await?;
     if !digest.recipient_user_ids.is_empty() {
-        let template = match email_templates::get_generic_email_template_by_type_and_language(
-            &mut tx,
-            EmailTemplateType::CourseDesignerWeeklyDigest,
-            &digest.language_code,
-        )
-        .await
-        {
-            Ok(template) => template,
-            Err(err) if matches!(err.error_type(), ModelErrorType::RecordNotFound) => {
-                anyhow::bail!("no course_designer_weekly_digest email template exists");
+        let template_id = match template_ids_by_language.get(&digest.language_code) {
+            Some(template_id) => *template_id,
+            None => {
+                let template_id = get_template_id(&mut tx, &digest.language_code).await?;
+                template_ids_by_language.insert(digest.language_code.clone(), template_id);
+                template_id
             }
-            Err(err) => return Err(err.into()),
         };
         let placeholders = placeholders(&digest, base_url, now);
         for user_id in &digest.recipient_user_ids {
             models::email_deliveries::insert_email_delivery_with_placeholders(
                 &mut tx,
                 *user_id,
-                template.id,
+                template_id,
                 &placeholders,
             )
             .await?;
@@ -84,6 +86,22 @@ async fn send_plan_digest(
     models::library::course_designer::mark_weekly_digest_sent(&mut tx, plan_id, now).await?;
     tx.commit().await?;
     Ok(())
+}
+
+async fn get_template_id(conn: &mut PgConnection, language_code: &str) -> anyhow::Result<Uuid> {
+    match email_templates::get_generic_email_template_by_type_and_language(
+        conn,
+        EmailTemplateType::CourseDesignerWeeklyDigest,
+        language_code,
+    )
+    .await
+    {
+        Ok(template) => Ok(template.id),
+        Err(err) if matches!(err.error_type(), ModelErrorType::RecordNotFound) => {
+            anyhow::bail!("no course_designer_weekly_digest email template exists")
+        }
+        Err(err) => Err(err.into()),
+    }
 }
 
 /// Language-dependent fragments the template cannot hold itself because they depend on the plan.
@@ -161,7 +179,7 @@ fn placeholders(digest: &WeeklyDigest, base_url: &str, now: DateTime<Utc>) -> se
         .first()
         .map(|(stage, _)| *stage)
         .or(digest.active_stage)
-        .map(|stage| format!("?stage={}", stage_slug(stage)))
+        .map(|stage| format!("?stage={}", stage.as_str()))
         .unwrap_or_default();
     json!({
         "PLAN_NAME": digest.plan_name.as_deref().unwrap_or(copy.untitled_plan),
@@ -183,15 +201,4 @@ fn placeholders(digest: &WeeklyDigest, base_url: &str, now: DateTime<Utc>) -> se
             digest.plan_id
         ),
     })
-}
-
-/// The `stage` query parameter value the plan workspace page opens a stage from.
-fn stage_slug(stage: CourseDesignerStage) -> &'static str {
-    match stage {
-        CourseDesignerStage::Analysis => "analysis",
-        CourseDesignerStage::Design => "design",
-        CourseDesignerStage::Development => "development",
-        CourseDesignerStage::Implementation => "implementation",
-        CourseDesignerStage::Evaluation => "evaluation",
-    }
 }

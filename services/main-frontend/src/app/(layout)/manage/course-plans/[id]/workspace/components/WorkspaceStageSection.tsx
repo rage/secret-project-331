@@ -17,6 +17,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
 
+import { formatPlanDateRange } from "../../../coursePlanDates"
 import WorkspaceTaskRow, { type TaskChanges } from "./WorkspaceTaskRow"
 
 const cardStyles = css`
@@ -151,15 +152,6 @@ const emptyTasksStyles = css`
   padding: 0.5rem 0;
 `
 
-function formatPhaseTimeline(startsOn: string, endsOn: string): string {
-  const s = new Date(startsOn)
-  const e = new Date(endsOn)
-  // oxlint-disable-next-line i18next/no-literal-string
-  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" }
-  // oxlint-disable-next-line i18next/no-literal-string
-  return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`
-}
-
 interface WorkspaceStageSectionProps {
   planId: string
   stage: CourseDesignerPlanStageWithTasks
@@ -281,7 +273,7 @@ export default function WorkspaceStageSection({
       <div className={dateRowStyles}>
         <span>{t("course-plans-phase-timeline")}</span>
         <span className={dateRangeStyles}>
-          {formatPhaseTimeline(stage.planned_starts_on, stage.planned_ends_on)}
+          {formatPlanDateRange(stage.planned_starts_on, stage.planned_ends_on, undefined)}
         </span>
       </div>
       <div className={progressBlockStyles}>

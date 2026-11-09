@@ -2,16 +2,15 @@ use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plan_members;
-use headless_lms_models::course_designer_plans;
 use headless_lms_utils::json_schema_types::{
     ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
 };
+use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
-    DECLINED_OUTPUT, authorized_plan_id, member_display_name, non_blank, outcome_instructions,
-    parse_raw_arguments, plan_member_requirements, text_property, updated_plan_payload,
+    authorized_plan_id, parse_raw_arguments, plan_proposal_items, plan_tool_declaration_items,
+    resolve_member_by_name, stale_proposal_error, text_property, updated_plan_payload,
     verify_current_value,
 };
 use crate::{
@@ -20,10 +19,9 @@ use crate::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
         argument_parsing::parse_required_uuid,
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 /// Proposes changes to one task: its title, description, completion or assignee.
@@ -66,11 +64,7 @@ struct RawChange {
 impl ChatbotToolDeclaration for ProposeUpdateTaskTool {
     const NAME: &'static str = "propose_update_task";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -106,24 +100,19 @@ impl ChatbotToolDeclaration for ProposeUpdateTaskTool {
 
 impl ConfirmableActionTool for ProposeUpdateTaskTool {
     type Arguments = ProposeUpdateTaskArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
         let task_id = parse_required_uuid("task_id", &raw.task_id)?;
-        let task_title = non_blank(&raw.task_title).ok_or_else(|| {
-            chatbot_err!(
-                InvalidToolArguments,
-                "task_title must not be empty.".to_string()
-            )
-        })?;
+        let task_title = non_empty_trimmed(&raw.task_title)
+            .map(str::to_string)
+            .ok_or_else(|| {
+                chatbot_err!(
+                    InvalidToolArguments,
+                    "task_title must not be empty.".to_string()
+                )
+            })?;
         if raw.changes.is_empty() || raw.changes.len() > 4 {
             return Err(chatbot_err!(
                 InvalidToolArguments,
@@ -184,12 +173,9 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let details =
-            course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await?;
-        let task = details
-            .stages
-            .iter()
-            .flat_map(|stage| stage.tasks.iter())
+        let task = course_designer_plan_members::get_plan_tasks(conn, plan_id)
+            .await?
+            .into_iter()
             .find(|task| task.id == arguments.task_id)
             .ok_or_else(|| {
                 chatbot_err!(
@@ -204,7 +190,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                 .await?;
         let names: HashMap<Uuid, String> = members
             .iter()
-            .map(|member| (member.user_id, member_display_name(member)))
+            .map(|member| (member.user_id, member.display_name()))
             .collect();
 
         let mut title = None;
@@ -227,7 +213,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                 }
                 TaskField::IsCompleted => {
                     if parse_bool(&change.current_value).ok() != Some(task.is_completed) {
-                        return Err(super::stale_proposal_error("task's completion"));
+                        return Err(stale_proposal_error("task's completion"));
                     }
                     is_completed = Some(parse_bool(&change.proposed_value)?);
                 }
@@ -237,14 +223,12 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                         .and_then(|id| names.get(&id).cloned())
                         .unwrap_or_default();
                     if current_name.to_lowercase() != change.current_value.trim().to_lowercase() {
-                        return Err(super::stale_proposal_error("task's assignee"));
+                        return Err(stale_proposal_error("task's assignee"));
                     }
-                    assignee = Some(match non_blank(&change.proposed_value) {
-                        Some(name) => {
-                            Some(resolve_member_by_name(conn, plan_id, user_id, &name).await?)
-                        }
-                        None => None,
-                    });
+                    let proposed = non_empty_trimmed(&change.proposed_value)
+                        .map(|name| resolve_member_by_name(&members, name))
+                        .transpose()?;
+                    assignee = Some(proposed);
                 }
             }
         }
@@ -304,18 +288,6 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
             (),
         ))
     }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
-    }
 }
 
 fn parse_bool(value: &str) -> ChatbotResult<bool> {
@@ -325,44 +297,6 @@ fn parse_bool(value: &str) -> ChatbotResult<bool> {
         other => Err(chatbot_err!(
             InvalidToolArguments,
             format!("'{other}' is not 'true' or 'false'.")
-        )),
-    }
-}
-
-/// The plan member going by `name` as the plan pages show it, case-insensitively.
-///
-/// Fails when no member, or more than one, has that name.
-pub(crate) async fn resolve_member_by_name(
-    conn: &mut PgConnection,
-    plan_id: Uuid,
-    requesting_user_id: Uuid,
-    name: &str,
-) -> ChatbotResult<Uuid> {
-    let members = course_designer_plan_members::get_plan_members_with_details(
-        conn,
-        plan_id,
-        requesting_user_id,
-    )
-    .await?;
-    let wanted = name.trim().to_lowercase();
-    let matching: Vec<Uuid> = members
-        .iter()
-        .filter(|member| member_display_name(member).to_lowercase() == wanted)
-        .map(|member| member.user_id)
-        .collect();
-    match matching.as_slice() {
-        [user_id] => Ok(*user_id),
-        [] => Err(chatbot_err!(
-            ToolUseError,
-            format!(
-                "No plan member is named {name}. Nothing was saved. Call get_course_plan for the members' names."
-            )
-        )),
-        _ => Err(chatbot_err!(
-            ToolUseError,
-            format!(
-                "More than one plan member is named {name}. Nothing was saved; ask the user to assign the task themselves."
-            )
         )),
     }
 }

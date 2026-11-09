@@ -7,7 +7,6 @@ use headless_lms_chatbot::conversation_context::ChatbotPageContext;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_chatbot::user_context::ChatbotTurnContext;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
-use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_models::chatbot_conversation_message_tool_calls;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
@@ -286,20 +285,7 @@ async fn tool_response(
     )
     .await?;
 
-    let recorded_call =
-        chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
-            &mut conn,
-            conversation_id,
-            &tool_call_id,
-        )
-        .await?;
-    if recorded_call.is_none_or(|call| call.tool_name != tool_name.as_str()) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "tool_name does not match the tool call being answered".to_string(),
-            None,
-        ));
-    }
+    verify_answered_tool_name(&mut conn, conversation_id, &tool_call_id, tool_name).await?;
 
     let response_stream = answer_tool_call_and_resume_stream(
         // An Arc, cheap to clone.
@@ -319,6 +305,30 @@ async fn tool_response(
             .content_type("application/x-ndjson")
             .streaming(response_stream),
     )
+}
+
+/// Refuses an answer naming a different tool than the one the answered call was recorded for.
+pub(crate) async fn verify_answered_tool_name(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    tool_call_id: &str,
+    tool_name: ClientToolName,
+) -> Result<(), ControllerError> {
+    let recorded_call =
+        chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
+            conn,
+            conversation_id,
+            tool_call_id,
+        )
+        .await?;
+    if recorded_call.is_none_or(|call| call.tool_name != tool_name.as_str()) {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "tool_name does not match the tool call being answered".to_string(),
+            None,
+        ));
+    }
+    Ok(())
 }
 
 /**
@@ -365,21 +375,15 @@ async fn new_conversation(
     )
     .await?;
 
-    let _first_message =
-        models::chatbot_conversation_messages::insert_for_conversation_user_and_configuration(
-            &mut conn,
-            models::chatbot_conversation_messages::ChatbotConversationMessage::text(
-                conversation.id,
-                MessageRole::Assistant,
-                configuration.initial_message.clone(),
-                estimate_tokens(&configuration.initial_message),
-                Some("initial-message".to_string()),
-            ),
-            user.map(|u| u.id),
-            anonymous_token,
-            configuration.id,
-        )
-        .await?;
+    models::chatbot_conversation_messages::insert_initial_message(
+        &mut conn,
+        conversation.id,
+        &configuration,
+        estimate_tokens(&configuration.initial_message),
+        user.map(|u| u.id),
+        anonymous_token,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(conversation))
 }

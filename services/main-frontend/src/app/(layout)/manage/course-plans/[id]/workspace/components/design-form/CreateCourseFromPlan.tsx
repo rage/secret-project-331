@@ -1,15 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  createCourseFromCourseDesignerPlanMutation,
-  getCourseDesignerPlanQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { createCourseFromCourseDesignerPlanMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -27,6 +24,7 @@ import {
   TONE,
 } from "@/shared-module/components"
 
+import { useInvalidatePlan } from "../../../../hooks/useInvalidatePlan"
 import { LANGUAGE_OPTIONS } from "../analysis-form/analysisFormDomain"
 import GuidanceText from "../GuidanceText"
 
@@ -75,7 +73,7 @@ function CreateCourseDialog(props: {
 }) {
   const { planId, defaultName, defaultLanguageCode, savePendingChanges, onClose } = props
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const organizationsQuery = useAllOrganizationsQuery()
   const organizations = organizationsQuery.data ?? []
   const permissionQuery = useAuthorizeMultiple(
@@ -95,9 +93,7 @@ function CreateCourseDialog(props: {
   const mutation = useMutation({
     ...createCourseFromCourseDesignerPlanMutation(),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-      })
+      await invalidatePlan()
       onClose()
     },
   })

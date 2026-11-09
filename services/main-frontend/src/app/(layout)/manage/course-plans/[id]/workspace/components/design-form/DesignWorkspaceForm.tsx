@@ -6,12 +6,11 @@ import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
 import { Checkbox, Disclosure, TextArea } from "@/shared-module/components"
 
 import useStageWorkspaceForm from "../../hooks/useStageWorkspaceForm"
-import useWorkspaceSectionNav from "../../hooks/useWorkspaceSectionNav"
+import useWorkspaceFormSections from "../../hooks/useWorkspaceFormSections"
 import {
   formRootStyles,
   ROWS_LONG,
   ROWS_STANDARD,
-  sectionAccentByIndex,
   subsectionTitleStyles,
 } from "../analysis-form/analysisFormDomain"
 import GuidanceText from "../GuidanceText"
@@ -38,8 +37,6 @@ import {
 } from "./designFormStyles"
 import TextListEditor from "./TextListEditor"
 import WorkloadCalculator from "./WorkloadCalculator"
-
-const DESIGN_SECTION_DOM_IDS = DESIGN_SECTIONS.map((section) => section.domId)
 
 /** The Design stage form: goals, content, structure, formats, style guide, exercises and workload. */
 export default function DesignWorkspaceForm(props: {
@@ -75,23 +72,11 @@ export default function DesignWorkspaceForm(props: {
     ...(onDirtyChange ? { onDirtyChange } : {}),
   })
   const { control, setValue } = form
-  const sectionNav = useWorkspaceSectionNav(DESIGN_SECTION_DOM_IDS)
-
-  const sectionProps = (index: number) => {
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- index is within DESIGN_SECTIONS
-    const section = DESIGN_SECTIONS[index]!
-    return {
-      domId: section.domId,
-      stage: STAGE_DESIGN,
-      sectionKey: section.sectionKey,
-      icon: section.icon,
-      title: t(section.titleKey),
-      accentClassName: sectionAccentByIndex[index % sectionAccentByIndex.length] ?? "",
-      expanded: sectionNav.isExpanded(section.domId),
-      onToggle: () => sectionNav.toggleSection(section.domId),
-      isReadOnly,
-    }
-  }
+  const { sectionNav, sectionLinks, sectionProps } = useWorkspaceFormSections(
+    DESIGN_SECTIONS,
+    STAGE_DESIGN,
+    isReadOnly,
+  )
 
   return (
     <form
@@ -104,11 +89,7 @@ export default function DesignWorkspaceForm(props: {
     >
       <WorkspaceFormToolbar
         stage={STAGE_DESIGN}
-        sections={DESIGN_SECTIONS.map((section) => ({
-          domId: section.domId,
-          sectionKey: section.sectionKey,
-          title: t(section.titleKey),
-        }))}
+        sections={sectionLinks}
         activeSectionId={sectionNav.activeSectionId}
         scrollToSection={sectionNav.scrollToSection}
         saveStatus={saveStatus}

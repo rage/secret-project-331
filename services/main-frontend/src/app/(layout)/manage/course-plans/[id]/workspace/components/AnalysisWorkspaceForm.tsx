@@ -14,6 +14,7 @@ import {
 } from "@/shared-module/components"
 
 import useAnalysisWorkspaceFormController from "../hooks/useAnalysisWorkspaceFormController"
+import useWorkspaceFormSections from "../hooks/useWorkspaceFormSections"
 import {
   ANALYSIS_SECTIONS,
   CONTRIBUTOR_ROLES,
@@ -28,7 +29,6 @@ import {
   ROWS_LONG,
   ROWS_SHORT,
   ROWS_STANDARD,
-  sectionAccentByIndex,
   STAGE_ANALYSIS,
   staticTextStyles,
   subsectionTitleStyles,
@@ -59,7 +59,6 @@ export default function AnalysisWorkspaceForm(props: {
     saveStatus,
     saveNow,
     loadLatest,
-    sectionNav,
     creditsFieldRules,
     uhLines,
     showUhResources,
@@ -70,28 +69,11 @@ export default function AnalysisWorkspaceForm(props: {
     isReadOnly,
     ...omitUndefined({ onDirtyChange }),
   })
-  const sectionLinks = ANALYSIS_SECTIONS.map((section) => ({
-    domId: section.domId,
-    sectionKey: section.sectionKey,
-    title: t(section.titleKey),
-  }))
-
-  const sectionProps = (index: number) => {
-    // oxlint-disable-next-line typescript/no-non-null-assertion -- index is within ANALYSIS_SECTIONS
-    const section = ANALYSIS_SECTIONS[index]!
-    return {
-      domId: section.domId,
-      stage: STAGE_ANALYSIS,
-      sectionKey: section.sectionKey,
-      icon: section.icon,
-      title: t(section.titleKey),
-      // oxlint-disable-next-line typescript/no-non-null-assertion -- one accent per section
-      accentClassName: sectionAccentByIndex[index]!,
-      expanded: sectionNav.isExpanded(section.domId),
-      onToggle: () => sectionNav.toggleSection(section.domId),
-      isReadOnly,
-    }
-  }
+  const { sectionNav, sectionLinks, sectionProps } = useWorkspaceFormSections(
+    ANALYSIS_SECTIONS,
+    STAGE_ANALYSIS,
+    isReadOnly,
+  )
 
   return (
     <form

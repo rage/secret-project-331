@@ -25,7 +25,8 @@ pub enum ToolRequirement {
     /// state, joinability and anonymous access included. Not expressible as an action on a
     /// resource, which is why it is its own variant.
     CourseMaterial(Uuid),
-    /// Active membership in the course design plan the turn is about. Never passes for a turn
+    /// Membership in the course design plan the turn is about, as verified when the turn's
+    /// context was built (see [ChatbotTurnContext::new_for_course_plan]). Never passes for a turn
     /// that names no plan, so a plan tool cannot be offered or run outside a plan conversation.
     CoursePlanMember,
 }
@@ -68,18 +69,19 @@ async fn authorize_requirements(
 ) -> ChatbotResult<Option<AuthorizationToken>> {
     let mut token = skip_authorize();
     for requirement in requirements {
-        if *requirement == ToolRequirement::CoursePlanMember {
-            if !is_member_of_turn_plan(conn, user_context).await? {
-                return Ok(None);
-            }
-            continue;
-        }
-        let roles = user_context.roles(conn).await?;
         let outcome = match requirement {
+            ToolRequirement::CoursePlanMember => {
+                if user_context.course_plan.is_none() {
+                    return Ok(None);
+                }
+                continue;
+            }
             ToolRequirement::ActionOnResource(action, resource) => {
+                let roles = user_context.roles(conn).await?;
                 authorize_with_fetched_list_of_roles(conn, *action, resource.clone(), roles).await
             }
             ToolRequirement::CourseMaterial(course_id) => {
+                let roles = user_context.roles(conn).await?;
                 authorize_access_to_course_material_with_fetched_list_of_roles(
                     conn,
                     user_context.user_id,
@@ -88,7 +90,6 @@ async fn authorize_requirements(
                 )
                 .await
             }
-            ToolRequirement::CoursePlanMember => unreachable!("checked above"),
         };
         match outcome {
             Ok(granted) => token = granted,
@@ -104,23 +105,6 @@ async fn authorize_requirements(
         }
     }
     Ok(Some(token))
-}
-
-async fn is_member_of_turn_plan(
-    conn: &mut PgConnection,
-    user_context: &ChatbotTurnContext,
-) -> ChatbotResult<bool> {
-    let (Some(plan_id), Some(user_id)) =
-        (user_context.course_designer_plan_id, user_context.user_id)
-    else {
-        return Ok(false);
-    };
-    Ok(
-        models::course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id)
-            .await
-            .optional()?
-            .is_some(),
-    )
 }
 
 /// Whether `requirements` all pass, for the callers that decide what to offer or whether to abort
@@ -185,7 +169,7 @@ pub async fn authorize_tool_call<Tool>(
     };
     let course_designer_plan_id = requirements
         .contains(&ToolRequirement::CoursePlanMember)
-        .then_some(user_context.course_designer_plan_id)
+        .then(|| user_context.course_plan.as_ref().map(|plan| plan.id))
         .flatten();
     Ok(Some(ToolAuthorization {
         acting_user_id,

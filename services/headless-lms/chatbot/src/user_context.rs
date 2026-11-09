@@ -1,5 +1,6 @@
 use headless_lms_authorization::{Resource, fetch_user_roles};
 use headless_lms_models::chatbot_configurations::ChatbotConfiguration;
+use headless_lms_models::course_designer_plans::CourseDesignerPlan;
 use headless_lms_models::roles::Role;
 use tokio::sync::OnceCell;
 
@@ -18,9 +19,9 @@ pub struct ChatbotTurnContext {
     /// The conversation this turn belongs to. `None` only in tests that build a context without
     /// one; every production call site has a conversation id in scope.
     pub conversation_id: Option<Uuid>,
-    /// The course design plan the conversation is about. Plan tools act on this plan only, never
-    /// on one the model names.
-    pub course_designer_plan_id: Option<Uuid>,
+    /// The course design plan the conversation is about, set only once `user_id` has been verified
+    /// as its member. Plan tools act on this plan only, never on one the model names.
+    pub course_plan: Option<CourseDesignerPlan>,
     pub enabled_tool_categories: EnabledToolCategories,
     roles: OnceCell<Vec<Role>>,
 }
@@ -40,23 +41,24 @@ impl ChatbotTurnContext {
             course_id,
             course_name,
             conversation_id: Some(conversation_id),
-            course_designer_plan_id: None,
+            course_plan: None,
             enabled_tool_categories: EnabledToolCategories::from_configuration(configuration),
             roles: OnceCell::new(),
         }
     }
 
     /// Like [Self::new], for a turn of the course design assistant about a plan. The caller must
-    /// have checked that `user_id` is a member of the plan and that the conversation is about it.
+    /// have loaded `course_plan` through a membership check of `user_id` and checked that the
+    /// conversation is about it: plan tools trust it without asking the database again.
     pub fn new_for_course_plan(
         user_id: Uuid,
         course_name: Option<String>,
         conversation_id: Uuid,
         configuration: &ChatbotConfiguration,
-        course_designer_plan_id: Uuid,
+        course_plan: CourseDesignerPlan,
     ) -> Self {
         Self {
-            course_designer_plan_id: Some(course_designer_plan_id),
+            course_plan: Some(course_plan),
             ..Self::new(
                 Some(user_id),
                 configuration.course_id,
@@ -123,7 +125,7 @@ impl ChatbotTurnContext {
             course_id,
             course_name,
             conversation_id: None,
-            course_designer_plan_id: None,
+            course_plan: None,
             enabled_tool_categories,
             roles: OnceCell::new_with(Some(roles)),
         }

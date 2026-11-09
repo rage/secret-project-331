@@ -3,14 +3,10 @@
 import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { z } from "zod"
 
 import type { ClientToolBubbleProps } from "@/components/course-material/chatbot/shared/clientToolRegistry"
 import ConfirmActionBubble from "@/components/course-material/chatbot/shared/ConfirmActionBubble"
-import type {
-  ClientToolAnswer,
-  ClientToolName,
-} from "@/generated/course-material-api/types.generated"
+import type { ClientToolName } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getErrorMessage } from "@/shared-module/components"
 
@@ -35,11 +31,6 @@ const noticeDetailStyle = css`
   color: ${baseTheme.colors.gray[600]};
 `
 
-const confirmationSchema = z.object({
-  type: z.literal("Data"),
-  data: z.object({ result: z.object({ confirmed: z.literal(true) }) }),
-})
-
 export interface ProposalBubbleProps<TCall> extends ClientToolBubbleProps<TCall> {
   toolName: ClientToolName
   title: string
@@ -53,7 +44,6 @@ export interface ProposalBubbleProps<TCall> extends ClientToolBubbleProps<TCall>
  */
 const ProposalBubble = <TCall,>({
   answerError,
-  onAnswer,
   isTurnInFlight,
   ...rest
 }: ProposalBubbleProps<TCall>): React.ReactElement => {
@@ -62,20 +52,14 @@ const ProposalBubble = <TCall,>({
   const [isSavingEdits, setIsSavingEdits] = useState(false)
   const [hasUnsavedEdits, setHasUnsavedEdits] = useState(false)
 
-  const handleAnswer = async (
-    toolCallId: string,
-    toolName: ClientToolName,
-    answer: ClientToolAnswer,
-  ) => {
-    if (confirmationSchema.safeParse(answer).success && pendingSaves) {
-      setIsSavingEdits(true)
-      const isAllSaved = await pendingSaves.saveAll().finally(() => setIsSavingEdits(false))
-      setHasUnsavedEdits(!isAllSaved)
-      if (!isAllSaved) {
-        return
-      }
+  const saveEditsBeforeApplying = async () => {
+    if (!pendingSaves) {
+      return true
     }
-    onAnswer(toolCallId, toolName, answer)
+    setIsSavingEdits(true)
+    const isAllSaved = await pendingSaves.saveAll().finally(() => setIsSavingEdits(false))
+    setHasUnsavedEdits(!isAllSaved)
+    return isAllSaved
   }
 
   let notice: React.ReactNode = null
@@ -98,7 +82,7 @@ const ProposalBubble = <TCall,>({
     <ConfirmActionBubble
       {...rest}
       isTurnInFlight={isTurnInFlight || isSavingEdits}
-      onAnswer={(toolCallId, toolName, answer) => void handleAnswer(toolCallId, toolName, answer)}
+      beforeConfirm={saveEditsBeforeApplying}
       danger={false}
       confirmLabel={t("course-plans-assistant-apply")}
       declineLabel={t("course-plans-assistant-discard")}

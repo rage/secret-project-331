@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id,\n  t.assignee_user_id\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2\n  AND m.deleted_at IS NULL\nWHERE s.course_designer_plan_id = $1\n  AND t.deleted_at IS NULL\nORDER BY s.id, t.order_number, t.id\n",
+  "query": "\nSELECT\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id,\n  t.assignee_user_id\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nWHERE s.course_designer_plan_id = $1\n  AND t.deleted_at IS NULL\nORDER BY s.id, t.order_number, t.id\n",
   "describe": {
     "columns": [
       {
@@ -149,7 +149,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -169,5 +168,5 @@
       true
     ]
   },
-  "hash": "58f243687b07336bc51a22696a3189a7cd899b0dad2010cba4f28913782d245d"
+  "hash": "28795c4a271cb28f68c14bbfdaa9b950895fe6684f0a4ace21475125d5c7bed9"
 }

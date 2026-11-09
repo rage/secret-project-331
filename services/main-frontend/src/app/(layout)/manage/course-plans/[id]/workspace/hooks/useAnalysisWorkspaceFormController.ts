@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 import type { CourseDesignerStageWorkspace } from "@/generated/api/types.generated"
 
 import {
-  ANALYSIS_SECTIONS,
   ANALYSIS_WORKSPACE_SCHEMA_V1,
   type AnalysisWorkspaceFormValues,
   buildCreditsFieldRules,
@@ -16,9 +15,6 @@ import {
   withDerivedOpenPeriodAll,
 } from "../components/analysis-form/analysisFormDomain"
 import useStageWorkspaceForm from "./useStageWorkspaceForm"
-import useWorkspaceSectionNav from "./useWorkspaceSectionNav"
-
-const ANALYSIS_SECTION_DOM_IDS = ANALYSIS_SECTIONS.map((section) => section.domId)
 
 function toAnalysisFormValues(workspaceData: unknown): AnalysisWorkspaceFormValues {
   return stripOpenPeriodAll(parseAnalysisWorkspaceFromApi(workspaceData))
@@ -28,7 +24,7 @@ function toAnalysisWorkspace(values: AnalysisWorkspaceFormValues): CourseDesigne
   return { schema: ANALYSIS_WORKSPACE_SCHEMA_V1, payload: withDerivedOpenPeriodAll(values) }
 }
 
-/** Form state, autosave and section navigation for the Analysis form. */
+/** Form state and autosave for the Analysis form. */
 export default function useAnalysisWorkspaceFormController(props: {
   onDirtyChange?: (dirty: boolean) => void
   planId: string
@@ -48,7 +44,6 @@ export default function useAnalysisWorkspaceFormController(props: {
     toWorkspace: toAnalysisWorkspace,
     ...(onDirtyChange ? { onDirtyChange } : {}),
   })
-  const sectionNav = useWorkspaceSectionNav(ANALYSIS_SECTION_DOM_IDS)
   const creditsFieldRules = useMemo(() => buildCreditsFieldRules(t), [t])
 
   const uhLines = t("course-plans-analysis-resources-uh-body")
@@ -63,7 +58,6 @@ export default function useAnalysisWorkspaceFormController(props: {
     saveStatus,
     saveNow,
     loadLatest,
-    sectionNav,
     creditsFieldRules,
     uhLines,
     showUhResources,

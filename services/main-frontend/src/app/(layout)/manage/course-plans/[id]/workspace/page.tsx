@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useParams, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
@@ -11,7 +11,6 @@ import {
   advanceCourseDesignerStageMutation,
   extendCourseDesignerStageMutation,
   getCourseDesignerPlanOptions,
-  getCourseDesignerPlanQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -24,6 +23,9 @@ import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
+import { formatPlanMonthYear } from "../../coursePlanDates"
+import { stageLabel as translateStageLabel } from "../../coursePlanStages"
+import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import ActiveStageDeadlineCard from "./components/ActiveStageDeadlineCard"
 import MoocDesignOverview from "./components/overview/MoocDesignOverview"
@@ -368,27 +370,12 @@ const welcomeDialogHintStyles = css`
   color: ${baseTheme.colors.gray[500]};
 `
 
-type StageLabelTranslationKey =
-  | "course-plans-stage-analysis"
-  | "course-plans-stage-design"
-  | "course-plans-stage-development"
-  | "course-plans-stage-implementation"
-  | "course-plans-stage-evaluation"
-
 type StageBriefTranslationKey =
   | "course-plans-phase-brief-analysis"
   | "course-plans-phase-brief-design"
   | "course-plans-phase-brief-development"
   | "course-plans-phase-brief-implementation"
   | "course-plans-phase-brief-evaluation"
-
-const STAGE_LABEL_KEYS = {
-  Analysis: "course-plans-stage-analysis",
-  Design: "course-plans-stage-design",
-  Development: "course-plans-stage-development",
-  Implementation: "course-plans-stage-implementation",
-  Evaluation: "course-plans-stage-evaluation",
-} satisfies Record<CourseDesignerStage, StageLabelTranslationKey>
 
 const STAGE_BRIEF_KEYS = {
   Analysis: "course-plans-phase-brief-analysis",
@@ -479,7 +466,7 @@ function CoursePlanWorkspacePage() {
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
   const requestedStageSlug = useSearchParams().get("stage")
-  const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const { alert: showDialogAlert, confirm } = useDialog()
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
@@ -494,9 +481,7 @@ function CoursePlanWorkspacePage() {
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        void invalidatePlan()
       },
     },
   )
@@ -506,14 +491,12 @@ function CoursePlanWorkspacePage() {
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        void invalidatePlan()
       },
     },
   )
 
-  const stageLabel = useCallback((stage: CourseDesignerStage) => t(STAGE_LABEL_KEYS[stage]), [t])
+  const stageLabel = useCallback((stage: CourseDesignerStage) => translateStageLabel(stage, t), [t])
 
   const {
     isOverviewOpen,
@@ -588,12 +571,7 @@ function CoursePlanWorkspacePage() {
 
               const currentPhaseEndDateFormatted =
                 currentStageData?.planned_ends_on !== undefined
-                  ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
-                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-                      month: "long",
-                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-                      year: "numeric",
-                    })
+                  ? formatPlanMonthYear(currentStageData.planned_ends_on, i18n.language)
                   : null
 
               const activeStageTaskCompleted =
@@ -627,11 +605,7 @@ function CoursePlanWorkspacePage() {
                     isActive={viewedStage === currentStage}
                     showStageTitle={false}
                     isReadOnly={plan.status === "Archived"}
-                    onInvalidate={() =>
-                      void queryClient.invalidateQueries({
-                        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-                      })
-                    }
+                    onInvalidate={() => void invalidatePlan()}
                   />
                 ) : null
 

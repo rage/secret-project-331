@@ -1,9 +1,8 @@
 use std::collections::HashSet;
 
 use indexmap::IndexMap;
-use serde_json::{Map, Value};
+use serde_json::Value;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plans::{self, CourseDesignerStage};
 use headless_lms_models::course_designer_stage_workspace::{
     AnalysisWorkspaceV1, CourseDesignerStageWorkspace, DesignWorkspaceV1,
@@ -12,25 +11,22 @@ use headless_lms_utils::json_schema_types::{
     ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
 };
 
+use super::workspace_json::{fill_ids, keeps_proposed, resolve_field, same_content};
 use super::{
-    DECLINED_OUTPUT, authorized_plan_id, outcome_instructions, parse_raw_arguments, parse_stage,
-    plan_member_requirements, stage_name, stale_proposal_error, text_property,
+    authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
+    plan_tool_declaration_items, stale_proposal_error, text_property, updated_plan_payload,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 const MAX_CHANGES: usize = 30;
-
-/// Lists whose items are objects with a client-generated `id`, keyed by the field holding them.
-const LISTS_WITH_IDS: [&str; 3] = ["chapters", "topics", "workload_activities"];
 
 /// Proposes edits to the saved form of the Analysis or Design stage.
 pub struct ProposeWorkspaceEditTool;
@@ -64,11 +60,7 @@ struct RawChange {
 impl ChatbotToolDeclaration for ProposeWorkspaceEditTool {
     const NAME: &'static str = "propose_workspace_edit";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -119,14 +111,7 @@ impl ChatbotToolDeclaration for ProposeWorkspaceEditTool {
 
 impl ConfirmableActionTool for ProposeWorkspaceEditTool {
     type Arguments = ProposeWorkspaceEditArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
@@ -202,7 +187,7 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
         let mut tx = conn.begin().await?;
-        let (workspace, revision) = course_designer_plans::lock_stage_workspace_for_user(
+        let (workspace, _revision) = course_designer_plans::lock_stage_workspace_for_user(
             &mut tx,
             plan_id,
             user_id,
@@ -226,7 +211,7 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
                     format!(
                         "{} is not a field of the {} form: {reason}",
                         change.field,
-                        stage_name(arguments.stage)
+                        arguments.stage.as_str()
                     )
                 )
             })?;
@@ -241,9 +226,9 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
 
         let workspace = match arguments.stage {
             CourseDesignerStage::Analysis => {
-                CourseDesignerStageWorkspace::AnalysisV1(from_value(payload.clone())?)
+                CourseDesignerStageWorkspace::AnalysisV1(from_value(payload)?)
             }
-            _ => CourseDesignerStageWorkspace::DesignV1(from_value(payload.clone())?),
+            _ => CourseDesignerStageWorkspace::DesignV1(from_value(payload)?),
         };
         // Deserializing silently drops fields the form does not have.
         let mut saved = match &workspace {
@@ -264,15 +249,8 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
             }
         }
 
-        let updated = course_designer_plans::update_stage_workspace_for_user(
-            &mut tx,
-            plan_id,
-            user_id,
-            arguments.stage,
-            workspace,
-            revision,
-        )
-        .await?;
+        course_designer_plans::update_locked_stage_workspace(&mut tx, plan_id, user_id, &workspace)
+            .await?;
         tx.commit().await?;
 
         let fields = arguments
@@ -285,33 +263,21 @@ impl ConfirmableActionTool for ProposeWorkspaceEditTool {
             ExecutedAction {
                 output: format!(
                     "Saved the {} form: {}. Changed fields: {fields}.",
-                    stage_name(arguments.stage),
+                    arguments.stage.as_str(),
                     arguments.summary
                 ),
-                client_payload: Some(serde_json::json!({ "plan_details": updated })),
+                client_payload: Some(updated_plan_payload(conn, plan_id, user_id).await?),
                 audit: ActionAuditFields {
                     target_user_id: None,
                     course_id: None,
                     summary: format!(
                         "Edited the {} form of course design plan {plan_id}: {fields}",
-                        stage_name(arguments.stage)
+                        arguments.stage.as_str()
                     ),
                 },
             },
             (),
         ))
-    }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
     }
 }
 
@@ -337,154 +303,4 @@ fn from_value<T: serde::de::DeserializeOwned>(value: Value) -> ChatbotResult<T> 
             format!("The proposed values do not fit the form: {e}. Nothing was saved.")
         )
     })
-}
-
-/// The value at `segments`, where a segment names an object key or, inside a list with ids, the
-/// `id` of an item.
-fn resolve_field<'a>(root: &'a mut Value, segments: &[&str]) -> Result<&'a mut Value, String> {
-    let mut current = root;
-    for segment in segments {
-        current = match current {
-            Value::Object(map) => map
-                .get_mut(*segment)
-                .ok_or_else(|| format!("there is no field {segment}"))?,
-            Value::Array(items) => items
-                .iter_mut()
-                .find(|item| item.get("id").and_then(Value::as_str) == Some(*segment))
-                .ok_or_else(|| format!("there is no item with id {segment}"))?,
-            _ => return Err(format!("{segment} goes inside a value that has no fields")),
-        };
-    }
-    Ok(current)
-}
-
-/// Gives proposed list items the ids of the current items they replace, matched by title, and new
-/// ids to the rest, so the model never has to invent or copy ids correctly.
-fn fill_ids(key: Option<&str>, proposed: &mut Value, current: &Value) {
-    match proposed {
-        Value::Array(items) if key.is_some_and(|key| LISTS_WITH_IDS.contains(&key)) => {
-            let current_items = current.as_array().cloned().unwrap_or_default();
-            let mut used_ids = HashSet::new();
-            for item in items.iter_mut() {
-                if let Value::String(title) = item {
-                    let mut object = Map::new();
-                    object.insert("title".to_string(), Value::String(title.clone()));
-                    *item = Value::Object(object);
-                }
-                let Value::Object(object) = item else {
-                    continue;
-                };
-                let supplied_id = object
-                    .get("id")
-                    .and_then(Value::as_str)
-                    .and_then(|id| Uuid::parse_str(id).ok())
-                    .filter(|id| !id.is_nil());
-                let matched = match supplied_id {
-                    Some(id) => current_items
-                        .iter()
-                        .find(|candidate| id_of(candidate) == Some(id)),
-                    None => {
-                        let title = object
-                            .get("title")
-                            .and_then(Value::as_str)
-                            .map(normalized_title);
-                        current_items.iter().find(|candidate| {
-                            id_of(candidate).is_some_and(|id| !used_ids.contains(&id))
-                                && title.is_some()
-                                && candidate
-                                    .get("title")
-                                    .and_then(Value::as_str)
-                                    .map(normalized_title)
-                                    == title
-                        })
-                    }
-                };
-                let id = supplied_id
-                    .or_else(|| matched.and_then(id_of))
-                    .unwrap_or_else(Uuid::new_v4);
-                used_ids.insert(id);
-                object.insert("id".to_string(), Value::String(id.to_string()));
-                let matched = matched.cloned().unwrap_or(Value::Null);
-                fill_nested(object, &matched);
-            }
-        }
-        Value::Object(object) => {
-            if let Some(id) = id_of(current) {
-                object.insert("id".to_string(), Value::String(id.to_string()));
-            }
-            fill_nested(object, current);
-        }
-        _ => {}
-    }
-}
-
-fn fill_nested(object: &mut Map<String, Value>, current: &Value) {
-    for (key, value) in object.iter_mut() {
-        if key != "id" {
-            fill_ids(Some(key), value, current.get(key).unwrap_or(&Value::Null));
-        }
-    }
-}
-
-fn id_of(value: &Value) -> Option<Uuid> {
-    value
-        .get("id")
-        .and_then(Value::as_str)
-        .and_then(|id| Uuid::parse_str(id).ok())
-}
-
-fn normalized_title(title: &str) -> String {
-    title.trim().to_lowercase()
-}
-
-/// Whether the model's copy of a current value describes `actual`: ids and surrounding whitespace
-/// are ignored, and every empty value (null, "", [], false, 0) counts as the same.
-fn same_content(actual: &Value, supplied: &Value) -> bool {
-    if is_empty(actual) && is_empty(supplied) {
-        return true;
-    }
-    match (actual, supplied) {
-        (Value::String(a), Value::String(b)) => a.trim() == b.trim(),
-        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
-        (Value::Array(a), Value::Array(b)) => {
-            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_content(a, b))
-        }
-        // A list item the model wrote as its title alone.
-        (Value::Object(a), Value::String(_)) => a
-            .get("title")
-            .is_some_and(|title| same_content(title, supplied)),
-        (Value::Object(a), Value::Object(b)) => a
-            .iter()
-            .filter(|(key, _)| key.as_str() != "id")
-            .all(|(key, value)| same_content(value, b.get(key).unwrap_or(&Value::Null))),
-        (a, b) => a == b,
-    }
-}
-
-/// Whether `saved` holds everything `proposed` set. Fields `proposed` left out may have been
-/// filled with defaults; numbers compare by value (`5` and `5.0`).
-fn keeps_proposed(saved: &Value, proposed: &Value) -> bool {
-    match (saved, proposed) {
-        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
-        (Value::Array(a), Value::Array(b)) => {
-            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| keeps_proposed(a, b))
-        }
-        (Value::Object(a), Value::Object(b)) => b
-            .iter()
-            .all(|(key, value)| a.get(key).is_some_and(|saved| keeps_proposed(saved, value))),
-        (a, b) => a == b,
-    }
-}
-
-fn is_empty(value: &Value) -> bool {
-    match value {
-        Value::Null => true,
-        Value::Bool(b) => !b,
-        Value::Number(n) => n.as_f64() == Some(0.0),
-        Value::String(s) => s.trim().is_empty(),
-        Value::Array(items) => items.is_empty(),
-        Value::Object(map) => map
-            .iter()
-            .all(|(key, value)| key == "id" || is_empty(value)),
-    }
 }

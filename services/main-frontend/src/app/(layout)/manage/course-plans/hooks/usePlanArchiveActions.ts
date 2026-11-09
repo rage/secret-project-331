@@ -3,12 +3,13 @@ import { useTranslation } from "react-i18next"
 
 import {
   archiveCourseDesignerPlanMutation,
-  getCourseDesignerPlanQueryKey,
   getCourseDesignerPlansQueryKey,
   unarchiveCourseDesignerPlanMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { useDialog } from "@/shared-module/components"
+
+import { useInvalidatePlan } from "./useInvalidatePlan"
 
 /**
  * Archive and restore actions for one plan. Both ask for confirmation first and refresh the plan
@@ -18,11 +19,10 @@ export function usePlanArchiveActions(planId: string) {
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
 
   const refreshPlan = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-    })
+    await invalidatePlan()
     await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
   }
 

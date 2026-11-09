@@ -20,6 +20,7 @@ pub mod propose_section_status;
 pub mod propose_update_task;
 pub mod propose_vision_edit;
 pub mod propose_workspace_edit;
+mod workspace_json;
 
 /// Section keys the plan pages mark as ready or unfinished. Mirrored by hand in the course plan
 /// forms of main-frontend; a key missing there is stored but shown nowhere.
@@ -47,6 +48,50 @@ pub(crate) fn plan_member_requirements() -> Vec<ToolRequirement> {
     vec![ToolRequirement::CoursePlanMember]
 }
 
+/// The [ChatbotToolDeclaration](crate::chatbot_tools::ChatbotToolDeclaration) items every plan
+/// tool shares: its category, and plan membership as the offer requirement.
+macro_rules! plan_tool_declaration_items {
+    () => {
+        const CATEGORY: headless_lms_models::chatbot_configurations::ToolCategory =
+            headless_lms_models::chatbot_configurations::ToolCategory::CoursePlanning;
+
+        fn offer_requirements(
+            _user_context: &$crate::user_context::ChatbotTurnContext,
+        ) -> Vec<$crate::chatbot_tools::tool_authorization::ToolRequirement> {
+            $crate::chatbot_tools::course_plan_tools::plan_member_requirements()
+        }
+    };
+}
+
+/// The [ConfirmableActionTool](crate::chatbot_tools::action_tools::ConfirmableActionTool) items
+/// every proposal tool shares, so each one writes only its arguments and `execute`.
+macro_rules! plan_proposal_items {
+    () => {
+        type Facts = ();
+
+        fn call_requirements(
+            _arguments: &Self::Arguments,
+            _user_context: &$crate::user_context::ChatbotTurnContext,
+        ) -> Vec<$crate::chatbot_tools::tool_authorization::ToolRequirement> {
+            $crate::chatbot_tools::course_plan_tools::plan_member_requirements()
+        }
+
+        fn declined_output(_arguments: &Self::Arguments) -> String {
+            $crate::chatbot_tools::course_plan_tools::DECLINED_OUTPUT.to_string()
+        }
+
+        fn output_description_instructions(
+            _arguments: &Self::Arguments,
+            facts: Option<&()>,
+            _app_config: &headless_lms_base::config::ApplicationConfiguration,
+        ) -> Option<String> {
+            Some($crate::chatbot_tools::course_plan_tools::outcome_instructions(facts.is_some()))
+        }
+    };
+}
+
+pub(crate) use {plan_proposal_items, plan_tool_declaration_items};
+
 /// The plan an authorized plan tool acts on.
 pub(crate) fn authorized_plan_id<Tool>(
     authorization: &ToolAuthorization<Tool>,
@@ -59,29 +104,15 @@ pub(crate) fn authorized_plan_id<Tool>(
     })
 }
 
-/// The wire name of a stage in tool arguments and outputs.
-pub(crate) fn stage_name(stage: CourseDesignerStage) -> &'static str {
-    match stage {
-        CourseDesignerStage::Analysis => "analysis",
-        CourseDesignerStage::Design => "design",
-        CourseDesignerStage::Development => "development",
-        CourseDesignerStage::Implementation => "implementation",
-        CourseDesignerStage::Evaluation => "evaluation",
-    }
-}
-
 pub(crate) fn parse_stage(value: &str) -> ChatbotResult<CourseDesignerStage> {
-    course_designer_plans::fixed_stage_order()
-        .into_iter()
-        .find(|stage| stage_name(*stage) == value.trim().to_lowercase())
-        .ok_or_else(|| {
-            chatbot_err!(
-                InvalidToolArguments,
-                format!(
-                    "'{value}' is not a stage. Valid values: analysis, design, development, implementation, evaluation."
-                )
+    value.trim().to_lowercase().parse().map_err(|_| {
+        chatbot_err!(
+            InvalidToolArguments,
+            format!(
+                "'{value}' is not a stage. Valid values: analysis, design, development, implementation, evaluation."
             )
-        })
+        )
+    })
 }
 
 /// Parses tool arguments into their raw shape, reporting failure to the model.
@@ -95,19 +126,33 @@ pub(crate) fn parse_raw_arguments<T: DeserializeOwned>(arguments: &str) -> Chatb
     })
 }
 
-/// How the plan pages name a member: their full name, or their email when they have none.
-pub(crate) fn member_display_name(member: &PlanMemberWithDetails) -> String {
-    let name = [member.first_name.as_deref(), member.last_name.as_deref()]
-        .into_iter()
-        .flatten()
-        .map(str::trim)
-        .filter(|part| !part.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ");
-    if name.is_empty() {
-        member.email.clone()
-    } else {
-        name
+/// The plan member going by `name` as the plan pages show it, case-insensitively.
+///
+/// Fails when no member, or more than one, has that name.
+pub(crate) fn resolve_member_by_name(
+    members: &[PlanMemberWithDetails],
+    name: &str,
+) -> ChatbotResult<Uuid> {
+    let wanted = name.trim().to_lowercase();
+    let matching: Vec<Uuid> = members
+        .iter()
+        .filter(|member| member.display_name().to_lowercase() == wanted)
+        .map(|member| member.user_id)
+        .collect();
+    match matching.as_slice() {
+        [user_id] => Ok(*user_id),
+        [] => Err(chatbot_err!(
+            ToolUseError,
+            format!(
+                "No plan member is named {name}. Nothing was saved. Call get_course_plan for the members' names."
+            )
+        )),
+        _ => Err(chatbot_err!(
+            ToolUseError,
+            format!(
+                "More than one plan member is named {name}. Nothing was saved; ask the user to assign the task themselves."
+            )
+        )),
     }
 }
 
@@ -157,10 +202,4 @@ pub(crate) fn text_property(description: &str) -> SchemaPropertyType {
         type_field: JSONType::String,
         description: Some(description.to_string()),
     })
-}
-
-/// The trimmed value, or `None` for the empty string the model sends for "no value".
-pub(crate) fn non_blank(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    (!trimmed.is_empty()).then(|| trimmed.to_string())
 }

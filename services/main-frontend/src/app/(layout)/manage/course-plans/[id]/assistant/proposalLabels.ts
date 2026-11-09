@@ -98,14 +98,6 @@ export const ITEM_FIELD_LABEL_KEYS = {
   minutes_each: "course-plans-design-workload-minutes-each",
 } as const
 
-export const STAGE_LABEL_KEYS = {
-  analysis: "course-plans-stage-analysis",
-  design: "course-plans-stage-design",
-  development: "course-plans-stage-development",
-  implementation: "course-plans-stage-implementation",
-  evaluation: "course-plans-stage-evaluation",
-} as const
-
 export const SECTION_STATUS_LABEL_KEYS = {
   ready: "course-plans-section-status-ready",
   unfinished: "course-plans-section-status-unfinished",

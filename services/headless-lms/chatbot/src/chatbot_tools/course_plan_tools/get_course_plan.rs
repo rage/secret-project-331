@@ -1,18 +1,16 @@
 use std::collections::HashMap;
 
 use chrono::NaiveDate;
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plans::{
-    self, CourseDesignerPlanStageStatus, CourseDesignerPlanStatus,
+    self, CourseDesignerPlanStageStatus, CourseDesignerPlanStatus, CourseDesignerStage,
 };
-use headless_lms_models::course_designer_section_statuses::CourseDesignerSectionStatus;
 use headless_lms_models::course_designer_stage_workspace::{
     CourseDesignerStageWorkspace, parse_workspace_data,
 };
 use headless_lms_models::{course_designer_plan_members, courses};
 use headless_lms_utils::cache::Cache;
 
-use super::{KNOWN_SECTION_KEYS, member_display_name, plan_member_requirements, stage_name};
+use super::{KNOWN_SECTION_KEYS, plan_member_requirements, plan_tool_declaration_items};
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
@@ -97,11 +95,7 @@ struct SectionStatusSnapshot {
 impl ChatbotToolDeclaration for GetCoursePlanTool {
     const NAME: &'static str = "get_course_plan";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -136,9 +130,10 @@ impl ChatbotTool for GetCoursePlanTool {
         _arguments: Self::Arguments,
         user_context: &ChatbotTurnContext,
     ) -> ChatbotResult<Self> {
-        let (Some(plan_id), Some(user_id)) =
-            (user_context.course_designer_plan_id, user_context.user_id)
-        else {
+        let (Some(plan_id), Some(user_id)) = (
+            user_context.course_plan.as_ref().map(|plan| plan.id),
+            user_context.user_id,
+        ) else {
             return Err(chatbot_err!(
                 ToolUseError,
                 "This conversation is not about a course design plan.".to_string()
@@ -164,7 +159,7 @@ impl ChatbotTool for GetCoursePlanTool {
 
         let names: HashMap<Uuid, String> = members
             .iter()
-            .map(|member| (member.user_id, member_display_name(member)))
+            .map(|member| (member.user_id, member.display_name()))
             .collect();
 
         let stages = details
@@ -178,7 +173,7 @@ impl ChatbotTool for GetCoursePlanTool {
                     Err(_) => stage.workspace_data.clone(),
                 };
                 StageSnapshot {
-                    stage: stage_name(stage.stage),
+                    stage: stage.stage.as_str(),
                     status: match stage.status {
                         CourseDesignerPlanStageStatus::NotStarted => "not_started",
                         CourseDesignerPlanStageStatus::InProgress => "in_progress",
@@ -211,10 +206,7 @@ impl ChatbotTool for GetCoursePlanTool {
                         .filter(|status| status.stage == stage.stage)
                         .map(|status| SectionStatusSnapshot {
                             section_key: status.section_key.clone(),
-                            status: match status.status {
-                                CourseDesignerSectionStatus::Ready => "ready",
-                                CourseDesignerSectionStatus::Unfinished => "unfinished",
-                            },
+                            status: status.status.as_str(),
                             comment: status.comment.clone(),
                             updated_by: names.get(&status.updated_by_user_id).cloned(),
                             updated_at: status.updated_at,
@@ -236,7 +228,7 @@ impl ChatbotTool for GetCoursePlanTool {
                         CourseDesignerPlanStatus::Completed => "completed",
                         CourseDesignerPlanStatus::Archived => "archived",
                     },
-                    active_stage: details.plan.active_stage.map(stage_name),
+                    active_stage: details.plan.active_stage.map(CourseDesignerStage::as_str),
                     great_mooc_vision: details.plan.great_mooc_vision,
                     created_course,
                 },
@@ -244,7 +236,7 @@ impl ChatbotTool for GetCoursePlanTool {
                     .iter()
                     .map(|member| MemberSnapshot {
                         user_id: member.user_id,
-                        name: member_display_name(member),
+                        name: member.display_name(),
                         is_current_user: member.user_id == user_id,
                     })
                     .collect(),

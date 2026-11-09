@@ -13,6 +13,7 @@ import type {
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, Dialog, Meter, METER_KIND, TONE } from "@/shared-module/components"
 
+import { formatPlanMonthYear } from "../../../coursePlanDates"
 import AdjustScheduleDialog from "../../schedule/components/AdjustScheduleDialog"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useConfirmStageCompletion } from "../hooks/useConfirmStageCompletion"
@@ -313,14 +314,6 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
   const confirmStageCompletion = useConfirmStageCompletion()
 
-  const formatMonthYear = (isoDate: string): string =>
-    new Date(isoDate).toLocaleDateString(i18n.language, {
-      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-      month: "long",
-      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-      year: "numeric",
-    })
-
   const activeStageData =
     activeStage !== null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
 
@@ -465,8 +458,8 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
                       )}
                     >
                       {t("course-plans-overview-stage-dates", {
-                        startsOn: formatMonthYear(stageData.planned_starts_on),
-                        endsOn: formatMonthYear(stageData.planned_ends_on),
+                        startsOn: formatPlanMonthYear(stageData.planned_starts_on, i18n.language),
+                        endsOn: formatPlanMonthYear(stageData.planned_ends_on, i18n.language),
                       })}
                     </span>
                   </div>

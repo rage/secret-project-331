@@ -1,10 +1,12 @@
-import { addDays, differenceInCalendarDays, format, isValid, parseISO } from "date-fns"
+import { addDays, differenceInCalendarDays, isValid, parseISO } from "date-fns"
 
 import type {
   CourseDesignerPlanStageStatus,
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+
+import { toIsoDate } from "../../coursePlanDates"
 
 type StageInput = CourseDesignerScheduleStageInput
 
@@ -17,14 +19,12 @@ export type ScheduleAdjustmentIssue =
   | { code: "ends_before_start"; stage: CourseDesignerStage }
   | { code: "completed_stage_changed"; stage: CourseDesignerStage }
 
-const ISO_DATE_FORMAT = "yyyy-MM-dd"
-
 export function isIsoDate(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value))
 }
 
 function shiftIsoDate(isoDate: string, days: number): string {
-  return format(addDays(parseISO(isoDate), days), ISO_DATE_FORMAT)
+  return toIsoDate(addDays(parseISO(isoDate), days))
 }
 
 /**

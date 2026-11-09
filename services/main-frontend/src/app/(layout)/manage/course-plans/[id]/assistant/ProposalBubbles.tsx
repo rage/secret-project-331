@@ -2,7 +2,6 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { parseISO } from "date-fns"
 import type { TFunction } from "i18next"
 import { useParams } from "next/navigation"
 import React, { useMemo } from "react"
@@ -13,6 +12,8 @@ import type { ClientToolBubbleProps } from "@/components/course-material/chatbot
 import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
+import { formatPlanShortDate } from "../../coursePlanDates"
+import { stageFromName, stageLabel } from "../../coursePlanStages"
 import { sectionKeyLabel } from "../workspace/components/section-status/sectionKeys"
 import type {
   AddTaskCall,
@@ -35,7 +36,6 @@ import ProposalBubble from "./ProposalBubble"
 import {
   labelKeyOf,
   SECTION_STATUS_LABEL_KEYS,
-  STAGE_LABEL_KEYS,
   TASK_FIELD_LABEL_KEYS,
   workspaceFieldLabel,
 } from "./proposalLabels"
@@ -84,30 +84,18 @@ const changedRowStyle = css`
   background: ${baseTheme.colors.green[100]};
 `
 
-const stageLabel = (stage: string, t: TFunction) => {
-  const labelKey = labelKeyOf(STAGE_LABEL_KEYS, stage.trim().toLowerCase())
-  return labelKey ? t(labelKey) : stage
-}
-
-const SHORT_DATE_OPTIONS: Intl.DateTimeFormatOptions = {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
+const stageNameLabel = (name: string, t: TFunction) => {
+  const stage = stageFromName(name)
+  return stage ? stageLabel(stage, t) : name
 }
 
 const formatStageDates = (dates: StageDates | undefined, locale: string, t: TFunction) => {
   if (!dates) {
     return ""
   }
-  const format = (isoDate: string) => {
-    const date = parseISO(isoDate)
-    return Number.isNaN(date.getTime())
-      ? isoDate
-      : date.toLocaleDateString(locale, SHORT_DATE_OPTIONS)
-  }
   return t("course-plans-overview-stage-dates", {
-    startsOn: format(dates.starts_on),
-    endsOn: format(dates.ends_on),
+    startsOn: formatPlanShortDate(dates.starts_on, locale),
+    endsOn: formatPlanShortDate(dates.ends_on, locale),
   })
 }
 
@@ -175,7 +163,9 @@ export const WorkspaceEditBubble: React.FC<ClientToolBubbleProps<WorkspaceEditCa
       {...rest}
       call={call}
       toolName={PROPOSE_WORKSPACE_EDIT_TOOL}
-      title={t("course-plans-assistant-workspace-edit-title", { stage: stageLabel(call.stage, t) })}
+      title={t("course-plans-assistant-workspace-edit-title", {
+        stage: stageNameLabel(call.stage, t),
+      })}
       rows={rows}
     />
   )
@@ -203,7 +193,7 @@ export const AddTaskBubble: React.FC<ClientToolBubbleProps<AddTaskCall>> = ({ ca
       {...rest}
       call={call}
       toolName={PROPOSE_ADD_TASK_TOOL}
-      title={t("course-plans-assistant-add-task-title", { stage: stageLabel(call.stage, t) })}
+      title={t("course-plans-assistant-add-task-title", { stage: stageNameLabel(call.stage, t) })}
       rows={rows}
     />
   )
@@ -270,7 +260,7 @@ export const ScheduleAdjustmentBubble: React.FC<ClientToolBubbleProps<ScheduleAd
               current?.starts_on !== proposed.starts_on || current?.ends_on !== proposed.ends_on
             return (
               <tr key={proposed.stage} className={cx(isChanged && changedRowStyle)}>
-                <th scope="row">{stageLabel(proposed.stage, t)}</th>
+                <th scope="row">{stageNameLabel(proposed.stage, t)}</th>
                 <td>{formatStageDates(current, i18n.language, t)}</td>
                 <td>{formatStageDates(proposed, i18n.language, t)}</td>
               </tr>
@@ -321,7 +311,7 @@ export const SectionStatusBubble: React.FC<ClientToolBubbleProps<SectionStatusCa
       toolName={PROPOSE_SECTION_STATUS_TOOL}
       title={t("course-plans-assistant-section-status-title", {
         section: sectionKeyLabel(call.section_key, t),
-        stage: stageLabel(call.stage, t),
+        stage: stageNameLabel(call.section_key.split(".")[0] ?? "", t),
       })}
       rows={rows}
     />

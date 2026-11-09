@@ -1,24 +1,22 @@
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plan_members;
-use headless_lms_models::course_designer_plans::{self, CourseDesignerStage};
+use headless_lms_models::course_designer_plans::CourseDesignerStage;
 use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
-    DECLINED_OUTPUT, authorized_plan_id, non_blank, outcome_instructions, parse_raw_arguments,
-    parse_stage, plan_member_requirements, propose_update_task::resolve_member_by_name, stage_name,
-    text_property, updated_plan_payload,
+    authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
+    plan_tool_declaration_items, resolve_member_by_name, text_property, updated_plan_payload,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 /// Proposes a new task in one of the plan's stages, optionally assigned to a member.
@@ -42,11 +40,7 @@ struct RawArguments {
 impl ChatbotToolDeclaration for ProposeAddTaskTool {
     const NAME: &'static str = "propose_add_task";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -81,25 +75,20 @@ impl ChatbotToolDeclaration for ProposeAddTaskTool {
 
 impl ConfirmableActionTool for ProposeAddTaskTool {
     type Arguments = ProposeAddTaskArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
-        let title = non_blank(&raw.title).ok_or_else(|| {
-            chatbot_err!(InvalidToolArguments, "title must not be empty.".to_string())
-        })?;
+        let title = non_empty_trimmed(&raw.title)
+            .map(str::to_string)
+            .ok_or_else(|| {
+                chatbot_err!(InvalidToolArguments, "title must not be empty.".to_string())
+            })?;
         Ok(ProposeAddTaskArguments {
             stage: parse_stage(&raw.stage)?,
             title,
-            description: non_blank(&raw.description),
-            assignee_name: non_blank(&raw.assignee_name),
+            description: non_empty_trimmed(&raw.description).map(str::to_string),
+            assignee_name: non_empty_trimmed(&raw.assignee_name).map(str::to_string),
         })
     }
 
@@ -111,13 +100,11 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let details =
-            course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await?;
-        let stage_id = details
-            .stages
-            .iter()
-            .find(|s| s.stage.stage == arguments.stage)
-            .map(|s| s.stage.id)
+        let stage_id = course_designer_plan_members::get_plan_stages(conn, plan_id)
+            .await?
+            .into_iter()
+            .find(|s| s.stage == arguments.stage)
+            .map(|s| s.id)
             .ok_or_else(|| {
                 chatbot_err!(
                     ToolUseError,
@@ -126,7 +113,13 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
                 )
             })?;
         let assignee = match &arguments.assignee_name {
-            Some(name) => Some(resolve_member_by_name(conn, plan_id, user_id, name).await?),
+            Some(name) => {
+                let members = course_designer_plan_members::get_plan_members_with_details(
+                    conn, plan_id, user_id,
+                )
+                .await?;
+                Some(resolve_member_by_name(&members, name)?)
+            }
             None => None,
         };
 
@@ -157,7 +150,7 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
                 output: format!(
                     "Added the task \"{}\" to the {} stage{}.",
                     arguments.title,
-                    stage_name(arguments.stage),
+                    arguments.stage.as_str(),
                     arguments
                         .assignee_name
                         .as_ref()
@@ -173,17 +166,5 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
             },
             (),
         ))
-    }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
     }
 }

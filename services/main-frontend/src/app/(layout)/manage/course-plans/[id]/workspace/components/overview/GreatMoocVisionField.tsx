@@ -1,19 +1,17 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
-import {
-  getCourseDesignerPlanQueryKey,
-  setCourseDesignerGreatMoocVisionMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { setCourseDesignerGreatMoocVisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getErrorMessage, TextArea } from "@/shared-module/components"
 
+import { useInvalidatePlan } from "../../../../hooks/useInvalidatePlan"
 import { useRegisterPendingSave } from "../../../components/PendingSavesContext"
 import { AUTOSAVE_DEBOUNCE_MS } from "../analysis-form/analysisFormDomain"
 
@@ -38,7 +36,7 @@ export default function GreatMoocVisionField(props: {
 }) {
   const { planId, greatMoocVision, isReadOnly } = props
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
   const savedVision = greatMoocVision ?? ""
   const lastSavedRef = useRef(savedVision)
   const [hasSaved, setHasSaved] = useState(false)
@@ -53,9 +51,7 @@ export default function GreatMoocVisionField(props: {
     onSuccess: async (_plan, variables) => {
       lastSavedRef.current = variables.body.great_mooc_vision ?? ""
       setHasSaved(true)
-      await queryClient.invalidateQueries({
-        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-      })
+      await invalidatePlan()
     },
   })
 

@@ -10,15 +10,16 @@ use headless_lms_chatbot::azure_chatbot::turn::{
 use headless_lms_chatbot::course_designer_assistant::get_or_create_assistant_configuration;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_chatbot::user_context::ChatbotTurnContext;
-use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
-use headless_lms_models::chatbot_conversation_message_tool_calls;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
+use headless_lms_models::course_designer_plans::CourseDesignerPlan;
 use headless_lms_utils::cache::Cache;
 use utoipa::{OpenApi, ToSchema};
 
-use crate::controllers::course_material::chatbot::ChatbotToolResponse;
+use crate::controllers::course_material::chatbot::{
+    ChatbotToolResponse, verify_answered_tool_name,
+};
 use crate::domain::authorization::AuthorizationToken;
 use crate::prelude::*;
 
@@ -68,7 +69,7 @@ async fn get_assistant_status(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseDesignerAssistantStatus>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
+    let (token, _plan) = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
     let assistant =
         models::chatbot_configurations::get_course_designer_assistant(&mut conn).await?;
     let available = app_conf
@@ -101,24 +102,19 @@ async fn post_new_conversation(
     user: AuthUser,
 ) -> ControllerResult<web::Json<ChatbotConversation>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
+    let (token, _plan) = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
     let configuration = get_or_create_assistant_configuration(&mut conn).await?;
     let mut tx = conn.begin().await?;
     let conversation =
         chatbot_conversations::create_for_course_plan(&mut tx, user.id, configuration.id, *plan_id)
             .await?;
-    models::chatbot_conversation_messages::insert_for_conversation_user_and_configuration(
+    models::chatbot_conversation_messages::insert_initial_message(
         &mut tx,
-        models::chatbot_conversation_messages::ChatbotConversationMessage::text(
-            conversation.id,
-            MessageRole::Assistant,
-            configuration.initial_message.clone(),
-            estimate_tokens(&configuration.initial_message),
-            Some("initial-message".to_string()),
-        ),
+        conversation.id,
+        &configuration,
+        estimate_tokens(&configuration.initial_message),
         Some(user.id),
         None,
-        configuration.id,
     )
     .await?;
     tx.commit().await?;
@@ -146,7 +142,7 @@ async fn get_current_conversation(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Option<ChatbotConversationInfo>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
+    let (token, _plan) = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
     let Some(configuration) =
         models::chatbot_configurations::get_course_designer_assistant(&mut conn).await?
     else {
@@ -195,7 +191,7 @@ async fn get_conversation_info(
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
     let (plan_id, conversation_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let (token, conversation) =
+    let (token, conversation, _plan) =
         authorize_plan_conversation(&mut conn, plan_id, conversation_id, user.id).await?;
     let info = chatbot_conversations::get_course_plan_conversation_info(
         &mut conn,
@@ -245,9 +241,9 @@ async fn post_send_message(
 ) -> ControllerResult<HttpResponse> {
     let (plan_id, conversation_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let (token, conversation) =
+    let (token, conversation, plan) =
         authorize_plan_conversation(&mut conn, plan_id, conversation_id, user.id).await?;
-    let turn_context = plan_turn_context(&mut conn, &conversation, plan_id, user.id).await?;
+    let turn_context = plan_turn_context(&mut conn, &conversation, plan, user.id).await?;
     let response_stream = send_chat_request_and_parse_stream(
         pool.get_ref().clone(),
         &app_conf,
@@ -307,23 +303,10 @@ async fn post_tool_response(
         answer,
     } = payload.into_inner();
     let mut conn = pool.acquire().await?;
-    let (token, conversation) =
+    let (token, conversation, plan) =
         authorize_plan_conversation(&mut conn, plan_id, conversation_id, user.id).await?;
-    let recorded_call =
-        chatbot_conversation_message_tool_calls::get_by_conversation_and_tool_call_id(
-            &mut conn,
-            conversation_id,
-            &tool_call_id,
-        )
-        .await?;
-    if recorded_call.is_none_or(|call| call.tool_name != tool_name.as_str()) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "tool_name does not match the tool call being answered".to_string(),
-            None,
-        ));
-    }
-    let turn_context = plan_turn_context(&mut conn, &conversation, plan_id, user.id).await?;
+    verify_answered_tool_name(&mut conn, conversation_id, &tool_call_id, tool_name).await?;
+    let turn_context = plan_turn_context(&mut conn, &conversation, plan, user.id).await?;
     let response_stream = answer_tool_call_and_resume_stream(
         pool.get_ref().clone(),
         &app_conf,
@@ -346,8 +329,8 @@ async fn authorize_plan_member(
     conn: &mut PgConnection,
     plan_id: Uuid,
     user_id: Uuid,
-) -> Result<AuthorizationToken, ControllerError> {
-    models::course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id)
+) -> Result<(AuthorizationToken, CourseDesignerPlan), ControllerError> {
+    let plan = models::course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id)
         .await
         .optional()?
         .ok_or_else(|| {
@@ -357,7 +340,7 @@ async fn authorize_plan_member(
                 None,
             )
         })?;
-    Ok(skip_authorize())
+    Ok((skip_authorize(), plan))
 }
 
 /// Checks that the user is a plan member and that the conversation is theirs and about this plan.
@@ -367,8 +350,8 @@ async fn authorize_plan_conversation(
     plan_id: Uuid,
     conversation_id: Uuid,
     user_id: Uuid,
-) -> Result<(AuthorizationToken, ChatbotConversation), ControllerError> {
-    let token = authorize_plan_member(conn, plan_id, user_id).await?;
+) -> Result<(AuthorizationToken, ChatbotConversation, CourseDesignerPlan), ControllerError> {
+    let (token, plan) = authorize_plan_member(conn, plan_id, user_id).await?;
     let conversation = chatbot_conversations::get_by_id(conn, conversation_id).await?;
     if conversation.user_id != Some(user_id)
         || conversation.course_designer_plan_id != Some(plan_id)
@@ -379,13 +362,15 @@ async fn authorize_plan_conversation(
             None,
         ));
     }
-    Ok((token, conversation))
+    Ok((token, conversation, plan))
 }
 
+/// `plan` must come from [authorize_plan_conversation] in the same request: plan tools trust it as
+/// proof of membership.
 async fn plan_turn_context(
     conn: &mut PgConnection,
     conversation: &ChatbotConversation,
-    plan_id: Uuid,
+    plan: CourseDesignerPlan,
     user_id: Uuid,
 ) -> Result<ChatbotTurnContext, ControllerError> {
     let configuration =
@@ -400,7 +385,7 @@ async fn plan_turn_context(
         course_name,
         conversation.id,
         &configuration,
-        plan_id,
+        plan,
     ))
 }
 

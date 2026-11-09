@@ -25,6 +25,8 @@ export interface ConfirmActionBubbleProps<TCall> extends ClientToolBubbleProps<T
   notice?: React.ReactNode
   /** Extra content to show once the action has executed, built from `executionPayload`. */
   executedContent?: React.ReactNode
+  /** Runs when the admin confirms; resolving to false keeps the call open without answering. */
+  beforeConfirm?: () => Promise<boolean>
 }
 
 type BubbleVisualState =
@@ -148,6 +150,7 @@ const ConfirmActionBubble = <TCall,>({
   declineLabel,
   notice,
   executedContent,
+  beforeConfirm,
   toolCallId,
   isOpen,
   isTurnInFlight,
@@ -196,7 +199,10 @@ const ConfirmActionBubble = <TCall,>({
     return BUBBLE_CLASS_BY_STATE[isOpenState ? "safe-open" : "safe-closed"]
   })()
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (beforeConfirm && !(await beforeConfirm())) {
+      return
+    }
     onAnswer(toolCallId, toolName, {
       type: "Data",
       data: { result: { confirmed: true } },
@@ -228,7 +234,7 @@ const ConfirmActionBubble = <TCall,>({
               variant="primary"
               size="small"
               disabled={buttonsDisabled}
-              onClick={handleConfirm}
+              onClick={() => void handleConfirm()}
             >
               {confirmLabel}
             </Button>

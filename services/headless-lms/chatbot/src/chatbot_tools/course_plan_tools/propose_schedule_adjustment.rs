@@ -1,28 +1,27 @@
 use chrono::NaiveDate;
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::course_designer_plan_members;
 use headless_lms_models::course_designer_plans::{
-    self, CourseDesignerScheduleStageInput, validate_schedule_input,
+    CourseDesignerScheduleStageInput, validate_schedule_input,
 };
 use headless_lms_utils::json_schema_types::{
     ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
 };
+use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
-    DECLINED_OUTPUT, authorized_plan_id, non_blank, outcome_instructions, parse_raw_arguments,
-    parse_stage, plan_member_requirements, stale_proposal_error, text_property,
+    authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
+    plan_tool_declaration_items, stale_proposal_error, text_property,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 /// Proposes new planned dates for the stages of an in-progress plan.
@@ -108,11 +107,7 @@ fn parse_date(value: &str) -> ChatbotResult<NaiveDate> {
 impl ChatbotToolDeclaration for ProposeScheduleAdjustmentTool {
     const NAME: &'static str = "propose_schedule_adjustment";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -134,24 +129,19 @@ impl ChatbotToolDeclaration for ProposeScheduleAdjustmentTool {
 
 impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
     type Arguments = ProposeScheduleAdjustmentArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
         Ok(ProposeScheduleAdjustmentArguments {
-            reason: non_blank(&raw.reason).ok_or_else(|| {
-                chatbot_err!(
-                    InvalidToolArguments,
-                    "reason must not be empty.".to_string()
-                )
-            })?,
+            reason: non_empty_trimmed(&raw.reason)
+                .map(str::to_string)
+                .ok_or_else(|| {
+                    chatbot_err!(
+                        InvalidToolArguments,
+                        "reason must not be empty.".to_string()
+                    )
+                })?,
             current_schedule: parse_schedule("current_schedule", raw.current_schedule)?,
             proposed_schedule: parse_schedule("proposed_schedule", raw.proposed_schedule)?,
         })
@@ -165,17 +155,16 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let details =
-            course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await?;
-        let stored: Vec<CourseDesignerScheduleStageInput> = details
-            .stages
-            .iter()
-            .map(|s| CourseDesignerScheduleStageInput {
-                stage: s.stage.stage,
-                planned_starts_on: s.stage.planned_starts_on,
-                planned_ends_on: s.stage.planned_ends_on,
-            })
-            .collect();
+        let stored: Vec<CourseDesignerScheduleStageInput> =
+            course_designer_plan_members::get_plan_stages(conn, plan_id)
+                .await?
+                .into_iter()
+                .map(|s| CourseDesignerScheduleStageInput {
+                    stage: s.stage,
+                    planned_starts_on: s.planned_starts_on,
+                    planned_ends_on: s.planned_ends_on,
+                })
+                .collect();
         if stored != arguments.current_schedule {
             return Err(stale_proposal_error("schedule"));
         }
@@ -200,17 +189,5 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
             },
             (),
         ))
-    }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
     }
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.created_by_user_id,\n  p.name,\n  p.status,\n  p.active_stage,\n  p.last_weekly_stage_email_sent_at,\n  COUNT(DISTINCT members.user_id)::BIGINT AS \"member_count!\",\n  COUNT(DISTINCT stages.stage)::BIGINT AS \"stage_count!\"\nFROM course_designer_plans p\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = p.id\n  AND self_member.user_id = $1\n  AND self_member.deleted_at IS NULL\nLEFT JOIN course_designer_plan_members members\n  ON members.course_designer_plan_id = p.id\n  AND members.deleted_at IS NULL\nLEFT JOIN course_designer_plan_stages stages\n  ON stages.course_designer_plan_id = p.id\n  AND stages.deleted_at IS NULL\nWHERE p.deleted_at IS NULL\nGROUP BY p.id\nORDER BY p.updated_at DESC, p.id DESC\n",
+  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.created_by_user_id,\n  p.name,\n  p.status,\n  p.active_stage,\n  p.last_weekly_stage_email_sent_at,\n  (\n    SELECT COUNT(DISTINCT members.user_id)\n    FROM course_designer_plan_members members\n    WHERE members.course_designer_plan_id = p.id\n      AND members.deleted_at IS NULL\n  )::BIGINT AS \"member_count!\",\n  (\n    SELECT COUNT(DISTINCT stages.stage)\n    FROM course_designer_plan_stages stages\n    WHERE stages.course_designer_plan_id = p.id\n      AND stages.deleted_at IS NULL\n  )::BIGINT AS \"stage_count!\"\nFROM course_designer_plans p\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = p.id\n  AND self_member.user_id = $1\n  AND self_member.deleted_at IS NULL\nWHERE p.deleted_at IS NULL\nORDER BY p.updated_at DESC, p.id DESC\n",
   "describe": {
     "columns": [
       {
@@ -148,5 +148,5 @@
       null
     ]
   },
-  "hash": "1f7daabede7814578afc36724e4fb81c1123683acdceeb90bc117482ed05cf5d"
+  "hash": "6810c1a5b3c4fe30c4771e7b8e65550000cefc096ec118eaf868b6a994a8d9bb"
 }

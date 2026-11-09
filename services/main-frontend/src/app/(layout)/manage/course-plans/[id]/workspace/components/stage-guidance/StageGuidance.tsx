@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
+import { stageLabel } from "../../../../coursePlanStages"
 import GuidanceText from "../GuidanceText"
 import { type FormlessStage, STAGE_SECTION_KEYS } from "../section-status/sectionKeys"
 import { SectionStatusBadge } from "../section-status/SectionStatusBadge"
@@ -41,12 +42,6 @@ const GUIDANCE_KEYS = {
   Evaluation: "course-plans-guidance-evaluation",
 } as const satisfies Record<FormlessStage, string>
 
-const HEADING_KEYS = {
-  Development: "course-plans-stage-development",
-  Implementation: "course-plans-stage-implementation",
-  Evaluation: "course-plans-stage-evaluation",
-} as const satisfies Record<FormlessStage, string>
-
 /** Guidance for a stage without a form, with the stage's single Ready/Unfinished mark. */
 export default function StageGuidance(props: { stage: FormlessStage }) {
   const { stage } = props
@@ -57,7 +52,7 @@ export default function StageGuidance(props: { stage: FormlessStage }) {
     <section className={cardStyles} aria-labelledby={headingId}>
       <div className={headerStyles}>
         <h4 className={headingStyles} id={headingId}>
-          {t(HEADING_KEYS[stage])}
+          {stageLabel(stage, t)}
         </h4>
         <SectionStatusBadge stage={stage} sectionKey={sectionKey} />
       </div>

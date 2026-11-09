@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useRef } from "react"
 
 /** Saves a form's unsaved edits now; resolves to whether everything was saved. */
-export type SavePendingEdits = () => Promise<boolean>
+type SavePendingEdits = () => Promise<boolean>
 
 interface PendingSaves {
   /** Saves the unsaved edits of every autosaving form on the plan's pages. */

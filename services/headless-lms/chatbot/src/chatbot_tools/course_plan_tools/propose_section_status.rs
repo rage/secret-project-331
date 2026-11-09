@@ -1,24 +1,23 @@
 use indexmap::IndexMap;
 
-use headless_lms_models::chatbot_configurations::ToolCategory;
-use headless_lms_models::course_designer_plans::{self, CourseDesignerStage};
+use headless_lms_models::course_designer_plans::CourseDesignerStage;
 use headless_lms_models::course_designer_section_statuses::{self, CourseDesignerSectionStatus};
 use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
-    DECLINED_OUTPUT, KNOWN_SECTION_KEYS, authorized_plan_id, non_blank, outcome_instructions,
-    parse_raw_arguments, parse_stage, plan_member_requirements, stage_name, stale_proposal_error,
-    text_property, updated_plan_payload, verify_current_value,
+    KNOWN_SECTION_KEYS, authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
+    plan_tool_declaration_items, stale_proposal_error, text_property, updated_plan_payload,
+    verify_current_value,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
-        tool_authorization::{ToolAuthorization, ToolRequirement},
+        tool_authorization::ToolAuthorization,
     },
     prelude::*,
-    user_context::ChatbotTurnContext,
 };
 
 /// Proposes marking a section of a stage ready or unfinished, with an optional comment.
@@ -35,7 +34,6 @@ pub struct ProposeSectionStatusArguments {
 
 #[derive(Deserialize)]
 struct RawArguments {
-    stage: String,
     section_key: String,
     current_status: String,
     current_comment: String,
@@ -45,26 +43,22 @@ struct RawArguments {
 
 fn parse_status(value: &str) -> ChatbotResult<Option<CourseDesignerSectionStatus>> {
     match value.trim() {
-        "ready" => Ok(Some(CourseDesignerSectionStatus::Ready)),
-        "unfinished" => Ok(Some(CourseDesignerSectionStatus::Unfinished)),
         "not_marked" => Ok(None),
-        other => Err(chatbot_err!(
-            InvalidToolArguments,
-            format!(
-                "'{other}' is not a section status. Valid values: ready, unfinished, not_marked."
+        other => other.parse().map(Some).map_err(|_| {
+            chatbot_err!(
+                InvalidToolArguments,
+                format!(
+                    "'{other}' is not a section status. Valid values: ready, unfinished, not_marked."
+                )
             )
-        )),
+        }),
     }
 }
 
 impl ChatbotToolDeclaration for ProposeSectionStatusTool {
     const NAME: &'static str = "propose_section_status";
 
-    fn offer_requirements(_user_context: &ChatbotTurnContext) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
-
-    const CATEGORY: ToolCategory = ToolCategory::CoursePlanning;
+    plan_tool_declaration_items!();
 
     fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
         AzureLLMFunctionToolDefinition {
@@ -76,12 +70,6 @@ impl ChatbotToolDeclaration for ProposeSectionStatusTool {
             ),
             parameters: Schema::strict_object(
                 IndexMap::from([
-                    (
-                        "stage".to_string(),
-                        text_property(
-                            "The stage the section belongs to; the first part of the section key.",
-                        ),
-                    ),
                     (
                         "section_key".to_string(),
                         text_property(
@@ -118,31 +106,22 @@ impl ChatbotToolDeclaration for ProposeSectionStatusTool {
 
 impl ConfirmableActionTool for ProposeSectionStatusTool {
     type Arguments = ProposeSectionStatusArguments;
-    type Facts = ();
-
-    fn call_requirements(
-        _arguments: &Self::Arguments,
-        _user_context: &ChatbotTurnContext,
-    ) -> Vec<ToolRequirement> {
-        plan_member_requirements()
-    }
+    plan_proposal_items!();
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
         let raw: RawArguments = parse_raw_arguments(arguments)?;
-        let stage = parse_stage(&raw.stage)?;
         let section_key = raw.section_key.trim().to_string();
-        if !KNOWN_SECTION_KEYS.contains(&section_key.as_str())
-            || !section_key.starts_with(&format!("{}.", stage_name(stage)))
-        {
+        if !KNOWN_SECTION_KEYS.contains(&section_key.as_str()) {
             return Err(chatbot_err!(
                 InvalidToolArguments,
                 format!(
-                    "'{section_key}' is not a section of the {} stage. Sections: {}.",
-                    stage_name(stage),
+                    "'{section_key}' is not a section. Sections: {}.",
                     KNOWN_SECTION_KEYS.join(", ")
                 )
             ));
         }
+        // Every known key starts with its stage's name.
+        let stage = parse_stage(section_key.split('.').next().unwrap_or_default())?;
         let proposed_status = parse_status(&raw.proposed_status)?.ok_or_else(|| {
             chatbot_err!(
                 InvalidToolArguments,
@@ -155,7 +134,7 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
             current_status: parse_status(&raw.current_status)?,
             current_comment: raw.current_comment,
             proposed_status,
-            proposed_comment: non_blank(&raw.proposed_comment),
+            proposed_comment: non_empty_trimmed(&raw.proposed_comment).map(str::to_string),
         })
     }
 
@@ -167,10 +146,8 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let details =
-            course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await?;
-        let stored = details
-            .section_statuses
+        let statuses = course_designer_section_statuses::get_for_plan(conn, plan_id).await?;
+        let stored = statuses
             .iter()
             .find(|s| s.stage == arguments.stage && s.section_key == arguments.section_key);
         if stored.map(|s| s.status) != arguments.current_status {
@@ -193,10 +170,7 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
         )
         .await?;
 
-        let status = match arguments.proposed_status {
-            CourseDesignerSectionStatus::Ready => "ready",
-            CourseDesignerSectionStatus::Unfinished => "unfinished",
-        };
+        let status = arguments.proposed_status.as_str();
         Ok((
             ExecutedAction {
                 output: format!("Marked {} as {status}.", arguments.section_key),
@@ -212,17 +186,5 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
             },
             (),
         ))
-    }
-
-    fn declined_output(_arguments: &Self::Arguments) -> String {
-        DECLINED_OUTPUT.to_string()
-    }
-
-    fn output_description_instructions(
-        _arguments: &Self::Arguments,
-        facts: Option<&()>,
-        _app_config: &ApplicationConfiguration,
-    ) -> Option<String> {
-        Some(outcome_instructions(facts.is_some()))
     }
 }

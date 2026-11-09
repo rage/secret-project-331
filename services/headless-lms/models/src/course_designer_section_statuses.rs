@@ -17,6 +17,34 @@ pub enum CourseDesignerSectionStatus {
     Unfinished,
 }
 
+impl CourseDesignerSectionStatus {
+    /// The snake_case name the API and chatbot tools use for the status.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Ready => "ready",
+            Self::Unfinished => "unfinished",
+        }
+    }
+}
+
+impl std::str::FromStr for CourseDesignerSectionStatus {
+    type Err = ModelError;
+
+    /// Parses [`Self::as_str`] exactly.
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        [Self::Ready, Self::Unfinished]
+            .into_iter()
+            .find(|status| status.as_str() == value)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    format!("'{value}' is not a section status."),
+                    None,
+                )
+            })
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
 pub struct CourseDesignerPlanSectionStatus {
     pub id: Uuid,

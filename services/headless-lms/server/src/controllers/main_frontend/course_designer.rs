@@ -408,17 +408,15 @@ async fn delete_task(
     token.authorized_ok(HttpResponse::NoContent().finish())
 }
 
-fn parse_stage(path_stage: &str) -> Option<CourseDesignerStage> {
-    match path_stage.to_lowercase().as_str() {
-        "analysis" => Some(CourseDesignerStage::Analysis),
-        "design" => Some(CourseDesignerStage::Design),
-        "development" => Some(CourseDesignerStage::Development),
-        "implementation" => Some(CourseDesignerStage::Implementation),
-        "evaluation" => Some(CourseDesignerStage::Evaluation),
-        _ => None,
-    }
+fn parse_stage(path_stage: &str) -> Result<CourseDesignerStage, ControllerError> {
+    path_stage.to_lowercase().parse().map_err(|_| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid stage name.".to_string(),
+            None,
+        )
+    })
 }
-
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
@@ -439,13 +437,7 @@ async fn post_extend_stage(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
     let (plan_id, stage_str) = path.into_inner();
-    let stage = parse_stage(&stage_str).ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid stage name.".to_string(),
-            None,
-        )
-    })?;
+    let stage = parse_stage(&stage_str)?;
     let mut conn = pool.acquire().await?;
     let details = models::course_designer_plan_members::extend_stage_for_user(
         &mut conn,
@@ -502,13 +494,7 @@ async fn patch_stage_workspace(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
     let (plan_id, stage_str) = path.into_inner();
-    let stage = parse_stage(&stage_str).ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid stage name.".to_string(),
-            None,
-        )
-    })?;
+    let stage = parse_stage(&stage_str)?;
     let UpdateCourseDesignerStageWorkspaceRequest {
         workspace,
         base_revision,

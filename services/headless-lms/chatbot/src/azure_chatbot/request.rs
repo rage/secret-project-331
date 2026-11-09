@@ -7,7 +7,7 @@ use headless_lms_models::chatbot_configurations_models::{ChatbotConfigurationMod
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_models::chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning;
 use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, Message};
-use headless_lms_models::course_designer_plans::CourseDesignerPlan;
+use headless_lms_models::course_designer_plans::{CourseDesignerPlan, CourseDesignerStage};
 
 use super::azure::protocol::{
     InputItem, LLMRequest, LLMRequestParams, LLMToolChoice, RequestTextOptions,
@@ -17,7 +17,7 @@ use super::client_tool_calls::abort::ToolCallAbortReason;
 use super::search_grounding::build_search_grounding_instruction;
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::ChatbotToolDeclaration;
-use crate::chatbot_tools::course_plan_tools::{get_course_plan::GetCoursePlanTool, stage_name};
+use crate::chatbot_tools::course_plan_tools::get_course_plan::GetCoursePlanTool;
 use crate::chatbot_tools::provider_tools::azure_ai_search::{
     self, get_azure_ai_search_tool_definition,
 };
@@ -332,19 +332,11 @@ impl TurnInputs {
         let mut tools = get_permitted_chatbot_tool_definitions(conn, user_context).await?;
         tools.extend(get_client_chatbot_tool_definitions(conn, user_context).await?);
 
-        let course_plan = match (user_context.course_designer_plan_id, user_context.user_id) {
-            (Some(plan_id), Some(user_id)) => Some(
-                models::course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id)
-                    .await?,
-            ),
-            _ => None,
-        };
-
         Ok(Self {
             model,
             messages,
             tools,
-            course_plan,
+            course_plan: user_context.course_plan.clone(),
         })
     }
 }
@@ -353,7 +345,7 @@ impl TurnInputs {
 fn course_plan_instruction(plan: &CourseDesignerPlan) -> String {
     let stage = plan
         .active_stage
-        .map(stage_name)
+        .map(CourseDesignerStage::as_str)
         .unwrap_or("none (the schedule is not finalized)");
     format!(
         "\n\nYou are helping the team that is designing a MOOC with the course design plan \"{}\". Plan status: {:?}. Active stage: {stage}. Today is {}.\nRead the plan with {} before giving feedback or proposing changes, and base what you say on it. To change the plan, use the propose_ tools: each one shows the user a card to apply or discard, and nothing changes until they apply it. Never say a change is made before the tool result confirms it was applied. Answer in the language the user writes in.\n",

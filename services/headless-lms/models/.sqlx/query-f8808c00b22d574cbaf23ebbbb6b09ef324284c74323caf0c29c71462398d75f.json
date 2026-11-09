@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  stages.id,\n  stages.created_at,\n  stages.updated_at,\n  stages.stage,\n  stages.status,\n  stages.planned_starts_on,\n  stages.planned_ends_on,\n  stages.actual_started_at,\n  stages.actual_completed_at,\n  stages.workspace_data,\n  stages.workspace_revision\nFROM course_designer_plan_stages stages\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = stages.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nWHERE stages.course_designer_plan_id = $1\n  AND stages.deleted_at IS NULL\nORDER BY\n  CASE stages.stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  stages.id\n",
+  "query": "\nSELECT\n  stages.id,\n  stages.created_at,\n  stages.updated_at,\n  stages.stage,\n  stages.status,\n  stages.planned_starts_on,\n  stages.planned_ends_on,\n  stages.actual_started_at,\n  stages.actual_completed_at,\n  stages.workspace_data,\n  stages.workspace_revision\nFROM course_designer_plan_stages stages\nWHERE stages.course_designer_plan_id = $1\n  AND stages.deleted_at IS NULL\nORDER BY\n  CASE stages.stage\n    WHEN 'analysis' THEN 1\n    WHEN 'design' THEN 2\n    WHEN 'development' THEN 3\n    WHEN 'implementation' THEN 4\n    WHEN 'evaluation' THEN 5\n  END,\n  stages.id\n",
   "describe": {
     "columns": [
       {
@@ -151,7 +151,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -169,5 +168,5 @@
       false
     ]
   },
-  "hash": "22705a19a0ed9a9ae4e1cdf2342fe6876d07f1854029f6642b97a7d165127045"
+  "hash": "f8808c00b22d574cbaf23ebbbb6b09ef324284c74323caf0c29c71462398d75f"
 }

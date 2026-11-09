@@ -8,9 +8,10 @@ use rsa::traits::PublicKeyParts;
 use secrecy::ExposeSecret;
 use sha2::{Digest as ShaDigest, Sha256};
 
-use crate::domain::error::{ControllerError, ControllerErrorType, OAuthErrorCode, OAuthErrorData};
+use crate::domain::error::ControllerError;
 use crate::domain::oauth::claims::Claims;
-use crate::prelude::{ApplicationConfiguration, BackendError};
+use crate::domain::oauth::helpers::oauth_server_error;
+use crate::prelude::ApplicationConfiguration;
 
 pub fn rsa_n_e_and_kid_from_pem(public_pem: &str) -> anyhow::Result<(String, String, String)> {
     let pubkey = match RsaPublicKey::from_pkcs1_pem(public_pem) {
@@ -41,19 +42,7 @@ pub fn generate_id_token(
     let exp = expires_at.timestamp();
 
     let (_, _, kid) = rsa_n_e_and_kid_from_pem(&cfg.oauth_server_configuration.rsa_public_key)
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                    error: OAuthErrorCode::ServerError.as_str().into(),
-                    error_description: "Failed to derive key id (kid) from public key".into(),
-                    redirect_uri: None,
-                    state: None,
-                    nonce: None,
-                })),
-                "Failed to derive kid from public key",
-                Some(e),
-            )
-        })?;
+        .map_err(|e| oauth_server_error("Failed to derive key id (kid) from public key", e))?;
 
     let nonce_claim = nonce.and_then(|s| {
         if s.is_empty() {
@@ -81,31 +70,8 @@ pub fn generate_id_token(
             .expose_secret()
             .as_bytes(),
     )
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: "Failed to generate ID token".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "Failed to generate ID token (invalid private key)",
-            Some(e.into()),
-        )
-    })?;
+    .map_err(|e| oauth_server_error("Failed to generate ID token", e.into()))?;
 
-    encode(&header, &claims, &enc_key).map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: "Failed to generate ID token".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "Failed to generate ID token",
-            Some(e.into()),
-        )
-    })
+    encode(&header, &claims, &enc_key)
+        .map_err(|e| oauth_server_error("Failed to generate ID token", e.into()))
 }

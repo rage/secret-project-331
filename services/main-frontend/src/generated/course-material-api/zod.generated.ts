@@ -6,7 +6,6 @@
 import * as z from "zod"
 
 /**
- *
  * Indicates what is the user's completion status for a exercise.
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
@@ -569,8 +568,6 @@ export const zFeedbackBlock = z.object({
 })
 
 /**
- *
- *
  * Tells what's the status of the grading progress for a user and exercise.
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
@@ -894,7 +891,6 @@ export const zPeerOrSelfReviewsReceived = z.object({
 })
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -1015,7 +1011,6 @@ export const zResearchFormQuestionAnswer = z.object({
 })
 
 /**
- *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export const zReviewingStage = z.enum([

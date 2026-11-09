@@ -523,26 +523,63 @@ describe("prompt", () => {
   })
 })
 
-describe("the queue", () => {
-  function TwoConfirms() {
-    const { confirm } = useDialog()
-    const run = async () => {
-      const [first, second] = await Promise.all([confirm("First?"), confirm("Second?")])
-      record(`first:${String(first)}`)
-      record(`second:${String(second)}`)
-    }
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          void run()
-        }}
-      >
-        Ask twice
-      </button>
-    )
+function TwoConfirms() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    const [first, second] = await Promise.all([confirm("First?"), confirm("Second?")])
+    record(`first:${String(first)}`)
+    record(`second:${String(second)}`)
   }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask twice
+    </button>
+  )
+}
 
+function SequentialConfirms() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    const first = await confirm("First?")
+    record(`first:${String(first)}`)
+    const second = await confirm("Second?")
+    record(`second:${String(second)}`)
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask sequentially
+    </button>
+  )
+}
+
+function NestedConfirm() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    record(`nested:${String(await confirm("Discard the draft?"))}`)
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask from inside
+    </button>
+  )
+}
+
+describe("the queue", () => {
   test("shows depth-0 requests one at a time, in call order", async () => {
     renderWithProvider(<TwoConfirms />)
 
@@ -575,26 +612,6 @@ describe("the queue", () => {
   })
 
   test("hands off to a dialog requested from the resolved promise's own continuation", async () => {
-    function SequentialConfirms() {
-      const { confirm } = useDialog()
-      const run = async () => {
-        const first = await confirm("First?")
-        record(`first:${String(first)}`)
-        const second = await confirm("Second?")
-        record(`second:${String(second)}`)
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask sequentially
-        </button>
-      )
-    }
-
     renderWithProvider(<SequentialConfirms />)
 
     domClick(screen.getByRole("button", { name: "Ask sequentially" }))
@@ -631,23 +648,6 @@ describe("the queue", () => {
   })
 
   test("a request made from inside an open dialog stacks instead of queueing behind it", async () => {
-    function NestedConfirm() {
-      const { confirm } = useDialog()
-      const run = async () => {
-        record(`nested:${String(await confirm("Discard the draft?"))}`)
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask from inside
-        </button>
-      )
-    }
-
     renderWithProvider(
       <CustomPromptButton<string>
         request={{
@@ -731,27 +731,27 @@ describe("useDialog", () => {
   })
 })
 
+function ThreeRequests() {
+  const { alert, confirm, prompt } = useDialog()
+  const run = () => {
+    void alert("Notice").then(() => record("alert"))
+    void confirm("Sure?").then((answer) => record(`confirm:${String(answer)}`))
+    void prompt({ message: "Name" }).then((result) => record(result))
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask
+    </button>
+  )
+}
+
 describe("teardown", () => {
   test("resolves every outstanding promise as dismissed when the provider unmounts", async () => {
-    function ThreeRequests() {
-      const { alert, confirm, prompt } = useDialog()
-      const run = () => {
-        void alert("Notice").then(() => record("alert"))
-        void confirm("Sure?").then((answer) => record(`confirm:${String(answer)}`))
-        void prompt({ message: "Name" }).then((result) => record(result))
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask
-        </button>
-      )
-    }
-
     const { unmount } = renderWithProvider(<ThreeRequests />)
     domClick(screen.getByRole("button", { name: "Ask" }))
     expect(getDialogs()).toHaveLength(1)

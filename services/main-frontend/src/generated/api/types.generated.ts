@@ -53,7 +53,7 @@ export type AccountLinkingCourseCode = {
   fetch_requested_at?: string | null
   is_enrolment_list_empty: boolean
   is_fetch_failing: boolean
-  last_error?: null | CreditRegistrationErrorCode
+  last_error?: CreditRegistrationErrorCode | null
   last_fetched_at?: string | null
   /**
    * Everyone on the last list, however long ago they enrolled.
@@ -63,7 +63,7 @@ export type AccountLinkingCourseCode = {
    * The latest fetch that could send linking emails.
    */
   last_mailing_fetch_started_at?: string | null
-  linking?: null | AccountLinkingCodeCounters
+  linking?: AccountLinkingCodeCounters | null
   modules: Array<AccountLinkingCodeModule>
   /**
    * When it is next due, ignoring the failure backoff.
@@ -111,7 +111,7 @@ export type AccountLinkingEmailRow = {
    * When the `link-emails` phase handed it to the email worker.
    */
   queued_at?: string | null
-  send_status?: null | EmailSendStatusReport
+  send_status?: EmailSendStatusReport | null
   /**
    * The name Sisu held for the student number when the mail went out.
    */
@@ -362,7 +362,6 @@ export type AccountLinkingWaitingStudent = {
 }
 
 /**
- *
  * Indicates what is the user's completion status for a exercise.
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
@@ -436,7 +435,7 @@ export type AdminCreditRegistrationDetails = {
    * Every attempt for the same completion, newest first, this one included.
    */
   attempts: Array<AdminCreditRegistrationRow>
-  attention?: null | AdminRegistrationAttention
+  attention?: AdminRegistrationAttention | null
   attention_thresholds: AdminAttentionThresholds
   /**
    * Every attempt's events, oldest first, so one timeline covers the whole completion.
@@ -450,12 +449,12 @@ export type AdminCreditRegistrationDetails = {
    * Every mail addressed to this person, on any course.
    */
   linking_emails: Array<AdminLinkingEmail>
-  linking_schedule?: null | AdminLinkingSchedule
+  linking_schedule?: AdminLinkingSchedule | null
   /**
    * Linking emails sent by hand as a guess for this row's student, newest first.
    */
   manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
-  not_improved_attainment?: null | NotImprovedAttainment
+  not_improved_attainment?: NotImprovedAttainment | null
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
    * same send status the student and the teacher are shown.
@@ -480,8 +479,8 @@ export type AdminCreditRegistrationEvent = {
    * addresses read `[redacted]` while their keys survive. The values we sent are on the row.
    */
   details?: unknown
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
@@ -492,7 +491,7 @@ export type AdminCreditRegistrationEvent = {
    * The requestItemId the row went out under in the call behind this event.
    */
   request_item_id?: string | null
-  suotar_answer?: null | SuotarAnswer
+  suotar_answer?: SuotarAnswer | null
   suotar_answered_at?: string | null
   suotar_api_call_id?: string | null
   /**
@@ -500,21 +499,21 @@ export type AdminCreditRegistrationEvent = {
    * sometimes drops. `None` when no item answer came back.
    */
   suotar_code?: string | null
-  suotar_endpoint?: null | SuotarEndpoint
+  suotar_endpoint?: SuotarEndpoint | null
   suotar_requested_at?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
  * What the student did around the completion, with full timestamps, for the timeline.
  */
 export type AdminCreditRegistrationJourney = {
-  check_request_source?: null | EnrolmentCheckSource
+  check_request_source?: EnrolmentCheckSource | null
   /**
    * When they first picked any language version of the course.
    */
   course_started_at?: string | null
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
   /**
    * The first visit to the registration page; a check request recorded before any visit makes
    * this the time of that request instead.
@@ -541,7 +540,7 @@ export type AdminCreditRegistrationRow = {
    * Every reason the Needs attention queue picks the row for; empty when it is not picked.
    */
   attention_reasons: Array<CreditRegistrationAttentionReason>
-  attention_standing?: null | AttentionStanding
+  attention_standing?: AttentionStanding | null
   completion_date: string
   course_id: string
   course_instance_id: string
@@ -555,15 +554,15 @@ export type AdminCreditRegistrationRow = {
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   /**
    * The next scheduled enrolment check.
    */
   enrolment_check_due_at?: string | null
   enrolment_checked_at?: string | null
   enrolment_checks_stopped_at?: string | null
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
-  error_code?: null | CreditRegistrationErrorCode
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
@@ -587,7 +586,7 @@ export type AdminCreditRegistrationRow = {
    * When verify first saw only the assessment item attainment.
    */
   partially_registered_at?: string | null
-  pending_reason?: null | CreditRegistrationPendingReason
+  pending_reason?: CreditRegistrationPendingReason | null
   phase: TimelinePhase
   /**
    * When the row entered its timeline phase: what "In this phase since" shows.
@@ -633,7 +632,7 @@ export type AdminCreditRegistrationRow = {
    */
   verified_student_number?: string | null
   verified_student_number_at?: string | null
-  verified_student_number_via?: null | StudentNumberVerificationMethod
+  verified_student_number_via?: StudentNumberVerificationMethod | null
   verify_attempt_count: number
   waits_on: WaitsOn
 }
@@ -850,7 +849,7 @@ export type AdminPhaseActionPayload = {
  * The row's standing on the Needs attention queue.
  */
 export type AdminRegistrationAttention = {
-  blocking_problem?: null | BlockingProblem
+  blocking_problem?: BlockingProblem | null
   dismissal_reason?: string | null
   dismissed_at?: string | null
   dismissed_by_first_name?: string | null
@@ -904,7 +903,7 @@ export type AdminResendAccountLinkingEmailPayload = {
 export type AdminResendAccountLinkingEmailResult = {
   linking_emails: Array<AdminLinkingEmail>
   mails_sent_for_this_course: number
-  manual_send?: null | AdminManualLinkingEmailSend
+  manual_send?: AdminManualLinkingEmailSend | null
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
   quiet_period_secs: number
@@ -925,7 +924,7 @@ export type AdminResolveStudentNumberPayload = {
 export type AdminResolveStudentNumberResult = {
   already_linked_to_user_email?: string | null
   already_linked_to_user_id?: string | null
-  already_linked_via?: null | StudentNumberVerificationMethod
+  already_linked_via?: StudentNumberVerificationMethod | null
   /**
    * The registry's own per-item code, an identifier rather than prose.
    */
@@ -970,7 +969,7 @@ export type AdminTransitionCreditRegistrationPayload = {
 export type AdminTransitionCreditRegistrationResult = {
   needs_admin_attention: boolean
   outcome: AdminTransitionOutcome
-  refusal?: null | ResubmissionRefusal
+  refusal?: ResubmissionRefusal | null
   state: CreditRegistrationState
 }
 
@@ -1027,6 +1026,69 @@ export type AdminVerifiedStudentNumberRow = {
   verified_via_email?: string | null
 }
 
+export type AgentChangeset = {
+  course_id: string
+  created_at: string
+  expires_at: string
+  id: string
+  published_at?: string | null
+  /**
+   * Incremented by every change to the staged entities; see [`increment_revision`].
+   */
+  revision: number
+  /**
+   * The status now: `Expired` for an open changeset past `expires_at`, which the table records
+   * only at the next write to the course; see [`AgentChangesetStatus::at`].
+   */
+  status: AgentChangesetStatus
+  updated_at: string
+  /**
+   * The only user who can publish or discard the changeset.
+   */
+  user_id: string
+}
+
+/**
+ * A call as the review page lists it, without its operations and snapshots.
+ */
+export type AgentChangesetCallSummary = {
+  client_name: string
+  created_at: string
+  id: string
+  revert_of_call_id?: string | null
+  summary?: string | null
+  tool_name: string
+}
+
+/**
+ * What the course management view shows of the user's changesets in a course without listing
+ * them.
+ */
+export type AgentChangesetCounts = {
+  /**
+   * Whether the user has any changeset in the course, open or not.
+   */
+  has_changesets: boolean
+  /**
+   * How many entities the user's open changeset stages; 0 without one.
+   */
+  open_entity_count: number
+}
+
+export type AgentChangesetEntityOperation = "create" | "update" | "delete"
+
+export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired"
+
+/**
+ * A login-free link to one page of a changeset as staged.
+ */
+export type AgentPreviewLink = {
+  /**
+   * Path of the preview page in the main frontend. It stops working after a few minutes.
+   */
+  preview_path: string
+}
+
 export type AnalysisCourseType = "compulsory" | "elective"
 
 /**
@@ -1038,7 +1100,7 @@ export type AnalysisWorkspaceV1 = {
   contributors_subject_matter_experts?: string | null
   contributors_support_staff?: string | null
   course_title?: string | null
-  course_type?: null | AnalysisCourseType
+  course_type?: AnalysisCourseType | null
   credits?: number | null
   degree_programme?: string | null
   language?: string | null
@@ -1137,12 +1199,6 @@ export type AttentionStanding =
   | "dismissed"
   | "explained_by_problem"
 
-export type AuthorizedClientInfo = {
-  client_id: string
-  client_name: string
-  scopes: Array<string>
-}
-
 export type AutomaticCompletionRequirements = {
   /**
    * Course module associated with these requirements.
@@ -1236,7 +1292,7 @@ export type CertificateConfiguration = {
   certificate_date_x_pos: string
   certificate_date_y_pos: string
   certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
+  certificate_grade_text_anchor?: CertificateTextAnchor | null
   certificate_grade_text_color?: string | null
   certificate_grade_x_pos?: string | null
   certificate_grade_y_pos?: string | null
@@ -1269,23 +1325,23 @@ export type CertificateConfigurationAndRequirements = {
 export type CertificateConfigurationUpdate = {
   background_svg_file_name?: string | null
   certificate_date_font_size?: string | null
-  certificate_date_text_anchor?: null | CertificateTextAnchor
+  certificate_date_text_anchor?: CertificateTextAnchor | null
   certificate_date_text_color?: string | null
   certificate_date_x_pos?: string | null
   certificate_date_y_pos?: string | null
   certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
+  certificate_grade_text_anchor?: CertificateTextAnchor | null
   certificate_grade_text_color?: string | null
   certificate_grade_x_pos?: string | null
   certificate_grade_y_pos?: string | null
   certificate_locale?: string | null
   certificate_owner_name_font_size?: string | null
-  certificate_owner_name_text_anchor?: null | CertificateTextAnchor
+  certificate_owner_name_text_anchor?: CertificateTextAnchor | null
   certificate_owner_name_text_color?: string | null
   certificate_owner_name_x_pos?: string | null
   certificate_owner_name_y_pos?: string | null
   certificate_validate_url_font_size?: string | null
-  certificate_validate_url_text_anchor?: null | CertificateTextAnchor
+  certificate_validate_url_text_anchor?: CertificateTextAnchor | null
   certificate_validate_url_text_color?: string | null
   certificate_validate_url_x_pos?: string | null
   certificate_validate_url_y_pos?: string | null
@@ -1293,7 +1349,7 @@ export type CertificateConfigurationUpdate = {
   course_instance_id?: string | null
   course_module_id: string
   overlay_svg_file_name?: string | null
-  paper_size?: null | PaperSize
+  paper_size?: PaperSize | null
   render_certificate_grade: boolean
 }
 
@@ -1324,6 +1380,58 @@ export type CertificateUpdateRequest = {
 export type ChangePasswordData = {
   new_password: string
   old_password: string
+}
+
+/**
+ * The staged changes changed after the revision the user based a publish or discard on. Nothing
+ * was written.
+ */
+export type ChangedSinceReview = {
+  /**
+   * The changeset's revision now.
+   */
+  revision: number
+}
+
+/**
+ * One entity of a changeset, as listings and expiry warnings describe it.
+ */
+export type ChangesetEntitySummary = EntityRef & {
+  operation: AgentChangesetEntityOperation
+  risk_reasons?: Array<RiskReason>
+}
+
+/**
+ * Everything the review page shows for a changeset.
+ */
+export type ChangesetReview = {
+  /**
+   * The agent calls that staged the changes, oldest first.
+   */
+  calls: Array<AgentChangesetCallSummary>
+  changeset: AgentChangeset
+  /**
+   * The pages that are their chapter's front page, as staged while the changeset is open and
+   * as live after.
+   */
+  chapter_front_page_ids: Array<string>
+  /**
+   * Staged entities whose live state changed after they were staged, which blocks publishing.
+   */
+  conflicts: Array<PublishConflict>
+  entities: Array<ReviewEntity>
+  is_expiring_soon: boolean
+}
+
+/**
+ * A changeset with what it changes. While it is open and close to expiry, `is_expiring_soon` is
+ * set and `entities` is what expiry would drop.
+ */
+export type ChangesetSummary = {
+  changeset: AgentChangeset
+  entities: Array<ChangesetEntitySummary>
+  has_risky_changes: boolean
+  is_expiring_soon: boolean
 }
 
 export type Chapter = {
@@ -1463,7 +1571,7 @@ export type CmsPageExercise = {
   needs_peer_review: boolean
   needs_self_review: boolean
   order_number: number
-  peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig
+  peer_or_self_review_config?: CmsPeerOrSelfReviewConfig | null
   peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null
   score_maximum: number
   teacher_reviews_answer_after_locking: boolean
@@ -1614,12 +1722,34 @@ export type ConsentDenyQuery = {
   state: string
 }
 
+/**
+ * What the consent screen shows about the client asking for access.
+ */
+export type ConsentInfo = {
+  client_name: string
+  client_uri?: string | null
+  /**
+   * The redirect goes to a program on the user's own computer.
+   */
+  is_loopback_redirect: boolean
+  /**
+   * Whether the client registered itself through a client ID metadata document, as AI agents
+   * do.
+   */
+  is_metadata_document_client: boolean
+  scopes: Array<ConsentScope>
+}
+
 export type ConsentQuery = {
   client_id: string
   code_challenge?: string | null
   code_challenge_method?: string | null
   nonce: string
   redirect_uri: string
+  /**
+   * RFC 8707 resource indicator of the authorization request, passed back to `/authorize`.
+   */
+  resource?: string | null
   response_type: string
   scope: string
   state: string
@@ -1628,6 +1758,34 @@ export type ConsentQuery = {
 export type ConsentResponse = {
   redirect_uri: string
 }
+
+/**
+ * One requested scope as the consent screen shows it.
+ */
+export type ConsentScope = {
+  is_checked_by_default: boolean
+  /**
+   * The user cannot uncheck it.
+   */
+  is_required: boolean
+  scope: string
+  /**
+   * The user already granted it to this client.
+   */
+  was_previously_granted: boolean
+}
+
+/**
+ * A kind of course content entity that agent changesets stage and history records.
+ */
+export type ContentEntityType =
+  | "page"
+  | "chapter"
+  | "module"
+  | "course_settings"
+  | "glossary_term"
+  | "reference"
+  | "course_default_review_config"
 
 export type CopyCourseMode =
   | {
@@ -1799,17 +1957,17 @@ export type CourseCreditRegistration = {
   credits?: number | null
   email?: string | null
   enrolment_realisation_name?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   grade_id?: string | null
   id: string
   last_name?: string | null
-  linking_email?: null | TeacherLinkingEmailStatus
+  linking_email?: TeacherLinkingEmailStatus | null
   needs_admin_attention: boolean
   next_attempt_at: string
-  notification_email?: null | NotificationEmailStatus
+  notification_email?: NotificationEmailStatus | null
   registered_at?: string | null
-  resubmission_refusal?: null | ResubmissionRefusal
+  resubmission_refusal?: ResubmissionRefusal | null
   sisu_attainment_id?: string | null
   state: CreditRegistrationState
   state_entered_at: string
@@ -1822,7 +1980,7 @@ export type CourseCreditRegistration = {
    */
   student_number?: string | null
   student_number_verified_at?: string | null
-  student_number_verified_via?: null | StudentNumberVerificationMethod
+  student_number_verified_via?: StudentNumberVerificationMethod | null
   superseded: boolean
   user_id: string
 }
@@ -1842,8 +2000,8 @@ export type CourseCreditRegistrationAction = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   created_at: string
   id: string
   reason?: string | null
@@ -1858,15 +2016,15 @@ export type CourseCreditRegistrationAction = {
 export type CourseCreditRegistrationEvent = {
   actor_user_id?: string | null
   created_at: string
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
    * Our own wording, written by the pipeline or by whoever acted.
    */
   message?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
@@ -1940,10 +2098,20 @@ export type CourseCreditRegistrationsPage = {
   total_pages: number
 }
 
+/**
+ * A change to the course default review config, which every exercise without its own uses.
+ */
+export type CourseDefaultReviewConfigChange = EntityChange & {
+  /**
+   * How many published exercises with peer or self reviews use the course default.
+   */
+  exercise_count: number
+}
+
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
 
 export type CourseDesignerPlan = {
-  active_stage?: null | CourseDesignerStage
+  active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
   deleted_at?: string | null
@@ -2009,7 +2177,7 @@ export type CourseDesignerPlanStatus =
   | "Archived"
 
 export type CourseDesignerPlanSummary = {
-  active_stage?: null | CourseDesignerStage
+  active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
   id: string
@@ -2063,7 +2231,7 @@ export type CourseEnrollmentInfo = {
   course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
   is_current: boolean
-  user_course_settings?: null | UserCourseSettings
+  user_course_settings?: UserCourseSettings | null
 }
 
 export type CourseEnrollmentsInfo = {
@@ -2114,7 +2282,6 @@ export type CourseMaterialExerciseTask = {
   assignment: unknown
   deleted_at?: string | null
   /**
-   *
    * If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -2124,10 +2291,9 @@ export type CourseMaterialExerciseTask = {
   id: string
   model_solution_spec?: unknown
   order_number: number
-  previous_submission?: null | ExerciseTaskSubmission
-  previous_submission_grading?: null | ExerciseTaskGrading
+  previous_submission?: ExerciseTaskSubmission | null
+  previous_submission_grading?: ExerciseTaskGrading | null
   /**
-   *
    * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
    * be configured to the system.
    */
@@ -2411,6 +2577,15 @@ export type CreateCourseDesignerStageTaskRequest = {
   title: string
 }
 
+/**
+ * A redirect from a page's old path, created when the page moved to a new one.
+ */
+export type CreatedRedirect = {
+  new_url_path: string
+  old_url_path: string
+  page_id: string
+}
+
 export type CreditRegistrationAdminAction =
   | "retry_item"
   | "retry_failed_for_course"
@@ -2439,8 +2614,8 @@ export type CreditRegistrationAdminActionRecord = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   created_at: string
   deleted_at?: string | null
   details?: unknown
@@ -2467,8 +2642,8 @@ export type CreditRegistrationAdminActionRow = {
   actor_role: string
   actor_user_id: string
   affected_row_count?: number | null
-  after_state?: null | CreditRegistrationState
-  before_state?: null | CreditRegistrationState
+  after_state?: CreditRegistrationState | null
+  before_state?: CreditRegistrationState | null
   /**
    * The course the action was about: a teacher's own, a course target, or the course of a
    * targeted registration.
@@ -2579,7 +2754,7 @@ export type CreditRegistrationAttentionDismissal = {
 
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
-  blocking_problem?: null | BlockingProblem
+  blocking_problem?: BlockingProblem | null
   course_id: string
   course_module_id: string
   course_module_name?: string | null
@@ -2589,9 +2764,9 @@ export type CreditRegistrationAttentionItem = {
    * In full: this is the list support works from.
    */
   email?: string | null
-  engagement?: null | Engagement
-  enrolment_route?: null | CreditRegistrationEnrolmentRoute
-  error_code?: null | CreditRegistrationErrorCode
+  engagement?: Engagement | null
+  enrolment_route?: CreditRegistrationEnrolmentRoute | null
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   /**
    * What the bulk hand transition would allow on this row.
@@ -2819,7 +2994,7 @@ export type CreditRegistrationCourseStats = {
    * taken against, with `failed_count`.
    */
   success_count: number
-  top_error_code?: null | CreditRegistrationErrorCode
+  top_error_code?: CreditRegistrationErrorCode | null
   uh_course_code?: string | null
   /**
    * The module's "Where registrations stand", Not started left out; each count equals the
@@ -2836,7 +3011,7 @@ export type CreditRegistrationDetails = {
   course_id: string
   course_name: string
   events: Array<CourseCreditRegistrationEvent>
-  not_improved_attainment?: null | NotImprovedAttainment
+  not_improved_attainment?: NotImprovedAttainment | null
   registration: CourseCreditRegistration
 }
 
@@ -2992,7 +3167,7 @@ export type CreditRegistrationHistoryPoint = {
  */
 export type CreditRegistrationHistoryStepPoint = {
   count: number
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   phase: TimelinePhase
   step: TimelineStep
 }
@@ -3047,7 +3222,7 @@ export type CreditRegistrationOverview = {
    * The Needs attention count: the same number as `/attention`'s `total_count` and the tab badge.
    */
   needs_attention_count: number
-  oldest_non_terminal?: null | CreditRegistrationOldestNonTerminal
+  oldest_non_terminal?: CreditRegistrationOldestNonTerminal | null
   /**
    * The `pending` depth split by what each row is waiting on, which the ledger does not store.
    */
@@ -3269,7 +3444,7 @@ export type CreditRegistrationStatsByCourse = {
  */
 export type CreditRegistrationStepCount = {
   count: number
-  engagement?: null | Engagement
+  engagement?: Engagement | null
   phase: TimelinePhase
   step: TimelineStep
 }
@@ -3426,6 +3601,35 @@ export type DeviceVerificationInfo = {
   user_code: string
 }
 
+/**
+ * What discarding a whole changeset did.
+ */
+export type DiscardOutcome =
+  | {
+      changeset: AgentChangeset
+      outcome: "discarded"
+    }
+  | {
+      outcome: "rejected"
+      rejection: DiscardRejection
+    }
+
+/**
+ * Why a discard was refused. Nothing was dropped.
+ */
+export type DiscardRejection =
+  | {
+      reason: "not_open"
+      status: AgentChangesetStatus
+    }
+  | (ChangedSinceReview & {
+      reason: "changed_since_review"
+    })
+  | {
+      blockers: Array<PublishBlocker>
+      reason: "blockers"
+    }
+
 export type DomainCompletionStats = {
   email_domain: string
   not_registered_completions: number
@@ -3553,8 +3757,8 @@ export type EmailVerificationMethod =
 export type EmailVerificationStatus = {
   email: string
   email_verified_at?: string | null
-  email_verified_method?: null | EmailVerificationMethod
-  latest_verification_email?: null | EmailVerificationEmailInfo
+  email_verified_method?: EmailVerificationMethod | null
+  latest_verification_email?: EmailVerificationEmailInfo | null
   /**
    * False when `verification_enabled` but the deployment has no `verify_email_address`
    * template: requesting a code would 500, so the frontend hides the feature instead.
@@ -3653,7 +3857,7 @@ export type EnrolmentCheckRosterCode = {
   consecutive_failures: number
   course_code: string
   is_fetched_alone: boolean
-  last_error?: null | CreditRegistrationErrorCode
+  last_error?: CreditRegistrationErrorCode | null
   last_fetch_duration_ms?: number | null
   last_fetched_at?: string | null
   last_listed_person_count?: number | null
@@ -3680,6 +3884,85 @@ export type EnrolmentCheckSource =
   | "admin_request"
   | "roster_listing"
   | "account_link"
+
+/**
+ * What a change does to one entity, apart from a page's content.
+ */
+export type EntityChange = EntityRef & {
+  /**
+   * The fields that differ between the entity when it was staged and as staged.
+   */
+  field_changes: Array<FieldChange>
+  operation: AgentChangesetEntityOperation
+  risk_reasons: Array<RiskReason>
+}
+
+/**
+ * A field of an entity snapshot that a change can set, named as the snapshot names it. Ids and
+ * page content are no fields: content is shown rendered.
+ */
+export type EntityField =
+  | "title"
+  | "url_path"
+  | "hidden"
+  | "chapter_id"
+  | "order_number"
+  | "name"
+  | "color"
+  | "chapter_number"
+  | "course_module_id"
+  | "front_page_id"
+  | "opens_at"
+  | "deadline"
+  | "chapter_image_path"
+  | "completion_policy"
+  | "certification_enabled"
+  | "uh_course_code"
+  | "ects_credits"
+  | "completion_registration_link_override"
+  | "completions_can_be_registered_to_sisu"
+  | "description"
+  | "is_draft"
+  | "is_test_mode"
+  | "is_unlisted"
+  | "can_add_chatbot"
+  | "is_joinable_by_code_only"
+  | "ask_marketing_consent"
+  | "flagged_answers_threshold"
+  | "flagged_answers_skip_manual_review_and_allow_retry"
+  | "closed_at"
+  | "closed_additional_message"
+  | "closed_course_successor_id"
+  | "chapter_locking_enabled"
+  | "ai_policy"
+  | "course_material_ai_instructions"
+  | "base_module_completion_requires_n_submodule_completions"
+  | "audiences"
+  | "term"
+  | "definition"
+  | "citation_key"
+  | "reference"
+  | "review_instructions"
+  | "exercise_name"
+  | "exercise_deadline"
+  | "task_instructions"
+  | "review_config"
+
+/**
+ * A content entity and what people call it.
+ */
+export type EntityRef = {
+  /**
+   * The entity's id; the course id for course settings.
+   */
+  entity_id: string
+  entity_type: ContentEntityType
+  /**
+   * A page title, chapter, module or course name, glossary term or citation key; empty for the
+   * default module and the course default review config.
+   */
+  label: string
+}
 
 export type EventInfo = {
   count?: number | null
@@ -3755,6 +4038,18 @@ export type ExerciseAnswersInCourseRequiringAttentionCount = {
   page_id: string
 }
 
+/**
+ * The exercise switches between the course default review config and its own while students
+ * have already given reviews under the old one.
+ */
+export type ExerciseChangeWarning = {
+  exercise_id: string
+  exercise_name: string
+  kind: "review_config_switched_with_reviews"
+  review_count: number
+  to: ReviewConfigKind
+}
+
 export type ExerciseCsvExportTaskOption = {
   exercise_task_id: string
   exercise_type: string
@@ -3762,6 +4057,21 @@ export type ExerciseCsvExportTaskOption = {
   produces_file_answers: boolean
   supports_csv_export_answers: boolean
   supports_csv_export_definitions: boolean
+}
+
+/**
+ * The exercise of a page a field change is in.
+ */
+export type ExerciseFieldOwner = {
+  exercise_id: string
+  /**
+   * The exercise's name after the change.
+   */
+  exercise_name: string
+  /**
+   * The task, for [`EntityField::TaskInstructions`].
+   */
+  task_id?: string | null
 }
 
 export type ExerciseRepository = {
@@ -3868,7 +4178,7 @@ export type ExerciseSlideSubmission = {
 export type ExerciseSlideSubmissionAndUserExerciseState = {
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
-  teacher_grading_decision?: null | TeacherGradingDecision
+  teacher_grading_decision?: TeacherGradingDecision | null
   user_exam_enrollment: ExamEnrollment
   user_exercise_state: UserExerciseState
 }
@@ -3899,7 +4209,7 @@ export type ExerciseSlideSubmissionInfo = {
   exercise: Exercise
   exercise_slide_submission: ExerciseSlideSubmission
   tasks: Array<CourseMaterialExerciseTask>
-  user_exercise_state?: null | UserExerciseState
+  user_exercise_state?: UserExerciseState | null
 }
 
 /**
@@ -3922,11 +4232,11 @@ export type ExerciseStatusSummaryForUser = {
   given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
-  peer_review_queue_entry?: null | PeerReviewQueueEntry
+  peer_review_queue_entry?: PeerReviewQueueEntry | null
   received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
-  teacher_grading_decision?: null | TeacherGradingDecision
-  user_exercise_state?: null | UserExerciseState
+  teacher_grading_decision?: TeacherGradingDecision | null
+  user_exercise_state?: UserExerciseState | null
 }
 
 export type ExerciseSubmissions = {
@@ -4053,6 +4363,67 @@ export type FeedbackEditProposalCounts = {
   unread_feedback: number
 }
 
+/**
+ * One field a change sets to another value.
+ */
+export type FieldChange = {
+  after?: FieldValue | null
+  before?: FieldValue | null
+  exercise?: ExerciseFieldOwner | null
+  field: EntityField
+}
+
+/**
+ * A field's value, typed for display.
+ */
+export type FieldValue =
+  | {
+      type: "text"
+      value: string
+    }
+  | {
+      type: "number"
+      value: number
+    }
+  | {
+      type: "bool"
+      value: boolean
+    }
+  | {
+      type: "date_time"
+      value: string
+    }
+  | {
+      type: "reference"
+      /**
+       * Another entity, labelled as it is or will be called.
+       */
+      value: EntityRef
+    }
+  | {
+      type: "text_list"
+      value: Array<string>
+    }
+  | {
+      type: "completion_policy"
+      value: CompletionPolicy
+    }
+  | {
+      type: "ai_policy"
+      value: CourseAiPolicy
+    }
+  | {
+      type: "blocks"
+      /**
+       * Blocks, as stored.
+       */
+      value: unknown
+    }
+  | {
+      type: "review_config"
+      value: ReviewConfigKind
+    }
+
 export type FlaggedAnswer = {
   created_at: string
   deleted_at?: string | null
@@ -4110,8 +4481,6 @@ export type GlobalStatEntry = {
 }
 
 /**
- *
- *
  * Tells what's the status of the grading progress for a user and exercise.
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
@@ -4133,8 +4502,8 @@ export type GutenbergBlock = {
  * Clearing the attention flag is refused only on a superseded row, so it is not in here.
  */
 export type HandActionAvailability = {
-  cancel_refusal?: null | ResubmissionRefusal
-  check_now?: null | CheckNowTarget
+  cancel_refusal?: ResubmissionRefusal | null
+  check_now?: CheckNowTarget | null
   resubmission: ResubmissionAvailability
 }
 
@@ -4320,7 +4689,7 @@ export type MyCreditRegistration = {
    */
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   grade_id?: string | null
   /**
    * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
@@ -4332,10 +4701,10 @@ export type MyCreditRegistration = {
    * A `waiting_for_sisu` row Sisu has received but not finished processing into credits.
    */
   is_processing_in_sisu: boolean
-  linking_email?: null | LinkingEmailStatus
+  linking_email?: LinkingEmailStatus | null
   next_attempt_at: string
-  notification_email?: null | NotificationEmailStatus
-  progress?: null | StudentRegistrationProgress
+  notification_email?: NotificationEmailStatus | null
+  progress?: StudentRegistrationProgress | null
   registered_at?: string | null
   /**
    * The registry declined this attempt because it already holds an equal or better grade. Still a
@@ -4390,10 +4759,10 @@ export type MyEnrolmentRoute = {
   course_module_completion_id: string
   enrolment_confirmed_at?: string | null
   has_finnish_personal_identity_code?: boolean | null
-  identification?: null | CreditRegistrationIdentification
-  need?: null | CreditRegistrationNeed
-  need_after_reconsider?: null | CreditRegistrationNeed
-  route?: null | CreditRegistrationEnrolmentRoute
+  identification?: CreditRegistrationIdentification | null
+  need?: CreditRegistrationNeed | null
+  need_after_reconsider?: CreditRegistrationNeed | null
+  route?: CreditRegistrationEnrolmentRoute | null
 }
 
 export type MyStudies = {
@@ -4468,7 +4837,7 @@ export type MyStudiesCourseModule = {
    * completing it.
    */
   automatic_completion: boolean
-  completion?: null | MyStudiesCompletion
+  completion?: MyStudiesCompletion | null
   course_module_id: string
   ects_credits?: number | null
   /**
@@ -4777,6 +5146,25 @@ export type NotificationEmailStatus = {
   sent_at?: string | null
 }
 
+/**
+ * A user's consent to one client: what the account page lists and revokes.
+ */
+export type OAuthGrant = {
+  client_name: string
+  client_uri?: string | null
+  granted_at: string
+  id: string
+  /**
+   * Whether the client registered through a Client ID Metadata Document, as AI agents do.
+   */
+  is_metadata_document_client: boolean
+  /**
+   * Minute resolution; `None` if no token from the grant was ever used.
+   */
+  last_used_at?: string | null
+  scopes: Array<string>
+}
+
 export type OrgExam = {
   created_at: string
   deleted_at?: string | null
@@ -4844,6 +5232,22 @@ export type PageAudioFile = {
 }
 
 /**
+ * What a change does to a page: its fields, and its content as students see it.
+ */
+export type PageChange = EntityChange & {
+  after?: PreviewPage | null
+  base?: PreviewPage | null
+  /**
+   * Whether the blocks or exercises differ; always for creates and deletes.
+   */
+  is_content_changed: boolean
+  /**
+   * What the reviewer should know before publishing the page's exercise changes.
+   */
+  warnings: Array<ExerciseChangeWarning>
+}
+
+/**
  * Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
  */
 export type PageDetailsUpdate = {
@@ -4852,6 +5256,10 @@ export type PageDetailsUpdate = {
 }
 
 export type PageHistory = {
+  /**
+   * The agent client the change was made through; `None` for the web UI.
+   */
+  agent_client_name?: string | null
   author_user_id: string
   content: unknown
   created_at: string
@@ -4871,6 +5279,40 @@ export type PageInfo = {
   organization_slug?: string | null
   page_id: string
   page_title: string
+}
+
+/**
+ * What the preview of a staged page, or of a published one, renders.
+ */
+export type PagePreview = {
+  /**
+   * The pages the link switches between: the changeset's added or changed pages, or all pages
+   * of the course for a published preview. Empty unless the link covers more than one page.
+   */
+  changed_pages: Array<PreviewPageLink>
+  /**
+   * The visible pages of the page's chapter after its front page; filled only for a chapter
+   * front page when the link covers more than one page.
+   */
+  chapter_pages: Array<PreviewPageLink>
+  course_name: string
+  /**
+   * Whether the page is its chapter's front page, as staged.
+   */
+  is_chapter_front_page: boolean
+  /**
+   * Whether the preview shows the published course rather than a changeset's staged state.
+   */
+  is_published_state: boolean
+  language_code: string
+  /**
+   * The page as staged, or as live if the changeset does not change it.
+   */
+  page: PreviewPage
+  /**
+   * The course's references, with the changeset's staged changes applied if there is one.
+   */
+  references: Array<PreviewReference>
 }
 
 export type PageProposal = {
@@ -4960,7 +5402,7 @@ export type PageAccountLinkingEmailRow = {
      * When the `link-emails` phase handed it to the email worker.
      */
     queued_at?: string | null
-    send_status?: null | EmailSendStatusReport
+    send_status?: EmailSendStatusReport | null
     /**
      * The name Sisu held for the student number when the mail went out.
      */
@@ -4978,7 +5420,7 @@ export type PageAdminCreditRegistrationRow = {
      * Every reason the Needs attention queue picks the row for; empty when it is not picked.
      */
     attention_reasons: Array<CreditRegistrationAttentionReason>
-    attention_standing?: null | AttentionStanding
+    attention_standing?: AttentionStanding | null
     completion_date: string
     course_id: string
     course_instance_id: string
@@ -4992,15 +5434,15 @@ export type PageAdminCreditRegistrationRow = {
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
-    engagement?: null | Engagement
+    engagement?: Engagement | null
     /**
      * The next scheduled enrolment check.
      */
     enrolment_check_due_at?: string | null
     enrolment_checked_at?: string | null
     enrolment_checks_stopped_at?: string | null
-    enrolment_route?: null | CreditRegistrationEnrolmentRoute
-    error_code?: null | CreditRegistrationErrorCode
+    enrolment_route?: CreditRegistrationEnrolmentRoute | null
+    error_code?: CreditRegistrationErrorCode | null
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
@@ -5024,7 +5466,7 @@ export type PageAdminCreditRegistrationRow = {
      * When verify first saw only the assessment item attainment.
      */
     partially_registered_at?: string | null
-    pending_reason?: null | CreditRegistrationPendingReason
+    pending_reason?: CreditRegistrationPendingReason | null
     phase: TimelinePhase
     /**
      * When the row entered its timeline phase: what "In this phase since" shows.
@@ -5070,7 +5512,7 @@ export type PageAdminCreditRegistrationRow = {
      */
     verified_student_number?: string | null
     verified_student_number_at?: string | null
-    verified_student_number_via?: null | StudentNumberVerificationMethod
+    verified_student_number_via?: StudentNumberVerificationMethod | null
     verify_attempt_count: number
     waits_on: WaitsOn
   }>
@@ -5124,8 +5566,8 @@ export type PageCreditRegistrationAdminActionRow = {
     actor_role: string
     actor_user_id: string
     affected_row_count?: number | null
-    after_state?: null | CreditRegistrationState
-    before_state?: null | CreditRegistrationState
+    after_state?: CreditRegistrationState | null
+    before_state?: CreditRegistrationState | null
     /**
      * The course the action was about: a teacher's own, a course target, or the course of a
      * targeted registration.
@@ -5257,7 +5699,6 @@ export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubm
 }
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -5367,7 +5808,176 @@ export type Points = {
   users: Array<UserDetail>
 }
 
+/**
+ * An exercise of a previewed page.
+ */
+export type PreviewExercise = {
+  /**
+   * The assignment blocks of its tasks, in slide and task order.
+   */
+  assignment: Array<unknown>
+  /**
+   * Whether students review answers to it, themselves or each other.
+   */
+  has_reviews: boolean
+  id: string
+  name: string
+  /**
+   * The review instructions blocks students see while reviewing. For an exercise that uses the
+   * course default, only a preview link fills them in.
+   */
+  review_instructions?: unknown
+  uses_course_default_review_config: boolean
+}
+
+/**
+ * A page as students see it before answering anything. The preview needs no login, so exercise
+ * specs, model solutions and review settings other than the instructions are left out.
+ */
+export type PreviewPage = {
+  chapter_id?: string | null
+  content: Array<GutenbergBlock>
+  course_id: string
+  exercises: Array<PreviewExercise>
+  hidden: boolean
+  id: string
+  order_number: number
+  title: string
+  url_path: string
+}
+
+/**
+ * A page a preview can switch to.
+ */
+export type PreviewPageLink = {
+  id: string
+  order_number: number
+  title: string
+  url_path: string
+}
+
+/**
+ * A bibliography entry the page's citations refer to.
+ */
+export type PreviewReference = {
+  citation_key: string
+  reference: string
+}
+
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
+
+/**
+ * A rule publishing relies on that a course state breaks. Pages, chapters and modules are named
+ * as the state has them.
+ */
+export type PublishBlocker =
+  | {
+      chapter_id: string
+      kind: "page_in_missing_chapter"
+      page: EntityRef
+    }
+  | {
+      kind: "duplicate_path"
+      pages: Array<EntityRef>
+      url_path: string
+    }
+  | {
+      chapter?: EntityRef | null
+      kind: "duplicate_page_order_number"
+      order_number: number
+      pages: Array<EntityRef>
+    }
+  | {
+      chapter: EntityRef
+      kind: "chapter_in_missing_module"
+      module_id: string
+    }
+  | {
+      chapter: EntityRef
+      front_page_id: string
+      kind: "missing_front_page"
+    }
+  | {
+      chapter: EntityRef
+      front_page: EntityRef
+      kind: "front_page_in_other_chapter"
+    }
+  | {
+      chapter: EntityRef
+      expected_url_path: string
+      front_page: EntityRef
+      kind: "front_page_off_path"
+      url_path: string
+    }
+  | {
+      chapter_number: number
+      chapters: Array<EntityRef>
+      kind: "duplicate_chapter_number"
+    }
+  | {
+      kind: "duplicate_module_order_number"
+      modules: Array<EntityRef>
+      order_number: number
+    }
+
+/**
+ * A staged entity whose live state changed after it was staged.
+ */
+export type PublishConflict = EntityRef & {
+  /**
+   * When the live entity was last changed, if its history knows.
+   */
+  last_changed_at?: string | null
+  last_changed_by_user_id?: string | null
+  /**
+   * The agent client of the last change; `None` for the web UI or when unknown.
+   */
+  last_changed_via_client?: string | null
+}
+
+export type PublishOutcome =
+  | {
+      changeset: AgentChangeset
+      outcome: "published"
+      redirects: Array<CreatedRedirect>
+    }
+  | {
+      outcome: "rejected"
+      rejection: PublishRejection
+    }
+
+/**
+ * Why a publish was refused. Nothing was written.
+ */
+export type PublishRejection =
+  | {
+      conflicts: Array<PublishConflict>
+      reason: "conflicts"
+    }
+  | {
+      reason: "needs_confirmation"
+      risky_entities: Array<ChangesetEntitySummary>
+    }
+  | {
+      reason: "global_admin_only_exercise_services"
+      service_names: Array<string>
+    }
+  | {
+      blockers: Array<PublishBlocker>
+      reason: "blockers"
+    }
+  | (ChangedSinceReview & {
+      reason: "changed_since_review"
+    })
+  | {
+      reason: "not_open"
+      status: AgentChangesetStatus
+    }
+  | {
+      entity?: EntityRef | null
+      message: string
+      reason: "save_failed"
+    }
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
@@ -5416,7 +6026,7 @@ export type RegradingInfo = {
 
 export type RegradingSubmissionInfo = {
   exercise_task_submission_id: string
-  grading_after_regrading?: null | ExerciseTaskGrading
+  grading_after_regrading?: ExerciseTaskGrading | null
   grading_before_regrading: ExerciseTaskGrading
 }
 
@@ -5459,7 +6069,7 @@ export type ResendLinkingEmailPayload = {
 }
 
 export type ResendLinkingEmailResult = {
-  linking_email?: null | TeacherLinkingEmailStatus
+  linking_email?: TeacherLinkingEmailStatus | null
   mails_sent_for_this_course: number
   max_mails_per_person_and_course: number
   outcome: ResendOutcome
@@ -5549,7 +6159,7 @@ export type RetryCreditRegistrationPayload = {
 }
 
 export type RetryCreditRegistrationResult = {
-  refusal?: null | ResubmissionRefusal
+  refusal?: ResubmissionRefusal | null
   /**
    * Where the row stands after the attempt, whatever the answer.
    */
@@ -5591,7 +6201,35 @@ export type Retryability =
   | "permanent_needs_config"
 
 /**
- *
+ * Which review settings an exercise uses.
+ */
+export type ReviewConfigKind = "course_default" | "own"
+
+/**
+ * One staged entity on the review page.
+ */
+export type ReviewEntity =
+  | (PageChange & {
+      kind: "page"
+    })
+  | (CourseDefaultReviewConfigChange & {
+      kind: "course_default_review_config"
+    })
+  | (EntityChange & {
+      kind: "fields"
+    })
+
+/**
+ * A publish or discard of the changeset as the user reviewed it.
+ */
+export type ReviewedRevisionRequest = {
+  /**
+   * `changeset.revision` of the review the user acted on.
+   */
+  reviewed_revision: number
+}
+
+/**
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export type ReviewingStage =
@@ -5603,6 +6241,63 @@ export type ReviewingStage =
   | "ReviewedAndLocked"
   | "Locked"
   | "NotAnsweredAndLocked"
+
+/**
+ * Why a staged change needs the user's confirmation before it is published: a rule it breaks,
+ * with the facts the rule found. It belongs to the entity the change is to, so it doesn't name
+ * that entity again.
+ */
+export type RiskReason =
+  | {
+      code: "exercise_with_submissions_removed"
+      exercise_id: string
+    }
+  | {
+      code: "page_with_submissions_removed"
+    }
+  | {
+      code: "chapter_with_submissions_removed"
+    }
+  | {
+      code: "visible_page_removed"
+    }
+  | {
+      code: "open_chapter_removed"
+    }
+  | {
+      after: string
+      before: string
+      code: "deadline_moved_earlier"
+    }
+  | {
+      code: "deadline_added_to_open_chapter"
+      deadline: string
+    }
+  | {
+      after: string
+      before: string
+      code: "exercise_deadline_moved_earlier"
+      exercise_id: string
+    }
+  | {
+      code: "exercise_deadline_added"
+      deadline: string
+      exercise_id: string
+    }
+  | {
+      code: "opening_moved_later"
+      opens_at: string
+    }
+  | {
+      code: "completion_policy_changed_after_completions"
+    }
+  | {
+      code: "completion_requirement_changed_after_completions"
+    }
+  | {
+      code: "chapter_locking_toggled"
+      is_enabled: boolean
+    }
 
 export type Role = {
   course_id?: string | null
@@ -5680,9 +6375,9 @@ export type SetCreditJustificationPayload = {
  */
 export type SetEnrolmentRoutePayload = {
   has_finnish_personal_identity_code?: boolean | null
-  identification?: null | CreditRegistrationIdentification
-  need?: null | CreditRegistrationNeed
-  need_after_reconsider?: null | CreditRegistrationNeed
+  identification?: CreditRegistrationIdentification | null
+  need?: CreditRegistrationNeed | null
+  need_after_reconsider?: CreditRegistrationNeed | null
   route: CreditRegistrationEnrolmentRoute
 }
 
@@ -5749,7 +6444,7 @@ export type StudentNumberVerificationTokenPreview = {
   emailed_to_masked: string
   expired: boolean
   expires_at: string
-  name_change?: null | NameReplacement
+  name_change?: NameReplacement | null
   /**
    * The name Sisu holds for the student number. Sisu does not verify the address the link was
    * mailed to, so the name is what tells someone they are about to link someone else's number.
@@ -5772,7 +6467,7 @@ export type StudentRegistrationProgress = {
    * The steps before `current_step`, in order.
    */
   completed_steps: Array<CompletedProgressStep>
-  current_step?: null | StudentRegistrationProgressStep
+  current_step?: StudentRegistrationProgressStep | null
   /**
    * A send is out and we do not know yet whether it reached Sisu. Only with `current_step`
    * `sent_to_sisu`.
@@ -5859,15 +6554,15 @@ export type SuotarApiCallEvent = {
    * The `{request, response}` pair for this one item, scrubbed at write time.
    */
   details?: unknown
-  error_code?: null | CreditRegistrationErrorCode
-  from_state?: null | CreditRegistrationState
+  error_code?: CreditRegistrationErrorCode | null
+  from_state?: CreditRegistrationState | null
   id: string
   kind: CreditRegistrationEventKind
   /**
    * Our own wording for what the call did to the row.
    */
   message?: string | null
-  to_state?: null | CreditRegistrationState
+  to_state?: CreditRegistrationState | null
 }
 
 /**
@@ -5879,7 +6574,7 @@ export type SuotarApiCallLedgerReference = {
   course_name: string
   credit_registration_id: string
   email?: string | null
-  error_code?: null | CreditRegistrationErrorCode
+  error_code?: CreditRegistrationErrorCode | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -6318,7 +7013,7 @@ export type UserDetail = {
    * by a database trigger on every address change, so a value here always refers to `email`.
    */
   email_verified_at?: string | null
-  email_verified_method?: null | EmailVerificationMethod
+  email_verified_method?: EmailVerificationMethod | null
   first_name?: string | null
   last_name?: string | null
   updated_at: string
@@ -6482,6 +7177,162 @@ export type UploadFilesFromExerciseServiceResponses = {
 export type UploadFilesFromExerciseServiceResponse =
   UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]
 
+export type GetAgentChangesetsData = {
+  body?: never
+  path?: never
+  query: {
+    course_id: string
+  }
+  url: "/api/v0/main-frontend/agent-changesets"
+}
+
+export type GetAgentChangesetsResponses = {
+  /**
+   * The user's changesets in the course
+   */
+  200: Array<ChangesetSummary>
+}
+
+export type GetAgentChangesetsResponse =
+  GetAgentChangesetsResponses[keyof GetAgentChangesetsResponses]
+
+export type GetAgentChangesetCountsData = {
+  body?: never
+  path?: never
+  query: {
+    course_id: string
+  }
+  url: "/api/v0/main-frontend/agent-changesets/counts"
+}
+
+export type GetAgentChangesetCountsResponses = {
+  /**
+   * The user's changeset counts in the course
+   */
+  200: AgentChangesetCounts
+}
+
+export type GetAgentChangesetCountsResponse =
+  GetAgentChangesetCountsResponses[keyof GetAgentChangesetCountsResponses]
+
+export type GetAgentChangesetData = {
+  body?: never
+  path: {
+    /**
+     * Changeset id
+     */
+    changeset_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/agent-changesets/{changeset_id}"
+}
+
+export type GetAgentChangesetResponses = {
+  /**
+   * The changeset with its entities and calls
+   */
+  200: ChangesetReview
+}
+
+export type GetAgentChangesetResponse = GetAgentChangesetResponses[keyof GetAgentChangesetResponses]
+
+export type DiscardAgentChangesetData = {
+  body: ReviewedRevisionRequest
+  path: {
+    /**
+     * Changeset id
+     */
+    changeset_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/discard"
+}
+
+export type DiscardAgentChangesetResponses = {
+  /**
+   * Discarded, or why it was not
+   */
+  200: DiscardOutcome
+}
+
+export type DiscardAgentChangesetResponse =
+  DiscardAgentChangesetResponses[keyof DiscardAgentChangesetResponses]
+
+export type CreateAgentChangesetPreviewLinkData = {
+  body?: never
+  path: {
+    /**
+     * Changeset id
+     */
+    changeset_id: string
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}"
+}
+
+export type CreateAgentChangesetPreviewLinkResponses = {
+  /**
+   * The preview link
+   */
+  200: AgentPreviewLink
+}
+
+export type CreateAgentChangesetPreviewLinkResponse =
+  CreateAgentChangesetPreviewLinkResponses[keyof CreateAgentChangesetPreviewLinkResponses]
+
+export type PublishAgentChangesetData = {
+  body: ReviewedRevisionRequest
+  path: {
+    /**
+     * Changeset id
+     */
+    changeset_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/agent-changesets/{changeset_id}/publish"
+}
+
+export type PublishAgentChangesetResponses = {
+  /**
+   * Published, or why it was not
+   */
+  200: PublishOutcome
+}
+
+export type PublishAgentChangesetResponse =
+  PublishAgentChangesetResponses[keyof PublishAgentChangesetResponses]
+
+export type GetAgentPagePreviewData = {
+  body?: never
+  path: {
+    /**
+     * Preview token
+     */
+    token: string
+  }
+  query?: {
+    /**
+     * The page to show; for a token of several pages only. Defaults to the first.
+     */
+    page?: string
+  }
+  url: "/api/v0/main-frontend/agent-preview/{token}"
+}
+
+export type GetAgentPagePreviewResponses = {
+  /**
+   * The staged page
+   */
+  200: PagePreview
+}
+
+export type GetAgentPagePreviewResponse =
+  GetAgentPagePreviewResponses[keyof GetAgentPagePreviewResponses]
+
 export type UpdateCertificateConfigurationData = {
   body: {
     file: Array<Blob | File>
@@ -6579,7 +7430,7 @@ export type GetCertificateByConfigurationIdResponses = {
   /**
    * Generated certificate
    */
-  200: null | GeneratedCertificate
+  200: GeneratedCertificate | null
 }
 
 export type GetCertificateByConfigurationIdResponse =
@@ -7787,7 +8638,7 @@ export type GetCourseModuleCompletionResponses = {
   /**
    * Best course module completion for the current user
    */
-  200: null | CourseModuleCompletion
+  200: CourseModuleCompletion | null
 }
 
 export type GetCourseModuleCompletionResponse =
@@ -10813,7 +11664,7 @@ export type GetCourseUserSettingsForUserResponses = {
   /**
    * User course settings
    */
-  200: null | UserCourseSettings
+  200: UserCourseSettings | null
 }
 
 export type GetCourseUserSettingsForUserResponse =
@@ -11969,7 +12820,7 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
   /**
    * The caller's registration for the module
    */
-  200: null | MyCreditRegistrationForCourseModule
+  200: MyCreditRegistrationForCourseModule | null
 }
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
@@ -12205,7 +13056,7 @@ export type GetMyVerifiedStudentNumberResponses = {
   /**
    * The caller's linked student number
    */
-  200: null | MyVerifiedStudentNumber
+  200: MyVerifiedStudentNumber | null
 }
 
 export type GetMyVerifiedStudentNumberResponse =
@@ -13668,45 +14519,6 @@ export type AuthorizeOauthPostData = {
   url: "/api/v0/main-frontend/oauth/authorize"
 }
 
-export type GetOauthAuthorizedClientsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients"
-}
-
-export type GetOauthAuthorizedClientsResponses = {
-  /**
-   * Authorized OAuth clients
-   */
-  200: Array<AuthorizedClientInfo>
-}
-
-export type GetOauthAuthorizedClientsResponse =
-  GetOauthAuthorizedClientsResponses[keyof GetOauthAuthorizedClientsResponses]
-
-export type DeleteOauthAuthorizedClientData = {
-  body?: never
-  path: {
-    /**
-     * OAuth client id
-     */
-    client_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients/{client_id}"
-}
-
-export type DeleteOauthAuthorizedClientResponses = {
-  /**
-   * Authorized client revoked
-   */
-  204: void
-}
-
-export type DeleteOauthAuthorizedClientResponse =
-  DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses]
-
 export type ApproveOauthConsentData = {
   body: ConsentQuery
   path?: never
@@ -13723,6 +14535,30 @@ export type ApproveOauthConsentResponses = {
 
 export type ApproveOauthConsentResponse =
   ApproveOauthConsentResponses[keyof ApproveOauthConsentResponses]
+
+export type GetOauthConsentInfoData = {
+  body?: never
+  path?: never
+  query: {
+    client_id: string
+    redirect_uri: string
+    /**
+     * The requested scopes, space-separated.
+     */
+    scope: string
+  }
+  url: "/api/v0/main-frontend/oauth/consent-info"
+}
+
+export type GetOauthConsentInfoResponses = {
+  /**
+   * Consent screen data
+   */
+  200: ConsentInfo
+}
+
+export type GetOauthConsentInfoResponse =
+  GetOauthConsentInfoResponses[keyof GetOauthConsentInfoResponses]
 
 export type DenyOauthConsentData = {
   body: ConsentDenyQuery
@@ -13844,6 +14680,43 @@ export type DenyOauthDeviceVerificationResponses = {
 
 export type DenyOauthDeviceVerificationResponse =
   DenyOauthDeviceVerificationResponses[keyof DenyOauthDeviceVerificationResponses]
+
+export type GetOauthGrantsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/oauth/grants"
+}
+
+export type GetOauthGrantsResponses = {
+  /**
+   * The user's grants
+   */
+  200: Array<OAuthGrant>
+}
+
+export type GetOauthGrantsResponse = GetOauthGrantsResponses[keyof GetOauthGrantsResponses]
+
+export type RevokeOauthGrantData = {
+  body?: never
+  path: {
+    /**
+     * Grant id
+     */
+    grant_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/oauth/grants/{grant_id}"
+}
+
+export type RevokeOauthGrantResponses = {
+  /**
+   * Grant revoked
+   */
+  204: void
+}
+
+export type RevokeOauthGrantResponse = RevokeOauthGrantResponses[keyof RevokeOauthGrantResponses]
 
 export type IntrospectOauthTokenData = {
   body: unknown
@@ -15175,7 +16048,7 @@ export type CreateTeacherGradingDecisionResponses = {
   /**
    * Teacher grading decision created
    */
-  200: null | UserExerciseState
+  200: UserExerciseState | null
 }
 
 export type CreateTeacherGradingDecisionResponse =

@@ -27,6 +27,7 @@ import {
   getCmsPage,
   getCmsPageInfo,
   getCmsPageNavigation,
+  getCmsPagePendingAgentChanges,
   getCmsRepositoryExercisesForCourse,
   getExercisesWithSubmissions,
   type Options,
@@ -84,6 +85,8 @@ import type {
   GetCmsPageInfoResponse,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponse,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponse,
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
@@ -117,7 +120,6 @@ import type {
 } from "../types.generated"
 
 /**
- *
  * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
  *
  * This endpoint is intended for the CMS chart block editor. It requires the user to have
@@ -147,7 +149,6 @@ export const requestChartSpecGenerationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/ai-suggestions/paragraph` - Generate AI suggestions for a CMS paragraph.
  *
  * This endpoint is intended for CMS editors. It requires the user to have edit access
@@ -219,7 +220,6 @@ export const getAllChaptersByCourseIdQueryKey = (options: Options<GetAllChapters
   createQueryKey("getAllChaptersByCourseId", options)
 
 /**
- *
  * GET `/api/v0/cms/chapters/{course_id}/all-chapters-for-course` - Gets all chapters with a course_id
  */
 export const getAllChaptersByCourseIdOptions = (options: Options<GetAllChaptersByCourseIdData>) =>
@@ -244,7 +244,6 @@ export const getCmsCodeGiveawaysByCourseQueryKey = (
 ) => createQueryKey("getCmsCodeGiveawaysByCourse", options)
 
 /**
- *
  * GET `/api/v0/cms/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
 export const getCmsCodeGiveawaysByCourseOptions = (
@@ -270,7 +269,6 @@ export const getCmsCourseInstanceQueryKey = (options: Options<GetCmsCourseInstan
   createQueryKey("getCmsCourseInstance", options)
 
 /**
- *
  * GET `/api/v0/cms/course-instances/:course_instance` - Gets a course instance by id.
  */
 export const getCmsCourseInstanceOptions = (options: Options<GetCmsCourseInstanceData>) =>
@@ -295,7 +293,6 @@ export const getCmsCourseInstanceOrganizationIdQueryKey = (
 ) => createQueryKey("getCmsCourseInstanceOrganizationId", options)
 
 /**
- *
  * GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id.
  *
  * # Example
@@ -324,7 +321,6 @@ export const getCmsCourseQueryKey = (options: Options<GetCmsCourseData>) =>
   createQueryKey("getCmsCourse", options)
 
 /**
- *
  * GET /api/v0/cms/courses/:course_id - Get the course.
  */
 export const getCmsCourseOptions = (options: Options<GetCmsCourseData>) =>
@@ -348,7 +344,6 @@ export const getCmsCourseInstancesQueryKey = (options: Options<GetCmsCourseInsta
   createQueryKey("getCmsCourseInstances", options)
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
  */
 export const getCmsCourseInstancesOptions = (options: Options<GetCmsCourseInstancesData>) =>
@@ -417,7 +412,6 @@ export const getCmsCourseModulesQueryKey = (options: Options<GetCmsCourseModules
   createQueryKey("getCmsCourseModules", options)
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/modules`
  * Returns modules in the course.
  */
@@ -443,7 +437,6 @@ export const getCmsCourseNondefaultChatbotConfigurationsQueryKey = (
 ) => createQueryKey("getCmsCourseNondefaultChatbotConfigurations", options)
 
 /**
- *
  * GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all nondefault, enabled-to-students chatbot configurations of this course.
  */
 export const getCmsCourseNondefaultChatbotConfigurationsOptions = (
@@ -469,7 +462,6 @@ export const getCmsCoursePagesQueryKey = (options: Options<GetCmsCoursePagesData
   createQueryKey("getCmsCoursePages", options)
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
  */
 export const getCmsCoursePagesOptions = (options: Options<GetCmsCoursePagesData>) =>
@@ -490,7 +482,6 @@ export const getCmsCoursePagesOptions = (options: Options<GetCmsCoursePagesData>
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
  */
 export const deleteCmsCoursePartnersBlockMutation = (
@@ -520,7 +511,6 @@ export const getCmsCoursePartnersBlockQueryKey = (
 ) => createQueryKey("getCmsCoursePartnersBlock", options)
 
 /**
- *
  * GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
  */
 export const getCmsCoursePartnersBlockOptions = (options: Options<GetCmsCoursePartnersBlockData>) =>
@@ -541,7 +531,6 @@ export const getCmsCoursePartnersBlockOptions = (options: Options<GetCmsCoursePa
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
  */
 export const upsertCmsCoursePartnersBlockMutation = (
@@ -566,7 +555,6 @@ export const getCmsCourseResearchFormQueryKey = (options: Options<GetCmsCourseRe
   createQueryKey("getCmsCourseResearchForm", options)
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
  */
 export const getCmsCourseResearchFormOptions = (options: Options<GetCmsCourseResearchFormData>) =>
@@ -587,7 +575,6 @@ export const getCmsCourseResearchFormOptions = (options: Options<GetCmsCourseRes
   })
 
 /**
- *
  * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
  */
 export const upsertCmsCourseResearchFormMutation = (
@@ -613,7 +600,6 @@ export const upsertCmsCourseResearchFormMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -650,7 +636,6 @@ export const uploadCmsCourseMediaMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/cms/email-templates/:id`
  */
 export const deleteCmsEmailTemplateMutation = (
@@ -679,7 +664,6 @@ export const getCmsEmailTemplateQueryKey = (options: Options<GetCmsEmailTemplate
   createQueryKey("getCmsEmailTemplate", options)
 
 /**
- *
  * GET `/api/v0/cms/email-templates/:id`
  */
 export const getCmsEmailTemplateOptions = (options: Options<GetCmsEmailTemplateData>) =>
@@ -700,7 +684,6 @@ export const getCmsEmailTemplateOptions = (options: Options<GetCmsEmailTemplateD
   })
 
 /**
- *
  * PUT `/api/v0/cms/email-templates/:id
  */
 export const updateCmsEmailTemplateMutation = (
@@ -726,7 +709,6 @@ export const updateCmsEmailTemplateMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/email-templates/:id/preview`
  *
  * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
@@ -754,7 +736,6 @@ export const previewCmsEmailTemplateMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/email-templates/:id/send-test`
  *
  * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
@@ -786,7 +767,6 @@ export const getCmsExamInstructionsQueryKey = (options: Options<GetCmsExamInstru
   createQueryKey("getCmsExamInstructions", options)
 
 /**
- *
  * GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
  */
 export const getCmsExamInstructionsOptions = (options: Options<GetCmsExamInstructionsData>) =>
@@ -807,7 +787,6 @@ export const getCmsExamInstructionsOptions = (options: Options<GetCmsExamInstruc
   })
 
 /**
- *
  * PUT `/api/v0/cms/exams/:exam_id/edit` - Insert new instructions from Gutenberg editor.
  *
  * # Example
@@ -840,7 +819,6 @@ export const updateCmsExamInstructionsMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/exams/:exam_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -880,7 +858,6 @@ export const getCmsExerciseServicesQueryKey = (options?: Options<GetCmsExerciseS
   createQueryKey("getCmsExerciseServices", options)
 
 /**
- *
  * GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
  */
 export const getCmsExerciseServicesOptions = (options?: Options<GetCmsExerciseServicesData>) =>
@@ -904,7 +881,6 @@ export const getCmsPageQueryKey = (options: Options<GetCmsPageData>) =>
   createQueryKey("getCmsPage", options)
 
 /**
- *
  * GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
@@ -927,7 +903,6 @@ export const getCmsPageOptions = (options: Options<GetCmsPageData>) =>
   })
 
 /**
- *
  * PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
  *
  * Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
@@ -969,7 +944,6 @@ export const updateCmsPageMutation = (
 }
 
 /**
- *
  * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
  * the subset that has at least one existing submission. Used by the editor to warn the teacher before
  * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
@@ -1001,7 +975,6 @@ export const getCmsPageInfoQueryKey = (options: Options<GetCmsPageInfoData>) =>
   createQueryKey("getCmsPageInfo", options)
 
 /**
- *
  * GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -1027,7 +1000,6 @@ export const getCmsPageNavigationQueryKey = (options: Options<GetCmsPageNavigati
   createQueryKey("getCmsPageNavigation", options)
 
 /**
- *
  * GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
 export const getCmsPageNavigationOptions = (options: Options<GetCmsPageNavigationData>) =>
@@ -1045,6 +1017,33 @@ export const getCmsPageNavigationOptions = (options: Options<GetCmsPageNavigatio
         throwOnError: true,
       }),
     queryKey: getCmsPageNavigationQueryKey(options),
+  })
+
+export const getCmsPagePendingAgentChangesQueryKey = (
+  options: Options<GetCmsPagePendingAgentChangesData>,
+) => createQueryKey("getCmsPagePendingAgentChanges", options)
+
+/**
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChangesOptions = (
+  options: Options<GetCmsPagePendingAgentChangesData>,
+) =>
+  queryOptions<
+    GetCmsPagePendingAgentChangesResponse,
+    DefaultError,
+    GetCmsPagePendingAgentChangesResponse,
+    ReturnType<typeof getCmsPagePendingAgentChangesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCmsPagePendingAgentChanges({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCmsPagePendingAgentChangesQueryKey(options),
   })
 
 export const getCmsRepositoryExercisesForCourseQueryKey = (
@@ -1071,7 +1070,6 @@ export const getCmsRepositoryExercisesForCourseOptions = (
   })
 
 /**
- *
  * POST `/api/v0/files/:exercise_service_slug`
  * Used to upload data from exercise service iframes.
  *

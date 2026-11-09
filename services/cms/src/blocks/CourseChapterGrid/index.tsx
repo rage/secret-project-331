@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import CourseGridEditor from "./CourseChapterGridEditor"
-import CourseGridSave from "./CourseChapterGridSave"
 
 const CourseChapterGridConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -15,7 +15,7 @@ const CourseChapterGridConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   edit: CourseGridEditor,
-  save: CourseGridSave,
+  save: EmptyBlockSave,
 }
 
 export default CourseChapterGridConfiguration

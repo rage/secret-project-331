@@ -17,7 +17,7 @@
     "/api/v0/errors": {
       "post": {
         "tags": ["errors"],
-        "summary": "\nPOST `/api/v0/errors` - Reports an error occurrence.\n\nAccessible to both authenticated and anonymous users. If the user is logged in, their id is stored with the error occurrence.",
+        "summary": "POST `/api/v0/errors` - Reports an error occurrence.\n\nAccessible to both authenticated and anonymous users. If the user is logged in, their id is stored with the error occurrence.",
         "operationId": "postError",
         "requestBody": {
           "content": {
@@ -99,10 +99,10 @@
           "error_source": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ErrorSource"
               },
               {
-                "$ref": "#/components/schemas/ErrorSource"
+                "type": "null"
               }
             ]
           },

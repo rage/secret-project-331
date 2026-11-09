@@ -110,20 +110,21 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
     t,
   ])
 
+  const countColumn = (header: string, counts: CountsByInstance): TableColumn<string> => ({
+    header,
+    align: ALIGN_END,
+    cell: (instanceId) => (
+      <span className={numberCellStyles}>
+        {formatNumber(counts?.[instanceId]?.count || 0, i18n.language)}
+      </span>
+    ),
+  })
+
   const columnsFor = ({
     totalUsers,
     totalReturnedExercises,
     totalCompletions,
   }: CountsByColumn): TableColumn<string>[] => {
-    const countColumn = (header: string, counts: CountsByInstance): TableColumn<string> => ({
-      header,
-      align: ALIGN_END,
-      cell: (instanceId) => (
-        <span className={numberCellStyles}>
-          {formatNumber(counts?.[instanceId]?.count || 0, i18n.language)}
-        </span>
-      ),
-    })
     return [
       {
         header: t("stats-heading-course-instance"),

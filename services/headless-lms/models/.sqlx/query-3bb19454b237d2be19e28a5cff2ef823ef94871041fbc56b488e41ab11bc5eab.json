@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO entity_history (\n    entity_type,\n    entity_id,\n    course_id,\n    snapshot,\n    change_reason,\n    author_user_id,\n    agent_call_id\n  )\nSELECT k.entity_type,\n  k.entity_id,\n  k.course_id,\n  k.snapshot,\n  'saved',\n  $5,\n  $6\nFROM UNNEST(\n    $1::content_entity_type [],\n    $2::uuid [],\n    $3::uuid [],\n    $4::jsonb []\n  ) AS k(entity_type, entity_id, course_id, snapshot)\nWHERE (\n    SELECT h.snapshot\n    FROM entity_history h\n    WHERE h.entity_type = k.entity_type\n      AND h.entity_id = k.entity_id\n    ORDER BY h.created_at DESC,\n      h.id DESC\n    LIMIT 1\n  ) IS DISTINCT FROM k.snapshot\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "content_entity_type[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "content_entity_type",
+                  "kind": {
+                    "Enum": [
+                      "page",
+                      "chapter",
+                      "module",
+                      "course_settings",
+                      "glossary_term",
+                      "reference",
+                      "course_default_review_config"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "UuidArray",
+        "UuidArray",
+        "JsonbArray",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3bb19454b237d2be19e28a5cff2ef823ef94871041fbc56b488e41ab11bc5eab"
+}

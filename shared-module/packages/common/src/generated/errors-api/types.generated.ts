@@ -25,7 +25,7 @@ export type MessageKey =
 export type NewErrorReport = {
   app_version?: string | null
   details?: unknown
-  error_source?: null | ErrorSource
+  error_source?: ErrorSource | null
   message: string
   path?: string | null
   service: string

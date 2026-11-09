@@ -49,7 +49,7 @@ pub async fn ensure_user_can_add_exercise_tasks(
     let added_service_names =
         models::pages::get_global_admin_only_exercise_service_names_added_by_tasks(
             conn,
-            page_id,
+            models::pages::ExistingTasks::OnPage(page_id),
             exercise_tasks,
         )
         .await?;

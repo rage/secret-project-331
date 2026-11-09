@@ -352,6 +352,8 @@ async fn create_and_upload_exercise(
     // archive and compress
     let cursor = Cursor::new(vec![]);
     let mut tar = tar::Builder::new(cursor);
+    // The repository is teacher-controlled; following its symlinks would archive server files.
+    tar.follow_symlinks(false);
     tar.append_dir_all(".", &exercise.path)?;
     let mut tar = tar.into_inner()?;
     // rewind cursor back to the beginning
@@ -390,6 +392,8 @@ async fn update_exercise(
     // archive and compress
     let cursor = Cursor::new(vec![]);
     let mut tar = tar::Builder::new(cursor);
+    // The repository is teacher-controlled; following its symlinks would archive server files.
+    tar.follow_symlinks(false);
     tar.append_dir_all(".", &exercise.path)?;
     let mut tar = tar.into_inner()?;
     // rewind cursor back to the beginning

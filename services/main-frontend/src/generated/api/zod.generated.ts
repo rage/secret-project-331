@@ -7340,13 +7340,19 @@ export const zUserRole = z.enum([
   "CreditRegistrationAdmin",
 ])
 
+/**
+ * A role granted to an email address that is not verified yet. See [`activate_for_user`].
+ */
 export const zPendingRole = z.object({
   course_id: z.uuid().nullish(),
   course_instance_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
+  exam_id: z.uuid().nullish(),
   expires_at: z.iso.datetime(),
   id: z.uuid(),
+  is_global: z.boolean(),
+  organization_id: z.uuid().nullish(),
   role: zUserRole,
   updated_at: z.iso.datetime(),
   user_email: z.string(),
@@ -11419,6 +11425,18 @@ export const zGetPendingRolesQuery = z.object({
  * Pending roles
  */
 export const zGetPendingRolesResponse = z.array(zPendingRole)
+
+/**
+ * Number of pending roles waiting for email verification
+ */
+export const zGetPendingRoleCountWaitingForMeResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
 
 export const zRemoveRoleBody = zRoleInfo
 

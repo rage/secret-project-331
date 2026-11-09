@@ -546,7 +546,8 @@ WHERE id = $2
     Ok(updated_user)
 }
 
-/// Records a proof of control over the address currently in `email`.
+/// Records a proof of control over the address currently in `email`, and grants the roles that were
+/// waiting for it (see [`crate::pending_roles`]).
 ///
 /// Must not also write `email`: the `clear_email_verification` trigger would null the flag in the
 /// same statement.
@@ -556,6 +557,7 @@ pub async fn set_email_verified(
     method: EmailVerificationMethod,
     verified_at: DateTime<Utc>,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
 UPDATE user_details
@@ -567,8 +569,10 @@ WHERE user_id = $1
         verified_at,
         method as EmailVerificationMethod,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+    crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    tx.commit().await?;
     Ok(())
 }
 

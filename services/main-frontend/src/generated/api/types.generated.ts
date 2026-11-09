@@ -5738,13 +5738,19 @@ export type PendingReasonCounts = {
   student_number_count: number
 }
 
+/**
+ * A role granted to an email address that is not verified yet. See [`activate_for_user`].
+ */
 export type PendingRole = {
   course_id?: string | null
   course_instance_id?: string | null
   created_at: string
   deleted_at?: string | null
+  exam_id?: string | null
   expires_at: string
   id: string
+  is_global: boolean
+  organization_id?: string | null
   role: UserRole
   updated_at: string
   user_email: string
@@ -15751,6 +15757,23 @@ export type GetPendingRolesResponses = {
 }
 
 export type GetPendingRolesResponse = GetPendingRolesResponses[keyof GetPendingRolesResponses]
+
+export type GetPendingRoleCountWaitingForMeData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/roles/pending/waiting-for-me"
+}
+
+export type GetPendingRoleCountWaitingForMeResponses = {
+  /**
+   * Number of pending roles waiting for email verification
+   */
+  200: number
+}
+
+export type GetPendingRoleCountWaitingForMeResponse =
+  GetPendingRoleCountWaitingForMeResponses[keyof GetPendingRoleCountWaitingForMeResponses]
 
 export type RemoveRoleData = {
   body: RoleInfo

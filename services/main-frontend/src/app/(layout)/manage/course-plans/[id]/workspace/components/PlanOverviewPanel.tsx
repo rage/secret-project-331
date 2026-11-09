@@ -2,15 +2,21 @@
 
 import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
+import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import type { CourseDesignerStage } from "@/generated/api/types.generated"
+import type {
+  CourseDesignerPlanStageStatus,
+  CourseDesignerStage,
+} from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Dialog, Meter, METER_KIND, Select, TONE } from "@/shared-module/components"
+import { Button, Dialog, Meter, METER_KIND, TONE } from "@/shared-module/components"
 
+import AdjustScheduleDialog from "../../schedule/components/AdjustScheduleDialog"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
-import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
+import { useConfirmStageCompletion } from "../hooks/useConfirmStageCompletion"
+import PlanArchiveButton from "./PlanArchiveButton"
 
 const NODE_COLUMN_WIDTH = 28
 const SPINE_OFFSET = 13
@@ -247,53 +253,19 @@ const actionBarHelperTextStyles = css`
   min-width: 0;
 `
 
-const adjustDialogContentStyles = css`
+const actionBarPrimaryGroupStyles = css`
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-`
-
-const adjustDescriptionStyles = css`
-  margin: 0;
-  font-size: 0.95rem;
-  color: ${baseTheme.colors.gray[600]};
-  line-height: 1.5;
-`
-
-const adjustPreviewCardStyles = css`
-  display: flex;
-  flex-direction: column;
-  padding: 0.9rem 1rem;
-  background: ${baseTheme.colors.gray[50]};
-  border: 1px solid ${baseTheme.colors.gray[100]};
-  border-radius: 8px;
-`
-
-const adjustPreviewBodyStyles = css`
-  margin: 0;
-  font-size: 0.9rem;
-  color: ${baseTheme.colors.gray[600]};
-  line-height: 1.5;
-
-  & + & {
-    margin-top: 0.55rem;
-    padding-top: 0.55rem;
-    border-top: 1px dashed ${baseTheme.colors.gray[100]};
-  }
-`
-
-const adjustDialogFooterStyles = css`
-  display: flex;
-  justify-content: flex-end;
+  align-items: center;
   gap: 0.75rem;
-  padding-top: 0.5rem;
+  flex-wrap: wrap;
+  margin-left: auto;
 `
 
 export interface OverviewStage {
   id: string
   planned_starts_on: string
   planned_ends_on: string
-  status: string
+  status: CourseDesignerPlanStageStatus
   stage: CourseDesignerStage
 }
 
@@ -317,13 +289,6 @@ export interface PlanOverviewPanelProps {
   nextStageLabel?: string | null
 }
 
-/** Adds a month offset to a Date while preserving other fields. */
-const addMonths = (date: Date, months: number): Date => {
-  const result = new Date(date)
-  result.setMonth(result.getMonth() + months)
-  return result
-}
-
 const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   isOpen,
   onClose,
@@ -344,49 +309,20 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   nextStageLabel = null,
 }) => {
   const { t, i18n } = useTranslation()
+  const { id: planId } = useParams<{ id: string }>()
   const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
-  const { control, extendMonths, extendMonthsOptions, resetExtendMonths } =
-    useAdjustScheduleDialogState(1)
+  const confirmStageCompletion = useConfirmStageCompletion()
 
-  /** Formats a Date as localized month and year. */
-  const formatMonthYearFromDate = (date: Date): string =>
-    date.toLocaleDateString(i18n.language, {
+  const formatMonthYear = (isoDate: string): string =>
+    new Date(isoDate).toLocaleDateString(i18n.language, {
       // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       month: "long",
       // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       year: "numeric",
     })
 
-  /** Formats an ISO date string as localized month and year. */
-  const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
-
   const activeStageData =
     activeStage !== null ? (stages.find((stage) => stage.stage === activeStage) ?? null) : null
-
-  const currentPhaseEndLabel =
-    currentPhaseEndDateFormatted ??
-    (activeStageData !== null ? formatMonthYear(activeStageData.planned_ends_on) : null)
-
-  const latestStageEndIso =
-    stages.length > 0
-      ? stages.reduce(
-          (latest, stage) => (stage.planned_ends_on > latest ? stage.planned_ends_on : latest),
-          // oxlint-disable-next-line typescript/no-non-null-assertion -- this branch has stages.length > 0, so stages[0] exists
-          stages[0]!.planned_ends_on,
-        )
-      : null
-
-  const currentPlanEndLabel = latestStageEndIso !== null ? formatMonthYear(latestStageEndIso) : null
-
-  const newPhaseEndLabel =
-    activeStageData !== null && extendMonths > 0
-      ? formatMonthYearFromDate(addMonths(new Date(activeStageData.planned_ends_on), extendMonths))
-      : null
-
-  const newPlanEndLabel =
-    latestStageEndIso !== null && extendMonths > 0
-      ? formatMonthYearFromDate(addMonths(new Date(latestStageEndIso), extendMonths))
-      : null
 
   const canAdjustSchedule = activeStage !== null && activeStageData !== null
 
@@ -407,6 +343,15 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
             time: timeRemainingShort ?? timeRemainingText,
           })
       : null
+
+  const handleAdvanceStage = async () => {
+    if (!activeStageData) {
+      return
+    }
+    if (await confirmStageCompletion(activeStageData, stageLabel, nextStageLabel)) {
+      onAdvanceStage()
+    }
+  }
 
   const renderStatusPill = (status: string) => {
     const pillVariantClass =
@@ -532,108 +477,51 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
         </section>
 
         <div className={actionBarStyles}>
-          {canActOnCurrentStage ? (
-            <>
-              {canAdjustSchedule && (
+          {planId && <PlanArchiveButton planId={planId} />}
+          <div className={actionBarPrimaryGroupStyles}>
+            {canActOnCurrentStage ? (
+              <>
+                {canAdjustSchedule && (
+                  <Button
+                    variant="secondary"
+                    size="medium"
+                    onClick={() => setIsAdjustDialogOpen(true)}
+                    disabled={isExtendPending || isAdvancePending}
+                  >
+                    {t("course-plans-overview-adjust-schedule")}
+                  </Button>
+                )}
                 <Button
-                  variant="secondary"
+                  variant="primary"
                   size="medium"
-                  onClick={() => {
-                    resetExtendMonths()
-                    setIsAdjustDialogOpen(true)
-                  }}
-                  disabled={isExtendPending || isAdvancePending}
+                  onClick={() => void handleAdvanceStage()}
+                  disabled={isAdvancePending}
                 >
-                  {t("course-plans-overview-adjust-schedule")}
+                  {nextStageLabel
+                    ? t("course-plans-overview-complete-phase-move-to", {
+                        stage: nextStageLabel,
+                      })
+                    : t("course-plans-overview-complete-final-phase")}
                 </Button>
-              )}
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={onAdvanceStage}
-                disabled={isAdvancePending}
-              >
-                {nextStageLabel
-                  ? t("course-plans-overview-complete-phase-move-to", {
-                      stage: nextStageLabel,
-                    })
-                  : t("course-plans-overview-complete-final-phase")}
-              </Button>
-            </>
-          ) : (
-            <p className={actionBarHelperTextStyles}>{t("course-plans-overview-no-actions")}</p>
-          )}
+              </>
+            ) : (
+              <p className={actionBarHelperTextStyles}>{t("course-plans-overview-no-actions")}</p>
+            )}
+          </div>
         </div>
       </div>
 
-      {canAdjustSchedule && (
-        <Dialog
+      {canAdjustSchedule && planId && (
+        <AdjustScheduleDialog
           open={isAdjustDialogOpen}
           onClose={() => setIsAdjustDialogOpen(false)}
-          title={t("course-plans-adjust-schedule-title")}
-          isDismissable
-        >
-          <div className={adjustDialogContentStyles}>
-            <p className={adjustDescriptionStyles}>
-              {t("course-plans-adjust-schedule-description", {
-                phase: activeStage ? stageLabel(activeStage) : "",
-              })}
-            </p>
-
-            <Select
-              id="course-plan-adjust-schedule-months"
-              name="extendMonths"
-              control={control}
-              label={t("course-plans-adjust-schedule-months-label")}
-              options={extendMonthsOptions}
-            />
-
-            {((currentPhaseEndLabel && newPhaseEndLabel) ||
-              (currentPlanEndLabel && newPlanEndLabel)) && (
-              <div className={adjustPreviewCardStyles}>
-                {currentPhaseEndLabel && newPhaseEndLabel && (
-                  <p className={adjustPreviewBodyStyles}>
-                    {t("course-plans-adjust-schedule-phase-dates", {
-                      currentEnd: currentPhaseEndLabel,
-                      newEnd: newPhaseEndLabel,
-                    })}
-                  </p>
-                )}
-                {currentPlanEndLabel && newPlanEndLabel && (
-                  <p className={adjustPreviewBodyStyles}>
-                    {t("course-plans-adjust-schedule-plan-dates", {
-                      delayMonths: extendMonths,
-                      currentPlanEnd: currentPlanEndLabel,
-                      newPlanEnd: newPlanEndLabel,
-                    })}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className={adjustDialogFooterStyles}>
-              <Button
-                variant="secondary"
-                size="medium"
-                onClick={() => setIsAdjustDialogOpen(false)}
-                disabled={isExtendPending || isAdvancePending}
-              >
-                {t("button-text-cancel")}
-              </Button>
-              <Button
-                variant="primary"
-                size="medium"
-                onClick={() => {
-                  onExtendCurrentStage(extendMonths)
-                  setIsAdjustDialogOpen(false)
-                }}
-                disabled={isExtendPending || isAdvancePending}
-              >
-                {t("course-plans-adjust-schedule-apply", { months: extendMonths })}
-              </Button>
-            </div>
-          </div>
-        </Dialog>
+          planId={planId}
+          stages={stages}
+          activeStage={activeStage}
+          stageLabel={stageLabel}
+          onExtendActiveStage={onExtendCurrentStage}
+          isExtendPending={isExtendPending}
+        />
       )}
     </Dialog>
   )

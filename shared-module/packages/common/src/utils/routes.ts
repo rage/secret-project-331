@@ -294,6 +294,10 @@ export function manageCoursePlansListRoute() {
   return `/manage/course-plans`
 }
 
+export function manageCoursePlansSupportRoute() {
+  return `/manage/course-plans/support`
+}
+
 export function manageCoursePlanRoute(planId: string) {
   return `/manage/course-plans/${planId}`
 }

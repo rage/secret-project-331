@@ -1,12 +1,15 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
   createCourseDesignerStageTaskMutation,
   deleteCourseDesignerStageTaskMutation,
+  getCoursePlanMembersOptions,
+  setCourseDesignerTaskAssigneeMutation,
   updateCourseDesignerStageTaskMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
@@ -14,7 +17,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
 
-import WorkspaceTaskRow from "./WorkspaceTaskRow"
+import WorkspaceTaskRow, { type TaskChanges } from "./WorkspaceTaskRow"
 
 const cardStyles = css`
   background: white;
@@ -205,6 +208,37 @@ export default function WorkspaceStageSection({
     { onSuccess: onInvalidate },
   )
 
+  const editMutation = useToastMutationOptions(
+    updateCourseDesignerStageTaskMutation(),
+    { notify: true, method: "PATCH" },
+    { onSuccess: onInvalidate },
+  )
+
+  const assigneeMutation = useToastMutationOptions(
+    setCourseDesignerTaskAssigneeMutation(),
+    { notify: true, method: "PUT" },
+    { onSuccess: onInvalidate },
+  )
+
+  const membersQuery = useQuery(getCoursePlanMembersOptions({ path: { plan_id: planId } }))
+  const members = membersQuery.data ?? []
+
+  const saveTask = async (taskId: string, changes: TaskChanges) => {
+    const path = { plan_id: planId, task_id: taskId }
+    if (changes.title !== undefined || changes.description !== undefined) {
+      await editMutation.mutateAsync({
+        path,
+        body: { title: changes.title ?? null, description: changes.description ?? null },
+      })
+    }
+    if (changes.assigneeUserId !== undefined) {
+      await assigneeMutation.mutateAsync({
+        path,
+        body: { assignee_user_id: changes.assigneeUserId },
+      })
+    }
+  }
+
   const deleteMutation = useToastMutationOptions(
     deleteCourseDesignerStageTaskMutation(),
     { notify: true, method: "DELETE" },
@@ -314,6 +348,8 @@ export default function WorkspaceStageSection({
             <WorkspaceTaskRow
               key={task.id}
               task={task}
+              members={members}
+              onSave={(changes) => saveTask(task.id, changes)}
               onToggle={(is_completed) =>
                 updateMutation.mutate({
                   body: { is_completed },

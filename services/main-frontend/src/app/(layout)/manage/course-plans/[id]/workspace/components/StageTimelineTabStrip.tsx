@@ -16,7 +16,12 @@ import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullabili
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
-import type { StageTimelineTabItem } from "./stageTimelineShared"
+import MoocDesignTab from "./MoocDesignTab"
+import {
+  MOOC_DESIGN_TAB,
+  type StageTimelineTabItem,
+  type WorkspaceTab,
+} from "./stageTimelineShared"
 import StageTimelineTab from "./StageTimelineTab"
 
 const timelineShellStyles = css`
@@ -143,8 +148,8 @@ const todayLineStyles = css`
 interface StageTimelineTabStripProps {
   stages: CourseDesignerPlanStageWithTasks[]
   activeStage: CourseDesignerStage | null
-  selectedStage: CourseDesignerStage | null
-  onSelectedStageChange: (stage: CourseDesignerStage) => void
+  selectedTab: WorkspaceTab | null
+  onSelectedTabChange: (tab: WorkspaceTab) => void
   stageLabel: (stage: CourseDesignerStage) => string
   onOpenOverview?: () => void
   currentStageLabel?: string | null
@@ -152,12 +157,12 @@ interface StageTimelineTabStripProps {
   children: ReactNode
 }
 
-/** Unified timeline and tab strip for course plan stages. */
+/** Unified timeline and tab strip: the "MOOC design" overview tab, then one tab per stage. */
 export default function StageTimelineTabStrip({
   stages,
   activeStage,
-  selectedStage,
-  onSelectedStageChange,
+  selectedTab,
+  onSelectedTabChange,
   stageLabel,
   onOpenOverview,
   currentStageLabel,
@@ -194,23 +199,26 @@ export default function StageTimelineTabStrip({
   const { todayPositionPx, currentStagePosition, listRef, shellRef, currentStageCalloutRef } =
     useStageTimelineMeasurements({
       activeStage,
-      selectedStage,
+      selectedStage: selectedTab === MOOC_DESIGN_TAB ? null : selectedTab,
       stagesDependency: stages,
       ...omitUndefined({ currentStageLabel }),
     })
 
   const firstItemKey = items[0]?.key
   const state = useTabListState({
-    ...includeIf(selectedStage !== null, { selectedKey: selectedStage }),
+    ...includeIf(selectedTab !== null, { selectedKey: selectedTab }),
     ...omitUndefined({ defaultSelectedKey: firstItemKey }),
-    items: items.map((item) => ({
-      key: item.key,
-      id: item.key,
-      textValue: item.label,
-    })),
+    items: [
+      { key: MOOC_DESIGN_TAB, id: MOOC_DESIGN_TAB, textValue: t("course-plans-mooc-design-tab") },
+      ...items.map((item) => ({
+        key: item.key,
+        id: item.key,
+        textValue: item.label,
+      })),
+    ],
     onSelectionChange: (key: Key) => {
       if (typeof key === "string") {
-        onSelectedStageChange(key as CourseDesignerStage)
+        onSelectedTabChange(key as WorkspaceTab)
       }
     },
   })
@@ -271,13 +279,14 @@ export default function StageTimelineTabStrip({
                 <div className={todayLineStyles} />
               </div>
             )}
+            <MoocDesignTab state={state} onSelect={() => onSelectedTabChange(MOOC_DESIGN_TAB)} />
             {items.map((item) => (
               <StageTimelineTab
                 key={item.key}
                 item={item}
                 state={state}
                 activeStage={activeStage}
-                onSelectedStageChange={onSelectedStageChange}
+                onSelectedStageChange={onSelectedTabChange}
               />
             ))}
           </div>

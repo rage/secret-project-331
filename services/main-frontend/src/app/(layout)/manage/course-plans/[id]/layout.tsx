@@ -14,7 +14,9 @@ import {
   manageCoursePlanWorkspaceRoute,
 } from "@/shared-module/common/utils/routes"
 
-/** Registers the breadcrumb for an individual course plan, using its name once loaded. */
+import ArchivedPlanNotice from "./components/ArchivedPlanNotice"
+
+/** Registers the breadcrumb for an individual course plan and flags archived plans on every page. */
 export default function CoursePlanLayout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
@@ -60,5 +62,10 @@ export default function CoursePlanLayout({ children }: { children: React.ReactNo
     disabled: planId === "",
   })
 
-  return children
+  return (
+    <>
+      {planQuery.data?.plan.status === "Archived" && <ArchivedPlanNotice planId={planId} />}
+      {children}
+    </>
+  )
 }

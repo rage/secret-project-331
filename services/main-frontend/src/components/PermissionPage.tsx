@@ -200,7 +200,10 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       ),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => roleQuery.refetch(),
+      onSuccess: () => {
+        roleQuery.refetch()
+        pendingRolesQuery.refetch()
+      },
       onError: setMutationError,
     },
   )
@@ -208,7 +211,10 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     removeRoleMutationOptions(),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => roleQuery.refetch(),
+      onSuccess: () => {
+        roleQuery.refetch()
+        pendingRolesQuery.refetch()
+      },
       onError: setMutationError,
     },
   )

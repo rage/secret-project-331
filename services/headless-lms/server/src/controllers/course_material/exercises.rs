@@ -211,6 +211,8 @@ async fn get_peer_review_for_exercise(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
+    let exercise = models::exercises::get_non_deleted_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     let course_material_peer_or_self_review_data =
         models::peer_or_self_review_configs::get_course_material_peer_or_self_review_data(
             &mut conn,
@@ -221,13 +223,6 @@ async fn get_peer_review_for_exercise(
             app_conf.as_ref(),
         )
         .await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
     let give_peer_review_claim =
         if let Some(to_review) = &course_material_peer_or_self_review_data.answer_to_review {
             Some(
@@ -451,6 +446,7 @@ async fn submit_peer_or_self_review(
     let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
     let exercise = models::exercises::get_non_deleted_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
@@ -589,7 +585,6 @@ async fn submit_peer_or_self_review(
             None,
         ));
     }
-    let token = skip_authorize();
     token.authorized_ok(web::Json(true))
 }
 

@@ -325,7 +325,7 @@ async fn get_course_exercises(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course).await?;
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();

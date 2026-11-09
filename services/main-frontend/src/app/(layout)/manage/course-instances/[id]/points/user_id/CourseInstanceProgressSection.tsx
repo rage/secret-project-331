@@ -12,6 +12,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
 
+import EndQuestionAnswerChip from "./EndQuestionAnswerChip"
+
 const Section = styled.section`
   margin: 2rem 0;
 `
@@ -67,15 +69,6 @@ const Value = styled.span`
   color: ${baseTheme.colors.gray[700]};
   font-size: 1.125rem;
   font-weight: 600;
-`
-
-const AnswersCard = styled.div`
-  background: ${baseTheme.colors.clear[100]};
-  border: 1px solid ${baseTheme.colors.clear[200]};
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
 `
 
 const ProgressBar = styled.div<{ progress: number }>`
@@ -173,6 +166,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
               const courseModule = courseStructureData.modules.find(
                 (cm) => cm.id === courseInstanceProgress.course_module_id,
               )
+              const moduleName = courseModule?.name ?? t("default-module")
               const pointsProgress = courseInstanceProgress.score_maximum
                 ? (courseInstanceProgress.score_given / courseInstanceProgress.score_maximum) * 100
                 : 0
@@ -183,14 +177,11 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                 : 0
               const endAnswers = endQuestionsWithAnswers.data
                 ?.filter((x) => (x.course_module_id = courseInstanceProgress.course_module_id))
-                .toSorted((y) => y.question_serial_number)
-
+                .toSorted((y, z) => y.question_serial_number - z.question_serial_number)
               return (
                 <ModuleCard key={courseInstanceProgress.course_module_id}>
                   <ModuleHeader>
-                    {!isSingleModule && (
-                      <ModuleTitle>{courseModule?.name ?? t("default-module")}</ModuleTitle>
-                    )}
+                    {!isSingleModule && <ModuleTitle>{moduleName}</ModuleTitle>}
                     <DebugModal data={courseInstanceProgress} variant="minimal" />
                   </ModuleHeader>
                   <InfoGrid>
@@ -241,17 +232,12 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                         // suspected of cheating?
                       }
                     </InfoItem>
-                    {endAnswers && (
-                      <AnswersCard>
-                        {endAnswers.map((a) => (
-                          <div key={a.question_id}>
-                            <p>Question {a.question_serial_number}</p>
-                            <p>{a.question_text}</p>
-                          </div>
-                        ))}
-                      </AnswersCard>
-                    )}
                   </InfoGrid>
+                  {courseInstanceProgress.requires_ending_questionnaire &&
+                    courseInstanceProgress.ending_questionnaire_answered &&
+                    endAnswers && (
+                      <EndQuestionAnswerChip endAnswers={endAnswers} moduleName={moduleName} />
+                    )}
                 </ModuleCard>
               )
             })}

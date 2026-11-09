@@ -987,6 +987,11 @@ pub async fn reset_user_password(
     let token = skip_authorize();
 
     let token_uuid = Uuid::parse_str(payload.token.expose_secret())?;
+    // Hashing is deliberately expensive, so an anonymous caller without a live token must not
+    // reach it. The change below re-checks the token under a row lock.
+    if !models::user_passwords::is_reset_password_token_valid(&mut conn, &token_uuid).await? {
+        return token.authorized_ok(web::Json(false));
+    }
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 

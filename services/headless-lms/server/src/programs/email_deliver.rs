@@ -334,7 +334,7 @@ async fn template_replacements(
         return Ok(TemplateReplacements::Abandoned);
     };
 
-    match template_type {
+    let purpose = match template_type {
         EmailTemplateType::ResetPasswordEmail => {
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
@@ -352,84 +352,33 @@ async fn template_replacements(
                     .await?;
                 return Ok(TemplateReplacements::Abandoned);
             }
+            None
         }
-        EmailTemplateType::DeleteUserEmail => {
-            if let Some(code) =
-                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn,
-                    user_id,
-                    UserEmailCodePurpose::AccountDeletion,
-                )
-                .await?
-            {
-                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
-            } else {
-                let msg = anyhow::anyhow!("No deletion code found for user {}", user_id);
-                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
-                    .await?;
-                return Ok(TemplateReplacements::Abandoned);
-            }
-        }
-        EmailTemplateType::ConfirmEmailCode => {
-            if let Some(code) =
-                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn,
-                    user_id,
-                    UserEmailCodePurpose::StaffLogin,
-                )
-                .await?
-            {
-                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
-            } else {
-                let msg = anyhow::anyhow!("No verification code found for user {}", user_id);
-                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
-                    .await?;
-                return Ok(TemplateReplacements::Abandoned);
-            }
-        }
+        EmailTemplateType::DeleteUserEmail => Some(UserEmailCodePurpose::AccountDeletion),
+        EmailTemplateType::ConfirmEmailCode => Some(UserEmailCodePurpose::StaffLogin),
         EmailTemplateType::VerifyEmailAddress => {
-            if let Some(code) =
-                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn,
-                    user_id,
-                    UserEmailCodePurpose::EmailOwnershipVerification,
-                )
-                .await?
-            {
-                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
-            } else {
-                let msg = anyhow::anyhow!(
-                    "No email ownership verification code found for user {}",
-                    user_id
-                );
-                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
-                    .await?;
-                return Ok(TemplateReplacements::Abandoned);
-            }
+            Some(UserEmailCodePurpose::EmailOwnershipVerification)
         }
-        EmailTemplateType::VerifyNetwork => {
-            if let Some(code) =
-                headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
-                    conn,
-                    user_id,
-                    UserEmailCodePurpose::NetworkVerification,
-                )
-                .await?
-            {
-                replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
-            } else {
-                let msg =
-                    anyhow::anyhow!("No network verification code found for user {}", user_id);
-                record_non_retryable_failure(conn, email_id, attempt, "template", msg.to_string())
-                    .await?;
-                return Ok(TemplateReplacements::Abandoned);
-            }
-        }
+        EmailTemplateType::VerifyNetwork => Some(UserEmailCodePurpose::NetworkVerification),
         // Handled above. Listed rather than caught by `_` so a new template type is a compile error.
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
-        | EmailTemplateType::CreditRegistrationRegistered => {}
+        | EmailTemplateType::CreditRegistrationRegistered => None,
+    };
+
+    if let Some(purpose) = purpose {
+        let Some(code) =
+            headless_lms_models::user_email_codes::get_unused_user_email_code_with_user_id(
+                conn, user_id, purpose,
+            )
+            .await?
+        else {
+            let msg = format!("No {purpose:?} code found for user {user_id}");
+            record_non_retryable_failure(conn, email_id, attempt, "template", msg).await?;
+            return Ok(TemplateReplacements::Abandoned);
+        };
+        replacements.insert("CODE".to_string(), code.code.expose_secret().to_string());
     }
 
     Ok(TemplateReplacements::Ready(replacements))

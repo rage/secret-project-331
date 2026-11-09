@@ -1528,6 +1528,14 @@ pub async fn verify_session(
     {
         return token.authorized_ok(response.json(SessionVerifyResult::NotRequired));
     }
+    // Recognition needs the address, so verifying without one would only reopen the dialog.
+    if session_verification::client_ip(&req).is_none() {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Could not determine your network address.".to_string(),
+            None,
+        ));
+    }
 
     let mut tx = conn.begin().await?;
     let check = session_verification::check_email_code(&mut tx, user.id, &payload.code).await?;
@@ -1664,11 +1672,12 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/session-status", web::get().to(session_status))
     .service(
         web::resource("/session-status/email-code")
+            // Loose: every dialog mount calls this, and send_email_code itself limits the mail.
             .wrap(
                 RateLimit::new(RateLimitConfig {
-                    per_minute: Some(5),
-                    per_hour: Some(20),
-                    per_day: Some(50),
+                    per_minute: Some(20),
+                    per_hour: Some(100),
+                    per_day: Some(300),
                     per_month: None,
                     ..Default::default()
                 })

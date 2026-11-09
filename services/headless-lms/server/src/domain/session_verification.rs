@@ -380,8 +380,7 @@ pub async fn send_email_code(
 
     let live_code =
         user_email_codes::get_unused_user_email_code_with_user_id(&mut tx, user_id, PURPOSE)
-            .await?
-            .filter(|code| code.attempt_count < MAX_CODE_ATTEMPTS);
+            .await?;
     if let Some(live_code) = live_code {
         if !resend {
             return Ok(EmailCodeOutcome::AlreadySent);

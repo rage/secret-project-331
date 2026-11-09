@@ -22,7 +22,7 @@ import useSessionVerificationRequired from "../hooks/useSessionVerificationRequi
 import "../init/registerAuthApiClients"
 
 const HTTP_TOO_MANY_REQUESTS = 429
-/** The server refuses a resend for two minutes after a code went out. */
+/** Must match `MIN_RESEND_INTERVAL_MINUTES` in the server's email_ownership_verification.rs. */
 const RESEND_COOLDOWN_SECONDS = 120
 
 interface EmailCodeState {

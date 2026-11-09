@@ -4,6 +4,8 @@ ADD VALUE IF NOT EXISTS 'network_verification';
 ALTER TYPE email_template_type
 ADD VALUE IF NOT EXISTS 'verify_network';
 
+COMMENT ON TABLE user_email_codes IS 'Single-use codes emailed to a user to prove they can read their own mailbox before an action: the administrator login second factor, account deletion, email address ownership verification, and confirming a staff session from an unrecognized browser or network. At most one live code per user per purpose; requesting a new one retires the old.';
+
 CREATE TABLE staff_security_verified_browsers (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

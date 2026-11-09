@@ -1116,22 +1116,10 @@ export type PeerOrSelfReviewQuestionSubmission = {
 
 export type PeerOrSelfReviewQuestionType = "Essay" | "Scale"
 
-export type PeerOrSelfReviewSubmission = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  exercise_id: string
-  exercise_slide_submission_id: string
-  id: string
-  peer_or_self_review_config_id: string
-  updated_at: string
-  user_id: string
-}
-
 export type PeerOrSelfReviewsReceived = {
   peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
   peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
-  peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmission>
+  peer_or_self_review_submissions: Array<ReceivedPeerOrSelfReviewSubmission>
 }
 
 /**
@@ -1152,6 +1140,17 @@ export type PrivacyLink = {
   title: string
   updated_at: string
   url: string
+}
+
+/**
+ * A review as its receiver sees it: without the reviewer's identity, which peer review keeps
+ * anonymous.
+ */
+export type ReceivedPeerOrSelfReviewSubmission = {
+  created_at: string
+  exercise_slide_submission_id: string
+  id: string
+  is_self_review: boolean
 }
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"

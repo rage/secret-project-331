@@ -6422,57 +6422,6 @@
         "type": "string",
         "enum": ["Essay", "Scale"]
       },
-      "PeerOrSelfReviewSubmission": {
-        "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "user_id",
-          "exercise_id",
-          "course_id",
-          "peer_or_self_review_config_id",
-          "exercise_slide_submission_id"
-        ],
-        "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "exercise_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "exercise_slide_submission_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "peer_or_self_review_config_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "PeerOrSelfReviewsReceived": {
         "type": "object",
         "required": [
@@ -6496,7 +6445,7 @@
           "peer_or_self_review_submissions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PeerOrSelfReviewSubmission"
+              "$ref": "#/components/schemas/ReceivedPeerOrSelfReviewSubmission"
             }
           }
         }
@@ -6539,6 +6488,28 @@
           },
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "ReceivedPeerOrSelfReviewSubmission": {
+        "type": "object",
+        "description": "A review as its receiver sees it: without the reviewer's identity, which peer review keeps\nanonymous.",
+        "required": ["id", "created_at", "exercise_slide_submission_id", "is_self_review"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_self_review": {
+            "type": "boolean"
           }
         }
       },

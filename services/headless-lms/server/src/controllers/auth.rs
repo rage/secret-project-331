@@ -1255,26 +1255,40 @@ pub async fn verify_email(
         return skip_token.authorized_ok(HttpResponse::Ok().json(false));
     };
 
-    let is_valid = email_verification_tokens::verify_code(
+    let user_id = token_value.user_id;
+    // The user's live StaffLogin code is the one that counts: a newer login replaces it, which
+    // retires the codes of older tokens, and wrong guesses against it are capped.
+    let live_code = user_email_codes::get_unused_user_email_code_with_user_id(
         &mut conn,
-        &payload.email_verification_token,
-        &payload.code,
+        user_id,
+        UserEmailCodePurpose::StaffLogin,
     )
-    .await
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to verify code".to_string(),
-            Some(anyhow!(e)),
+    .await?;
+    let is_valid = live_code.is_some_and(|live_code| {
+        authentication::constant_time_eq_str(
+            live_code.code.expose_secret(),
+            payload.code.expose_secret(),
+        ) && authentication::constant_time_eq_str(
+            token_value.code.expose_secret(),
+            payload.code.expose_secret(),
         )
-    })?;
+    });
 
     if !is_valid {
+        let code_retired = user_email_codes::record_failed_attempt(
+            &mut conn,
+            user_id,
+            UserEmailCodePurpose::StaffLogin,
+            MAX_CODE_ATTEMPTS,
+        )
+        .await?;
+        if code_retired {
+            email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
+                .await?;
+        }
         let skip_token = skip_authorize();
         return skip_token.authorized_ok(HttpResponse::Ok().json(false));
     }
-
-    let user_id = token_value.user_id;
 
     let mut tx = conn.begin().await?;
     user_email_codes::mark_user_email_code_used(

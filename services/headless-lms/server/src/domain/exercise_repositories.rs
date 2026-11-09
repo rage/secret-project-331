@@ -1,7 +1,7 @@
 use anyhow::Context;
 use blake3::Hash;
 use git2::{
-    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder,
+    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect, build::RepoBuilder,
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{exercise_repositories, repository_exercises};
@@ -136,6 +136,8 @@ async fn process_inner(
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
     let mut fetch_opts = FetchOptions::new();
+    // A redirect could point the clone at an address ensure_clone_url_is_allowed never saw.
+    fetch_opts.follow_redirects(RemoteRedirect::None);
     let mut remote_cbs = RemoteCallbacks::new();
     if let Some(deploy_key) = deploy_key {
         remote_cbs
@@ -300,7 +302,11 @@ async fn update_inner(
     let mut tx = conn.begin().await?;
 
     let temp = tempfile::tempdir()?;
-    Repository::clone(url, &temp)?;
+    let mut fetch_opts = FetchOptions::new();
+    fetch_opts.follow_redirects(RemoteRedirect::None);
+    RepoBuilder::new()
+        .fetch_options(fetch_opts)
+        .clone(url, temp.path())?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
     let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;

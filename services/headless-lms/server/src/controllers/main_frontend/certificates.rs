@@ -544,12 +544,20 @@ pub async fn get_cerficate_by_verification_id(
         **icu4x_blob,
     )
     .await?;
-    let max_age = if query.debug { 0 } else { 300 };
+    let cache_control = if query.test_certificate_configuration_id.is_some() {
+        // Only the teacher who passed the check above may see a preview, so no shared cache may
+        // keep it.
+        "private, no-store".to_string()
+    } else if query.debug {
+        "max-age=0".to_string()
+    } else {
+        "max-age=300".to_string()
+    };
 
     token.authorized_ok(
         HttpResponse::Ok()
             .content_type("image/png")
-            .insert_header(("Cache-Control", format!("max-age={max_age}")))
+            .insert_header(("Cache-Control", cache_control))
             .body(data),
     )
 }

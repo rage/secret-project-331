@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT q.id AS question_id,\n  a.created_at AS answer_created_at,\n  a.updated_at AS answer_updated_at,\n  a.deleted_at AS answer_deleted_at,\n  a.user_id,\n  a.course_module_id,\n  q.question_serial_number,\n  q.question_text,\n  q.question_free_text_instruction,\n  q.select_labels,\n  q.multi_select_labels,\n  a.answer_text_value,\n  a.answer_select_value,\n  a.answer_multi_select_value\nFROM course_module_ending_questions_answers AS a\n  JOIN course_module_ending_questions AS q ON a.question_id = q.id\nWHERE q.course_id = $1\n  OR course_id IS NULL\n  AND a.user_id = $2\n  AND q.deleted_at IS NULL\n  AND a.deleted_at IS NULL\n        ",
+  "query": "\nSELECT q.id AS question_id,\n  a.id AS answer_id,\n  a.created_at AS answer_created_at,\n  a.updated_at AS answer_updated_at,\n  a.deleted_at AS answer_deleted_at,\n  a.user_id,\n  a.course_module_id,\n  q.question_serial_number,\n  q.question_text,\n  q.question_free_text_instruction,\n  q.select_labels,\n  q.multi_select_labels,\n  a.answer_text_value,\n  a.answer_select_value,\n  a.answer_multi_select_value\nFROM course_module_ending_questions_answers AS a\n  JOIN course_module_ending_questions AS q ON a.question_id = q.id\nWHERE q.course_id = $1\n  OR course_id IS NULL\n  AND a.user_id = $2\n  AND q.deleted_at IS NULL\n  AND a.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -16,6 +16,17 @@
       },
       {
         "ordinal": 1,
+        "name": "answer_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_ending_questions_answers",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "answer_created_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "answer_updated_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "answer_deleted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "user_id",
         "type_info": "Uuid",
         "origin": {
@@ -59,7 +70,7 @@
         }
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "course_module_id",
         "type_info": "Uuid",
         "origin": {
@@ -70,7 +81,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "question_serial_number",
         "type_info": "Int4",
         "origin": {
@@ -81,7 +92,7 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "question_text",
         "type_info": "Varchar",
         "origin": {
@@ -92,7 +103,7 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "question_free_text_instruction",
         "type_info": "Varchar",
         "origin": {
@@ -103,7 +114,7 @@
         }
       },
       {
-        "ordinal": 9,
+        "ordinal": 10,
         "name": "select_labels",
         "type_info": "TextArray",
         "origin": {
@@ -114,7 +125,7 @@
         }
       },
       {
-        "ordinal": 10,
+        "ordinal": 11,
         "name": "multi_select_labels",
         "type_info": "TextArray",
         "origin": {
@@ -125,7 +136,7 @@
         }
       },
       {
-        "ordinal": 11,
+        "ordinal": 12,
         "name": "answer_text_value",
         "type_info": "Text",
         "origin": {
@@ -136,7 +147,7 @@
         }
       },
       {
-        "ordinal": 12,
+        "ordinal": 13,
         "name": "answer_select_value",
         "type_info": "Varchar",
         "origin": {
@@ -147,7 +158,7 @@
         }
       },
       {
-        "ordinal": 13,
+        "ordinal": 14,
         "name": "answer_multi_select_value",
         "type_info": "TextArray",
         "origin": {
@@ -168,6 +179,7 @@
       false,
       false,
       false,
+      false,
       true,
       false,
       false,
@@ -181,5 +193,5 @@
       true
     ]
   },
-  "hash": "ed4f3d17f7d655ab4b0ceec2c3b5956ee9a97cc14f5074ac7c77e550f391daf3"
+  "hash": "20a2056fffaa92460cac66fe174c85205cc101425e7ee7e6584f209ac6e32201"
 }

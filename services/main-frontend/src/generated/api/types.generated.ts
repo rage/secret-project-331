@@ -2234,6 +2234,7 @@ export type CourseModuleCreditRegistrationConfig = {
 export type CourseModuleEndingQuestionWithAnswer = {
   answer_created_at: string
   answer_deleted_at?: string | null
+  answer_id: string
   answer_multi_select_value?: Array<string> | null
   answer_select_value?: string | null
   answer_text_value?: string | null

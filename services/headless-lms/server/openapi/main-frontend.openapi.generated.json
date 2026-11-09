@@ -20355,6 +20355,7 @@
         "type": "object",
         "required": [
           "question_id",
+          "answer_id",
           "answer_created_at",
           "answer_updated_at",
           "user_id",
@@ -20370,6 +20371,10 @@
           "answer_deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "answer_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "answer_multi_select_value": {
             "type": ["array", "null"],

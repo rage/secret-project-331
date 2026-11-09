@@ -1463,6 +1463,7 @@ export const zCourseModuleCreditRegistrationConfig = z.object({
 export const zCourseModuleEndingQuestionWithAnswer = z.object({
   answer_created_at: z.iso.datetime(),
   answer_deleted_at: z.iso.datetime().nullish(),
+  answer_id: z.uuid(),
   answer_multi_select_value: z.array(z.string()).nullish(),
   answer_select_value: z.string().nullish(),
   answer_text_value: z.string().nullish(),

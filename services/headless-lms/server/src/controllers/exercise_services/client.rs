@@ -1076,6 +1076,13 @@ async fn get_submission_grading(
         user.id,
         "Cannot view another user's submission grading".to_string(),
     )?;
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if slide_submission.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This submission belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
     let token = skip_authorize();
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
@@ -1157,6 +1164,17 @@ async fn get_exercise_submissions(
     let mut conn = pool.acquire().await?;
     // The query is scoped to the current user, so no further authorization is needed.
     let token = skip_authorize();
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if models::exercises::get_by_id(&mut conn, *exercise_id)
+        .await?
+        .exam_id
+        .is_some()
+    {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
 
     // One query for the whole listing, gradings joined in: an editor slide has a single task, so
     // its grading is the slide's grading.

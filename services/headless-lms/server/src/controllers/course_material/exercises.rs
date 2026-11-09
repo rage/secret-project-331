@@ -73,6 +73,22 @@ async fn get_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
+    // Checked before loading: loading picks a slide and records state for the user.
+    let exam_id = models::exercises::get_by_id(&mut conn, *exercise_id)
+        .await?
+        .exam_id;
+    if let Some(exam_id) = exam_id {
+        let user_id = user_id.ok_or_else(|| {
+            ControllerError::new(
+                ControllerErrorType::UnauthorizedWithReason(
+                    crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
+                ),
+                "User must be authenticated to view exam exercises".to_string(),
+                None,
+            )
+        })?;
+        super::exams::authorize_exam_content_access(&mut conn, exam_id, user_id).await?;
+    }
     let mut course_material_exercise = models::exercises::get_course_material_exercise(
         &mut conn,
         user_id,

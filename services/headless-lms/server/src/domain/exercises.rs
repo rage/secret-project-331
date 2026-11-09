@@ -288,7 +288,6 @@ fn try_limit(exercise: &Exercise) -> Option<i64> {
         .map(i64::from)
 }
 
-/// Returns an error if the chapter's or exercise's deadline has passed.
 /// Rejects answering in a chapter the user has not unlocked yet, or has already locked, on courses
 /// that use chapter locking. Lives here so every submit and upload route enforces it.
 async fn enforce_chapter_locking(
@@ -326,6 +325,7 @@ async fn enforce_chapter_locking(
     Ok(())
 }
 
+/// Returns an error if the chapter's or exercise's deadline has passed.
 async fn enforce_deadline(
     conn: &mut PgConnection,
     exercise: &Exercise,

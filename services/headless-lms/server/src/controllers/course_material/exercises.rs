@@ -339,34 +339,6 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
-    if let Some(chapter_id) = exercise.chapter_id {
-        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
-        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
-            &mut conn, user.id, chapter_id, course_id,
-        )
-        .await?;
-        if !is_accessible {
-            return Err(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                "Complete and lock the previous chapter to unlock exercises in this chapter."
-                    .to_string(),
-                None,
-            ));
-        }
-        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
-            &mut conn, user.id, chapter_id, course_id,
-        )
-        .await?;
-        if exercises_locked {
-            return Err(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                "The current chapter is locked, and you can no longer submit exercises."
-                    .to_string(),
-                None,
-            ));
-        }
-    }
-
     let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     let result = process_submission(
         &mut conn,

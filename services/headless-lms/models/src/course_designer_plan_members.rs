@@ -4,8 +4,9 @@ use crate::course_designer_plans::{
     CourseDesignerPlanStatus, CourseDesignerPlanSummary, CourseDesignerScheduleStageInput,
     CourseDesignerStage, PlanMemberWithDetails,
 };
+use crate::course_designer_plans::{MAX_EXTEND_MONTHS, validate_schedule_input};
 use crate::prelude::*;
-use chrono::Duration;
+use chrono::{Duration, NaiveDate};
 use serde_json::json;
 
 /// Lists plans visible to a member.
@@ -67,7 +68,9 @@ SELECT
   p.name,
   p.status,
   p.active_stage,
-  p.last_weekly_stage_email_sent_at
+  p.last_weekly_stage_email_sent_at,
+  p.great_mooc_vision,
+  p.created_course_id
 FROM course_designer_plans p
 JOIN course_designer_plan_members m
   ON m.course_designer_plan_id = p.id
@@ -97,7 +100,8 @@ SELECT
   members.id,
   members.created_at,
   members.updated_at,
-  members.user_id
+  members.user_id,
+  members.receives_weekly_digest
 FROM course_designer_plan_members members
 JOIN course_designer_plan_members self_member
   ON self_member.course_designer_plan_id = members.course_designer_plan_id
@@ -181,7 +185,8 @@ SELECT
   t.completed_at,
   t.completed_by_user_id,
   t.is_auto_generated,
-  t.created_by_user_id
+  t.created_by_user_id,
+  t.assignee_user_id
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
@@ -275,7 +280,8 @@ RETURNING
   completed_at,
   completed_by_user_id,
   is_auto_generated,
-  created_by_user_id
+  created_by_user_id,
+  assignee_user_id
 "#,
         stage_id,
         title,
@@ -289,7 +295,8 @@ RETURNING
     Ok(task)
 }
 
-/// Updates a task after membership validation.
+/// Updates a task after membership validation. `None` leaves a field unchanged; a blank
+/// `description` clears it.
 pub async fn update_stage_task_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -299,6 +306,7 @@ pub async fn update_stage_task_for_user(
     description: Option<String>,
     is_completed: Option<bool>,
 ) -> ModelResult<CourseDesignerPlanStageTask> {
+    let mut tx = conn.begin().await?;
     let row = sqlx::query!(
         r#"
 SELECT
@@ -306,18 +314,20 @@ SELECT
   t.description,
   t.is_completed,
   t.completed_at,
-  t.completed_by_user_id
+  t.completed_by_user_id,
+  s.stage AS "stage: CourseDesignerStage"
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
   AND m.user_id = $2 AND m.deleted_at IS NULL
 WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
+FOR UPDATE OF t
 "#,
         plan_id,
         user_id,
         task_id
     )
-    .fetch_optional(&mut *conn)
+    .fetch_optional(&mut *tx)
     .await?;
     let (
         current_title,
@@ -325,6 +335,7 @@ WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
         current_completed,
         current_completed_at,
         current_completed_by_user_id,
+        stage,
     ) = match row {
         Some(r) => (
             r.title,
@@ -332,6 +343,7 @@ WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
             r.is_completed,
             r.completed_at,
             r.completed_by_user_id,
+            r.stage,
         ),
         None => {
             return Err(ModelError::new(
@@ -349,7 +361,11 @@ WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
             None,
         ));
     }
-    let new_description = description.or(current_description);
+    let new_description = match description {
+        Some(d) if d.trim().is_empty() => None,
+        Some(d) => Some(d),
+        None => current_description,
+    };
     let new_completed = is_completed.unwrap_or(current_completed);
     let (completed_at, completed_by) = match is_completed {
         Some(_) if !current_completed && new_completed => {
@@ -386,7 +402,8 @@ RETURNING
   t.completed_at,
   t.completed_by_user_id,
   t.is_auto_generated,
-  t.created_by_user_id
+  t.created_by_user_id,
+  t.assignee_user_id
 "#,
         plan_id,
         new_title,
@@ -397,7 +414,7 @@ RETURNING
         user_id,
         task_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await
     .map_err(|e| {
         if let sqlx::Error::RowNotFound = e {
@@ -409,6 +426,97 @@ RETURNING
         } else {
             e.into()
         }
+    })?;
+    if new_completed != current_completed {
+        crate::course_designer_plans::insert_plan_event(
+            &mut tx,
+            plan_id,
+            Some(user_id),
+            if new_completed {
+                "task_completed"
+            } else {
+                "task_reopened"
+            },
+            Some(stage),
+            json!({ "task_id": task.id, "title": task.title }),
+        )
+        .await?;
+    }
+    tx.commit().await?;
+    Ok(task)
+}
+
+/// Assigns a task to a plan member, or unassigns it with `None`.
+pub async fn set_task_assignee_for_user(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    task_id: Uuid,
+    user_id: Uuid,
+    assignee_user_id: Option<Uuid>,
+) -> ModelResult<CourseDesignerPlanStageTask> {
+    if let Some(assignee_user_id) = assignee_user_id {
+        let is_member = sqlx::query_scalar!(
+            r#"
+SELECT EXISTS (
+  SELECT 1
+  FROM course_designer_plan_members
+  WHERE course_designer_plan_id = $1
+    AND user_id = $2
+    AND deleted_at IS NULL
+) AS "is_member!"
+"#,
+            plan_id,
+            assignee_user_id
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+        if !is_member {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Tasks can only be assigned to plan members.".to_string(),
+                None,
+            ));
+        }
+    }
+    let task = sqlx::query_as!(
+        CourseDesignerPlanStageTask,
+        r#"
+UPDATE course_designer_plan_stage_tasks t
+SET assignee_user_id = $4
+FROM course_designer_plan_stages s
+JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
+  AND m.user_id = $2 AND m.deleted_at IS NULL
+WHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1
+  AND s.deleted_at IS NULL
+  AND t.id = $3 AND t.deleted_at IS NULL
+RETURNING
+  t.id,
+  t.created_at,
+  t.updated_at,
+  t.course_designer_plan_stage_id,
+  t.title,
+  t.description,
+  t.order_number,
+  t.is_completed,
+  t.completed_at,
+  t.completed_by_user_id,
+  t.is_auto_generated,
+  t.created_by_user_id,
+  t.assignee_user_id
+"#,
+        plan_id,
+        user_id,
+        task_id,
+        assignee_user_id
+    )
+    .fetch_optional(conn)
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Task not found or user is not a plan member.".to_string(),
+            None,
+        )
     })?;
     Ok(task)
 }
@@ -465,7 +573,9 @@ SELECT
   p.name,
   p.status,
   p.active_stage,
-  p.last_weekly_stage_email_sent_at
+  p.last_weekly_stage_email_sent_at,
+  p.great_mooc_vision,
+  p.created_course_id
 FROM course_designer_plans p
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = p.id
   AND m.user_id = $2 AND m.deleted_at IS NULL
@@ -515,7 +625,8 @@ SELECT
   ud.first_name,
   ud.last_name,
   ud.email,
-  m.created_at
+  m.created_at,
+  m.receives_weekly_digest
 FROM course_designer_plan_members m
 JOIN user_details ud ON ud.user_id = m.user_id
 WHERE m.course_designer_plan_id = $1
@@ -624,7 +735,8 @@ SELECT
   ud.first_name,
   ud.last_name,
   ud.email,
-  m.created_at
+  m.created_at,
+  m.receives_weekly_digest
 FROM course_designer_plan_members m
 JOIN user_details ud ON ud.user_id = m.user_id
 WHERE m.course_designer_plan_id = $1
@@ -648,33 +760,54 @@ WHERE m.course_designer_plan_id = $1
     Ok(member)
 }
 
-/// Soft-deletes an active plan membership.
+/// Removes a member from a plan and unassigns their tasks.
+///
+/// Refuses to remove the last member, and only the creator may remove the creator.
 pub async fn remove_plan_member(
     conn: &mut PgConnection,
     plan_id: Uuid,
     requesting_user_id: Uuid,
     target_user_id: Uuid,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let plan = get_plan_for_stage_extend(&mut tx, plan_id, requesting_user_id).await?;
+    if plan.created_by_user_id == target_user_id && requesting_user_id != target_user_id {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Only the plan creator can remove themselves from the plan.".to_string(),
+            None,
+        ));
+    }
+    let member_count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*)::BIGINT AS "count!"
+FROM course_designer_plan_members
+WHERE course_designer_plan_id = $1
+  AND deleted_at IS NULL
+"#,
+        plan_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if member_count <= 1 {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "A plan must keep at least one member.".to_string(),
+            None,
+        ));
+    }
     let updated = sqlx::query!(
         r#"
 UPDATE course_designer_plan_members
-SET deleted_at = NOW(), updated_at = NOW()
+SET deleted_at = NOW()
 WHERE course_designer_plan_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
-  AND EXISTS (
-    SELECT 1
-    FROM course_designer_plan_members requester
-    WHERE requester.course_designer_plan_id = $1
-      AND requester.user_id = $3
-      AND requester.deleted_at IS NULL
-  )
 "#,
         plan_id,
-        target_user_id,
-        requesting_user_id
+        target_user_id
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
     if updated.rows_affected() == 0 {
         return Err(ModelError::new(
@@ -683,7 +816,59 @@ WHERE course_designer_plan_id = $1
             None,
         ));
     }
+    sqlx::query!(
+        r#"
+UPDATE course_designer_plan_stage_tasks t
+SET assignee_user_id = NULL
+FROM course_designer_plan_stages s
+WHERE t.course_designer_plan_stage_id = s.id
+  AND s.course_designer_plan_id = $1
+  AND t.assignee_user_id = $2
+"#,
+        plan_id,
+        target_user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
     Ok(())
+}
+
+/// Turns the weekly progress email of a plan on or off for the requesting member only.
+pub async fn set_receives_weekly_digest_for_user(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    user_id: Uuid,
+    receives_weekly_digest: bool,
+) -> ModelResult<CourseDesignerPlanMember> {
+    let member = sqlx::query_as!(
+        CourseDesignerPlanMember,
+        r#"
+UPDATE course_designer_plan_members
+SET receives_weekly_digest = $3
+WHERE course_designer_plan_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+RETURNING id,
+  created_at,
+  updated_at,
+  user_id,
+  receives_weekly_digest
+"#,
+        plan_id,
+        user_id,
+        receives_weekly_digest
+    )
+    .fetch_optional(conn)
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "User is not a plan member.".to_string(),
+            None,
+        )
+    })?;
+    Ok(member)
 }
 
 /// Replaces plan schedule for a member-owned plan.
@@ -779,79 +964,12 @@ SET
     crate::course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await
 }
 
-/// Extends active stage for a member-owned plan.
-pub async fn extend_stage_for_user(
-    conn: &mut PgConnection,
+/// Loads a plan's stage rows in workflow order.
+async fn get_stage_rows(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
     plan_id: Uuid,
-    stage: CourseDesignerStage,
-    months: u32,
-    user_id: Uuid,
-) -> ModelResult<CourseDesignerPlanDetails> {
-    if months == 0 {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Months must be at least 1.".to_string(),
-            None,
-        ));
-    }
-    let mut tx = conn.begin().await?;
-    let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
-    if plan.status != CourseDesignerPlanStatus::InProgress {
-        tx.rollback().await?;
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Can only extend a stage when plan is in progress.".to_string(),
-            None,
-        ));
-    }
-    if plan.active_stage != Some(stage) {
-        tx.rollback().await?;
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Can only extend the current active stage.".to_string(),
-            None,
-        ));
-    }
-    let stage_row: CourseDesignerPlanStage = sqlx::query_as!(
-        CourseDesignerPlanStage,
-        r#"
-SELECT id, created_at, updated_at,
-  stage,
-  status,
-  planned_starts_on,
-  planned_ends_on,
-  actual_started_at,
-  actual_completed_at,
-  workspace_data
-FROM course_designer_plan_stages
-WHERE course_designer_plan_id = $1 AND stage = $2 AND deleted_at IS NULL
-"#,
-        plan_id,
-        stage as CourseDesignerStage
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-    let new_ends_on =
-        crate::course_designer_plans::add_months_clamped(stage_row.planned_ends_on, months)?;
-    sqlx::query!(
-        r#"
-UPDATE course_designer_plan_stages
-SET planned_ends_on = $2
-WHERE id = $1 AND deleted_at IS NULL
-"#,
-        stage_row.id,
-        new_ends_on
-    )
-    .execute(&mut *tx)
-    .await?;
-    let stage_order = crate::course_designer_plans::fixed_stage_order();
-    let current_idx = stage_order
-        .iter()
-        .position(|s| *s == stage)
-        .ok_or_else(|| {
-            ModelError::new(ModelErrorType::Generic, "Invalid stage.".to_string(), None)
-        })?;
-    let all_stages: Vec<CourseDesignerPlanStage> = sqlx::query_as!(
+) -> ModelResult<Vec<CourseDesignerPlanStage>> {
+    let rows = sqlx::query_as!(
         CourseDesignerPlanStage,
         r#"
 SELECT id, created_at, updated_at,
@@ -868,33 +986,114 @@ ORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'developmen
 "#,
         plan_id
     )
-    .fetch_all(&mut *tx)
+    .fetch_all(&mut **tx)
     .await?;
-    let later_stage_rows: Vec<_> = all_stages
-        .into_iter()
-        .enumerate()
-        .filter(|(i, _)| *i > current_idx)
-        .map(|(_, s)| (s.id, s.planned_starts_on, s.planned_ends_on))
-        .collect();
+    Ok(rows)
+}
+
+/// Moves `stage`'s planned end to `new_ends_on` and shifts every later stage so the schedule stays
+/// contiguous, keeping each later stage's length.
+async fn move_stage_end_and_shift_later(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+    stage: CourseDesignerStage,
+    new_ends_on: NaiveDate,
+) -> ModelResult<()> {
+    let stage_rows = get_stage_rows(tx, plan_id).await?;
+    let current_idx = stage_rows
+        .iter()
+        .position(|s| s.stage == stage)
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Stage not found.".to_string(),
+                None,
+            )
+        })?;
+    if new_ends_on < stage_rows[current_idx].planned_starts_on {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "A stage cannot end before it starts.".to_string(),
+            None,
+        ));
+    }
+    sqlx::query!(
+        r#"
+UPDATE course_designer_plan_stages
+SET planned_ends_on = $2
+WHERE id = $1 AND deleted_at IS NULL
+"#,
+        stage_rows[current_idx].id,
+        new_ends_on
+    )
+    .execute(&mut **tx)
+    .await?;
     let mut prev_end = new_ends_on;
-    for (st_id, old_start, old_end) in later_stage_rows {
+    for later in &stage_rows[current_idx + 1..] {
         let new_start = prev_end + Duration::days(1);
-        let duration_days = (old_end - old_start).num_days();
-        let new_ends = new_start + Duration::days(duration_days);
+        let new_end = new_start + (later.planned_ends_on - later.planned_starts_on);
         sqlx::query!(
             r#"
 UPDATE course_designer_plan_stages
 SET planned_starts_on = $2, planned_ends_on = $3
 WHERE id = $1 AND deleted_at IS NULL
 "#,
-            st_id,
+            later.id,
             new_start,
-            new_ends
+            new_end
         )
-        .execute(&mut *tx)
+        .execute(&mut **tx)
         .await?;
-        prev_end = new_ends;
+        prev_end = new_end;
     }
+    Ok(())
+}
+
+/// Extends the active stage by `months` (1–[`MAX_EXTEND_MONTHS`]) and pushes later stages back.
+pub async fn extend_stage_for_user(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    stage: CourseDesignerStage,
+    months: u32,
+    user_id: Uuid,
+) -> ModelResult<CourseDesignerPlanDetails> {
+    if months == 0 || months > MAX_EXTEND_MONTHS {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            format!("Months must be between 1 and {MAX_EXTEND_MONTHS}."),
+            None,
+        ));
+    }
+    let mut tx = conn.begin().await?;
+    let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    if plan.status != CourseDesignerPlanStatus::InProgress {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Can only extend a stage when plan is in progress.".to_string(),
+            None,
+        ));
+    }
+    if plan.active_stage != Some(stage) {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Can only extend the current active stage.".to_string(),
+            None,
+        ));
+    }
+    let stage_row = get_stage_rows(&mut tx, plan_id)
+        .await?
+        .into_iter()
+        .find(|s| s.stage == stage)
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Stage not found.".to_string(),
+                None,
+            )
+        })?;
+    let new_ends_on =
+        crate::course_designer_plans::add_months_clamped(stage_row.planned_ends_on, months)?;
+    move_stage_end_and_shift_later(&mut tx, plan_id, stage, new_ends_on).await?;
     crate::course_designer_plans::insert_plan_event(
         &mut tx,
         plan_id,
@@ -908,7 +1107,84 @@ WHERE id = $1 AND deleted_at IS NULL
     crate::course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await
 }
 
-/// Advances to next stage for a member-owned plan.
+/// Changes the planned dates of an in-progress plan's stages that are not completed yet.
+///
+/// `stages` is the whole schedule and must pass [`validate_schedule_input`]; completed stages must
+/// keep their dates. The caller is expected to shift later stages itself so the schedule stays
+/// contiguous.
+pub async fn adjust_schedule_for_user(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    user_id: Uuid,
+    stages: &[CourseDesignerScheduleStageInput],
+) -> ModelResult<CourseDesignerPlanDetails> {
+    validate_schedule_input(stages)?;
+    let mut tx = conn.begin().await?;
+    let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
+    if plan.status != CourseDesignerPlanStatus::InProgress {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "The schedule can only be adjusted while the plan is in progress.".to_string(),
+            None,
+        ));
+    }
+    let stage_rows = get_stage_rows(&mut tx, plan_id).await?;
+    for input in stages {
+        let row = stage_rows
+            .iter()
+            .find(|r| r.stage == input.stage)
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::PreconditionFailed,
+                    "Stage not found.".to_string(),
+                    None,
+                )
+            })?;
+        if row.planned_starts_on == input.planned_starts_on
+            && row.planned_ends_on == input.planned_ends_on
+        {
+            continue;
+        }
+        if row.status == CourseDesignerPlanStageStatus::Completed {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                format!(
+                    "The {:?} stage is completed, so its dates cannot change.",
+                    input.stage
+                ),
+                None,
+            ));
+        }
+        sqlx::query!(
+            r#"
+UPDATE course_designer_plan_stages
+SET planned_starts_on = $2, planned_ends_on = $3
+WHERE id = $1 AND deleted_at IS NULL
+"#,
+            row.id,
+            input.planned_starts_on,
+            input.planned_ends_on
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+    crate::course_designer_plans::insert_plan_event(
+        &mut tx,
+        plan_id,
+        Some(user_id),
+        "schedule_adjusted",
+        None,
+        json!({ "stages": stages }),
+    )
+    .await?;
+    tx.commit().await?;
+    crate::course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await
+}
+
+/// Completes the active stage and starts the next one, or completes the plan after the last stage.
+///
+/// Completing a stage before its planned end moves its end to yesterday (or its start) and pulls
+/// later stages forward by the same amount.
 pub async fn advance_to_next_stage_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -936,6 +1212,25 @@ pub async fn advance_to_next_stage_for_user(
         }
     };
     let now = Utc::now();
+    let current_row = get_stage_rows(&mut tx, plan_id)
+        .await?
+        .into_iter()
+        .find(|s| s.stage == current_stage)
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Active stage not found.".to_string(),
+                None,
+            )
+        })?;
+    // Finishing early pulls the rest of the schedule forward so the next stage starts today.
+    let today = now.date_naive();
+    if today <= current_row.planned_ends_on {
+        let new_ends_on = (today - Duration::days(1)).max(current_row.planned_starts_on);
+        if new_ends_on < current_row.planned_ends_on {
+            move_stage_end_and_shift_later(&mut tx, plan_id, current_stage, new_ends_on).await?;
+        }
+    }
     sqlx::query!(
         r#"
 UPDATE course_designer_plan_stages
@@ -1101,6 +1396,7 @@ WHERE course_designer_plan_id = $1 AND stage = $4 AND deleted_at IS NULL
     )
     .execute(&mut *tx)
     .await?;
+    insert_default_stage_tasks(&mut tx, plan_id).await?;
     let schedule_snapshot = sqlx::query_as!(
         CourseDesignerPlanStage,
         r#"
@@ -1143,4 +1439,96 @@ ORDER BY
     .await?;
     tx.commit().await?;
     get_plan_for_user(conn, plan_id, user_id).await
+}
+
+/// Checklist added to each stage when the schedule is finalized. Stored as task titles, so these
+/// are data rather than UI copy and are not translated.
+fn default_stage_task_titles(stage: CourseDesignerStage) -> &'static [&'static str] {
+    match stage {
+        CourseDesignerStage::Analysis => &[
+            "Fill in the course details",
+            "Find out what students and other stakeholders need",
+            "List the available resources and budget",
+            "Agree on who contributes to the course and in which role",
+        ],
+        CourseDesignerStage::Design => &[
+            "Write the learning goals",
+            "Decide what is must-know, should-know and nice-to-know content",
+            "Plan the chapters, topics and learning objectives",
+            "Choose the content formats",
+            "Agree on the style guide",
+            "Plan the exercises and check the student workload",
+        ],
+        CourseDesignerStage::Development => &[
+            "Produce the course content following the style guide",
+            "Create the exercises",
+            "Review the content for accuracy and accessibility",
+        ],
+        CourseDesignerStage::Implementation => &[
+            "Upload the course materials to the platform",
+            "Set up the activities and assessments",
+            "Check that all links and media work",
+            "Check that the content follows the style guide",
+            "Test the course as a learner",
+            "Make sure the course works as intended",
+        ],
+        CourseDesignerStage::Evaluation => &[
+            "Select the test group",
+            "Send the test group an invitation with a registration form, the testing period and what is expected of them",
+            "Prepare a short feedback form",
+            "Ask testers to report content issues with the feedback button on the platform",
+            "Improve the course based on the feedback",
+        ],
+    }
+}
+
+/// Adds the default checklist to every stage of the plan that has no generated tasks yet.
+async fn insert_default_stage_tasks(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+) -> ModelResult<()> {
+    for stage in crate::course_designer_plans::fixed_stage_order() {
+        let titles: Vec<String> = default_stage_task_titles(stage)
+            .iter()
+            .map(|t| t.to_string())
+            .collect();
+        sqlx::query!(
+            r#"
+INSERT INTO course_designer_plan_stage_tasks (
+  course_designer_plan_stage_id,
+  title,
+  order_number,
+  is_auto_generated
+)
+SELECT s.id,
+  titles.title,
+  COALESCE(existing.max_order, 0) + titles.ordinal::INTEGER,
+  TRUE
+FROM course_designer_plan_stages s
+CROSS JOIN UNNEST($3::TEXT []) WITH ORDINALITY AS titles(title, ordinal)
+LEFT JOIN LATERAL (
+  SELECT MAX(order_number) AS max_order
+  FROM course_designer_plan_stage_tasks
+  WHERE course_designer_plan_stage_id = s.id
+    AND deleted_at IS NULL
+) existing ON TRUE
+WHERE s.course_designer_plan_id = $1
+  AND s.stage = $2
+  AND s.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM course_designer_plan_stage_tasks t
+    WHERE t.course_designer_plan_stage_id = s.id
+      AND t.is_auto_generated
+      AND t.deleted_at IS NULL
+  )
+"#,
+            plan_id,
+            stage as CourseDesignerStage,
+            &titles
+        )
+        .execute(&mut **tx)
+        .await?;
+    }
+    Ok(())
 }

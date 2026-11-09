@@ -122,6 +122,8 @@ pub struct ChatbotConfiguration {
     pub initial_suggested_messages: Option<Vec<String>>,
     pub publicly_accessible: bool,
     pub embeddable: bool,
+    /// Answers on course design plan pages; at most one live configuration has this set.
+    pub course_designer_assistant: bool,
 }
 
 impl Default for ChatbotConfiguration {
@@ -161,6 +163,7 @@ impl Default for ChatbotConfiguration {
             initial_suggested_messages: None,
             publicly_accessible: false,
             embeddable: false,
+            course_designer_assistant: false,
         }
     }
 }
@@ -583,4 +586,36 @@ pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<Chatbo
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Makes this configuration the course design assistant, taking the role from any other.
+pub async fn set_course_designer_assistant(
+    conn: &mut PgConnection,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = FALSE
+WHERE course_designer_assistant
+  AND id <> $1
+"#,
+        chatbot_configuration_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = TRUE
+WHERE id = $1
+  AND deleted_at IS NULL
+"#,
+        chatbot_configuration_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(())
 }

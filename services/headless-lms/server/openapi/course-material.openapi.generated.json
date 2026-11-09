@@ -3437,6 +3437,11 @@
           "conversation_title": {
             "type": ["string", "null"]
           },
+          "course_designer_plan_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set for conversations with the course design assistant about this plan."
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"

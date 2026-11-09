@@ -411,7 +411,8 @@ async fn template_replacements(
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
-        | EmailTemplateType::CreditRegistrationRegistered => {}
+        | EmailTemplateType::CreditRegistrationRegistered
+        | EmailTemplateType::CourseDesignerWeeklyDigest => {}
     }
 
     Ok(TemplateReplacements::Ready(replacements))

@@ -373,6 +373,14 @@ export type AddPlanMemberRequest = {
 }
 
 /**
+ * The whole schedule in stage order. Completed stages must keep their dates, and later stages
+ * must already be shifted so there are no gaps or overlaps.
+ */
+export type AdjustCourseDesignerScheduleRequest = {
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+/**
  * The body of `POST /registrations/{credit_registration_id}/notes`.
  */
 export type AdminAddCreditRegistrationNotePayload = {
@@ -1105,13 +1113,13 @@ export type AnalysisWorkspaceV1 = {
   degree_programme?: string | null
   language?: string | null
   market_results?: string | null
-  mode_asynchronous: boolean
-  mode_synchronous: boolean
-  open_period_all: boolean
-  open_period_i: boolean
-  open_period_ii: boolean
-  open_period_iii: boolean
-  open_period_iv: boolean
+  mode_asynchronous?: boolean
+  mode_synchronous?: boolean
+  open_period_all?: boolean
+  open_period_i?: boolean
+  open_period_ii?: boolean
+  open_period_iii?: boolean
+  open_period_iv?: boolean
   resources_purchase_budget?: string | null
   resources_university?: string | null
   responsible_teachers?: string | null
@@ -1119,10 +1127,10 @@ export type AnalysisWorkspaceV1 = {
   target_group?: string | null
   wishes_assessment_text?: string | null
   wishes_content_format_notes?: string | null
-  wishes_content_format_podcast: boolean
-  wishes_content_format_text: boolean
-  wishes_content_format_video: boolean
-  wishes_content_format_xr: boolean
+  wishes_content_format_podcast?: boolean
+  wishes_content_format_text?: boolean
+  wishes_content_format_video?: boolean
+  wishes_content_format_xr?: boolean
   wishes_other_suggestions?: string | null
   wishes_topics?: string | null
 }
@@ -1484,6 +1492,10 @@ export type ChapterUpdate = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
+  /**
+   * Answers on course design plan pages; at most one live configuration has this set.
+   */
+  course_designer_assistant: boolean
   course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
@@ -2114,7 +2126,12 @@ export type CourseDesignerPlan = {
   active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
+  /**
+   * Set once a course has been created from the plan; see [`crate::library::course_designer::create_course_from_plan`].
+   */
+  created_course_id?: string | null
   deleted_at?: string | null
+  great_mooc_vision?: string | null
   id: string
   last_weekly_stage_email_sent_at?: string | null
   name?: string | null
@@ -2125,14 +2142,31 @@ export type CourseDesignerPlan = {
 export type CourseDesignerPlanDetails = {
   members: Array<CourseDesignerPlanMember>
   plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
   stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
 export type CourseDesignerPlanMember = {
   created_at: string
   id: string
+  receives_weekly_digest: boolean
   updated_at: string
   user_id: string
+}
+
+export type CourseDesignerPlanSectionStatus = {
+  comment?: string | null
+  course_designer_plan_id: string
+  created_at: string
+  id: string
+  /**
+   * Defined by the frontend forms, e.g. `design.learning_goals`.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+  updated_at: string
+  updated_by_user_id: string
 }
 
 export type CourseDesignerPlanStage = {
@@ -2151,6 +2185,10 @@ export type CourseDesignerPlanStage = {
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
 
 export type CourseDesignerPlanStageTask = {
+  /**
+   * Always a current plan member; cleared when that member leaves.
+   */
+  assignee_user_id?: string | null
   completed_at?: string | null
   completed_by_user_id?: string | null
   course_designer_plan_stage_id: string
@@ -2204,6 +2242,8 @@ export type CourseDesignerScheduleSuggestionResponse = {
   stages: Array<CourseDesignerScheduleStageInput>
 }
 
+export type CourseDesignerSectionStatus = "Ready" | "Unfinished"
+
 export type CourseDesignerStage =
   | "Analysis"
   | "Design"
@@ -2213,10 +2253,36 @@ export type CourseDesignerStage =
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ *
+ * Each schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`].
  */
-export type CourseDesignerStageWorkspace = {
-  payload: AnalysisWorkspaceV1
-  schema: "analysis_v1"
+export type CourseDesignerStageWorkspace =
+  | {
+      payload: AnalysisWorkspaceV1
+      schema: "analysis_v1"
+    }
+  | {
+      payload: DesignWorkspaceV1
+      schema: "design_v1"
+    }
+
+/**
+ * One plan as global admins see it in the MOOC support listing.
+ */
+export type CourseDesignerSupportPlan = {
+  members: Array<PlanMemberWithDetails>
+  plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
+  stages: Array<CourseDesignerSupportStage>
+}
+
+export type CourseDesignerSupportStage = {
+  completed_task_count: number
+  planned_ends_on: string
+  planned_starts_on: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  task_count: number
 }
 
 export type CourseEnrollmentInfo = {
@@ -2575,6 +2641,21 @@ export type CreateCourseDesignerPlanRequest = {
 export type CreateCourseDesignerStageTaskRequest = {
   description?: string | null
   title: string
+}
+
+export type CreateCourseFromPlanRequest = {
+  /**
+   * Defaults to the Analysis form's language when it reads as one, else English.
+   */
+  language_code?: string | null
+  /**
+   * Defaults to the Analysis form's course title, then the plan name.
+   */
+  name?: string | null
+  /**
+   * An organization the user may create courses in.
+   */
+  organization_id: string
 }
 
 /**
@@ -3537,6 +3618,118 @@ export type DeploymentInfo = {
   }
 }
 
+export type DesignChapter = {
+  /**
+   * Generated by the client so edits and the assistant can address a chapter stably.
+   */
+  id?: string
+  learning_objectives?: Array<string>
+  title?: string
+  /**
+   * Topics in order; each becomes a page between the chapter's Introduction and Conclusion.
+   */
+  topics?: Array<DesignChapterTopic>
+}
+
+export type DesignChapterTopic = {
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  title?: string
+}
+
+export type DesignPlannedContentFormats = {
+  chatbots?: boolean
+  infographics?: boolean
+  photos?: boolean
+  podcast?: boolean
+  simulations?: boolean
+  text?: boolean
+  thinglink?: boolean
+  videos?: boolean
+}
+
+/**
+ * The "Page/Screen Layout Elements" style guide: one free-text rule per item.
+ */
+export type DesignStyleGuide = {
+  active_passive_voice?: string
+  blocks?: string
+  bulleted_lists?: string
+  capitalization?: string
+  colour_palette?: string
+  file_naming?: string
+  font?: string
+  graphics_background?: string
+  podcast?: string
+  punctuation?: string
+  references_and_citations?: string
+  terminology_and_acronyms?: string
+  video_styles?: string
+  writing_style?: string
+}
+
+export type DesignWorkloadActivity = {
+  activity_type?: DesignWorkloadActivityType
+  /**
+   * How many times the activity occurs in the course.
+   */
+  count?: number
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  /**
+   * Estimated student time for one occurrence, in minutes.
+   */
+  minutes_each?: number
+  title?: string
+}
+
+/**
+ * ABC learning design activity types used by the student workload calculator.
+ */
+export type DesignWorkloadActivityType =
+  | "acquisition_audio"
+  | "acquisition_video"
+  | "acquisition_reading"
+  | "discussion"
+  | "collaboration"
+  | "investigation"
+  | "practice"
+  | "production"
+
+/**
+ * Design stage form: learning goals, core content, course structure, content formats, style
+ * guide, exercises and student workload.
+ */
+export type DesignWorkspaceV1 = {
+  accessibility_notes?: string
+  /**
+   * Planned chapters in course order. Creating a course from the plan turns each into a chapter.
+   */
+  chapters?: Array<DesignChapter>
+  content_format_notes?: string
+  /**
+   * What every student must learn, about 80 % of the content.
+   */
+  core_content_must_know?: string
+  /**
+   * About 5 % of the content.
+   */
+  core_content_nice_to_know?: string
+  /**
+   * About 15 % of the content.
+   */
+  core_content_should_know?: string
+  exercise_notes?: string
+  learning_goals?: Array<string>
+  planned_content_formats?: DesignPlannedContentFormats
+  style_guide?: DesignStyleGuide
+  workload_activities?: Array<DesignWorkloadActivity>
+}
+
 /**
  * Form body for `POST /device_authorization` (RFC 8628 §3.1).
  */
@@ -3735,6 +3928,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "course_designer_weekly_digest"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -4310,6 +4504,9 @@ export type ExerciseUserCounts = {
 }
 
 export type ExtendStageRequest = {
+  /**
+   * 1 to 24.
+   */
   months: number
 }
 
@@ -5755,6 +5952,7 @@ export type PlanMemberWithDetails = {
   first_name?: string | null
   id: string
   last_name?: string | null
+  receives_weekly_digest: boolean
   user_id: string
 }
 
@@ -6366,6 +6564,26 @@ export type ServicePortInfo = {
   target_port?: string | null
 }
 
+export type SetCourseDesignerSectionStatusRequest = {
+  /**
+   * Blank or `null` stores no comment.
+   */
+  comment?: string | null
+  /**
+   * Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+}
+
+export type SetCourseDesignerTaskAssigneeRequest = {
+  /**
+   * A current plan member, or `null` to unassign.
+   */
+  assignee_user_id?: string | null
+}
+
 export type SetCreditJustificationPayload = {
   justification: string
 }
@@ -6379,6 +6597,17 @@ export type SetEnrolmentRoutePayload = {
   need?: CreditRegistrationNeed | null
   need_after_reconsider?: CreditRegistrationNeed | null
   route: CreditRegistrationEnrolmentRoute
+}
+
+export type SetGreatMoocVisionRequest = {
+  /**
+   * Blank or `null` clears the vision.
+   */
+  great_mooc_vision?: string | null
+}
+
+export type SetWeeklyDigestSubscriptionRequest = {
+  receives_weekly_digest: boolean
 }
 
 export type SisuDescriptionResponse = {
@@ -6845,6 +7074,9 @@ export type UnlinkMyStudentNumberResult = {
   affected_registration_count: number
 }
 
+/**
+ * Fields left out stay unchanged. An empty `description` clears it.
+ */
 export type UpdateCourseDesignerStageTaskRequest = {
   description?: string | null
   is_completed?: boolean | null
@@ -8764,6 +8996,23 @@ export type CreateCourseDesignerPlanResponses = {
 export type CreateCourseDesignerPlanResponse =
   CreateCourseDesignerPlanResponses[keyof CreateCourseDesignerPlanResponses]
 
+export type GetCourseDesignerSupportPlansData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/support/plans"
+}
+
+export type GetCourseDesignerSupportPlansResponses = {
+  /**
+   * All plans
+   */
+  200: Array<CourseDesignerSupportPlan>
+}
+
+export type GetCourseDesignerSupportPlansResponse =
+  GetCourseDesignerSupportPlansResponses[keyof GetCourseDesignerSupportPlansResponses]
+
 export type GetCourseDesignerPlanData = {
   body?: never
   path: {
@@ -8785,6 +9034,50 @@ export type GetCourseDesignerPlanResponses = {
 
 export type GetCourseDesignerPlanResponse =
   GetCourseDesignerPlanResponses[keyof GetCourseDesignerPlanResponses]
+
+export type ArchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/archive"
+}
+
+export type ArchiveCourseDesignerPlanResponses = {
+  /**
+   * Archived plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type ArchiveCourseDesignerPlanResponse =
+  ArchiveCourseDesignerPlanResponses[keyof ArchiveCourseDesignerPlanResponses]
+
+export type CreateCourseFromCourseDesignerPlanData = {
+  body: CreateCourseFromPlanRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/course"
+}
+
+export type CreateCourseFromCourseDesignerPlanResponses = {
+  /**
+   * Created course
+   */
+  200: Course
+}
+
+export type CreateCourseFromCourseDesignerPlanResponse =
+  CreateCourseFromCourseDesignerPlanResponses[keyof CreateCourseFromCourseDesignerPlanResponses]
 
 export type GetCoursePlanMembersData = {
   body?: never
@@ -8878,6 +9171,28 @@ export type SaveCourseDesignerScheduleResponses = {
 export type SaveCourseDesignerScheduleResponse =
   SaveCourseDesignerScheduleResponses[keyof SaveCourseDesignerScheduleResponses]
 
+export type AdjustCourseDesignerScheduleData = {
+  body: AdjustCourseDesignerScheduleRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment"
+}
+
+export type AdjustCourseDesignerScheduleResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type AdjustCourseDesignerScheduleResponse =
+  AdjustCourseDesignerScheduleResponses[keyof AdjustCourseDesignerScheduleResponses]
+
 export type FinalizeCourseDesignerScheduleData = {
   body?: never
   path: {
@@ -8921,6 +9236,50 @@ export type CreateCourseDesignerScheduleSuggestionResponses = {
 
 export type CreateCourseDesignerScheduleSuggestionResponse =
   CreateCourseDesignerScheduleSuggestionResponses[keyof CreateCourseDesignerScheduleSuggestionResponses]
+
+export type GetCourseDesignerSectionStatusesData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type GetCourseDesignerSectionStatusesResponses = {
+  /**
+   * Section statuses
+   */
+  200: Array<CourseDesignerPlanSectionStatus>
+}
+
+export type GetCourseDesignerSectionStatusesResponse =
+  GetCourseDesignerSectionStatusesResponses[keyof GetCourseDesignerSectionStatusesResponses]
+
+export type SetCourseDesignerSectionStatusData = {
+  body: SetCourseDesignerSectionStatusRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type SetCourseDesignerSectionStatusResponses = {
+  /**
+   * Saved section status
+   */
+  200: CourseDesignerPlanSectionStatus
+}
+
+export type SetCourseDesignerSectionStatusResponse =
+  SetCourseDesignerSectionStatusResponses[keyof SetCourseDesignerSectionStatusResponses]
 
 export type AdvanceCourseDesignerStageData = {
   body?: never
@@ -9073,6 +9432,98 @@ export type UpdateCourseDesignerStageTaskResponses = {
 
 export type UpdateCourseDesignerStageTaskResponse =
   UpdateCourseDesignerStageTaskResponses[keyof UpdateCourseDesignerStageTaskResponses]
+
+export type SetCourseDesignerTaskAssigneeData = {
+  body: SetCourseDesignerTaskAssigneeRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Task id
+     */
+    task_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee"
+}
+
+export type SetCourseDesignerTaskAssigneeResponses = {
+  /**
+   * Updated task
+   */
+  200: CourseDesignerPlanStageTask
+}
+
+export type SetCourseDesignerTaskAssigneeResponse =
+  SetCourseDesignerTaskAssigneeResponses[keyof SetCourseDesignerTaskAssigneeResponses]
+
+export type UnarchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/unarchive"
+}
+
+export type UnarchiveCourseDesignerPlanResponses = {
+  /**
+   * Restored plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type UnarchiveCourseDesignerPlanResponse =
+  UnarchiveCourseDesignerPlanResponses[keyof UnarchiveCourseDesignerPlanResponses]
+
+export type SetCourseDesignerGreatMoocVisionData = {
+  body: SetGreatMoocVisionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/vision"
+}
+
+export type SetCourseDesignerGreatMoocVisionResponses = {
+  /**
+   * Updated plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type SetCourseDesignerGreatMoocVisionResponse =
+  SetCourseDesignerGreatMoocVisionResponses[keyof SetCourseDesignerGreatMoocVisionResponses]
+
+export type SetCourseDesignerWeeklyDigestSubscriptionData = {
+  body: SetWeeklyDigestSubscriptionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription"
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponses = {
+  /**
+   * Updated membership
+   */
+  200: CourseDesignerPlanMember
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponse =
+  SetCourseDesignerWeeklyDigestSubscriptionResponses[keyof SetCourseDesignerWeeklyDigestSubscriptionResponses]
 
 export type CreateCourseData = {
   body: NewCourse

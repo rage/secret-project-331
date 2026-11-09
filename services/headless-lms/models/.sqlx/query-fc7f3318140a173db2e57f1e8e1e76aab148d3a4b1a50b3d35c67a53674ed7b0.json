@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO course_designer_plan_stage_tasks (\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_auto_generated,\n  created_by_user_id\n)\nVALUES ($1, $2, $3, $4, FALSE, $5)\nRETURNING\n  id,\n  created_at,\n  updated_at,\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_completed,\n  completed_at,\n  completed_by_user_id,\n  is_auto_generated,\n  created_by_user_id\n",
+  "query": "\nINSERT INTO course_designer_plan_stage_tasks (\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_auto_generated,\n  created_by_user_id\n)\nVALUES ($1, $2, $3, $4, FALSE, $5)\nRETURNING\n  id,\n  created_at,\n  updated_at,\n  course_designer_plan_stage_id,\n  title,\n  description,\n  order_number,\n  is_completed,\n  completed_at,\n  completed_by_user_id,\n  is_auto_generated,\n  created_by_user_id,\n  assignee_user_id\n",
   "describe": {
     "columns": [
       {
@@ -134,6 +134,17 @@
             "name": "created_by_user_id"
           }
         }
+      },
+      {
+        "ordinal": 12,
+        "name": "assignee_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "assignee_user_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -157,8 +168,9 @@
       true,
       true,
       false,
+      true,
       true
     ]
   },
-  "hash": "115e8920adf206f53197a387a640b11307ac593db2e46ebad8846338f5da34ae"
+  "hash": "fc7f3318140a173db2e57f1e8e1e76aab148d3a4b1a50b3d35c67a53674ed7b0"
 }

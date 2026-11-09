@@ -58,6 +58,7 @@ OTHER_HEADLESS_LMS_WORKLOADS = [
     "suotar-syncer",
     "calculate-page-visit-stats",
     "ended-exams-processor",
+    "course-designer-weekly-digest",
     "open-university-registration-link-fetcher",
     "peer-review-updater",
     "sync-tmc-users",

@@ -580,36 +580,36 @@ export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
  * Analysis stage form: course metadata, needs, wishes, market, resources, contributors.
  */
 export const zAnalysisWorkspaceV1 = z.object({
-  contributors_editors: z.string().nullish(),
-  contributors_instructional_designer: z.string().nullish(),
-  contributors_subject_matter_experts: z.string().nullish(),
-  contributors_support_staff: z.string().nullish(),
-  course_title: z.string().nullish(),
-  course_type: zAnalysisCourseType.nullish(),
-  credits: z.number().nullish(),
-  degree_programme: z.string().nullish(),
-  language: z.string().nullish(),
-  market_results: z.string().nullish(),
-  mode_asynchronous: z.boolean(),
-  mode_synchronous: z.boolean(),
-  open_period_all: z.boolean(),
-  open_period_i: z.boolean(),
-  open_period_ii: z.boolean(),
-  open_period_iii: z.boolean(),
-  open_period_iv: z.boolean(),
-  resources_purchase_budget: z.string().nullish(),
-  resources_university: z.string().nullish(),
-  responsible_teachers: z.string().nullish(),
-  students_demographic_data: z.string().nullish(),
-  target_group: z.string().nullish(),
-  wishes_assessment_text: z.string().nullish(),
-  wishes_content_format_notes: z.string().nullish(),
-  wishes_content_format_podcast: z.boolean(),
-  wishes_content_format_text: z.boolean(),
-  wishes_content_format_video: z.boolean(),
-  wishes_content_format_xr: z.boolean(),
-  wishes_other_suggestions: z.string().nullish(),
-  wishes_topics: z.string().nullish(),
+  contributors_editors: z.string().nullish().default(null),
+  contributors_instructional_designer: z.string().nullish().default(null),
+  contributors_subject_matter_experts: z.string().nullish().default(null),
+  contributors_support_staff: z.string().nullish().default(null),
+  course_title: z.string().nullish().default(null),
+  course_type: zAnalysisCourseType.nullish().default(null),
+  credits: z.number().nullish().default(null),
+  degree_programme: z.string().nullish().default(null),
+  language: z.string().nullish().default(null),
+  market_results: z.string().nullish().default(null),
+  mode_asynchronous: z.boolean().optional().default(false),
+  mode_synchronous: z.boolean().optional().default(false),
+  open_period_all: z.boolean().optional().default(false),
+  open_period_i: z.boolean().optional().default(false),
+  open_period_ii: z.boolean().optional().default(false),
+  open_period_iii: z.boolean().optional().default(false),
+  open_period_iv: z.boolean().optional().default(false),
+  resources_purchase_budget: z.string().nullish().default(null),
+  resources_university: z.string().nullish().default(null),
+  responsible_teachers: z.string().nullish().default(null),
+  students_demographic_data: z.string().nullish().default(null),
+  target_group: z.string().nullish().default(null),
+  wishes_assessment_text: z.string().nullish().default(null),
+  wishes_content_format_notes: z.string().nullish().default(null),
+  wishes_content_format_podcast: z.boolean().optional().default(false),
+  wishes_content_format_text: z.boolean().optional().default(false),
+  wishes_content_format_video: z.boolean().optional().default(false),
+  wishes_content_format_xr: z.boolean().optional().default(false),
+  wishes_other_suggestions: z.string().nullish().default(null),
+  wishes_topics: z.string().nullish().default(null),
 })
 
 /**
@@ -1318,6 +1318,7 @@ export const zCourseDesignerCourseSize = z.enum(["small", "medium", "large"])
 export const zCourseDesignerPlanMember = z.object({
   created_at: z.iso.datetime(),
   id: z.uuid(),
+  receives_weekly_digest: z.boolean(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
@@ -1325,6 +1326,7 @@ export const zCourseDesignerPlanMember = z.object({
 export const zCourseDesignerPlanStageStatus = z.enum(["NotStarted", "InProgress", "Completed"])
 
 export const zCourseDesignerPlanStageTask = z.object({
+  assignee_user_id: z.uuid().nullish(),
   completed_at: z.iso.datetime().nullish(),
   completed_by_user_id: z.uuid().nullish(),
   course_designer_plan_stage_id: z.uuid(),
@@ -1355,6 +1357,8 @@ export const zCourseDesignerScheduleSuggestionRequest = z.object({
   starts_on: z.iso.date(),
 })
 
+export const zCourseDesignerSectionStatus = z.enum(["Ready", "Unfinished"])
+
 export const zCourseDesignerStage = z.enum([
   "Analysis",
   "Design",
@@ -1367,12 +1371,26 @@ export const zCourseDesignerPlan = z.object({
   active_stage: zCourseDesignerStage.nullish(),
   created_at: z.iso.datetime(),
   created_by_user_id: z.uuid(),
+  created_course_id: z.uuid().nullish(),
   deleted_at: z.iso.datetime().nullish(),
+  great_mooc_vision: z.string().nullish(),
   id: z.uuid(),
   last_weekly_stage_email_sent_at: z.iso.datetime().nullish(),
   name: z.string().nullish(),
   status: zCourseDesignerPlanStatus,
   updated_at: z.iso.datetime(),
+})
+
+export const zCourseDesignerPlanSectionStatus = z.object({
+  comment: z.string().nullish(),
+  course_designer_plan_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  section_key: z.string(),
+  stage: zCourseDesignerStage,
+  status: zCourseDesignerSectionStatus,
+  updated_at: z.iso.datetime(),
+  updated_by_user_id: z.uuid(),
 })
 
 export const zCourseDesignerPlanStage = z.object({
@@ -1397,6 +1415,7 @@ export const zCourseDesignerPlanStageWithTasks = zCourseDesignerPlanStage.and(
 export const zCourseDesignerPlanDetails = z.object({
   members: z.array(zCourseDesignerPlanMember),
   plan: zCourseDesignerPlan,
+  section_statuses: z.array(zCourseDesignerPlanSectionStatus),
   stages: z.array(zCourseDesignerPlanStageWithTasks),
 })
 
@@ -1433,16 +1452,39 @@ export const zCourseDesignerScheduleStageInput = z.object({
   stage: zCourseDesignerStage,
 })
 
+/**
+ * The whole schedule in stage order. Completed stages must keep their dates, and later stages
+ * must already be shifted so there are no gaps or overlaps.
+ */
+export const zAdjustCourseDesignerScheduleRequest = z.object({
+  stages: z.array(zCourseDesignerScheduleStageInput),
+})
+
 export const zCourseDesignerScheduleSuggestionResponse = z.object({
   stages: z.array(zCourseDesignerScheduleStageInput),
 })
 
-/**
- * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
- */
-export const zCourseDesignerStageWorkspace = z.object({
-  payload: zAnalysisWorkspaceV1,
-  schema: z.enum(["analysis_v1"]),
+export const zCourseDesignerSupportStage = z.object({
+  completed_task_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  planned_ends_on: z.iso.date(),
+  planned_starts_on: z.iso.date(),
+  stage: zCourseDesignerStage,
+  status: zCourseDesignerPlanStageStatus,
+  task_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 export const zCourseExam = z.object({
@@ -1650,6 +1692,12 @@ export const zCreateCourseDesignerPlanRequest = z.object({
 export const zCreateCourseDesignerStageTaskRequest = z.object({
   description: z.string().nullish(),
   title: z.string(),
+})
+
+export const zCreateCourseFromPlanRequest = z.object({
+  language_code: z.string().nullish(),
+  name: z.string().nullish(),
+  organization_id: z.uuid(),
 })
 
 /**
@@ -2548,6 +2596,139 @@ export const zDeploymentInfo = z.object({
   selector_labels: z.record(z.string(), z.string()),
 })
 
+export const zDesignChapterTopic = z.object({
+  id: z.uuid().optional().default("00000000-0000-0000-0000-000000000000"),
+  title: z.string().optional().default(""),
+})
+
+export const zDesignChapter = z.object({
+  id: z.uuid().optional().default("00000000-0000-0000-0000-000000000000"),
+  learning_objectives: z.array(z.string()).optional().default([]),
+  title: z.string().optional().default(""),
+  topics: z.array(zDesignChapterTopic).optional().default([]),
+})
+
+export const zDesignPlannedContentFormats = z.object({
+  chatbots: z.boolean().optional().default(false),
+  infographics: z.boolean().optional().default(false),
+  photos: z.boolean().optional().default(false),
+  podcast: z.boolean().optional().default(false),
+  simulations: z.boolean().optional().default(false),
+  text: z.boolean().optional().default(false),
+  thinglink: z.boolean().optional().default(false),
+  videos: z.boolean().optional().default(false),
+})
+
+/**
+ * The "Page/Screen Layout Elements" style guide: one free-text rule per item.
+ */
+export const zDesignStyleGuide = z.object({
+  active_passive_voice: z.string().optional().default(""),
+  blocks: z.string().optional().default(""),
+  bulleted_lists: z.string().optional().default(""),
+  capitalization: z.string().optional().default(""),
+  colour_palette: z.string().optional().default(""),
+  file_naming: z.string().optional().default(""),
+  font: z.string().optional().default(""),
+  graphics_background: z.string().optional().default(""),
+  podcast: z.string().optional().default(""),
+  punctuation: z.string().optional().default(""),
+  references_and_citations: z.string().optional().default(""),
+  terminology_and_acronyms: z.string().optional().default(""),
+  video_styles: z.string().optional().default(""),
+  writing_style: z.string().optional().default(""),
+})
+
+/**
+ * ABC learning design activity types used by the student workload calculator.
+ */
+export const zDesignWorkloadActivityType = z.enum([
+  "acquisition_audio",
+  "acquisition_video",
+  "acquisition_reading",
+  "discussion",
+  "collaboration",
+  "investigation",
+  "practice",
+  "production",
+])
+
+export const zDesignWorkloadActivity = z.object({
+  activity_type: zDesignWorkloadActivityType.optional().default("acquisition_reading"),
+  count: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional()
+    .default(0),
+  id: z.uuid().optional().default("00000000-0000-0000-0000-000000000000"),
+  minutes_each: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional()
+    .default(0),
+  title: z.string().optional().default(""),
+})
+
+/**
+ * Design stage form: learning goals, core content, course structure, content formats, style
+ * guide, exercises and student workload.
+ */
+export const zDesignWorkspaceV1 = z.object({
+  accessibility_notes: z.string().optional().default(""),
+  chapters: z.array(zDesignChapter).optional().default([]),
+  content_format_notes: z.string().optional().default(""),
+  core_content_must_know: z.string().optional().default(""),
+  core_content_nice_to_know: z.string().optional().default(""),
+  core_content_should_know: z.string().optional().default(""),
+  exercise_notes: z.string().optional().default(""),
+  learning_goals: z.array(z.string()).optional().default([]),
+  planned_content_formats: zDesignPlannedContentFormats.optional().default({
+    chatbots: false,
+    infographics: false,
+    photos: false,
+    podcast: false,
+    simulations: false,
+    text: false,
+    thinglink: false,
+    videos: false,
+  }),
+  style_guide: zDesignStyleGuide.optional().default({
+    active_passive_voice: "",
+    blocks: "",
+    bulleted_lists: "",
+    capitalization: "",
+    colour_palette: "",
+    file_naming: "",
+    font: "",
+    graphics_background: "",
+    podcast: "",
+    punctuation: "",
+    references_and_citations: "",
+    terminology_and_acronyms: "",
+    video_styles: "",
+    writing_style: "",
+  }),
+  workload_activities: z.array(zDesignWorkloadActivity).optional().default([]),
+})
+
+/**
+ * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ *
+ * Each schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`].
+ */
+export const zCourseDesignerStageWorkspace = z.union([
+  z.object({
+    payload: zAnalysisWorkspaceV1,
+    schema: z.enum(["analysis_v1"]),
+  }),
+  z.object({
+    payload: zDesignWorkspaceV1,
+    schema: z.enum(["design_v1"]),
+  }),
+])
+
 /**
  * Form body for `POST /device_authorization` (RFC 8628 §3.1).
  */
@@ -2809,6 +2990,7 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "course_designer_weekly_digest",
 ])
 
 export const zEmailTemplate = z.object({
@@ -4716,7 +4898,18 @@ export const zPlanMemberWithDetails = z.object({
   first_name: z.string().nullish(),
   id: z.uuid(),
   last_name: z.string().nullish(),
+  receives_weekly_digest: z.boolean(),
   user_id: z.uuid(),
+})
+
+/**
+ * One plan as global admins see it in the MOOC support listing.
+ */
+export const zCourseDesignerSupportPlan = z.object({
+  members: z.array(zPlanMemberWithDetails),
+  plan: zCourseDesignerPlan,
+  section_statuses: z.array(zCourseDesignerPlanSectionStatus),
+  stages: z.array(zCourseDesignerSupportStage),
 })
 
 export const zPlaygroundExample = z.object({
@@ -5751,6 +5944,17 @@ export const zServiceInfo = z.object({
   ports: z.array(zServicePortInfo),
 })
 
+export const zSetCourseDesignerSectionStatusRequest = z.object({
+  comment: z.string().nullish(),
+  section_key: z.string(),
+  stage: zCourseDesignerStage,
+  status: zCourseDesignerSectionStatus,
+})
+
+export const zSetCourseDesignerTaskAssigneeRequest = z.object({
+  assignee_user_id: z.uuid().nullish(),
+})
+
 export const zSetCreditJustificationPayload = z.object({
   justification: z.string(),
 })
@@ -5764,6 +5968,14 @@ export const zSetEnrolmentRoutePayload = z.object({
   need: zCreditRegistrationNeed.nullish(),
   need_after_reconsider: zCreditRegistrationNeed.nullish(),
   route: zCreditRegistrationEnrolmentRoute,
+})
+
+export const zSetGreatMoocVisionRequest = z.object({
+  great_mooc_vision: z.string().nullish(),
+})
+
+export const zSetWeeklyDigestSubscriptionRequest = z.object({
+  receives_weekly_digest: z.boolean(),
 })
 
 export const zSisuDescriptionResponse = z.object({
@@ -6994,6 +7206,9 @@ export const zUnlinkMyStudentNumberResult = z.object({
     }),
 })
 
+/**
+ * Fields left out stay unchanged. An empty `description` clears it.
+ */
 export const zUpdateCourseDesignerStageTaskRequest = z.object({
   description: z.string().nullish(),
   is_completed: z.boolean().nullish(),
@@ -7415,6 +7630,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
+  course_designer_assistant: z.boolean(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
@@ -8518,6 +8734,11 @@ export const zCreateCourseDesignerPlanBody = zCreateCourseDesignerPlanRequest
  */
 export const zCreateCourseDesignerPlanResponse = zCourseDesignerPlan
 
+/**
+ * All plans
+ */
+export const zGetCourseDesignerSupportPlansResponse = z.array(zCourseDesignerSupportPlan)
+
 export const zGetCourseDesignerPlanPath = z.object({
   plan_id: z.uuid(),
 })
@@ -8526,6 +8747,26 @@ export const zGetCourseDesignerPlanPath = z.object({
  * Plan details
  */
 export const zGetCourseDesignerPlanResponse = zCourseDesignerPlanDetails
+
+export const zArchiveCourseDesignerPlanPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Archived plan
+ */
+export const zArchiveCourseDesignerPlanResponse = zCourseDesignerPlan
+
+export const zCreateCourseFromCourseDesignerPlanBody = zCreateCourseFromPlanRequest
+
+export const zCreateCourseFromCourseDesignerPlanPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Created course
+ */
+export const zCreateCourseFromCourseDesignerPlanResponse = zCourse
 
 export const zGetCoursePlanMembersPath = z.object({
   plan_id: z.uuid(),
@@ -8568,6 +8809,17 @@ export const zSaveCourseDesignerSchedulePath = z.object({
  */
 export const zSaveCourseDesignerScheduleResponse = zCourseDesignerPlanDetails
 
+export const zAdjustCourseDesignerScheduleBody = zAdjustCourseDesignerScheduleRequest
+
+export const zAdjustCourseDesignerSchedulePath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Updated plan details
+ */
+export const zAdjustCourseDesignerScheduleResponse = zCourseDesignerPlanDetails
+
 export const zFinalizeCourseDesignerSchedulePath = z.object({
   plan_id: z.uuid(),
 })
@@ -8588,6 +8840,26 @@ export const zCreateCourseDesignerScheduleSuggestionPath = z.object({
  */
 export const zCreateCourseDesignerScheduleSuggestionResponse =
   zCourseDesignerScheduleSuggestionResponse
+
+export const zGetCourseDesignerSectionStatusesPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Section statuses
+ */
+export const zGetCourseDesignerSectionStatusesResponse = z.array(zCourseDesignerPlanSectionStatus)
+
+export const zSetCourseDesignerSectionStatusBody = zSetCourseDesignerSectionStatusRequest
+
+export const zSetCourseDesignerSectionStatusPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Saved section status
+ */
+export const zSetCourseDesignerSectionStatusResponse = zCourseDesignerPlanSectionStatus
 
 export const zAdvanceCourseDesignerStagePath = z.object({
   plan_id: z.uuid(),
@@ -8655,6 +8927,49 @@ export const zUpdateCourseDesignerStageTaskPath = z.object({
  * Updated task
  */
 export const zUpdateCourseDesignerStageTaskResponse = zCourseDesignerPlanStageTask
+
+export const zSetCourseDesignerTaskAssigneeBody = zSetCourseDesignerTaskAssigneeRequest
+
+export const zSetCourseDesignerTaskAssigneePath = z.object({
+  plan_id: z.uuid(),
+  task_id: z.uuid(),
+})
+
+/**
+ * Updated task
+ */
+export const zSetCourseDesignerTaskAssigneeResponse = zCourseDesignerPlanStageTask
+
+export const zUnarchiveCourseDesignerPlanPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Restored plan
+ */
+export const zUnarchiveCourseDesignerPlanResponse = zCourseDesignerPlan
+
+export const zSetCourseDesignerGreatMoocVisionBody = zSetGreatMoocVisionRequest
+
+export const zSetCourseDesignerGreatMoocVisionPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Updated plan
+ */
+export const zSetCourseDesignerGreatMoocVisionResponse = zCourseDesignerPlan
+
+export const zSetCourseDesignerWeeklyDigestSubscriptionBody = zSetWeeklyDigestSubscriptionRequest
+
+export const zSetCourseDesignerWeeklyDigestSubscriptionPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Updated membership
+ */
+export const zSetCourseDesignerWeeklyDigestSubscriptionResponse = zCourseDesignerPlanMember
 
 export const zCreateCourseBody = zNewCourse
 

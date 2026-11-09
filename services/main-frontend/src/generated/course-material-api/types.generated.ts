@@ -143,6 +143,10 @@ export type ChatbotConversation = {
   anonymous_token?: string | null
   chatbot_configuration_id: string
   conversation_title?: string | null
+  /**
+   * Set for conversations with the course design assistant about this plan.
+   */
+  course_designer_plan_id?: string | null
   course_id?: string | null
   created_at: string
   deleted_at?: string | null

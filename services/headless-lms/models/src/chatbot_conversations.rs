@@ -19,6 +19,8 @@ pub struct ChatbotConversation {
     pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
     pub conversation_title: Option<String>,
+    /// Set for conversations with the course design assistant about this plan.
+    pub course_designer_plan_id: Option<Uuid>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]

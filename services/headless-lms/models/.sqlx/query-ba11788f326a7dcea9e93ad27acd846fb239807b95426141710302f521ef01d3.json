@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  t.title,\n  t.description,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL\n",
+  "query": "\nSELECT\n  t.title,\n  t.description,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  s.stage AS \"stage: CourseDesignerStage\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL\nFOR UPDATE OF t\n",
   "describe": {
     "columns": [
       {
@@ -57,6 +57,30 @@
             "name": "completed_by_user_id"
           }
         }
+      },
+      {
+        "ordinal": 5,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "stage"
+          }
+        }
       }
     ],
     "parameters": {
@@ -71,8 +95,9 @@
       true,
       false,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "a809ae1b800ebf92286e8aeb4abbd113ea0766475e2432769de4552eca39712b"
+  "hash": "ba11788f326a7dcea9e93ad27acd846fb239807b95426141710302f521ef01d3"
 }

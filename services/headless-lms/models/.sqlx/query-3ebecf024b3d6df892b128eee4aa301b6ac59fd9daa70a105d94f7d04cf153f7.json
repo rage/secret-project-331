@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  members.id,\n  members.created_at,\n  members.updated_at,\n  members.user_id\nFROM course_designer_plan_members members\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = members.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nWHERE members.course_designer_plan_id = $1\n  AND members.deleted_at IS NULL\nORDER BY members.created_at ASC, members.id ASC\n",
+  "query": "\nUPDATE course_designer_plan_members\nSET receives_weekly_digest = $3\nWHERE course_designer_plan_id = $1\n  AND user_id = $2\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  user_id,\n  receives_weekly_digest\n",
   "describe": {
     "columns": [
       {
@@ -46,20 +46,33 @@
             "name": "user_id"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "receives_weekly_digest",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "receives_weekly_digest"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
         "Uuid",
-        "Uuid"
+        "Uuid",
+        "Bool"
       ]
     },
     "nullable": [
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "48335dfa0348b619bc7f835e4a3b3aa05b6ba9345a44ceed558692513654702d"
+  "hash": "3ebecf024b3d6df892b128eee4aa301b6ac59fd9daa70a105d94f7d04cf153f7"
 }

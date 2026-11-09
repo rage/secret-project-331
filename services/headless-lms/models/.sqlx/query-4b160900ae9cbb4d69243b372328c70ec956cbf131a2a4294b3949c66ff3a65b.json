@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.deleted_at,\n  p.created_by_user_id,\n  p.name,\n  p.status,\n  p.active_stage,\n  p.last_weekly_stage_email_sent_at\nFROM course_designer_plans p\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = p.id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE p.id = $1 AND p.deleted_at IS NULL\nFOR UPDATE\n",
+  "query": "\nSELECT\n  p.id,\n  p.created_at,\n  p.updated_at,\n  p.deleted_at,\n  p.created_by_user_id,\n  p.name,\n  p.status,\n  p.active_stage,\n  p.last_weekly_stage_email_sent_at,\n  p.great_mooc_vision,\n  p.created_course_id\nFROM course_designer_plans p\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = p.id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE p.id = $1 AND p.deleted_at IS NULL\nFOR UPDATE\n",
   "describe": {
     "columns": [
       {
@@ -127,6 +127,28 @@
             "name": "last_weekly_stage_email_sent_at"
           }
         }
+      },
+      {
+        "ordinal": 9,
+        "name": "great_mooc_vision",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plans",
+            "name": "great_mooc_vision"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "created_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plans",
+            "name": "created_course_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -144,8 +166,10 @@
       true,
       false,
       true,
+      true,
+      true,
       true
     ]
   },
-  "hash": "0d31d017b5bfcc032547ddd5043cf64efab216ea033f616ad0a049d27d2805e4"
+  "hash": "4b160900ae9cbb4d69243b372328c70ec956cbf131a2a4294b3949c66ff3a65b"
 }

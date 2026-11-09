@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at\nFROM course_designer_plan_members m\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.user_id = $2\n  AND m.deleted_at IS NULL\n  AND EXISTS (\n    SELECT 1\n    FROM course_designer_plan_members requester\n    WHERE requester.course_designer_plan_id = $1\n      AND requester.user_id = $3\n      AND requester.deleted_at IS NULL\n  )\n",
+  "query": "\nSELECT\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at,\n  m.receives_weekly_digest\nFROM course_designer_plan_members m\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.deleted_at IS NULL\nORDER BY m.created_at ASC, m.id ASC\n",
   "describe": {
     "columns": [
       {
@@ -68,12 +68,21 @@
             "name": "created_at"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "receives_weekly_digest",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "receives_weekly_digest"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
         "Uuid"
       ]
     },
@@ -83,8 +92,9 @@
       true,
       true,
       false,
+      false,
       false
     ]
   },
-  "hash": "78b00b6a11792810acef43010402c9ac87f839debe7f8b4daea02bab2eacb538"
+  "hash": "240256471c3700c6cca11123febba7bb75925ed511ba1414864a49371230a753"
 }

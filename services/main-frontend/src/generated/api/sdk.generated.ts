@@ -22,6 +22,8 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdjustCourseDesignerScheduleData,
+  AdjustCourseDesignerScheduleResponses,
   AdminAddCreditRegistrationNoteData,
   AdminAddCreditRegistrationNoteErrors,
   AdminAddCreditRegistrationNoteResponses,
@@ -79,6 +81,8 @@ import type {
   ApproveOauthDeviceVerificationData,
   ApproveOauthDeviceVerificationErrors,
   ApproveOauthDeviceVerificationResponses,
+  ArchiveCourseDesignerPlanData,
+  ArchiveCourseDesignerPlanResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -112,6 +116,8 @@ import type {
   CreateCourseDesignerScheduleSuggestionResponses,
   CreateCourseDesignerStageTaskData,
   CreateCourseDesignerStageTaskResponses,
+  CreateCourseFromCourseDesignerPlanData,
+  CreateCourseFromCourseDesignerPlanResponses,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermErrors,
   CreateCourseGlossaryTermResponses,
@@ -339,6 +345,10 @@ import type {
   GetCourseDesignerPlanResponses,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponses,
+  GetCourseDesignerSectionStatusesData,
+  GetCourseDesignerSectionStatusesResponses,
+  GetCourseDesignerSupportPlansData,
+  GetCourseDesignerSupportPlansResponses,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponses,
   GetCourseExercisesData,
@@ -793,6 +803,14 @@ import type {
   SetCourseChatbotAsDefaultResponses,
   SetCourseChatbotAsNonDefaultData,
   SetCourseChatbotAsNonDefaultResponses,
+  SetCourseDesignerGreatMoocVisionData,
+  SetCourseDesignerGreatMoocVisionResponses,
+  SetCourseDesignerSectionStatusData,
+  SetCourseDesignerSectionStatusResponses,
+  SetCourseDesignerTaskAssigneeData,
+  SetCourseDesignerTaskAssigneeResponses,
+  SetCourseDesignerWeeklyDigestSubscriptionData,
+  SetCourseDesignerWeeklyDigestSubscriptionResponses,
   SetCourseJoinCodeData,
   SetCourseJoinCodeResponses,
   SetCourseModuleCertificateGenerationData,
@@ -811,6 +829,8 @@ import type {
   TeacherSetStudentChapterStatusResponses,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponses,
+  UnarchiveCourseDesignerPlanData,
+  UnarchiveCourseDesignerPlanResponses,
   UnhideCourseFromMyCoursesData,
   UnhideCourseFromMyCoursesResponses,
   UnlinkMyStudentNumberData,
@@ -885,6 +905,7 @@ import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdjustCourseDesignerScheduleResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
   zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
@@ -901,6 +922,7 @@ import {
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zApproveOauthDeviceVerificationResponse,
+  zArchiveCourseDesignerPlanResponse,
   zChangeUserPasswordResponse,
   zChooseMyCertificateResponse,
   zClaimStudentNumberVerificationTokenResponse,
@@ -914,6 +936,7 @@ import {
   zCreateCourseDesignerPlanResponse,
   zCreateCourseDesignerScheduleSuggestionResponse,
   zCreateCourseDesignerStageTaskResponse,
+  zCreateCourseFromCourseDesignerPlanResponse,
   zCreateCourseGlossaryTermResponse,
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
@@ -1001,6 +1024,8 @@ import {
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
   zGetCourseDesignerPlanResponse,
   zGetCourseDesignerPlansResponse,
+  zGetCourseDesignerSectionStatusesResponse,
+  zGetCourseDesignerSupportPlansResponse,
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
@@ -1202,12 +1227,17 @@ import {
   zSendResetPasswordEmailResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
+  zSetCourseDesignerGreatMoocVisionResponse,
+  zSetCourseDesignerSectionStatusResponse,
+  zSetCourseDesignerTaskAssigneeResponse,
+  zSetCourseDesignerWeeklyDigestSubscriptionResponse,
   zSetCourseModuleCertificateGenerationResponse,
   zSetMyCreditJustificationResponse,
   zSetMyEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
+  zUnarchiveCourseDesignerPlanResponse,
   zUnlinkMyStudentNumberResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
@@ -2663,6 +2693,25 @@ export const createCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     },
   )
 
+/**
+ * Read-only overview of every plan for global admins doing MOOC support.
+ */
+export const getCourseDesignerSupportPlans = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseDesignerSupportPlansData, ThrowOnError>,
+): RequestResult<GetCourseDesignerSupportPlansResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCourseDesignerSupportPlansResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSupportPlansResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/support/plans",
+    ...options,
+  })
+
 export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseDesignerPlanData, ThrowOnError>,
 ): RequestResult<GetCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
@@ -2671,6 +2720,44 @@ export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}",
     ...options,
+  })
+
+export const archiveCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<ArchiveCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<ArchiveCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ArchiveCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zArchiveCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/archive",
+    ...options,
+  })
+
+/**
+ * Creates a draft course from the plan's course structure. A plan creates at most one course.
+ */
+export const createCourseFromCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseFromCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<CreateCourseFromCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    CreateCourseFromCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateCourseFromCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/course",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 export const getCoursePlanMembers = <ThrowOnError extends boolean = true>(
@@ -2728,6 +2815,28 @@ export const saveCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
     },
   })
 
+/**
+ * Changes the dates of stages that are not completed while the plan is in progress.
+ */
+export const adjustCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
+  options: Options<AdjustCourseDesignerScheduleData, ThrowOnError>,
+): RequestResult<AdjustCourseDesignerScheduleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    AdjustCourseDesignerScheduleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdjustCourseDesignerScheduleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 export const finalizeCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
   options: Options<FinalizeCourseDesignerScheduleData, ThrowOnError>,
 ): RequestResult<FinalizeCourseDesignerScheduleResponses, unknown, ThrowOnError, "data"> =>
@@ -2757,6 +2866,42 @@ export const createCourseDesignerScheduleSuggestion = <ThrowOnError extends bool
       await zCreateCourseDesignerScheduleSuggestionResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const getCourseDesignerSectionStatuses = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerSectionStatusesData, ThrowOnError>,
+): RequestResult<GetCourseDesignerSectionStatusesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseDesignerSectionStatusesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSectionStatusesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
+    ...options,
+  })
+
+export const setCourseDesignerSectionStatus = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerSectionStatusData, ThrowOnError>,
+): RequestResult<SetCourseDesignerSectionStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerSectionStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerSectionStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2867,6 +3012,89 @@ export const updateCourseDesignerStageTask = <ThrowOnError extends boolean = tru
       await zUpdateCourseDesignerStageTaskResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const setCourseDesignerTaskAssignee = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerTaskAssigneeData, ThrowOnError>,
+): RequestResult<SetCourseDesignerTaskAssigneeResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerTaskAssigneeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerTaskAssigneeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const unarchiveCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<UnarchiveCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<UnarchiveCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UnarchiveCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zUnarchiveCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/unarchive",
+    ...options,
+  })
+
+export const setCourseDesignerGreatMoocVision = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerGreatMoocVisionData, ThrowOnError>,
+): RequestResult<SetCourseDesignerGreatMoocVisionResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerGreatMoocVisionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerGreatMoocVisionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/vision",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Opts the current user in or out of the plan's weekly progress email.
+ */
+export const setCourseDesignerWeeklyDigestSubscription = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerWeeklyDigestSubscriptionData, ThrowOnError>,
+): RequestResult<
+  SetCourseDesignerWeeklyDigestSubscriptionResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    SetCourseDesignerWeeklyDigestSubscriptionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerWeeklyDigestSubscriptionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -2637,6 +2637,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/support/plans": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "Read-only overview of every plan for global admins doing MOOC support.",
+        "operationId": "getCourseDesignerSupportPlans",
+        "responses": {
+          "200": {
+            "description": "All plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDesignerSupportPlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/{plan_id}": {
       "get": {
         "tags": ["course-plans"],
@@ -2660,6 +2682,77 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/archive": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "archiveCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archived plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/course": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "Creates a draft course from the plan's course structure. A plan creates at most one course.",
+        "operationId": "createCourseFromCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseFromPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
                 }
               }
             }
@@ -2811,6 +2904,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment": {
+      "put": {
+        "tags": ["course-plans"],
+        "summary": "Changes the dates of stages that are not completed while the plan is in progress.",
+        "operationId": "adjustCourseDesignerSchedule",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjustCourseDesignerScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/{plan_id}/schedule/finalize": {
       "post": {
         "tags": ["course-plans"],
@@ -2874,6 +3008,77 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerScheduleSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses": {
+      "get": {
+        "tags": ["course-plans"],
+        "operationId": "getCourseDesignerSectionStatuses",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Section statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerSectionStatus",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCourseDesignerSectionStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved section status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
                 }
               }
             }
@@ -3133,6 +3338,167 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee": {
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerTaskAssignee",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCourseDesignerTaskAssigneeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/unarchive": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "unarchiveCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restored plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/vision": {
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerGreatMoocVision",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetGreatMoocVisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription": {
+      "put": {
+        "tags": ["course-plans"],
+        "summary": "Opts the current user in or out of the plan's weekly progress email.",
+        "operationId": "setCourseDesignerWeeklyDigestSubscription",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWeeklyDigestSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated membership",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanMember"
                 }
               }
             }
@@ -15773,6 +16139,19 @@
           }
         }
       },
+      "AdjustCourseDesignerScheduleRequest": {
+        "type": "object",
+        "description": "The whole schedule in stage order. Completed stages must keep their dates, and later stages\nmust already be shifted so there are no gaps or overlaps.",
+        "required": ["stages"],
+        "properties": {
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerScheduleStageInput"
+            }
+          }
+        }
+      },
       "AdminAddCreditRegistrationNotePayload": {
         "type": "object",
         "description": "The body of `POST /registrations/{credit_registration_id}/notes`.",
@@ -17418,34 +17797,26 @@
       "AnalysisWorkspaceV1": {
         "type": "object",
         "description": "Analysis stage form: course metadata, needs, wishes, market, resources, contributors.",
-        "required": [
-          "mode_synchronous",
-          "mode_asynchronous",
-          "open_period_i",
-          "open_period_ii",
-          "open_period_iii",
-          "open_period_iv",
-          "open_period_all",
-          "wishes_content_format_text",
-          "wishes_content_format_video",
-          "wishes_content_format_podcast",
-          "wishes_content_format_xr"
-        ],
         "properties": {
           "contributors_editors": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_instructional_designer": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_subject_matter_experts": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_support_staff": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "course_title": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "course_type": {
             "oneOf": [
@@ -17455,80 +17826,105 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "default": null
           },
           "credits": {
             "type": ["number", "null"],
-            "format": "double"
+            "format": "double",
+            "default": null
           },
           "degree_programme": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "language": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "market_results": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "mode_asynchronous": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "mode_synchronous": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_all": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_i": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_ii": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_iii": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_iv": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "resources_purchase_budget": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "resources_university": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "responsible_teachers": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "students_demographic_data": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "target_group": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_assessment_text": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_content_format_notes": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_content_format_podcast": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_text": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_video": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_xr": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_other_suggestions": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_topics": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           }
         }
       },
@@ -18517,11 +18913,16 @@
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible",
-          "embeddable"
+          "embeddable",
+          "course_designer_assistant"
         ],
         "properties": {
           "chatbot_name": {
             "type": "string"
+          },
+          "course_designer_assistant": {
+            "type": "boolean",
+            "description": "Answers on course design plan pages; at most one live configuration has this set."
           },
           "course_id": {
             "type": ["string", "null"],
@@ -20284,9 +20685,17 @@
             "type": "string",
             "format": "uuid"
           },
+          "created_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set once a course has been created from the plan; see [`crate::library::course_designer::create_course_from_plan`]."
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "great_mooc_vision": {
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string",
@@ -20310,7 +20719,7 @@
       },
       "CourseDesignerPlanDetails": {
         "type": "object",
-        "required": ["plan", "members", "stages"],
+        "required": ["plan", "members", "stages", "section_statuses"],
         "properties": {
           "members": {
             "type": "array",
@@ -20320,6 +20729,12 @@
           },
           "plan": {
             "$ref": "#/components/schemas/CourseDesignerPlan"
+          },
+          "section_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+            }
           },
           "stages": {
             "type": "array",
@@ -20331,7 +20746,7 @@
       },
       "CourseDesignerPlanMember": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_id"],
+        "required": ["id", "created_at", "updated_at", "user_id", "receives_weekly_digest"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -20341,11 +20756,62 @@
             "type": "string",
             "format": "uuid"
           },
+          "receives_weekly_digest": {
+            "type": "boolean"
+          },
           "updated_at": {
             "type": "string",
             "format": "date-time"
           },
           "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseDesignerPlanSectionStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_designer_plan_id",
+          "stage",
+          "section_key",
+          "status",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "comment": {
+            "type": ["string", "null"]
+          },
+          "course_designer_plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section_key": {
+            "type": "string",
+            "description": "Defined by the frontend forms, e.g. `design.learning_goals`."
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_by_user_id": {
             "type": "string",
             "format": "uuid"
           }
@@ -20417,6 +20883,11 @@
           "is_auto_generated"
         ],
         "properties": {
+          "assignee_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Always a current plan member; cleared when that member leaves."
+          },
           "completed_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -20586,6 +21057,10 @@
           }
         }
       },
+      "CourseDesignerSectionStatus": {
+        "type": "string",
+        "enum": ["Ready", "Unfinished"]
+      },
       "CourseDesignerStage": {
         "type": "string",
         "enum": ["Analysis", "Design", "Development", "Implementation", "Evaluation"]
@@ -20604,9 +21079,85 @@
                 "enum": ["analysis_v1"]
               }
             }
+          },
+          {
+            "type": "object",
+            "required": ["payload", "schema"],
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/DesignWorkspaceV1"
+              },
+              "schema": {
+                "type": "string",
+                "enum": ["design_v1"]
+              }
+            }
           }
         ],
-        "description": "Discriminant for forward-compatible workspace payloads stored in `workspace_data`."
+        "description": "Discriminant for forward-compatible workspace payloads stored in `workspace_data`.\n\nEach schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`]."
+      },
+      "CourseDesignerSupportPlan": {
+        "type": "object",
+        "description": "One plan as global admins see it in the MOOC support listing.",
+        "required": ["plan", "members", "stages", "section_statuses"],
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanMemberWithDetails"
+            }
+          },
+          "plan": {
+            "$ref": "#/components/schemas/CourseDesignerPlan"
+          },
+          "section_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+            }
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerSupportStage"
+            }
+          }
+        }
+      },
+      "CourseDesignerSupportStage": {
+        "type": "object",
+        "required": [
+          "stage",
+          "status",
+          "planned_starts_on",
+          "planned_ends_on",
+          "task_count",
+          "completed_task_count"
+        ],
+        "properties": {
+          "completed_task_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "planned_ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "planned_starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerPlanStageStatus"
+          },
+          "task_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
       },
       "CourseEnrollmentInfo": {
         "type": "object",
@@ -21505,6 +22056,25 @@
           },
           "title": {
             "type": "string"
+          }
+        }
+      },
+      "CreateCourseFromPlanRequest": {
+        "type": "object",
+        "required": ["organization_id"],
+        "properties": {
+          "language_code": {
+            "type": ["string", "null"],
+            "description": "Defaults to the Analysis form's language when it reads as one, else English."
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Defaults to the Analysis form's course title, then the plan name."
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An organization the user may create courses in."
           }
         }
       },
@@ -23473,6 +24043,284 @@
           }
         }
       },
+      "DesignChapter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client so edits and the assistant can address a chapter stably.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "learning_objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignChapterTopic"
+            },
+            "description": "Topics in order; each becomes a page between the chapter's Introduction and Conclusion.",
+            "default": []
+          }
+        }
+      },
+      "DesignChapterTopic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignPlannedContentFormats": {
+        "type": "object",
+        "properties": {
+          "chatbots": {
+            "type": "boolean",
+            "default": false
+          },
+          "infographics": {
+            "type": "boolean",
+            "default": false
+          },
+          "photos": {
+            "type": "boolean",
+            "default": false
+          },
+          "podcast": {
+            "type": "boolean",
+            "default": false
+          },
+          "simulations": {
+            "type": "boolean",
+            "default": false
+          },
+          "text": {
+            "type": "boolean",
+            "default": false
+          },
+          "thinglink": {
+            "type": "boolean",
+            "default": false
+          },
+          "videos": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "DesignStyleGuide": {
+        "type": "object",
+        "description": "The \"Page/Screen Layout Elements\" style guide: one free-text rule per item.",
+        "properties": {
+          "active_passive_voice": {
+            "type": "string",
+            "default": ""
+          },
+          "blocks": {
+            "type": "string",
+            "default": ""
+          },
+          "bulleted_lists": {
+            "type": "string",
+            "default": ""
+          },
+          "capitalization": {
+            "type": "string",
+            "default": ""
+          },
+          "colour_palette": {
+            "type": "string",
+            "default": ""
+          },
+          "file_naming": {
+            "type": "string",
+            "default": ""
+          },
+          "font": {
+            "type": "string",
+            "default": ""
+          },
+          "graphics_background": {
+            "type": "string",
+            "default": ""
+          },
+          "podcast": {
+            "type": "string",
+            "default": ""
+          },
+          "punctuation": {
+            "type": "string",
+            "default": ""
+          },
+          "references_and_citations": {
+            "type": "string",
+            "default": ""
+          },
+          "terminology_and_acronyms": {
+            "type": "string",
+            "default": ""
+          },
+          "video_styles": {
+            "type": "string",
+            "default": ""
+          },
+          "writing_style": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignWorkloadActivity": {
+        "type": "object",
+        "properties": {
+          "activity_type": {
+            "$ref": "#/components/schemas/DesignWorkloadActivityType",
+            "default": "acquisition_reading"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many times the activity occurs in the course.",
+            "default": 0,
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "minutes_each": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Estimated student time for one occurrence, in minutes.",
+            "default": 0,
+            "minimum": 0
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignWorkloadActivityType": {
+        "type": "string",
+        "description": "ABC learning design activity types used by the student workload calculator.",
+        "enum": [
+          "acquisition_audio",
+          "acquisition_video",
+          "acquisition_reading",
+          "discussion",
+          "collaboration",
+          "investigation",
+          "practice",
+          "production"
+        ]
+      },
+      "DesignWorkspaceV1": {
+        "type": "object",
+        "description": "Design stage form: learning goals, core content, course structure, content formats, style\nguide, exercises and student workload.",
+        "properties": {
+          "accessibility_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignChapter"
+            },
+            "description": "Planned chapters in course order. Creating a course from the plan turns each into a chapter.",
+            "default": []
+          },
+          "content_format_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "core_content_must_know": {
+            "type": "string",
+            "description": "What every student must learn, about 80 % of the content.",
+            "default": ""
+          },
+          "core_content_nice_to_know": {
+            "type": "string",
+            "description": "About 5 % of the content.",
+            "default": ""
+          },
+          "core_content_should_know": {
+            "type": "string",
+            "description": "About 15 % of the content.",
+            "default": ""
+          },
+          "exercise_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "learning_goals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "planned_content_formats": {
+            "$ref": "#/components/schemas/DesignPlannedContentFormats",
+            "default": {
+              "chatbots": false,
+              "infographics": false,
+              "photos": false,
+              "podcast": false,
+              "simulations": false,
+              "text": false,
+              "thinglink": false,
+              "videos": false
+            }
+          },
+          "style_guide": {
+            "$ref": "#/components/schemas/DesignStyleGuide",
+            "default": {
+              "active_passive_voice": "",
+              "blocks": "",
+              "bulleted_lists": "",
+              "capitalization": "",
+              "colour_palette": "",
+              "file_naming": "",
+              "font": "",
+              "graphics_background": "",
+              "podcast": "",
+              "punctuation": "",
+              "references_and_citations": "",
+              "terminology_and_acronyms": "",
+              "video_styles": "",
+              "writing_style": ""
+            }
+          },
+          "workload_activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignWorkloadActivity"
+            },
+            "default": []
+          }
+        }
+      },
       "DeviceAuthorizationForm": {
         "type": "object",
         "description": "Form body for `POST /device_authorization` (RFC 8628 §3.1).",
@@ -23934,7 +24782,8 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered"
+          "credit_registration_registered",
+          "course_designer_weekly_digest"
         ]
       },
       "EmailVerificationEmailInfo": {
@@ -25457,6 +26306,7 @@
           "months": {
             "type": "integer",
             "format": "int32",
+            "description": "1 to 24.",
             "minimum": 0
           }
         }
@@ -29434,7 +30284,7 @@
       },
       "PlanMemberWithDetails": {
         "type": "object",
-        "required": ["id", "user_id", "email", "created_at"],
+        "required": ["id", "user_id", "email", "created_at", "receives_weekly_digest"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -29453,6 +30303,9 @@
           },
           "last_name": {
             "type": ["string", "null"]
+          },
+          "receives_weekly_digest": {
+            "type": "boolean"
           },
           "user_id": {
             "type": "string",
@@ -31112,6 +31965,36 @@
           }
         }
       },
+      "SetCourseDesignerSectionStatusRequest": {
+        "type": "object",
+        "required": ["stage", "section_key", "status"],
+        "properties": {
+          "comment": {
+            "type": ["string", "null"],
+            "description": "Blank or `null` stores no comment."
+          },
+          "section_key": {
+            "type": "string",
+            "description": "Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters."
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
+          }
+        }
+      },
+      "SetCourseDesignerTaskAssigneeRequest": {
+        "type": "object",
+        "properties": {
+          "assignee_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "A current plan member, or `null` to unassign."
+          }
+        }
+      },
       "SetCreditJustificationPayload": {
         "type": "object",
         "required": ["justification"],
@@ -31161,6 +32044,24 @@
           },
           "route": {
             "$ref": "#/components/schemas/CreditRegistrationEnrolmentRoute"
+          }
+        }
+      },
+      "SetGreatMoocVisionRequest": {
+        "type": "object",
+        "properties": {
+          "great_mooc_vision": {
+            "type": ["string", "null"],
+            "description": "Blank or `null` clears the vision."
+          }
+        }
+      },
+      "SetWeeklyDigestSubscriptionRequest": {
+        "type": "object",
+        "required": ["receives_weekly_digest"],
+        "properties": {
+          "receives_weekly_digest": {
+            "type": "boolean"
           }
         }
       },
@@ -32176,6 +33077,7 @@
       },
       "UpdateCourseDesignerStageTaskRequest": {
         "type": "object",
+        "description": "Fields left out stay unchanged. An empty `description` clears it.",
         "properties": {
           "description": {
             "type": ["string", "null"]

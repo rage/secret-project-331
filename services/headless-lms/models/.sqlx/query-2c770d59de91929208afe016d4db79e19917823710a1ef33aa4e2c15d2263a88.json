@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT stage AS \"stage: CourseDesignerStage\",\n  COUNT(*)::BIGINT AS \"count!\"\nFROM course_designer_plan_section_statuses\nWHERE course_designer_plan_id = $1\n  AND status = 'unfinished'\n  AND deleted_at IS NULL\nGROUP BY stage\nORDER BY stage\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "stage"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "2c770d59de91929208afe016d4db79e19917823710a1ef33aa4e2c15d2263a88"
+}

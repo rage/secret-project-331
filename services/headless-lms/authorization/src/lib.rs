@@ -175,12 +175,14 @@ async fn access_to_chatbot(
     chatbot_configuration: &ChatbotConfiguration,
     roles: RoleSource<'_>,
 ) -> AuthorizationResult<AuthorizationToken> {
-    if chatbot_configuration.publicly_accessible {
+    // Until it is enabled to students, a course chatbot is for its staff only, public or not.
+    if chatbot_configuration.publicly_accessible
+        && (chatbot_configuration.enabled_to_students || chatbot_configuration.course_id.is_none())
+    {
         return Ok(skip_authorize());
     }
 
     match (user_id, chatbot_configuration.course_id) {
-        // Until it is enabled to students, only the course's staff may try it out.
         (Some(_), Some(course_id)) if !chatbot_configuration.enabled_to_students => {
             let user_roles = roles.resolve(conn).await?;
             authorize_with_fetched_list_of_roles(

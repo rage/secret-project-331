@@ -19,6 +19,44 @@ use std::{
 use uuid::Uuid;
 use walkdir::{DirEntry, WalkDir};
 
+/// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that resolves
+/// to public addresses, so a teacher can't make the server reach local files or the cluster
+/// network.
+pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
+    let (host, port) = clone_url_host_and_port(url)
+        .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
+    let addresses: Vec<_> = tokio::net::lookup_host((host.as_str(), port))
+        .await
+        .with_context(|| format!("Could not resolve {host}"))?
+        .collect();
+    if addresses.is_empty()
+        || addresses.iter().any(|address| {
+            !crate::domain::oauth::client_metadata_document::is_public_address(address.ip())
+        })
+    {
+        anyhow::bail!("{host} is not a public address");
+    }
+    Ok(())
+}
+
+fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
+    if url.starts_with("https://") || url.starts_with("ssh://") {
+        let parsed = url::Url::parse(url).ok()?;
+        let host = parsed.host_str()?.trim_matches(['[', ']']).to_string();
+        let port = parsed
+            .port()
+            .unwrap_or(if parsed.scheme() == "https" { 443 } else { 22 });
+        return Some((host, port));
+    }
+    // scp-like syntax: user@host:path, which git treats as ssh.
+    let (user_and_host, path) = url.split_once(':')?;
+    let (_, host) = user_and_host.split_once('@')?;
+    if host.is_empty() || path.is_empty() || host.contains('/') || path.starts_with("//") {
+        return None;
+    }
+    Some((host.to_string(), 22))
+}
+
 pub struct StoredRepositoryExercise {
     pub url: String,
 }
@@ -92,6 +130,7 @@ async fn process_inner(
         app_conf,
     }: InnerArgs<'_>,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
+    ensure_clone_url_is_allowed(url).await?;
     let mut tx = conn.begin().await?;
 
     // clone repo to temp dir
@@ -257,6 +296,7 @@ async fn update_inner(
     new_stored_files: &mut Vec<PathBuf>,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
+    ensure_clone_url_is_allowed(url).await?;
     let mut tx = conn.begin().await?;
 
     let temp = tempfile::tempdir()?;
@@ -519,6 +559,46 @@ fn contains_tmcignore(entry: &DirEntry) -> bool {
 
 #[cfg(test)]
 mod test {
+    #[test]
+    fn clone_urls_name_their_host() {
+        use super::clone_url_host_and_port;
+        assert_eq!(
+            clone_url_host_and_port("https://github.com/rage/x.git"),
+            Some(("github.com".to_string(), 443))
+        );
+        assert_eq!(
+            clone_url_host_and_port("ssh://git@github.com:2222/rage/x.git"),
+            Some(("github.com".to_string(), 2222))
+        );
+        assert_eq!(
+            clone_url_host_and_port("git@github.com:rage/x.git"),
+            Some(("github.com".to_string(), 22))
+        );
+        for refused in [
+            "http://github.com/rage/x.git",
+            "file:///etc",
+            "/var/run/secrets",
+            "git://github.com/rage/x.git",
+            "github.com:rage/x.git",
+        ] {
+            assert_eq!(clone_url_host_and_port(refused), None, "{refused}");
+        }
+    }
+
+    #[tokio::test]
+    async fn clone_urls_to_private_addresses_are_refused() {
+        for url in [
+            "https://127.0.0.1/x.git",
+            "ssh://git@10.0.0.1/x.git",
+            "git@localhost:x.git",
+        ] {
+            assert!(
+                super::ensure_clone_url_is_allowed(url).await.is_err(),
+                "{url}"
+            );
+        }
+    }
+
     use super::*;
     use std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
 

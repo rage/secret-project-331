@@ -2,7 +2,7 @@
 
 use crate::{
     domain::{
-        authorization::skip_authorize,
+        authorization::{AuthorizationToken, authorize_access_to_course_exercise, skip_authorize},
         exercises::process_submission,
         models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
@@ -74,21 +74,8 @@ async fn get_exercise(
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
     // Checked before loading: loading picks a slide and records state for the user.
-    let exam_id = models::exercises::get_by_id(&mut conn, *exercise_id)
-        .await?
-        .exam_id;
-    if let Some(exam_id) = exam_id {
-        let user_id = user_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::UnauthorizedWithReason(
-                    crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
-                ),
-                "User must be authenticated to view exam exercises".to_string(),
-                None,
-            )
-        })?;
-        super::exams::authorize_exam_content_access(&mut conn, exam_id, user_id).await?;
-    }
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, user_id, &exercise).await?;
     let mut course_material_exercise = models::exercises::get_course_material_exercise(
         &mut conn,
         user_id,
@@ -157,8 +144,40 @@ async fn get_exercise(
     if !has_received_full_points && !out_of_tries {
         course_material_exercise.clear_model_solution_specs();
     }
-    let token = skip_authorize();
     token.authorized_ok(web::Json(course_material_exercise))
+}
+
+/// Authorizes viewing or answering an exercise from the course material: a course exercise needs
+/// the material and its chapter open to the user, an exam exercise needs the exam started.
+async fn authorize_exercise_access(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &models::exercises::Exercise,
+) -> Result<AuthorizationToken, ControllerError> {
+    match (exercise.course_id, exercise.exam_id) {
+        (Some(course_id), _) => {
+            Ok(
+                authorize_access_to_course_exercise(conn, user_id, course_id, exercise.chapter_id)
+                    .await?,
+            )
+        }
+        (None, Some(exam_id)) => {
+            let user_id = user_id.ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::UnauthorizedWithReason(
+                        crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
+                    ),
+                    "User must be authenticated to view exam exercises".to_string(),
+                    None,
+                )
+            })?;
+            super::exams::authorize_exam_content_access(conn, exam_id, user_id).await
+        }
+        (None, None) => Err(controller_err!(
+            NotFound,
+            "The exercise belongs to neither a course nor an exam".to_string()
+        )),
+    }
 }
 
 /**
@@ -348,13 +367,7 @@ async fn post_submission(
         }
     }
 
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(exercise.id),
-    )
-    .await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     let result = process_submission(
         &mut conn,
         user.id,
@@ -427,13 +440,7 @@ async fn start_peer_or_self_review(
 
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
         &mut conn,
         user_exercise_state,

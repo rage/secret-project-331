@@ -598,6 +598,16 @@ async fn get_exercise(
     .await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    if let Some(course_id) = exercise.course_id {
+        // The material and the chapter must be open to the user, as in the course material.
+        crate::domain::authorization::authorize_access_to_course_exercise(
+            &mut conn,
+            Some(user.id),
+            course_id,
+            exercise.chapter_id,
+        )
+        .await?;
+    }
     let (exercise_slide, course_or_exam_id) = models::exercises::get_or_select_exercise_slide(
         &mut conn,
         Some(user.id),
@@ -830,6 +840,14 @@ async fn upload_exercise_files(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
@@ -968,6 +986,14 @@ async fn submit_exercise(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;

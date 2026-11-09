@@ -180,6 +180,17 @@ async fn access_to_chatbot(
     }
 
     match (user_id, chatbot_configuration.course_id) {
+        // Until it is enabled to students, only the course's staff may try it out.
+        (Some(_), Some(course_id)) if !chatbot_configuration.enabled_to_students => {
+            let user_roles = roles.resolve(conn).await?;
+            authorize_with_fetched_list_of_roles(
+                conn,
+                Action::Teach,
+                Resource::Course(course_id),
+                &user_roles,
+            )
+            .await
+        }
         (Some(_), Some(course_id)) => {
             access_to_course_material(conn, user_id, course_id, roles).await
         }
@@ -263,6 +274,24 @@ async fn access_to_course_material(
 
     // The course is publicly available, no need to authorize
     Ok(skip_authorize())
+}
+
+/// Checks whether the user may view and answer a course exercise: the course material must be open
+/// to them, and so must the exercise's chapter. Exam exercises have their own check.
+pub async fn authorize_access_to_course_exercise(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+    chapter_id: Option<Uuid>,
+) -> AuthorizationResult<AuthorizationToken> {
+    let token = authorize_access_to_course_material(conn, user_id, course_id).await?;
+    if !can_user_view_chapter(conn, user_id, Some(course_id), chapter_id).await? {
+        return Err(authorization_err!(
+            Forbidden,
+            "This exercise's chapter is not open yet.".to_string()
+        ));
+    }
+    Ok(token)
 }
 
 /// Checks whether the user may view a chapter, which may be closed to everyone but certain roles.

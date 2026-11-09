@@ -622,6 +622,14 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// Whether the user has shown they control the address in `email`. An admin's say-so is not proof:
+/// it can attach any address to any account.
+pub async fn has_mailbox_proof(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    Ok(get_email_verification(conn, user_id)
+        .await?
+        .is_some_and(|(_, method)| method != EmailVerificationMethod::AdminAsserted))
+}
+
 /// Whether the address currently in `email` has a proof of control, and how it was obtained.
 pub async fn get_email_verification(
     conn: &mut PgConnection,

@@ -148,10 +148,10 @@ WHERE lower(user_email) = lower($1)
     Ok(res.rows_affected())
 }
 
-/// Turns the live pending roles for the user's current email into roles, if that email is verified.
-/// Returns how many roles were granted.
+/// Turns the live pending roles for the user's current email into roles, if the user has proven
+/// they control it ([`crate::user_details::has_mailbox_proof`]). Returns how many were granted.
 ///
-/// Call after anything that verifies an email; it does nothing for an unverified one.
+/// Call after anything that verifies an email; it does nothing without such proof.
 pub async fn activate_for_user(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<u64> {
     let mut tx = conn.begin().await?;
     let granted = sqlx::query_scalar!(
@@ -162,6 +162,7 @@ WITH activated AS (
   FROM user_details ud
   WHERE ud.user_id = $1
     AND ud.email_verified_at IS NOT NULL
+    AND ud.email_verified_method <> 'admin_asserted'
     AND lower(pr.user_email) = lower(ud.email)
     AND pr.deleted_at IS NULL
     AND pr.expires_at > NOW()
@@ -215,8 +216,8 @@ FROM granted
     Ok(granted.try_into().unwrap_or_default())
 }
 
-/// How many live pending roles wait for the user to verify their current email. Zero once it is
-/// verified, since verifying activates them.
+/// How many live pending roles wait for the user to prove they control their current email. Zero
+/// once they have, since that activates them.
 pub async fn count_waiting_for_user(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<i64> {
     let count = sqlx::query_scalar!(
         r#"
@@ -224,7 +225,10 @@ SELECT COUNT(*) AS "count!"
 FROM pending_roles pr
   JOIN user_details ud ON lower(pr.user_email) = lower(ud.email)
 WHERE ud.user_id = $1
-  AND ud.email_verified_at IS NULL
+  AND (
+    ud.email_verified_at IS NULL
+    OR ud.email_verified_method = 'admin_asserted'
+  )
   AND pr.deleted_at IS NULL
   AND pr.expires_at > NOW()
         "#,

@@ -795,7 +795,7 @@ pub async fn insert_user_with_verified_email(
     headless_lms_models::user_details::set_email_verified(
         conn,
         user_id,
-        headless_lms_models::user_details::EmailVerificationMethod::AdminAsserted,
+        headless_lms_models::user_details::EmailVerificationMethod::EmailedCode,
         Utc::now(),
     )
     .await?;

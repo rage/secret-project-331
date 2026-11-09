@@ -209,10 +209,7 @@ pub async fn verify_email_ownership(
     // unverified with nothing left to type.
     let mut tx = conn.begin().await?;
 
-    let result = if user_details::get_email_verification(&mut tx, user.id)
-        .await?
-        .is_some()
-    {
+    let result = if user_details::has_mailbox_proof(&mut tx, user.id).await? {
         VerifyEmailOwnershipResult::AlreadyVerified
     } else if user_email_codes::check_code(
         &mut tx,

@@ -65,14 +65,10 @@ pub async fn set(
     )
     .await?;
 
-    let target_user = users::get_by_email(&mut conn, &role_info.email)
-        .await
-        .optional()?;
+    let email = role_info.email.trim();
+    let target_user = users::get_by_email(&mut conn, email).await.optional()?;
     let email_verified = match &target_user {
-        Some(target_user) => user_details::get_user_details_by_user_id(&mut conn, target_user.id)
-            .await?
-            .email_verified_at
-            .is_some(),
+        Some(target_user) => user_details::has_mailbox_proof(&mut conn, target_user.id).await?,
         None => false,
     };
     let token = skip_authorize();
@@ -84,13 +80,7 @@ pub async fn set(
         // Anyone can type any unclaimed address into their profile, so a role granted by email
         // waits until the address is proven to be theirs.
         _ if app_conf.enable_email_ownership_verification => {
-            pending_roles::insert(
-                &mut conn,
-                &role_info.email,
-                role_info.role,
-                role_info.domain,
-            )
-            .await?;
+            pending_roles::insert(&mut conn, email, role_info.role, role_info.domain).await?;
             token.authorized_ok(HttpResponse::Ok().finish())
         }
         _ => Err(ControllerError::new(
@@ -129,16 +119,10 @@ pub async fn unset(
         user.id,
     )
     .await?;
-    let withdrawn_pending = pending_roles::delete(
-        &mut conn,
-        &role_info.email,
-        role_info.role,
-        role_info.domain,
-    )
-    .await?;
-    let target_user = users::get_by_email(&mut conn, &role_info.email)
-        .await
-        .optional()?;
+    let email = role_info.email.trim();
+    let withdrawn_pending =
+        pending_roles::delete(&mut conn, email, role_info.role, role_info.domain).await?;
+    let target_user = users::get_by_email(&mut conn, email).await.optional()?;
     match target_user {
         Some(target_user) => {
             roles::remove(&mut conn, target_user.id, role_info.role, role_info.domain).await?;

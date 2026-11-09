@@ -42,6 +42,17 @@ fn parse_join_base(url: &str) -> Result<Url, url::ParseError> {
     Ok(url)
 }
 
+/// Whether `BASE_URL` names a local development host, the only kind of deployment where the
+/// development flags that bypass login or HTTPS may be switched on.
+pub fn is_local_development_base_url(base_url: &str) -> bool {
+    Url::parse(base_url)
+        .ok()
+        .and_then(|url| url.host_str().map(str::to_ascii_lowercase))
+        .is_some_and(|host| {
+            matches!(host.as_str(), "localhost" | "127.0.0.1" | "[::1]") || host.ends_with(".local")
+        })
+}
+
 #[derive(Clone)]
 pub struct ApplicationConfiguration {
     pub base_url: String,
@@ -87,6 +98,11 @@ impl ApplicationConfiguration {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let test_mode = bool_env_false_by_default("TEST_MODE");
         let development_uuid_login = bool_env_false_by_default("DEVELOPMENT_UUID_LOGIN");
+        if (test_mode || development_uuid_login) && !is_local_development_base_url(&base_url) {
+            anyhow::bail!(
+                "TEST_MODE and DEVELOPMENT_UUID_LOGIN let anyone log in without a password, so they are only allowed when BASE_URL is a local development host, not {base_url}"
+            );
+        }
         let enable_email_ownership_verification =
             bool_env_false_by_default("ENABLE_EMAIL_OWNERSHIP_VERIFICATION");
         let test_chatbot = test_mode
@@ -578,6 +594,24 @@ impl OAuthServerConfiguration {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn only_local_hosts_count_as_development() {
+        for url in [
+            "http://project-331.local",
+            "http://localhost:3000",
+            "http://127.0.0.1",
+        ] {
+            assert!(is_local_development_base_url(url), "{url}");
+        }
+        for url in [
+            "https://courses.mooc.fi",
+            "https://project-331.local.evil.com",
+            "not a url",
+        ] {
+            assert!(!is_local_development_base_url(url), "{url}");
+        }
+    }
 
     #[test]
     fn suotar_configuration_has_no_mock_fallback() {

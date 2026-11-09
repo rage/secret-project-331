@@ -1,3 +1,5 @@
+DROP INDEX peer_or_self_review_submissions_one_per_reviewer_and_answer;
+
 DELETE FROM pending_roles
 WHERE organization_id IS NOT NULL
   OR exam_id IS NOT NULL

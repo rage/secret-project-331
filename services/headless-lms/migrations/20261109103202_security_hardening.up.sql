@@ -22,3 +22,26 @@ COMMENT ON COLUMN pending_roles.expires_at IS 'When the pending role expires. Ex
 COMMENT ON COLUMN pending_roles.organization_id IS 'The organization the role is for';
 COMMENT ON COLUMN pending_roles.exam_id IS 'The exam the role is for';
 COMMENT ON COLUMN pending_roles.is_global IS 'Whether the role is global rather than for one organization, course, course instance or exam';
+
+-- A review token can be replayed until it expires, so concurrent replays must not all count.
+-- Duplicates from before this index are retired, keeping the first review of each answer.
+UPDATE peer_or_self_review_submissions
+SET deleted_at = NOW()
+WHERE deleted_at IS NULL
+  AND id IN (
+    SELECT id
+    FROM (
+        SELECT id,
+          row_number() OVER (
+            PARTITION BY user_id,
+            exercise_slide_submission_id
+            ORDER BY created_at,
+              id
+          ) AS nth
+        FROM peer_or_self_review_submissions
+        WHERE deleted_at IS NULL
+      ) ranked
+    WHERE nth > 1
+  );
+CREATE UNIQUE INDEX peer_or_self_review_submissions_one_per_reviewer_and_answer ON peer_or_self_review_submissions (user_id, exercise_slide_submission_id)
+WHERE deleted_at IS NULL;

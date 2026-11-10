@@ -99,9 +99,7 @@ export const moocfiCertificateOffer = (
   offersCertificate ? { kind: "mooc_fi", externalCompletionId, creditJustification } : null
 
 /** The completion whose credit justification the offer's detour asks for. */
-export const certificateOfferSubject = (
-  certificate: CertificateOffer,
-): CreditRegistrationSubject =>
+export const certificateOfferSubject = (certificate: CertificateOffer): CreditRegistrationSubject =>
   certificate.kind === "course_module"
     ? courseModuleSubject(certificate.courseModuleId)
     : moocfiSubject(certificate.externalCompletionId)

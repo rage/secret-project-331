@@ -41,9 +41,6 @@ export type MessageKey =
   | "unknown_upload"
   | "duplicate_upload"
   | "stale_version"
-  | "invalid_course_code"
-  | "generic_sisu_error"
-  | "sisu_resource_not_found"
   | "chapter_not_open_yet"
   | "authentication_required_for_exam_exercise"
 

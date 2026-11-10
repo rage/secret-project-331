@@ -1051,7 +1051,7 @@
             "type": "string"
           },
           "message_key": {
-            "type": "string"
+            "$ref": "#/components/schemas/MessageKey"
           },
           "metadata": {},
           "type": {
@@ -1398,6 +1398,131 @@
         "type": "string",
         "description": "How far along a task submission's grading is.",
         "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
+      },
+      "MessageKey": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": ["internal_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["validation_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["obsolete_client"]
+          },
+          {
+            "type": "string",
+            "enum": ["not_found"]
+          },
+          {
+            "type": "string",
+            "enum": ["rate_limited"]
+          },
+          {
+            "type": "string",
+            "enum": ["unauthorized"]
+          },
+          {
+            "type": "string",
+            "enum": ["forbidden"]
+          },
+          {
+            "type": "string",
+            "enum": ["oauth_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["sisu_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["course_slug_already_taken"]
+          },
+          {
+            "type": "object",
+            "required": ["foreign_key_violation"],
+            "properties": {
+              "foreign_key_violation": {
+                "type": "object",
+                "properties": {
+                  "constraint": {
+                    "type": ["string", "null"]
+                  },
+                  "table": {
+                    "type": ["string", "null"]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["database_constraint"],
+            "properties": {
+              "database_constraint": {
+                "type": "object",
+                "required": ["constraint"],
+                "properties": {
+                  "constraint": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["validation_error_with_cms_anchor_block_id"],
+            "properties": {
+              "validation_error_with_cms_anchor_block_id": {
+                "type": "object",
+                "required": ["block_id"],
+                "properties": {
+                  "block_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "string",
+            "description": "The user is not enrolled on the course the requested exercise belongs to.",
+            "enum": ["not_enrolled"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named a file that was uploaded but has since been reaped.",
+            "enum": ["upload_expired"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named a file the host has no upload record of for this exercise and user.",
+            "enum": ["unknown_upload"]
+          },
+          {
+            "type": "string",
+            "description": "A submission named the same uploaded file more than once.",
+            "enum": ["duplicate_upload"]
+          },
+          {
+            "type": "string",
+            "description": "A save named a version of the record that is no longer the latest.",
+            "enum": ["stale_version"]
+          },
+          {
+            "type": "string",
+            "enum": ["chapter_not_open_yet"]
+          },
+          {
+            "type": "string",
+            "enum": ["authentication_required_for_exam_exercise"]
+          }
+        ]
       },
       "PasteResult": {
         "type": "object",

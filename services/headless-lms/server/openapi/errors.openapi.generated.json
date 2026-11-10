@@ -47,6 +47,42 @@
         "oneOf": [
           {
             "type": "string",
+            "enum": ["internal_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["validation_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["obsolete_client"]
+          },
+          {
+            "type": "string",
+            "enum": ["not_found"]
+          },
+          {
+            "type": "string",
+            "enum": ["rate_limited"]
+          },
+          {
+            "type": "string",
+            "enum": ["unauthorized"]
+          },
+          {
+            "type": "string",
+            "enum": ["forbidden"]
+          },
+          {
+            "type": "string",
+            "enum": ["oauth_error"]
+          },
+          {
+            "type": "string",
+            "enum": ["sisu_error"]
+          },
+          {
+            "type": "string",
             "enum": ["course_slug_already_taken"]
           },
           {
@@ -83,9 +119,9 @@
           },
           {
             "type": "object",
-            "required": ["invalid_cms_anchor_block"],
+            "required": ["validation_error_with_cms_anchor_block_id"],
             "properties": {
-              "invalid_cms_anchor_block": {
+              "validation_error_with_cms_anchor_block_id": {
                 "type": "object",
                 "required": ["block_id"],
                 "properties": {
@@ -119,15 +155,8 @@
           },
           {
             "type": "string",
-            "enum": ["invalid_course_code"]
-          },
-          {
-            "type": "string",
-            "enum": ["generic_sisu_error"]
-          },
-          {
-            "type": "string",
-            "enum": ["sisu_resource_not_found"]
+            "description": "A save named a version of the record that is no longer the latest.",
+            "enum": ["stale_version"]
           },
           {
             "type": "string",

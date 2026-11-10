@@ -47,6 +47,15 @@ pub struct NewErrorReport {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum MessageKey {
+    InternalError,
+    ValidationError,
+    ObsoleteClient,
+    NotFound,
+    RateLimited,
+    Unauthorized,
+    Forbidden,
+    OauthError,
+    SisuError,
     CourseSlugAlreadyTaken,
     ForeignKeyViolation {
         constraint: Option<String>,
@@ -55,7 +64,7 @@ pub enum MessageKey {
     DatabaseConstraint {
         constraint: String,
     },
-    InvalidCMSAnchorBlock {
+    ValidationErrorWithCmsAnchorBlockId {
         block_id: Uuid,
     },
     /// The user is not enrolled on the course the requested exercise belongs to.
@@ -66,27 +75,10 @@ pub enum MessageKey {
     UnknownUpload,
     /// A submission named the same uploaded file more than once.
     DuplicateUpload,
-    InvalidCourseCode,
-    GenericSisuError,
-    SisuResourceNotFound,
-}
-
-impl MessageKey {
-    pub fn message_key(self) -> &'static str {
-        match self {
-            Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
-            Self::ForeignKeyViolation { .. } => "foreign_key_violation",
-            Self::DatabaseConstraint { .. } => "database_constraint",
-            Self::InvalidCMSAnchorBlock { .. } => "invalid_cms_anchor_block",
-            Self::NotEnrolled => "not_enrolled",
-            Self::UploadExpired => "upload_expired",
-            Self::UnknownUpload => "unknown_upload",
-            Self::DuplicateUpload => "duplicate_upload",
-            Self::InvalidCourseCode => "invalid_course_code",
-            Self::GenericSisuError => "generic_sisu_error",
-            Self::SisuResourceNotFound => "sisu_resource_not_found",
-        }
-    }
+    /// A save named a version of the record that is no longer the latest.
+    StaleVersion,
+    ChapterNotOpenYet,
+    AuthenticationRequiredForExamExercise,
 }
 
 /// Inserts one error occurrence and upserts its variant in a single transaction.

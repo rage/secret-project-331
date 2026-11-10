@@ -11,12 +11,12 @@ declares `supports_native_client` in its service info. The course/exercise queri
 capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
+use headless_lms_models::errors::MessageKey;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
 use headless_lms_utils::course_url::course_page_url;
@@ -618,10 +618,11 @@ async fn get_exercise(
             ));
         }
         None => {
-            return Err(bad_request_with_reason(
-                BadRequestReason::NotEnrolled,
-                "User is not enrolled to this exercise's course".to_string(),
-            ));
+            return Err(controller_err!(
+                BadRequest,
+                "User is not enrolled to this exercise's course".to_string()
+            )
+            .with_message_key(MessageKey::NotEnrolled));
         }
     };
 
@@ -707,10 +708,11 @@ async fn verify_enrolled(
     {
         return Ok(());
     }
-    Err(bad_request_with_reason(
-        BadRequestReason::NotEnrolled,
-        "User is not enrolled to this exercise's course".to_string(),
-    ))
+    Err(controller_err!(
+        BadRequest,
+        "User is not enrolled to this exercise's course".to_string()
+    )
+    .with_message_key(MessageKey::NotEnrolled))
 }
 
 /// The URL path authorizes `exercise_id`; the slide/task ids come from the request body,
@@ -1512,9 +1514,10 @@ mod tests {
         use futures_util::FutureExt;
 
         let err = controller_err!(
-            BadRequestWithReason(BadRequestReason::NotEnrolled),
+            BadRequest,
             "User is not enrolled to this exercise's course".to_string()
-        );
+        )
+        .with_message_key(MessageKey::NotEnrolled);
         let response = err.error_response();
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
 

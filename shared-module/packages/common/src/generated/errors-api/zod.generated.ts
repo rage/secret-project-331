@@ -39,9 +39,6 @@ export const zMessageKey = z.union([
   z.enum(["unknown_upload"]),
   z.enum(["duplicate_upload"]),
   z.enum(["stale_version"]),
-  z.enum(["invalid_course_code"]),
-  z.enum(["generic_sisu_error"]),
-  z.enum(["sisu_resource_not_found"]),
   z.enum(["chapter_not_open_yet"]),
   z.enum(["authentication_required_for_exam_exercise"]),
 ])

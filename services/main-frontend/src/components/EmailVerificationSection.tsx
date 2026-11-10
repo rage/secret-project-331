@@ -15,14 +15,18 @@ import type {
   VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList, Dialog, OneTimeCodeForm } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  DescriptionList,
+  Dialog,
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+  OneTimeCodeForm,
+} from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
-
-/** The server refuses a resend for two minutes, so the button must not re-enable before then. */
-const RESEND_COOLDOWN_SECONDS = 120
 
 /** `queued` says nothing: the dialog opening, and its resend countdown, already confirm the send. */
 const OUTCOME_KEYS = {
@@ -225,7 +229,7 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
               helperText: t("message-did-not-receive-the-verification-code"),
               label: t("resend"),
               onResend: () => requestCode.mutate(),
-              cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+              cooldownSeconds: EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
               lastSentAt: pendingCode.sent_at,
               statusMessage:
                 outcome && OUTCOME_KEYS[outcome] ? (

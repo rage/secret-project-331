@@ -16,7 +16,11 @@ export { NumberField } from "./components/NumberField"
 export type { NumberFieldProps } from "./components/NumberField"
 export { OtpField } from "./components/OtpField"
 export type { OtpFieldProps } from "./components/OtpField"
-export { ONE_TIME_CODE_LENGTH, OneTimeCodeForm } from "./components/OneTimeCodeForm"
+export {
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+  ONE_TIME_CODE_LENGTH,
+  OneTimeCodeForm,
+} from "./components/OneTimeCodeForm"
 export type { OneTimeCodeFormProps, OneTimeCodeResendProps } from "./components/OneTimeCodeForm"
 export { Radio } from "./components/Radio"
 export type { RadioProps } from "./components/Radio"

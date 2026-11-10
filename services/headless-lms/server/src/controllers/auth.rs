@@ -672,8 +672,6 @@ async fn handle_production_login(
     let token = skip_authorize();
     if is_authenticated {
         if let Some(user) = authenticated_user {
-            // Test-mode and UUID logins skip the code and remember the browser instead: neither
-            // development nor the system tests have mail capture.
             if session_verification::applies_to(conn, user.id).await? {
                 return handle_email_verification(conn, &user).await;
             }

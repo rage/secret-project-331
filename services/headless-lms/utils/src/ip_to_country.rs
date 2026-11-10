@@ -63,7 +63,10 @@ impl IpToCountryMapper {
                 }
 
                 if let Some(country_code) = parts.next() {
-                    if NON_COUNTRY_CODES.contains(&country_code.to_uppercase().as_str()) {
+                    if NON_COUNTRY_CODES
+                        .iter()
+                        .any(|code| code.eq_ignore_ascii_case(country_code))
+                    {
                         continue;
                     }
                     let list = lists

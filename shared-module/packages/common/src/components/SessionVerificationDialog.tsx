@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { Dialog } from "@/shared-module/components/components/Dialog"
 import {
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
   ONE_TIME_CODE_LENGTH,
   OneTimeCodeForm,
 } from "@/shared-module/components/components/OneTimeCodeForm"
@@ -22,8 +23,6 @@ import useSessionVerificationRequired from "../hooks/useSessionVerificationRequi
 import "../init/registerAuthApiClients"
 
 const HTTP_TOO_MANY_REQUESTS = 429
-/** Must match `MIN_RESEND_INTERVAL_MINUTES` in the server's email_ownership_verification.rs. */
-const RESEND_COOLDOWN_SECONDS = 120
 
 interface EmailCodeState {
   maskedEmail: string | null
@@ -63,7 +62,8 @@ const SessionVerificationDialog: React.FC = () => {
             return {
               maskedEmail,
               lastSentAt: new Date(
-                Date.now() + (outcome.retry_after_seconds - RESEND_COOLDOWN_SECONDS) * 1000,
+                Date.now() +
+                  (outcome.retry_after_seconds - EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS) * 1000,
               ).toISOString(),
               resendNotice: t("session-verification-recently-sent", {
                 seconds: outcome.retry_after_seconds,
@@ -133,7 +133,6 @@ const SessionVerificationDialog: React.FC = () => {
   return (
     <Dialog
       open={isVerificationRequired}
-      // Not dismissible: closing is only by verifying or logging out.
       onClose={() => {}}
       showCloseButton={false}
       title={t("session-verification-title")}
@@ -168,7 +167,7 @@ const SessionVerificationDialog: React.FC = () => {
           helperText: t("session-verification-didnt-get-it"),
           label: t("session-verification-send-again"),
           onResend: () => sendCode({ body: { resend: true } }),
-          cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+          cooldownSeconds: EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
           lastSentAt: emailCode.lastSentAt,
           statusMessage: emailCode.resendNotice,
         }}

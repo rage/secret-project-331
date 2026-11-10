@@ -44,6 +44,8 @@ export interface OneTimeCodeFormProps {
 /** Digits in every code the server mails. */
 export const ONE_TIME_CODE_LENGTH = 6
 const DEFAULT_COOLDOWN_SECONDS = 60
+/** Must match `MIN_RESEND_INTERVAL_MINUTES` in the server's email_ownership_verification.rs. */
+export const EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS = 120
 
 const containerCss = css`
   display: flex;

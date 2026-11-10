@@ -57,6 +57,10 @@ reviews:
 
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
+        Input limits (maxLength, max counts) must match the backend's limit for the same field; flag a hard-coded number that differs from the server-side constant.
+
+        Autosaving forms with a debounced save must flush the pending save on unmount and before in-app navigation, not only on `beforeunload`, or edits made just before leaving are lost.
+
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
     - path: "!(services/quizzes|services/example-exercise)/**/*.tsx"
@@ -66,6 +70,10 @@ reviews:
     - path: "**/*.{ts,tsx}"
       instructions: >
         Under exactOptionalPropertyTypes, build objects with the nullability helpers instead of chained conditional spreads. `omitUndefined({ a, b })` drops keys whose value is `undefined`; use it for `...(x !== undefined ? { x } : {})`. `includeIf(condition, { a, b })` includes the whole group only when `condition` is truthy; use it for `...(condition ? { a } : {})`, including `!== null` and other truthy checks, and keep member access in its object optionally-chained (`x?.y`) since the object is built before the check. `assertNotNullOrUndefined(x)` returns `x` or throws if it is null or undefined. Import these from "@/shared-module/common/utils/nullability", or from the matching "../lib/utils/nullability" within shared-module/packages/components (which cannot depend on common).
+
+    - path: "services/main-frontend/src/**/*.{ts,tsx}"
+      instructions: >
+        Date-only values such as planned dates and deadlines are Finnish calendar days. Do not derive "today" with `new Date().toISOString().slice(0, 10)` or other UTC arithmetic; it is the previous day between midnight and 03:00 in Finland. Use date-fns on local dates or the existing date helpers.
 
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >
@@ -100,6 +108,8 @@ reviews:
 
         Avoid `ON CONFLICT (...) DO UPDATE SET updated_at = now()` that only updates the timestamp without changing other data—it erases the original updated_at value. Use `DO NOTHING` instead.
 
+        A check that guards a write (current value still matches, revision unchanged, row still editable) must run in the same transaction as the write, after the row lock is taken. A check done before `begin()` or before the lock races with concurrent writers.
+
     - path: "**/*.rs"
       instructions: >
         Always prefer returning Result types whenever possible. Use proper error handling with `?`, `match`, or `if let` instead of unwrapping.
@@ -125,6 +135,8 @@ reviews:
         - For `.map_err()` chains, use helper functions: `.map_err(as_model_error(ModelErrorType::Generic, "msg".to_string()))?`
         - For `.ok_or_else()` chains, use helper functions: `.ok_or_else(missing_model_error(ModelErrorType::NotFound, "msg".to_string()))?`
         These macros work with `format!()` for dynamic messages: `model_err!(Generic, format!("Failed: {}", detail))`
+
+        Application code must not create configuration or content rows on first use (e.g. a default chatbot configuration inserted when none exists). Such rows come from the seed in development and from an admin UI or hand-run SQL in production; when they are missing, the feature reports itself unavailable.
 
     - path: "services/headless-lms/**/*.{rs,sql}"
       instructions: >
@@ -164,9 +176,15 @@ reviews:
 
         When you come up with the table name, make sure to make it plural.
 
+        Migrations change the schema only. No content or configuration rows (email templates, chatbot configurations, default records) and no references to fixed row ids; those belong in the seed.
+
         The table, and all columns should have a comment explaining what they are for. The comment should be short and to the point don't repeat obvious things like the column name or the data type in the name. Don't add unnecessary words like "The column for the".
 
         For soft-delete tables, include `deleted_at` in unique constraints with `NULLS NOT DISTINCT`: `CREATE UNIQUE INDEX idx_name ON table(user_id, item_id, deleted_at) NULLS NOT DISTINCT;` PostgreSQL's default behavior treats NULLs as distinct, allowing multiple active rows (deleted_at IS NULL) with identical values, which breaks uniqueness. With `NULLS NOT DISTINCT`, all NULLs are treated as equal, enforcing one active row per unique key while allowing multiple soft-deleted rows with different timestamps. This enables re-inserting after soft-delete without conflicts.
+
+    - path: "**/{generated/**,.sqlx/**,*.generated.*}"
+      instructions: >
+        Generated files (sqlx query cache, OpenAPI JSON, generated API clients) must come from the generators (bin/sqlx-prepare, bin/generate-bindings), never from hand edits. Postgres enum variant lists in the sqlx cache follow the order in which migrations added the values on a fresh database.
 
     - path: "**/*"
       instructions: >

@@ -598,6 +598,13 @@ async fn get_exercise(
     .await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    // Before selecting a slide, which would be stored for the user even before the exam starts.
+    if exercise.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
     if let Some(course_id) = exercise.course_id {
         // The material and the chapter must be open to the user, as in the course material.
         crate::domain::authorization::authorize_access_to_course_exercise(
@@ -1177,6 +1184,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]

@@ -40,6 +40,20 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
 }
 
 fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
+    // libgit2 parses URLs with its own rules, so anything the two parsers may split differently
+    // could make it connect to a host other than the one checked here.
+    if url
+        .chars()
+        .any(|c| c == '\\' || c.is_ascii_control() || c.is_whitespace())
+    {
+        return None;
+    }
+    if let Some((_, rest)) = url.split_once("://") {
+        let authority = rest.split('/').next().unwrap_or_default();
+        if authority.contains(['?', '#']) || authority.matches('@').count() > 1 {
+            return None;
+        }
+    }
     if url.starts_with("https://") || url.starts_with("ssh://") {
         let parsed = url::Url::parse(url).ok()?;
         let host = parsed.host_str()?.trim_matches(['[', ']']).to_string();
@@ -586,6 +600,11 @@ mod test {
             "/var/run/secrets",
             "git://github.com/rage/x.git",
             "github.com:rage/x.git",
+            "https://1.1.1.1\\@127.0.0.1/x.git",
+            "https://1.1.1.1?@127.0.0.1/x.git",
+            "https://1.1.1.1#@127.0.0.1/x.git",
+            "https://a@b@127.0.0.1/x.git",
+            "https://github.com/rage/x.git\n",
         ] {
             assert_eq!(clone_url_host_and_port(refused), None, "{refused}");
         }

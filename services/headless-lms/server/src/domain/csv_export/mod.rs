@@ -113,7 +113,7 @@ impl<W: Write + Send + 'static> CsvWriter<W> {
 /// (names, answers) can't execute when a teacher opens the export. Numbers like `-1` stay as is.
 pub(crate) fn neutralize_formula(cell: &[u8]) -> Vec<u8> {
     let starts_formula = match cell.first() {
-        Some(b'=' | b'@' | b'\t' | b'\r') => true,
+        Some(b'=' | b'@' | b'\t' | b'\r' | b'\n') => true,
         Some(b'+' | b'-') => {
             cell.len() > 1
                 && std::str::from_utf8(cell)
@@ -303,6 +303,7 @@ mod neutralize_formula_test {
             "-2+3+cmd",
             "@SUM(A1)",
             "\tx",
+            "\n=1+1",
         ] {
             assert_eq!(
                 neutralize_formula(cell.as_bytes()),

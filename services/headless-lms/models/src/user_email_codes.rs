@@ -314,7 +314,7 @@ pub async fn check_code(
 }
 
 /// The user's most recently created code for `purpose`, spent and retired ones included.
-async fn get_latest_user_email_code(
+pub async fn get_latest_user_email_code(
     conn: &mut PgConnection,
     user_id: Uuid,
     purpose: UserEmailCodePurpose,

@@ -24,6 +24,39 @@ pub const MAX_CODE_ATTEMPTS: i32 = 5;
 
 const PURPOSE: UserEmailCodePurpose = UserEmailCodePurpose::EmailOwnershipVerification;
 
+/// Records that the user proved control of their address by typing the code for `purpose` just
+/// accepted, whatever the code was for. Keeps an earlier proof.
+///
+/// Skipped when the user's details changed after the code was mailed: the address may have changed
+/// since, and a code that went to the old one must not prove the new one.
+pub async fn record_code_as_mailbox_proof(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<()> {
+    if user_details::get_email_verification(conn, user_id)
+        .await?
+        .is_some()
+    {
+        return Ok(());
+    }
+    let Some(code) = user_email_codes::get_latest_user_email_code(conn, user_id, purpose).await?
+    else {
+        return Ok(());
+    };
+    let details = user_details::get_user_details_by_user_id(conn, user_id).await?;
+    if details.updated_at <= code.created_at {
+        user_details::set_email_verified(
+            conn,
+            user_id,
+            user_details::EmailVerificationMethod::EmailedCode,
+            Utc::now(),
+        )
+        .await?;
+    }
+    Ok(())
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum VerificationEmailOutcome {
     Queued,

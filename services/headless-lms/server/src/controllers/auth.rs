@@ -8,7 +8,7 @@ use crate::{
     domain::{
         authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
-        email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
+        email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
         session_verification::{self, EmailCodeOutcome},
     },
@@ -1311,6 +1311,12 @@ pub async fn verify_email(
             )
         })?;
 
+    email_ownership_verification::record_code_as_mailbox_proof(
+        &mut conn,
+        user.id,
+        UserEmailCodePurpose::StaffLogin,
+    )
+    .await?;
     let cookie =
         session_verification::record_verification(&mut conn, &ip_to_country_mapper, user.id, &req)
             .await?;
@@ -1548,6 +1554,12 @@ pub async fn verify_session(
     let mut response = HttpResponse::Ok();
     let result = match check {
         CodeCheck::Valid => {
+            email_ownership_verification::record_code_as_mailbox_proof(
+                &mut tx,
+                user.id,
+                UserEmailCodePurpose::NetworkVerification,
+            )
+            .await?;
             let cookie = session_verification::record_verification(
                 &mut tx,
                 &ip_to_country_mapper,

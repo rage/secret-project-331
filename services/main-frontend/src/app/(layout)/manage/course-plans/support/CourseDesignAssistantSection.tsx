@@ -161,7 +161,7 @@ function AssistantChoice({ chatbots }: { chatbots: CourseChatbotOption[] }) {
           type="submit"
           variant="primary"
           size="medium"
-          disabled={chatbotId === "" || chatbotId === assistant?.id}
+          disabled={chatbotId === "" || chatbotId === assistant?.id || mutation.isPending}
           isLoading={mutation.isPending && mutation.variables.body.course_designer_assistant}
         >
           {t("course-plans-support-assistant-save")}

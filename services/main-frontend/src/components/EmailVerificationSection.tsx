@@ -199,6 +199,7 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
       {verified || !pendingCode ? null : (
         <Dialog
           open={codeDialogOpen}
+          size="small"
           onClose={() => setCodeDialogOpen(false)}
           title={t("heading-verify-your-email")}
         >

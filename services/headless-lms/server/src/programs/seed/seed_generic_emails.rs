@@ -575,14 +575,14 @@ async fn seed_email_ownership_verification_templates(
 async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting network verification email");
 
-    let subject = Some("Confirm it's you");
+    let subject = Some("New network");
     let body = json!([
         {
             "name": "core/paragraph",
             "isValid": true,
             "clientId": "f1000000-0000-0000-0000-000000000001",
             "attributes": {
-                "content": "Hello, your account was used from a network or browser we have not seen before. To continue, enter this code:",
+                "content": "Hello, your account was used from a network we have not seen before. To continue, enter this code:",
                 "dropCap": false
             },
             "innerBlocks": []
@@ -621,14 +621,14 @@ async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> an
     )
     .await?;
 
-    let finnish_subject = Some("Vahvista kirjautumisesi");
+    let finnish_subject = Some("Uusi verkko");
     let finnish_body = json!([
         {
             "name": "core/paragraph",
             "isValid": true,
             "clientId": "f1000000-0000-0000-0000-000000000004",
             "attributes": {
-                "content": "Hei, tiliäsi käytettiin verkosta tai selaimesta, jota emme ole aiemmin nähneet. Jatka syöttämällä tämä koodi:",
+                "content": "Hei, tiliäsi käytettiin verkosta, jota emme ole aiemmin nähneet. Jatka syöttämällä tämä koodi:",
                 "dropCap": false
             },
             "innerBlocks": []

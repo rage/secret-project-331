@@ -23,6 +23,8 @@ export interface OneTimeCodeResendProps {
 export interface OneTimeCodeFormProps {
   title?: string
   message: React.ReactNode
+  /** Help under the code field, such as where to look for the mail. */
+  description?: React.ReactNode
   onSubmit: (code: string) => void | Promise<void>
   /**
    * Label of the form's own submit button. Leave out to submit from outside instead, such as a
@@ -54,6 +56,7 @@ const containerCss = css`
 
   p {
     margin: 0;
+    line-height: 1.5;
   }
 `
 
@@ -70,7 +73,6 @@ const submitButtonCss = css`
 `
 
 const resendLineCss = css`
-  text-align: center;
   font-size: var(--font-size-1);
   color: var(--color-gray-600);
 `
@@ -106,6 +108,7 @@ const resendButtonCss = css`
 export const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
   title,
   message,
+  description,
   onSubmit,
   submitLabel,
   id,
@@ -152,6 +155,7 @@ export const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
             name="code"
             control={control}
             label={t("verification-code-label")}
+            description={description}
             length={ONE_TIME_CODE_LENGTH}
             // oxlint-disable-next-line i18next/no-literal-string
             fieldSize="lg"

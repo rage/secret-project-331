@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useId, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { Dialog } from "@/shared-module/components/components/Dialog"
 import {
@@ -50,7 +50,7 @@ const SessionVerificationDialog: React.FC = () => {
 
   const requestEmailCode = useMutation({
     ...postAuthSessionStatusEmailCodeMutation(),
-    onSuccess: (result) => {
+    onSuccess: (result, request) => {
       if (result.type === "not_required") {
         void queryClient.invalidateQueries({ queryKey: getAuthSessionStatusQueryKey() })
         return
@@ -76,7 +76,11 @@ const SessionVerificationDialog: React.FC = () => {
               resendNotice: t("session-verification-daily-limit-reached"),
             }
           case "sent":
-            return { maskedEmail, lastSentAt: new Date().toISOString(), resendNotice: null }
+            return {
+              maskedEmail,
+              lastSentAt: new Date().toISOString(),
+              resendNotice: request.body.resend ? t("session-verification-code-resent") : null,
+            }
           case "already_sent":
             return { ...previous, maskedEmail, resendNotice: null }
         }
@@ -133,6 +137,7 @@ const SessionVerificationDialog: React.FC = () => {
   return (
     <Dialog
       open={isVerificationRequired}
+      size="small"
       onClose={() => {}}
       showCloseButton={false}
       title={t("session-verification-title")}
@@ -152,10 +157,22 @@ const SessionVerificationDialog: React.FC = () => {
       <OneTimeCodeForm
         id={formId}
         message={
-          emailCode.maskedEmail === null
-            ? t("session-verification-unrecognized-network")
-            : `${t("session-verification-unrecognized-network")} ${t("session-verification-code-sent-to", { email: emailCode.maskedEmail })}`
+          <>
+            {t("session-verification-unrecognized-network")}
+            {emailCode.maskedEmail !== null && (
+              <>
+                {" "}
+                <Trans
+                  t={t}
+                  i18nKey="session-verification-code-sent-to"
+                  values={{ email: emailCode.maskedEmail }}
+                  components={{ strong: <strong /> }}
+                />
+              </>
+            )}
+          </>
         }
+        description={t("session-verification-spam-hint")}
         onSubmit={async (submittedCode) => {
           // Failures are shown through the mutation's own callbacks.
           await verifyCode.mutateAsync({ body: { code: submittedCode } }).catch(() => undefined)

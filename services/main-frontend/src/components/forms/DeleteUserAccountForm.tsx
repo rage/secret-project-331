@@ -152,6 +152,7 @@ const DeleteUserAccountForm: React.FC = () => {
 
       <Dialog
         open={openDialog}
+        size="small"
         title={t("title-delete-account")}
         onClose={closeDialog}
         actions={actions}

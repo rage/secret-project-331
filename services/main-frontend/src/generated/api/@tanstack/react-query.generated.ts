@@ -170,6 +170,7 @@ import {
   getCourseDesignerPlan,
   getCourseDesignerPlans,
   getCourseDesignerSectionStatuses,
+  getCourseDesignerSupportAssistantChatbots,
   getCourseDesignerSupportPlans,
   getCourseExercises,
   getCourseExercisesAndAnswersRequiringAttentionCounts,
@@ -727,6 +728,8 @@ import type {
   GetCourseDesignerPlansResponse,
   GetCourseDesignerSectionStatusesData,
   GetCourseDesignerSectionStatusesResponse,
+  GetCourseDesignerSupportAssistantChatbotsData,
+  GetCourseDesignerSupportAssistantChatbotsResponse,
   GetCourseDesignerSupportPlansData,
   GetCourseDesignerSupportPlansResponse,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
@@ -3343,6 +3346,32 @@ export const createCourseDesignerPlanMutation = (
   }
   return mutationOptions
 }
+
+export const getCourseDesignerSupportAssistantChatbotsQueryKey = (
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData>,
+) => createQueryKey("getCourseDesignerSupportAssistantChatbots", options)
+
+/**
+ * Course chatbots a global admin can choose as the course design assistant.
+ */
+export const getCourseDesignerSupportAssistantChatbotsOptions = (
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSupportAssistantChatbotsResponse,
+    DefaultError,
+    GetCourseDesignerSupportAssistantChatbotsResponse,
+    ReturnType<typeof getCourseDesignerSupportAssistantChatbotsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSupportAssistantChatbots({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSupportAssistantChatbotsQueryKey(options),
+  })
 
 export const getCourseDesignerSupportPlansQueryKey = (
   options?: Options<GetCourseDesignerSupportPlansData>,

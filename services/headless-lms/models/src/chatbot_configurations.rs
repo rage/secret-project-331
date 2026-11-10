@@ -594,6 +594,41 @@ pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<Chatbo
     Ok(res)
 }
 
+/// A course's chatbot as offered when choosing the course design assistant.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+pub struct CourseChatbotOption {
+    pub id: Uuid,
+    pub chatbot_name: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_designer_assistant: bool,
+}
+
+/// Every live chatbot that belongs to a live course, ordered by course name and then chatbot name.
+pub async fn list_course_chatbot_options(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseChatbotOption>> {
+    let res = sqlx::query_as!(
+        CourseChatbotOption,
+        r#"
+SELECT cc.id,
+  cc.chatbot_name,
+  c.id AS course_id,
+  c.name AS course_name,
+  cc.course_designer_assistant
+FROM chatbot_configurations cc
+  JOIN courses c ON c.id = cc.course_id
+WHERE cc.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+ORDER BY c.name,
+  cc.chatbot_name
+"#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Makes this configuration the course design assistant, taking the role from any other.
 pub async fn set_course_designer_assistant(
     conn: &mut PgConnection,
@@ -626,8 +661,8 @@ WHERE id = $1
     Ok(())
 }
 
-/// Removes the course design assistant role from this configuration. Plan pages then fall back
-/// to the built-in assistant.
+/// Removes the course design assistant role from this configuration. Plan pages then show no
+/// assistant until another configuration is chosen.
 pub async fn clear_course_designer_assistant(
     conn: &mut PgConnection,
     chatbot_configuration_id: Uuid,
@@ -661,49 +696,4 @@ WHERE course_designer_assistant
     .fetch_optional(conn)
     .await?;
     Ok(res)
-}
-
-/// Inserts `input` as the course design assistant unless another configuration already holds the
-/// role, and returns whichever configuration holds it afterwards.
-///
-/// Flagging a guide course's configuration later with [set_course_designer_assistant] takes the
-/// role over, leaving this one an ordinary configuration.
-pub async fn insert_course_designer_assistant_if_missing(
-    conn: &mut PgConnection,
-    input: NewChatbotConf,
-) -> ModelResult<ChatbotConfiguration> {
-    let mut tx = conn.begin().await?;
-    if let Some(existing) = get_course_designer_assistant(&mut tx).await? {
-        tx.commit().await?;
-        return Ok(existing);
-    }
-    let inserted = insert(&mut tx, PKeyPolicy::Generate, input).await?;
-    let flagged = sqlx::query!(
-        r#"
-UPDATE chatbot_configurations
-SET course_designer_assistant = TRUE
-WHERE id = $1
-"#,
-        inserted.id
-    )
-    .execute(&mut *tx)
-    .await;
-    match flagged {
-        Ok(_) => {
-            tx.commit().await?;
-            get_by_id(conn, inserted.id).await
-        }
-        // A concurrent request flagged its own configuration first; the unique index refused ours.
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => {
-            tx.rollback().await?;
-            get_course_designer_assistant(conn).await?.ok_or_else(|| {
-                model_err!(
-                    PreconditionFailed,
-                    "The course design assistant disappeared while it was being created."
-                        .to_string()
-                )
-            })
-        }
-        Err(e) => Err(e.into()),
-    }
 }

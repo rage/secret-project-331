@@ -12,6 +12,7 @@ import type {
   CourseDesignerPlanStatus,
   CourseDesignerSupportPlan,
 } from "@/generated/api/types.generated"
+import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -30,6 +31,7 @@ import { sectionKeyLabel } from "../[id]/workspace/components/section-status/sec
 import { daysUntilPlanDate, formatPlanDate } from "../coursePlanDates"
 import { formatPlanMemberName } from "../coursePlanMembers"
 import { stageLabel } from "../coursePlanStages"
+import CourseDesignAssistantSection from "./CourseDesignAssistantSection"
 
 const introStyles = css`
   margin: 0 0 1.5rem;
@@ -200,6 +202,12 @@ function CoursePlansSupportPage() {
           />
         )}
       </QueryResult>
+      <OnlyRenderIfPermissions
+        action={{ type: "administrate" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <CourseDesignAssistantSection />
+      </OnlyRenderIfPermissions>
     </div>
   )
 }

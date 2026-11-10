@@ -351,6 +351,8 @@ import type {
   GetCourseDesignerPlansResponses,
   GetCourseDesignerSectionStatusesData,
   GetCourseDesignerSectionStatusesResponses,
+  GetCourseDesignerSupportAssistantChatbotsData,
+  GetCourseDesignerSupportAssistantChatbotsResponses,
   GetCourseDesignerSupportPlansData,
   GetCourseDesignerSupportPlansResponses,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
@@ -1043,6 +1045,7 @@ import {
   zGetCourseDesignerPlanResponse,
   zGetCourseDesignerPlansResponse,
   zGetCourseDesignerSectionStatusesResponse,
+  zGetCourseDesignerSupportAssistantChatbotsResponse,
   zGetCourseDesignerSupportPlansResponse,
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
@@ -2742,6 +2745,30 @@ export const createCourseDesignerPlan = <ThrowOnError extends boolean = true>(
       },
     },
   )
+
+/**
+ * Course chatbots a global admin can choose as the course design assistant.
+ */
+export const getCourseDesignerSupportAssistantChatbots = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData, ThrowOnError>,
+): RequestResult<
+  GetCourseDesignerSupportAssistantChatbotsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetCourseDesignerSupportAssistantChatbotsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSupportAssistantChatbotsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/support/assistant-chatbots",
+    ...options,
+  })
 
 /**
  * Read-only overview of every plan for global admins doing MOOC support.

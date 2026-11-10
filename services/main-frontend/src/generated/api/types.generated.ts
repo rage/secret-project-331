@@ -2169,6 +2169,17 @@ export type CourseBreadcrumbInfo = {
   organization_slug: string
 }
 
+/**
+ * A course's chatbot as offered when choosing the course design assistant.
+ */
+export type CourseChatbotOption = {
+  chatbot_name: string
+  course_designer_assistant: boolean
+  course_id: string
+  course_name: string
+  id: string
+}
+
 export type CourseCompletionStats = {
   course_id: string
   course_name: string
@@ -2356,12 +2367,12 @@ export type CourseDefaultReviewConfigChange = EntityChange & {
 
 export type CourseDesignerAssistantStatus = {
   /**
-   * Whether the chatbot backend is configured, i.e. whether to show the assistant at all.
+   * Whether the chatbot backend is configured and a chatbot has been chosen as the assistant.
    */
   available: boolean
   /**
-   * Whether a guide course's chatbot is the assistant, so answers can cite guide pages. When
-   * false the built-in assistant answers from the plan and general knowledge only.
+   * Whether the assistant belongs to a guide course, so answers can cite guide pages. When
+   * false the assistant answers from the plan and general knowledge only.
    */
   has_guide_course: boolean
 }
@@ -9310,6 +9321,23 @@ export type CreateCourseDesignerPlanResponses = {
 
 export type CreateCourseDesignerPlanResponse =
   CreateCourseDesignerPlanResponses[keyof CreateCourseDesignerPlanResponses]
+
+export type GetCourseDesignerSupportAssistantChatbotsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/support/assistant-chatbots"
+}
+
+export type GetCourseDesignerSupportAssistantChatbotsResponses = {
+  /**
+   * Chatbots that belong to a course
+   */
+  200: Array<CourseChatbotOption>
+}
+
+export type GetCourseDesignerSupportAssistantChatbotsResponse =
+  GetCourseDesignerSupportAssistantChatbotsResponses[keyof GetCourseDesignerSupportAssistantChatbotsResponses]
 
 export type GetCourseDesignerSupportPlansData = {
   body?: never

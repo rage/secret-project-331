@@ -45,7 +45,7 @@
     "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+    "editor.defaultFormatter": "rust-glancer.rust-glancer"
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,

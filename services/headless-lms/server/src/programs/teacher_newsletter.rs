@@ -139,12 +139,15 @@ async fn create_newsletter_items(
         );
 
         let text = as_text(
+            base_url,
+            course.id,
             &course.name,
             returned_exercises_count,
             completed_course_count,
             started_course_count,
             flagged_cheaters_count,
             unread_feedback_count,
+            proposal_count,
         );
 
         create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;
@@ -164,8 +167,14 @@ fn as_html(
     proposal_count: i64,
 ) -> String {
     format!(
-        r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2><table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed"><tbody><tr>{}{}{}<tr>{}{}{}</tr></tbody></table>"#,
-        course_name,
+        r#"
+        <h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{course_name}</h2>
+        <table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed; border-bottom: 3px dashed #EBEDEE; padding-bottom: 24px;">
+            <tbody>
+                <tr>{}{}{}</tr>
+                <tr>{}{}{}</tr>
+            </tbody>
+        </table>"#,
         warning_box_html(
             base_url,
             flagged_cheaters_count,
@@ -191,15 +200,47 @@ fn as_html(
 }
 
 fn as_text(
+    base_url: &str,
+    course_id: Uuid,
     course_name: &String,
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
     flagged_cheaters_count: i64,
     unread_feedback_count: i64,
+    proposal_count: i64,
 ) -> String {
     format!(
-        "{course_name}\n\n* {returned_exercises_count} students returned exercises\n* {completed_course_count} students completed the course\n* {started_course_count} students started the course\n* {flagged_cheaters_count} students flagged as cheaters\n* {unread_feedback_count} unread feedback\n\n"
+        "{}\n
+        * {}
+        * {}
+        * {}
+        * {} students returned exercises
+        * {} students completed the course
+        * {} students started the course\n
+        ",
+        course_name,
+        conditional_info_text(
+            base_url,
+            flagged_cheaters_count,
+            "students flagged as cheaters",
+            format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
+        ),
+        conditional_info_text(
+            base_url,
+            unread_feedback_count,
+            "unread feedback",
+            format!("manage/courses/{course_id}/feedback/feedback/unread").as_str()
+        ),
+        conditional_info_text(
+            base_url,
+            proposal_count,
+            "pending proposals",
+            format!("manage/courses/{course_id}/feedback/change-requests/pending").as_str()
+        ),
+        returned_exercises_count,
+        completed_course_count,
+        started_course_count
     )
 }
 
@@ -233,6 +274,14 @@ fn regular_box_html(count: i64, label: &str) -> String {
         </td>
         "#
     )
+}
+
+fn conditional_info_text(base_url: &str, count: i64, label: &str, link: &str) -> String {
+    if count > 0 {
+        format!("{count} {label}. Take action: {base_url}/{link}")
+    } else {
+        format!("{count} {label}")
+    }
 }
 
 pub fn get_newsletter_period() -> (String, String) {

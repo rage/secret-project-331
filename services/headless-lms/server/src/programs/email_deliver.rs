@@ -476,13 +476,65 @@ async fn build_teacher_newsletter_email_content(
     let newsletter_items =
         get_newsletter_items(conn, &course_ids, &period_start, &period_end).await?;
 
+    let mut unread_feedback_count = 0;
+    let mut pending_proposals_count = 0;
+    let mut flagged_cheaters_count = 0;
+
+    for course_id in course_ids {
+        unread_feedback_count +=
+            headless_lms_models::feedback::get_feedback_count_for_course(conn, course_id)
+                .await?
+                .unread;
+        pending_proposals_count +=
+            headless_lms_models::proposed_page_edits::get_proposal_count_for_course(
+                conn, course_id,
+            )
+            .await?
+            .pending;
+        flagged_cheaters_count +=
+            headless_lms_models::suspected_cheaters::get_count_in_course_by_status(
+                conn,
+                course_id,
+                headless_lms_models::suspected_cheaters::SuspectedCheaterStatus::Flagged,
+            )
+            .await?;
+    }
+
+    let newsletter_summary = format!(
+        r#"
+        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>
+        <table style="width: 100%;">
+            <tbody>
+                <tr>
+                    <td style="border: none; background: rgba(255, 212, 68, 0.12); border-left: 3px solid #ffd444;">
+                        <h2 style="margin-top: 0;">Items waiting for review: </h2>
+                        <ul>
+                            <li>{unread_feedback_count} unread feedback</li>
+                            <li>{pending_proposals_count} pending proposals</li>
+                            <li>{flagged_cheaters_count} flagged cheaters</li>
+                        </ul>
+                        <p style="font-weight: bold; margin-bottom: 0;">See individual courses below for details</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        "#
+    );
+
+    // let newsletter_summary = format!(
+    //     r#"<h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>"#
+    // );
+
     if !courses.is_empty() {
         let (html, text): (String, String) = newsletter_items
             .into_iter()
             .map(|i| (i.as_html, i.as_text))
             .unzip();
 
-        Ok(TeacherNewsletterContent { html, text })
+        Ok(TeacherNewsletterContent {
+            html: format!("{newsletter_summary}\n{html}"),
+            text,
+        })
     } else {
         Ok(TeacherNewsletterContent {
             html: "".to_string(),

@@ -917,6 +917,11 @@ export type AdminMoocfiCompletion = {
    */
   raw_grade?: string | null
   /**
+   * The earlier, registered completion with the same grade and tier that keeps this one from
+   * being registered.
+   */
+  registered_equivalent_moocfi_completion_id?: string | null
+  /**
    * When another organization's registration of it was first seen on mooc.fi.
    */
   registered_upstream_at?: string | null
@@ -4969,6 +4974,7 @@ export type MoocfiCompletionStatus =
   | "before_cutoff"
   | "not_eligible"
   | "registered_on_moocfi"
+  | "equivalent_registered"
   | "no_credit_unit"
   | "removed_from_moocfi"
 

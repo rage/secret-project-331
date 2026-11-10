@@ -61,7 +61,8 @@ const TIERED_COMPLETIONS: MockMoocfiCompletionSeed[] = [
     ],
   }),
   tiered(NO_CREDIT_UNIT_ID, { tier: 1 }),
-  tiered(REMOVED_ID, { tier: 3 }),
+  // Dated before the registered tier 3 completion, which would otherwise make it a repeat.
+  tiered(REMOVED_ID, { tier: 3, completion_date: "2025-06-01T12:00:00Z" }),
 ]
 
 /** Matches the row the seed stored, so the sync does not mark it removed. */

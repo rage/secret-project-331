@@ -30,6 +30,9 @@ struct PendingMove {
     submitted_at: Option<DateTime<Utc>>,
     first_failed_at: Option<DateTime<Utc>>,
     is_withdrawn: bool,
+    /// Withdrawn because an earlier completion with the same grade and tier is registered, which
+    /// the cancel names for admins.
+    has_registered_equivalent: bool,
     /// A mooc.fi grade we cannot read, which blocks the row for an admin rather than leaving it
     /// pending: only a fix on mooc.fi clears it.
     grade_unrecognised: bool,
@@ -257,6 +260,11 @@ fn precondition_move(pending: &PendingMove, target: CreditRegistrationState) -> 
             "Found still submitting after a restart, so the import may or may not have been \
              processed. Only verification may touch it from here.",
         ),
+        State::Cancelled if pending.has_registered_equivalent => UnaskedMove::new(
+            to,
+            "An earlier completion with the same grade and tier is already registered, and nothing \
+             had been submitted.",
+        ),
         State::Cancelled => UnaskedMove::new(
             to,
             "The completion no longer exists and nothing had been submitted.",
@@ -330,6 +338,7 @@ WITH facts AS (
       AND cr.grade_id IS NOT NULL
     ) AS has_payload_snapshot,
     p.is_withdrawn,
+    s.registered_equivalent_moocfi_completion_id IS NOT NULL AS has_registered_equivalent,
     p.grade_unrecognised,
     p.completion_eligible AS eligible,
     p.has_verified_student_number AS has_student_number,
@@ -417,6 +426,7 @@ SELECT id,
   submitted_at,
   first_failed_at,
   is_withdrawn AS "is_withdrawn!",
+  has_registered_equivalent AS "has_registered_equivalent!",
   grade_unrecognised AS "grade_unrecognised!",
   eligible AS "eligible!",
   has_student_number AS "has_student_number!",
@@ -509,6 +519,7 @@ LIMIT $1
             submitted_at: row.submitted_at,
             first_failed_at: row.first_failed_at,
             is_withdrawn: row.is_withdrawn,
+            has_registered_equivalent: row.has_registered_equivalent,
             grade_unrecognised: row.grade_unrecognised,
             preconditions: PendingPreconditions {
                 completion_eligible: row.eligible,

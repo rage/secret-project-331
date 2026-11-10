@@ -24,6 +24,8 @@ DROP VIEW credit_registration_registrable_completions;
 DROP VIEW credit_registration_eligible_completions;
 DROP VIEW credit_registration_active_units;
 DROP VIEW credit_registration_subjects;
+DROP FUNCTION moocfi_registered_equivalent(external_completions);
+DROP FUNCTION moocfi_comparable_grade(external_completions);
 
 -- Everything about mooc.fi rows goes; the restored NOT NULL columns have nothing to hold for them.
 DELETE FROM credit_registration_account_linking_emails

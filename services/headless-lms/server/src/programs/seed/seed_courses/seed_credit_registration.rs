@@ -114,6 +114,8 @@ pub const MOOCFI_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0011_4a5e_9e6e_c0d
 /// Tiers 2 and 3 register different course codes; tier 1 has no target.
 pub const MOOCFI_TIERED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0012_4a5e_9e6e_c0de00000012);
 pub const MOOCFI_PAUSED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0013_4a5e_9e6e_c0de00000013);
+/// Graded numerically, unlike the other pass/fail targets.
+pub const MOOCFI_GRADED_COURSE_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0014_4a5e_9e6e_c0de00000014);
 
 pub const MOOCFI_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a01_4a5e_9e6e_c0de00000a01);
 pub const MOOCFI_TIER_2_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a02_4a5e_9e6e_c0de00000a02);
@@ -121,6 +123,7 @@ pub const MOOCFI_TIER_3_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a03_4a5e_9
 /// Enabled but paused, with one completion and ledger row nothing may move, which also makes its
 /// cutoff fixed.
 pub const MOOCFI_PAUSED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a04_4a5e_9e6e_c0de00000a04);
+pub const MOOCFI_GRADED_TARGET_ID: Uuid = Uuid::from_u128(0xc5ed17ea_0a05_4a5e_9e6e_c0de00000a05);
 /// The paused target's completion on mooc.fi. A spec must seed the mock with it before syncing, or
 /// the sync marks the row removed upstream.
 pub const MOOCFI_PAUSED_COMPLETION_ID: Uuid =
@@ -1227,6 +1230,19 @@ async fn seed_moocfi(
                 None,
                 CRS_MOOCFI_PAUSED_101,
             ),
+        ),
+        (
+            MOOCFI_GRADED_TARGET_ID,
+            ExternalCreditTargetConfiguration {
+                grading: ExternalGrading::Numeric,
+                ..target(
+                    MOOCFI_GRADED_COURSE_ID,
+                    MOOCFI_GRADED_COURSE_SLUG,
+                    "Graded course",
+                    None,
+                    CRS_MOOCFI_GRADED_101,
+                )
+            },
         ),
     ] {
         external_credit_targets::insert(conn, PKeyPolicy::Fixed(id), &configuration).await?;

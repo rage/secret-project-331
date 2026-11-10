@@ -330,6 +330,58 @@ WHERE deleted_at IS NULL
 COMMENT ON COLUMN credit_registration_account_linking_emails.course_id IS 'The course whose registration flow triggered the mail. NULL when a mooc.fi target''s did.';
 COMMENT ON COLUMN credit_registration_account_linking_emails.external_credit_target_id IS 'The mooc.fi target whose registration flow triggered the mail, in place of course_id. Deduplicated as a course is.';
 
+CREATE FUNCTION moocfi_comparable_grade(completion external_completions) RETURNS TEXT LANGUAGE sql IMMUTABLE AS $$
+SELECT CASE
+    WHEN completion.raw_grade IS NULL
+    OR completion.raw_grade ~ '^\s*$' THEN 'pass'
+    WHEN completion.passed IS NULL THEN NULL
+    WHEN NOT completion.passed THEN 'fail'
+    WHEN completion.grade IS NULL THEN 'pass'
+    ELSE completion.grade::TEXT
+  END $$;
+
+COMMENT ON FUNCTION moocfi_comparable_grade(external_completions) IS 'The completion''s grade as ''pass'', ''fail'', ''1'' to ''5'', or NULL when not recognised, for telling whether two completions have the same grade. A missing grade is a pass whatever the target''s grading. Must match normalizeGrade in mooc.fi''s frontend, which makes the same call on the certificate page.';
+
+CREATE FUNCTION moocfi_registered_equivalent(completion external_completions) RETURNS UUID LANGUAGE sql STABLE AS $$
+SELECT earlier.moocfi_completion_id
+FROM external_completions earlier
+  JOIN external_credit_targets earlier_target ON earlier_target.id = earlier.external_credit_target_id
+  JOIN external_credit_targets target ON target.id = completion.external_credit_target_id
+WHERE earlier.user_id = completion.user_id
+  AND earlier_target.moocfi_course_id = target.moocfi_course_id
+  AND earlier.moocfi_completion_id <> completion.moocfi_completion_id
+  AND earlier.completion_date <= completion.completion_date
+  AND earlier.deleted_at IS NULL
+  AND earlier.upstream_missing_at IS NULL
+  AND earlier.tier IS NOT DISTINCT FROM completion.tier
+  AND moocfi_comparable_grade(earlier) IS NOT DISTINCT FROM moocfi_comparable_grade(completion)
+  AND (
+    earlier.registered_upstream_at IS NOT NULL
+    OR earlier.reported_at IS NOT NULL
+    OR EXISTS (
+      SELECT 1
+      FROM credit_registrations cr
+      WHERE cr.external_completion_id = earlier.id
+        AND cr.deleted_at IS NULL
+        AND cr.state IN ('registered', 'duplicate', 'not_improved')
+    )
+  )
+  AND completion.registered_upstream_at IS NULL
+  AND completion.reported_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM external_completions own
+      JOIN credit_registrations cr ON cr.external_completion_id = own.id
+    WHERE own.moocfi_completion_id = completion.moocfi_completion_id
+      AND cr.deleted_at IS NULL
+      AND cr.state IN ('registered', 'duplicate', 'not_improved')
+  )
+ORDER BY earlier.completion_date,
+  earlier.moocfi_completion_id
+LIMIT 1 $$;
+
+COMMENT ON FUNCTION moocfi_registered_equivalent(external_completions) IS 'The mooc.fi id of an equivalent of the completion that is already registered, which courses must not register again: an earlier completion of the same mooc.fi course by the same student with the same tier and grade, registered on mooc.fi by any organization or by a success of ours not yet reported. Grades compare by moocfi_comparable_grade. One dated the same moment counts as earlier. NULL when there is none, or when the completion is registered itself.';
+
 -- Each branch reads one table, with unit facts in scalar subqueries: a branch with a join is not
 -- flattened into the union, and then a lookup by subject_id scans every completion.
 CREATE VIEW credit_registration_subjects AS
@@ -353,6 +405,7 @@ SELECT cmc.id AS subject_id,
   AND NOT cmc.needs_to_be_reviewed AS fully_eligible,
   cmc.deleted_at IS NOT NULL AS is_withdrawn,
   cmc.register_credits_via_suotar AS is_on_pipeline,
+  NULL::uuid AS registered_equivalent_moocfi_completion_id,
   cmc.created_at,
   cmc.updated_at,
   cmc.updated_at AS revised_at,
@@ -414,6 +467,7 @@ SELECT ec.id AS subject_id,
   ec.deleted_at IS NOT NULL
   OR ec.upstream_missing_at IS NOT NULL
   OR ec.registered_upstream_at IS NOT NULL
+  OR moocfi_registered_equivalent(ec) IS NOT NULL
   OR EXISTS (
     SELECT 1
     FROM external_credit_targets t
@@ -428,6 +482,7 @@ SELECT ec.id AS subject_id,
       )
   ) AS is_withdrawn,
   TRUE AS is_on_pipeline,
+  moocfi_registered_equivalent(ec) AS registered_equivalent_moocfi_completion_id,
   ec.created_at,
   ec.updated_at,
   ec.revised_at,
@@ -463,8 +518,9 @@ COMMENT ON VIEW credit_registration_subjects IS 'Every completion a ledger row c
 COMMENT ON COLUMN credit_registration_subjects.kind IS '''course_module'' or ''mooc_fi''.';
 COMMENT ON COLUMN credit_registration_subjects.passed IS 'NULL for a mooc.fi completion whose grade was not recognised.';
 COMMENT ON COLUMN credit_registration_subjects.fully_eligible IS 'Passed and ECTS-eligible, and for a course module completion also not waiting on a prerequisite module or a suspected-cheating review.';
-COMMENT ON COLUMN credit_registration_subjects.is_withdrawn IS 'The completion is no longer ours to register: deleted, or for mooc.fi also gone upstream, registered by another organization, dated before the cutoff, on a deleted target, or with a tier outside the target''s range. Withdrawal cancels rows not yet submitted.';
+COMMENT ON COLUMN credit_registration_subjects.is_withdrawn IS 'The completion is no longer ours to register: deleted, or for mooc.fi also gone upstream, registered by another organization or through a registered equivalent, dated before the cutoff, on a deleted target, or with a tier outside the target''s range. Withdrawal cancels rows not yet submitted.';
 COMMENT ON COLUMN credit_registration_subjects.is_on_pipeline IS 'Registered by this pipeline rather than the pull path. Always true for mooc.fi completions: the pull already excludes everything at or after the cutoff.';
+COMMENT ON COLUMN credit_registration_subjects.registered_equivalent_moocfi_completion_id IS 'See moocfi_registered_equivalent. Always NULL for a course module completion.';
 COMMENT ON COLUMN credit_registration_subjects.revised_at IS 'When the completion last changed in a way that could matter to its registration. For a course module completion its updated_at.';
 COMMENT ON COLUMN credit_registration_subjects.course_name IS 'NULL for a mooc.fi completion; unit_name names it.';
 

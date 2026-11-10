@@ -90,10 +90,12 @@ pub const RETRY_COURSE_SLUG: &str = "credit-registration-retry";
 pub const MOOCFI_COURSE_SLUG: &str = "credit-registration-moocfi";
 pub const MOOCFI_TIERED_COURSE_SLUG: &str = "credit-registration-moocfi-tiered";
 pub const MOOCFI_PAUSED_COURSE_SLUG: &str = "credit-registration-moocfi-paused";
+pub const MOOCFI_GRADED_COURSE_SLUG: &str = "credit-registration-moocfi-graded";
 pub const CRS_MOOCFI_101: &str = "CRS-MOOCFI-101";
 pub const CRS_MOOCFI_TIER_2: &str = "CRS-MOOCFI-202";
 pub const CRS_MOOCFI_TIER_3: &str = "CRS-MOOCFI-303";
 pub const CRS_MOOCFI_PAUSED_101: &str = "CRS-MOOCFI-PAUSED-101";
+pub const CRS_MOOCFI_GRADED_101: &str = "CRS-MOOCFI-GRADED-101";
 
 /// A Sisu person, and the seeded account it belongs to if any. The database rows and the pushed
 /// persons must carry the same identifiers, so both are built from here.
@@ -486,6 +488,13 @@ pub fn mock_suotar_world() -> WorldPush {
         .map(|(course_code, course_slug)| {
             CourseUnitShape::new(course_code, course_slug, 5.0).build(&wide)
         }),
+    );
+    course_units.push(
+        CourseUnitShape {
+            grade_scale_id: "sis-0-5",
+            ..CourseUnitShape::new(CRS_MOOCFI_GRADED_101, MOOCFI_GRADED_COURSE_SLUG, 5.0)
+        }
+        .build(&wide),
     );
     course_units.extend(STATES_COURSE_CODES.iter().map(|course_code| {
         CourseUnitShape::new(course_code, STATES_COURSE_SLUG, 5.0).build(&wide)

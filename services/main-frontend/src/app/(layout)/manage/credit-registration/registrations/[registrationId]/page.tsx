@@ -477,6 +477,18 @@ const MoocfiCompletionSection: React.FC<{ completion: AdminMoocfiCompletion }> =
           },
         ]
       : []),
+    ...(completion.registered_equivalent_moocfi_completion_id
+      ? [
+          {
+            label: t("label-moocfi-registered-equivalent"),
+            value: (
+              <span className={codeValueCss}>
+                {completion.registered_equivalent_moocfi_completion_id}
+              </span>
+            ),
+          },
+        ]
+      : []),
   ]
 
   const report = completion.registration_report

@@ -16,7 +16,7 @@
  * | moocfi-handoff          | moocfi-student-1   | delegated                |
  * | moocfi-pipeline         | moocfi-student-2   | delegated                |
  * | moocfi-student-page     | moocfi-student-3   | delegated, tiered, paused |
- * | moocfi-cutoff-split     | moocfi-student-4   | delegated                |
+ * | moocfi-cutoff-split     | moocfi-student-4   | delegated, tiered, graded |
  * | moocfi-certificate      | moocfi-student-5   | delegated                |
  * | moocfi-admin            | none               | paused (read only), its own |
  */
@@ -56,6 +56,7 @@ export const MOOCFI_TIERED_COURSE: MoocfiCourse = {
   id: "c5ed17ea-0012-4a5e-9e6e-c0de00000012",
   slug: "credit-registration-moocfi-tiered",
 }
+export const MOOCFI_TIER_2_TARGET_ID = "c5ed17ea-0a02-4a5e-9e6e-c0de00000a02"
 export const MOOCFI_TIER_2_TARGET_NAME = "Tiered course, intermediate"
 
 /** Enabled but paused, with a pending row for `moocfi-student-3` that nothing moves. */
@@ -69,6 +70,13 @@ export const MOOCFI_PAUSED_COMPLETION_ID = "c5ed17ea-0a11-4a5e-9e6e-c0de00000a11
 export const MOOCFI_PAUSED_REGISTRATION_ID = "c5ed17ea-0a21-4a5e-9e6e-c0de00000a21"
 /** The raw grade the seed stored on the paused target's completion. */
 export const MOOCFI_PAUSED_RAW_GRADE = "hyväksytty"
+
+/** Untiered and graded 0–5, unlike the pass/fail targets above. */
+export const MOOCFI_GRADED_COURSE: MoocfiCourse = {
+  id: "c5ed17ea-0014-4a5e-9e6e-c0de00000014",
+  slug: "credit-registration-moocfi-graded",
+}
+export const MOOCFI_GRADED_TARGET_ID = "c5ed17ea-0a05-4a5e-9e6e-c0de00000a05"
 
 export interface MoocfiStudent {
   email: string
@@ -240,6 +248,7 @@ export type MoocfiCompletionStatus =
   | "before_cutoff"
   | "not_eligible"
   | "registered_on_moocfi"
+  | "equivalent_registered"
   | "no_credit_unit"
   | "removed_from_moocfi"
 

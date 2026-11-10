@@ -17623,6 +17623,11 @@
             "type": ["string", "null"],
             "description": "mooc.fi's grade verbatim, before parsing."
           },
+          "registered_equivalent_moocfi_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The earlier, registered completion with the same grade and tier that keeps this one from\nbeing registered."
+          },
           "registered_upstream_at": {
             "type": ["string", "null"],
             "format": "date-time",
@@ -27615,6 +27620,7 @@
           "before_cutoff",
           "not_eligible",
           "registered_on_moocfi",
+          "equivalent_registered",
           "no_credit_unit",
           "removed_from_moocfi"
         ]

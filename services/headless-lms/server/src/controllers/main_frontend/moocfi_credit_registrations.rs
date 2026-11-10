@@ -80,6 +80,9 @@ pub enum MoocfiCompletionStatus {
     NotEligible,
     /// Another organization has registered it on mooc.fi.
     RegisteredOnMoocfi,
+    /// An earlier completion with the same grade and tier is registered, so this one is not
+    /// registered again.
+    EquivalentRegistered,
     /// No target registers the completion's tier.
     NoCreditUnit,
     /// Taken up earlier, but mooc.fi no longer has it.
@@ -245,6 +248,11 @@ pub async fn get_my_moocfi_credit_registrations(
             moocfi_course_id,
         )
         .await?;
+    let registered_equivalents = external_completions::get_registered_equivalents(
+        &mut conn,
+        &stored.iter().map(|row| row.id).collect::<Vec<_>>(),
+    )
+    .await?;
     let moocfi_completion_ids: Vec<Uuid> =
         stored.iter().map(|row| row.moocfi_completion_id).collect();
     let justifications =
@@ -287,7 +295,11 @@ pub async fn get_my_moocfi_credit_registrations(
             moocfi_completion_id: row.moocfi_completion_id,
             completion_date: row.completion_date,
             tier: row.tier,
-            status: held_by_pause(stored_status(row, target), target, student_facing_status),
+            status: held_by_pause(
+                stored_status(row, target, registered_equivalents.contains_key(&row.id)),
+                target,
+                student_facing_status,
+            ),
             external_completion_id: Some(row.id),
             credit_unit: target.map(MoocfiCreditUnit::from),
             credit_registration_id: registration_state.map(|state| state.credit_registration_id),
@@ -470,6 +482,7 @@ fn preferred_rows<'a>(
 fn stored_status(
     row: &ExternalCompletion,
     target: Option<&ExternalCreditTarget>,
+    has_registered_equivalent: bool,
 ) -> MoocfiCompletionStatus {
     if row.upstream_missing_at.is_some() {
         return MoocfiCompletionStatus::RemovedFromMoocfi;
@@ -487,6 +500,9 @@ fn stored_status(
     }
     if row.completion_date < target.delegated_at {
         return MoocfiCompletionStatus::BeforeCutoff;
+    }
+    if has_registered_equivalent {
+        return MoocfiCompletionStatus::EquivalentRegistered;
     }
     MoocfiCompletionStatus::RegisteringOnCourses
 }

@@ -462,6 +462,7 @@ export const zAdminMoocfiRegistrationReport = z.object({
 export const zAdminMoocfiCompletion = z.object({
   moocfi_completion_id: z.uuid(),
   raw_grade: z.string().nullish(),
+  registered_equivalent_moocfi_completion_id: z.uuid().nullish(),
   registered_upstream_at: z.iso.datetime().nullish(),
   registration_report: zAdminMoocfiRegistrationReport,
   tier: z
@@ -3925,6 +3926,7 @@ export const zMoocfiCompletionStatus = z.enum([
   "before_cutoff",
   "not_eligible",
   "registered_on_moocfi",
+  "equivalent_registered",
   "no_credit_unit",
   "removed_from_moocfi",
 ])

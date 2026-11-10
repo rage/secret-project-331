@@ -1,6 +1,6 @@
 //! mooc.fi completions as courses last read them, the subjects of mooc.fi credit registrations.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use headless_lms_utils::services::moocfi::DelegatedCompletion;
 use utoipa::ToSchema;
@@ -259,8 +259,9 @@ pub struct UpstreamCompletions<'a> {
 /// Brings the student's stored rows for one mooc.fi course in line with a fresh lookup.
 ///
 /// A completion gets a new row only under the live target its tier maps to, and only when it is
-/// ECTS-eligible and dated on or after the target's cutoff. Existing rows are always updated, on
-/// whichever target they are, so a completion that turned ineligible, moved before the cutoff or
+/// ECTS-eligible and dated on or after the target's cutoff, or registered on mooc.fi, which a later
+/// completion with the same grade and tier is checked against. Existing rows are always updated,
+/// on whichever target they are, so a completion that turned ineligible, moved before the cutoff or
 /// changed tier is withdrawn by the subjects view rather than left stale. Stored completions absent
 /// from the answer are marked missing upstream.
 pub async fn sync_from_upstream(
@@ -284,7 +285,8 @@ pub async fn sync_from_upstream(
             });
             let is_new_and_ours = completion.eligible_for_ects == Some(true)
                 && completion.effective_date() >= target.delegated_at;
-            if (has_row || is_new_and_ours)
+            let is_registered = !completion.registrations.is_empty();
+            if (has_row || is_new_and_ours || is_registered)
                 && upsert(
                     &mut tx,
                     &completion_facts(&upstream, completion, target.id, target.grading),
@@ -393,6 +395,31 @@ ORDER BY cr.external_completion_id,
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// For each of the completions that has one, the mooc.fi id of its registered equivalent: an
+/// earlier completion with the same grade and tier that is already registered, which keeps this one
+/// from being registered again. See the `moocfi_registered_equivalent` SQL function.
+pub async fn get_registered_equivalents(
+    conn: &mut PgConnection,
+    external_completion_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT ec.id,
+  moocfi_registered_equivalent(ec) AS "registered_equivalent_moocfi_completion_id!"
+FROM external_completions ec
+WHERE ec.id = ANY($1)
+  AND moocfi_registered_equivalent(ec) IS NOT NULL
+        "#,
+        external_completion_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.id, row.registered_equivalent_moocfi_completion_id))
+        .collect())
 }
 
 /// Whether a target with `tiers` registers a completion of `tier`.

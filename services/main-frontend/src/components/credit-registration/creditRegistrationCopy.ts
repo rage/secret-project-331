@@ -434,6 +434,10 @@ const MOOCFI_COMPLETION_STATUS_KEYS = {
     heading: "credit-registration-moocfi-registered-on-moocfi-heading",
     body: "credit-registration-moocfi-registered-on-moocfi",
   },
+  equivalent_registered: {
+    heading: "credit-registration-moocfi-registered-on-moocfi-heading",
+    body: "credit-registration-moocfi-equivalent-registered",
+  },
   no_credit_unit: {
     heading: "credit-registration-moocfi-no-credit-unit-heading",
     body: "credit-registration-moocfi-no-credit-unit",

@@ -303,6 +303,9 @@ pub struct AdminMoocfiCompletion {
     pub upstream_missing_at: Option<DateTime<Utc>>,
     /// When another organization's registration of it was first seen on mooc.fi.
     pub registered_upstream_at: Option<DateTime<Utc>>,
+    /// The earlier, registered completion with the same grade and tier that keeps this one from
+    /// being registered.
+    pub registered_equivalent_moocfi_completion_id: Option<Uuid>,
     pub registration_report: AdminMoocfiRegistrationReport,
 }
 
@@ -752,6 +755,13 @@ pub async fn get_credit_registration_for_admin(
                     &mut conn, id,
                 )
                 .await?;
+            let registered_equivalent_moocfi_completion_id =
+                models::external_completions::get_registered_equivalents(
+                    &mut conn,
+                    &[external_completion_id],
+                )
+                .await?
+                .remove(&external_completion_id);
             Some(AdminMoocfiCompletion {
                 moocfi_completion_id: completion.moocfi_completion_id,
                 raw_grade: completion.raw_grade,
@@ -759,6 +769,7 @@ pub async fn get_credit_registration_for_admin(
                 upstream_checked_at: completion.upstream_checked_at,
                 upstream_missing_at: completion.upstream_missing_at,
                 registered_upstream_at: completion.registered_upstream_at,
+                registered_equivalent_moocfi_completion_id,
                 registration_report: AdminMoocfiRegistrationReport {
                     is_skipped: report.is_skipped,
                     reported_at: report.reported_at,

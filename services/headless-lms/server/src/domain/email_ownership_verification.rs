@@ -24,6 +24,30 @@ pub const MAX_CODE_ATTEMPTS: i32 = 5;
 
 const PURPOSE: UserEmailCodePurpose = UserEmailCodePurpose::EmailOwnershipVerification;
 
+/// Records that the user proved control of their address by typing the code for `purpose` just
+/// accepted, whatever the code was for. Keeps an earlier proof.
+///
+/// Skipped when the user's details changed after the code was mailed: the address may have changed
+/// since, and a code that went to the old one must not prove the new one.
+pub async fn record_code_as_mailbox_proof(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<()> {
+    let Some(code) = user_email_codes::get_latest_user_email_code(conn, user_id, purpose).await?
+    else {
+        return Ok(());
+    };
+    user_details::set_email_verified_unless_changed_since(
+        conn,
+        user_id,
+        user_details::EmailVerificationMethod::EmailedCode,
+        code.created_at,
+    )
+    .await?;
+    Ok(())
+}
+
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum VerificationEmailOutcome {
     Queued,
@@ -58,29 +82,48 @@ pub async fn queue_verification_email(
         return Ok(VerificationEmailOutcome::RecentlySent);
     }
 
-    // The lookup falls back to English, so no row means the deployment has no template at all.
+    mail_new_code(
+        conn,
+        user_id,
+        PURPOSE,
+        EmailTemplateType::VerifyEmailAddress,
+        language,
+    )
+    .await?;
+    Ok(VerificationEmailOutcome::Queued)
+}
+
+/// Mints a code for `purpose` and queues the `template_type` mail that carries it.
+///
+/// Errors when the deployment has no such template: the lookup falls back to English, so no row
+/// means none at all.
+pub async fn mail_new_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+    template_type: EmailTemplateType,
+    language: &str,
+) -> anyhow::Result<()> {
     let template = email_templates::get_generic_email_template_by_type_and_language(
         conn,
-        EmailTemplateType::VerifyEmailAddress,
+        template_type,
         language,
     )
     .await
     .map_err(|e| {
         anyhow::anyhow!(
-            "Email ownership verification is enabled but the verify_email_address email template is missing: {}",
+            "The {template_type:?} email template is missing: {}",
             e.message()
         )
     })?;
-
     let mut tx = conn.begin().await?;
     let code = user_email_codes::generate_code();
-    user_email_codes::insert_user_email_code(&mut tx, user_id, PURPOSE, &code).await?;
+    user_email_codes::insert_user_email_code(&mut tx, user_id, purpose, &code).await?;
     // To the account, not to a stored address: the sender resolves the address and looks the code up
     // at send time, so nothing here holds a copy of either.
     email_deliveries::insert_email_delivery(&mut tx, user_id, template.id).await?;
     tx.commit().await?;
-
-    Ok(VerificationEmailOutcome::Queued)
+    Ok(())
 }
 
 /// Queues the mail without letting a failure propagate: no signup or email change may be rolled back

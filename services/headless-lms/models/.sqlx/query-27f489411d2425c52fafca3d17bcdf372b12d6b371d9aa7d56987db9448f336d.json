@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE staff_security_verified_networks\nSET expires_at = now() + interval '6 months',\n  verified_by_browser_id = $3,\n  verified_at = now()\nWHERE user_id = $1\n  AND expires_at > now()\n  AND country IS NOT DISTINCT FROM $4\n  AND (\n    ($4::text IS NOT NULL AND network >>= $2::text::inet)\n    OR network = network(set_masklen($2::text::inet, $5))\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "27f489411d2425c52fafca3d17bcdf372b12d6b371d9aa7d56987db9448f336d"
+}

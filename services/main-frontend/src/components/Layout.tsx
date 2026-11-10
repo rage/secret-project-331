@@ -10,6 +10,7 @@ import React from "react"
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
@@ -77,6 +78,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </main>
       </div>
       <Footer privacyLinks={customPrivacyLinks} />
+      <SessionVerificationDialog />
     </>
   )
 

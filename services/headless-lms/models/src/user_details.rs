@@ -572,6 +572,35 @@ WHERE user_id = $1
     Ok(())
 }
 
+/// Records a proof of control from a code mailed at `code_created_at`, unless the account already
+/// has one or its details changed since then. Returns whether the proof was recorded.
+///
+/// One conditional write, so an address change committing alongside cannot slip between the check
+/// and the write. Compare [`set_email_verified`], which records unconditionally.
+pub async fn set_email_verified_unless_changed_since(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    method: EmailVerificationMethod,
+    code_created_at: DateTime<Utc>,
+) -> ModelResult<bool> {
+    let result = sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = now(),
+  email_verified_method = $2
+WHERE user_id = $1
+  AND email_verified_at IS NULL
+  AND updated_at <= $3
+"#,
+        user_id,
+        method as EmailVerificationMethod,
+        code_created_at,
+    )
+    .execute(conn)
+    .await?;
+    Ok(result.rows_affected() > 0)
+}
+
 /// Drops a proof of control, for an admin revoking a verification. Address changes do not need it;
 /// the `clear_email_verification` trigger handles those.
 pub async fn clear_email_verified(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<()> {

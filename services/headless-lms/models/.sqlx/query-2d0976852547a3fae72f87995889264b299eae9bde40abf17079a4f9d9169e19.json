@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO staff_security_verified_networks (\n    user_id,\n    network,\n    country,\n    verified_by_browser_id,\n    expires_at\n  )\nVALUES (\n    $1,\n    network(set_masklen($2::text::inet, $5)),\n    $4,\n    $3,\n    now() + interval '6 months'\n  )\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Varchar",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "2d0976852547a3fae72f87995889264b299eae9bde40abf17079a4f9d9169e19"
+}

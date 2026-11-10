@@ -16,6 +16,7 @@ pub enum EmailTemplateType {
     VerifyEmailAddress,
     CreditRegistrationActionNeeded,
     CreditRegistrationRegistered,
+    VerifyNetwork,
 }
 
 impl EmailTemplateType {
@@ -41,7 +42,10 @@ impl EmailTemplateType {
                 "RESET_LINK",
                 format!("{base_url}/reset-user-password/{sample_id}"),
             )],
-            Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
+            Self::DeleteUserEmail
+            | Self::ConfirmEmailCode
+            | Self::VerifyEmailAddress
+            | Self::VerifyNetwork => {
                 vec![("CODE", "123456".to_string())]
             }
             Self::CreditRegistrationAccountLinking => vec![

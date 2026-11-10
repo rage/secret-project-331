@@ -16,6 +16,7 @@ pub mod seed_playground_examples;
 pub mod seed_roles;
 mod seed_user_research_consents;
 pub mod seed_users;
+pub mod seed_verified_browsers;
 
 use std::{env, process::Command, sync::Arc, time::Duration};
 
@@ -119,6 +120,7 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(seed_oauth_clients(db_pool.clone()))
     )?;
     seed_global_chatbots::seed_global_chatbots(db_pool.clone()).await?;
+    seed_verified_browsers::seed_verified_browsers(db_pool.clone()).await?;
     Ok(())
 }
 

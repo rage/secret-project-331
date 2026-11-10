@@ -412,6 +412,10 @@ AND deleted_at IS NULL
     // Mark the token as used
     mark_token_used(&mut tx, token).await?;
 
+    // The reset may be recovering the account from whoever confirmed these.
+    crate::staff_security_verified_browsers::delete_all_for_user_with_networks(&mut tx, user_id)
+        .await?;
+
     // Fetch user
     let user = get_by_id(&mut tx, user_id).await?;
 

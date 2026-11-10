@@ -2874,7 +2874,6 @@
   "validation-required": "Це поле є обов'язковим",
   "value-of-maximum": "{{value}} / {{maximum}}",
   "value-of-total": "{{value}} із {{total}}",
-  "verification-code-label": "Код підтвердження",
   "verification-code-placeholder": "Введіть 6-значний код",
   "verification-failed": "Недійсний або прострочений код підтвердження",
   "verification-url": "URL для перевірки",

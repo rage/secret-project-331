@@ -1242,6 +1242,17 @@ export const zCourseBreadcrumbInfo = z.object({
   organization_slug: z.string(),
 })
 
+/**
+ * A course's chatbot as offered when choosing the course design assistant.
+ */
+export const zCourseChatbotOption = z.object({
+  chatbot_name: z.string(),
+  course_designer_assistant: z.boolean(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  id: z.uuid(),
+})
+
 export const zCourseCompletionStats = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -8995,6 +9006,11 @@ export const zCreateCourseDesignerPlanBody = zCreateCourseDesignerPlanRequest
  * Created plan
  */
 export const zCreateCourseDesignerPlanResponse = zCourseDesignerPlan
+
+/**
+ * Chatbots that belong to a course
+ */
+export const zGetCourseDesignerSupportAssistantChatbotsResponse = z.array(zCourseChatbotOption)
 
 /**
  * All plans

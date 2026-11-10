@@ -7,7 +7,6 @@ use headless_lms_chatbot::azure_chatbot::events::ChatbotChatStreamEvent;
 use headless_lms_chatbot::azure_chatbot::turn::{
     answer_tool_call_and_resume_stream, send_chat_request_and_parse_stream,
 };
-use headless_lms_chatbot::course_designer_assistant::get_or_create_assistant_configuration;
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_chatbot::user_context::ChatbotTurnContext;
 use headless_lms_models::chatbot_conversations::{
@@ -36,10 +35,10 @@ pub(crate) struct MainFrontendCourseDesignerAssistantApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CourseDesignerAssistantStatus {
-    /// Whether the chatbot backend is configured, i.e. whether to show the assistant at all.
+    /// Whether the chatbot backend is configured and a chatbot has been chosen as the assistant.
     pub available: bool,
-    /// Whether a guide course's chatbot is the assistant, so answers can cite guide pages. When
-    /// false the built-in assistant answers from the plan and general knowledge only.
+    /// Whether the assistant belongs to a guide course, so answers can cite guide pages. When
+    /// false the assistant answers from the plan and general knowledge only.
     pub has_guide_course: bool,
 }
 
@@ -72,12 +71,12 @@ async fn get_assistant_status(
     let (token, _plan) = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
     let assistant =
         models::chatbot_configurations::get_course_designer_assistant(&mut conn).await?;
-    let available = app_conf
+    let is_backend_configured = app_conf
         .azure_configuration
         .as_ref()
         .is_some_and(|azure| azure.chatbot_config.is_some());
     token.authorized_ok(web::Json(CourseDesignerAssistantStatus {
-        available,
+        available: is_backend_configured && assistant.is_some(),
         has_guide_course: assistant.is_some_and(|c| c.course_id.is_some()),
     }))
 }
@@ -103,7 +102,14 @@ async fn post_new_conversation(
 ) -> ControllerResult<web::Json<ChatbotConversation>> {
     let mut conn = pool.acquire().await?;
     let (token, _plan) = authorize_plan_member(&mut conn, *plan_id, user.id).await?;
-    let configuration = get_or_create_assistant_configuration(&mut conn).await?;
+    let configuration = models::chatbot_configurations::get_course_designer_assistant(&mut conn)
+        .await?
+        .ok_or_else(|| {
+            controller_err!(
+                NotFound,
+                "No chatbot has been chosen as the course design assistant.".to_string()
+            )
+        })?;
     let mut tx = conn.begin().await?;
     let conversation =
         chatbot_conversations::create_for_course_plan(&mut tx, user.id, configuration.id, *plan_id)

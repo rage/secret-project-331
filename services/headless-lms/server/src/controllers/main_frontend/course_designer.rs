@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use actix_web::HttpResponse;
 use chrono::NaiveDate;
+use models::chatbot_configurations::CourseChatbotOption;
 use models::course_designer_plans::{
     CourseDesignerCourseSize, CourseDesignerPlan, CourseDesignerPlanDetails,
     CourseDesignerPlanMember, CourseDesignerPlanStageTask, CourseDesignerPlanSummary,
@@ -44,6 +45,7 @@ use crate::prelude::*;
     get_section_statuses,
     put_section_status,
     get_support_plans,
+    get_support_assistant_chatbots,
     put_task_assignee,
     put_schedule_adjustment,
     post_archive_plan,
@@ -701,6 +703,31 @@ async fn get_support_plans(
     token.authorized_ok(web::Json(plans))
 }
 
+/// Course chatbots a global admin can choose as the course design assistant.
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/support/assistant-chatbots",
+    operation_id = "getCourseDesignerSupportAssistantChatbots",
+    tag = "course-plans",
+    responses((status = 200, description = "Chatbots that belong to a course", body = [CourseChatbotOption]))
+)]
+async fn get_support_assistant_chatbots(
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseChatbotOption>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Administrate,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+    let chatbots = models::chatbot_configurations::list_course_chatbot_options(&mut conn).await?;
+    token.authorized_ok(web::Json(chatbots))
+}
+
 #[instrument(skip(pool))]
 #[utoipa::path(
     put,
@@ -888,6 +915,10 @@ async fn post_create_course_from_plan(
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/support/plans", web::get().to(get_support_plans))
+        .route(
+            "/support/assistant-chatbots",
+            web::get().to(get_support_assistant_chatbots),
+        )
         .route("", web::post().to(post_new_plan))
         .route("", web::get().to(get_plans))
         .route("/{plan_id}", web::get().to(get_plan))

@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cc.id,\n  cc.chatbot_name,\n  c.id AS course_id,\n  c.name AS course_name,\n  cc.course_designer_assistant\nFROM chatbot_configurations cc\n  JOIN courses c ON c.id = cc.course_id\nWHERE cc.deleted_at IS NULL\n  AND c.deleted_at IS NULL\nORDER BY c.name,\n  cc.chatbot_name\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "chatbot_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "chatbot_name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_designer_assistant",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "course_designer_assistant"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f0261f43ee715b6823ff70a1029b6bf116ade426236d93a0a91ee61ba5040115"
+}

@@ -2679,6 +2679,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/support/assistant-chatbots": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "Course chatbots a global admin can choose as the course design assistant.",
+        "operationId": "getCourseDesignerSupportAssistantChatbots",
+        "responses": {
+          "200": {
+            "description": "Chatbots that belong to a course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseChatbotOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/support/plans": {
       "get": {
         "tags": ["course-plans"],
@@ -21059,6 +21081,30 @@
           }
         }
       },
+      "CourseChatbotOption": {
+        "type": "object",
+        "description": "A course's chatbot as offered when choosing the course design assistant.",
+        "required": ["id", "chatbot_name", "course_id", "course_name", "course_designer_assistant"],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "course_designer_assistant": {
+            "type": "boolean"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "CourseCompletionStats": {
         "type": "object",
         "required": [
@@ -21570,11 +21616,11 @@
         "properties": {
           "available": {
             "type": "boolean",
-            "description": "Whether the chatbot backend is configured, i.e. whether to show the assistant at all."
+            "description": "Whether the chatbot backend is configured and a chatbot has been chosen as the assistant."
           },
           "has_guide_course": {
             "type": "boolean",
-            "description": "Whether a guide course's chatbot is the assistant, so answers can cite guide pages. When\nfalse the built-in assistant answers from the plan and general knowledge only."
+            "description": "Whether the assistant belongs to a guide course, so answers can cite guide pages. When\nfalse the assistant answers from the plan and general knowledge only."
           }
         }
       },

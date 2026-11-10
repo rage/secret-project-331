@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
 import { useParams, useSearchParams } from "next/navigation"
@@ -26,6 +26,7 @@ import { Button, Link, QueryResult, useDialog } from "@/shared-module/components
 import { formatPlanMonthYear } from "../../coursePlanDates"
 import { stageLabel as translateStageLabel } from "../../coursePlanStages"
 import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
+import { CoursePlanAssistantPanel } from "../assistant/CoursePlanAssistant"
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import ActiveStageDeadlineCard from "./components/ActiveStageDeadlineCard"
 import MoocDesignOverview from "./components/overview/MoocDesignOverview"
@@ -111,7 +112,8 @@ const workspaceGridStyles = css`
     "header"
     "instructions"
     "tasks"
-    "workspace";
+    "workspace"
+    "chatbot";
   grid-auto-rows: minmax(0, auto);
   gap: 1.25rem;
 
@@ -134,7 +136,8 @@ const workspaceGridStyles = css`
     grid-template-areas:
       "header header"
       "tasks instructions"
-      "tasks workspace";
+      "tasks workspace"
+      "chatbot workspace";
     gap: 1.75rem;
   }
 
@@ -145,15 +148,32 @@ const workspaceGridStyles = css`
     grid-template-areas:
       "header header"
       "tasks instructions"
-      "tasks workspace";
+      "tasks workspace"
+      "chatbot workspace";
     gap: 2rem;
   }
 
   ${respondToOrLarger.xxxxl} {
     grid-template-columns:
       minmax(24rem, 1.2fr)
-      minmax(40rem, 3fr);
+      minmax(40rem, 2.6fr)
+      minmax(24rem, 1.3fr);
+    grid-template-areas:
+      "header header header"
+      "tasks instructions chatbot"
+      "tasks workspace chatbot";
     gap: 2.25rem;
+    align-items: flex-start;
+  }
+`
+
+const overviewGridStyles = css`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.75rem;
+
+  ${respondToOrLarger.xl} {
+    grid-template-columns: minmax(34rem, 2.6fr) minmax(24rem, 1.3fr);
     align-items: flex-start;
   }
 `
@@ -172,6 +192,20 @@ const tasksAreaStyles = css`
 
 const workspaceAreaStyles = css`
   grid-area: workspace;
+`
+
+const chatbotAreaStyles = css`
+  grid-area: chatbot;
+`
+
+/** Keeps the chat usable beside long forms: its own scroll area, pinned while the page scrolls. */
+const chatbotPanelStyles = css`
+  height: min(80vh, 56rem);
+
+  ${respondToOrLarger.xl} {
+    position: sticky;
+    top: 1rem;
+  }
 `
 
 const cardStyles = css`
@@ -689,20 +723,23 @@ function CoursePlanWorkspacePage() {
                     stageLabel={stageLabel}
                     onOpenOverview={() => setIsOverviewOpen(true)}
                     currentStageLabel={currentStage ? stageLabel(currentStage) : null}
-                    {...(viewedTab === MOOC_DESIGN_TAB
-                      ? {}
-                      : { panelClassName: workspaceGridStyles })}
+                    panelClassName={
+                      viewedTab === MOOC_DESIGN_TAB ? overviewGridStyles : workspaceGridStyles
+                    }
                   >
                     {viewedTab === MOOC_DESIGN_TAB ? (
                       <>
-                        <h2 className={currentStageTitleStyles}>
-                          {t("course-plans-mooc-design-tab")}
-                        </h2>
-                        <MoocDesignOverview
-                          planId={planId}
-                          greatMoocVision={plan.great_mooc_vision}
-                          isReadOnly={plan.status === "Archived"}
-                        />
+                        <div>
+                          <h2 className={currentStageTitleStyles}>
+                            {t("course-plans-mooc-design-tab")}
+                          </h2>
+                          <MoocDesignOverview
+                            planId={planId}
+                            greatMoocVision={plan.great_mooc_vision}
+                            isReadOnly={plan.status === "Archived"}
+                          />
+                        </div>
+                        <CoursePlanAssistantPanel className={chatbotPanelStyles} />
                       </>
                     ) : (
                       <>
@@ -845,6 +882,10 @@ function CoursePlanWorkspacePage() {
                             />
                           ) : null}
                         </section>
+
+                        <CoursePlanAssistantPanel
+                          className={cx(chatbotAreaStyles, chatbotPanelStyles)}
+                        />
                       </>
                     )}
                   </StageTimelineTabStrip>

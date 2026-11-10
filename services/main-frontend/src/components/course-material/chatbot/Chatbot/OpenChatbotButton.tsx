@@ -37,23 +37,16 @@ interface OpenChatbotButtonProps {
   hide: boolean
   ref: RefObject<HTMLButtonElement | null>
   triggerProps: AriaButtonProps
-  /** Defaults to "Open chatbot". */
-  label?: string
 }
 
-const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({
-  hide,
-  ref,
-  triggerProps,
-  label,
-}) => {
+const OpenChatbotButton: React.FC<OpenChatbotButtonProps> = ({ hide, ref, triggerProps }) => {
   const { t } = useTranslation()
 
   return (
     <Button
       slot="open"
       className={buttonStyle(hide)}
-      aria-label={label ?? t("open-chatbot")}
+      aria-label={t("open-chatbot")}
       ref={ref}
       {...triggerProps}
     >

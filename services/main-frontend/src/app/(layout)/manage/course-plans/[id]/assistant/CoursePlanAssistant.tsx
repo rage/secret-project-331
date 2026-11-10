@@ -1,25 +1,38 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useCallback, useMemo } from "react"
+import React, { createContext, useCallback, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import ChatbotDialog from "@/components/course-material/chatbot/Chatbot/ChatbotDialog"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import ChatbotChatBody from "@/components/course-material/chatbot/shared/ChatbotChatBody"
+import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
 import {
   getCourseDesignerAssistantStatusOptions,
   getCourseDesignerPlanQueryKey,
   getCourseDesignerPlansQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseDesignerAssistantStatus } from "@/generated/api/types.generated"
 import { zCourseDesignerPlanDetails } from "@/generated/api/zod.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
 import coursePlanAssistantEndpoints from "./coursePlanAssistantEndpoints"
 
-const noticeStyle = css`
+const panelStyles = css`
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+`
+
+const noticeStyles = css`
   margin: 0;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid ${baseTheme.colors.gray[100]};
@@ -28,12 +41,30 @@ const noticeStyle = css`
   font-size: 0.85rem;
 `
 
+const unavailableStyles = css`
+  margin: 0;
+  padding: 1.5rem;
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.9rem;
+  line-height: 1.55;
+`
+
 /** What every executed plan proposal sends the browser. */
 const executedProposalSchema = z.object({ plan_details: zCourseDesignerPlanDetails })
 
-/** The course design assistant's floating chat on a plan's pages, shown when the backend offers it. */
-export default function CoursePlanAssistant({ planId }: { planId: string }) {
-  const { t } = useTranslation()
+const AssistantStatusContext = createContext<CourseDesignerAssistantStatus | undefined>(undefined)
+
+/**
+ * Holds the course design assistant's chat for a plan, so the conversation survives switching
+ * between the tabs that render `CoursePlanAssistantPanel`.
+ */
+export function CoursePlanAssistantProvider({
+  planId,
+  children,
+}: {
+  planId: string
+  children: React.ReactNode
+}) {
   const queryClient = useQueryClient()
   const invalidatePlan = useInvalidatePlan(planId)
   const statusQuery = useQuery(
@@ -57,27 +88,45 @@ export default function CoursePlanAssistant({ planId }: { planId: string }) {
     [invalidatePlan, planId, queryClient],
   )
 
-  if (!statusQuery.data?.available) {
-    return null
-  }
+  const status = statusQuery.data
+  return (
+    <AssistantStatusContext value={status}>
+      {status?.available ? (
+        // The key starts a fresh chat state when moving to another plan.
+        <ChatbotChat
+          key={planId}
+          endpoints={endpoints}
+          isAlwaysOpen={true}
+          pageId={null}
+          onActionExecuted={handleActionExecuted}
+        >
+          {children}
+        </ChatbotChat>
+      ) : (
+        children
+      )}
+    </AssistantStatusContext>
+  )
+}
+
+/** The assistant's reserved, always visible area; must be inside `CoursePlanAssistantProvider`. */
+export function CoursePlanAssistantPanel({ className }: { className?: string }) {
+  const { t } = useTranslation()
+  const status = useContext(AssistantStatusContext)
 
   return (
-    // The key starts a fresh chat state when moving to another plan's pages.
-    <ChatbotChat
-      key={planId}
-      endpoints={endpoints}
-      isAlwaysOpen={false}
-      pageId={null}
-      onActionExecuted={handleActionExecuted}
-    >
-      <ChatbotDialog
-        openButtonLabel={t("course-plans-assistant-open")}
-        notice={
-          statusQuery.data.has_guide_course ? undefined : (
-            <p className={noticeStyle}>{t("course-plans-assistant-no-guide-course")}</p>
-          )
-        }
-      />
-    </ChatbotChat>
+    <section className={cx(panelStyles, className)} aria-label={t("course-plans-assistant-name")}>
+      {status?.available ? (
+        <>
+          <ChatbotChatHeader isAlwaysOpen={true} />
+          {!status.has_guide_course && (
+            <p className={noticeStyles}>{t("course-plans-assistant-no-guide-course")}</p>
+          )}
+          <ChatbotChatBody />
+        </>
+      ) : (
+        status && <p className={unavailableStyles}>{t("course-plans-assistant-unavailable")}</p>
+      )}
+    </section>
   )
 }

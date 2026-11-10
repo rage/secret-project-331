@@ -11,8 +11,6 @@ import {
   usePopover,
 } from "react-aria"
 
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
-
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
@@ -43,14 +41,7 @@ const closeAnimation = keyframes`
   }
 `
 
-interface ChatbotDialogProps {
-  /** Accessible name of the button that opens the dialog; defaults to "Open chatbot". */
-  openButtonLabel?: string
-  /** Shown between the header and the conversation. */
-  notice?: React.ReactNode
-}
-
-const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ openButtonLabel, notice }) => {
+const ChatbotDialog: React.FC = () => {
   const chatbotTitleId = useId()
   const [shouldRender, setShouldRender] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
@@ -128,12 +119,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ openButtonLabel, notice }
 
   return (
     <>
-      <OpenChatbotButton
-        hide={shouldRender}
-        triggerProps={triggerProps}
-        ref={buttonRef}
-        {...omitUndefined({ label: openButtonLabel })}
-      />
+      <OpenChatbotButton hide={shouldRender} triggerProps={triggerProps} ref={buttonRef} />
       {shouldRender && (
         <FocusScope restoreFocus>
           <div
@@ -176,7 +162,6 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = ({ openButtonLabel, notice }
                 isAlwaysOpen={false}
                 closeChatbot={() => state.setOpen(false)}
               />
-              {notice}
               <ChatbotChatBody />
             </div>
           </div>

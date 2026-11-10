@@ -152,6 +152,11 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         if (result !== "invalid") {
           setCodeDialogOpen(false)
         }
+        if (result === "verified") {
+          // Verifying can grant pending roles, which changes permissions and the session check.
+          await queryClient.invalidateQueries()
+          return
+        }
         await invalidateStatus()
       },
     },

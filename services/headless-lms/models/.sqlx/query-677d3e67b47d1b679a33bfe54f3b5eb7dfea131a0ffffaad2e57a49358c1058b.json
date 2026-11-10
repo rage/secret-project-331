@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE user_details\nSET email_verified_at = now(),\n  email_verified_method = $2\nWHERE user_id = $1\n  AND email_verified_at IS NULL\n  AND updated_at <= $3\n",
+  "query": "\nUPDATE user_details\nSET email_verified_at = now(),\n  email_verified_method = $2\nWHERE user_id = $1\n  AND (\n    email_verified_at IS NULL\n    OR email_verified_method = 'admin_asserted'\n  )\n  AND updated_at <= $3\n",
   "describe": {
     "columns": [],
     "parameters": {
@@ -24,5 +24,5 @@
     },
     "nullable": []
   },
-  "hash": "ff1b1cd4ee3402645b326a2a3c740285205983b1b4f2278c50bf4ba9899631e2"
+  "hash": "677d3e67b47d1b679a33bfe54f3b5eb7dfea131a0ffffaad2e57a49358c1058b"
 }

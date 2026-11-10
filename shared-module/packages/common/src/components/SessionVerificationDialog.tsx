@@ -94,7 +94,12 @@ const SessionVerificationDialog: React.FC = () => {
   const verifyCode = useMutation({
     ...postAuthSessionStatusVerifyMutation(),
     onSuccess: (result) => {
-      if (result.type === "verified" || result.type === "not_required") {
+      if (result.type === "verified") {
+        // The code also proves the mailbox, which can verify the email and grant pending roles.
+        void queryClient.invalidateQueries()
+        return
+      }
+      if (result.type === "not_required") {
         void queryClient.invalidateQueries({ queryKey: getAuthSessionStatusQueryKey() })
         return
       }

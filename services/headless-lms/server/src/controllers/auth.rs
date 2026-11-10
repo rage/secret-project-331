@@ -1276,8 +1276,9 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
+    let mut tx = conn.begin().await?;
     user_email_codes::mark_user_email_code_used(
-        &mut conn,
+        &mut tx,
         user_id,
         UserEmailCodePurpose::StaffLogin,
         &payload.code,
@@ -1291,7 +1292,7 @@ pub async fn verify_email(
         )
     })?;
 
-    email_verification_tokens::mark_as_used(&mut conn, &payload.email_verification_token)
+    email_verification_tokens::mark_as_used(&mut tx, &payload.email_verification_token)
         .await
         .map_err(|e| {
             ControllerError::new(
@@ -1301,7 +1302,7 @@ pub async fn verify_email(
             )
         })?;
 
-    let user = models::users::get_by_id(&mut conn, user_id)
+    let user = models::users::get_by_id(&mut tx, user_id)
         .await
         .map_err(|e| {
             ControllerError::new(
@@ -1312,14 +1313,15 @@ pub async fn verify_email(
         })?;
 
     email_ownership_verification::record_code_as_mailbox_proof(
-        &mut conn,
+        &mut tx,
         user.id,
         UserEmailCodePurpose::StaffLogin,
     )
     .await?;
     let cookie =
-        session_verification::record_verification(&mut conn, &ip_to_country_mapper, user.id, &req)
+        session_verification::record_verification(&mut tx, &ip_to_country_mapper, user.id, &req)
             .await?;
+    tx.commit().await?;
     authentication::remember(&session, user)?;
 
     let skip_token = skip_authorize();

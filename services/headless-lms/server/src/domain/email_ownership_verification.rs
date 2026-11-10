@@ -34,26 +34,17 @@ pub async fn record_code_as_mailbox_proof(
     user_id: Uuid,
     purpose: UserEmailCodePurpose,
 ) -> ModelResult<()> {
-    if user_details::get_email_verification(conn, user_id)
-        .await?
-        .is_some()
-    {
-        return Ok(());
-    }
     let Some(code) = user_email_codes::get_latest_user_email_code(conn, user_id, purpose).await?
     else {
         return Ok(());
     };
-    let details = user_details::get_user_details_by_user_id(conn, user_id).await?;
-    if details.updated_at <= code.created_at {
-        user_details::set_email_verified(
-            conn,
-            user_id,
-            user_details::EmailVerificationMethod::EmailedCode,
-            Utc::now(),
-        )
-        .await?;
-    }
+    user_details::set_email_verified_unless_changed_since(
+        conn,
+        user_id,
+        user_details::EmailVerificationMethod::EmailedCode,
+        code.created_at,
+    )
+    .await?;
     Ok(())
 }
 

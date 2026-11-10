@@ -1,8 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect, useState } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -12,13 +12,13 @@ import {
   setChatbotCourseDesignerAssistantMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseChatbotOption } from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
   DescriptionList,
   EmptyState,
-  getErrorMessage,
   Link,
   QueryResult,
   Select,
@@ -55,18 +55,6 @@ const actionRowStyles = css`
   gap: 0.75rem;
 `
 
-const feedbackStyles = css`
-  margin: 0;
-  font-size: 0.85rem;
-  color: ${baseTheme.colors.gray[600]};
-`
-
-const errorStyles = css`
-  margin: 0;
-  font-size: 0.85rem;
-  color: ${baseTheme.colors.red[700]};
-`
-
 /** Shows and changes which course chatbot answers on every course design plan page. */
 export default function CourseDesignAssistantSection() {
   const { t } = useTranslation()
@@ -99,9 +87,8 @@ function AssistantChoice({ chatbots }: { chatbots: CourseChatbotOption[] }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const assistant = chatbots.find((chatbot) => chatbot.course_designer_assistant)
-  const [savedJustNow, setSavedJustNow] = useState(false)
 
-  const { control, handleSubmit, reset, formState } = useForm<AssistantChoiceFormValues>({
+  const { control, handleSubmit, reset } = useForm<AssistantChoiceFormValues>({
     defaultValues: { chatbotId: assistant?.id ?? "" },
   })
   const chatbotId = useWatch({ control, name: "chatbotId" })
@@ -110,21 +97,17 @@ function AssistantChoice({ chatbots }: { chatbots: CourseChatbotOption[] }) {
     reset({ chatbotId: assistant?.id ?? "" })
   }, [assistant?.id, reset])
 
-  useEffect(() => {
-    if (formState.isDirty) {
-      setSavedJustNow(false)
-    }
-  }, [formState.isDirty])
-
-  const mutation = useMutation({
-    ...setChatbotCourseDesignerAssistantMutation(),
-    onSuccess: async () => {
-      setSavedJustNow(true)
-      await queryClient.invalidateQueries({
-        queryKey: getCourseDesignerSupportAssistantChatbotsQueryKey(),
-      })
+  const mutation = useToastMutationOptions(
+    setChatbotCourseDesignerAssistantMutation(),
+    { notify: true, method: "PUT" },
+    {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: getCourseDesignerSupportAssistantChatbotsQueryKey(),
+        })
+      },
     },
-  })
+  )
 
   const setAssistant = (chatbotConfigurationId: string, isAssistant: boolean) => {
     mutation.mutate({
@@ -195,17 +178,6 @@ function AssistantChoice({ chatbots }: { chatbots: CourseChatbotOption[] }) {
             {t("course-plans-support-assistant-remove")}
           </Button>
         )}
-        {mutation.isError ? (
-          <p className={errorStyles} role="alert">
-            {t("course-plans-support-assistant-save-error", {
-              message: getErrorMessage(mutation.error),
-            })}
-          </p>
-        ) : savedJustNow && !formState.isDirty ? (
-          <p className={feedbackStyles} role="status">
-            {t("course-plans-support-assistant-saved")}
-          </p>
-        ) : null}
       </div>
     </form>
   )

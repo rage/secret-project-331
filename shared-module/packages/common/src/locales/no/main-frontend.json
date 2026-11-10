@@ -1216,8 +1216,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "Slutt å bruke som assistent",
   "course-plans-support-assistant-save": "Lagre",
-  "course-plans-support-assistant-save-error": "Det gikk ikke å lagre kursplanleggingsassistenten: {{message}}",
-  "course-plans-support-assistant-saved": "Kursplanleggingsassistenten er lagret.",
   "course-plans-support-assistant-select-label": "Chatbot som brukes som assistent",
   "course-plans-support-assistant-select-placeholder": "Velg en chatbot",
   "course-plans-support-column-active-stage": "Nåværende fase",

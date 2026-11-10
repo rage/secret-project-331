@@ -1201,8 +1201,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "Lopeta käyttö avustajana",
   "course-plans-support-assistant-save": "Tallenna",
-  "course-plans-support-assistant-save-error": "Kurssisuunnitelmien avustajan tallentaminen epäonnistui: {{message}}",
-  "course-plans-support-assistant-saved": "Kurssisuunnitelmien avustaja tallennettu.",
   "course-plans-support-assistant-select-label": "Avustajana käytettävä keskustelurobotti",
   "course-plans-support-assistant-select-placeholder": "Valitse keskustelurobotti",
   "course-plans-support-column-active-stage": "Nykyinen vaihe",

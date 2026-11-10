@@ -1216,8 +1216,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "Sluta använda som assistent",
   "course-plans-support-assistant-save": "Spara",
-  "course-plans-support-assistant-save-error": "Det gick inte att spara kursplaneringsassistenten: {{message}}",
-  "course-plans-support-assistant-saved": "Kursplaneringsassistenten är sparad.",
   "course-plans-support-assistant-select-label": "Chattbot som används som assistent",
   "course-plans-support-assistant-select-placeholder": "Välj en chattbot",
   "course-plans-support-column-active-stage": "Nuvarande fas",

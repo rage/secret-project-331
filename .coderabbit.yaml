@@ -59,8 +59,6 @@ reviews:
 
         Input limits (maxLength, max counts) must match the backend's limit for the same field; flag a hard-coded number that differs from the server-side constant.
 
-        Autosaving forms with a debounced save must flush the pending save on unmount and before in-app navigation, not only on `beforeunload`, or edits made just before leaving are lost.
-
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
     - path: "!(services/quizzes|services/example-exercise)/**/*.tsx"
@@ -73,7 +71,9 @@ reviews:
 
     - path: "services/main-frontend/src/**/*.{ts,tsx}"
       instructions: >
-        Date-only values such as planned dates and deadlines are Finnish calendar days. Do not derive "today" with `new Date().toISOString().slice(0, 10)` or other UTC arithmetic; it is the previous day between midnight and 03:00 in Finland. Use date-fns on local dates or the existing date helpers.
+        Date-only values such as planned dates and deadlines are Finnish calendar days. Derive "today" for them in the `Europe/Helsinki` time zone, not with `new Date().toISOString().slice(0, 10)` (UTC) or `startOfToday()` (the browser's zone), which give the wrong day near midnight or outside Finland.
+
+        Autosaving forms with a debounced save must flush the pending save on unmount and before in-app navigation, not only on `beforeunload`, or edits made just before leaving are lost.
 
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >

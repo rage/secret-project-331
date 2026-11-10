@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, format, parseISO, startOfToday } from "date-fns"
+import { differenceInCalendarDays, format, parseISO } from "date-fns"
 
 // Plan dates are `yyyy-mm-dd` calendar days; parseISO reads them as local days, whereas
 // `new Date(isoDate)` reads a UTC instant that shows as the previous day west of UTC.
@@ -19,6 +19,14 @@ const MONTH_YEAR_OPTIONS: Intl.DateTimeFormatOptions = {
   month: "long",
   year: "numeric",
 }
+
+// en-CA formats dates as yyyy-mm-dd.
+const FINNISH_DATE_FORMAT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Helsinki",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+})
 
 const MONTH_DAY_OPTIONS: Intl.DateTimeFormatOptions = {
   day: "numeric",
@@ -60,7 +68,12 @@ export function toIsoDate(date: Date): string {
   return format(date, "yyyy-MM-dd")
 }
 
-/** Calendar days from today until a plan date; negative once the date has passed. */
+/** Today's date in Finland as a plan date, wherever the browser is. */
+function finnishToday(): string {
+  return FINNISH_DATE_FORMAT.format(new Date())
+}
+
+/** Calendar days from today in Finland until a plan date; negative once the date has passed. */
 export function daysUntilPlanDate(isoDate: string): number {
-  return differenceInCalendarDays(parseISO(isoDate), startOfToday())
+  return differenceInCalendarDays(parseISO(isoDate), parseISO(finnishToday()))
 }

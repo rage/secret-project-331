@@ -1297,8 +1297,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "التوقف عن استخدامه مساعدًا",
   "course-plans-support-assistant-save": "حفظ",
-  "course-plans-support-assistant-save-error": "تعذّر حفظ مساعد تصميم المقررات: {{message}}",
-  "course-plans-support-assistant-saved": "تم حفظ مساعد تصميم المقررات.",
   "course-plans-support-assistant-select-label": "روبوت المحادثة المستخدم مساعدًا",
   "course-plans-support-assistant-select-placeholder": "اختر روبوت محادثة",
   "course-plans-support-column-active-stage": "المرحلة الحالية",

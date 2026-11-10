@@ -1259,8 +1259,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "Більше не використовувати як помічника",
   "course-plans-support-assistant-save": "Зберегти",
-  "course-plans-support-assistant-save-error": "Не вдалося зберегти помічника з розробки курсів: {{message}}",
-  "course-plans-support-assistant-saved": "Помічника з розробки курсів збережено.",
   "course-plans-support-assistant-select-label": "Чат-бот, який використовується як помічник",
   "course-plans-support-assistant-select-placeholder": "Виберіть чат-бота",
   "course-plans-support-column-active-stage": "Поточний етап",

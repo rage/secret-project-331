@@ -1201,8 +1201,6 @@
   "course-plans-support-assistant-option": "{{course}}: {{chatbot}}",
   "course-plans-support-assistant-remove": "Stop using as the assistant",
   "course-plans-support-assistant-save": "Save",
-  "course-plans-support-assistant-save-error": "Saving the course design assistant failed: {{message}}",
-  "course-plans-support-assistant-saved": "Course design assistant saved.",
   "course-plans-support-assistant-select-label": "Chatbot to use as the assistant",
   "course-plans-support-assistant-select-placeholder": "Choose a chatbot",
   "course-plans-support-column-active-stage": "Current stage",

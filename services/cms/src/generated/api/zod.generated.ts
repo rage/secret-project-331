@@ -284,6 +284,8 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "verify_network",
+  "course_designer_weekly_digest",
 ])
 
 export const zEmailTemplate = z.object({
@@ -514,7 +516,6 @@ export const zCmsPeerOrSelfReviewQuestion = z.object({
 })
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -675,6 +676,7 @@ export const zToolCategory = z.enum([
   "admin_support_courses",
   "admin_support_learning_progress",
   "admin_support_academic_integrity",
+  "course_planning",
 ])
 
 /**
@@ -735,6 +737,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
+  course_designer_assistant: z.boolean(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z

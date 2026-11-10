@@ -15,6 +15,9 @@ const block = (
   innerBlocks,
 })
 
+const table = (text: string) =>
+  block("t", { body: [{ cells: [{ content: text, tag: "td" }] }] }, "core/table")
+
 describe("diffBlockLists", () => {
   it("pairs blocks by client id and tells what happened to each", () => {
     const rows = diffBlockLists(
@@ -124,8 +127,6 @@ describe("markBlockChanges", () => {
   })
 
   it("marks table cells", () => {
-    const table = (text: string) =>
-      block("t", { body: [{ cells: [{ content: text, tag: "td" }] }] }, "core/table")
     expect(markBlockChanges(table("old"), table("new"), "after")?.attributes).toEqual({
       body: [{ cells: [{ content: "<ins>new</ins>", tag: "td" }] }],
     })

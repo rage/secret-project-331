@@ -8,17 +8,18 @@ and the OIDC discovery document advertises an `email_verified` claim.
 use headless_lms_models::{
     email_templates::{self, EmailTemplateType},
     user_details::{self, EmailVerificationMethod},
-    user_email_codes::{self, UserEmailCodePurpose},
+    user_email_codes::{self, CodeCheck, UserEmailCodePurpose},
 };
-use headless_lms_utils::services::tmc::TmcClient;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use secrecy::ExposeSecret;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::{
     email_ownership_verification::{
         MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
     },
     rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
+    session_verification,
 };
 use crate::prelude::*;
 
@@ -183,7 +184,7 @@ Authenticated and scoped to the caller's own account, so the code is the only se
 never has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot
 be reached, so the code can be tried again.
 */
-#[instrument(skip(pool, payload, app_conf, tmc_client))]
+#[instrument(skip(req, pool, ip_to_country_mapper, payload, app_conf, tmc_client))]
 #[utoipa::path(
     post,
     path = "/verify",
@@ -196,12 +197,14 @@ be reached, so the code can be tried again.
     )
 )]
 pub async fn verify_email_ownership(
+    req: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailOwnershipPayload>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<web::Json<VerifyEmailOwnershipResult>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
@@ -213,24 +216,18 @@ pub async fn verify_email_ownership(
     // unverified with nothing left to type.
     let mut tx = conn.begin().await?;
 
-    let result = if user_details::get_email_verification(&mut tx, user.id)
-        .await?
-        .is_some()
-    {
+    let mut session_cookie = None;
+    let result = if user_details::has_mailbox_proof(&mut tx, user.id).await? {
         VerifyEmailOwnershipResult::AlreadyVerified
-    } else if !user_email_codes::is_reset_user_email_code_valid(
+    } else if user_email_codes::check_code(
         &mut tx,
         user.id,
         PURPOSE,
         &payload.code,
+        MAX_CODE_ATTEMPTS,
     )
     .await?
-    {
-        user_email_codes::record_failed_attempt(&mut tx, user.id, PURPOSE, MAX_CODE_ATTEMPTS)
-            .await?;
-        VerifyEmailOwnershipResult::Invalid
-    } else if user_email_codes::mark_user_email_code_used(&mut tx, user.id, PURPOSE, &payload.code)
-        .await?
+        == CodeCheck::Valid
     {
         user_details::set_email_verified(
             &mut tx,
@@ -239,6 +236,19 @@ pub async fn verify_email_ownership(
             Utc::now(),
         )
         .await?;
+        // The proof can grant pending roles, which would put this browser straight in front of
+        // the session check and a second code.
+        if session_verification::applies_to(&mut tx, user.id).await? {
+            session_cookie = Some(
+                session_verification::record_verification(
+                    &mut tx,
+                    &ip_to_country_mapper,
+                    user.id,
+                    &req,
+                )
+                .await?,
+            );
+        }
         // An email change waits for this before reaching TMC, where the address signs in. Last
         // before the commit: TMC cannot be rolled back.
         if let Some(upstream_id) = user.upstream_id().filter(|_| !app_conf.test_mode) {
@@ -277,19 +287,38 @@ pub async fn verify_email_ownership(
         }
         VerifyEmailOwnershipResult::Verified
     } else {
-        // The spend blocks on the winner's row lock and then matches nothing, so a concurrent
-        // duplicate submission lands here rather than recording a second proof.
         VerifyEmailOwnershipResult::Invalid
     };
 
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(result))
+    let mut response = HttpResponse::Ok();
+    if let Some(cookie) = session_cookie {
+        response.cookie(cookie);
+    }
+    token.authorized_ok(response.json(result))
+}
+
+/// The kinds of code the test-mode endpoint hands out.
+#[derive(Debug, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum TestModeCodePurpose {
+    EmailOwnershipVerification,
+    NetworkVerification,
+}
+
+/// Query of [`get_email_verification_code_for_test_mode`].
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct TestModeCodeQuery {
+    /// Which of the caller's codes to return. Email ownership verification when left out.
+    #[param(inline)]
+    pub purpose: Option<TestModeCodePurpose>,
 }
 
 /**
 GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
-verification code.
+code for `purpose`, email ownership verification by default.
 
 Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
 caller's own account, so an accidentally open gate only ever hands you your own code.
@@ -300,6 +329,7 @@ caller's own account, so an accidentally open gate only ever hands you your own 
     path = "/test-mode-code",
     operation_id = "getEmailVerificationCodeForTestMode",
     tag = "email-verification",
+    params(TestModeCodeQuery),
     responses(
         (status = 200, description = "The caller's pending verification code", body = String),
         (status = 404, description = "Not in test mode, or no pending code")
@@ -309,6 +339,7 @@ pub async fn get_email_verification_code_for_test_mode(
     user: AuthUser,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
+    query: web::Query<TestModeCodeQuery>,
 ) -> ControllerResult<web::Json<String>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -317,12 +348,14 @@ pub async fn get_email_verification_code_for_test_mode(
         return Err(controller_err!(NotFound, "Not found.".to_string()));
     }
 
+    let purpose = match query.purpose {
+        None | Some(TestModeCodePurpose::EmailOwnershipVerification) => PURPOSE,
+        Some(TestModeCodePurpose::NetworkVerification) => UserEmailCodePurpose::NetworkVerification,
+    };
     let live_code =
-        user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, user.id, PURPOSE)
+        user_email_codes::get_unused_user_email_code_with_user_id(&mut conn, user.id, purpose)
             .await?
-            .ok_or_else(|| {
-                controller_err!(NotFound, "No pending email verification code.".to_string())
-            })?;
+            .ok_or_else(|| controller_err!(NotFound, "No pending code.".to_string()))?;
 
     token.authorized_ok(web::Json(live_code.code.expose_secret().to_string()))
 }

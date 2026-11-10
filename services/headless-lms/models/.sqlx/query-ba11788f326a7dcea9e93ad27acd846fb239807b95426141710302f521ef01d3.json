@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  t.title,\n  t.description,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  s.stage AS \"stage: CourseDesignerStage\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL\nFOR UPDATE OF t\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "is_completed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "is_completed"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "completed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "completed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "completed_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "completed_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "stage"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "ba11788f326a7dcea9e93ad27acd846fb239807b95426141710302f521ef01d3"
+}

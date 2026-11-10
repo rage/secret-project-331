@@ -867,7 +867,8 @@ mod tests {
         crate::credit_registrations::schedule_next_attempt(
             tx.as_mut(),
             fixture.registration,
-            Utc::now() - chrono::Duration::seconds(1),
+            // Well past: SQL `now()` is the transaction's start, not this moment.
+            Utc::now() - chrono::Duration::hours(1),
         )
         .await
         .unwrap();
@@ -930,7 +931,7 @@ mod tests {
         crate::credit_registrations::schedule_next_attempt(
             tx.as_mut(),
             fixture.registration,
-            Utc::now() - chrono::Duration::seconds(1),
+            Utc::now() - chrono::Duration::hours(1),
         )
         .await
         .unwrap();
@@ -949,7 +950,7 @@ mod tests {
             tx.as_mut(),
             fixture.registration,
             &Transition {
-                next_attempt_at: Some(Utc::now() - chrono::Duration::seconds(1)),
+                next_attempt_at: Some(Utc::now() - chrono::Duration::hours(1)),
                 ..Transition::to(CreditRegistrationState::NoUsableEnrolment)
             },
         )

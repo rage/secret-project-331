@@ -256,8 +256,10 @@ pub async fn seed_generic_emails(
     insert_email_template(&mut conn, None, confirm_template, confirm_subject).await?;
 
     seed_email_ownership_verification_templates(&mut conn).await?;
+    seed_network_verification_template(&mut conn).await?;
     seed_account_linking_templates(&mut conn).await?;
     seed_credit_registration_status_templates(&mut conn).await?;
+    seed_course_designer_weekly_digest_templates(&mut conn).await?;
 
     Ok(())
 }
@@ -569,6 +571,106 @@ async fn seed_email_ownership_verification_templates(
     Ok(())
 }
 
+/// The code a user with a role types to confirm a session from a browser or network we have not
+/// seen on their account.
+async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
+    info!("inserting network verification email");
+
+    let subject = Some("New network");
+    let body = json!([
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000001",
+            "attributes": {
+                "content": "Hello, your account was used from a network we have not seen before. To continue, enter this code:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000002",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000003",
+            "attributes": {
+                "content": "If this was not you, do not enter the code. Change your password right away.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyNetwork,
+            language: Some("en".to_string()),
+            content: Some(body),
+            subject: subject.map(|s| s.to_string()),
+        },
+        subject,
+    )
+    .await?;
+
+    let finnish_subject = Some("Uusi verkko");
+    let finnish_body = json!([
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "Hei, tiliäsi käytettiin verkosta, jota emme ole aiemmin nähneet. Jatka syöttämällä tämä koodi:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000006",
+            "attributes": {
+                "content": "Jos et itse käyttänyt tiliäsi, älä syötä koodia. Vaihda salasanasi heti.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyNetwork,
+            language: Some("fi".to_string()),
+            content: Some(finnish_body),
+            subject: finnish_subject.map(|s| s.to_string()),
+        },
+        finnish_subject,
+    )
+    .await?;
+
+    Ok(())
+}
+
 /// The credit registration student mails. Their only link is the status page, since students enrol
 /// in different ways.
 async fn seed_credit_registration_status_templates(
@@ -681,5 +783,88 @@ async fn seed_credit_registration_status_templates(
         .await?;
     }
 
+    Ok(())
+}
+
+async fn seed_course_designer_weekly_digest_templates(
+    conn: &mut sqlx::PgConnection,
+) -> anyhow::Result<()> {
+    let templates: [(&str, &str, &str, &[&str]); 2] = [
+        (
+            "en",
+            "Weekly update: {{PLAN_NAME}}",
+            "Open the plan",
+            &[
+                "Hello, here is this week's update on the course design plan {{PLAN_NAME}}.",
+                "Current phase: {{ACTIVE_STAGE}}, planned to end on {{ACTIVE_STAGE_ENDS_ON}}. {{SCHEDULE_STATUS}}",
+                "Tasks completed in the past week: {{COMPLETED_TASKS_LAST_WEEK}}",
+                "Overall progress: {{COMPLETED_TASK_COUNT}} of {{TASK_COUNT}} tasks done.",
+                "Sections marked unfinished: {{UNFINISHED_SECTIONS}}",
+                "You get this email because you are a member of the plan. You can turn it off on the plan's members page.",
+            ],
+        ),
+        (
+            "fi",
+            "Viikkokatsaus: {{PLAN_NAME}}",
+            "Avaa suunnitelma",
+            &[
+                "Hei, tässä tämän viikon katsaus kurssisuunnitelmaan {{PLAN_NAME}}.",
+                "Nykyinen vaihe: {{ACTIVE_STAGE}}, suunniteltu päättymään {{ACTIVE_STAGE_ENDS_ON}}. {{SCHEDULE_STATUS}}",
+                "Viime viikolla tehdyt tehtävät: {{COMPLETED_TASKS_LAST_WEEK}}",
+                "Kokonaistilanne: {{COMPLETED_TASK_COUNT}}/{{TASK_COUNT}} tehtävää tehty.",
+                "Keskeneräisiksi merkityt osiot: {{UNFINISHED_SECTIONS}}",
+                "Saat tämän viestin, koska olet suunnitelman jäsen. Voit lopettaa viestit suunnitelman jäsensivulla.",
+            ],
+        ),
+    ];
+    for (template_index, (language, subject, button_label, paragraphs)) in
+        templates.into_iter().enumerate()
+    {
+        let mut blocks: Vec<_> = paragraphs
+            .iter()
+            .enumerate()
+            .map(|(paragraph_index, content)| {
+                json!({
+                    "name": "core/paragraph",
+                    "isValid": true,
+                    "clientId": format!(
+                        "e{}000000-0000-0000-0000-{:012}",
+                        template_index + 3,
+                        paragraph_index + 1
+                    ),
+                    "attributes": { "content": content, "dropCap": false },
+                    "innerBlocks": []
+                })
+            })
+            .collect();
+        blocks.insert(
+            paragraphs.len() - 1,
+            json!({
+                "name": "core/buttons",
+                "isValid": true,
+                "clientId": format!("e{}000000-0000-0000-0000-{:012}", template_index + 3, 100),
+                "attributes": {},
+                "innerBlocks": [{
+                    "name": "core/button",
+                    "isValid": true,
+                    "clientId": format!("e{}000000-0000-0000-0000-{:012}", template_index + 3, 101),
+                    "attributes": { "text": button_label, "url": "{{PLAN_LINK}}" },
+                    "innerBlocks": []
+                }]
+            }),
+        );
+        insert_email_template(
+            conn,
+            None,
+            EmailTemplateNew {
+                template_type: EmailTemplateType::CourseDesignerWeeklyDigest,
+                language: Some(language.to_string()),
+                content: Some(json!(blocks)),
+                subject: Some(subject.to_string()),
+            },
+            Some(subject),
+        )
+        .await?;
+    }
     Ok(())
 }

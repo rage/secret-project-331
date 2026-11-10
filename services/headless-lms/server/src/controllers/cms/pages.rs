@@ -240,9 +240,11 @@ GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, pre
 async fn get_page_navigation(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
+    // Lists hidden pages too, so only editors may see it.
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
     let res =
         models::pages::get_page_navigation_data(&mut conn, *page_id, PageVisibility::Any).await?;
 

@@ -2,6 +2,8 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { MAX_EXTEND_MONTHS } from "../../schedule/scheduleConstants"
+
 /** Single source of truth for extend-months value in the adjust-schedule dialog. */
 export function useAdjustScheduleDialogState(initialMonths = 1) {
   const { t } = useTranslation()
@@ -13,11 +15,11 @@ export function useAdjustScheduleDialogState(initialMonths = 1) {
 
   const extendMonthsOptions = useMemo(
     () =>
-      Array.from({ length: 6 }, (_item, index) => {
+      Array.from({ length: MAX_EXTEND_MONTHS }, (_item, index) => {
         const months = index + 1
         return {
           value: String(months),
-          label: t("course-plans-adjust-schedule-month-option", { count: months }),
+          label: t("course-plans-extend-months-option", { count: months }),
         }
       }),
     [t],
@@ -29,7 +31,10 @@ export function useAdjustScheduleDialogState(initialMonths = 1) {
 
   return {
     control,
-    extendMonths: Number.isFinite(extendMonths) && extendMonths > 0 ? extendMonths : initialMonths,
+    extendMonths:
+      Number.isFinite(extendMonths) && extendMonths > 0 && extendMonths <= MAX_EXTEND_MONTHS
+        ? extendMonths
+        : initialMonths,
     extendMonthsOptions,
     resetExtendMonths,
   }

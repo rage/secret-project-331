@@ -576,12 +576,13 @@ test("A later completion that is not better waits for the one in flight and is n
     )
   })
 
+  const registeredMails = async (id: string) =>
+    (await adminRegistrationDetails(adminApi, id)).notification_emails.filter(
+      (mail) => mail.kind === "registered",
+    )
+
   await test.step("Only the registered grade is mailed as registered", async () => {
     await runStudentNotificationsTick(page.request, laterScope)
-    const registeredMails = async (id: string) =>
-      (await adminRegistrationDetails(adminApi, id)).notification_emails.filter(
-        (mail) => mail.kind === "registered",
-      )
     expect(await registeredMails(betterId)).toHaveLength(1)
     expect(await registeredMails(worseId)).toHaveLength(0)
   })

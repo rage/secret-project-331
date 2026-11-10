@@ -1,0 +1,54 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT workspace_data,\n  workspace_revision\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND stage = $2\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "workspace_data",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_data"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "workspace_revision",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_revision"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      true,
+      false
+    ]
+  },
+  "hash": "8a87ed226e329d5e6e0e721711488973de37662789a8f6f2ed9d716fdbc7ca00"
+}

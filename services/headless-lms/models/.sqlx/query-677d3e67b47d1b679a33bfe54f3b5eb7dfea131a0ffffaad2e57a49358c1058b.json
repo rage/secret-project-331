@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_details\nSET email_verified_at = now(),\n  email_verified_method = $2\nWHERE user_id = $1\n  AND (\n    email_verified_at IS NULL\n    OR email_verified_method = 'admin_asserted'\n  )\n  AND updated_at <= $3\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "email_verification_method",
+            "kind": {
+              "Enum": [
+                "emailed_code",
+                "password_reset_backfill",
+                "tmc_confirmed",
+                "admin_asserted"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "677d3e67b47d1b679a33bfe54f3b5eb7dfea131a0ffffaad2e57a49358c1058b"
+}

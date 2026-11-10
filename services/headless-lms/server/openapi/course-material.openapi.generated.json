@@ -73,7 +73,7 @@
     "/api/v0/course-material/chapters/{chapter_id}/exercises": {
       "get": {
         "tags": ["course-material-chapters"],
-        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.",
+        "summary": "GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.",
         "operationId": "getCourseMaterialChapterPagesWithExercises",
         "parameters": [
           {
@@ -107,7 +107,7 @@
     "/api/v0/course-material/chapters/{chapter_id}/lock": {
       "post": {
         "tags": ["course-material-chapters"],
-        "summary": "\nPOST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)\n\nCompletes a chapter for the authenticated user (marks it as done).\n\nValidates that:\n- Course has chapter_locking_enabled\n- Chapter is currently unlocked (student can work on it)\n- All previous chapters in the same module are completed (sequential completion)\n- Moves all exercises to manual review\n- Unlocks next chapters for the user\n*",
+        "summary": "POST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)\n\nCompletes a chapter for the authenticated user (marks it as done).\n\nValidates that:\n- Course has chapter_locking_enabled\n- Chapter is currently unlocked (student can work on it)\n- All previous chapters in the same module are completed (sequential completion)\n- Moves all exercises to manual review\n- Unlocks next chapters for the user\n*",
         "operationId": "lockCourseMaterialChapter",
         "parameters": [
           {
@@ -138,7 +138,7 @@
     "/api/v0/course-material/chapters/{chapter_id}/lock-preview": {
       "get": {
         "tags": ["course-material-chapters"],
-        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter\n\nReturns information about unreturned exercises in the chapter before locking.\n*",
+        "summary": "GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter\n\nReturns information about unreturned exercises in the chapter before locking.\n*",
         "operationId": "getCourseMaterialChapterLockPreview",
         "parameters": [
           {
@@ -169,7 +169,7 @@
     "/api/v0/course-material/chapters/{chapter_id}/pages": {
       "get": {
         "tags": ["course-material-chapters"],
-        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.",
+        "summary": "GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.",
         "operationId": "getCourseMaterialChapterPages",
         "parameters": [
           {
@@ -203,7 +203,7 @@
     "/api/v0/course-material/chapters/{chapter_id}/pages-exclude-mainfrontpage": {
       "get": {
         "tags": ["course-material-chapters"],
-        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.",
+        "summary": "GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.",
         "operationId": "getCourseMaterialChapterPagesExcludingFrontPage",
         "parameters": [
           {
@@ -237,7 +237,7 @@
     "/api/v0/course-material/chatbot/conversations/all": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/chatbot/conversations/all`\n\nReturns all conversations that a user has.",
+        "summary": "GET `/api/v0/course-material/chatbot/conversations/all`\n\nReturns all conversations that a user has.",
         "operationId": "AllUserConversations",
         "responses": {
           "200": {
@@ -259,7 +259,7 @@
     "/api/v0/course-material/chatbot/default-for-course/{course_id}": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`\n\nReturns the default chatbot configuration id for a course if the default chatbot is enabled to students.",
+        "summary": "GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`\n\nReturns the default chatbot configuration id for a course if the default chatbot is enabled to students.",
         "operationId": "getDefaultChatbotConfigurationForCourse",
         "parameters": [
           {
@@ -291,7 +291,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`\n\nReturns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.",
+        "summary": "GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`\n\nReturns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.",
         "operationId": "getConversationInfo",
         "parameters": [
           {
@@ -332,7 +332,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current/id": {
       "get": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nGET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`\n\nReturns current chatbot conversation id.",
+        "summary": "GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`\n\nReturns current chatbot conversation id.",
         "operationId": "getCurrentConversationId",
         "parameters": [
           {
@@ -364,7 +364,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/new": {
       "post": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nPOST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/new`\n\nSends a new chat message to the chatbot.",
+        "summary": "POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/new`\n\nSends a new chat message to the chatbot.",
         "operationId": "newChatbotConversation",
         "parameters": [
           {
@@ -395,7 +395,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message": {
       "post": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`\n\nSends a new chat message to the chatbot.",
+        "summary": "POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`\n\nSends a new chat message to the chatbot.",
         "operationId": "sendChatbotMessage",
         "parameters": [
           {
@@ -446,7 +446,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response": {
       "post": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`\n\nAnswers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else\nis outstanding. Responds with the same stream `send-message` does, carrying either the resumed\nturn or a lone `Suspended` event when the turn is still waiting for another answer.",
+        "summary": "POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`\n\nAnswers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else\nis outstanding. Responds with the same stream `send-message` does, carrying either the resumed\nturn or a lone `Suspended` event when the turn is still waiting for another answer.",
         "operationId": "sendChatbotToolResponse",
         "parameters": [
           {
@@ -497,7 +497,7 @@
     "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/update-title": {
       "put": {
         "tags": ["course-material-chatbot"],
-        "summary": "\nPUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`\n\nUpdates the title of a chatbot conversation.",
+        "summary": "PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`\n\nUpdates the title of a chatbot conversation.",
         "operationId": "updateTitle",
         "parameters": [
           {
@@ -541,7 +541,7 @@
     "/api/v0/course-material/code-giveaways/{id}/claim": {
       "post": {
         "tags": ["course-material-code-giveaways"],
-        "summary": "\n POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.",
+        "summary": "POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.",
         "operationId": "claimCodeFromCodeGiveaway",
         "parameters": [
           {
@@ -572,7 +572,7 @@
     "/api/v0/course-material/code-giveaways/{id}/status": {
       "get": {
         "tags": ["course-material-code-giveaways"],
-        "summary": "\n GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.",
+        "summary": "GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.",
         "operationId": "getCodeGiveawayStatus",
         "parameters": [
           {
@@ -603,7 +603,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/background-questions-and-answers": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.",
+        "summary": "GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.",
         "operationId": "getCourseMaterialBackgroundQuestionsAndAnswers",
         "parameters": [
           {
@@ -634,7 +634,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/exercises/progress": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.",
+        "summary": "GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.",
         "operationId": "getCourseMaterialChapterExerciseProgress",
         "parameters": [
           {
@@ -678,7 +678,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/progress": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.",
+        "summary": "GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.",
         "operationId": "getCourseMaterialChapterProgress",
         "parameters": [
           {
@@ -719,7 +719,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/course-module-completions/{user_id}": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.",
+        "summary": "GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.",
         "operationId": "getCourseMaterialCourseModuleCompletionsForUser",
         "parameters": [
           {
@@ -763,7 +763,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/course-modules/{course_module_id}/points-breakdown": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.",
+        "summary": "GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.",
         "operationId": "getCourseMaterialCourseModulePointsBreakdown",
         "parameters": [
           {
@@ -807,7 +807,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/module-completions": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nGET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`",
+        "summary": "GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`",
         "operationId": "getCourseMaterialUserModuleCompletions",
         "parameters": [
           {
@@ -841,7 +841,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/progress": {
       "get": {
         "tags": ["course-material-course-instances"],
-        "summary": "\n GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.",
+        "summary": "GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.",
         "operationId": "getCourseMaterialUserCourseProgress",
         "parameters": [
           {
@@ -875,7 +875,7 @@
     "/api/v0/course-material/course-instances/{course_instance_id}/save-course-settings": {
       "post": {
         "tags": ["course-material-course-instances"],
-        "summary": "\nPOST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.",
+        "summary": "POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.",
         "operationId": "saveCourseMaterialCourseSettings",
         "parameters": [
           {
@@ -916,7 +916,7 @@
     "/api/v0/course-material/course-modules/chapter/{chapter_id}": {
       "get": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/chapter/:chapter_id`\n\nReturns course module id based on chapter.",
+        "summary": "GET `/api/v0/course-material/course-modules/chapter/:chapter_id`\n\nReturns course module id based on chapter.",
         "operationId": "getCourseMaterialModuleIdByChapterId",
         "parameters": [
           {
@@ -948,7 +948,7 @@
     "/api/v0/course-material/course-modules/course/{course_id}": {
       "get": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/course/:course_instance_id`\n\nReturns course module id based on chapter.",
+        "summary": "GET `/api/v0/course-material/course-modules/course/:course_instance_id`\n\nReturns course module id based on chapter.",
         "operationId": "getCourseMaterialDefaultModuleIdByCourseId",
         "parameters": [
           {
@@ -980,7 +980,7 @@
     "/api/v0/course-material/course-modules/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}": {
       "get": {
         "tags": ["course-material-course-modules"],
-        "summary": "\nGET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`\n\nReturns exercise submissions for user to be used in en exercise service Custom view.",
+        "summary": "GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`\n\nReturns exercise submissions for user to be used in en exercise service Custom view.",
         "operationId": "getCourseMaterialExerciseTasksByModuleAndType",
         "parameters": [
           {
@@ -1030,7 +1030,7 @@
     "/api/v0/course-material/courses/{course_id}": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id` - Get course.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id` - Get course.",
         "operationId": "getCourseMaterialCourse",
         "parameters": [
           {
@@ -1061,7 +1061,7 @@
     "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the\ncurrent user has acknowledged the AI-usage / academic-integrity notice for this course.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the\ncurrent user has acknowledged the AI-usage / academic-integrity notice for this course.",
         "operationId": "getAiUsageNoticeAcknowledgement",
         "parameters": [
           {
@@ -1090,7 +1090,7 @@
       },
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that\nthe current user has acknowledged the AI-usage / academic-integrity notice for this course.",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that\nthe current user has acknowledged the AI-usage / academic-integrity notice for this course.",
         "operationId": "acknowledgeAiUsageNotice",
         "parameters": [
           {
@@ -1121,7 +1121,7 @@
     "/api/v0/course-material/courses/{course_id}/chapters": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.",
         "operationId": "getCourseMaterialChapters",
         "parameters": [
           {
@@ -1152,7 +1152,7 @@
     "/api/v0/course-material/courses/{course_id}/course-instances": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.",
         "operationId": "getCourseMaterialCourseInstances",
         "parameters": [
           {
@@ -1186,7 +1186,7 @@
     "/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.",
+        "summary": "GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.",
         "operationId": "getCourseMaterialStudentCountries",
         "parameters": [
           {
@@ -1235,7 +1235,7 @@
     "/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.",
+        "summary": "POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.",
         "operationId": "postCourseMaterialStudentCountry",
         "parameters": [
           {
@@ -1285,7 +1285,7 @@
     "/api/v0/course-material/courses/{course_id}/current-instance": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.",
         "operationId": "getCurrentCourseMaterialCourseInstance",
         "parameters": [
           {
@@ -1307,10 +1307,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/CourseInstance"
                     },
                     {
-                      "$ref": "#/components/schemas/CourseInstance"
+                      "type": "null"
                     }
                   ]
                 }
@@ -1323,7 +1323,7 @@
     "/api/v0/course-material/courses/{course_id}/custom-privacy-policy-checkbox-texts": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.",
+        "summary": "GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.",
         "operationId": "getCourseMaterialCustomPrivacyPolicyCheckboxTexts",
         "parameters": [
           {
@@ -1357,7 +1357,7 @@
     "/api/v0/course-material/courses/{course_id}/feedback": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.",
         "operationId": "postFeedback",
         "parameters": [
           {
@@ -1405,7 +1405,7 @@
     "/api/v0/course-material/courses/{course_id}/fetch-user-marketing-consent": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`",
         "operationId": "getCourseMaterialUserMarketingConsent",
         "parameters": [
           {
@@ -1427,10 +1427,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/UserMarketingConsent"
                     },
                     {
-                      "$ref": "#/components/schemas/UserMarketingConsent"
+                      "type": "null"
                     }
                   ]
                 }
@@ -1476,7 +1476,7 @@
     "/api/v0/course-material/courses/{course_id}/language-versions-navigation-info/from-page/{page_id}": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.",
+        "summary": "GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.",
         "operationId": "getCourseMaterialLanguageVersionNavigationInfos",
         "parameters": [
           {
@@ -1520,7 +1520,7 @@
     "/api/v0/course-material/courses/{course_id}/pages": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.\n\nSince anyone can access this endpoint, any unlisted pages are omited from these results.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.\n\nSince anyone can access this endpoint, any unlisted pages are omited from these results.",
         "operationId": "getCourseMaterialCoursePages",
         "parameters": [
           {
@@ -1554,7 +1554,7 @@
     "/api/v0/course-material/courses/{course_id}/pages/by-language-group-id/{page_language_group_id}": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.",
+        "summary": "GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.",
         "operationId": "getCourseMaterialPageByCourseIdAndLanguageGroupId",
         "parameters": [
           {
@@ -1595,7 +1595,7 @@
     "/api/v0/course-material/courses/{course_id}/partners-block": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET /courses/:course_id/partners-block - Gets a partners block related to a course",
+        "summary": "GET /courses/:course_id/partners-block - Gets a partners block related to a course",
         "operationId": "getCourseMaterialPartnersBlock",
         "parameters": [
           {
@@ -1617,10 +1617,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/PartnersBlock"
                     },
                     {
-                      "$ref": "#/components/schemas/PartnersBlock"
+                      "type": "null"
                     }
                   ]
                 }
@@ -1633,7 +1633,7 @@
     "/api/v0/course-material/courses/{course_id}/privacy-link": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET /courses/:course_id/privacy_link - Gets a privacy link related to a course",
+        "summary": "GET /courses/:course_id/privacy_link - Gets a privacy link related to a course",
         "operationId": "getCourseMaterialPrivacyLink",
         "parameters": [
           {
@@ -1700,7 +1700,7 @@
     "/api/v0/course-material/courses/{course_id}/research-consent-form": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.",
         "operationId": "getCourseMaterialResearchConsentForm",
         "parameters": [
           {
@@ -1722,10 +1722,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/ResearchForm"
                     },
                     {
-                      "$ref": "#/components/schemas/ResearchForm"
+                      "type": "null"
                     }
                   ]
                 }
@@ -1738,7 +1738,7 @@
     "/api/v0/course-material/courses/{course_id}/research-consent-form-questions": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.",
         "operationId": "getCourseMaterialResearchConsentFormQuestions",
         "parameters": [
           {
@@ -1772,7 +1772,7 @@
     "/api/v0/course-material/courses/{course_id}/research-consent-form-questions-answer": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.",
         "operationId": "postCourseMaterialResearchConsentFormAnswer",
         "parameters": [
           {
@@ -1814,7 +1814,7 @@
     "/api/v0/course-material/courses/{course_id}/research-consent-form-user-answers": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.",
+        "summary": "GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.",
         "operationId": "getCourseMaterialResearchConsentFormAnswers",
         "parameters": [
           {
@@ -1848,7 +1848,7 @@
     "/api/v0/course-material/courses/{course_id}/search-pages-with-phrase": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.\n\nProvided words are supposed to appear right after each other in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-phrase HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.\n\nProvided words are supposed to appear right after each other in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-phrase HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
         "operationId": "searchPagesWithPhrase",
         "parameters": [
           {
@@ -1892,7 +1892,7 @@
     "/api/v0/course-material/courses/{course_id}/search-pages-with-words": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.\n\nProvided words can appear in any order in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-words HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.\n\nProvided words can appear in any order in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-words HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
         "operationId": "searchPagesWithWords",
         "parameters": [
           {
@@ -1936,7 +1936,7 @@
     "/api/v0/course-material/courses/{course_id}/top-level-pages": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET /api/v0/course-material/courses/:course_id/top-level-pages",
+        "summary": "GET /api/v0/course-material/courses/:course_id/top-level-pages",
         "operationId": "getCourseMaterialTopLevelPages",
         "parameters": [
           {
@@ -1970,7 +1970,7 @@
     "/api/v0/course-material/courses/{course_id}/user-chapter-locks": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locking statuses for course\n\nReturns all chapters that the authenticated user has unlocked or completed for the specified course.\n*",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locking statuses for course\n\nReturns all chapters that the authenticated user has unlocked or completed for the specified course.\n*",
         "operationId": "getCourseMaterialUserChapterLocks",
         "parameters": [
           {
@@ -2004,7 +2004,7 @@
     "/api/v0/course-material/courses/{course_id}/user-marketing-consent": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.",
+        "summary": "POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.",
         "operationId": "updateMarketingConsent",
         "parameters": [
           {
@@ -2046,7 +2046,7 @@
     "/api/v0/course-material/courses/{course_id}/user-settings": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.",
+        "summary": "GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.",
         "operationId": "getCourseMaterialUserCourseSettings",
         "parameters": [
           {
@@ -2068,10 +2068,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/UserCourseSettings"
                     },
                     {
-                      "$ref": "#/components/schemas/UserCourseSettings"
+                      "type": "null"
                     }
                   ]
                 }
@@ -2084,7 +2084,7 @@
     "/api/v0/course-material/courses/{course_instance_id}/student-country": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.",
+        "summary": "GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.",
         "operationId": "getCourseMaterialStudentCountry",
         "parameters": [
           {
@@ -2115,7 +2115,7 @@
     "/api/v0/course-material/courses/{course_slug}/page-by-path/{url_path}": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/:course_slug/page-by-path/...` - Returns a course page by path\n\nIf the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.\n\n# Example\nGET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world",
+        "summary": "GET `/:course_slug/page-by-path/...` - Returns a course page by path\n\nIf the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.\n\n# Example\nGET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world",
         "operationId": "getCourseMaterialCoursePageByPath",
         "parameters": [
           {
@@ -2154,7 +2154,7 @@
     "/api/v0/course-material/courses/{course_slug}/propose-edit": {
       "post": {
         "tags": ["course-material-courses"],
-        "summary": "\nPOST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.",
+        "summary": "POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.",
         "operationId": "postCourseMaterialCourseEditProposal",
         "parameters": [
           {
@@ -2195,7 +2195,7 @@
     "/api/v0/course-material/exams/testexam/{id}/fetch-exam-for-testing": {
       "get": {
         "tags": ["course-material-exams"],
-        "summary": "\nGET /api/v0/course-material/exams/:id/fetch-exam-for-testing\n\nFetches an exam for testing.",
+        "summary": "GET /api/v0/course-material/exams/:id/fetch-exam-for-testing\n\nFetches an exam for testing.",
         "operationId": "fetchExamForTesting",
         "parameters": [
           {
@@ -2226,7 +2226,7 @@
     "/api/v0/course-material/exams/testexam/{id}/reset-exam-progress": {
       "post": {
         "tags": ["course-material-exams"],
-        "summary": "\nPOST /api/v0/course-material/exams/:id/reset-exam-progress\n\nUsed for testing an exam, resets exercise submissions and restarts the exam time.",
+        "summary": "POST /api/v0/course-material/exams/:id/reset-exam-progress\n\nUsed for testing an exam, resets exercise submissions and restarts the exam time.",
         "operationId": "resetExamProgress",
         "parameters": [
           {
@@ -2257,7 +2257,7 @@
     "/api/v0/course-material/exams/testexam/{id}/update-show-exercise-answers": {
       "post": {
         "tags": ["course-material-exams"],
-        "summary": "\nPOST /api/v0/course-material/exams/:id/update-show-exercise-answers\n\nUsed for testing an exam, updates wheter exercise answers are shown.",
+        "summary": "POST /api/v0/course-material/exams/:id/update-show-exercise-answers\n\nUsed for testing an exam, updates wheter exercise answers are shown.",
         "operationId": "updateShowExerciseAnswers",
         "parameters": [
           {
@@ -2298,7 +2298,7 @@
     "/api/v0/course-material/exams/{id}": {
       "get": {
         "tags": ["course-material-exams"],
-        "summary": "\nGET /api/v0/course-material/exams/:id",
+        "summary": "GET /api/v0/course-material/exams/:id",
         "operationId": "fetchExam",
         "parameters": [
           {
@@ -2329,7 +2329,7 @@
     "/api/v0/course-material/exams/{id}/end-exam-time": {
       "post": {
         "tags": ["course-material-exams"],
-        "summary": "\nPOST /api/v0/course-material/exams/:id/end-exam-time\n\nUsed for marking the students exam as ended in the exam enrollment",
+        "summary": "POST /api/v0/course-material/exams/:id/end-exam-time\n\nUsed for marking the students exam as ended in the exam enrollment",
         "operationId": "endExamTime",
         "parameters": [
           {
@@ -2360,7 +2360,7 @@
     "/api/v0/course-material/exams/{id}/enroll": {
       "post": {
         "tags": ["course-material-exams"],
-        "summary": "\nPOST /api/v0/course-material/exams/:id/enroll",
+        "summary": "POST /api/v0/course-material/exams/:id/enroll",
         "operationId": "enrollInExam",
         "parameters": [
           {
@@ -2401,7 +2401,7 @@
     "/api/v0/course-material/exams/{id}/enrollment": {
       "get": {
         "tags": ["course-material-exams"],
-        "summary": "\nGET /api/v0/course-material/exams/:id/enrollment",
+        "summary": "GET /api/v0/course-material/exams/:id/enrollment",
         "operationId": "fetchExamEnrollment",
         "parameters": [
           {
@@ -2423,10 +2423,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/ExamEnrollment"
                     },
                     {
-                      "$ref": "#/components/schemas/ExamEnrollment"
+                      "type": "null"
                     }
                   ]
                 }
@@ -2439,7 +2439,7 @@
     "/api/v0/course-material/exercises/{exercise_id}": {
       "get": {
         "tags": ["course-material-exercises"],
-        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes\nrelevant context so that doing the exercise is possible based on the response.\n\nThis endpoint does not expose exercise's private spec because it would\nexpose the correct answers to the user.",
+        "summary": "GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes\nrelevant context so that doing the exercise is possible based on the response.\n\nThis endpoint does not expose exercise's private spec because it would\nexpose the correct answers to the user.",
         "operationId": "getCourseMaterialExercise",
         "parameters": [
           {
@@ -2470,7 +2470,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received": {
       "get": {
         "tags": ["course-material-exercises"],
-        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.",
+        "summary": "GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.",
         "operationId": "fetchPeerReviewDataReceivedByExerciseId",
         "parameters": [
           {
@@ -2511,7 +2511,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/flag-peer-review-answer": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student",
+        "summary": "* POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student",
         "operationId": "postFlagAnswerInPeerReview",
         "parameters": [
           {
@@ -2552,7 +2552,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an\n * exercise submission.",
+        "summary": "* POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an\n * exercise submission.",
         "operationId": "postPeerOrSelfReviewSubmission",
         "parameters": [
           {
@@ -2593,7 +2593,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews/start": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that\n * the user will start the peer or self reviewing process.\n *\n * This operation is only valid for exercises marked for peer reviews. No further submissions will be\n * accepted after posting to this endpoint.",
+        "summary": "* POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that\n * the user will start the peer or self reviewing process.\n *\n * This operation is only valid for exercises marked for peer reviews. No further submissions will be\n * accepted after posting to this endpoint.",
         "operationId": "postStartPeerOrSelfReview",
         "parameters": [
           {
@@ -2624,7 +2624,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/peer-review": {
       "get": {
         "tags": ["course-material-exercises"],
-        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER\n\nThis request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.",
+        "summary": "GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER\n\nThis request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.",
         "operationId": "fetchPeerOrSelfReviewDataByExerciseId",
         "parameters": [
           {
@@ -2655,7 +2655,7 @@
     "/api/v0/course-material/exercises/{exercise_id}/submissions": {
       "post": {
         "tags": ["course-material-exercises"],
-        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"answer\": {\n        \"kind\": \"json\",\n        \"data\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n      }\n    }\n  ]\n}\n```",
+        "summary": "POST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"answer\": {\n        \"kind\": \"json\",\n        \"data\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n      }\n    }\n  ]\n}\n```",
         "operationId": "postSubmission",
         "parameters": [
           {
@@ -2696,7 +2696,7 @@
     "/api/v0/course-material/oembed/mentimeter": {
       "get": {
         "tags": ["course-material-oembed"],
-        "summary": "\nGET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`",
+        "summary": "GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`",
         "operationId": "getCourseMaterialMentimeterOembed",
         "parameters": [
           {
@@ -2726,7 +2726,7 @@
     "/api/v0/course-material/organizations/{organization_id}": {
       "get": {
         "tags": ["course-material-organizations"],
-        "summary": "\nGET /organizations/:organization_id - Get organization.",
+        "summary": "GET /organizations/:organization_id - Get organization.",
         "operationId": "getCourseMaterialOrganization",
         "parameters": [
           {
@@ -2790,7 +2790,7 @@
     "/api/v0/course-material/pages/exam/{page_id}": {
       "get": {
         "tags": ["course-material-pages"],
-        "summary": "\nGET /api/v0/course-material/pages/exam/{page_id}",
+        "summary": "GET /api/v0/course-material/pages/exam/{page_id}",
         "operationId": "getCourseMaterialPageByExamId",
         "parameters": [
           {
@@ -2821,7 +2821,7 @@
     "/api/v0/course-material/pages/{current_page_id}/chapter-and-course-information": {
       "get": {
         "tags": ["course-material-pages"],
-        "summary": "\n GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs",
+        "summary": "GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs",
         "operationId": "getCourseMaterialPageChapterAndCourseInformation",
         "parameters": [
           {
@@ -2852,7 +2852,7 @@
     "/api/v0/course-material/pages/{current_page_id}/chapter-front-page": {
       "get": {
         "tags": ["course-material-pages"],
-        "summary": "\nGET /api/v0/course-material/page/{page_id}",
+        "summary": "GET /api/v0/course-material/page/{page_id}",
         "operationId": "getCourseMaterialChapterFrontPage",
         "parameters": [
           {
@@ -2874,10 +2874,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/Page"
                     },
                     {
-                      "$ref": "#/components/schemas/Page"
+                      "type": "null"
                     }
                   ]
                 }
@@ -2920,7 +2920,7 @@
     "/api/v0/course-material/pages/{current_page_id}/page-navigation": {
       "get": {
         "tags": ["course-material-pages"],
-        "summary": "\nGET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.",
+        "summary": "GET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.",
         "operationId": "getCourseMaterialPageNavigation",
         "parameters": [
           {
@@ -2951,7 +2951,7 @@
     "/api/v0/course-material/pages/{current_page_id}/url-path": {
       "get": {
         "tags": ["course-material-pages"],
-        "summary": "\n GET /api/v0/course-material/pages/:page_id/url-path - returns the page's URL path.\n # Example\n ```json\n \"chapter-1/page-2\"\n ```",
+        "summary": "GET /api/v0/course-material/pages/:page_id/url-path - returns the page's URL path.\n # Example\n ```json\n \"chapter-1/page-2\"\n ```",
         "operationId": "getCourseMaterialPageUrlPath",
         "parameters": [
           {
@@ -2982,7 +2982,7 @@
     "/api/v0/course-material/proposed-edits/{course_id}": {
       "post": {
         "tags": ["course-material-proposed-edits"],
-        "summary": "\nPOST `/api/v0/course-material/proposed-edits/:course-id`",
+        "summary": "POST `/api/v0/course-material/proposed-edits/:course-id`",
         "operationId": "postCourseMaterialProposedEdits",
         "parameters": [
           {
@@ -3016,7 +3016,7 @@
     "/api/v0/course-material/user-details/update-user-info": {
       "post": {
         "tags": ["course-material-user-details"],
-        "summary": "\nPOST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent",
+        "summary": "POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent",
         "operationId": "updateCourseMaterialUserInfo",
         "requestBody": {
           "content": {
@@ -3045,7 +3045,7 @@
     "/api/v0/course-material/user-details/user": {
       "get": {
         "tags": ["course-material-user-details"],
-        "summary": "\nGET `/api/v0/course-material/user-details/user` - Find user details by user id",
+        "summary": "GET `/api/v0/course-material/user-details/user` - Find user details by user id",
         "operationId": "getCourseMaterialAuthenticatedUserDetails",
         "responses": {
           "200": {
@@ -3064,7 +3064,7 @@
     "/api/v0/course-material/user-details/users-ip-country": {
       "get": {
         "tags": ["course-material-user-details"],
-        "summary": "\nGET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address",
+        "summary": "GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address",
         "operationId": "getCourseMaterialCountryFromIp",
         "responses": {
           "200": {
@@ -3085,7 +3085,7 @@
     "schemas": {
       "ActivityProgress": {
         "type": "string",
-        "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
+        "description": "Indicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
       },
       "AnswerFile": {
@@ -3437,6 +3437,11 @@
           "conversation_title": {
             "type": ["string", "null"]
           },
+          "course_designer_plan_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set for conversations with the course design assistant about this plan."
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -3477,10 +3482,10 @@
           "current_conversation": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ChatbotConversation"
               },
               {
-                "$ref": "#/components/schemas/ChatbotConversation"
+                "type": "null"
               }
             ]
           },
@@ -3894,7 +3899,13 @@
           "reset_exercises",
           "update_cheating_status",
           "edit_user_account",
-          "update_certificate"
+          "update_certificate",
+          "propose_workspace_edit",
+          "propose_add_task",
+          "propose_update_task",
+          "propose_schedule_adjustment",
+          "propose_section_status",
+          "propose_vision_edit"
         ]
       },
       "CodeGiveawayStatus": {
@@ -4357,31 +4368,31 @@
           "exercise_status": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ExerciseStatus",
                 "description": "None for logged out users."
+              },
+              {
+                "type": "null"
               }
             ]
           },
           "peer_or_self_review_config": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewConfig"
               },
               {
-                "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewConfig"
+                "type": "null"
               }
             ]
           },
           "previous_exercise_slide_submission": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ExerciseSlideSubmission"
               },
               {
-                "$ref": "#/components/schemas/ExerciseSlideSubmission"
+                "type": "null"
               }
             ]
           },
@@ -4391,11 +4402,11 @@
           "teacher_grading_decision": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/CourseMaterialTeacherGradingDecision",
                 "description": "The latest non-FullPoints grading decision addressed to the student, unless the teacher marked it hidden."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -4441,7 +4452,7 @@
           },
           "exercise_iframe_url": {
             "type": ["string", "null"],
-            "description": "\n    If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
+            "description": "If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
           },
           "exercise_service_slug": {
             "type": "string"
@@ -4462,27 +4473,27 @@
           "previous_submission": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ExerciseTaskSubmission"
               },
               {
-                "$ref": "#/components/schemas/ExerciseTaskSubmission"
+                "type": "null"
               }
             ]
           },
           "previous_submission_grading": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ExerciseTaskGrading"
               },
               {
-                "$ref": "#/components/schemas/ExerciseTaskGrading"
+                "type": "null"
               }
             ]
           },
           "pseudonumous_user_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "\n    Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
+            "description": "Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
           },
           "public_spec": {}
         }
@@ -4560,11 +4571,11 @@
           "answer_to_review": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewDataAnswerToReview",
                 "description": "If none, no answer was available for review."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -4764,20 +4775,20 @@
           "course": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/CourseMaterialCourse"
               },
               {
-                "$ref": "#/components/schemas/CourseMaterialCourse"
+                "type": "null"
               }
             ]
           },
           "instance": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/CourseInstance"
               },
               {
-                "$ref": "#/components/schemas/CourseInstance"
+                "type": "null"
               }
             ]
           },
@@ -4787,20 +4798,20 @@
           "lock_chapter_content_state": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/LockChapterContentState"
               },
               {
-                "$ref": "#/components/schemas/LockChapterContentState"
+                "type": "null"
               }
             ]
           },
           "organization": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/Organization"
               },
               {
-                "$ref": "#/components/schemas/Organization"
+                "type": "null"
               }
             ]
           },
@@ -4810,10 +4821,10 @@
           "settings": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/UserCourseSettings"
               },
               {
-                "$ref": "#/components/schemas/UserCourseSettings"
+                "type": "null"
               }
             ]
           },
@@ -5711,7 +5722,7 @@
       },
       "GradingProgress": {
         "type": "string",
-        "description": "\n\nTells what's the status of the grading progress for a user and exercise.\n\nAs close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>",
+        "description": "Tells what's the status of the grading progress for a user and exercise.\n\nAs close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>",
         "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
       },
       "IsChapterFrontPage": {
@@ -5808,10 +5819,10 @@
           "category": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/NewFeedbackCategory"
               },
               {
-                "$ref": "#/components/schemas/NewFeedbackCategory"
+                "type": "null"
               }
             ]
           },
@@ -6089,30 +6100,30 @@
           "chapter_front_page": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/PageRoutingData"
               },
               {
-                "$ref": "#/components/schemas/PageRoutingData"
+                "type": "null"
               }
             ]
           },
           "next_page": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/PageRoutingData"
               },
               {
-                "$ref": "#/components/schemas/PageRoutingData"
+                "type": "null"
               }
             ]
           },
           "previous_page": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/PageRoutingData"
               },
               {
-                "$ref": "#/components/schemas/PageRoutingData"
+                "type": "null"
               }
             ]
           }
@@ -6422,57 +6433,6 @@
         "type": "string",
         "enum": ["Essay", "Scale"]
       },
-      "PeerOrSelfReviewSubmission": {
-        "type": "object",
-        "required": [
-          "id",
-          "created_at",
-          "updated_at",
-          "user_id",
-          "exercise_id",
-          "course_id",
-          "peer_or_self_review_config_id",
-          "exercise_slide_submission_id"
-        ],
-        "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "exercise_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "exercise_slide_submission_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "peer_or_self_review_config_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "user_id": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
-      },
       "PeerOrSelfReviewsReceived": {
         "type": "object",
         "required": [
@@ -6496,14 +6456,14 @@
           "peer_or_self_review_submissions": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PeerOrSelfReviewSubmission"
+              "$ref": "#/components/schemas/ReceivedPeerOrSelfReviewSubmission"
             }
           }
         }
       },
       "PeerReviewProcessingStrategy": {
         "type": "string",
-        "description": "\nDetermines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.\n\nSome strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.",
+        "description": "Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.\n\nSome strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.",
         "enum": [
           "AutomaticallyGradeByAverage",
           "AutomaticallyGradeOrManualReviewByAverage",
@@ -6539,6 +6499,28 @@
           },
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "ReceivedPeerOrSelfReviewSubmission": {
+        "type": "object",
+        "description": "A review as its receiver sees it: without the reviewer's identity, which peer review keeps\nanonymous.",
+        "required": ["id", "created_at", "exercise_slide_submission_id", "is_self_review"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_self_review": {
+            "type": "boolean"
           }
         }
       },
@@ -6660,7 +6642,7 @@
       },
       "ReviewingStage": {
         "type": "string",
-        "description": "\nTells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.",
+        "description": "Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.",
         "enum": [
           "NotStarted",
           "PeerReview",
@@ -6704,11 +6686,11 @@
           "page_context": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/ChatbotPageContext",
                 "description": "The course material page the learner has open, when they are on one."
+              },
+              {
+                "type": "null"
               }
             ]
           }
@@ -6802,10 +6784,10 @@
           "exercise_status": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ExerciseStatus"
               },
               {
-                "$ref": "#/components/schemas/ExerciseStatus"
+                "type": "null"
               }
             ]
           },
@@ -6830,11 +6812,11 @@
           "answer_kind": {
             "oneOf": [
               {
-                "type": "null"
-              },
-              {
                 "$ref": "#/components/schemas/AnswerKind",
                 "description": "Absent means `json`, so a client that only ever answers with JSON never sends it."
+              },
+              {
+                "type": "null"
               }
             ]
           },
@@ -6865,10 +6847,10 @@
           "grading": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/ExerciseTaskGrading"
               },
               {
-                "$ref": "#/components/schemas/ExerciseTaskGrading"
+                "type": "null"
               }
             ]
           },
@@ -7214,10 +7196,10 @@
           "email_verified_method": {
             "oneOf": [
               {
-                "type": "null"
+                "$ref": "#/components/schemas/EmailVerificationMethod"
               },
               {
-                "$ref": "#/components/schemas/EmailVerificationMethod"
+                "type": "null"
               }
             ]
           },

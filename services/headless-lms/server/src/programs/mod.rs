@@ -3,6 +3,7 @@ Executable programs that can be started. Contains for example the server program
 */
 pub mod calculate_page_visit_stats;
 pub mod chatbot_syncer;
+pub mod course_designer_weekly_digest;
 pub mod credit_registration_workers;
 pub mod doc_file_generator;
 pub mod email_deliver;

@@ -8,13 +8,13 @@ import {
   createCourseDesignerScheduleSuggestionMutation,
   finalizeCourseDesignerScheduleMutation,
   getCourseDesignerPlanOptions,
-  getCourseDesignerPlanQueryKey,
   getCourseDesignerPlansQueryKey,
   saveCourseDesignerScheduleMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerCourseSize, CourseDesignerStage } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
+import { useInvalidatePlan } from "../../../hooks/useInvalidatePlan"
 import type { ScheduleWizardStep } from "../scheduleAtoms"
 import {
   addMonthToStageAtomFamily,
@@ -77,6 +77,7 @@ function stepIndex(step: ScheduleWizardStepId): number {
 
 export default function useScheduleWizardController(planId: string) {
   const queryClient = useQueryClient()
+  const invalidatePlan = useInvalidatePlan(planId)
 
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
@@ -156,9 +157,7 @@ export default function useScheduleWizardController(planId: string) {
     {
       onSuccess: async (details) => {
         setDraftStages(toDraftStages(details.stages))
-        await queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        await invalidatePlan()
         await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
       },
     },
@@ -169,9 +168,7 @@ export default function useScheduleWizardController(planId: string) {
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        await invalidatePlan()
         await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
       },
     },

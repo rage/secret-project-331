@@ -99,6 +99,11 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
               },
               {
                 // oxlint-disable-next-line i18next/no-literal-string
+                value: "verify_network",
+                label: t("email-template-type-verify-network"),
+              },
+              {
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "credit_registration_account_linking",
                 label: t("email-template-type-credit-registration-account-linking"),
               },

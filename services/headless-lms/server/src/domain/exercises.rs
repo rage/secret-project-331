@@ -31,6 +31,7 @@ pub async fn process_submission(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> Result<StudentExerciseSlideSubmissionResult, ControllerError> {
+    enforce_chapter_locking(conn, user_id, &exercise).await?;
     verify_named_uploads(conn, exercise.id, user_id, submission).await?;
 
     let mut tx = conn.begin().await?;
@@ -200,6 +201,7 @@ pub async fn verify_user_can_answer_exercise_slide(
     slide_id: Uuid,
 ) -> Result<(), ControllerError> {
     enforce_deadline(conn, exercise).await?;
+    enforce_chapter_locking(conn, user_id, exercise).await?;
     resolve_course_or_exam_id_and_verify_that_user_can_submit(conn, user_id, exercise, slide_id)
         .await?;
     Ok(())
@@ -218,6 +220,7 @@ pub async fn verify_user_can_answer_exercise(
     exercise: &Exercise,
 ) -> Result<(), ControllerError> {
     enforce_deadline(conn, exercise).await?;
+    enforce_chapter_locking(conn, user_id, exercise).await?;
     let course_or_exam_id =
         resolve_course_or_exam_id_for_submitting(conn, user_id, exercise).await?;
     verify_any_slide_has_tries_left(conn, user_id, exercise, course_or_exam_id).await
@@ -283,6 +286,43 @@ fn try_limit(exercise: &Exercise) -> Option<i64> {
         .then_some(exercise.max_tries_per_slide)
         .flatten()
         .map(i64::from)
+}
+
+/// Rejects answering in a chapter the user has not unlocked yet, or has already locked, on courses
+/// that use chapter locking. Lives here so every submit and upload route enforces it.
+async fn enforce_chapter_locking(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &Exercise,
+) -> Result<(), ControllerError> {
+    let Some(chapter_id) = exercise.chapter_id else {
+        return Ok(());
+    };
+    let course_id = models::chapters::get_course_id(conn, chapter_id).await?;
+    if !models::user_chapter_locking_statuses::is_chapter_accessible(
+        conn, user_id, chapter_id, course_id,
+    )
+    .await?
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Complete and lock the previous chapter to unlock exercises in this chapter."
+                .to_string(),
+            None,
+        ));
+    }
+    if models::user_chapter_locking_statuses::is_chapter_exercises_locked(
+        conn, user_id, chapter_id, course_id,
+    )
+    .await?
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "The current chapter is locked, and you can no longer submit exercises.".to_string(),
+            None,
+        ));
+    }
+    Ok(())
 }
 
 /// Returns an error if the chapter's or exercise's deadline has passed.

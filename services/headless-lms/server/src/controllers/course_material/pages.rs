@@ -118,7 +118,7 @@ async fn get_by_exam_id(
     auth: AuthUser,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(auth.id), Res::Exam(*exam_id)).await?;
+    let token = super::exams::authorize_exam_content_access(&mut conn, *exam_id, auth.id).await?;
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
     let page = models::pages::filter_course_material_page(&mut conn, Some(auth.id), page).await?;
     token.authorized_ok(web::Json(page))

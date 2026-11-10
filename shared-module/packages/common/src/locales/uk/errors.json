@@ -2,8 +2,16 @@
   "button-text-try-again": "Спробувати знову",
   "default-toast-error-message": "Виникла помилка",
   "default-toast-error-title": "Помилка",
+  "dynamic-import-error-boundary-reload": "Перезавантажити сторінку",
+  "dynamic-import-error-boundary-title": "Не вдалося завантажити цю частину сторінки.",
+  "error-code": "Код: {{code}}",
   "error-hide-details": "Сховати деталі",
   "error-issue": "Проблема: {{issue}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Для завдання вправи не вказано тип вправи."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Увійдіть, щоб переглядати екзаменаційні завдання.",
@@ -12,18 +20,107 @@
     "chapter_not_open_yet": {
       "message": "Цей розділ ще не відкрито.",
       "title": "Розділ закрито"
+    },
+    "course_slug_already_taken": {
+      "message": "Інший курс уже використовує цей slug. Виберіть інший.",
+      "title": "Slug уже використовується"
+    },
+    "forbidden": {
+      "message": "Ви не маєте дозволу на цю дію.",
+      "title": "Заборонено"
+    },
+    "foreign_key_violation": {
+      "message": "Не вдалося вставити або оновити дані в таблиці «{{table}}» через обмеження «{{constraint}}». Перевірте пов’язані з обмеженням дані й спробуйте ще раз.",
+      "title": "Порушення зовнішнього ключа"
+    },
+    "generic_sisu_error": {
+      "message": "Не вдалося створити опис",
+      "title": "Не вдалося створити опис"
+    },
+    "internal_error": {
+      "message": "Спробуйте ще раз за мить.",
+      "title": "Щось пішло не так"
+    },
+    "invalid_course_code": {
+      "message": "Переконайтеся, що вказані в модулях коди курсів Гельсінського університету правильні.",
+      "title": "Не вдалося створити опис"
+    },
+    "not_found": {
+      "message": "Запитаний ресурс не знайдено.",
+      "title": "Не знайдено"
+    },
+    "oauth_error": {
+      "message": "Увійдіть ще раз.",
+      "title": "Автентифікація не вдалася"
+    },
+    "rate_limited": {
+      "message": "Зачекайте й спробуйте ще раз.",
+      "title": "Забагато запитів"
+    },
+    "response_validation_error": {
+      "message": "Сервер відповів успішно, але дані мають неочікуваний формат.",
+      "title": "Не вдалося показати дані"
+    },
+    "sisu_resource_not_found": {
+      "message": "Не вдалося знайти ресурси в Sisu.",
+      "title": "Ресурси не знайдено"
+    },
+    "unauthorized": {
+      "message": "Увійдіть і спробуйте ще раз.",
+      "title": "Не авторизовано"
+    },
+    "validation_error": {
+      "message": "Перевірте введені дані й спробуйте ще раз.",
+      "title": "Недійсні дані"
+    },
+    "validation_error_with_metadata": {
+      "message": "Перевірте виділений вміст і спробуйте ще раз.",
+      "title": "Недійсні дані"
     }
   },
+  "error-message-key-line": "Ключ повідомлення: {{messageKey}}",
+  "error-multiple-errors-occurred": "Сталося кілька помилок",
   "error-original-message": "Оригінальне повідомлення",
   "error-page-without-course": "Помилка: сторінка не пов'язана з жодним курсом",
   "error-part-of-page-has-crashed-error": "Частина сторінки аварійно завершила роботу: {{error}}",
+  "error-request-cancelled": "Запит скасовано",
+  "error-request-failed": "Запит не вдався",
   "error-request-id": "ID запиту: {{requestId}}",
+  "error-retry-after": "Повторити через: {{seconds}} с",
   "error-show-details": "Показати деталі",
+  "error-source-method": "Метод: {{method}}",
+  "error-source-url": "URL: {{url}}",
   "error-status": "Статус: {{status}}",
   "error-title": "Помилка",
+  "error-too-many-requests": "Забагато запитів. Спробуйте пізніше.",
   "error-type": "Тип: {{type}}",
+  "error-unexpected-error": "Неочікувана помилка",
+  "error-zod-issue": {
+    "invalid_format": "Очікується {{format}}",
+    "invalid_format_pattern": "Очікується формат, що відповідає {{pattern}}",
+    "invalid_type": "Очікується {{expected}}, отримано {{received}}",
+    "too_big": "Має бути {{comparator}} {{maximum}}",
+    "too_small": "Має бути {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Нерозпізнані ключі: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Проблема перевірки в",
+  "errorNotice.code": "Код",
+  "errorNotice.copyReport": "Скопіювати звіт про помилку",
+  "errorNotice.detail": "Деталі",
+  "errorNotice.messageKey": "Ключ повідомлення",
+  "errorNotice.method": "Метод",
+  "errorNotice.page": "Сторінка",
+  "errorNotice.rawResponse": "Необроблена відповідь",
+  "errorNotice.requestId": "ID запиту",
+  "errorNotice.retry": "Повторити",
+  "errorNotice.retryAfter": "Повторити через",
+  "errorNotice.seconds": "{{seconds}} с",
+  "errorNotice.stackTrace": "Трасування стека",
   "errorNotice.status": "Статус",
+  "errorNotice.technicalDetails": "Технічні деталі",
+  "errorNotice.time": "Час",
   "errorNotice.type": "Тип",
+  "errorNotice.url": "URL",
   "failed-to-send-message": "Не вдалося надіслати повідомлення",
   "go-to-error": "Перейти до помилки",
   "label-error-loading": "Помилка завантаження даних.",

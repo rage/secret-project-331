@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*) AS \"count!\"\nFROM user_email_codes\nWHERE user_id = $1\n  AND purpose = $2\n  AND created_at > $3\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "user_email_code_purpose",
+            "kind": {
+              "Enum": [
+                "staff_login",
+                "account_deletion",
+                "email_ownership_verification",
+                "network_verification"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d4b67ca5a5cf11dd9efe4a5cfd3ea34ca7eb4f0899cd071421e9df5c7108731d"
+}

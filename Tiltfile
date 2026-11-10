@@ -58,6 +58,7 @@ OTHER_HEADLESS_LMS_WORKLOADS = [
     "suotar-syncer",
     "calculate-page-visit-stats",
     "ended-exams-processor",
+    "course-designer-weekly-digest",
     "open-university-registration-link-fetcher",
     "peer-review-updater",
     "sync-tmc-users",
@@ -399,7 +400,7 @@ def node_rebuild_deps(service):
 # Live-update rules: rebuild on lockfile/Dockerfile changes, sync src otherwise.
 def node_live_update(service):
     return [fall_back_on(path) for path in node_rebuild_deps(service)] + [
-        sync("services/%s/src" % service, "/app/src"),
+        sync("services/%s/src" % service, "/app/source/src"),
     ]
 
 

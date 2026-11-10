@@ -17,7 +17,7 @@
     "/api/v0/auth/authorize": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.\n*",
+        "summary": "POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.\n*",
         "operationId": "postAuthAuthorize",
         "requestBody": {
           "content": {
@@ -46,7 +46,7 @@
     "/api/v0/auth/authorize-multiple": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.\nReturns booleans for the authorizations in the same order as the input.\n*",
+        "summary": "POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.\nReturns booleans for the authorizations in the same order as the input.\n*",
         "operationId": "postAuthAuthorizeMultiple",
         "requestBody": {
           "content": {
@@ -81,7 +81,7 @@
     "/api/v0/auth/delete-user-account": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account\n*",
+        "summary": "POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account\n*",
         "operationId": "postAuthDeleteUserAccount",
         "requestBody": {
           "content": {
@@ -110,7 +110,7 @@
     "/api/v0/auth/logged-in": {
       "get": {
         "tags": ["auth"],
-        "summary": "\nGET `/api/v0/auth/logged-in` Returns the current user's login status.\n*",
+        "summary": "GET `/api/v0/auth/logged-in` Returns the current user's login status.\n*",
         "operationId": "getAuthLoggedIn",
         "responses": {
           "200": {
@@ -129,7 +129,7 @@
     "/api/v0/auth/login": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
+        "summary": "POST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
         "operationId": "postAuthLogin",
         "requestBody": {
           "content": {
@@ -158,7 +158,7 @@
     "/api/v0/auth/logout": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/logout` Logs out.\n*",
+        "summary": "POST `/api/v0/auth/logout` Logs out.\n*",
         "operationId": "postAuthLogout",
         "responses": {
           "200": {
@@ -170,7 +170,7 @@
     "/api/v0/auth/send-email-code": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion\n*",
+        "summary": "POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion\n*",
         "operationId": "postAuthSendEmailCode",
         "requestBody": {
           "content": {
@@ -196,10 +196,87 @@
         }
       }
     },
+    "/api/v0/auth/session-status": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "GET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an\nemailed code: a user with a role on a browser or network they have not confirmed. Only the UI\nenforces it.",
+        "operationId": "getAuthSessionStatus",
+        "responses": {
+          "200": {
+            "description": "Whether the session needs confirming",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/session-status/email-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the\nsession, when [`session_status`] asks for one and no usable code is out already.",
+        "operationId": "postAuthSessionStatusEmailCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionEmailCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "What the request did",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionEmailCodeResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/session-status/verify": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering\nthis browser and network for the signed-in user.",
+        "operationId": "postAuthSessionStatusVerify",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Outcome of submitting the code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionVerifyResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/auth/signup": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
+        "summary": "POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
         "operationId": "postAuthSignup",
         "requestBody": {
           "content": {
@@ -231,7 +308,7 @@
     "/api/v0/auth/user-info": {
       "get": {
         "tags": ["auth"],
-        "summary": "\nGET `/api/v0/auth/user-info` Returns the current user's info.\n*",
+        "summary": "GET `/api/v0/auth/user-info` Returns the current user's info.\n*",
         "operationId": "getAuthUserInfo",
         "responses": {
           "200": {
@@ -241,10 +318,10 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "type": "null"
+                      "$ref": "#/components/schemas/UserInfo"
                     },
                     {
-                      "$ref": "#/components/schemas/UserInfo"
+                      "type": "null"
                     }
                   ]
                 }
@@ -257,7 +334,7 @@
     "/api/v0/auth/verify-email": {
       "post": {
         "tags": ["auth"],
-        "summary": "\nPOST `/api/v0/auth/verify-email` Verifies email verification code and completes login.\n*",
+        "summary": "POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.\n*",
         "operationId": "postAuthVerifyEmail",
         "requestBody": {
           "content": {
@@ -622,6 +699,57 @@
           }
         }
       },
+      "EmailCodeOutcome": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A usable code is already out; nothing was sent.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["already_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Refused resend: the outstanding code is younger than the resend interval.",
+            "required": ["retry_after_seconds", "type"],
+            "properties": {
+              "retry_after_seconds": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["daily_limit_reached"]
+              }
+            }
+          }
+        ],
+        "description": "Whether a session confirmation code went out, and if not, why."
+      },
       "Login": {
         "type": "object",
         "required": ["email", "password"],
@@ -960,6 +1088,159 @@
             "type": "string"
           }
         }
+      },
+      "SessionChallenge": {
+        "type": "object",
+        "description": "One way for the user to prove the session is theirs, and why it is asked for.",
+        "required": ["method", "reasons"],
+        "properties": {
+          "method": {
+            "$ref": "#/components/schemas/SessionChallengeMethod"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionChallengeReason"
+            }
+          }
+        }
+      },
+      "SessionChallengeMethod": {
+        "type": "string",
+        "description": "How the user can confirm the session.",
+        "enum": ["email_code"]
+      },
+      "SessionChallengeReason": {
+        "type": "string",
+        "description": "Why the session needs confirming.",
+        "enum": ["unrecognized_network"]
+      },
+      "SessionEmailCodeRequest": {
+        "type": "object",
+        "required": ["resend", "language"],
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Which language to mail. Falls back to English when no template exists for it."
+          },
+          "resend": {
+            "type": "boolean",
+            "description": "The user asked for another mail. Without it, a code that is still usable is not replaced."
+          }
+        }
+      },
+      "SessionEmailCodeResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["masked_email", "outcome", "type"],
+            "properties": {
+              "masked_email": {
+                "type": "string",
+                "description": "Where the code goes."
+              },
+              "outcome": {
+                "$ref": "#/components/schemas/EmailCodeOutcome"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["required"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["not_required"]
+              }
+            }
+          }
+        ],
+        "description": "What asking for a session confirmation code did."
+      },
+      "SessionStatus": {
+        "type": "object",
+        "description": "Whether the current session must be confirmed before the UI lets the user on.",
+        "required": ["verification_required", "challenges"],
+        "properties": {
+          "challenges": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionChallenge"
+            }
+          },
+          "verification_required": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SessionVerifyRequest": {
+        "type": "object",
+        "description": "The emailed code the user typed to confirm the session.",
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "SessionVerifyResult": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["verified"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["invalid_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["expired_code"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["too_many_attempts"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["not_required"]
+              }
+            }
+          }
+        ],
+        "description": "Outcome of submitting a session confirmation code."
       },
       "SignupResponse": {
         "oneOf": [

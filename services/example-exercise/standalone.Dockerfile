@@ -4,10 +4,10 @@
 
 # Node 24 and the pnpm major of package.json's packageManager: another major can resolve a
 # different tree from the same lockfile.
-FROM node:24-slim AS build
+FROM node:26-slim AS build
 WORKDIR /app
 
-RUN npm install --global pnpm@11
+RUN npm install --global pnpm@12
 
 # Dependencies before sources, so editing a component does not reinstall them.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -24,7 +24,7 @@ ENV PUBLIC_BASE_PATH=${PUBLIC_BASE_PATH}
 ENV NEXT_PUBLIC_SERVICE_SLUG=${NEXT_PUBLIC_SERVICE_SLUG}
 RUN pnpm run build
 
-FROM node:24-slim AS runtime
+FROM node:26-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 

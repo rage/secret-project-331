@@ -251,7 +251,7 @@ describe("pasted math", () => {
       expect(paste(html)).toEqual([
         {
           name: "core/paragraph",
-          attributes: { content: `Einstein's famous equation:&nbsp;${mathMl}` },
+          attributes: { content: `Einstein's famous equation: ${mathMl}` },
         },
       ])
     }

@@ -325,7 +325,7 @@ async fn get_course_exercises(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course).await?;
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
@@ -598,6 +598,23 @@ async fn get_exercise(
     .await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    // Before selecting a slide, which would be stored for the user even before the exam starts.
+    if exercise.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
+    if let Some(course_id) = exercise.course_id {
+        // The material and the chapter must be open to the user, as in the course material.
+        crate::domain::authorization::authorize_access_to_course_exercise(
+            &mut conn,
+            Some(user.id),
+            course_id,
+            exercise.chapter_id,
+        )
+        .await?;
+    }
     let (exercise_slide, course_or_exam_id) = models::exercises::get_or_select_exercise_slide(
         &mut conn,
         Some(user.id),
@@ -830,6 +847,14 @@ async fn upload_exercise_files(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
@@ -968,6 +993,14 @@ async fn submit_exercise(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
@@ -1076,6 +1109,13 @@ async fn get_submission_grading(
         user.id,
         "Cannot view another user's submission grading".to_string(),
     )?;
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if slide_submission.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This submission belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
     let token = skip_authorize();
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
@@ -1144,6 +1184,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1157,6 +1198,17 @@ async fn get_exercise_submissions(
     let mut conn = pool.acquire().await?;
     // The query is scoped to the current user, so no further authorization is needed.
     let token = skip_authorize();
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if models::exercises::get_by_id(&mut conn, *exercise_id)
+        .await?
+        .exam_id
+        .is_some()
+    {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
 
     // One query for the whole listing, gradings joined in: an editor slide has a single task, so
     // its grading is the slide's grading.

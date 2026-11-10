@@ -10,25 +10,29 @@ import { Trans, useTranslation } from "react-i18next"
 import { getMyEmailVerificationStatusOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { requestEmailVerificationCode, verifyEmailOwnership } from "@/generated/api/sdk.generated"
 import type {
+  EmailVerificationMethod,
   EmailVerificationStatus,
   RequestEmailVerificationOutcome,
   VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList, Dialog } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  DescriptionList,
+  Dialog,
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+  OneTimeCodeForm,
+} from "@/shared-module/components"
 import {
   settingsCardCss,
   settingsCardHeaderCss,
   settingsCardIconChipCss,
 } from "@/styles/sharedStyles"
 
-import OneTimeCodeForm from "./forms/OneTimeCodeForm"
-
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
-
-/** The server refuses a resend for two minutes, so the button must not re-enable before then. */
-const RESEND_COOLDOWN_SECONDS = 120
+const ADMIN_ASSERTED: EmailVerificationMethod = "admin_asserted"
 
 /** `queued` says nothing: the dialog opening, and its resend countdown, already confirm the send. */
 const OUTCOME_KEYS = {
@@ -50,7 +54,6 @@ const bodyCss = css`
 `
 
 const codeFormCss = css`
-  padding: 0;
   align-self: stretch;
 `
 
@@ -125,12 +128,22 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         if (result !== "invalid") {
           setCodeDialogOpen(false)
         }
+        if (result === "verified") {
+          // Verifying can grant pending roles, which changes permissions and the session check.
+          await queryClient.invalidateQueries()
+          return
+        }
         await invalidateStatus()
       },
     },
   )
 
-  const verified = status.email_verified_at !== null && status.email_verified_at !== undefined
+  // An admin's assertion proves nothing about the mailbox, so the user can still verify it with a
+  // code, which roles granted to the address wait for.
+  const verified =
+    status.email_verified_at !== null &&
+    status.email_verified_at !== undefined &&
+    status.email_verified_method !== ADMIN_ASSERTED
   const pendingCode = status.latest_verification_email
 
   const items = [{ label: t("label-email"), value: status.email }]
@@ -174,6 +187,7 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
       {verified || !pendingCode ? null : (
         <Dialog
           open={codeDialogOpen}
+          size="small"
           onClose={() => setCodeDialogOpen(false)}
           title={t("heading-verify-your-email")}
         >
@@ -204,7 +218,7 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
               helperText: t("message-did-not-receive-the-verification-code"),
               label: t("resend"),
               onResend: () => requestCode.mutate(),
-              cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+              cooldownSeconds: EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
               lastSentAt: pendingCode.sent_at,
               statusMessage:
                 outcome && OUTCOME_KEYS[outcome] ? (

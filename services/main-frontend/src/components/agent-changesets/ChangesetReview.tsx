@@ -43,10 +43,15 @@ const sectionHeadingCss = css`
 
 interface ChangesetReviewProps {
   review: ChangesetReviewData
+  /** False while a newer revision waits unseen: a preview would show its content instead. */
+  showsLatestRevision?: boolean
 }
 
 /** The review page body: what the agent changed, what it means for students, publish or discard. */
-const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
+const ChangesetReview: React.FC<ChangesetReviewProps> = ({
+  review,
+  showsLatestRevision = true,
+}) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false)
@@ -279,7 +284,7 @@ const ChangesetReview: React.FC<ChangesetReviewProps> = ({ review }) => {
                 key={`${reviewEntity.entity_type}-${reviewEntity.entity_id}`}
                 reviewEntity={reviewEntity}
                 changesetId={changeset.id}
-                isChangesetOpen={isOpen}
+                canPreview={isOpen && showsLatestRevision}
                 conflicts={conflicts}
               />
             ))

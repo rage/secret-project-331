@@ -96,6 +96,8 @@ pub(super) struct BriefDryRunSummary {
 #[derive(Serialize)]
 pub(super) struct StagedSummary {
     pub(super) changeset: Uuid,
+    /// Where the teacher reviews and publishes the changeset.
+    pub(super) review_url: String,
     pub(super) changeset_revision: i32,
     pub(super) call: Uuid,
     pub(super) staged: Vec<ExplainedEntity>,

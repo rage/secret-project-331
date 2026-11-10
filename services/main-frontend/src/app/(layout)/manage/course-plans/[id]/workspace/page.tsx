@@ -1,9 +1,9 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,6 @@ import {
   advanceCourseDesignerStageMutation,
   extendCourseDesignerStageMutation,
   getCourseDesignerPlanOptions,
-  getCourseDesignerPlanQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -24,10 +23,18 @@ import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
+import { daysUntilPlanDate, formatPlanMonthYear } from "../../coursePlanDates"
+import { stageLabel as translateStageLabel } from "../../coursePlanStages"
+import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
+import { CoursePlanAssistantPanel } from "../assistant/CoursePlanAssistant"
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
-import AnalysisWorkspaceForm from "./components/AnalysisWorkspaceForm"
+import ActiveStageDeadlineCard from "./components/ActiveStageDeadlineCard"
+import MoocDesignOverview from "./components/overview/MoocDesignOverview"
 import PlanOverviewPanel from "./components/PlanOverviewPanel"
+import { SectionStatusProvider } from "./components/section-status/SectionStatusContext"
+import { MOOC_DESIGN_TAB } from "./components/stageTimelineShared"
 import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
+import StageWorkspaceContent from "./components/StageWorkspaceContent"
 import WorkspaceStageSection from "./components/WorkspaceStageSection"
 import { useCoursePlanWorkspacePageState } from "./hooks/useCoursePlanWorkspacePageState"
 
@@ -154,9 +161,19 @@ const workspaceGridStyles = css`
     grid-template-areas:
       "header header header"
       "tasks instructions chatbot"
-      "tasks workspace chatbot"
       "tasks workspace chatbot";
     gap: 2.25rem;
+    align-items: flex-start;
+  }
+`
+
+const overviewGridStyles = css`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.75rem;
+
+  ${respondToOrLarger.xl} {
+    grid-template-columns: minmax(34rem, 2.6fr) minmax(24rem, 1.3fr);
     align-items: flex-start;
   }
 `
@@ -181,6 +198,16 @@ const chatbotAreaStyles = css`
   grid-area: chatbot;
 `
 
+/** Keeps the chat usable beside long forms: its own scroll area, pinned while the page scrolls. */
+const chatbotPanelStyles = css`
+  height: min(80vh, 56rem);
+
+  ${respondToOrLarger.xl} {
+    position: sticky;
+    top: 1rem;
+  }
+`
+
 const cardStyles = css`
   background: white;
   border-radius: 12px;
@@ -199,12 +226,6 @@ const workspaceCardStyles = css`
   min-height: 60vh;
   display: flex;
   flex-direction: column;
-`
-
-const chatbotCardStyles = css`
-  display: flex;
-  flex-direction: column;
-  min-height: 80vh;
 `
 
 const sectionTitleStyles = css`
@@ -383,27 +404,12 @@ const welcomeDialogHintStyles = css`
   color: ${baseTheme.colors.gray[500]};
 `
 
-type StageLabelTranslationKey =
-  | "course-plans-stage-analysis"
-  | "course-plans-stage-design"
-  | "course-plans-stage-development"
-  | "course-plans-stage-implementation"
-  | "course-plans-stage-evaluation"
-
 type StageBriefTranslationKey =
   | "course-plans-phase-brief-analysis"
   | "course-plans-phase-brief-design"
   | "course-plans-phase-brief-development"
   | "course-plans-phase-brief-implementation"
   | "course-plans-phase-brief-evaluation"
-
-const STAGE_LABEL_KEYS = {
-  Analysis: "course-plans-stage-analysis",
-  Design: "course-plans-stage-design",
-  Development: "course-plans-stage-development",
-  Implementation: "course-plans-stage-implementation",
-  Evaluation: "course-plans-stage-evaluation",
-} satisfies Record<CourseDesignerStage, StageLabelTranslationKey>
 
 const STAGE_BRIEF_KEYS = {
   Analysis: "course-plans-phase-brief-analysis",
@@ -412,13 +418,6 @@ const STAGE_BRIEF_KEYS = {
   Implementation: "course-plans-phase-brief-implementation",
   Evaluation: "course-plans-phase-brief-evaluation",
 } satisfies Record<CourseDesignerStage, StageBriefTranslationKey>
-
-function daysBetween(from: string, to: string): number {
-  const a = new Date(from)
-  const b = new Date(to)
-  const diff = b.getTime() - a.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
 
 /** Returns localized key-goal bullet labels for the given stage, or [] when none. */
 function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunction): string[] {
@@ -430,6 +429,7 @@ function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunct
         t("course-plans-stage-description-analysis-3"),
         t("course-plans-stage-description-analysis-4"),
         t("course-plans-stage-description-analysis-5"),
+        t("course-plans-stage-description-analysis-6"),
       ]
     case "Design":
       return [
@@ -438,6 +438,7 @@ function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunct
         t("course-plans-stage-description-design-3"),
         t("course-plans-stage-description-design-4"),
         t("course-plans-stage-description-design-5"),
+        t("course-plans-stage-description-design-6"),
       ]
     case "Development":
       return [
@@ -454,6 +455,7 @@ function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunct
       return [
         t("course-plans-stage-description-evaluation-1"),
         t("course-plans-stage-description-evaluation-2"),
+        t("course-plans-stage-description-evaluation-3"),
       ]
     default:
       return []
@@ -490,7 +492,8 @@ function CoursePlanWorkspacePage() {
   const { t, i18n } = useTranslation()
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
-  const queryClient = useQueryClient()
+  const requestedStageSlug = useSearchParams().get("stage")
+  const invalidatePlan = useInvalidatePlan(planId)
   const { alert: showDialogAlert, confirm } = useDialog()
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
@@ -505,9 +508,7 @@ function CoursePlanWorkspacePage() {
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        void invalidatePlan()
       },
     },
   )
@@ -517,24 +518,24 @@ function CoursePlanWorkspacePage() {
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
+        void invalidatePlan()
       },
     },
   )
 
-  const stageLabel = useCallback((stage: CourseDesignerStage) => t(STAGE_LABEL_KEYS[stage]), [t])
+  const stageLabel = useCallback((stage: CourseDesignerStage) => translateStageLabel(stage, t), [t])
 
   const {
     isOverviewOpen,
     setIsOverviewOpen,
+    viewedTab,
     viewedStage,
-    setAnalysisWorkspaceDirty,
-    handleSelectedStageChange,
+    setWorkspaceDirty,
+    handleSelectedTabChange,
     handleAdvanceStage,
   } = useCoursePlanWorkspacePageState({
     planData: planQuery.data,
+    requestedStageSlug,
     t,
     stageLabel,
     buildStageDescriptionItems,
@@ -546,7 +547,7 @@ function CoursePlanWorkspacePage() {
     welcomeDialogGoalItemStyles,
     welcomeDialogHintStyles,
     showDialogAlert,
-    confirmDiscardUnsavedAnalysis: (message) => confirm({ message, isDestructive: true }),
+    confirmDiscardUnsavedChanges: (message) => confirm({ message, isDestructive: true }),
     advanceStage: () => advanceMutation.mutateAsync({ path: { plan_id: planId } }),
   })
 
@@ -555,7 +556,7 @@ function CoursePlanWorkspacePage() {
       <div className={pageRootStyles}>
         <div className={workspaceShellStyles}>
           <QueryResult query={planQuery}>
-            {({ plan, stages }) => {
+            {({ plan, stages, section_statuses }) => {
               const currentStage = plan.active_stage ?? null
               const currentStageData = currentStage
                 ? stages.find((s) => s.stage === currentStage)
@@ -566,11 +567,10 @@ function CoursePlanWorkspacePage() {
                   ? (stages.find((stage) => stage.stage === viewedStage) ?? null)
                   : null
 
-              const today = new Date().toISOString().slice(0, 10)
               let timeRemainingText: string | null = null
               let timeRemainingShort: string | null = null
               if (currentStageData) {
-                const days = daysBetween(today, currentStageData.planned_ends_on)
+                const days = daysUntilPlanDate(currentStageData.planned_ends_on)
                 if (days > 0) {
                   const months = Math.floor(days / 30)
                   const remainingDays = days % 30
@@ -597,12 +597,7 @@ function CoursePlanWorkspacePage() {
 
               const currentPhaseEndDateFormatted =
                 currentStageData?.planned_ends_on !== undefined
-                  ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
-                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-                      month: "long",
-                      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
-                      year: "numeric",
-                    })
+                  ? formatPlanMonthYear(currentStageData.planned_ends_on, i18n.language)
                   : null
 
               const activeStageTaskCompleted =
@@ -635,11 +630,8 @@ function CoursePlanWorkspacePage() {
                     stageLabel={stageLabel(viewedStage)}
                     isActive={viewedStage === currentStage}
                     showStageTitle={false}
-                    onInvalidate={() =>
-                      void queryClient.invalidateQueries({
-                        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-                      })
-                    }
+                    isReadOnly={plan.status === "Archived"}
+                    onInvalidate={() => void invalidatePlan()}
                   />
                 ) : null
 
@@ -668,7 +660,7 @@ function CoursePlanWorkspacePage() {
                     ]
 
               return (
-                <>
+                <SectionStatusProvider planId={planId} sectionStatuses={section_statuses}>
                   <PlanOverviewPanel
                     isOpen={isOverviewOpen}
                     onClose={() => setIsOverviewOpen(false)}
@@ -718,148 +710,177 @@ function CoursePlanWorkspacePage() {
                   <StageTimelineTabStrip
                     stages={stages}
                     activeStage={currentStage ?? null}
-                    selectedStage={viewedStage}
-                    onSelectedStageChange={handleSelectedStageChange}
+                    selectedTab={viewedTab}
+                    onSelectedTabChange={handleSelectedTabChange}
                     stageLabel={stageLabel}
                     onOpenOverview={() => setIsOverviewOpen(true)}
                     currentStageLabel={currentStage ? stageLabel(currentStage) : null}
-                    panelClassName={workspaceGridStyles}
+                    panelClassName={
+                      viewedTab === MOOC_DESIGN_TAB ? overviewGridStyles : workspaceGridStyles
+                    }
                   >
-                    <div className={headerAreaStyles}>
-                      <h2 className={currentStageTitleStyles}>
-                        {viewedStage
-                          ? stageLabel(viewedStage)
-                          : t("course-plans-instructions-heading")}
-                      </h2>
-                      {stageRelation === "past" && (
-                        <aside
-                          className={stageContextNoticeStyles}
-                          aria-label={t("course-plans-stage-context-aria-label")}
-                        >
-                          <p className={stageContextEyebrowStyles}>
-                            {t("course-plans-stage-context-past-eyebrow")}
-                          </p>
-                          <p className={stageContextTitleStyles}>
-                            {t("course-plans-stage-context-past-title", {
-                              selectedStage: viewedStageNameForCopy,
-                            })}
-                          </p>
-                          <p className={stageContextBodyStyles}>
-                            {t("course-plans-stage-context-past-body", {
-                              activeStage: activeStageNameForCopy,
-                            })}
-                          </p>
-                          {currentStage && (
-                            <div className={stageContextActionRowStyles}>
-                              <Button
-                                variant="tertiary"
-                                size="small"
-                                onClick={() => handleSelectedStageChange(currentStage)}
-                              >
-                                {t("course-plans-stage-context-go-to-active", {
-                                  activeStage: activeStageNameForCopy,
-                                })}
-                              </Button>
-                            </div>
-                          )}
-                        </aside>
-                      )}
-                      {stageRelation === "future" && (
-                        <aside
-                          className={`${stageContextNoticeStyles} ${stageContextNoticeFutureStyles}`}
-                          aria-label={t("course-plans-stage-context-aria-label")}
-                        >
-                          <p className={stageContextEyebrowStyles}>
-                            {t("course-plans-stage-context-future-eyebrow")}
-                          </p>
-                          <p className={stageContextTitleStyles}>
-                            {t("course-plans-stage-context-future-title", {
-                              selectedStage: viewedStageNameForCopy,
-                            })}
-                          </p>
-                          <p className={stageContextBodyStyles}>
-                            {t("course-plans-stage-context-future-body", {
-                              activeStage: activeStageNameForCopy,
-                            })}
-                          </p>
-                          {currentStage && (
-                            <div className={stageContextActionRowStyles}>
-                              <Button
-                                variant="tertiary"
-                                size="small"
-                                onClick={() => handleSelectedStageChange(currentStage)}
-                              >
-                                {t("course-plans-stage-context-go-to-active", {
-                                  activeStage: activeStageNameForCopy,
-                                })}
-                              </Button>
-                            </div>
-                          )}
-                        </aside>
-                      )}
-                    </div>
-
-                    <section
-                      className={`${cardStyles} ${instructionsAreaStyles}`}
-                      aria-label={t("course-plans-instructions-aria-label")}
-                    >
-                      <h3 className={instructionsSectionTitleStyles}>
-                        {t("course-plans-instructions-heading")}
-                      </h3>
-                      <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
-                      <p className={aboutTextStyles}>
-                        {viewedStage
-                          ? t(STAGE_BRIEF_KEYS[viewedStage])
-                          : t("course-plans-instructions-placeholder")}
-                      </p>
-                      <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
-                      <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
-                    </section>
-
-                    <section
-                      className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
-                      aria-label={t("course-plans-tasks-aria-label")}
-                    >
-                      <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
-                      {currentStageSection ?? (
-                        <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
-                      )}
-                    </section>
-
-                    <section
-                      className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
-                      aria-label={t("course-plans-workspace-aria-label")}
-                    >
-                      <h3 className={sectionTitleStyles}>{t("course-plans-workspace-heading")}</h3>
-                      <p className={aboutTextStyles}>
-                        {viewedStage === "Analysis"
-                          ? t("course-plans-workspace-description")
-                          : t("course-plans-workspace-description-other-stages")}
-                      </p>
-                      {viewedStage === "Analysis" && viewedStageData ? (
-                        <AnalysisWorkspaceForm
+                    {viewedTab === MOOC_DESIGN_TAB ? (
+                      <div>
+                        <h2 className={currentStageTitleStyles}>
+                          {t("course-plans-mooc-design-tab")}
+                        </h2>
+                        <MoocDesignOverview
                           planId={planId}
-                          workspaceData={viewedStageData.workspace_data}
-                          onDirtyChange={setAnalysisWorkspaceDirty}
+                          greatMoocVision={plan.great_mooc_vision}
+                          isReadOnly={plan.status === "Archived"}
                         />
-                      ) : null}
-                    </section>
+                      </div>
+                    ) : (
+                      <>
+                        <div className={headerAreaStyles}>
+                          <h2 className={currentStageTitleStyles}>
+                            {viewedStage
+                              ? stageLabel(viewedStage)
+                              : t("course-plans-instructions-heading")}
+                          </h2>
+                          {stageRelation === "current" && (
+                            <ActiveStageDeadlineCard
+                              planId={planId}
+                              stageLabel={stageLabel}
+                              onCompleteStage={() => void handleAdvanceStage()}
+                              isCompletePending={advanceMutation.isPending}
+                              onExtendActiveStage={(months) =>
+                                currentStage &&
+                                extendMutation.mutate({
+                                  body: { months },
+                                  path: { plan_id: planId, stage: currentStage.toLowerCase() },
+                                })
+                              }
+                              isExtendPending={extendMutation.isPending}
+                            />
+                          )}
+                          {stageRelation === "past" && (
+                            <aside
+                              className={stageContextNoticeStyles}
+                              aria-label={t("course-plans-stage-context-aria-label")}
+                            >
+                              <p className={stageContextEyebrowStyles}>
+                                {t("course-plans-stage-context-past-eyebrow")}
+                              </p>
+                              <p className={stageContextTitleStyles}>
+                                {t("course-plans-stage-context-past-title", {
+                                  selectedStage: viewedStageNameForCopy,
+                                })}
+                              </p>
+                              <p className={stageContextBodyStyles}>
+                                {t("course-plans-stage-context-past-body", {
+                                  activeStage: activeStageNameForCopy,
+                                })}
+                              </p>
+                              {currentStage && (
+                                <div className={stageContextActionRowStyles}>
+                                  <Button
+                                    variant="tertiary"
+                                    size="small"
+                                    onClick={() => handleSelectedTabChange(currentStage)}
+                                  >
+                                    {t("course-plans-stage-context-go-to-active", {
+                                      activeStage: activeStageNameForCopy,
+                                    })}
+                                  </Button>
+                                </div>
+                              )}
+                            </aside>
+                          )}
+                          {stageRelation === "future" && (
+                            <aside
+                              className={`${stageContextNoticeStyles} ${stageContextNoticeFutureStyles}`}
+                              aria-label={t("course-plans-stage-context-aria-label")}
+                            >
+                              <p className={stageContextEyebrowStyles}>
+                                {t("course-plans-stage-context-future-eyebrow")}
+                              </p>
+                              <p className={stageContextTitleStyles}>
+                                {t("course-plans-stage-context-future-title", {
+                                  selectedStage: viewedStageNameForCopy,
+                                })}
+                              </p>
+                              <p className={stageContextBodyStyles}>
+                                {t("course-plans-stage-context-future-body", {
+                                  activeStage: activeStageNameForCopy,
+                                })}
+                              </p>
+                              {currentStage && (
+                                <div className={stageContextActionRowStyles}>
+                                  <Button
+                                    variant="tertiary"
+                                    size="small"
+                                    onClick={() => handleSelectedTabChange(currentStage)}
+                                  >
+                                    {t("course-plans-stage-context-go-to-active", {
+                                      activeStage: activeStageNameForCopy,
+                                    })}
+                                  </Button>
+                                </div>
+                              )}
+                            </aside>
+                          )}
+                        </div>
 
-                    <section
-                      className={`${cardStyles} ${chatbotAreaStyles} ${chatbotCardStyles}`}
-                      aria-label={t("course-plans-assistant-aria-label")}
-                    >
-                      {/* oxlint-disable-next-line i18next/no-literal-string */}
-                      <h3 className={sectionTitleStyles}>Assistant</h3>
-                      {/* oxlint-disable-next-line i18next/no-literal-string */}
-                      <p className={aboutTextStyles}>
-                        {/* oxlint-disable-next-line i18next/no-literal-string */}
-                        A course design assistant chatbot will appear here to help you with tasks
-                        and questions about each stage.
-                      </p>
-                    </section>
+                        <section
+                          className={`${cardStyles} ${instructionsAreaStyles}`}
+                          aria-label={t("course-plans-instructions-aria-label")}
+                        >
+                          <h3 className={instructionsSectionTitleStyles}>
+                            {t("course-plans-instructions-heading")}
+                          </h3>
+                          <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
+                          <p className={aboutTextStyles}>
+                            {viewedStage
+                              ? t(STAGE_BRIEF_KEYS[viewedStage])
+                              : t("course-plans-instructions-placeholder")}
+                          </p>
+                          <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
+                          <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
+                        </section>
+
+                        <section
+                          className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
+                          aria-label={t("course-plans-tasks-aria-label")}
+                        >
+                          <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
+                          {currentStageSection ?? (
+                            <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
+                          )}
+                        </section>
+
+                        <section
+                          className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
+                          aria-label={t("course-plans-workspace-aria-label")}
+                        >
+                          <h3 className={sectionTitleStyles}>
+                            {t("course-plans-workspace-heading")}
+                          </h3>
+                          <p className={aboutTextStyles}>
+                            {viewedStage === "Analysis" || viewedStage === "Design"
+                              ? t("course-plans-workspace-description")
+                              : t("course-plans-workspace-description-other-stages")}
+                          </p>
+                          {viewedStage ? (
+                            <StageWorkspaceContent
+                              key={viewedStage}
+                              plan={plan}
+                              stage={viewedStage}
+                              stages={stages}
+                              onDirtyChange={setWorkspaceDirty}
+                            />
+                          ) : null}
+                        </section>
+                      </>
+                    )}
+                    <CoursePlanAssistantPanel
+                      className={cx(
+                        chatbotPanelStyles,
+                        viewedTab !== MOOC_DESIGN_TAB && chatbotAreaStyles,
+                      )}
+                    />
                   </StageTimelineTabStrip>
-                </>
+                </SectionStatusProvider>
               )
             }}
           </QueryResult>

@@ -1236,7 +1236,7 @@
   "course-plans-validation-stage-count": "Aikataulussa on oltava 5 vaihetta.",
   "course-plans-validation-stage-range": "Vaihe {{stage}} alkaa sen päättymisen jälkeen.",
   "course-plans-view-plan": "Näytä suunnitelma",
-  "course-plans-weekly-digest-description": "Joka viikko suunnitelman ollessa käynnissä: tehdyt tehtävät, eteneminen ja osiot, jotka vaativat vielä työtä.",
+  "course-plans-weekly-digest-description": "Joka viikko ensimmäisen vaiheen alusta viimeisen vaiheen loppuun: tehdyt tehtävät, eteneminen ja osiot, jotka vaativat vielä työtä.",
   "course-plans-weekly-digest-label": "Lähetä minulle viikoittain sähköposti tämän suunnitelman etenemisestä",
   "course-plans-welcome-back": "Tervetuloa takaisin",
   "course-plans-welcome-dialog-final-body": "Voit edelleen käyttää tätä työtilaa palataksesi vaiheisiin, jakaaksesi tuloksia tai arkistoidaksesi suunnitelman silloin kun olet valmis.",

@@ -1251,7 +1251,7 @@
   "course-plans-validation-stage-count": "Schemat måste innehålla 5 faser.",
   "course-plans-validation-stage-range": "{{stage}} startar efter att den slutar.",
   "course-plans-view-plan": "Visa plan",
-  "course-plans-weekly-digest-description": "Varje vecka medan planen pågår: gjorda uppgifter, framsteg och avsnitt som fortfarande behöver arbete.",
+  "course-plans-weekly-digest-description": "Varje vecka från början av första fasen till slutet av sista fasen: gjorda uppgifter, framsteg och avsnitt som fortfarande behöver arbete.",
   "course-plans-weekly-digest-label": "Skicka mig ett veckomejl om hur planen framskrider",
   "course-plans-welcome-back": "Välkommen tillbaka",
   "course-plans-welcome-dialog-final-body": "Du kan fortfarande använda den här arbetsytan för att gå tillbaka till en fas, dela resultat eller arkivera planen när du är redo.",

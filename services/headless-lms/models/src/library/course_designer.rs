@@ -343,23 +343,27 @@ pub struct WeeklyDigest {
     pub language_code: String,
 }
 
-/// In-progress plans whose last weekly email is older than six days or that never got one. Six
-/// rather than seven so a weekly job running a little early still sends.
+/// In-progress plans due a weekly email: today (Helsinki time) is within the plan's schedule, and
+/// the last email is older than six days or none was sent. Six so a slightly early run still sends.
 pub async fn get_plan_ids_due_for_weekly_digest(
     conn: &mut PgConnection,
     now: DateTime<Utc>,
 ) -> ModelResult<Vec<Uuid>> {
     let ids = sqlx::query_scalar!(
         r#"
-SELECT id
-FROM course_designer_plans
-WHERE status = 'in_progress'
-  AND deleted_at IS NULL
+SELECT p.id
+FROM course_designer_plans p
+  JOIN course_designer_plan_stages s ON s.course_designer_plan_id = p.id
+  AND s.deleted_at IS NULL
+WHERE p.status = 'in_progress'
+  AND p.deleted_at IS NULL
   AND (
-    last_weekly_stage_email_sent_at IS NULL
-    OR last_weekly_stage_email_sent_at < $1::TIMESTAMPTZ - INTERVAL '6 days'
+    p.last_weekly_stage_email_sent_at IS NULL
+    OR p.last_weekly_stage_email_sent_at < $1::TIMESTAMPTZ - INTERVAL '6 days'
   )
-ORDER BY id
+GROUP BY p.id
+HAVING ($1::TIMESTAMPTZ AT TIME ZONE 'Europe/Helsinki')::DATE BETWEEN MIN(s.planned_starts_on) AND MAX(s.planned_ends_on)
+ORDER BY p.id
 "#,
         now
     )

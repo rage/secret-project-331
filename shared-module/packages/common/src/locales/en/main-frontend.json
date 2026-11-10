@@ -1236,7 +1236,7 @@
   "course-plans-validation-stage-count": "Schedule must contain 5 stages.",
   "course-plans-validation-stage-range": "{{stage}} starts after it ends.",
   "course-plans-view-plan": "View plan",
-  "course-plans-weekly-digest-description": "Every week while the plan is in progress: tasks done, overall progress and sections that still need work.",
+  "course-plans-weekly-digest-description": "Every week from the start of the first stage to the end of the last stage: tasks done, overall progress and sections that still need work.",
   "course-plans-weekly-digest-label": "Send me a weekly progress email for this plan",
   "course-plans-welcome-back": "Welcome back",
   "course-plans-welcome-dialog-final-body": "You can still use this workspace to revisit any phase, share results, or archive the plan whenever you're ready.",

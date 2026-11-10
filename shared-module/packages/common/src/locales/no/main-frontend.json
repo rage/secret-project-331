@@ -1251,7 +1251,7 @@
   "course-plans-validation-stage-count": "Tidsplanen må inneholde 5 faser.",
   "course-plans-validation-stage-range": "{{stage}} starter etter at den slutter.",
   "course-plans-view-plan": "Vis plan",
-  "course-plans-weekly-digest-description": "Hver uke mens planen pågår: fullførte oppgaver, fremdrift og seksjoner som fortsatt trenger arbeid.",
+  "course-plans-weekly-digest-description": "Hver uke fra starten av første fase til slutten av siste fase: fullførte oppgaver, fremdrift og seksjoner som fortsatt trenger arbeid.",
   "course-plans-weekly-digest-label": "Send meg en ukentlig e-post om fremdriften i planen",
   "course-plans-welcome-back": "Velkommen tilbake",
   "course-plans-welcome-dialog-final-body": "Du kan fortsatt bruke dette arbeidsområdet til å se på en fase igjen, dele resultater eller arkivere planen når du er klar.",

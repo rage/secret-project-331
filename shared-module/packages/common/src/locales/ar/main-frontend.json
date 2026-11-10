@@ -1332,7 +1332,7 @@
   "course-plans-validation-stage-count": "يجب أن يحتوي الجدول على 5 مراحل.",
   "course-plans-validation-stage-range": "تبدأ مرحلة {{stage}} بعد انتهائها.",
   "course-plans-view-plan": "عرض الخطة",
-  "course-plans-weekly-digest-description": "كل أسبوع ما دامت الخطة قيد التنفيذ: المهام المنجزة والتقدم العام والأقسام التي ما زالت تحتاج إلى عمل.",
+  "course-plans-weekly-digest-description": "كل أسبوع من بداية المرحلة الأولى حتى نهاية المرحلة الأخيرة: المهام المنجزة والتقدم العام والأقسام التي ما زالت تحتاج إلى عمل.",
   "course-plans-weekly-digest-label": "أرسل لي رسالة أسبوعية عن تقدم هذه الخطة",
   "course-plans-welcome-back": "مرحبًا بعودتك",
   "course-plans-welcome-dialog-final-body": "لا يزال بإمكانك استخدام مساحة العمل هذه للعودة إلى أي مرحلة، أو مشاركة النتائج، أو أرشفة الخطة متى كنت مستعدًا.",

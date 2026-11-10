@@ -20,6 +20,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
 import { Button, Dialog, Spinner } from "@/shared-module/components"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
@@ -418,7 +419,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                         href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
                         onClick={handleResultClick}
                         dangerouslySetInnerHTML={{
-                          __html: result.title_headline ?? "",
+                          __html: sanitizeCourseMaterialHtml(result.title_headline ?? ""),
                         }}
                       />
                     </h2>
@@ -442,7 +443,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                           color: #5a5757;
                         `}
                         dangerouslySetInnerHTML={{
-                          __html: result.content_headline,
+                          __html: sanitizeCourseMaterialHtml(result.content_headline),
                         }}
                       />
                     )}

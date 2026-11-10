@@ -9,7 +9,23 @@ use models::{
 };
 use utoipa::{OpenApi, ToSchema};
 
-use crate::prelude::*;
+use crate::{domain::authorization::AuthorizationToken, prelude::*};
+
+/// Allows reading an exam's content: to its staff, or to a user who has enrolled, which is only
+/// possible once the exam has started.
+pub(crate) async fn authorize_exam_content_access(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> Result<AuthorizationToken, ControllerError> {
+    if exams::get_enrollment(conn, exam_id, user_id)
+        .await?
+        .is_some()
+    {
+        return Ok(skip_authorize());
+    }
+    Ok(authorize(conn, Act::Teach, Some(user_id), Res::Exam(exam_id)).await?)
+}
 
 #[derive(OpenApi)]
 #[openapi(paths(

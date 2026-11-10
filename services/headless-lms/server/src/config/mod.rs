@@ -93,6 +93,15 @@ impl ServerRuntimeConfig {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let app_conf = ApplicationConfiguration::try_from_env()?;
         let test_mode = app_conf.test_mode;
+        let allow_no_https_for_development =
+            ProgramConfig::bool_flag("ALLOW_NO_HTTPS_FOR_DEVELOPMENT");
+        if allow_no_https_for_development
+            && !headless_lms_base::config::is_local_development_base_url(&app_conf.base_url)
+        {
+            anyhow::bail!(
+                "ALLOW_NO_HTTPS_FOR_DEVELOPMENT drops the session cookie's Secure flag, so it is only allowed when BASE_URL is a local development host"
+            );
+        }
         let file_store = FileStoreRuntimeConfig::try_from_env()?;
         let ratelimit_protection_safe_api_key = match env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         {
@@ -132,9 +141,7 @@ impl ServerRuntimeConfig {
                     .context("PRIVATE_COOKIE_KEY must be defined")?
                     .into(),
             ),
-            allow_no_https_for_development: ProgramConfig::bool_flag(
-                "ALLOW_NO_HTTPS_FOR_DEVELOPMENT",
-            ),
+            allow_no_https_for_development,
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
             file_store,

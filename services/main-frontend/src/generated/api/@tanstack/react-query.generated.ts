@@ -292,6 +292,7 @@ import {
   getPageHistory,
   getPageHistoryCount,
   getPageInfo,
+  getPendingRoleCountWaitingForMe,
   getPendingRoles,
   getPlaygroundExamples,
   getPlaygroundViewsWebsocket,
@@ -964,6 +965,8 @@ import type {
   GetPageHistoryResponse,
   GetPageInfoData,
   GetPageInfoResponse,
+  GetPendingRoleCountWaitingForMeData,
+  GetPendingRoleCountWaitingForMeResponse,
   GetPendingRolesData,
   GetPendingRolesResponse,
   GetPlaygroundExamplesData,
@@ -12286,6 +12289,33 @@ export const getPendingRolesOptions = (options?: Options<GetPendingRolesData>) =
         throwOnError: true,
       }),
     queryKey: getPendingRolesQueryKey(options),
+  })
+
+export const getPendingRoleCountWaitingForMeQueryKey = (
+  options?: Options<GetPendingRoleCountWaitingForMeData>,
+) => createQueryKey("getPendingRoleCountWaitingForMe", options)
+
+/**
+ * GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in
+ * user's email wait for them to verify it.
+ */
+export const getPendingRoleCountWaitingForMeOptions = (
+  options?: Options<GetPendingRoleCountWaitingForMeData>,
+) =>
+  queryOptions<
+    GetPendingRoleCountWaitingForMeResponse,
+    DefaultError,
+    GetPendingRoleCountWaitingForMeResponse,
+    ReturnType<typeof getPendingRoleCountWaitingForMeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getPendingRoleCountWaitingForMe({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getPendingRoleCountWaitingForMeQueryKey(options),
   })
 
 /**

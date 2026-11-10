@@ -291,7 +291,8 @@ fn validate_document(document: &ClientMetadataDocument, client_id: &str) -> Resu
     Ok(())
 }
 
-fn is_public_address(ip: IpAddr) -> bool {
+/// Whether the address is reachable on the public internet, not loopback, private or reserved.
+pub(crate) fn is_public_address(ip: IpAddr) -> bool {
     match ip {
         IpAddr::V4(ip) => is_public_ipv4(ip),
         IpAddr::V6(ip) => match ip.to_ipv4() {

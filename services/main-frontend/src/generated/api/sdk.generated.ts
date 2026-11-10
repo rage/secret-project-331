@@ -603,6 +603,8 @@ import type {
   GetPageHistoryResponses,
   GetPageInfoData,
   GetPageInfoResponses,
+  GetPendingRoleCountWaitingForMeData,
+  GetPendingRoleCountWaitingForMeResponses,
   GetPendingRolesData,
   GetPendingRolesResponses,
   GetPlaygroundExamplesData,
@@ -1157,6 +1159,7 @@ import {
   zGetPageHistoryCountResponse,
   zGetPageHistoryResponse,
   zGetPageInfoResponse,
+  zGetPendingRoleCountWaitingForMeResponse,
   zGetPendingRolesResponse,
   zGetPlaygroundExamplesResponse,
   zGetRegradingInfoResponse,
@@ -9123,6 +9126,26 @@ export const getPendingRoles = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetPendingRolesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/roles/pending",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in
+ * user's email wait for them to verify it.
+ */
+export const getPendingRoleCountWaitingForMe = <ThrowOnError extends boolean = true>(
+  options?: Options<GetPendingRoleCountWaitingForMeData, ThrowOnError>,
+): RequestResult<GetPendingRoleCountWaitingForMeResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetPendingRoleCountWaitingForMeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetPendingRoleCountWaitingForMeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/roles/pending/waiting-for-me",
     ...options,
   })
 

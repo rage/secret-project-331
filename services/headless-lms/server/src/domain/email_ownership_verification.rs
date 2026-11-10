@@ -65,10 +65,7 @@ pub async fn queue_verification_email(
     user_id: Uuid,
     language: &str,
 ) -> anyhow::Result<VerificationEmailOutcome> {
-    if user_details::get_email_verification(conn, user_id)
-        .await?
-        .is_some()
-    {
+    if user_details::has_mailbox_proof(conn, user_id).await? {
         return Ok(VerificationEmailOutcome::AlreadyVerified);
     }
 

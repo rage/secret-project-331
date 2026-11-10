@@ -566,7 +566,8 @@ WHERE id = $2
     Ok(updated_user)
 }
 
-/// Records a proof of control over the address currently in `email`.
+/// Records a proof of control over the address currently in `email`, and grants the roles that were
+/// waiting for it (see [`crate::pending_roles`]).
 ///
 /// Must not also write `email`: the `clear_email_verification` trigger would null the flag in the
 /// same statement.
@@ -576,6 +577,7 @@ pub async fn set_email_verified(
     method: EmailVerificationMethod,
     verified_at: DateTime<Utc>,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
 UPDATE user_details
@@ -587,13 +589,16 @@ WHERE user_id = $1
         verified_at,
         method as EmailVerificationMethod,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+    crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    tx.commit().await?;
     Ok(())
 }
 
-/// Records a proof of control from a code mailed at `code_created_at`, unless the account already
-/// has one or its details changed since then. Returns whether the proof was recorded.
+/// Records a proof of control from a code mailed at `code_created_at`, and grants the roles that
+/// were waiting for it, unless the account already has a proof or its details changed since then.
+/// An admin's assertion is replaced, since it is not proof (see [`has_mailbox_proof`]).
 ///
 /// One conditional write, so an address change committing alongside cannot slip between the check
 /// and the write. Compare [`set_email_verified`], which records unconditionally.
@@ -602,23 +607,31 @@ pub async fn set_email_verified_unless_changed_since(
     user_id: Uuid,
     method: EmailVerificationMethod,
     code_created_at: DateTime<Utc>,
-) -> ModelResult<bool> {
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     let result = sqlx::query!(
         r#"
 UPDATE user_details
 SET email_verified_at = now(),
   email_verified_method = $2
 WHERE user_id = $1
-  AND email_verified_at IS NULL
+  AND (
+    email_verified_at IS NULL
+    OR email_verified_method = 'admin_asserted'
+  )
   AND updated_at <= $3
 "#,
         user_id,
         method as EmailVerificationMethod,
         code_created_at,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
-    Ok(result.rows_affected() > 0)
+    if result.rows_affected() > 0 {
+        crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    }
+    tx.commit().await?;
+    Ok(())
 }
 
 /// Drops a proof of control, for an admin revoking a verification. Address changes do not need it;
@@ -636,6 +649,14 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Whether the user has shown they control the address in `email`. An admin's say-so is not proof:
+/// it can attach any address to any account.
+pub async fn has_mailbox_proof(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    Ok(get_email_verification(conn, user_id)
+        .await?
+        .is_some_and(|(_, method)| method != EmailVerificationMethod::AdminAsserted))
 }
 
 /// Whether the address currently in `email` has a proof of control, and how it was obtained.

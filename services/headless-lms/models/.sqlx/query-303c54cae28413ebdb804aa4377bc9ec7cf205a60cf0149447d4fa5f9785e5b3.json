@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO pending_roles (\n    user_email,\n    role,\n    organization_id,\n    course_id,\n    course_instance_id,\n    exam_id,\n    is_global\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_roles",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer",
+                "credit_registration_admin"
+              ]
+            }
+          }
+        },
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "303c54cae28413ebdb804aa4377bc9ec7cf205a60cf0149447d4fa5f9785e5b3"
+}

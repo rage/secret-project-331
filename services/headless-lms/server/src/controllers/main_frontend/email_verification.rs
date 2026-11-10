@@ -10,6 +10,7 @@ use headless_lms_models::{
     user_details::{self, EmailVerificationMethod},
     user_email_codes::{self, CodeCheck, UserEmailCodePurpose},
 };
+use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use secrecy::ExposeSecret;
 use utoipa::{IntoParams, OpenApi, ToSchema};
 
@@ -18,6 +19,7 @@ use crate::domain::{
         MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
     },
     rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
+    session_verification,
 };
 use crate::prelude::*;
 
@@ -180,7 +182,7 @@ POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code an
 Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
 never has to identify anybody on its own.
 */
-#[instrument(skip(pool, payload, app_conf))]
+#[instrument(skip(req, pool, ip_to_country_mapper, payload, app_conf))]
 #[utoipa::path(
     post,
     path = "/verify",
@@ -193,11 +195,13 @@ never has to identify anybody on its own.
     )
 )]
 pub async fn verify_email_ownership(
+    req: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailOwnershipPayload>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<VerifyEmailOwnershipResult>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
@@ -209,10 +213,8 @@ pub async fn verify_email_ownership(
     // unverified with nothing left to type.
     let mut tx = conn.begin().await?;
 
-    let result = if user_details::get_email_verification(&mut tx, user.id)
-        .await?
-        .is_some()
-    {
+    let mut session_cookie = None;
+    let result = if user_details::has_mailbox_proof(&mut tx, user.id).await? {
         VerifyEmailOwnershipResult::AlreadyVerified
     } else if user_email_codes::check_code(
         &mut tx,
@@ -231,6 +233,19 @@ pub async fn verify_email_ownership(
             Utc::now(),
         )
         .await?;
+        // The proof can grant pending roles, which would put this browser straight in front of
+        // the session check and a second code.
+        if session_verification::applies_to(&mut tx, user.id).await? {
+            session_cookie = Some(
+                session_verification::record_verification(
+                    &mut tx,
+                    &ip_to_country_mapper,
+                    user.id,
+                    &req,
+                )
+                .await?,
+            );
+        }
         VerifyEmailOwnershipResult::Verified
     } else {
         VerifyEmailOwnershipResult::Invalid
@@ -238,7 +253,11 @@ pub async fn verify_email_ownership(
 
     tx.commit().await?;
 
-    token.authorized_ok(web::Json(result))
+    let mut response = HttpResponse::Ok();
+    if let Some(cookie) = session_cookie {
+        response.cookie(cookie);
+    }
+    token.authorized_ok(response.json(result))
 }
 
 /// The kinds of code the test-mode endpoint hands out.

@@ -15,6 +15,7 @@ import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 
+import PendingRolesNotice from "./PendingRolesNotice"
 import Topbar from "./Topbar"
 
 interface LayoutProps {
@@ -74,7 +75,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
             padding-top: var(--space-4);
           `}
         >
-          <Centered variant="default">{children}</Centered>
+          <Centered variant="default">
+            <PendingRolesNotice />
+            {children}
+          </Centered>
         </main>
       </div>
       <Footer privacyLinks={customPrivacyLinks} />

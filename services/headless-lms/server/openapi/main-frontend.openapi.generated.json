@@ -14361,6 +14361,26 @@
         }
       }
     },
+    "/api/v0/main-frontend/roles/pending/waiting-for-me": {
+      "get": {
+        "tags": ["roles"],
+        "summary": "GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in\nuser's email wait for them to verify it.",
+        "operationId": "getPendingRoleCountWaitingForMe",
+        "responses": {
+          "200": {
+            "description": "Number of pending roles waiting for email verification",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/roles/remove": {
       "post": {
         "tags": ["roles"],
@@ -31190,7 +31210,16 @@
       },
       "PendingRole": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_email", "role", "expires_at"],
+        "description": "A role granted to an email address that is not verified yet. See [`activate_for_user`].",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_email",
+          "role",
+          "expires_at",
+          "is_global"
+        ],
         "properties": {
           "course_id": {
             "type": ["string", "null"],
@@ -31208,12 +31237,23 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "expires_at": {
             "type": "string",
             "format": "date-time"
           },
           "id": {
             "type": "string",
+            "format": "uuid"
+          },
+          "is_global": {
+            "type": "boolean"
+          },
+          "organization_id": {
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "role": {

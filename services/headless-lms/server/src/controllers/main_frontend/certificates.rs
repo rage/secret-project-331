@@ -1,4 +1,6 @@
-use crate::{controllers::helpers::file_uploading, prelude::*};
+use crate::{
+    controllers::helpers::file_uploading, domain::authorization::AuthorizationToken, prelude::*,
+};
 use actix_multipart::form::{MultipartForm, tempfile::TempFile};
 use chrono::Utc;
 use headless_lms_certificates as certificates;
@@ -493,11 +495,25 @@ pub async fn get_cerficate_by_verification_id(
     file_store: web::Data<dyn FileStore>,
     query: web::Query<CertificateQuery>,
     icu4x_blob: web::Data<Icu4xBlob>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
 
-    // everyone needs to be able to view the certificate in order to verify its validity
-    let token = skip_authorize();
+    let token = match (query.test_certificate_configuration_id, user) {
+        // A preview renders a configuration that may belong to an unpublished course.
+        (Some(configuration_id), Some(user)) => {
+            authorize_teaching_certificate_configuration(&mut conn, configuration_id, user.id)
+                .await?
+        }
+        (Some(_), None) => {
+            return Err(controller_err!(
+                Unauthorized,
+                "Log in to preview a certificate configuration.".to_string()
+            ));
+        }
+        // everyone needs to be able to view the certificate in order to verify its validity
+        (None, _) => skip_authorize(),
+    };
 
     let certificate =
         if let Some(test_certificate_configuration_id) = query.test_certificate_configuration_id {
@@ -528,14 +544,51 @@ pub async fn get_cerficate_by_verification_id(
         **icu4x_blob,
     )
     .await?;
-    let max_age = if query.debug { 0 } else { 300 };
+    let cache_control = if query.test_certificate_configuration_id.is_some() {
+        // Only the teacher who passed the check above may see a preview, so no shared cache may
+        // keep it.
+        "private, no-store".to_string()
+    } else if query.debug {
+        "max-age=0".to_string()
+    } else {
+        "max-age=300".to_string()
+    };
 
     token.authorized_ok(
         HttpResponse::Ok()
             .content_type("image/png")
-            .insert_header(("Cache-Control", format!("max-age={max_age}")))
+            .insert_header(("Cache-Control", cache_control))
             .body(data),
     )
+}
+
+/// Requires Teach on every course whose modules the configuration covers, or global Teach for a
+/// configuration not tied to any module.
+async fn authorize_teaching_certificate_configuration(
+    conn: &mut PgConnection,
+    configuration_id: Uuid,
+    user_id: Uuid,
+) -> Result<AuthorizationToken, ControllerError> {
+    let requirements = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+        conn,
+        configuration_id,
+    ).await?;
+    if requirements.course_module_ids.is_empty() {
+        return Ok(authorize(conn, Act::Teach, Some(user_id), Res::GlobalPermissions).await?);
+    }
+    let mut token = None;
+    for course_module_id in requirements.course_module_ids {
+        let course_id = models::course_modules::get_by_id(conn, course_module_id)
+            .await?
+            .course_id;
+        token = Some(authorize(conn, Act::Teach, Some(user_id), Res::Course(course_id)).await?);
+    }
+    token.ok_or_else(|| {
+        controller_err!(
+            InternalServerError,
+            "Authorization token was not set".to_string()
+        )
+    })
 }
 
 /**

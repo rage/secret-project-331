@@ -55,6 +55,9 @@ async fn new(
         Res::from_course_or_exam_id(course_or_exam_id),
     )
     .await?;
+    domain::exercise_repositories::ensure_clone_url_is_allowed(&repository.git_url)
+        .await
+        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
     // create pending repository
     let new_repository_id = Uuid::new_v4();
     models::exercise_repositories::new(
@@ -223,6 +226,9 @@ async fn update(
         Res::from_course_or_exam_id(course_or_exam_id),
     )
     .await?;
+    domain::exercise_repositories::ensure_clone_url_is_allowed(&update.url)
+        .await
+        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
 
     models::exercise_repositories::update(&mut conn, *id, update.deref()).await?;
     token.authorized_ok(web::Json(true))

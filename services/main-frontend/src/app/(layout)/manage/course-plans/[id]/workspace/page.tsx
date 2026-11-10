@@ -720,19 +720,16 @@ function CoursePlanWorkspacePage() {
                     }
                   >
                     {viewedTab === MOOC_DESIGN_TAB ? (
-                      <>
-                        <div>
-                          <h2 className={currentStageTitleStyles}>
-                            {t("course-plans-mooc-design-tab")}
-                          </h2>
-                          <MoocDesignOverview
-                            planId={planId}
-                            greatMoocVision={plan.great_mooc_vision}
-                            isReadOnly={plan.status === "Archived"}
-                          />
-                        </div>
-                        <CoursePlanAssistantPanel className={chatbotPanelStyles} />
-                      </>
+                      <div>
+                        <h2 className={currentStageTitleStyles}>
+                          {t("course-plans-mooc-design-tab")}
+                        </h2>
+                        <MoocDesignOverview
+                          planId={planId}
+                          greatMoocVision={plan.great_mooc_vision}
+                          isReadOnly={plan.status === "Archived"}
+                        />
+                      </div>
                     ) : (
                       <>
                         <div className={headerAreaStyles}>
@@ -874,12 +871,14 @@ function CoursePlanWorkspacePage() {
                             />
                           ) : null}
                         </section>
-
-                        <CoursePlanAssistantPanel
-                          className={cx(chatbotAreaStyles, chatbotPanelStyles)}
-                        />
                       </>
                     )}
+                    <CoursePlanAssistantPanel
+                      className={cx(
+                        chatbotPanelStyles,
+                        viewedTab !== MOOC_DESIGN_TAB && chatbotAreaStyles,
+                      )}
+                    />
                   </StageTimelineTabStrip>
                 </SectionStatusProvider>
               )

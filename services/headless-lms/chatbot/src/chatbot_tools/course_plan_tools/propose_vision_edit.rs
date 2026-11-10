@@ -74,19 +74,24 @@ impl ConfirmableActionTool for ProposeVisionEditTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let plan = course_designer_plan_members::get_plan_for_user(conn, plan_id, user_id).await?;
+        let mut tx = conn.begin().await?;
+        course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+            .await?;
+        let plan =
+            course_designer_plan_members::get_plan_for_user(&mut tx, plan_id, user_id).await?;
         verify_current_value(
             "vision",
             plan.great_mooc_vision.as_deref().unwrap_or(""),
             &arguments.current_vision,
         )?;
         course_designer_plans::set_great_mooc_vision_for_user(
-            conn,
+            &mut tx,
             plan_id,
             user_id,
             arguments.proposed_vision.clone(),
         )
         .await?;
+        tx.commit().await?;
         Ok((
             ExecutedAction {
                 output: "Saved the new vision.".to_string(),

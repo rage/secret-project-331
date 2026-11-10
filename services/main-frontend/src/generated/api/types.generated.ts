@@ -373,6 +373,14 @@ export type AddPlanMemberRequest = {
 }
 
 /**
+ * The whole schedule in stage order. Completed stages must keep their dates, and later stages
+ * must already be shifted so there are no gaps or overlaps.
+ */
+export type AdjustCourseDesignerScheduleRequest = {
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+/**
  * The body of `POST /registrations/{credit_registration_id}/notes`.
  */
 export type AdminAddCreditRegistrationNotePayload = {
@@ -1105,13 +1113,13 @@ export type AnalysisWorkspaceV1 = {
   degree_programme?: string | null
   language?: string | null
   market_results?: string | null
-  mode_asynchronous: boolean
-  mode_synchronous: boolean
-  open_period_all: boolean
-  open_period_i: boolean
-  open_period_ii: boolean
-  open_period_iii: boolean
-  open_period_iv: boolean
+  mode_asynchronous?: boolean
+  mode_synchronous?: boolean
+  open_period_all?: boolean
+  open_period_i?: boolean
+  open_period_ii?: boolean
+  open_period_iii?: boolean
+  open_period_iv?: boolean
   resources_purchase_budget?: string | null
   resources_university?: string | null
   responsible_teachers?: string | null
@@ -1119,10 +1127,10 @@ export type AnalysisWorkspaceV1 = {
   target_group?: string | null
   wishes_assessment_text?: string | null
   wishes_content_format_notes?: string | null
-  wishes_content_format_podcast: boolean
-  wishes_content_format_text: boolean
-  wishes_content_format_video: boolean
-  wishes_content_format_xr: boolean
+  wishes_content_format_podcast?: boolean
+  wishes_content_format_text?: boolean
+  wishes_content_format_video?: boolean
+  wishes_content_format_xr?: boolean
   wishes_other_suggestions?: string | null
   wishes_topics?: string | null
 }
@@ -1482,8 +1490,59 @@ export type ChapterUpdate = {
   opens_at?: string | null
 }
 
+export type ChatbotChatStreamEvent =
+  | {
+      data: {
+        message_id: string
+        text: string
+      }
+      type: "Delta"
+    }
+  | {
+      data: {
+        finished: boolean
+        reasoning_id: string
+      }
+      type: "Reasoning"
+    }
+  | {
+      data: {
+        arguments?: string | null
+        finished: boolean
+        tool_call_id: string
+        tool_name?: string | null
+      }
+      type: "ToolCall"
+    }
+  | {
+      type: "Done"
+    }
+  | {
+      type: "Suspended"
+    }
+  | {
+      /**
+       * A confirmed action tool call executed, carrying data for the confirming admin's browser
+       * only (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and
+       * the model never sees it either.
+       */
+      data: {
+        payload: unknown
+        tool_call_id: string
+      }
+      type: "ActionExecuted"
+    }
+  | {
+      data: StreamEventError
+      type: "Error"
+    }
+
 export type ChatbotConfiguration = {
   chatbot_name: string
+  /**
+   * Answers on course design plan pages; at most one live configuration has this set.
+   */
+  course_designer_assistant: boolean
   course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
@@ -1525,6 +1584,150 @@ export type ChatbotConfigurationModel = {
   updated_at: string
 }
 
+export type ChatbotConversation = {
+  anonymous_token?: string | null
+  chatbot_configuration_id: string
+  conversation_title?: string | null
+  /**
+   * Set for conversations with the course design assistant about this plan.
+   */
+  course_designer_plan_id?: string | null
+  course_id?: string | null
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  updated_at: string
+  user_id?: string | null
+}
+
+/**
+ * Everything needed to display the chatbot to the user.
+ */
+export type ChatbotConversationInfo = {
+  chatbot_name: string
+  course_name?: string | null
+  current_conversation?: ChatbotConversation | null
+  current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
+  current_conversation_messages?: Array<ChatbotConversationMessage> | null
+  hide_citations: boolean
+  /**
+   * What to offer the learner as their next message. Absent when nothing should be offered: the
+   * configuration has suggestions off, or the conversation is at a point where a suggestion does
+   * not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+   * are wanted but none have been generated yet, which is what makes the endpoint generate them.
+   */
+  suggested_messages?: Array<ChatbotConversationSuggestedMessage> | null
+}
+
+export type ChatbotConversationMessage = {
+  conversation_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message: Message
+  order_number: number
+  updated_at: string
+}
+
+export type ChatbotConversationMessageCitation = {
+  citation_number: number
+  content: string
+  conversation_id: string
+  conversation_message_id: string
+  course_material_chapter_number?: number | null
+  created_at: string
+  deleted_at?: string | null
+  document_url: string
+  id: string
+  title: string
+  updated_at: string
+}
+
+export type ChatbotConversationMessageMessage = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message_is_complete: boolean
+  message_role: MessageRole
+  response_id?: string | null
+  text: string
+  updated_at: string
+  used_tokens: number
+}
+
+export type ChatbotConversationMessageReasoning = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  reasoning_id: string
+  response_id: string
+  summary?: string | null
+  updated_at: string
+}
+
+export type ChatbotConversationMessageToolCall = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  response_id: string
+  /**
+   * Is type = string in the OpenApi schema, because there is no known shape
+   * for this JSON value/object so we treat it as 'string' instead of
+   * 'unknown' in the API autogenerated types. Since it's valid JSON, we save
+   * it as JSON in our DB.
+   */
+  tool_arguments: string
+  tool_call_id: string
+  tool_kind: ToolKind
+  tool_name: string
+  updated_at: string
+}
+
+export type ChatbotConversationMessageToolOutput = {
+  chatbot_conversation_message_id: string
+  /**
+   * The answer payload the client sent, in the shape the answered tool defines. None for
+   * outputs no client answered.
+   */
+  client_answer?: {
+    [key: string]: unknown
+  } | null
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  output: string
+  response_id: string
+  tool_call_id: string
+  tool_kind: ToolKind
+  updated_at: string
+}
+
+export type ChatbotConversationSuggestedMessage = {
+  conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message: string
+  updated_at: string
+}
+
+export type ChatbotToolResponse = {
+  answer: ClientToolAnswer
+  /**
+   * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
+   */
+  tool_call_id: string
+  /**
+   * The tool the caller believes `tool_call_id` belongs to, checked against the call's
+   * recorded name so a client answering the wrong bubble fails clearly instead of being
+   * silently accepted as whatever tool the call actually was.
+   */
+  tool_name: ClientToolName
+}
+
 /**
  * What checking a row now brings forward.
  */
@@ -1561,6 +1764,49 @@ export type ClaimStudentNumberVerificationTokenResult = {
   outcome: ClaimStudentNumberVerificationTokenOutcome
   student_number?: string | null
 }
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export type ClientToolAnswer = {
+  /**
+   * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+   */
+  data: {
+    /**
+     * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
+     * known here. Unlike the tool call arguments we hand back to clients, this one is built
+     * by the client, so declaring it a string would make the generated binding unusable.
+     */
+    result: {
+      [key: string]: unknown
+    }
+  }
+  type: "Data"
+}
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export type ClientToolName =
+  | "ask_multiple_choice_question"
+  | "generate_password_reset_link"
+  | "reset_exercises"
+  | "update_cheating_status"
+  | "edit_user_account"
+  | "update_certificate"
+  | "propose_workspace_edit"
+  | "propose_add_task"
+  | "propose_update_task"
+  | "propose_schedule_adjustment"
+  | "propose_section_status"
+  | "propose_vision_edit"
 
 export type CmsPageExercise = {
   deadline?: string | null
@@ -2108,13 +2354,30 @@ export type CourseDefaultReviewConfigChange = EntityChange & {
   exercise_count: number
 }
 
+export type CourseDesignerAssistantStatus = {
+  /**
+   * Whether the chatbot backend is configured, i.e. whether to show the assistant at all.
+   */
+  available: boolean
+  /**
+   * Whether a guide course's chatbot is the assistant, so answers can cite guide pages. When
+   * false the built-in assistant answers from the plan and general knowledge only.
+   */
+  has_guide_course: boolean
+}
+
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
 
 export type CourseDesignerPlan = {
   active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
+  /**
+   * Set once a course has been created from the plan; see [`crate::library::course_designer::create_course_from_plan`].
+   */
+  created_course_id?: string | null
   deleted_at?: string | null
+  great_mooc_vision?: string | null
   id: string
   last_weekly_stage_email_sent_at?: string | null
   name?: string | null
@@ -2125,14 +2388,31 @@ export type CourseDesignerPlan = {
 export type CourseDesignerPlanDetails = {
   members: Array<CourseDesignerPlanMember>
   plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
   stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
 export type CourseDesignerPlanMember = {
   created_at: string
   id: string
+  receives_weekly_digest: boolean
   updated_at: string
   user_id: string
+}
+
+export type CourseDesignerPlanSectionStatus = {
+  comment?: string | null
+  course_designer_plan_id: string
+  created_at: string
+  id: string
+  /**
+   * Defined by the frontend forms, e.g. `design.learning_goals`.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+  updated_at: string
+  updated_by_user_id: string
 }
 
 export type CourseDesignerPlanStage = {
@@ -2146,11 +2426,19 @@ export type CourseDesignerPlanStage = {
   status: CourseDesignerPlanStageStatus
   updated_at: string
   workspace_data?: unknown
+  /**
+   * Bumped on every save of `workspace_data`; saves must name the revision they were based on.
+   */
+  workspace_revision: number
 }
 
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
 
 export type CourseDesignerPlanStageTask = {
+  /**
+   * Always a current plan member; cleared when that member leaves.
+   */
+  assignee_user_id?: string | null
   completed_at?: string | null
   completed_by_user_id?: string | null
   course_designer_plan_stage_id: string
@@ -2204,6 +2492,8 @@ export type CourseDesignerScheduleSuggestionResponse = {
   stages: Array<CourseDesignerScheduleStageInput>
 }
 
+export type CourseDesignerSectionStatus = "Ready" | "Unfinished"
+
 export type CourseDesignerStage =
   | "Analysis"
   | "Design"
@@ -2213,10 +2503,36 @@ export type CourseDesignerStage =
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ *
+ * Each schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`].
  */
-export type CourseDesignerStageWorkspace = {
-  payload: AnalysisWorkspaceV1
-  schema: "analysis_v1"
+export type CourseDesignerStageWorkspace =
+  | {
+      payload: AnalysisWorkspaceV1
+      schema: "analysis_v1"
+    }
+  | {
+      payload: DesignWorkspaceV1
+      schema: "design_v1"
+    }
+
+/**
+ * One plan as global admins see it in the MOOC support listing.
+ */
+export type CourseDesignerSupportPlan = {
+  members: Array<PlanMemberWithDetails>
+  plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
+  stages: Array<CourseDesignerSupportStage>
+}
+
+export type CourseDesignerSupportStage = {
+  completed_task_count: number
+  planned_ends_on: string
+  planned_starts_on: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  task_count: number
 }
 
 export type CourseEnrollmentInfo = {
@@ -2575,6 +2891,21 @@ export type CreateCourseDesignerPlanRequest = {
 export type CreateCourseDesignerStageTaskRequest = {
   description?: string | null
   title: string
+}
+
+export type CreateCourseFromPlanRequest = {
+  /**
+   * Defaults to the Analysis form's language when it reads as one, else English.
+   */
+  language_code?: string | null
+  /**
+   * Defaults to the Analysis form's course title, then the plan name.
+   */
+  name?: string | null
+  /**
+   * An organization the user may create courses in.
+   */
+  organization_id: string
 }
 
 /**
@@ -3537,6 +3868,118 @@ export type DeploymentInfo = {
   }
 }
 
+export type DesignChapter = {
+  /**
+   * Generated by the client so edits and the assistant can address a chapter stably.
+   */
+  id?: string
+  learning_objectives?: Array<string>
+  title?: string
+  /**
+   * Topics in order; each becomes a page between the chapter's Introduction and Conclusion.
+   */
+  topics?: Array<DesignChapterTopic>
+}
+
+export type DesignChapterTopic = {
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  title?: string
+}
+
+export type DesignPlannedContentFormats = {
+  chatbots?: boolean
+  infographics?: boolean
+  photos?: boolean
+  podcast?: boolean
+  simulations?: boolean
+  text?: boolean
+  thinglink?: boolean
+  videos?: boolean
+}
+
+/**
+ * The "Page/Screen Layout Elements" style guide: one free-text rule per item.
+ */
+export type DesignStyleGuide = {
+  active_passive_voice?: string
+  blocks?: string
+  bulleted_lists?: string
+  capitalization?: string
+  colour_palette?: string
+  file_naming?: string
+  font?: string
+  graphics_background?: string
+  podcast?: string
+  punctuation?: string
+  references_and_citations?: string
+  terminology_and_acronyms?: string
+  video_styles?: string
+  writing_style?: string
+}
+
+export type DesignWorkloadActivity = {
+  activity_type?: DesignWorkloadActivityType
+  /**
+   * How many times the activity occurs in the course.
+   */
+  count?: number
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  /**
+   * Estimated student time for one occurrence, in minutes.
+   */
+  minutes_each?: number
+  title?: string
+}
+
+/**
+ * ABC learning design activity types used by the student workload calculator.
+ */
+export type DesignWorkloadActivityType =
+  | "acquisition_audio"
+  | "acquisition_video"
+  | "acquisition_reading"
+  | "discussion"
+  | "collaboration"
+  | "investigation"
+  | "practice"
+  | "production"
+
+/**
+ * Design stage form: learning goals, core content, course structure, content formats, style
+ * guide, exercises and student workload.
+ */
+export type DesignWorkspaceV1 = {
+  accessibility_notes?: string
+  /**
+   * Planned chapters in course order. Creating a course from the plan turns each into a chapter.
+   */
+  chapters?: Array<DesignChapter>
+  content_format_notes?: string
+  /**
+   * What every student must learn, about 80 % of the content.
+   */
+  core_content_must_know?: string
+  /**
+   * About 5 % of the content.
+   */
+  core_content_nice_to_know?: string
+  /**
+   * About 15 % of the content.
+   */
+  core_content_should_know?: string
+  exercise_notes?: string
+  learning_goals?: Array<string>
+  planned_content_formats?: DesignPlannedContentFormats
+  style_guide?: DesignStyleGuide
+  workload_activities?: Array<DesignWorkloadActivity>
+}
+
 /**
  * Form body for `POST /device_authorization` (RFC 8628 §3.1).
  */
@@ -3736,6 +4179,7 @@ export type EmailTemplateType =
   | "credit_registration_action_needed"
   | "credit_registration_registered"
   | "verify_network"
+  | "course_designer_weekly_digest"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -4311,6 +4755,9 @@ export type ExerciseUserCounts = {
 }
 
 export type ExtendStageRequest = {
+  /**
+   * 1 to 24.
+   */
   months: number
 }
 
@@ -4620,6 +5067,14 @@ export type MaterialReference = {
   reference: string
   updated_at: string
 }
+
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
 
 export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
@@ -5756,6 +6211,7 @@ export type PlanMemberWithDetails = {
   first_name?: string | null
   id: string
   last_name?: string | null
+  receives_weekly_digest: boolean
   user_id: string
 }
 
@@ -6354,6 +6810,10 @@ export type SearchRequest = {
   query: string
 }
 
+export type SendCourseDesignerAssistantMessage = {
+  message: string
+}
+
 export type ServiceInfo = {
   cluster_ip?: string | null
   name: string
@@ -6365,6 +6825,30 @@ export type ServicePortInfo = {
   port: number
   protocol?: string | null
   target_port?: string | null
+}
+
+export type SetCourseDesignerAssistantRequest = {
+  course_designer_assistant: boolean
+}
+
+export type SetCourseDesignerSectionStatusRequest = {
+  /**
+   * Blank or `null` stores no comment.
+   */
+  comment?: string | null
+  /**
+   * Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+}
+
+export type SetCourseDesignerTaskAssigneeRequest = {
+  /**
+   * A current plan member, or `null` to unassign.
+   */
+  assignee_user_id?: string | null
 }
 
 export type SetCreditJustificationPayload = {
@@ -6382,10 +6866,26 @@ export type SetEnrolmentRoutePayload = {
   route: CreditRegistrationEnrolmentRoute
 }
 
+export type SetGreatMoocVisionRequest = {
+  /**
+   * Blank or `null` clears the vision.
+   */
+  great_mooc_vision?: string | null
+}
+
+export type SetWeeklyDigestSubscriptionRequest = {
+  receives_weekly_digest: boolean
+}
+
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
   modules: Array<Module>
+}
+
+export type StreamEventError = {
+  details?: string | null
+  message: string
 }
 
 /**
@@ -6838,6 +7338,12 @@ export type ToolCategory =
   | "admin_support_courses"
   | "admin_support_learning_progress"
   | "admin_support_academic_integrity"
+  | "course_planning"
+
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export type ToolKind = "function" | "azure_ai_search" | "client_tool"
 
 export type UnlinkMyStudentNumberResult = {
   /**
@@ -6846,10 +7352,22 @@ export type UnlinkMyStudentNumberResult = {
   affected_registration_count: number
 }
 
+/**
+ * Fields left out stay unchanged. An empty `description` clears it.
+ */
 export type UpdateCourseDesignerStageTaskRequest = {
   description?: string | null
   is_completed?: boolean | null
   title?: string | null
+}
+
+export type UpdateCourseDesignerStageWorkspaceRequest = {
+  /**
+   * The stage's `workspace_revision` the edit started from. A save based on an older revision
+   * is refused with `stale_version`.
+   */
+  base_revision: number
+  workspace: CourseDesignerStageWorkspace
 }
 
 /**
@@ -7754,6 +8272,28 @@ export type ConfigureChatbotResponses = {
 }
 
 export type ConfigureChatbotResponse = ConfigureChatbotResponses[keyof ConfigureChatbotResponses]
+
+export type SetChatbotCourseDesignerAssistantData = {
+  body: SetCourseDesignerAssistantRequest
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant"
+}
+
+export type SetChatbotCourseDesignerAssistantResponses = {
+  /**
+   * Updated chatbot configuration
+   */
+  200: ChatbotConfiguration
+}
+
+export type SetChatbotCourseDesignerAssistantResponse =
+  SetChatbotCourseDesignerAssistantResponses[keyof SetChatbotCourseDesignerAssistantResponses]
 
 export type CreateCodeGiveawayData = {
   body: NewCodeGiveaway
@@ -8765,6 +9305,23 @@ export type CreateCourseDesignerPlanResponses = {
 export type CreateCourseDesignerPlanResponse =
   CreateCourseDesignerPlanResponses[keyof CreateCourseDesignerPlanResponses]
 
+export type GetCourseDesignerSupportPlansData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/support/plans"
+}
+
+export type GetCourseDesignerSupportPlansResponses = {
+  /**
+   * All plans
+   */
+  200: Array<CourseDesignerSupportPlan>
+}
+
+export type GetCourseDesignerSupportPlansResponse =
+  GetCourseDesignerSupportPlansResponses[keyof GetCourseDesignerSupportPlansResponses]
+
 export type GetCourseDesignerPlanData = {
   body?: never
   path: {
@@ -8786,6 +9343,194 @@ export type GetCourseDesignerPlanResponses = {
 
 export type GetCourseDesignerPlanResponse =
   GetCourseDesignerPlanResponses[keyof GetCourseDesignerPlanResponses]
+
+export type ArchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/archive"
+}
+
+export type ArchiveCourseDesignerPlanResponses = {
+  /**
+   * Archived plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type ArchiveCourseDesignerPlanResponse =
+  ArchiveCourseDesignerPlanResponses[keyof ArchiveCourseDesignerPlanResponses]
+
+export type GetCourseDesignerAssistantStatusData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant"
+}
+
+export type GetCourseDesignerAssistantStatusResponses = {
+  /**
+   * Assistant status
+   */
+  200: CourseDesignerAssistantStatus
+}
+
+export type GetCourseDesignerAssistantStatusResponse =
+  GetCourseDesignerAssistantStatusResponses[keyof GetCourseDesignerAssistantStatusResponses]
+
+export type GetCurrentCourseDesignerAssistantConversationData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current"
+}
+
+export type GetCurrentCourseDesignerAssistantConversationResponses = {
+  /**
+   * Current conversation
+   */
+  200: ChatbotConversationInfo | null
+}
+
+export type GetCurrentCourseDesignerAssistantConversationResponse =
+  GetCurrentCourseDesignerAssistantConversationResponses[keyof GetCurrentCourseDesignerAssistantConversationResponses]
+
+export type NewCourseDesignerAssistantConversationData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new"
+}
+
+export type NewCourseDesignerAssistantConversationResponses = {
+  /**
+   * Created conversation
+   */
+  200: ChatbotConversation
+}
+
+export type NewCourseDesignerAssistantConversationResponse =
+  NewCourseDesignerAssistantConversationResponses[keyof NewCourseDesignerAssistantConversationResponses]
+
+export type GetCourseDesignerAssistantConversationInfoData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info"
+}
+
+export type GetCourseDesignerAssistantConversationInfoResponses = {
+  /**
+   * Conversation
+   */
+  200: ChatbotConversationInfo
+}
+
+export type GetCourseDesignerAssistantConversationInfoResponse =
+  GetCourseDesignerAssistantConversationInfoResponses[keyof GetCourseDesignerAssistantConversationInfoResponses]
+
+export type SendCourseDesignerAssistantMessageData = {
+  body: SendCourseDesignerAssistantMessage
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message"
+}
+
+export type SendCourseDesignerAssistantMessageResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendCourseDesignerAssistantMessageResponse =
+  SendCourseDesignerAssistantMessageResponses[keyof SendCourseDesignerAssistantMessageResponses]
+
+export type SendCourseDesignerAssistantToolResponseData = {
+  body: ChatbotToolResponse
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response"
+}
+
+export type SendCourseDesignerAssistantToolResponseResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendCourseDesignerAssistantToolResponseResponse =
+  SendCourseDesignerAssistantToolResponseResponses[keyof SendCourseDesignerAssistantToolResponseResponses]
+
+export type CreateCourseFromCourseDesignerPlanData = {
+  body: CreateCourseFromPlanRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/course"
+}
+
+export type CreateCourseFromCourseDesignerPlanResponses = {
+  /**
+   * Created course
+   */
+  200: Course
+}
+
+export type CreateCourseFromCourseDesignerPlanResponse =
+  CreateCourseFromCourseDesignerPlanResponses[keyof CreateCourseFromCourseDesignerPlanResponses]
 
 export type GetCoursePlanMembersData = {
   body?: never
@@ -8879,6 +9624,28 @@ export type SaveCourseDesignerScheduleResponses = {
 export type SaveCourseDesignerScheduleResponse =
   SaveCourseDesignerScheduleResponses[keyof SaveCourseDesignerScheduleResponses]
 
+export type AdjustCourseDesignerScheduleData = {
+  body: AdjustCourseDesignerScheduleRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment"
+}
+
+export type AdjustCourseDesignerScheduleResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type AdjustCourseDesignerScheduleResponse =
+  AdjustCourseDesignerScheduleResponses[keyof AdjustCourseDesignerScheduleResponses]
+
 export type FinalizeCourseDesignerScheduleData = {
   body?: never
   path: {
@@ -8922,6 +9689,50 @@ export type CreateCourseDesignerScheduleSuggestionResponses = {
 
 export type CreateCourseDesignerScheduleSuggestionResponse =
   CreateCourseDesignerScheduleSuggestionResponses[keyof CreateCourseDesignerScheduleSuggestionResponses]
+
+export type GetCourseDesignerSectionStatusesData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type GetCourseDesignerSectionStatusesResponses = {
+  /**
+   * Section statuses
+   */
+  200: Array<CourseDesignerPlanSectionStatus>
+}
+
+export type GetCourseDesignerSectionStatusesResponse =
+  GetCourseDesignerSectionStatusesResponses[keyof GetCourseDesignerSectionStatusesResponses]
+
+export type SetCourseDesignerSectionStatusData = {
+  body: SetCourseDesignerSectionStatusRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type SetCourseDesignerSectionStatusResponses = {
+  /**
+   * Saved section status
+   */
+  200: CourseDesignerPlanSectionStatus
+}
+
+export type SetCourseDesignerSectionStatusResponse =
+  SetCourseDesignerSectionStatusResponses[keyof SetCourseDesignerSectionStatusResponses]
 
 export type AdvanceCourseDesignerStageData = {
   body?: never
@@ -8998,7 +9809,7 @@ export type ExtendCourseDesignerStageResponse =
   ExtendCourseDesignerStageResponses[keyof ExtendCourseDesignerStageResponses]
 
 export type UpdateCourseDesignerStageWorkspaceData = {
-  body: CourseDesignerStageWorkspace
+  body: UpdateCourseDesignerStageWorkspaceRequest
   path: {
     /**
      * Plan id
@@ -9074,6 +9885,98 @@ export type UpdateCourseDesignerStageTaskResponses = {
 
 export type UpdateCourseDesignerStageTaskResponse =
   UpdateCourseDesignerStageTaskResponses[keyof UpdateCourseDesignerStageTaskResponses]
+
+export type SetCourseDesignerTaskAssigneeData = {
+  body: SetCourseDesignerTaskAssigneeRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Task id
+     */
+    task_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee"
+}
+
+export type SetCourseDesignerTaskAssigneeResponses = {
+  /**
+   * Updated task
+   */
+  200: CourseDesignerPlanStageTask
+}
+
+export type SetCourseDesignerTaskAssigneeResponse =
+  SetCourseDesignerTaskAssigneeResponses[keyof SetCourseDesignerTaskAssigneeResponses]
+
+export type UnarchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/unarchive"
+}
+
+export type UnarchiveCourseDesignerPlanResponses = {
+  /**
+   * Restored plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type UnarchiveCourseDesignerPlanResponse =
+  UnarchiveCourseDesignerPlanResponses[keyof UnarchiveCourseDesignerPlanResponses]
+
+export type SetCourseDesignerGreatMoocVisionData = {
+  body: SetGreatMoocVisionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/vision"
+}
+
+export type SetCourseDesignerGreatMoocVisionResponses = {
+  /**
+   * Updated plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type SetCourseDesignerGreatMoocVisionResponse =
+  SetCourseDesignerGreatMoocVisionResponses[keyof SetCourseDesignerGreatMoocVisionResponses]
+
+export type SetCourseDesignerWeeklyDigestSubscriptionData = {
+  body: SetWeeklyDigestSubscriptionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription"
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponses = {
+  /**
+   * Updated membership
+   */
+  200: CourseDesignerPlanMember
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponse =
+  SetCourseDesignerWeeklyDigestSubscriptionResponses[keyof SetCourseDesignerWeeklyDigestSubscriptionResponses]
 
 export type CreateCourseData = {
   body: NewCourse

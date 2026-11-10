@@ -96,6 +96,7 @@ export const zChatbotConversation = z.object({
   anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
   conversation_title: z.string().nullish(),
+  course_designer_plan_id: z.uuid().nullish(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -182,6 +183,12 @@ export const zClientToolName = z.enum([
   "update_cheating_status",
   "edit_user_account",
   "update_certificate",
+  "propose_workspace_edit",
+  "propose_add_task",
+  "propose_update_task",
+  "propose_schedule_adjustment",
+  "propose_section_status",
+  "propose_vision_edit",
 ])
 
 export const zChatbotToolResponse = z.object({

@@ -7,6 +7,8 @@ import { useTranslation } from "react-i18next"
 import type { CourseDesignerPlanSummary } from "@/generated/api/types.generated"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 
+import { stageLabel } from "../coursePlanStages"
+
 const cardStyles = css`
   border: 1px solid #d9dde4;
   border-radius: 12px;
@@ -54,22 +56,9 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
     }
   })()
 
-  const activeStageLabel = (() => {
-    switch (plan.active_stage) {
-      case "Analysis":
-        return t("course-plans-stage-analysis")
-      case "Design":
-        return t("course-plans-stage-design")
-      case "Development":
-        return t("course-plans-stage-development")
-      case "Implementation":
-        return t("course-plans-stage-implementation")
-      case "Evaluation":
-        return t("course-plans-stage-evaluation")
-      default:
-        return t("course-plans-none")
-    }
-  })()
+  const activeStageLabel = plan.active_stage
+    ? stageLabel(plan.active_stage, t)
+    : t("course-plans-none")
 
   return (
     // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label comes from nested dynamic text (plan name/status)

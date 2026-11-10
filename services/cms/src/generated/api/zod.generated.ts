@@ -285,6 +285,7 @@ export const zEmailTemplateType = z.enum([
   "credit_registration_action_needed",
   "credit_registration_registered",
   "verify_network",
+  "course_designer_weekly_digest",
 ])
 
 export const zEmailTemplate = z.object({
@@ -675,6 +676,7 @@ export const zToolCategory = z.enum([
   "admin_support_courses",
   "admin_support_learning_progress",
   "admin_support_academic_integrity",
+  "course_planning",
 ])
 
 /**
@@ -735,6 +737,7 @@ export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
+  course_designer_assistant: z.boolean(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z

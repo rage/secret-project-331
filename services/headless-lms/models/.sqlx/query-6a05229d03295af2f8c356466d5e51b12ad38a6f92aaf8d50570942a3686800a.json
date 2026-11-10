@@ -344,7 +344,8 @@
                       "admin_support_accounts",
                       "admin_support_courses",
                       "admin_support_learning_progress",
-                      "admin_support_academic_integrity"
+                      "admin_support_academic_integrity",
+                      "course_planning"
                     ]
                   }
                 }
@@ -367,6 +368,17 @@
           "Table": {
             "table": "chatbot_configurations",
             "name": "embeddable"
+          }
+        }
+      },
+      {
+        "ordinal": 29,
+        "name": "course_designer_assistant",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "course_designer_assistant"
           }
         }
       }
@@ -432,7 +444,8 @@
                       "admin_support_accounts",
                       "admin_support_courses",
                       "admin_support_learning_progress",
-                      "admin_support_academic_integrity"
+                      "admin_support_academic_integrity",
+                      "course_planning"
                     ]
                   }
                 }
@@ -474,6 +487,7 @@
       false,
       false,
       true,
+      false,
       false,
       false,
       false,

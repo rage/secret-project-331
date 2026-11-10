@@ -143,6 +143,10 @@ export type ChatbotConversation = {
   anonymous_token?: string | null
   chatbot_configuration_id: string
   conversation_title?: string | null
+  /**
+   * Set for conversations with the course design assistant about this plan.
+   */
+  course_designer_plan_id?: string | null
   course_id?: string | null
   created_at: string
   deleted_at?: string | null
@@ -326,6 +330,12 @@ export type ClientToolName =
   | "update_cheating_status"
   | "edit_user_account"
   | "update_certificate"
+  | "propose_workspace_edit"
+  | "propose_add_task"
+  | "propose_update_task"
+  | "propose_schedule_adjustment"
+  | "propose_section_status"
+  | "propose_vision_edit"
 
 export type CodeGiveawayStatus =
   | {

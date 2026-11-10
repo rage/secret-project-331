@@ -1,15 +1,11 @@
 "use client"
 
 import { ArrowDown } from "@vectopus/atlas-icons-react"
-import type { ReactNode } from "react"
+import type { ComponentType, ReactNode } from "react"
 
 import {
-  analysisSectionBodyId,
-  analysisSectionHeadingId,
-  type AnalysisSectionIndex,
   ICON_SIZE_SECTION,
   ICON_SIZE_SECTION_BADGE,
-  SECTION_HEADER_ICONS,
   sectionChevronStyles,
   sectionHeaderIconWrapStyles,
   sectionHeaderRowStyles,
@@ -18,18 +14,19 @@ import {
 } from "./analysisFormDomain"
 
 /**
- * Collapsible section title row: expand chevron, thematic Atlas icon, and heading text.
+ * Collapsible section title row: expand chevron, thematic Atlas icon, heading text and an
+ * optional trailing slot (the section's status chip).
  */
 export default function SectionCollapsibleHeader(props: {
-  sectionNum: AnalysisSectionIndex
+  icon: ComponentType<{ size?: number | string }>
+  headingId: string
+  bodyId: string
   expanded: boolean
   onToggle: () => void
   title: ReactNode
+  trailing?: ReactNode
 }) {
-  const { sectionNum, expanded, onToggle, title } = props
-  const Icon = SECTION_HEADER_ICONS[sectionNum - 1] ?? SECTION_HEADER_ICONS[0]
-  const headingId = analysisSectionHeadingId(sectionNum)
-  const bodyControlsId = analysisSectionBodyId(sectionNum)
+  const { icon: Icon, headingId, bodyId, expanded, onToggle, title, trailing } = props
   return (
     <div className={sectionHeaderRowStyles}>
       <button
@@ -37,7 +34,7 @@ export default function SectionCollapsibleHeader(props: {
         className={sectionToggleStyles}
         onClick={onToggle}
         aria-expanded={expanded}
-        aria-controls={bodyControlsId}
+        aria-controls={bodyId}
       >
         <span className={sectionChevronStyles(expanded)} aria-hidden>
           <ArrowDown size={ICON_SIZE_SECTION} />
@@ -49,6 +46,7 @@ export default function SectionCollapsibleHeader(props: {
           {title}
         </span>
       </button>
+      {trailing}
     </div>
   )
 }

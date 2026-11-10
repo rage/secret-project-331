@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT (\n    EXISTS (\n      SELECT 1\n      FROM courses\n      WHERE slug = $1\n        AND deleted_at IS NULL\n    )\n    OR EXISTS (\n      SELECT 1\n      FROM course_language_groups\n      WHERE slug = $1\n        AND deleted_at IS NULL\n    )\n  ) AS \"is_taken!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_taken!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "4668cd199cbb281c738377f622d0ebf06e068145ca95188b5d7eff54e82f54aa"
+}

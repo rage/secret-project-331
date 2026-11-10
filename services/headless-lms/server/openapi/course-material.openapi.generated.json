@@ -3437,6 +3437,11 @@
           "conversation_title": {
             "type": ["string", "null"]
           },
+          "course_designer_plan_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set for conversations with the course design assistant about this plan."
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -3894,7 +3899,13 @@
           "reset_exercises",
           "update_cheating_status",
           "edit_user_account",
-          "update_certificate"
+          "update_certificate",
+          "propose_workspace_edit",
+          "propose_add_task",
+          "propose_update_task",
+          "propose_schedule_adjustment",
+          "propose_section_status",
+          "propose_vision_edit"
         ]
       },
       "CodeGiveawayStatus": {

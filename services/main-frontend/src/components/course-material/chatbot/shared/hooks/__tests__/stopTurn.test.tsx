@@ -10,6 +10,7 @@ import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrent
 import { includeIf } from "@/shared-module/common/utils/nullability"
 
 import { streamOf } from "../../../__fixtures__/chatbotResponseStream"
+import courseMaterialChatbotEndpoints from "../../courseMaterialChatbotEndpoints"
 import {
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
   multipleChoiceAnswer,
@@ -82,7 +83,10 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData(CONFIGURATION_ID, null, true), { wrapper })
+  renderHook(
+    () => useChatbotStateAndData(courseMaterialChatbotEndpoints(CONFIGURATION_ID), null, true),
+    { wrapper },
+  )
 
 /** The signal the pending turn was sent with, once the request has gone out. */
 const sentSignal = async (): Promise<AbortSignal> => {

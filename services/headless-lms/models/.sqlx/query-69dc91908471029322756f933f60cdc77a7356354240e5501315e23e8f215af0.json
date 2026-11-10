@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT workspace_data\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND stage IN ('analysis', 'design')\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "workspace_data",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_data"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "69dc91908471029322756f933f60cdc77a7356354240e5501315e23e8f215af0"
+}

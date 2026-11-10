@@ -16,6 +16,7 @@ pub mod code_giveaways;
 pub mod course_auditing;
 pub mod course_credit_registrations;
 pub mod course_designer;
+pub mod course_designer_assistant;
 pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
@@ -65,6 +66,7 @@ use utoipa::OpenApi;
         (path = "/course-auditing", api = course_auditing::MainFrontendCourseAuditingApiDoc),
         (path = "/course-credit-registrations", api = course_credit_registrations::MainFrontendCourseCreditRegistrationsApiDoc),
         (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
+        (path = "/course-plans/{plan_id}/assistant", api = course_designer_assistant::MainFrontendCourseDesignerAssistantApiDoc),
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
         (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
@@ -113,6 +115,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(course_credit_registrations::_add_routes),
         )
         .service(web::scope("/course-instances").configure(course_instances::_add_routes))
+        // Before /course-plans, whose scope would otherwise claim these paths.
+        .service(
+            web::scope("/course-plans/{plan_id}/assistant")
+                .configure(course_designer_assistant::_add_routes),
+        )
         .service(web::scope("/course-plans").configure(course_designer::_add_routes))
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))

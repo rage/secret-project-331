@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_configurations\nSET course_designer_assistant = FALSE\nWHERE course_designer_assistant\n  AND id <> $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9c011d0f6dbd9f1014b582af83e35da3aaf6ed53c5ee3758923a59d753dee535"
+}

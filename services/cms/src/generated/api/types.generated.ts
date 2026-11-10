@@ -139,6 +139,10 @@ export type ChartSpecGenerationResponse = {
 
 export type ChatbotConfiguration = {
   chatbot_name: string
+  /**
+   * Answers on course design plan pages; at most one live configuration has this set.
+   */
+  course_designer_assistant: boolean
   course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
@@ -455,6 +459,7 @@ export type EmailTemplateType =
   | "credit_registration_action_needed"
   | "credit_registration_registered"
   | "verify_network"
+  | "course_designer_weekly_digest"
 
 export type EmailTemplateUpdate = {
   content: unknown
@@ -711,6 +716,7 @@ export type ToolCategory =
   | "admin_support_courses"
   | "admin_support_learning_progress"
   | "admin_support_academic_integrity"
+  | "course_planning"
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.

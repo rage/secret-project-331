@@ -17,6 +17,7 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adjustCourseDesignerSchedule,
   adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminDismissCreditRegistrationAttention,
@@ -37,6 +38,7 @@ import {
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
+  archiveCourseDesignerPlan,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
@@ -54,6 +56,7 @@ import {
   createCourseDesignerPlan,
   createCourseDesignerScheduleSuggestion,
   createCourseDesignerStageTask,
+  createCourseFromCourseDesignerPlan,
   createCourseGlossaryTerm,
   createCourseInstance,
   createCourseInstanceCompletions,
@@ -162,8 +165,12 @@ import {
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
+  getCourseDesignerAssistantConversationInfo,
+  getCourseDesignerAssistantStatus,
   getCourseDesignerPlan,
   getCourseDesignerPlans,
+  getCourseDesignerSectionStatuses,
+  getCourseDesignerSupportPlans,
   getCourseExercises,
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
@@ -226,6 +233,7 @@ import {
   getCreditRegistrationSettings,
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
+  getCurrentCourseDesignerAssistantConversation,
   getCurrentTime,
   getEditProposals,
   getEmailTemplates,
@@ -350,6 +358,7 @@ import {
   listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
+  newCourseDesignerAssistantConversation,
   type Options,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
@@ -380,9 +389,16 @@ import {
   saveCourseDesignerSchedule,
   searchUserDetailsExact,
   searchUserDetailsFuzzy,
+  sendCourseDesignerAssistantMessage,
+  sendCourseDesignerAssistantToolResponse,
   sendResetPasswordEmail,
+  setChatbotCourseDesignerAssistant,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
+  setCourseDesignerGreatMoocVision,
+  setCourseDesignerSectionStatus,
+  setCourseDesignerTaskAssignee,
+  setCourseDesignerWeeklyDigestSubscription,
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
@@ -392,6 +408,7 @@ import {
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
+  unarchiveCourseDesignerPlan,
   unhideCourseFromMyCourses,
   unlinkMyStudentNumber,
   unsetExamCourse,
@@ -434,6 +451,8 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdjustCourseDesignerScheduleData,
+  AdjustCourseDesignerScheduleResponse,
   AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
@@ -470,6 +489,8 @@ import type {
   ApproveOauthConsentResponse,
   ApproveOauthDeviceVerificationData,
   ApproveOauthDeviceVerificationResponse,
+  ArchiveCourseDesignerPlanData,
+  ArchiveCourseDesignerPlanResponse,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
@@ -500,6 +521,8 @@ import type {
   CreateCourseDesignerScheduleSuggestionResponse,
   CreateCourseDesignerStageTaskData,
   CreateCourseDesignerStageTaskResponse,
+  CreateCourseFromCourseDesignerPlanData,
+  CreateCourseFromCourseDesignerPlanResponse,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermResponse,
   CreateCourseInstanceCompletionsData,
@@ -693,10 +716,18 @@ import type {
   GetCourseDailyUsersWhoSubmittedSomethingResponse,
   GetCourseData,
   GetCourseDefaultPeerReviewData,
+  GetCourseDesignerAssistantConversationInfoData,
+  GetCourseDesignerAssistantConversationInfoResponse,
+  GetCourseDesignerAssistantStatusData,
+  GetCourseDesignerAssistantStatusResponse,
   GetCourseDesignerPlanData,
   GetCourseDesignerPlanResponse,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponse,
+  GetCourseDesignerSectionStatusesData,
+  GetCourseDesignerSectionStatusesResponse,
+  GetCourseDesignerSupportPlansData,
+  GetCourseDesignerSupportPlansResponse,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   GetCourseExercisesData,
@@ -818,6 +849,8 @@ import type {
   GetCreditRegistrationStatsByCourseResponse,
   GetCreditRegistrationThresholdsData,
   GetCreditRegistrationThresholdsResponse,
+  GetCurrentCourseDesignerAssistantConversationData,
+  GetCurrentCourseDesignerAssistantConversationResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalsData,
@@ -1059,6 +1092,8 @@ import type {
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
+  NewCourseDesignerAssistantConversationData,
+  NewCourseDesignerAssistantConversationResponse,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
@@ -1110,12 +1145,26 @@ import type {
   SearchUserDetailsExactResponse,
   SearchUserDetailsFuzzyData,
   SearchUserDetailsFuzzyResponse,
+  SendCourseDesignerAssistantMessageData,
+  SendCourseDesignerAssistantMessageResponse,
+  SendCourseDesignerAssistantToolResponseData,
+  SendCourseDesignerAssistantToolResponseResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
+  SetChatbotCourseDesignerAssistantData,
+  SetChatbotCourseDesignerAssistantResponse,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponse,
   SetCourseChatbotAsNonDefaultData,
   SetCourseChatbotAsNonDefaultResponse,
+  SetCourseDesignerGreatMoocVisionData,
+  SetCourseDesignerGreatMoocVisionResponse,
+  SetCourseDesignerSectionStatusData,
+  SetCourseDesignerSectionStatusResponse,
+  SetCourseDesignerTaskAssigneeData,
+  SetCourseDesignerTaskAssigneeResponse,
+  SetCourseDesignerWeeklyDigestSubscriptionData,
+  SetCourseDesignerWeeklyDigestSubscriptionResponse,
   SetCourseJoinCodeData,
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
@@ -1131,6 +1180,8 @@ import type {
   TeacherSetStudentChapterStatusResponse,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
+  UnarchiveCourseDesignerPlanData,
+  UnarchiveCourseDesignerPlanResponse,
   UnhideCourseFromMyCoursesData,
   UnlinkMyStudentNumberData,
   UnlinkMyStudentNumberResponse,
@@ -2062,6 +2113,34 @@ export const configureChatbotMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await configureChatbot({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
+ *
+ * Makes the chatbot the course design assistant on every plan page, taking the role from any
+ * other configuration, or removes the role from it.
+ */
+export const setChatbotCourseDesignerAssistantMutation = (
+  options?: Partial<Options<SetChatbotCourseDesignerAssistantData>>,
+): UseMutationOptions<
+  SetChatbotCourseDesignerAssistantResponse,
+  DefaultError,
+  Options<SetChatbotCourseDesignerAssistantData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetChatbotCourseDesignerAssistantResponse,
+    DefaultError,
+    Options<SetChatbotCourseDesignerAssistantData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setChatbotCourseDesignerAssistant({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -3262,6 +3341,32 @@ export const createCourseDesignerPlanMutation = (
   return mutationOptions
 }
 
+export const getCourseDesignerSupportPlansQueryKey = (
+  options?: Options<GetCourseDesignerSupportPlansData>,
+) => createQueryKey("getCourseDesignerSupportPlans", options)
+
+/**
+ * Read-only overview of every plan for global admins doing MOOC support.
+ */
+export const getCourseDesignerSupportPlansOptions = (
+  options?: Options<GetCourseDesignerSupportPlansData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSupportPlansResponse,
+    DefaultError,
+    GetCourseDesignerSupportPlansResponse,
+    ReturnType<typeof getCourseDesignerSupportPlansQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSupportPlans({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSupportPlansQueryKey(options),
+  })
+
 export const getCourseDesignerPlanQueryKey = (options: Options<GetCourseDesignerPlanData>) =>
   createQueryKey("getCourseDesignerPlan", options)
 
@@ -3281,6 +3386,219 @@ export const getCourseDesignerPlanOptions = (options: Options<GetCourseDesignerP
       }),
     queryKey: getCourseDesignerPlanQueryKey(options),
   })
+
+export const archiveCourseDesignerPlanMutation = (
+  options?: Partial<Options<ArchiveCourseDesignerPlanData>>,
+): UseMutationOptions<
+  ArchiveCourseDesignerPlanResponse,
+  DefaultError,
+  Options<ArchiveCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ArchiveCourseDesignerPlanResponse,
+    DefaultError,
+    Options<ArchiveCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await archiveCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantStatusQueryKey = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) => createQueryKey("getCourseDesignerAssistantStatus", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`
+ *
+ * Whether the assistant can be offered on this plan's pages.
+ */
+export const getCourseDesignerAssistantStatusOptions = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantStatusResponse,
+    DefaultError,
+    GetCourseDesignerAssistantStatusResponse,
+    ReturnType<typeof getCourseDesignerAssistantStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantStatusQueryKey(options),
+  })
+
+export const getCurrentCourseDesignerAssistantConversationQueryKey = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) => createQueryKey("getCurrentCourseDesignerAssistantConversation", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`
+ *
+ * The user's latest conversation about the plan with the current assistant, or null when there is
+ * none yet.
+ */
+export const getCurrentCourseDesignerAssistantConversationOptions = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) =>
+  queryOptions<
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    ReturnType<typeof getCurrentCourseDesignerAssistantConversationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCurrentCourseDesignerAssistantConversation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCurrentCourseDesignerAssistantConversationQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`
+ *
+ * Starts a new conversation about the plan, which becomes the user's current one.
+ */
+export const newCourseDesignerAssistantConversationMutation = (
+  options?: Partial<Options<NewCourseDesignerAssistantConversationData>>,
+): UseMutationOptions<
+  NewCourseDesignerAssistantConversationResponse,
+  DefaultError,
+  Options<NewCourseDesignerAssistantConversationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    NewCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    Options<NewCourseDesignerAssistantConversationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await newCourseDesignerAssistantConversation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantConversationInfoQueryKey = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) => createQueryKey("getCourseDesignerAssistantConversationInfo", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`
+ */
+export const getCourseDesignerAssistantConversationInfoOptions = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantConversationInfoResponse,
+    DefaultError,
+    GetCourseDesignerAssistantConversationInfoResponse,
+    ReturnType<typeof getCourseDesignerAssistantConversationInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantConversationInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantConversationInfoQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`
+ *
+ * Sends the user's message and streams the assistant's turn, as the course material chatbot's
+ * `send-message` does.
+ */
+export const sendCourseDesignerAssistantMessageMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantMessageData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantMessageResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantMessageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantMessageResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantMessageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantMessage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`
+ *
+ * Answers a tool call the turn suspended on, such as applying or discarding a proposed change, and
+ * streams the resumed turn, as the course material chatbot's `tool-response` does.
+ */
+export const sendCourseDesignerAssistantToolResponseMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantToolResponseData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantToolResponseResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantToolResponseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantToolResponseResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantToolResponseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantToolResponse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * Creates a draft course from the plan's course structure. A plan creates at most one course.
+ */
+export const createCourseFromCourseDesignerPlanMutation = (
+  options?: Partial<Options<CreateCourseFromCourseDesignerPlanData>>,
+): UseMutationOptions<
+  CreateCourseFromCourseDesignerPlanResponse,
+  DefaultError,
+  Options<CreateCourseFromCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseFromCourseDesignerPlanResponse,
+    DefaultError,
+    Options<CreateCourseFromCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseFromCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCoursePlanMembersQueryKey = (options: Options<GetCoursePlanMembersData>) =>
   createQueryKey("getCoursePlanMembers", options)
@@ -3368,6 +3686,31 @@ export const saveCourseDesignerScheduleMutation = (
   return mutationOptions
 }
 
+/**
+ * Changes the dates of stages that are not completed while the plan is in progress.
+ */
+export const adjustCourseDesignerScheduleMutation = (
+  options?: Partial<Options<AdjustCourseDesignerScheduleData>>,
+): UseMutationOptions<
+  AdjustCourseDesignerScheduleResponse,
+  DefaultError,
+  Options<AdjustCourseDesignerScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdjustCourseDesignerScheduleResponse,
+    DefaultError,
+    Options<AdjustCourseDesignerScheduleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adjustCourseDesignerSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const finalizeCourseDesignerScheduleMutation = (
   options?: Partial<Options<FinalizeCourseDesignerScheduleData>>,
 ): UseMutationOptions<
@@ -3404,6 +3747,51 @@ export const createCourseDesignerScheduleSuggestionMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await createCourseDesignerScheduleSuggestion({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerSectionStatusesQueryKey = (
+  options: Options<GetCourseDesignerSectionStatusesData>,
+) => createQueryKey("getCourseDesignerSectionStatuses", options)
+
+export const getCourseDesignerSectionStatusesOptions = (
+  options: Options<GetCourseDesignerSectionStatusesData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSectionStatusesResponse,
+    DefaultError,
+    GetCourseDesignerSectionStatusesResponse,
+    ReturnType<typeof getCourseDesignerSectionStatusesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSectionStatuses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSectionStatusesQueryKey(options),
+  })
+
+export const setCourseDesignerSectionStatusMutation = (
+  options?: Partial<Options<SetCourseDesignerSectionStatusData>>,
+): UseMutationOptions<
+  SetCourseDesignerSectionStatusResponse,
+  DefaultError,
+  Options<SetCourseDesignerSectionStatusData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerSectionStatusResponse,
+    DefaultError,
+    Options<SetCourseDesignerSectionStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerSectionStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -3536,6 +3924,97 @@ export const updateCourseDesignerStageTaskMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updateCourseDesignerStageTask({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const setCourseDesignerTaskAssigneeMutation = (
+  options?: Partial<Options<SetCourseDesignerTaskAssigneeData>>,
+): UseMutationOptions<
+  SetCourseDesignerTaskAssigneeResponse,
+  DefaultError,
+  Options<SetCourseDesignerTaskAssigneeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerTaskAssigneeResponse,
+    DefaultError,
+    Options<SetCourseDesignerTaskAssigneeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerTaskAssignee({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const unarchiveCourseDesignerPlanMutation = (
+  options?: Partial<Options<UnarchiveCourseDesignerPlanData>>,
+): UseMutationOptions<
+  UnarchiveCourseDesignerPlanResponse,
+  DefaultError,
+  Options<UnarchiveCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UnarchiveCourseDesignerPlanResponse,
+    DefaultError,
+    Options<UnarchiveCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await unarchiveCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const setCourseDesignerGreatMoocVisionMutation = (
+  options?: Partial<Options<SetCourseDesignerGreatMoocVisionData>>,
+): UseMutationOptions<
+  SetCourseDesignerGreatMoocVisionResponse,
+  DefaultError,
+  Options<SetCourseDesignerGreatMoocVisionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerGreatMoocVisionResponse,
+    DefaultError,
+    Options<SetCourseDesignerGreatMoocVisionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerGreatMoocVision({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * Opts the current user in or out of the plan's weekly progress email.
+ */
+export const setCourseDesignerWeeklyDigestSubscriptionMutation = (
+  options?: Partial<Options<SetCourseDesignerWeeklyDigestSubscriptionData>>,
+): UseMutationOptions<
+  SetCourseDesignerWeeklyDigestSubscriptionResponse,
+  DefaultError,
+  Options<SetCourseDesignerWeeklyDigestSubscriptionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerWeeklyDigestSubscriptionResponse,
+    DefaultError,
+    Options<SetCourseDesignerWeeklyDigestSubscriptionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerWeeklyDigestSubscription({
         ...options,
         ...fnOptions,
         throwOnError: true,

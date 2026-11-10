@@ -364,7 +364,8 @@ async fn template_replacements(
         EmailTemplateType::Generic
         | EmailTemplateType::CreditRegistrationAccountLinking
         | EmailTemplateType::CreditRegistrationActionNeeded
-        | EmailTemplateType::CreditRegistrationRegistered => None,
+        | EmailTemplateType::CreditRegistrationRegistered
+        | EmailTemplateType::CourseDesignerWeeklyDigest => None,
     };
 
     if let Some(purpose) = purpose {

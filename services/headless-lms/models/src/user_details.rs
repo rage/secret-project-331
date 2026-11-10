@@ -70,6 +70,26 @@ pub struct UserDetail {
     pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
+/// How course design plans name a person: their full name, or their email when they have none.
+pub fn full_name_or_email(
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+    email: &str,
+) -> String {
+    let name = [first_name, last_name]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    if name.is_empty() {
+        email.to_string()
+    } else {
+        name
+    }
+}
+
 pub async fn get_user_details_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,

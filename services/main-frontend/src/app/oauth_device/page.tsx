@@ -11,6 +11,7 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -167,4 +168,12 @@ const DeviceVerificationPage: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(DeviceVerificationPage))
+// Outside the (layout) group, so it mounts the session check itself: approving grants a lasting token.
+const DeviceVerificationPageWithSessionCheck: React.FC = () => (
+  <>
+    <DeviceVerificationPage />
+    <SessionVerificationDialog />
+  </>
+)
+
+export default withErrorBoundary(withSignedIn(DeviceVerificationPageWithSessionCheck))

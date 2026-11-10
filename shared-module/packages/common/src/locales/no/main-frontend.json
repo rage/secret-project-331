@@ -3070,7 +3070,6 @@
   "validation-required": "Dette feltet er obligatorisk",
   "value-of-maximum": "{{value}} / {{maximum}}",
   "value-of-total": "{{value}} av {{total}}",
-  "verification-code-label": "Verifikasjonskode",
   "verification-code-placeholder": "Skriv inn 6-sifret kode",
   "verification-failed": "Ugyldig eller utløpt verifikasjonskode",
   "verification-url": "Verifikasjons-URL",

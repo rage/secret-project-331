@@ -10,6 +10,8 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
       grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      # The client controls this header, and the backend would prefer it over X-Forwarded-For.
+      proxy_set_header Forwarded "";
     nginx.ingress.kubernetes.io/server-snippet: |
       rewrite ^(.*) /api/v0/other-domain-redirects$1 last;
     nginx.ingress.kubernetes.io/use-regex: "true"

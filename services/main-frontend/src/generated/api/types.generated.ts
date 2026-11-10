@@ -4178,6 +4178,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "verify_network"
   | "course_designer_weekly_digest"
 
 /**
@@ -14202,7 +14203,12 @@ export type GetMyEmailVerificationStatusResponse =
 export type GetEmailVerificationCodeForTestModeData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+     * The kinds of code the test-mode endpoint hands out.
+     */
+    purpose?: "email_ownership_verification" | "network_verification"
+  }
   url: "/api/v0/main-frontend/email-verification/test-mode-code"
 }
 

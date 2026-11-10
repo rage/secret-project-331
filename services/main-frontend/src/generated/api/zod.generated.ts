@@ -3093,6 +3093,7 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "verify_network",
   "course_designer_weekly_digest",
 ])
 
@@ -10996,6 +10997,10 @@ export const zRequestEmailVerificationCodeResponse = zRequestEmailVerificationOu
  * Email verification status of the signed-in user
  */
 export const zGetMyEmailVerificationStatusResponse = zEmailVerificationStatus
+
+export const zGetEmailVerificationCodeForTestModeQuery = z.object({
+  purpose: z.enum(["email_ownership_verification", "network_verification"]).optional(),
+})
 
 /**
  * The caller's pending verification code

@@ -1117,8 +1117,12 @@
       },
       "SessionEmailCodeRequest": {
         "type": "object",
-        "required": ["resend"],
+        "required": ["resend", "language"],
         "properties": {
+          "language": {
+            "type": "string",
+            "description": "Which language to mail. Falls back to English when no template exists for it."
+          },
           "resend": {
             "type": "boolean",
             "description": "The user asked for another mail. Without it, a code that is still usable is not replaced."

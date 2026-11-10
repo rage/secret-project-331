@@ -1407,6 +1407,8 @@ pub async fn session_status(
 pub struct SessionEmailCodeRequest {
     /// The user asked for another mail. Without it, a code that is still usable is not replaced.
     pub resend: bool,
+    /// Which language to mail. Falls back to English when no template exists for it.
+    pub language: String,
 }
 
 /// What asking for a session confirmation code did.
@@ -1462,7 +1464,13 @@ pub async fn send_session_email_code(
     let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
         .await?
         .email;
-    let outcome = session_verification::send_email_code(&mut conn, user.id, payload.resend).await?;
+    let outcome = session_verification::send_email_code(
+        &mut conn,
+        user.id,
+        payload.resend,
+        &payload.language,
+    )
+    .await?;
     token.authorized_ok(HttpResponse::Ok().json(SessionEmailCodeResult::Required {
         masked_email: session_verification::mask_email(&email),
         outcome,

@@ -571,7 +571,7 @@ async fn seed_email_ownership_verification_templates(
 }
 
 /// The code a user with a role types to confirm a session from a browser or network we have not
-/// seen on their account. English only, like the login code: the request has no language to go by.
+/// seen on their account.
 async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting network verification email");
 
@@ -618,6 +618,52 @@ async fn seed_network_verification_template(conn: &mut sqlx::PgConnection) -> an
             subject: subject.map(|s| s.to_string()),
         },
         subject,
+    )
+    .await?;
+
+    let finnish_subject = Some("Vahvista kirjautumisesi");
+    let finnish_body = json!([
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000004",
+            "attributes": {
+                "content": "Hei, tiliäsi käytettiin verkosta tai selaimesta, jota emme ole aiemmin nähneet. Jatka syöttämällä tämä koodi:",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "moocfi/email-one-time-code",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000005",
+            "attributes": {
+                "code": "{{CODE}}"
+            },
+            "innerBlocks": []
+        },
+        {
+            "name": "core/paragraph",
+            "isValid": true,
+            "clientId": "f1000000-0000-0000-0000-000000000006",
+            "attributes": {
+                "content": "Jos et itse käyttänyt tiliäsi, älä syötä koodia. Vaihda salasanasi heti.",
+                "dropCap": false
+            },
+            "innerBlocks": []
+        }
+    ]);
+
+    insert_email_template(
+        conn,
+        None,
+        EmailTemplateNew {
+            template_type: EmailTemplateType::VerifyNetwork,
+            language: Some("fi".to_string()),
+            content: Some(finnish_body),
+            subject: finnish_subject.map(|s| s.to_string()),
+        },
+        finnish_subject,
     )
     .await?;
 

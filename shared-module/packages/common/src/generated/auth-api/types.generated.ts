@@ -266,6 +266,10 @@ export type SessionChallengeReason = "unrecognized_network"
 
 export type SessionEmailCodeRequest = {
   /**
+   * Which language to mail. Falls back to English when no template exists for it.
+   */
+  language: string
+  /**
    * The user asked for another mail. Without it, a code that is still usable is not replaced.
    */
   resend: boolean

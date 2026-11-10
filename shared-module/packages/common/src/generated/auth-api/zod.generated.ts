@@ -209,6 +209,7 @@ export const zSessionChallenge = z.object({
 })
 
 export const zSessionEmailCodeRequest = z.object({
+  language: z.string(),
   resend: z.boolean(),
 })
 

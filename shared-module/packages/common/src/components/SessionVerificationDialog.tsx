@@ -35,7 +35,7 @@ interface EmailCodeState {
  * Mount once inside the login-state and query providers of a normal page layout.
  */
 const SessionVerificationDialog: React.FC = () => {
-  const { t } = useTranslation("shared-module")
+  const { t, i18n } = useTranslation("shared-module")
   const queryClient = useQueryClient()
   const { logout } = useLogout()
   const isVerificationRequired = useSessionVerificationRequired()
@@ -101,9 +101,9 @@ const SessionVerificationDialog: React.FC = () => {
 
   useEffect(() => {
     if (isVerificationRequired) {
-      sendCode({ body: { resend: false } })
+      sendCode({ body: { resend: false, language: i18n.language } })
     }
-  }, [isVerificationRequired, sendCode])
+  }, [i18n.language, isVerificationRequired, sendCode])
 
   const handleCodeChange = useCallback((typedCode: string) => {
     setCode(typedCode)
@@ -166,7 +166,7 @@ const SessionVerificationDialog: React.FC = () => {
         resend={{
           helperText: t("session-verification-didnt-get-it"),
           label: t("session-verification-send-again"),
-          onResend: () => sendCode({ body: { resend: true } }),
+          onResend: () => sendCode({ body: { resend: true, language: i18n.language } }),
           cooldownSeconds: EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
           lastSentAt: emailCode.lastSentAt,
           statusMessage: emailCode.resendNotice,

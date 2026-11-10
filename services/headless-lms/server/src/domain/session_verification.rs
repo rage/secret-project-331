@@ -19,7 +19,7 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::config::server_runtime_config;
 use crate::domain::email_ownership_verification::{
-    FALLBACK_EMAIL_LANGUAGE, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES, mail_new_code,
+    MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES, mail_new_code,
 };
 use crate::prelude::*;
 
@@ -374,6 +374,7 @@ pub async fn send_email_code(
     conn: &mut PgConnection,
     user_id: Uuid,
     resend: bool,
+    language: &str,
 ) -> anyhow::Result<EmailCodeOutcome> {
     let mut tx = conn.begin().await?;
     user_email_codes::lock_for_user_and_purpose(&mut tx, user_id, PURPOSE).await?;
@@ -411,7 +412,7 @@ pub async fn send_email_code(
         user_id,
         PURPOSE,
         EmailTemplateType::VerifyNetwork,
-        FALLBACK_EMAIL_LANGUAGE,
+        language,
     )
     .await?;
     tx.commit().await?;

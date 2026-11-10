@@ -1,5 +1,6 @@
 use indexmap::IndexMap;
 
+use headless_lms_models::course_designer_plan_members;
 use headless_lms_models::course_designer_plans::CourseDesignerStage;
 use headless_lms_models::course_designer_section_statuses::{self, CourseDesignerSectionStatus};
 use headless_lms_utils::json_schema_types::Schema;
@@ -146,7 +147,10 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let statuses = course_designer_section_statuses::get_for_plan(conn, plan_id).await?;
+        let mut tx = conn.begin().await?;
+        course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+            .await?;
+        let statuses = course_designer_section_statuses::get_for_plan(&mut tx, plan_id).await?;
         let stored = statuses
             .iter()
             .find(|s| s.stage == arguments.stage && s.section_key == arguments.section_key);
@@ -160,7 +164,7 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
         )?;
 
         course_designer_section_statuses::upsert_for_user(
-            conn,
+            &mut tx,
             plan_id,
             user_id,
             arguments.stage,
@@ -169,6 +173,7 @@ impl ConfirmableActionTool for ProposeSectionStatusTool {
             arguments.proposed_comment.clone(),
         )
         .await?;
+        tx.commit().await?;
 
         let status = arguments.proposed_status.as_str();
         Ok((

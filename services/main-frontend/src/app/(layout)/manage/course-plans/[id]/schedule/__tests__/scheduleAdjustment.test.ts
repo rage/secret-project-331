@@ -70,6 +70,18 @@ describe("moveStageEnd", () => {
     expect(validateScheduleStages(adjusted)).toBeNull()
   })
 
+  it("shifts later stages when the previous end was cleared", () => {
+    const cleared = stages.map((stage, index) =>
+      index === 1 ? { ...stage, planned_ends_on: "" } : stage,
+    )
+    const adjusted = moveStageEnd(cleared, 1, "2026-04-14")
+
+    expect(adjusted[2]).toMatchObject({
+      planned_starts_on: "2026-04-15",
+      planned_ends_on: "2026-07-14",
+    })
+  })
+
   it("ignores an incomplete date", () => {
     expect(moveStageEnd(stages, 1, "2026-04")).toBe(stages)
   })

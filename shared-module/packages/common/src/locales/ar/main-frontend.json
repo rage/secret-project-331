@@ -935,7 +935,7 @@
   "course-plans-complete-stage-confirm-body": "ستُحدَّد مرحلة {{stage}} على أنها مكتملة، وتبدأ مرحلة {{nextStage}} اليوم.",
   "course-plans-complete-stage-confirm-body-final": "ستُحدَّد مرحلة {{stage}} على أنها مكتملة، وتنتهي الخطة كلها.",
   "course-plans-complete-stage-confirm-button": "تحديد كمنجزة",
-  "course-plans-complete-stage-confirm-early": "كان من المخطط أن تنتهي المرحلة في {{date}}، لذا تتقدم المراحل اللاحقة بالمدة نفسها.",
+  "course-plans-complete-stage-confirm-early": "كان من المخطط أن تنتهي المرحلة في {{date}}. تبقى التواريخ المخطط لها كما هي، لذا ستكونون متقدمين على الجدول الزمني.",
   "course-plans-complete-stage-confirm-title": "هل اكتملت مرحلة {{stage}}؟",
   "course-plans-course-size-label": "حجم الدورة",
   "course-plans-course-size-large": "كبيرة",

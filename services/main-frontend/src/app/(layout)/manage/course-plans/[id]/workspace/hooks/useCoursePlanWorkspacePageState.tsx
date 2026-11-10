@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 
+import { usePendingSaves } from "../../components/PendingSavesContext"
 import { MOOC_DESIGN_TAB, type WorkspaceTab } from "../components/stageTimelineShared"
 
 type StageBriefTranslationKey =
@@ -71,10 +72,15 @@ export function useCoursePlanWorkspacePageState({
   const viewedStage = viewedTab === MOOC_DESIGN_TAB ? null : viewedTab
   const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
   const welcomedStageRef = useRef<string | null>(null)
+  const pendingSaves = usePendingSaves()
 
   const handleSelectedTabChange = useCallback(
     async (tab: WorkspaceTab) => {
-      if (workspaceDirty && tab !== viewedTab) {
+      if (tab === viewedTab) {
+        return
+      }
+      const isSaved = !workspaceDirty || (await pendingSaves?.saveAll()) === true
+      if (!isSaved) {
         const discardUnsaved = await confirmDiscardUnsavedChanges(
           t("course-plans-analysis-unsaved-confirm"),
         )
@@ -85,7 +91,7 @@ export function useCoursePlanWorkspacePageState({
       setWorkspaceDirty(false)
       setViewedTab(tab)
     },
-    [workspaceDirty, viewedTab, confirmDiscardUnsavedChanges, t],
+    [workspaceDirty, viewedTab, pendingSaves, confirmDiscardUnsavedChanges, t],
   )
 
   const handleAdvanceStage = useCallback(async () => {

@@ -28,6 +28,11 @@ const errorStyles = css`
   color: ${baseTheme.colors.red[700]};
 `
 
+/** The vision as it is stored: whitespace-only text is saved as no vision. */
+function toSavedVision(text: string): string {
+  return text.trim() === "" ? "" : text
+}
+
 /** The plan's "vision of a great MOOC", saved automatically as the user types. */
 export default function GreatMoocVisionField(props: {
   planId: string
@@ -57,7 +62,7 @@ export default function GreatMoocVisionField(props: {
 
   // Server changes replace the text only while there are no unsaved edits.
   useEffect(() => {
-    if (getValues("vision") === lastSavedRef.current) {
+    if (toSavedVision(getValues("vision")) === lastSavedRef.current) {
       lastSavedRef.current = savedVision
       reset({ vision: savedVision })
     }
@@ -65,14 +70,14 @@ export default function GreatMoocVisionField(props: {
 
   const { mutateAsync } = mutation
   const saveNow = useCallback(async (): Promise<boolean> => {
-    const text = getValues("vision")
+    const text = toSavedVision(getValues("vision"))
     if (isReadOnly || text === lastSavedRef.current) {
       return true
     }
     try {
       await mutateAsync({
         path: { plan_id: planId },
-        body: { great_mooc_vision: text.trim() === "" ? null : text },
+        body: { great_mooc_vision: text === "" ? null : text },
       })
       return true
     } catch {
@@ -82,15 +87,19 @@ export default function GreatMoocVisionField(props: {
 
   useRegisterPendingSave(saveNow)
 
-  const debouncedSave = useDebouncedCallback(() => {
-    void saveNow()
-  }, AUTOSAVE_DEBOUNCE_MS)
+  const debouncedSave = useDebouncedCallback(
+    () => {
+      void saveNow()
+    },
+    AUTOSAVE_DEBOUNCE_MS,
+    { flushOnExit: true },
+  )
 
   useEffect(() => {
     debouncedSave()
   }, [vision, debouncedSave])
 
-  const isUnsaved = vision !== lastSavedRef.current
+  const isUnsaved = toSavedVision(vision) !== lastSavedRef.current
 
   return (
     <>

@@ -17,6 +17,9 @@ import { Button, getErrorMessage, Radio, RadioGroup, TextArea } from "@/shared-m
 import { useInvalidatePlan } from "../../../../hooks/useInvalidatePlan"
 import { useSectionStatuses } from "./SectionStatusContext"
 
+/** Matches the backend limit on a section status comment. */
+const MAX_COMMENT_CHARS = 5000
+
 const editorStyles = css`
   display: flex;
   flex-direction: column;
@@ -124,7 +127,7 @@ export default function SectionStatusEditor(props: {
         label={t("course-plans-section-status-comment")}
         description={t("course-plans-section-status-comment-description")}
         rows={2}
-        maxLength={2000}
+        maxLength={MAX_COMMENT_CHARS}
       />
       <div className={actionRowStyles}>
         <Button

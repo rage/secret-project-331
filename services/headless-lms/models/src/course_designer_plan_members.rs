@@ -960,34 +960,6 @@ SET
     crate::course_designer_plans::get_plan_details_for_user(conn, plan_id, user_id).await
 }
 
-/// Loads a plan's stage rows in workflow order.
-async fn get_stage_rows(
-    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
-    plan_id: Uuid,
-) -> ModelResult<Vec<CourseDesignerPlanStage>> {
-    let rows = sqlx::query_as!(
-        CourseDesignerPlanStage,
-        r#"
-SELECT id, created_at, updated_at,
-  stage,
-  status,
-  planned_starts_on,
-  planned_ends_on,
-  actual_started_at,
-  actual_completed_at,
-  workspace_data,
-  workspace_revision
-FROM course_designer_plan_stages
-WHERE course_designer_plan_id = $1 AND deleted_at IS NULL
-ORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END
-"#,
-        plan_id
-    )
-    .fetch_all(&mut **tx)
-    .await?;
-    Ok(rows)
-}
-
 /// Moves `stage`'s planned end to `new_ends_on` and shifts every later stage so the schedule stays
 /// contiguous, keeping each later stage's length.
 async fn move_stage_end_and_shift_later(
@@ -996,7 +968,7 @@ async fn move_stage_end_and_shift_later(
     stage: CourseDesignerStage,
     new_ends_on: NaiveDate,
 ) -> ModelResult<()> {
-    let stage_rows = get_stage_rows(tx, plan_id).await?;
+    let stage_rows = get_plan_stages(tx, plan_id).await?;
     let current_idx = stage_rows
         .iter()
         .position(|s| s.stage == stage)
@@ -1077,7 +1049,7 @@ pub async fn extend_stage_for_user(
             None,
         ));
     }
-    let stage_row = get_stage_rows(&mut tx, plan_id)
+    let stage_row = get_plan_stages(&mut tx, plan_id)
         .await?
         .into_iter()
         .find(|s| s.stage == stage)
@@ -1125,7 +1097,7 @@ pub async fn adjust_schedule_for_user(
             None,
         ));
     }
-    let stage_rows = get_stage_rows(&mut tx, plan_id).await?;
+    let stage_rows = get_plan_stages(&mut tx, plan_id).await?;
     for input in stages {
         let row = stage_rows
             .iter()
@@ -1180,8 +1152,7 @@ WHERE id = $1 AND deleted_at IS NULL
 
 /// Completes the active stage and starts the next one, or completes the plan after the last stage.
 ///
-/// Completing a stage before its planned end moves its end to yesterday in Finnish time (or to its
-/// start) and pulls later stages forward by the same amount.
+/// Planned dates stay as they are, so finishing early leaves the team ahead of schedule.
 pub async fn advance_to_next_stage_for_user(
     conn: &mut PgConnection,
     plan_id: Uuid,
@@ -1209,30 +1180,6 @@ pub async fn advance_to_next_stage_for_user(
         }
     };
     let now = Utc::now();
-    let current_row = get_stage_rows(&mut tx, plan_id)
-        .await?
-        .into_iter()
-        .find(|s| s.stage == current_stage)
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "Active stage not found.".to_string(),
-                None,
-            )
-        })?;
-    // Finishing early pulls the rest of the schedule forward so the next stage starts today, or
-    // tomorrow when this stage started today, since a stage lasts at least a day. Plan dates are
-    // Finnish calendar days.
-    let today =
-        sqlx::query_scalar!(r#"SELECT (NOW() AT TIME ZONE 'Europe/Helsinki')::DATE AS "today!""#)
-            .fetch_one(&mut *tx)
-            .await?;
-    if today <= current_row.planned_ends_on {
-        let new_ends_on = (today - Duration::days(1)).max(current_row.planned_starts_on);
-        if new_ends_on < current_row.planned_ends_on {
-            move_stage_end_and_shift_later(&mut tx, plan_id, current_stage, new_ends_on).await?;
-        }
-    }
     sqlx::query!(
         r#"
 UPDATE course_designer_plan_stages

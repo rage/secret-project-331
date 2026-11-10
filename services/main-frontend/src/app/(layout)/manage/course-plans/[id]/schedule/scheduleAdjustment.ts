@@ -28,9 +28,9 @@ function shiftIsoDate(isoDate: string, days: number): string {
 }
 
 /**
- * Moves one stage's end date and shifts every later stage by the same number of days, so the
- * schedule stays contiguous and later stages keep their lengths. Mirrors what the backend expects
- * from an adjustment request.
+ * Moves one stage's end date and shifts every later stage so the next one starts the day after
+ * `newEndsOn`, keeping the schedule contiguous and later stages at their lengths. Mirrors what the
+ * backend expects from an adjustment request.
  *
  * Returns the stages unchanged when `newEndsOn` is not a valid ISO date.
  */
@@ -43,7 +43,12 @@ export function moveStageEnd(
   if (target === undefined || !isIsoDate(newEndsOn)) {
     return stages
   }
-  const shiftDays = differenceInCalendarDays(parseISO(newEndsOn), parseISO(target.planned_ends_on))
+  // The target's own end may be a cleared field, so measure the shift from the next stage's start.
+  const nextStartsOn = stages[stageIndex + 1]?.planned_starts_on
+  const shiftDays =
+    nextStartsOn !== undefined && isIsoDate(nextStartsOn)
+      ? differenceInCalendarDays(addDays(parseISO(newEndsOn), 1), parseISO(nextStartsOn))
+      : 0
   return stages.map((stage, index) => {
     if (index < stageIndex) {
       return stage

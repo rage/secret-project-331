@@ -242,9 +242,13 @@ export default function useStageWorkspaceForm<TValues extends FieldValues>({
 
   useRegisterPendingSave(saveNow)
 
-  const debouncedSave = useDebouncedCallback(() => {
-    void saveNow()
-  }, AUTOSAVE_DEBOUNCE_MS)
+  const debouncedSave = useDebouncedCallback(
+    () => {
+      void saveNow()
+    },
+    AUTOSAVE_DEBOUNCE_MS,
+    { flushOnExit: true },
+  )
 
   useEffect(() => {
     const subscription = watch((values) => {

@@ -155,8 +155,11 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
+        let mut tx = conn.begin().await?;
+        course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+            .await?;
         let stored: Vec<CourseDesignerScheduleStageInput> =
-            course_designer_plan_members::get_plan_stages(conn, plan_id)
+            course_designer_plan_members::get_plan_stages(&mut tx, plan_id)
                 .await?
                 .into_iter()
                 .map(|s| CourseDesignerScheduleStageInput {
@@ -170,12 +173,13 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
         }
 
         let updated = course_designer_plan_members::adjust_schedule_for_user(
-            conn,
+            &mut tx,
             plan_id,
             user_id,
             &arguments.proposed_schedule,
         )
         .await?;
+        tx.commit().await?;
 
         Ok((
             ExecutedAction {

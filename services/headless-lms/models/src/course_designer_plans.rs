@@ -453,6 +453,37 @@ WHERE course_designer_plan_id = $1
     ))
 }
 
+/// Locks the plan for editing and returns a stage's `workspace_revision` without reading the stored
+/// workspace, so a stored payload that no longer validates cannot block overwriting it.
+async fn lock_stage_workspace_revision_for_user(
+    tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
+    plan_id: Uuid,
+    user_id: Uuid,
+    stage: CourseDesignerStage,
+) -> ModelResult<i32> {
+    course_designer_plan_members::lock_editable_plan_for_user(tx, plan_id, user_id).await?;
+    sqlx::query_scalar!(
+        r#"
+SELECT workspace_revision
+FROM course_designer_plan_stages
+WHERE course_designer_plan_id = $1
+  AND stage = $2
+  AND deleted_at IS NULL
+"#,
+        plan_id,
+        stage as CourseDesignerStage
+    )
+    .fetch_optional(&mut **tx)
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "The plan has no schedule yet.".to_string(),
+            None,
+        )
+    })
+}
+
 /// Saves a stage's workspace form. The workspace schema must belong to `stage`.
 ///
 /// `base_revision` is the `workspace_revision` the edit started from. When another save has
@@ -474,8 +505,8 @@ pub async fn update_stage_workspace_for_user(
         ));
     }
     let mut tx = conn.begin().await?;
-    let (_, current_revision) =
-        lock_stage_workspace_for_user(&mut tx, plan_id, user_id, stage).await?;
+    let current_revision =
+        lock_stage_workspace_revision_for_user(&mut tx, plan_id, user_id, stage).await?;
     if current_revision != base_revision {
         return Err(model_err!(
             StaleVersion,

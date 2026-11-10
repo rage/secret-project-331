@@ -23,7 +23,7 @@ import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Link, QueryResult, useDialog } from "@/shared-module/components"
 
-import { formatPlanMonthYear } from "../../coursePlanDates"
+import { daysUntilPlanDate, formatPlanMonthYear } from "../../coursePlanDates"
 import { stageLabel as translateStageLabel } from "../../coursePlanStages"
 import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
 import { CoursePlanAssistantPanel } from "../assistant/CoursePlanAssistant"
@@ -419,13 +419,6 @@ const STAGE_BRIEF_KEYS = {
   Evaluation: "course-plans-phase-brief-evaluation",
 } satisfies Record<CourseDesignerStage, StageBriefTranslationKey>
 
-function daysBetween(from: string, to: string): number {
-  const a = new Date(from)
-  const b = new Date(to)
-  const diff = b.getTime() - a.getTime()
-  return Math.ceil(diff / (1000 * 60 * 60 * 24))
-}
-
 /** Returns localized key-goal bullet labels for the given stage, or [] when none. */
 function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunction): string[] {
   switch (stage) {
@@ -574,11 +567,10 @@ function CoursePlanWorkspacePage() {
                   ? (stages.find((stage) => stage.stage === viewedStage) ?? null)
                   : null
 
-              const today = new Date().toISOString().slice(0, 10)
               let timeRemainingText: string | null = null
               let timeRemainingShort: string | null = null
               if (currentStageData) {
-                const days = daysBetween(today, currentStageData.planned_ends_on)
+                const days = daysUntilPlanDate(currentStageData.planned_ends_on)
                 if (days > 0) {
                   const months = Math.floor(days / 30)
                   const remainingDays = days % 30

@@ -851,7 +851,7 @@
   "course-plans-complete-stage-confirm-body": "{{stage}} will be marked as completed and {{nextStage}} starts today.",
   "course-plans-complete-stage-confirm-body-final": "{{stage}} will be marked as completed and the whole plan is finished.",
   "course-plans-complete-stage-confirm-button": "Mark as done",
-  "course-plans-complete-stage-confirm-early": "The stage was planned to end on {{date}}, so the later stages move earlier by the same amount.",
+  "course-plans-complete-stage-confirm-early": "The stage was planned to end on {{date}}. The planned dates stay the same, so you will be ahead of schedule.",
   "course-plans-complete-stage-confirm-title": "Is the {{stage}} stage done?",
   "course-plans-course-size-label": "Course size",
   "course-plans-course-size-large": "Large",

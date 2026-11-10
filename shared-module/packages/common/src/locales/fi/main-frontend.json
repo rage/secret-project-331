@@ -851,7 +851,7 @@
   "course-plans-complete-stage-confirm-body": "{{stage}} merkitään valmiiksi, ja {{nextStage}} alkaa tänään.",
   "course-plans-complete-stage-confirm-body-final": "{{stage}} merkitään valmiiksi, ja koko suunnitelma on valmis.",
   "course-plans-complete-stage-confirm-button": "Merkitse valmiiksi",
-  "course-plans-complete-stage-confirm-early": "Vaiheen piti päättyä {{date}}, joten myöhemmät vaiheet siirtyvät saman verran aikaisemmiksi.",
+  "course-plans-complete-stage-confirm-early": "Vaiheen piti päättyä {{date}}. Suunnitellut päivämäärät pysyvät ennallaan, joten olette aikataulusta edellä.",
   "course-plans-complete-stage-confirm-title": "Onko vaihe {{stage}} valmis?",
   "course-plans-course-size-label": "Kurssin koko",
   "course-plans-course-size-large": "Suuri",

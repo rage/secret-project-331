@@ -866,7 +866,7 @@
   "course-plans-complete-stage-confirm-body": "{{stage}} markeres som fullført, og {{nextStage}} starter i dag.",
   "course-plans-complete-stage-confirm-body-final": "{{stage}} markeres som fullført, og hele planen er ferdig.",
   "course-plans-complete-stage-confirm-button": "Marker som ferdig",
-  "course-plans-complete-stage-confirm-early": "Fasen skulle etter planen slutte {{date}}, så de senere fasene flyttes like mye tidligere.",
+  "course-plans-complete-stage-confirm-early": "Fasen skulle etter planen slutte {{date}}. De planlagte datoene endres ikke, så dere ligger foran tidsplanen.",
   "course-plans-complete-stage-confirm-title": "Er fasen {{stage}} ferdig?",
   "course-plans-course-size-label": "Kursstørrelse",
   "course-plans-course-size-large": "Stort",

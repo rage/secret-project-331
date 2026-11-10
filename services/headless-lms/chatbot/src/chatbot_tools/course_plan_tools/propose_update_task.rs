@@ -173,7 +173,10 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
         let plan_id = authorized_plan_id(authorization)?;
         let user_id = authorization.acting_user_id();
-        let task = course_designer_plan_members::get_plan_tasks(conn, plan_id)
+        let mut tx = conn.begin().await?;
+        course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+            .await?;
+        let task = course_designer_plan_members::get_plan_tasks(&mut tx, plan_id)
             .await?
             .into_iter()
             .find(|task| task.id == arguments.task_id)
@@ -186,7 +189,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
         verify_current_value("task title", &task.title, &arguments.task_title)?;
 
         let members =
-            course_designer_plan_members::get_plan_members_with_details(conn, plan_id, user_id)
+            course_designer_plan_members::get_plan_members_with_details(&mut tx, plan_id, user_id)
                 .await?;
         let names: HashMap<Uuid, String> = members
             .iter()
@@ -233,7 +236,6 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
             }
         }
 
-        let mut tx = conn.begin().await?;
         if title.is_some() || description.is_some() || is_completed.is_some() {
             course_designer_plan_members::update_stage_task_for_user(
                 &mut tx,

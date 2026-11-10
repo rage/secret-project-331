@@ -903,7 +903,7 @@
   "course-plans-complete-stage-confirm-body": "Етап «{{stage}}» буде позначено завершеним, а етап «{{nextStage}}» почнеться сьогодні.",
   "course-plans-complete-stage-confirm-body-final": "Етап «{{stage}}» буде позначено завершеним, і весь план буде виконано.",
   "course-plans-complete-stage-confirm-button": "Позначити виконаним",
-  "course-plans-complete-stage-confirm-early": "Етап мав завершитися {{date}}, тому наступні етапи зсунуться раніше на той самий час.",
+  "course-plans-complete-stage-confirm-early": "Етап мав завершитися {{date}}. Заплановані дати не зміняться, тож ви випереджатимете графік.",
   "course-plans-complete-stage-confirm-title": "Етап «{{stage}}» виконано?",
   "course-plans-course-size-label": "Розмір курсу",
   "course-plans-course-size-large": "Великий",

@@ -13,7 +13,7 @@ interface CompletableStage {
 
 /**
  * Asks the member to confirm completing the active stage, explaining that finishing before the
- * planned end pulls the rest of the schedule forward. Resolves `true` when confirmed.
+ * planned end keeps the planned dates. Resolves `true` when confirmed.
  */
 export function useConfirmStageCompletion() {
   const { t, i18n } = useTranslation()

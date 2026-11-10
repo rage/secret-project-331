@@ -13,7 +13,7 @@ blockIntersectionObserverAtom.onMount = (setAtom) => {
     })
   }
 
-  const options: IntersectionObserverInit = {
+  const options = {
     root: null,
     rootMargin: "0px",
     threshold: 0.5,

@@ -6,6 +6,7 @@ import { useContext } from "react"
 import type { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
+import { useBlockIntersectionObserver } from "@/shared-module/common/hooks/useBlockIntersectionObserver"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
@@ -20,9 +21,10 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
   const listFontSize = useContext(ListFontSizeContext)
   // Fall back to the enclosing list's font size
   const effectiveFontSize = fontSize ?? listFontSize
-
+  const ref = useBlockIntersectionObserver()
   return (
     <li
+      ref={ref}
       className={cx(
         props.wrapperClassName,
         css`

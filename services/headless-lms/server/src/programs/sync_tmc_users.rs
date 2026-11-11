@@ -155,8 +155,7 @@ pub async fn delete_users(
 pub async fn fetch_recently_changed_user_details() -> anyhow::Result<TMCRecentChanges> {
     let access_token = ProgramConfig::required("TMC_ACCESS_TOKEN")?;
     let ratelimit_api_key = ProgramConfig::required("RATELIMIT_PROTECTION_SAFE_API_KEY")?;
-    let client = reqwest::Client::new();
-    let res = client
+    let res = headless_lms_utils::http::REQWEST_CLIENT_WITHOUT_REDIRECTS
         .get(URL)
         .header("RATELIMIT-PROTECTION-SAFE-API-KEY", ratelimit_api_key)
         .header(reqwest::header::CONTENT_TYPE, "application/json")

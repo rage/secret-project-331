@@ -1,9 +1,9 @@
-//! The `materialize` phase: the ledger rows for completions that became eligible, and for grades
-//! that improved on a registered one.
+//! The `materialize` phase: the ledger rows for completions that became eligible, for grades that
+//! improved on a registered one, and for completions registrable again after a withdrawal.
 
 use headless_lms_models::library::credit_registration::materialize::{
     GRADE_IMPROVEMENT_LIMIT, MATERIALIZE_LIMIT, ensure_registration_rows_for_eligible_completions,
-    start_re_attempts_for_improved_grades,
+    start_re_attempts_for_improved_grades, start_re_attempts_for_restored_completions,
 };
 use sqlx::{PgConnection, PgPool};
 
@@ -18,10 +18,19 @@ pub struct Materialized {
     pub created: i64,
     /// New attempts for grades that improved on a registered one.
     pub re_attempted: i64,
+    /// New attempts for completions registrable again after the pipeline withdrew them.
+    pub restored: i64,
 }
 
-/// Both statements that create ledger rows, bounded apart from each other: the phase's body, and
-/// the admin "materialize now" button's, so the two cannot drift apart.
+impl Materialized {
+    /// Every row the pass created.
+    pub fn total(&self) -> i64 {
+        self.created + self.re_attempted + self.restored
+    }
+}
+
+/// Every statement that creates ledger rows, each bounded on its own: the phase's body, and the
+/// admin "materialize now" button's, so the two cannot drift apart.
 pub async fn materialize_now(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -30,9 +39,12 @@ pub async fn materialize_now(
         ensure_registration_rows_for_eligible_completions(conn, scope, MATERIALIZE_LIMIT).await?;
     let re_attempted =
         start_re_attempts_for_improved_grades(conn, scope, GRADE_IMPROVEMENT_LIMIT).await?;
+    let restored =
+        start_re_attempts_for_restored_completions(conn, scope, MATERIALIZE_LIMIT).await?;
     Ok(Materialized {
         created,
         re_attempted,
+        restored,
     })
 }
 
@@ -43,15 +55,14 @@ pub(crate) async fn run(
     scope: &RegistrationScope,
 ) -> CreditRegistrationResult<Counts> {
     let mut conn = pool.acquire().await?;
-    let Materialized {
-        created,
-        re_attempted,
-    } = materialize_now(&mut conn, scope).await?;
-    if created > 0 || re_attempted > 0 {
+    let materialized = materialize_now(&mut conn, scope).await?;
+    if materialized.total() > 0 {
         debug!(
-            created,
-            re_attempted, "Materialized credit registration rows"
+            created = materialized.created,
+            re_attempted = materialized.re_attempted,
+            restored = materialized.restored,
+            "Materialized credit registration rows"
         );
     }
-    Ok(Counts::processed(created + re_attempted))
+    Ok(Counts::processed(materialized.total()))
 }

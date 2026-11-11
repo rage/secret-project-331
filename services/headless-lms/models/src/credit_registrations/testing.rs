@@ -131,6 +131,7 @@ WHERE state = 'no_usable_enrolment'
   AND next_attempt_at > now()
   AND deleted_at IS NULL
   AND ($1::uuid IS NULL OR course_id = $1)
+  AND ($4::uuid IS NULL OR external_credit_target_id = $4)
   AND ($2::uuid IS NULL OR user_id = $2)
   AND (
     cardinality($3::uuid []) = 0
@@ -140,8 +141,34 @@ WHERE state = 'no_usable_enrolment'
         scope.course_id,
         scope.user_id,
         &scope.credit_registration_ids,
+        scope.external_credit_target_id,
     )
     .execute(conn)
     .await?;
     Ok(res.rows_affected())
+}
+
+/// Rewrites the stored grade of a mooc.fi completion, as a re-check reading a changed grade would.
+/// Exists only for test setup: the grade otherwise comes from mooc.fi alone.
+pub async fn set_external_completion_grade_for_testing(
+    conn: &mut PgConnection,
+    external_completion_id: Uuid,
+    grade: Option<i32>,
+    passed: Option<bool>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE external_completions
+SET grade = $2,
+  passed = COALESCE($3, passed)
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        external_completion_id,
+        grade,
+        passed,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }

@@ -521,13 +521,13 @@ async fn terminal_outcome_alerts(
     Ok(alerts)
 }
 
-/// Modules the last configuration check found broken. Never checked is not counted: the Courses tab
-/// renders unknown and broken differently, and so must this.
+/// Modules and mooc.fi targets the last configuration check found broken. Never checked is not
+/// counted: the Courses tab renders unknown and broken differently, and so must this.
 async fn course_configuration_alert(
     conn: &mut PgConnection,
 ) -> ModelResult<Option<CreditRegistrationAlert>> {
     let count =
-        course_module_suotar_configurations::count_modules_failing_config_check(conn).await?;
+        course_module_suotar_configurations::count_credit_units_failing_config_check(conn).await?;
     Ok((count > 0).then_some(CreditRegistrationAlert {
         id: CreditRegistrationAlertId::CourseConfigurationBroken,
         window_secs: None,

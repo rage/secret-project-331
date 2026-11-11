@@ -8,6 +8,7 @@
 
 use utoipa::ToSchema;
 
+use crate::credit_registrations::SubjectId;
 use crate::prelude::*;
 
 /// Which university relationship a student picked, which decides only where they are told to enrol.
@@ -63,7 +64,8 @@ pub struct EnrolmentAnswers {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct EnrolmentRouteAnswer {
-    pub course_module_completion_id: Uuid,
+    /// The completion answered about, whichever kind it is.
+    pub subject_id: Uuid,
     pub route: CreditRegistrationEnrolmentRoute,
     pub has_finnish_personal_identity_code: Option<bool>,
     pub need: Option<CreditRegistrationNeed>,
@@ -76,14 +78,14 @@ pub struct EnrolmentRouteAnswer {
     pub certificate_chosen_at: Option<DateTime<Utc>>,
 }
 
-pub async fn get_by_completion_id(
+pub async fn get_by_subject(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
 ) -> ModelResult<Option<EnrolmentRouteAnswer>> {
     let res = sqlx::query_as!(
         EnrolmentRouteAnswer,
         r#"
-SELECT course_module_completion_id,
+SELECT COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   has_finnish_personal_identity_code,
   need AS "need: _",
@@ -92,10 +94,10 @@ SELECT course_module_completion_id,
   enrolment_confirmed_at,
   certificate_chosen_at
 FROM credit_registration_enrolment_routes
-WHERE course_module_completion_id = $1
+WHERE COALESCE(course_module_completion_id, external_completion_id) = $1
   AND deleted_at IS NULL
         "#,
-        course_module_completion_id,
+        subject.id(),
     )
     .fetch_optional(conn)
     .await?;
@@ -108,7 +110,7 @@ WHERE course_module_completion_id = $1
 /// way the old route described, and it says nothing about the new one.
 pub async fn set_answers(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     user_id: Uuid,
     answers: &EnrolmentAnswers,
 ) -> ModelResult<EnrolmentRouteAnswer> {
@@ -117,6 +119,7 @@ pub async fn set_answers(
         r#"
 INSERT INTO credit_registration_enrolment_routes (
     course_module_completion_id,
+    external_completion_id,
     user_id,
     route,
     has_finnish_personal_identity_code,
@@ -124,8 +127,11 @@ INSERT INTO credit_registration_enrolment_routes (
     identification,
     need_after_reconsider
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-ON CONFLICT (course_module_completion_id, deleted_at) DO
+VALUES ($1, $8, $2, $3, $4, $5, $6, $7)
+ON CONFLICT (
+    (COALESCE(course_module_completion_id, external_completion_id)),
+    deleted_at
+  ) DO
 UPDATE
 SET route = EXCLUDED.route,
   has_finnish_personal_identity_code = EXCLUDED.has_finnish_personal_identity_code,
@@ -136,7 +142,7 @@ SET route = EXCLUDED.route,
     WHEN credit_registration_enrolment_routes.route = EXCLUDED.route THEN credit_registration_enrolment_routes.enrolment_confirmed_at
     ELSE NULL
   END
-RETURNING course_module_completion_id,
+RETURNING COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   has_finnish_personal_identity_code,
   need AS "need: _",
@@ -145,13 +151,14 @@ RETURNING course_module_completion_id,
   enrolment_confirmed_at,
   certificate_chosen_at
         "#,
-        course_module_completion_id,
+        subject.course_module_completion_id(),
         user_id,
         answers.route as CreditRegistrationEnrolmentRoute,
         answers.has_finnish_personal_identity_code,
         answers.need as Option<CreditRegistrationNeed>,
         answers.identification as Option<CreditRegistrationIdentification>,
         answers.need_after_reconsider as Option<CreditRegistrationNeed>,
+        subject.external_completion_id(),
     )
     .fetch_one(conn)
     .await?;
@@ -163,7 +170,7 @@ RETURNING course_module_completion_id,
 /// Errors with not-found when the student has not answered yet.
 pub async fn set_enrolment_confirmed(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     confirmed: bool,
 ) -> ModelResult<EnrolmentRouteAnswer> {
     let res = sqlx::query_as!(
@@ -174,9 +181,9 @@ SET enrolment_confirmed_at = CASE
     WHEN $2 THEN COALESCE(enrolment_confirmed_at, now())
     ELSE NULL
   END
-WHERE course_module_completion_id = $1
+WHERE COALESCE(course_module_completion_id, external_completion_id) = $1
   AND deleted_at IS NULL
-RETURNING course_module_completion_id,
+RETURNING COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   has_finnish_personal_identity_code,
   need AS "need: _",
@@ -185,7 +192,7 @@ RETURNING course_module_completion_id,
   enrolment_confirmed_at,
   certificate_chosen_at
         "#,
-        course_module_completion_id,
+        subject.id(),
         confirmed,
     )
     .fetch_one(conn)
@@ -198,7 +205,7 @@ RETURNING course_module_completion_id,
 /// Errors with not-found when the student has not answered yet.
 pub async fn set_certificate_chosen(
     conn: &mut PgConnection,
-    course_module_completion_id: Uuid,
+    subject: SubjectId,
     chosen: bool,
 ) -> ModelResult<EnrolmentRouteAnswer> {
     let res = sqlx::query_as!(
@@ -209,9 +216,9 @@ SET certificate_chosen_at = CASE
     WHEN $2 THEN COALESCE(certificate_chosen_at, now())
     ELSE NULL
   END
-WHERE course_module_completion_id = $1
+WHERE COALESCE(course_module_completion_id, external_completion_id) = $1
   AND deleted_at IS NULL
-RETURNING course_module_completion_id,
+RETURNING COALESCE(course_module_completion_id, external_completion_id) AS "subject_id!",
   route AS "route: _",
   has_finnish_personal_identity_code,
   need AS "need: _",
@@ -220,7 +227,7 @@ RETURNING course_module_completion_id,
   enrolment_confirmed_at,
   certificate_chosen_at
         "#,
-        course_module_completion_id,
+        subject.id(),
         chosen,
     )
     .fetch_one(conn)

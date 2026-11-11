@@ -369,6 +369,10 @@ pub struct UserInfoPayload {
 
 /**
 POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+
+A new email reaches TMC only once it is verified, through
+[`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
+ownership verification is off.
 */
 #[instrument(skip(pool, app_conf, tmc_client))]
 #[utoipa::path(
@@ -419,7 +423,8 @@ pub async fn update_user_info(
             user.upstream_id,
             payload.first_name.clone(),
             payload.last_name.clone(),
-            email_changed.then(|| payload.email.clone()),
+            (email_changed && !app_conf.enable_email_ownership_verification)
+                .then(|| payload.email.clone()),
             &tmc_client,
             &app_conf,
         )

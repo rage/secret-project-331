@@ -177,6 +177,7 @@
   "email-template-type-generic": "Загальний",
   "email-template-type-reset-password-email": "Лист для скидання пароля",
   "email-template-type-verify-email-address": "Підтвердження адреси електронної пошти",
+  "email-template-type-verify-network": "Код підтвердження мережі",
   "error": "Помилка",
   "error-cannot-render-editor-for-exercise-service-x": "Неможливо відобразити редактор для сервісу вправ {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Неможливо відобразити завдання вправи, відсутня URL.",

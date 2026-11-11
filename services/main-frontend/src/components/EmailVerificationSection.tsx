@@ -24,7 +24,11 @@ import {
   EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
   OneTimeCodeForm,
 } from "@/shared-module/components"
-import { settingsCardCss } from "@/styles/sharedStyles"
+import {
+  settingsCardCss,
+  settingsCardHeaderCss,
+  settingsCardIconChipCss,
+} from "@/styles/sharedStyles"
 
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
@@ -36,34 +40,6 @@ const OUTCOME_KEYS = {
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
 } as const satisfies Record<RequestEmailVerificationOutcome, string | null>
-
-const headerCss = css`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: 1.25rem;
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-gray-100);
-
-  h3 {
-    margin: 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-`
-
-const iconChipCss = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: var(--color-green-75);
-  color: var(--color-green-700);
-`
 
 const bodyCss = css`
   display: flex;
@@ -103,11 +79,11 @@ const EmailVerificationSection: React.FC = () => {
 
   return (
     <div className={settingsCardCss} data-testid="email-verification-section">
-      <div className={headerCss}>
-        <div className={iconChipCss}>
+      <div className={settingsCardHeaderCss}>
+        <div className={settingsCardIconChipCss}>
           <Envelope size={16} />
         </div>
-        <h3>{t("heading-email-address-verification")}</h3>
+        <h2>{t("heading-email-address-verification")}</h2>
       </div>
       <Body status={status} />
     </div>

@@ -64,12 +64,14 @@ const shownRegistrationPerCourseModule = (
 ): ReadonlyMap<string, MyCreditRegistration> => {
   const shown = new Map<string, MyCreditRegistration>()
   for (const registration of registrations) {
-    if (registration.superseded) {
+    const courseModuleId = registration.course_module_id
+    // A mooc.fi registration belongs to no course here.
+    if (registration.superseded || !courseModuleId) {
       continue
     }
-    const chosen = shown.get(registration.course_module_id)
+    const chosen = shown.get(courseModuleId)
     if (!chosen || (!holdsCredit(chosen) && holdsCredit(registration))) {
-      shown.set(registration.course_module_id, registration)
+      shown.set(courseModuleId, registration)
     }
   }
   return shown

@@ -34,7 +34,13 @@ pub(crate) async fn run(
 ) -> CreditRegistrationResult<Counts> {
     let mut conn = pool.acquire().await?;
     let mut tx = conn.begin().await?;
-    let claimed = claim_unqueued(&mut tx, QUEUE_LIMIT, scope.course_id).await?;
+    let claimed = claim_unqueued(
+        &mut tx,
+        QUEUE_LIMIT,
+        scope.course_id,
+        scope.external_credit_target_id,
+    )
+    .await?;
     let mut templates = TemplateCache::default();
     let mut summary = MailQueueSummary::new(claimed.len());
     for mail in &claimed {

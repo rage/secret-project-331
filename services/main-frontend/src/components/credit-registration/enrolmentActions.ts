@@ -9,23 +9,31 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import {
   dismissCreditRegistrationEnrolmentBanner,
-  recordMyEnrolmentPageVisit,
   requestCreditRegistrationEnrolmentRecheck,
 } from "@/generated/api/sdk.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
-// The by-course-module cache is keyed per module and the enrolment is a course-wide fact, so the
-// whole family is invalidated by query id rather than by the one key the caller happens to know.
-const CREDIT_REGISTRATION_FOR_COURSE_MODULE_QUERY_ID = "getMyCreditRegistrationForCourseModule"
+import {
+  type CreditRegistrationSubject,
+  recordEnrolmentPageVisit,
+} from "./creditRegistrationSubject"
+
+// These caches are keyed per module or completion and the enrolment is a course-wide fact, so each
+// family is invalidated by query id rather than by the one key the caller happens to know.
+const PER_SUBJECT_REGISTRATION_QUERY_IDS: ReadonlySet<string> = new Set([
+  "getMyCreditRegistrationForCourseModule",
+  "getMyCreditRegistrationForExternalCompletion",
+])
 
 /**
  * Every student-facing view of a registration, for an action that moved the ledger row itself.
- * `courseId` is `null` before the row exists, when no banner can be showing for it either.
+ * `courseId` is `null` before the row exists or for a mooc.fi registration, when no banner can be
+ * showing for it.
  */
 export const invalidateRegistrationViews = async (
   queryClient: QueryClient,
-  courseId: string | null,
+  courseId: string | null | undefined,
 ): Promise<void> => {
   await Promise.all([
     queryClient.invalidateQueries({ queryKey: getMyCreditRegistrationsQueryKey() }),
@@ -37,9 +45,10 @@ export const invalidateRegistrationViews = async (
         })
       : null,
     queryClient.invalidateQueries({
-      predicate: (query) =>
-        (query.queryKey[0] as { _id?: string } | undefined)?._id ===
-        CREDIT_REGISTRATION_FOR_COURSE_MODULE_QUERY_ID,
+      predicate: (query) => {
+        const id = (query.queryKey[0] as { _id?: string } | undefined)?._id
+        return id !== undefined && PER_SUBJECT_REGISTRATION_QUERY_IDS.has(id)
+      },
     }),
   ])
 }
@@ -80,12 +89,9 @@ export const useDismissEnrolmentBanner = () => {
 }
 
 const useRecordEnrolmentPageVisit = () =>
-  useToastMutation<void, unknown, string>(
-    async (courseModuleId) => {
-      await recordMyEnrolmentPageVisit({ path: { course_module_id: courseModuleId } })
-    },
-    { notify: false },
-  )
+  useToastMutation<void, unknown, CreditRegistrationSubject>(recordEnrolmentPageVisit, {
+    notify: false,
+  })
 
 /**
  * Tells the backend the student is looking at the enrolment instructions, at most once per mount.
@@ -95,7 +101,7 @@ const useRecordEnrolmentPageVisit = () =>
  * nudge, not something the student needs to know about.
  */
 export const useRecordEnrolmentPageVisitOnce = (
-  courseModuleId: string,
+  subject: CreditRegistrationSubject,
   shouldRecord: boolean,
 ): void => {
   const { mutate: recordVisit } = useRecordEnrolmentPageVisit()
@@ -103,7 +109,7 @@ export const useRecordEnrolmentPageVisitOnce = (
   useEffect(() => {
     if (shouldRecord && !hasRecordedRef.current) {
       hasRecordedRef.current = true
-      recordVisit(courseModuleId)
+      recordVisit(subject)
     }
-  }, [shouldRecord, courseModuleId, recordVisit])
+  }, [shouldRecord, subject, recordVisit])
 }

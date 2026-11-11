@@ -14,6 +14,7 @@ import {
   registrationStatusLabel,
   registrationStatusState,
 } from "@/components/credit-registration/creditRegistrationCopy"
+import { registrationStatusPageRoute } from "@/components/credit-registration/creditRegistrationSubject"
 import RegistrationStatusCard from "@/components/credit-registration/RegistrationStatusCard"
 import {
   cardCss,
@@ -24,7 +25,6 @@ import {
 } from "@/components/credit-registration/styles"
 import { getMyCreditRegistrationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
-import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { RegistrationStatusState } from "@/shared-module/components"
 import { QueryResult, RelativeTime } from "@/shared-module/components"
@@ -105,6 +105,7 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
         module: registration.course_module_name,
       })
     : registration.course_name
+  const statusPageRoute = registrationStatusPageRoute(registration)
 
   return (
     <RegistrationStatusCard
@@ -113,11 +114,11 @@ const AttentionCard: React.FC<{ registration: MyCreditRegistration }> = ({ regis
       headline={registrationStatusLabel(t, status)}
       subject={subject}
       explanation={<p>{explanation}</p>}
-      primaryAction={{
-        key: DETAILS_ACTION_KEY,
-        label: detailsLabel,
-        href: completionRegistrationRoute(registration.course_module_id),
-      }}
+      primaryAction={
+        statusPageRoute
+          ? { key: DETAILS_ACTION_KEY, label: detailsLabel, href: statusPageRoute }
+          : null
+      }
       meta={
         <p className={noteCss}>
           {t("label-completed")}{" "}

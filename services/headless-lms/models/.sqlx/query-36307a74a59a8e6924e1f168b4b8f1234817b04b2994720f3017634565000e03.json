@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE moocfi_registration_reports\nSET attempt_count = attempt_count + 1,\n  next_attempt_at = now() + $2::interval,\n  last_error = $3,\n  claimed_until = NULL\nWHERE credit_registration_id = $1\n  AND deleted_at IS NULL\n  AND reported_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "36307a74a59a8e6924e1f168b4b8f1234817b04b2994720f3017634565000e03"
+}

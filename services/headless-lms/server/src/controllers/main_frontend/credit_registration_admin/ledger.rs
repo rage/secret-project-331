@@ -149,8 +149,8 @@ pub struct AdminCreditRegistrationEvent {
     pub message: Option<String>,
     pub actor_user_id: Option<Uuid>,
     pub suotar_api_call_id: Option<Uuid>,
-    /// The `{request, response}` pair for this row's item. Events written before bodies were kept
-    /// unredacted read `[redacted]` in place of names, student numbers and email addresses.
+    /// The `{request, response}` pair for this row's item. Once older than the call log's 90-day
+    /// window, names, student numbers and email addresses in it read `[redacted]`.
     pub details: Option<serde_json::Value>,
     /// The requestItemId the row went out under in the call behind this event.
     pub request_item_id: Option<String>,

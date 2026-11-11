@@ -17451,7 +17451,7 @@
             "description": "The attempt the event belongs to."
           },
           "details": {
-            "description": "The `{request, response}` pair for this row's item. Events written before bodies were kept\nunredacted read `[redacted]` in place of names, student numbers and email addresses."
+            "description": "The `{request, response}` pair for this row's item. Once older than the call log's 90-day\nwindow, names, student numbers and email addresses in it read `[redacted]`."
           },
           "error_code": {
             "oneOf": [

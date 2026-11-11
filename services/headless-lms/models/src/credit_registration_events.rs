@@ -5,6 +5,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
+use crate::library::credit_registration::scrub::scrub_suotar_body;
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
@@ -59,6 +60,8 @@ pub struct CreditRegistrationEvent {
     /// Orders the timeline where set: events written in one transaction share `created_at`.
     pub suotar_answered_at: Option<DateTime<Utc>>,
     pub suotar_answer: Option<SuotarAnswer>,
+    /// `None` while `details` still hold what Suotar was sent and answered.
+    pub details_redacted_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -272,6 +275,52 @@ FROM UNNEST($1::uuid []) AS id
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Removes personal data from up to `limit` events' `details` written before `cutoff`, oldest first.
+/// Returns how many it redacted.
+pub async fn redact_details_older_than(
+    conn: &mut PgConnection,
+    cutoff: DateTime<Utc>,
+    limit: i64,
+) -> ModelResult<u64> {
+    let mut tx = conn.begin().await?;
+    let expired = sqlx::query!(
+        r#"
+SELECT id,
+  details AS "details!"
+FROM credit_registration_events
+WHERE details IS NOT NULL
+  AND details_redacted_at IS NULL
+  AND created_at < $1
+ORDER BY created_at
+LIMIT $2
+FOR UPDATE SKIP LOCKED
+        "#,
+        cutoff,
+        limit,
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, details): (Vec<Uuid>, Vec<Value>) = expired
+        .into_iter()
+        .map(|row| (row.id, scrub_suotar_body(&row.details)))
+        .unzip();
+    let res = sqlx::query!(
+        r#"
+UPDATE credit_registration_events AS e
+SET details = redacted.details,
+  details_redacted_at = now()
+FROM UNNEST($1::uuid [], $2::jsonb []) AS redacted(id, details)
+WHERE e.id = redacted.id
+        "#,
+        &ids,
+        &details,
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(res.rows_affected())
 }
 
 /// The per-item timeline, newest first.

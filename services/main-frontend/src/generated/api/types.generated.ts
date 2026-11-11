@@ -520,8 +520,8 @@ export type AdminCreditRegistrationEvent = {
    */
   credit_registration_id: string
   /**
-   * The `{request, response}` pair for this row's item. Events written before bodies were kept
-   * unredacted read `[redacted]` in place of names, student numbers and email addresses.
+   * The `{request, response}` pair for this row's item. Once older than the call log's 90-day
+   * window, names, student numbers and email addresses in it read `[redacted]`.
    */
   details?: unknown
   error_code?: CreditRegistrationErrorCode | null

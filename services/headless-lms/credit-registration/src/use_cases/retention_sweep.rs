@@ -14,6 +14,9 @@ use crate::workflow::Counts;
 const SWEEP_LIMIT: i64 = 500;
 /// Above the tens of thousands of checks a day the hourly sweep has to keep up with.
 const OUTCOME_SWEEP_LIMIT: i64 = 5000;
+/// Each enrolment check answer writes an event, so one batch an hour would fall behind the checks;
+/// separate transactions keep each batch's row locks short.
+const MAX_REDACTION_BATCHES: usize = 20;
 
 /// The call log's 90-day window, which also ends the unredacted life of the ledger's copies of those
 /// exchanges, the enrolment check log's own longer window, and the expired linking tokens.
@@ -25,7 +28,14 @@ pub(crate) async fn run(pool: &PgPool) -> CreditRegistrationResult<Counts> {
     let mut conn = pool.acquire().await?;
     let cutoff = Utc::now() - Duration::days(RETENTION_DAYS);
     let purged_calls = delete_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;
-    let redacted_events = redact_details_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;
+    let mut redacted_events = 0;
+    for _ in 0..MAX_REDACTION_BATCHES {
+        let redacted = redact_details_older_than(&mut conn, cutoff, SWEEP_LIMIT).await?;
+        redacted_events += redacted;
+        if redacted < SWEEP_LIMIT.unsigned_abs() {
+            break;
+        }
+    }
     let purged_outcomes = credit_registration_enrolment_check_outcomes::delete_older_than(
         &mut conn,
         Utc::now() - Duration::days(credit_registration_enrolment_check_outcomes::RETENTION_DAYS),

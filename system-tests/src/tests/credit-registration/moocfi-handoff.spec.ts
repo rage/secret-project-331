@@ -141,7 +141,7 @@ test("Arriving from another site, the student confirms the account and continues
   await expect(page.getByRole("heading", { name: "Confirm your account" })).toBeVisible()
   await expect(
     page.getByText(
-      "This link signs you in with the account below. Continue only if you just pressed the credit registration button on the older version of the platform.",
+      "This link signs you in with the account below. Continue only if you just pressed a credit registration button.",
     ),
   ).toBeVisible()
   await expect(page.getByText(STUDENT.email, { exact: true })).toBeVisible()

@@ -145,7 +145,7 @@ test("A later completion with the same grade and tier as a registered one is not
   await openRegistrationFromMoocfi(page, MOOCFI_COURSE, STUDENT)
   await expect(
     page.getByText(
-      "An earlier completion of this course with the same grade has already been registered",
+      "An earlier completion of this course with the same grade and level has already been registered",
     ),
   ).toBeVisible()
   await expect(page.getByRole("button", { name: "Start" })).toHaveCount(0)

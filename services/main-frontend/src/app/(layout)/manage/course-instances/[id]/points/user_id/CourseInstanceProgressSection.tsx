@@ -2,17 +2,20 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import { useCourseEndQuestionsWithAnswers } from "@/hooks/useCourseEndQuestionsWithAnswers"
 import { useCourseInstanceProgress } from "@/hooks/useCourseInstanceProgress"
+import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
+import BooleanAsYesOrNoText from "@/shared-module/common/components/BooleanAsYesOrNoText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
 
-import EndQuestionAnswerChip from "./EndQuestionAnswerChip"
+import EndQuestionAnswerChip from "./EndQuestionAnswersAccordion"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -100,6 +103,12 @@ const ProgressValue = styled.span`
   font-weight: 500;
 `
 
+const iconStyle = css`
+  position: absolute;
+  margin: 0.25rem;
+  margin-left: 0.5rem;
+`
+
 interface CourseInstanceProgressSectionProps {
   userId: string
   courseId: string
@@ -112,11 +121,8 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
   const courseInstanceProgresses = useCourseInstanceProgress(courseId, userId)
+  const courseModuleCompletions = useCourseModuleCompletions(courseId, userId)
   const endQuestionsWithAnswers = useCourseEndQuestionsWithAnswers(courseId, userId)
-
-  const booleanToYesNoText = (x: boolean) => {
-    return x ? t("yes") : t("no")
-  }
 
   const heading = (
     <h2
@@ -175,6 +181,10 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                     courseInstanceProgress.total_exercises) *
                   100
                 : 0
+              const completionData = courseModuleCompletions.data?.find((x) => {
+                return x.course_module_id === courseModule?.id
+              })
+              const suspectedCheating = completionData?.needs_to_be_reviewed ?? false
               const endAnswers = endQuestionsWithAnswers.data
                 ?.filter((x) => (x.course_module_id = courseInstanceProgress.course_module_id))
                 .toSorted((y, z) => y.question_serial_number - z.question_serial_number)
@@ -188,7 +198,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                     <InfoItem>
                       <Label>{t("module-has-been-completed")}</Label>
                       <Value>
-                        {booleanToYesNoText(courseInstanceProgress.completion_attained)}
+                        <BooleanAsYesOrNoText value={courseInstanceProgress.completion_attained} />
                       </Value>
                     </InfoItem>
                     {courseInstanceProgress.attempted_exercises_required !== null && (
@@ -221,16 +231,41 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                       <ProgressBar progress={exercisesProgress} />
                       <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
                     </InfoItem>
+                    <InfoItem
+                      className={css`
+                        ${suspectedCheating && `background-color: ${baseTheme.colors.red[200]};`}
+                      `}
+                    >
+                      <Label
+                        className={css`
+                          ${suspectedCheating && `color: ${baseTheme.colors.gray[600]};`}
+                        `}
+                      >
+                        {t("suspected-cheating")}
+                      </Label>
+                      <Value>
+                        <BooleanAsYesOrNoText value={suspectedCheating} />
+                        {suspectedCheating && (
+                          <ExclamationTriangle
+                            className={iconStyle}
+                            size={18}
+                            weight="bold"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Value>
+                    </InfoItem>
                     <InfoItem>
                       <Label>{t("end-questions-answered")}</Label>
                       <Value>
-                        {courseInstanceProgress.requires_ending_questionnaire
-                          ? booleanToYesNoText(courseInstanceProgress.ending_questionnaire_answered)
-                          : t("not-required")}
+                        {courseInstanceProgress.requires_ending_questionnaire ? (
+                          <BooleanAsYesOrNoText
+                            value={courseInstanceProgress.ending_questionnaire_answered}
+                          />
+                        ) : (
+                          t("not-required")
+                        )}
                       </Value>
-                      {
-                        // suspected of cheating?
-                      }
                     </InfoItem>
                   </InfoGrid>
                   {courseInstanceProgress.requires_ending_questionnaire &&

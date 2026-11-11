@@ -2,11 +2,13 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
+import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
+import BooleanAsYesOrNoText from "@/shared-module/common/components/BooleanAsYesOrNoText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -77,6 +79,11 @@ const Value = styled.span`
   color: ${baseTheme.colors.gray[700]};
   font-size: 1rem;
 `
+const iconStyle = css`
+  position: absolute;
+  margin: 0.25rem;
+  margin-left: 0.5rem;
+`
 
 interface CourseModuleCompletionsSectionProps {
   userId: string
@@ -96,6 +103,10 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       return grade.toString()
     }
     return passed ? t("label-passed") : t("label-not-passed")
+  }
+
+  const booleanToYesNoText = (x: boolean) => {
+    return x ? t("yes") : t("no")
   }
 
   const heading = (
@@ -133,11 +144,24 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
             const courseModule = courseStructureData.modules.find(
               (cm) => cm.id === courseModuleCompletion.course_module_id,
             )
+            const completionIsValid =
+              !courseModuleCompletion.needs_to_be_reviewed &&
+              courseModuleCompletion.prerequisite_modules_completed
             return (
               <ModuleCard key={courseModuleCompletion.id}>
                 <ModuleHeader>
                   <ModuleTitle>
-                    {courseModule?.name ?? t("default-module")}
+                    <span>
+                      {courseModule?.name ?? t("default-module")}
+                      {courseModuleCompletion.needs_to_be_reviewed && (
+                        <ExclamationTriangle
+                          size={18}
+                          className={iconStyle}
+                          weight="bold"
+                          aria-label={t("course-module-completion-needs-review-short")}
+                        />
+                      )}
+                    </span>
                     {courseModule?.uh_course_code && ` (${courseModule.uh_course_code})`}
                   </ModuleTitle>
                   <CompletionDate>
@@ -151,6 +175,12 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                   <ReviewBanner>{t("course-module-completion-needs-review")}</ReviewBanner>
                 )}
                 <InfoGrid>
+                  <InfoItem>
+                    <Label>{t("completion-is-valid")}</Label>
+                    <Value>
+                      <BooleanAsYesOrNoText value={completionIsValid} />
+                    </Value>
+                  </InfoItem>
                   <InfoItem>
                     <Label>{t("label-passed")}</Label>
                     <Value>
@@ -166,7 +196,7 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                   <InfoItem>
                     <Label>{t("label-prerequisite-modules-completed")}</Label>
                     <Value>
-                      <BooleanAsText
+                      <BooleanAsYesOrNoText
                         value={courseModuleCompletion.prerequisite_modules_completed}
                       />
                     </Value>

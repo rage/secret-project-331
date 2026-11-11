@@ -549,6 +549,8 @@ import type {
   GetMyEmailVerificationStatusResponses,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponses,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -1138,6 +1140,7 @@ import {
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
   zGetMyEnrolmentRouteResponse,
+  zGetMyProgressByPlatformResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -9724,6 +9727,22 @@ export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatform = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyProgressByPlatformData, ThrowOnError>,
+): RequestResult<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyProgressByPlatformResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-progress-by-platform",
     ...options,
   })
 

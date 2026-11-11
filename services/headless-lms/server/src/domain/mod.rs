@@ -16,6 +16,7 @@ pub mod internal_error_reporting;
 pub mod mcp_endpoint;
 pub mod models_requests;
 pub mod oauth;
+pub mod progress_by_platform;
 pub mod rate_limit_middleware_builder;
 pub mod request_id;
 pub mod request_span_middleware;

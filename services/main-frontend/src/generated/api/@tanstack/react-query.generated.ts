@@ -266,6 +266,7 @@ import {
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
   getMyEnrolmentRoute,
+  getMyProgressByPlatform,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
@@ -917,6 +918,8 @@ import type {
   GetMyEmailVerificationStatusResponse,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponse,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -13164,6 +13167,32 @@ export const unhideCourseFromMyCoursesMutation = (
   }
   return mutationOptions
 }
+
+export const getMyProgressByPlatformQueryKey = (options?: Options<GetMyProgressByPlatformData>) =>
+  createQueryKey("getMyProgressByPlatform", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatformOptions = (options?: Options<GetMyProgressByPlatformData>) =>
+  queryOptions<
+    GetMyProgressByPlatformResponse,
+    DefaultError,
+    GetMyProgressByPlatformResponse,
+    ReturnType<typeof getMyProgressByPlatformQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyProgressByPlatform({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyProgressByPlatformQueryKey(options),
+  })
 
 export const getMyStudiesQueryKey = (options?: Options<GetMyStudiesData>) =>
   createQueryKey("getMyStudies", options)

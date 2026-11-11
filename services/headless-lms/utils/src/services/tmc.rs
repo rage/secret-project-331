@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use chrono::{DateTime, Utc};
 use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
@@ -56,6 +57,28 @@ pub enum TmcAccountDeletion {
     Deleted,
     /// TMC had no such account to begin with.
     AlreadyDeleted,
+}
+
+/// A course the user has submissions or awarded points on, as tmc-server's
+/// `GET /api/v8/users/{id}/course_progress` reports it.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct TmcCourseProgress {
+    pub id: i32,
+    /// The course's slug-like identifier; `title` is the human-readable name when set.
+    pub name: String,
+    pub title: Option<String>,
+    /// The old mooc.fi course this TMC course reports its progress to. Free text on the TMC side,
+    /// so not guaranteed to be a UUID.
+    pub moocfi_id: Option<String>,
+    /// Number of distinct points awarded, not a score.
+    pub awarded_points: i32,
+    pub submissions: i32,
+    pub last_submission_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Deserialize)]
+struct TmcCourseProgressResponse {
+    courses: Vec<TmcCourseProgress>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -499,6 +522,35 @@ impl TmcClient {
         } else {
             Ok(TmcAccountDeletion::Deleted)
         }
+    }
+
+    /// Every course the user has progress on in tmc.mooc.fi. A user TMC does not know has none.
+    pub async fn get_user_course_progress(
+        &self,
+        user_upstream_id: i32,
+        timeout: Duration,
+    ) -> UtilResult<Vec<TmcCourseProgress>> {
+        let url = format!("{}/{}/course_progress", TMC_API_URL, user_upstream_id);
+        let res = self
+            .request_with_headers_and_timeout(
+                reqwest::Method::GET,
+                &url,
+                TMCRequestAuth::UseAdminToken,
+                None,
+                Some(timeout),
+            )
+            .await;
+        let res = match res {
+            Ok(res) => res,
+            Err(e) if matches!(e.error_type(), UtilErrorType::TmcHttpStatusError(404)) => {
+                return Ok(Vec::new());
+            }
+            Err(e) => return Err(e),
+        };
+        let body: TmcCourseProgressResponse = self
+            .deserialize_response_with_tmc_error_check(res, "course progress from TMC")
+            .await?;
+        Ok(body.courses)
     }
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(

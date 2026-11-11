@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { isEqual } from "lodash"
+import { isEqual, omit } from "lodash"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -552,16 +552,23 @@ interface CallRow {
   isSameAsPrevious: boolean
 }
 
-const itemResponse = (event: Event | undefined): unknown =>
-  isRecord(event?.details) ? event.details.response : undefined
+const REQUEST_ITEM_ID = "requestItemId"
+
+/** The item's answer without its `requestItemId`, which is fresh on every call. */
+const comparableItemResponse = (event: Event | undefined): unknown => {
+  const response = isRecord(event?.details) ? event.details.response : undefined
+  return isRecord(response) ? omit(response, REQUEST_ITEM_ID) : response
+}
 
 /** `calls` is newest first, so the call before each one is the next in the list. */
 const toCallRows = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallRow[] =>
   calls.map((call, index) => {
     const event = eventByCall.get(call.id)
     const previous = calls.at(index + 1)
-    const response = itemResponse(event)
-    const previousResponse = previous ? itemResponse(eventByCall.get(previous.id)) : undefined
+    const response = comparableItemResponse(event)
+    const previousResponse = previous
+      ? comparableItemResponse(eventByCall.get(previous.id))
+      : undefined
     return {
       call,
       event,

@@ -71,9 +71,7 @@ pub struct NewCreditRegistrationEvent {
     pub message: Option<String>,
     pub suotar_api_call_id: Option<Uuid>,
     pub actor_user_id: Option<Uuid>,
-    /// Build with
-    /// [`suotar_exchange_details`](crate::library::credit_registration::scrub::suotar_exchange_details)
-    /// so it is scrubbed.
+    /// Build with [`suotar_exchange_details`].
     pub details: Option<Value>,
     pub request_item_id: Option<String>,
     pub suotar_endpoint: Option<SuotarEndpoint>,

@@ -1734,3 +1734,42 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             .to(verify_session),
     );
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn classify(error_type: UtilErrorType) -> TmcDeletionFailure {
+        classify_tmc_deletion_failure(&UtilError::new(error_type, "test".to_string(), None))
+    }
+
+    // Only `AlreadyGone` lets the local deletion go ahead, so anything else misclassified there
+    // would delete the account here while it still exists on TMC.
+    #[test]
+    fn only_a_missing_tmc_account_lets_local_deletion_proceed() {
+        assert!(matches!(
+            classify(UtilErrorType::TmcHttpStatusError(404)),
+            TmcDeletionFailure::AlreadyGone
+        ));
+        for error_type in [
+            UtilErrorType::TmcHttpError,
+            UtilErrorType::TmcHttpStatusError(429),
+            UtilErrorType::TmcHttpStatusError(500),
+            UtilErrorType::TmcHttpStatusError(503),
+        ] {
+            assert!(matches!(
+                classify(error_type),
+                TmcDeletionFailure::Transient
+            ));
+        }
+        for error_type in [
+            UtilErrorType::TmcHttpStatusError(401),
+            UtilErrorType::TmcHttpStatusError(403),
+            UtilErrorType::TmcHttpStatusError(422),
+            UtilErrorType::TmcErrorResponse,
+            UtilErrorType::DeserializationError,
+        ] {
+            assert!(matches!(classify(error_type), TmcDeletionFailure::Rejected));
+        }
+    }
+}

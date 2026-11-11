@@ -42,6 +42,8 @@ const PermissionsSettingsPage: React.FC = () => {
     ...getUserResearchFormQuestionAnswersOptions(),
   })
 
+  const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false)
+
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
     setOpenResearchForm(true)
@@ -321,7 +323,10 @@ const PermissionsSettingsPage: React.FC = () => {
               {t("user-settings-delete-account")}
             </h2>
           </div>
-          <DeleteUserAccountForm />
+          <DeleteUserAccountForm
+            isDialogOpen={isDeleteAccountDialogOpen}
+            onDialogOpenChange={setIsDeleteAccountDialogOpen}
+          />
         </div>
       )}
     </div>

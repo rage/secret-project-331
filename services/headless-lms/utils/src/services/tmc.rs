@@ -210,6 +210,21 @@ fn is_tmc_record_not_found(error_text: &str) -> bool {
         .is_ok_and(|body| body.get("errors").is_some_and(serde_json::Value::is_array))
 }
 
+/// The outcome of a non-2xx answer to an account deletion. Deployments predating the deletion
+/// contract answer a missing user with a 404, but only one carrying TMC's own error body means the
+/// user is gone; any other 404 says nothing about the account.
+fn unsuccessful_account_deletion(
+    url: &str,
+    status: reqwest::StatusCode,
+    error_text: &str,
+) -> UtilResult<TmcAccountDeletion> {
+    if status == reqwest::StatusCode::NOT_FOUND && is_tmc_record_not_found(error_text) {
+        Ok(TmcAccountDeletion::AlreadyDeleted)
+    } else {
+        Err(status_error(url, status, error_text))
+    }
+}
+
 impl TmcClient {
     fn check_if_tmc_error_response(response_text: &str) -> Option<UtilError> {
         if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text)
@@ -508,9 +523,8 @@ impl TmcClient {
     /// Deletes the upstream tmc.mooc.fi account behind `user_upstream_id`.
     ///
     /// Every failure is an error carrying TMC's HTTP status, which is what separates a retryable
-    /// outage from a rejection the caller must not retry. An unknown user can arrive either way:
-    /// as [`TmcAccountDeletion::AlreadyDeleted`], or, from deployments predating the deletion
-    /// contract, as a [`UtilErrorType::TmcHttpStatusError`] carrying 404.
+    /// outage from a rejection the caller must not retry. A user TMC does not know comes back as
+    /// [`TmcAccountDeletion::AlreadyDeleted`], never as an error.
     pub async fn delete_user_from_tmc(
         &self,
         user_upstream_id: String,
@@ -518,7 +532,7 @@ impl TmcClient {
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
 
         let res = self
-            .request_with_headers_and_timeout(
+            .send_request(
                 reqwest::Method::DELETE,
                 &url,
                 TMCRequestAuth::UseAdminToken,
@@ -526,6 +540,10 @@ impl TmcClient {
                 Some(DELETE_ACCOUNT_TIMEOUT),
             )
             .await?;
+        let status = res.status();
+        if !status.is_success() {
+            return unsuccessful_account_deletion(&url, status, &error_body(res).await);
+        }
 
         let body: TmcDeleteAccountResponse = self
             .deserialize_response_with_tmc_error_check(res, "delete response from TMC")
@@ -656,5 +674,31 @@ mod tests {
         ));
         assert!(!is_tmc_record_not_found("<!DOCTYPE html><html>404</html>"));
         assert!(!is_tmc_record_not_found(""));
+    }
+
+    #[test]
+    fn only_a_tmc_error_body_404_means_the_account_is_already_deleted() {
+        let url = "https://tmc.example/api/v8/users/1";
+        let not_found = reqwest::StatusCode::NOT_FOUND;
+        assert_eq!(
+            unsuccessful_account_deletion(
+                url,
+                not_found,
+                r#"{"errors":["Couldn't find User with 'id'=1"]}"#
+            )
+            .unwrap(),
+            TmcAccountDeletion::AlreadyDeleted
+        );
+        for body in [
+            r#"{"status":404,"error":"Not Found"}"#,
+            "<!DOCTYPE html><html>404</html>",
+            "",
+        ] {
+            let error = unsuccessful_account_deletion(url, not_found, body).unwrap_err();
+            assert!(matches!(
+                error.error_type(),
+                UtilErrorType::TmcHttpStatusError(404)
+            ));
+        }
     }
 }

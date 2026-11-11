@@ -151,17 +151,7 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
               <ModuleCard key={courseModuleCompletion.id}>
                 <ModuleHeader>
                   <ModuleTitle>
-                    <span>
-                      {courseModule?.name ?? t("default-module")}
-                      {courseModuleCompletion.needs_to_be_reviewed && (
-                        <ExclamationTriangle
-                          size={18}
-                          className={iconStyle}
-                          weight="bold"
-                          aria-label={t("course-module-completion-needs-review-short")}
-                        />
-                      )}
-                    </span>
+                    {courseModule?.name ?? t("default-module")}{" "}
                     {courseModule?.uh_course_code && ` (${courseModule.uh_course_code})`}
                   </ModuleTitle>
                   <CompletionDate>

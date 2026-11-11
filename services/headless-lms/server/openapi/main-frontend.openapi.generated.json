@@ -9835,7 +9835,7 @@
     "/api/v0/main-frontend/credit-registration-admin/suotar-api-calls": {
       "get": {
         "tags": ["credit-registration-admin"],
-        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study\nregistry call log, newest first.\n\nFiltering by `credit_registration_id` is how \"find the call that carried this student\" is answered:\nthe bodies are scrubbed, so there is no student number in them to search.",
+        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study\nregistry call log, newest first.\n\nFiltering by `credit_registration_id` is how \"find the call that carried this student\" is answered:\na sampled body may not hold the student's item.",
         "operationId": "listSuotarApiCalls",
         "parameters": [
           {
@@ -17451,7 +17451,7 @@
             "description": "The attempt the event belongs to."
           },
           "details": {
-            "description": "The `{request, response}` pair, scrubbed at write time: names, student numbers and email\naddresses read `[redacted]` while their keys survive. The values we sent are on the row."
+            "description": "The `{request, response}` pair for this row's item. Events written before bodies were kept\nunredacted read `[redacted]` in place of names, student numbers and email addresses."
           },
           "error_code": {
             "oneOf": [
@@ -34743,7 +34743,7 @@
             }
           },
           "request_body_sample": {
-            "description": "Scrubbed and truncated when it was written; never un-scrubbed for display."
+            "description": "Sampled when it was written."
           },
           "response_body_sample": {}
         }
@@ -34762,7 +34762,7 @@
             "format": "uuid"
           },
           "details": {
-            "description": "The `{request, response}` pair for this one item, scrubbed at write time."
+            "description": "The `{request, response}` pair for this one item."
           },
           "error_code": {
             "oneOf": [

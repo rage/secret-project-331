@@ -1,9 +1,8 @@
 //! The Suotar API log tab: one row per HTTP call to the study registry, and what each covered.
 //!
-//! The stored bodies are scrubbed at write time — names, student numbers and email addresses read
-//! `[redacted]` while their keys survive — and are returned exactly as stored. What makes the log
-//! navigable is not the body but `credit_registration_ids`: every call resolves to the ledger rows
-//! it carried, and those hold the real values.
+//! The stored bodies are returned exactly as stored. What makes the log navigable is not the body but
+//! `credit_registration_ids`: every call resolves to the ledger rows it carried, even when sampling
+//! dropped their items from the body.
 
 use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
 use headless_lms_models::credit_registrations::{
@@ -85,14 +84,14 @@ pub struct SuotarApiCallEvent {
     pub error_code: Option<CreditRegistrationErrorCode>,
     /// Our own wording for what the call did to the row.
     pub message: Option<String>,
-    /// The `{request, response}` pair for this one item, scrubbed at write time.
+    /// The `{request, response}` pair for this one item.
     pub details: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct SuotarApiCallDetails {
     pub call: SuotarApiCallRow,
-    /// Scrubbed and truncated when it was written; never un-scrubbed for display.
+    /// Sampled when it was written.
     pub request_body_sample: Option<serde_json::Value>,
     pub response_body_sample: Option<serde_json::Value>,
     /// Our own wording; the registry's error prose is stored for nobody.
@@ -118,7 +117,7 @@ GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page 
 registry call log, newest first.
 
 Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
-the bodies are scrubbed, so there is no student number in them to search.
+a sampled body may not hold the student's item.
 */
 #[instrument(skip(pool))]
 #[utoipa::path(

@@ -2,7 +2,7 @@
 Handlers for HTTP requests to `/api/v0/main-frontend/credit-registration-admin`.
 
 Every mutating handler writes its `credit_registration_admin_actions` row in the transaction that has
-the effect. Admins see recipient addresses in full and the scrubbed study registry bodies; the
+the effect. Admins see recipient addresses and the study registry bodies in full; the
 registry's own error text is returned to nobody.
 */
 

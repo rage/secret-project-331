@@ -1,8 +1,4 @@
 //! Append-only audit trail for the credit registration ledger.
-//!
-//! No retention sweep touches this table, so every Suotar payload must go through
-//! [`scrub_suotar_body`](crate::library::credit_registration::scrub::scrub_suotar_body) at the
-//! write site — redacting on read would leave the raw values on disk.
 use std::collections::HashMap;
 
 use serde_json::Value;
@@ -109,6 +105,20 @@ impl NewCreditRegistrationEvent {
 
 /// Callers that also change `state` must go through `credit_registrations::transition` instead,
 /// which writes both in one transaction.
+/// The `details` of a `suotar_response` event: our item of the request and Suotar's answer to it,
+/// each omitted when missing. The request is kept because the ledger row no longer reflects it
+/// after a retry.
+pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>) -> Value {
+    let mut details = serde_json::Map::new();
+    if let Some(request) = request {
+        details.insert("request".to_string(), request.clone());
+    }
+    if let Some(response) = response {
+        details.insert("response".to_string(), response.clone());
+    }
+    Value::Object(details)
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     new: &NewCreditRegistrationEvent,

@@ -13,7 +13,6 @@ import type {
   ExternalPlatformStatus,
   MoocFiCourseProgress,
   ProgressByPlatform,
-  TmcMoocFiCourseProgress,
 } from "@/generated/api/types.generated"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { Checkbox, ErrorNotice, Infobox, LoadingRegion } from "@/shared-module/components"
@@ -22,6 +21,7 @@ const COURSES_MOOC_FI = "courses.mooc.fi"
 const MOOC_FI = "mooc.fi"
 const TMC_MOOC_FI = "tmc.mooc.fi"
 const WARNING_TONE = "warning" as const
+const PROGRESS_CACHE_MS = 5 * 60 * 1000
 
 interface CourseSummary {
   key: string
@@ -43,7 +43,12 @@ const AccountDeletionProgressStep: React.FC<AccountDeletionProgressStepProps> = 
   onAcknowledgedChange,
 }) => {
   const { t } = useTranslation()
-  const progressQuery = useQuery(getMyProgressByPlatformOptions())
+  // Kept across reopenings: each fetch calls tmc.mooc.fi and mooc.fi and is rate limited per user.
+  const progressQuery = useQuery({
+    ...getMyProgressByPlatformOptions(),
+    staleTime: PROGRESS_CACHE_MS,
+    gcTime: PROGRESS_CACHE_MS,
+  })
   // oxlint-disable-next-line i18next/no-literal-string
   const { control, watch } = useForm<{ acknowledged: boolean }>({
     defaultValues: { acknowledged: false },
@@ -167,9 +172,9 @@ function groupByPlatform(progress: ProgressByPlatform, t: TFunction): PlatformCo
     {
       platform: TMC_MOOC_FI,
       courses: progress.tmc_mooc_fi.map((course, index) => ({
-        key: `${index}-${course.name}`,
+        key: String(index),
         name: course.name,
-        summary: tmcSummary(course, t),
+        summary: tmcSummary(course.awarded_points, course.submissions, t),
       })),
     },
   ]
@@ -215,18 +220,14 @@ function moocFiSummary(course: MoocFiCourseProgress, t: TFunction): string {
     course.tmc_mooc_fi_courses.length > 0 &&
       t("delete-account-progress-on-platform", {
         platform: TMC_MOOC_FI,
-        summary: tmcSummaryText(tmcPoints, tmcSubmissions, t),
+        summary: tmcSummary(tmcPoints, tmcSubmissions, t),
       }),
   ]
     .filter(Boolean)
     .join(SUMMARY_SEPARATOR)
 }
 
-function tmcSummary(course: TmcMoocFiCourseProgress, t: TFunction): string {
-  return tmcSummaryText(course.awarded_points, course.submissions, t)
-}
-
-function tmcSummaryText(points: number, submissions: number, t: TFunction): string {
+function tmcSummary(points: number, submissions: number, t: TFunction): string {
   return [
     t("delete-account-progress-points", { count: points }),
     t("delete-account-progress-submissions", { count: submissions }),

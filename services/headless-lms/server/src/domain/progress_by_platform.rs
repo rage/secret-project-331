@@ -1,9 +1,11 @@
 //! The courses a user would lose on each platform their account reaches, shown before account
 //! deletion.
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 use std::time::Duration;
 
+use futures_util::future::OptionFuture;
+use headless_lms_utils::prelude::UtilResult;
 use headless_lms_utils::services::moocfi::{self, MoocfiCourseProgress};
 use headless_lms_utils::services::tmc::{TmcClient, TmcCourseProgress};
 use utoipa::ToSchema;
@@ -67,7 +69,6 @@ pub struct TmcMoocFiCourseProgress {
     /// Number of points awarded, not a score.
     pub awarded_points: i32,
     pub submissions: i32,
-    pub last_submission_at: Option<DateTime<Utc>>,
 }
 
 impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
@@ -79,7 +80,6 @@ impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
                 .unwrap_or(course.name),
             awarded_points: course.awarded_points,
             submissions: course.submissions,
-            last_submission_at: course.last_submission_at,
         }
     }
 }
@@ -105,70 +105,86 @@ pub async fn get_progress_by_platform(
         )
     };
     let upstream_id = upstream_id.filter(|_| query_external_platforms);
-    let tmc_progress = async {
-        match upstream_id {
-            Some(id) => Some(
-                tmc_client
-                    .get_user_course_progress(id, UPSTREAM_TIMEOUT)
-                    .await,
-            ),
-            None => None,
-        }
-    };
-    let moocfi_progress = async {
-        match upstream_id {
-            Some(id) => Some(
-                moocfi::get_user_course_progress(
-                    tmc_client.get_admin_access_token(),
-                    id,
-                    UPSTREAM_TIMEOUT,
-                )
-                .await,
-            ),
-            None => None,
-        }
-    };
+    let tmc_progress: OptionFuture<_> = upstream_id
+        .map(|id| tmc_client.get_user_course_progress(id, UPSTREAM_TIMEOUT))
+        .into();
+    let moocfi_progress: OptionFuture<_> = upstream_id
+        .map(|id| {
+            moocfi::get_user_course_progress(
+                tmc_client.get_admin_access_token(),
+                id,
+                UPSTREAM_TIMEOUT,
+            )
+        })
+        .into();
     let (tmc_progress, moocfi_progress) = tokio::join!(tmc_progress, moocfi_progress);
 
-    let tmc_progress = tmc_progress.map(|result| {
-        result.map_err(|e| warn!("Could not list the tmc.mooc.fi courses of user {user_id}: {e}"))
-    });
-    let moocfi_progress = moocfi_progress.map(|result| {
-        result.map_err(|e| warn!("Could not list the mooc.fi courses of user {user_id}: {e}"))
-    });
+    let (tmc_mooc_fi_status, tmc_courses) = settle(tmc_progress, "tmc.mooc.fi", user_id);
+    let (mooc_fi_status, moocfi_courses) = settle(moocfi_progress, "mooc.fi", user_id);
+    let (mooc_fi, tmc_mooc_fi) = merge_external_progress(tmc_courses, moocfi_courses);
+    Ok(ProgressByPlatform {
+        courses_mooc_fi,
+        mooc_fi_status,
+        mooc_fi,
+        tmc_mooc_fi_status,
+        tmc_mooc_fi,
+    })
+}
 
-    let mut progress = merge_external_progress(tmc_progress, moocfi_progress);
-    progress.courses_mooc_fi = courses_mooc_fi;
-    Ok(progress)
+/// The platform's status and courses; `None` means it was not queried. A failure is logged here
+/// and otherwise surfaces only as [`ExternalPlatformStatus::Unavailable`].
+fn settle<T>(
+    progress: Option<UtilResult<Vec<T>>>,
+    platform: &str,
+    user_id: Uuid,
+) -> (ExternalPlatformStatus, Vec<T>) {
+    match progress {
+        None => (ExternalPlatformStatus::NotQueried, Vec::new()),
+        Some(Ok(courses)) => (ExternalPlatformStatus::Loaded, courses),
+        Some(Err(e)) => {
+            warn!("Could not list the {platform} courses of user {user_id}: {e}");
+            (ExternalPlatformStatus::Unavailable, Vec::new())
+        }
+    }
 }
 
 async fn get_courses_mooc_fi_progress(
     conn: &mut PgConnection,
     user_id: Uuid,
 ) -> models::ModelResult<Vec<CoursesMoocFiCourseProgress>> {
-    let enrollments =
-        models::course_instance_enrollments::get_course_enrollments_info_for_user(conn, user_id)
-            .await?
-            .course_enrollments;
-    let course_ids: Vec<Uuid> = enrollments.iter().map(|e| e.course_id).collect();
+    let course_ids: Vec<Uuid> = models::course_instance_enrollments::get_by_user_id(conn, user_id)
+        .await?
+        .into_iter()
+        .map(|enrollment| enrollment.course_id)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let courses = models::courses::get_by_ids(conn, &course_ids).await?;
+    let modules = models::course_modules::get_by_course_ids(conn, &course_ids).await?;
+    let completions = models::course_module_completions::get_all_by_user_id(conn, user_id).await?;
     let progress_by_module =
         models::user_exercise_states::get_user_course_module_progress(conn, &course_ids, user_id)
             .await?;
 
-    let mut courses: Vec<CoursesMoocFiCourseProgress> = enrollments
+    let mut progress: Vec<CoursesMoocFiCourseProgress> = courses
         .into_iter()
-        .map(|enrollment| {
-            let completed_modules = enrollment
-                .course_modules
+        .map(|course| {
+            let course_modules: Vec<_> = modules
+                .iter()
+                .filter(|module| module.course_id == course.id)
+                .collect();
+            let completed_modules = course_modules
                 .iter()
                 .filter(|module| {
-                    enrollment.course_module_completions.iter().any(|c| {
-                        c.course_module_id == module.id && c.passed && !c.needs_to_be_reviewed
-                    })
+                    models::course_module_completions::select_best_completion(
+                        completions
+                            .iter()
+                            .filter(|c| c.course_module_id == module.id && !c.needs_to_be_reviewed),
+                    )
+                    .is_some_and(|best| best.passed)
                 })
                 .count();
-            let module_progress: Vec<_> = enrollment
-                .course_modules
+            let module_progress: Vec<_> = course_modules
                 .iter()
                 .filter_map(|module| progress_by_module.get(&module.id))
                 .collect();
@@ -177,29 +193,25 @@ async fn get_courses_mooc_fi_progress(
                 .filter_map(|p| p.score_maximum)
                 .reduce(|a, b| a + b);
             CoursesMoocFiCourseProgress {
-                course_id: enrollment.course_id,
-                name: enrollment.course.name,
+                course_id: course.id,
+                name: course.name,
                 completed_modules: completed_modules as u32,
-                total_modules: enrollment.course_modules.len() as u32,
+                total_modules: course_modules.len() as u32,
                 points: module_progress.iter().map(|p| p.score_given).sum(),
                 max_points,
             }
         })
         .collect();
-    courses.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(courses)
+    progress.sort_by(|a, b| a.name.cmp(&b.name));
+    Ok(progress)
 }
 
-/// `None` means the platform was not queried, `Err` that it failed.
+/// Files each TMC course that reports to a listed mooc.fi course under that course, since TMC
+/// only forwards its progress there; returns the mooc.fi courses and the remaining TMC courses.
 fn merge_external_progress(
-    tmc_progress: Option<Result<Vec<TmcCourseProgress>, ()>>,
-    moocfi_progress: Option<Result<Vec<MoocfiCourseProgress>, ()>>,
-) -> ProgressByPlatform {
-    let tmc_mooc_fi_status = external_platform_status(&tmc_progress);
-    let mooc_fi_status = external_platform_status(&moocfi_progress);
-    let mut tmc_courses = tmc_progress.and_then(Result::ok).unwrap_or_default();
-    let moocfi_courses = moocfi_progress.and_then(Result::ok).unwrap_or_default();
-
+    tmc_courses: Vec<TmcCourseProgress>,
+    moocfi_courses: Vec<MoocfiCourseProgress>,
+) -> (Vec<MoocFiCourseProgress>, Vec<TmcMoocFiCourseProgress>) {
     let mut mooc_fi: Vec<MoocFiCourseProgress> = moocfi_courses
         .into_iter()
         .map(|course| MoocFiCourseProgress {
@@ -217,57 +229,36 @@ fn merge_external_progress(
         .map(|(index, course)| (course.course_id, index))
         .collect();
 
-    // A TMC course with a moocfi_id only reports its progress to that mooc.fi course, so listing it
-    // under both would count one course twice.
-    tmc_courses.retain(|tmc_course| {
+    let mut tmc_mooc_fi = Vec::new();
+    for tmc_course in tmc_courses {
         let mooc_fi_course = tmc_course
             .moocfi_id
             .as_deref()
             .and_then(|id| Uuid::parse_str(id.trim()).ok())
             .and_then(|id| mooc_fi_index.get(&id));
         match mooc_fi_course {
-            Some(&index) => {
-                mooc_fi[index]
-                    .tmc_mooc_fi_courses
-                    .push(tmc_course.clone().into());
-                false
-            }
-            None => true,
+            Some(&index) => mooc_fi[index].tmc_mooc_fi_courses.push(tmc_course.into()),
+            None => tmc_mooc_fi.push(tmc_course.into()),
         }
-    });
-
-    ProgressByPlatform {
-        courses_mooc_fi: Vec::new(),
-        mooc_fi_status,
-        mooc_fi,
-        tmc_mooc_fi_status,
-        tmc_mooc_fi: tmc_courses.into_iter().map(Into::into).collect(),
     }
-}
-
-fn external_platform_status<T>(progress: &Option<Result<T, ()>>) -> ExternalPlatformStatus {
-    match progress {
-        None => ExternalPlatformStatus::NotQueried,
-        Some(Ok(_)) => ExternalPlatformStatus::Loaded,
-        Some(Err(())) => ExternalPlatformStatus::Unavailable,
-    }
+    (mooc_fi, tmc_mooc_fi)
 }
 
 #[cfg(test)]
 mod tests {
+    use headless_lms_utils::prelude::{UtilError, UtilErrorType};
+
     use super::*;
 
     const MOOCFI_COURSE_ID: &str = "00000000-0000-0000-0000-0000000000aa";
 
     fn tmc_course(name: &str, moocfi_id: Option<&str>) -> TmcCourseProgress {
         TmcCourseProgress {
-            id: 1,
             name: name.to_string(),
             title: None,
             moocfi_id: moocfi_id.map(str::to_string),
             awarded_points: 3,
             submissions: 7,
-            last_submission_at: None,
         }
     }
 
@@ -283,49 +274,60 @@ mod tests {
 
     #[test]
     fn tmc_course_reporting_to_a_listed_moocfi_course_is_listed_once_under_it() {
-        let progress = merge_external_progress(
-            Some(Ok(vec![
+        let (mooc_fi, tmc_mooc_fi) = merge_external_progress(
+            vec![
                 tmc_course("java-i", Some(MOOCFI_COURSE_ID)),
                 tmc_course("standalone", None),
                 tmc_course("free-text-moocfi-id", Some("not-a-uuid")),
-            ])),
-            Some(Ok(vec![moocfi_course(MOOCFI_COURSE_ID)])),
+            ],
+            vec![moocfi_course(MOOCFI_COURSE_ID)],
         );
 
-        assert_eq!(progress.mooc_fi.len(), 1);
+        assert_eq!(mooc_fi.len(), 1);
         assert_eq!(
-            progress.mooc_fi[0].tmc_mooc_fi_courses,
+            mooc_fi[0].tmc_mooc_fi_courses,
             vec![tmc_course("java-i", None).into()]
         );
-        let tmc_names: Vec<&str> = progress
-            .tmc_mooc_fi
-            .iter()
-            .map(|c| c.name.as_str())
-            .collect();
+        let tmc_names: Vec<&str> = tmc_mooc_fi.iter().map(|c| c.name.as_str()).collect();
         assert_eq!(tmc_names, vec!["standalone", "free-text-moocfi-id"]);
     }
 
     #[test]
-    fn tmc_course_stays_under_tmc_when_moocfi_is_unavailable() {
-        let progress = merge_external_progress(
-            Some(Ok(vec![tmc_course("java-i", Some(MOOCFI_COURSE_ID))])),
-            Some(Err(())),
-        );
+    fn tmc_course_stays_under_tmc_when_its_moocfi_course_is_not_listed() {
+        let (mooc_fi, tmc_mooc_fi) =
+            merge_external_progress(vec![tmc_course("java-i", Some(MOOCFI_COURSE_ID))], vec![]);
 
-        assert_eq!(progress.mooc_fi_status, ExternalPlatformStatus::Unavailable);
-        assert_eq!(progress.tmc_mooc_fi_status, ExternalPlatformStatus::Loaded);
-        assert!(progress.mooc_fi.is_empty());
-        assert_eq!(progress.tmc_mooc_fi.len(), 1);
+        assert!(mooc_fi.is_empty());
+        assert_eq!(tmc_mooc_fi.len(), 1);
     }
 
     #[test]
-    fn unqueried_platforms_are_reported_as_such() {
-        let progress = merge_external_progress(None, None);
+    fn platform_status_follows_the_query_outcome() {
+        let user_id = Uuid::nil();
+        let failure: UtilResult<Vec<TmcCourseProgress>> = Err(UtilError::new(
+            UtilErrorType::TmcHttpStatusError(404),
+            "test".to_string(),
+            None,
+        ));
 
-        assert_eq!(progress.mooc_fi_status, ExternalPlatformStatus::NotQueried);
         assert_eq!(
-            progress.tmc_mooc_fi_status,
+            settle::<TmcCourseProgress>(None, "tmc.mooc.fi", user_id).0,
             ExternalPlatformStatus::NotQueried
+        );
+        assert_eq!(
+            settle(
+                Some(Ok(vec![tmc_course("java-i", None)])),
+                "tmc.mooc.fi",
+                user_id
+            ),
+            (
+                ExternalPlatformStatus::Loaded,
+                vec![tmc_course("java-i", None)]
+            )
+        );
+        assert_eq!(
+            settle(Some(failure), "tmc.mooc.fi", user_id),
+            (ExternalPlatformStatus::Unavailable, vec![])
         );
     }
 

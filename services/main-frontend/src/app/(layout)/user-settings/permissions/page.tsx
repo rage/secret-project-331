@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import { LinesClipboard, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
@@ -14,7 +14,7 @@ import {
   getUserResearchFormQuestionAnswersOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import LoginStateContext, { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -33,7 +33,6 @@ const PermissionsSettingsPage: React.FC = () => {
   // Higher order than the parent user-settings layout so this specific page title wins deterministically.
   usePageTitle(t("link-permissions"), { order: 10 })
 
-  const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
 
@@ -195,17 +194,15 @@ const PermissionsSettingsPage: React.FC = () => {
                 font-weight: 500;
               `}
             >
-              {loginStateContext.signedIn === true && (
-                <QueryResult query={getUserConsent}>
-                  {(data) =>
-                    data?.research_consent === true
-                      ? t("yes")
-                      : data?.research_consent === false
-                        ? t("no")
-                        : "-"
-                  }
-                </QueryResult>
-              )}
+              <QueryResult query={getUserConsent}>
+                {(data) =>
+                  data?.research_consent === true
+                    ? t("yes")
+                    : data?.research_consent === false
+                      ? t("no")
+                      : "-"
+                }
+              </QueryResult>
             </div>
           </div>
         )}

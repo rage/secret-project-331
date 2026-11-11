@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use chrono::{DateTime, Utc};
 use reqwest::Client;
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Deserialize, Serialize};
@@ -63,7 +62,6 @@ pub enum TmcAccountDeletion {
 /// `GET /api/v8/users/{id}/course_progress` reports it.
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct TmcCourseProgress {
-    pub id: i32,
     /// The course's slug-like identifier; `title` is the human-readable name when set.
     pub name: String,
     pub title: Option<String>,
@@ -73,7 +71,6 @@ pub struct TmcCourseProgress {
     /// Number of distinct points awarded, not a score.
     pub awarded_points: i32,
     pub submissions: i32,
-    pub last_submission_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Deserialize)]

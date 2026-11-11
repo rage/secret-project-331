@@ -34250,10 +34250,6 @@
             "format": "int32",
             "description": "Number of points awarded, not a score."
           },
-          "last_submission_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
           "name": {
             "type": "string"
           },

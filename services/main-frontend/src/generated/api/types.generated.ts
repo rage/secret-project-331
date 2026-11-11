@@ -7399,7 +7399,6 @@ export type TmcMoocFiCourseProgress = {
    * Number of points awarded, not a score.
    */
   awarded_points: number
-  last_submission_at?: string | null
   name: string
   submissions: number
 }

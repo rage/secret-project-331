@@ -78,14 +78,10 @@ describe("AccountDeletionProgressStep", () => {
           completed: true,
           points: null,
           max_points: null,
-          tmc_mooc_fi_courses: [
-            { name: "Java I", awarded_points: 5, submissions: 1, last_submission_at: null },
-          ],
+          tmc_mooc_fi_courses: [{ name: "Java I", awarded_points: 5, submissions: 1 }],
         },
       ],
-      tmc_mooc_fi: [
-        { name: "Data Structures", awarded_points: 1, submissions: 2, last_submission_at: null },
-      ],
+      tmc_mooc_fi: [{ name: "Data Structures", awarded_points: 1, submissions: 2 }],
     })
 
     expect(await screen.findByText("Introduction to Programming")).toBeInTheDocument()

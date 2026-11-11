@@ -146,28 +146,25 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
     variant: "tertiary",
     onPress: closeDialog,
   }
-  const actions: readonly [DialogAction, ...DialogAction[]] =
+  const primaryAction: DialogAction | null =
     step === PROGRESS_STEP
-      ? [
-          cancelAction,
-          {
-            label: t("continue"),
-            variant: "danger",
-            disabled: !isProgressLossAcknowledged,
-            onPress: () => setStep(PASSWORD_STEP),
-          },
-        ]
+      ? {
+          label: t("continue"),
+          variant: "danger",
+          disabled: !isProgressLossAcknowledged,
+          onPress: () => setStep(PASSWORD_STEP),
+        }
       : step === PASSWORD_STEP
-        ? [
-            cancelAction,
-            {
-              label: t("confirm"),
-              variant: "danger",
-              disabled: sendEmailCodeMutation.isPending,
-              onPress: () => verifyPasswordFormRef.current?.submit(),
-            },
-          ]
-        : [cancelAction]
+        ? {
+            label: t("confirm"),
+            variant: "danger",
+            disabled: sendEmailCodeMutation.isPending,
+            onPress: () => verifyPasswordFormRef.current?.submit(),
+          }
+        : null
+  const actions: readonly [DialogAction, ...DialogAction[]] = primaryAction
+    ? [cancelAction, primaryAction]
+    : [cancelAction]
 
   return (
     <>

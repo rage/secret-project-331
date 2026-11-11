@@ -7403,7 +7403,6 @@ export const zTmcMoocFiCourseProgress = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  last_submission_at: z.iso.datetime().nullish(),
   name: z.string(),
   submissions: z
     .int()

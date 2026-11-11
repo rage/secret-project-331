@@ -59,6 +59,12 @@ const PermissionsSettingsPage: React.FC = () => {
       }
       deleteAccountSectionRef.current?.scrollIntoView()
       setIsDeleteAccountDialogOpen(true)
+      // Consumed so that a reload does not reopen the dialog and the same link works again.
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      )
     }
     openDeleteAccountFromHash()
     window.addEventListener("hashchange", openDeleteAccountFromHash)

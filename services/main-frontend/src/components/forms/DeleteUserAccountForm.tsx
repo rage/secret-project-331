@@ -52,8 +52,6 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
   const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
   const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
-  const closeDialog = () => onDialogOpenChange(false)
-
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) =>
       await postAuthSendEmailCode({
@@ -129,6 +127,18 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
     } catch (e) {
       console.error(e)
     }
+  }
+
+  // Every opening starts over, so the user cannot skip the progress step by reopening.
+  const closeDialog = () => {
+    onDialogOpenChange(false)
+    setStep(PROGRESS_STEP)
+    setIsProgressLossAcknowledged(false)
+    setPassword("")
+    setIncorrectPassword(false)
+    setCodeErrorMessage(null)
+    sendEmailCodeMutation.reset()
+    deleteAccountMutation.reset()
   }
 
   const cancelAction: DialogAction = {

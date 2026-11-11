@@ -23032,6 +23032,7 @@
       },
       "CoursesMoocFiCourseProgress": {
         "type": "object",
+        "description": "A course the user is enrolled on in courses.mooc.fi.",
         "required": ["course_id", "name", "completed_modules", "total_modules", "points"],
         "properties": {
           "completed_modules": {
@@ -27380,6 +27381,7 @@
       },
       "ExternalPlatformStatus": {
         "type": "string",
+        "description": "How querying an external platform for the user's courses went.",
         "enum": ["loaded", "not_queried", "unavailable"]
       },
       "Feedback": {
@@ -28375,6 +28377,7 @@
       },
       "MoocFiCourseProgress": {
         "type": "object",
+        "description": "A course the user has progress or a completion on in the old mooc.fi.",
         "required": ["course_id", "name", "completed", "tmc_mooc_fi_courses"],
         "properties": {
           "completed": {
@@ -34239,6 +34242,7 @@
       },
       "TmcMoocFiCourseProgress": {
         "type": "object",
+        "description": "A course the user has submissions or awarded points on in tmc.mooc.fi.",
         "required": ["name", "awarded_points", "submissions"],
         "properties": {
           "awarded_points": {

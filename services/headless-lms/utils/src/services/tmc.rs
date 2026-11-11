@@ -180,6 +180,39 @@ fn parse_tmc_error_response(error_text: &str, status: Option<reqwest::StatusCode
     }
 }
 
+/// The error for a non-2xx TMC response, logged without the URL's query string.
+fn status_error(url: &str, status: reqwest::StatusCode, error_text: &str) -> UtilError {
+    if let Ok(parsed) = reqwest::Url::parse(url) {
+        let redacted = format!(
+            "{}{}",
+            parsed.origin().unicode_serialization(),
+            parsed.path()
+        );
+        tracing::warn!("Request to {} failed with status {}", redacted, status);
+    } else {
+        tracing::warn!("Request failed with status {}", status);
+    }
+    tracing::debug!("Response body: {}", error_text);
+
+    let error_message = parse_tmc_error_response(error_text, Some(status));
+
+    // A statusful failure, unlike a send failure, which stays `TmcHttpError`.
+    util_err!(TmcHttpStatusError(status.as_u16()), error_message)
+}
+
+async fn error_body(res: reqwest::Response) -> String {
+    res.text()
+        .await
+        .unwrap_or_else(|e| format!("(Failed to read error body: {e})"))
+}
+
+/// Whether a 404 body is the `{"errors": [...]}` TMC's API v8 renders for a missing record, as
+/// opposed to the 404 of a route this TMC deployment does not have.
+fn is_tmc_record_not_found(error_text: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(error_text)
+        .is_ok_and(|body| body.get("errors").is_some_and(serde_json::Value::is_array))
+}
+
 impl TmcClient {
     fn check_if_tmc_error_response(response_text: &str) -> Option<UtilError> {
         if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text)
@@ -270,8 +303,8 @@ impl TmcClient {
             .await
     }
 
-    /// `timeout` overrides the shared client's default for this one request.
-    async fn request_with_headers_and_timeout(
+    /// Like [`Self::request_with_headers_and_timeout`], but hands back non-2xx responses as is.
+    async fn send_request(
         &self,
         method: reqwest::Method,
         url: &str,
@@ -307,42 +340,33 @@ impl TmcClient {
             builder = builder.timeout(timeout);
         }
 
-        let res = builder.send().await.map_err(|e| {
+        builder.send().await.map_err(|e| {
             UtilError::new(
                 UtilErrorType::TmcHttpError,
                 "Failed to send HTTP request".to_string(),
                 Some(e.into()),
             )
-        })?;
+        })
+    }
 
+    /// `timeout` overrides the shared client's default for this one request.
+    async fn request_with_headers_and_timeout(
+        &self,
+        method: reqwest::Method,
+        url: &str,
+        tmc_request_auth: TMCRequestAuth,
+        body: Option<serde_json::Value>,
+        timeout: Option<Duration>,
+    ) -> UtilResult<reqwest::Response> {
+        let res = self
+            .send_request(method, url, tmc_request_auth, body, timeout)
+            .await?;
         if res.status().is_success() {
             Ok(res)
         } else {
             let status = res.status();
-            let error_text = res
-                .text()
-                .await
-                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-
-            if let Ok(parsed) = reqwest::Url::parse(url) {
-                let redacted = format!(
-                    "{}{}",
-                    parsed.origin().unicode_serialization(),
-                    parsed.path()
-                );
-                tracing::warn!("Request to {} failed with status {}", redacted, status);
-            } else {
-                tracing::warn!("Request failed with status {}", status);
-            }
-            tracing::debug!("Response body: {}", error_text);
-
-            let error_message = parse_tmc_error_response(&error_text, Some(status));
-
-            // A statusful failure, unlike the send failure above, which stays `TmcHttpError`.
-            Err(util_err!(
-                TmcHttpStatusError(status.as_u16()),
-                error_message
-            ))
+            let error_text = error_body(res).await;
+            Err(status_error(url, status, &error_text))
         }
     }
 
@@ -532,21 +556,22 @@ impl TmcClient {
     ) -> UtilResult<Vec<TmcCourseProgress>> {
         let url = format!("{}/{}/course_progress", TMC_API_URL, user_upstream_id);
         let res = self
-            .request_with_headers_and_timeout(
+            .send_request(
                 reqwest::Method::GET,
                 &url,
                 TMCRequestAuth::UseAdminToken,
                 None,
                 Some(timeout),
             )
-            .await;
-        let res = match res {
-            Ok(res) => res,
-            Err(e) if matches!(e.error_type(), UtilErrorType::TmcHttpStatusError(404)) => {
+            .await?;
+        let status = res.status();
+        if !status.is_success() {
+            let error_text = error_body(res).await;
+            if status == reqwest::StatusCode::NOT_FOUND && is_tmc_record_not_found(&error_text) {
                 return Ok(Vec::new());
             }
-            Err(e) => return Err(e),
-        };
+            return Err(status_error(&url, status, &error_text));
+        }
         let body: TmcCourseProgressResponse = self
             .deserialize_response_with_tmc_error_check(res, "course progress from TMC")
             .await?;
@@ -617,5 +642,22 @@ impl TmcClient {
 
     pub fn get_admin_access_token(&self) -> &SecretString {
         &self.admin_access_token
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_tmc_error_bodies_count_as_record_not_found() {
+        assert!(is_tmc_record_not_found(
+            r#"{"errors":["Couldn't find User with 'id'=1"]}"#
+        ));
+        assert!(!is_tmc_record_not_found(
+            r#"{"status":404,"error":"Not Found"}"#
+        ));
+        assert!(!is_tmc_record_not_found("<!DOCTYPE html><html>404</html>"));
+        assert!(!is_tmc_record_not_found(""));
     }
 }

@@ -24,6 +24,7 @@ pub struct ProgressByPlatform {
     pub tmc_mooc_fi: Vec<TmcMoocFiCourseProgress>,
 }
 
+/// How querying an external platform for the user's courses went.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExternalPlatformStatus {
@@ -34,6 +35,7 @@ pub enum ExternalPlatformStatus {
     Unavailable,
 }
 
+/// A course the user is enrolled on in courses.mooc.fi.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CoursesMoocFiCourseProgress {
     pub course_id: Uuid,
@@ -46,6 +48,7 @@ pub struct CoursesMoocFiCourseProgress {
     pub max_points: Option<u32>,
 }
 
+/// A course the user has progress or a completion on in the old mooc.fi.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MoocFiCourseProgress {
     pub course_id: Uuid,
@@ -57,6 +60,7 @@ pub struct MoocFiCourseProgress {
     pub tmc_mooc_fi_courses: Vec<TmcMoocFiCourseProgress>,
 }
 
+/// A course the user has submissions or awarded points on in tmc.mooc.fi.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct TmcMoocFiCourseProgress {
     pub name: String,
@@ -84,12 +88,22 @@ impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
 /// platforms are queried concurrently, and one failing is reported in its status instead of
 /// failing the whole listing.
 pub async fn get_progress_by_platform(
-    conn: &mut PgConnection,
+    pool: &PgPool,
     tmc_client: &TmcClient,
     user_id: Uuid,
-    upstream_id: Option<i32>,
     query_external_platforms: bool,
 ) -> models::ModelResult<ProgressByPlatform> {
+    // Released before the upstream requests so a slow platform does not hold a pool connection.
+    let (upstream_id, courses_mooc_fi) = {
+        let mut conn = pool.acquire().await?;
+        let upstream_id = models::users::get_by_id(&mut conn, user_id)
+            .await?
+            .upstream_id;
+        (
+            upstream_id,
+            get_courses_mooc_fi_progress(&mut conn, user_id).await?,
+        )
+    };
     let upstream_id = upstream_id.filter(|_| query_external_platforms);
     let tmc_progress = async {
         match upstream_id {
@@ -114,11 +128,7 @@ pub async fn get_progress_by_platform(
             None => None,
         }
     };
-    let (courses_mooc_fi, tmc_progress, moocfi_progress) = tokio::join!(
-        get_courses_mooc_fi_progress(conn, user_id),
-        tmc_progress,
-        moocfi_progress
-    );
+    let (tmc_progress, moocfi_progress) = tokio::join!(tmc_progress, moocfi_progress);
 
     let tmc_progress = tmc_progress.map(|result| {
         result.map_err(|e| warn!("Could not list the tmc.mooc.fi courses of user {user_id}: {e}"))
@@ -128,7 +138,7 @@ pub async fn get_progress_by_platform(
     });
 
     let mut progress = merge_external_progress(tmc_progress, moocfi_progress);
-    progress.courses_mooc_fi = courses_mooc_fi?;
+    progress.courses_mooc_fi = courses_mooc_fi;
     Ok(progress)
 }
 

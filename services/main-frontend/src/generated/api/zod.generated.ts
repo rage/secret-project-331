@@ -1792,6 +1792,9 @@ export const zCourseUpdate = z.object({
   name: z.string(),
 })
 
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
 export const zCoursesMoocFiCourseProgress = z.object({
   completed_modules: z
     .int()
@@ -3750,6 +3753,9 @@ export const zExternalCourseOutput = z.object({
   url: z.string(),
 })
 
+/**
+ * How querying an external platform for the user's courses went.
+ */
 export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
 
 export const zFeedbackBlock = z.object({
@@ -7389,6 +7395,9 @@ export const zCreditRegistrationStatsByCourse = z.object({
   modules: z.array(zCreditRegistrationCourseStats),
 })
 
+/**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
 export const zTmcMoocFiCourseProgress = z.object({
   awarded_points: z
     .int()
@@ -7402,6 +7411,9 @@ export const zTmcMoocFiCourseProgress = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
 export const zMoocFiCourseProgress = z.object({
   completed: z.boolean(),
   course_id: z.uuid(),

@@ -41,8 +41,12 @@ const nothingFound: ProgressByPlatform = {
   tmc_mooc_fi: [],
 }
 
-function renderStep(progress: ProgressByPlatform) {
-  mockGetProgress.mockResolvedValue(progress)
+function renderStep(progress: ProgressByPlatform | Error) {
+  if (progress instanceof Error) {
+    mockGetProgress.mockRejectedValue(progress)
+  } else {
+    mockGetProgress.mockResolvedValue(progress)
+  }
   const onAcknowledgedChange = jest.fn()
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
@@ -106,6 +110,18 @@ describe("AccountDeletionProgressStep", () => {
       await screen.findByText(/We could not check your progress on tmc\.mooc\.fi/),
     ).toBeInTheDocument()
     expect(screen.queryByText(/on mooc\.fi\./)).not.toBeInTheDocument()
+  })
+
+  it("warns about every platform when the progress could not be loaded", async () => {
+    renderStep(new Error("Too many requests"))
+
+    for (const platform of ["courses.mooc.fi", "mooc.fi", "tmc.mooc.fi"]) {
+      expect(
+        await screen.findByText(`We could not check your progress on ${platform}.`, {
+          exact: false,
+        }),
+      ).toBeInTheDocument()
+    }
   })
 
   it("asks for a plain confirmation when nothing was found", async () => {

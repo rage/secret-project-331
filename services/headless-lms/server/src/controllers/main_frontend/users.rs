@@ -717,18 +717,12 @@ async fn get_my_progress_by_platform(
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ProgressByPlatform>> {
-    let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-
-    let upstream_id = models::users::get_by_id(&mut conn, user.id)
-        .await?
-        .upstream_id;
     // Test mode never talks to the real platforms, matching account deletion.
     let res = progress_by_platform::get_progress_by_platform(
-        &mut conn,
+        &pool,
         &tmc_client,
         user.id,
-        upstream_id,
         !app_conf.test_mode,
     )
     .await?;

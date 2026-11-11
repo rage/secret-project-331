@@ -60,7 +60,9 @@ const AccountDeletionProgressStep: React.FC<AccountDeletionProgressStepProps> = 
 
   const platforms = progressQuery.data ? groupByPlatform(progressQuery.data, t) : []
   const courseCount = platforms.reduce((sum, platform) => sum + platform.courses.length, 0)
-  const uncheckedPlatforms = progressQuery.data ? unavailablePlatforms(progressQuery.data) : []
+  const uncheckedPlatforms = progressQuery.data
+    ? unavailablePlatforms(progressQuery.data)
+    : [COURSES_MOOC_FI, MOOC_FI, TMC_MOOC_FI]
 
   return (
     <div

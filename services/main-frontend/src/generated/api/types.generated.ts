@@ -2888,6 +2888,9 @@ export type CourseUpdate = {
   name: string
 }
 
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
 export type CoursesMoocFiCourseProgress = {
   /**
    * Modules with a passed completion.
@@ -4795,6 +4798,9 @@ export type ExternalCourseOutput = {
   url: string
 }
 
+/**
+ * How querying an external platform for the user's courses went.
+ */
 export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
 
 export type Feedback = {
@@ -5130,6 +5136,9 @@ export type ModuleUpdates = {
   new_modules: Array<NewModule>
 }
 
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
 export type MoocFiCourseProgress = {
   completed: boolean
   course_id: string
@@ -7382,6 +7391,9 @@ export type TimelineStep =
   | "not_registering"
   | "no_longer_registrable"
 
+/**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
 export type TmcMoocFiCourseProgress = {
   /**
    * Number of points awarded, not a score.

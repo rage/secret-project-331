@@ -74,27 +74,40 @@ const Value = styled.span`
   font-weight: 600;
 `
 
-const ProgressBar = styled.div<{ progress: number }>`
+const lol = css`
+  display: flex;
+  justify-content: space-between;
+`
+
+const ProgressBar = styled.div`
   width: 100%;
   height: 0.5rem;
   background: ${baseTheme.colors.clear[300]};
   border-radius: 0.25rem;
   overflow: hidden;
   margin-top: 0.5rem;
+`
 
-  &::after {
-    content: "";
-    display: block;
-    height: 100%;
-    width: ${(props) => props.progress}%;
-    background: ${(props) =>
-      props.progress >= 100
-        ? baseTheme.colors.green[500]
-        : props.progress >= 50
-          ? baseTheme.colors.green[400]
-          : baseTheme.colors.green[300]};
-    transition: width 0.3s ease;
-  }
+const ProgressDone = styled.div<{ progress: number }>`
+  height: 0.5rem;
+  position: relative;
+  top: -0.5rem;
+  width: ${(props) => props.progress}%;
+  background: ${(props) =>
+    props.progress >= 100
+      ? baseTheme.colors.green[500]
+      : props.progress >= 50
+        ? baseTheme.colors.green[400]
+        : baseTheme.colors.green[300]};
+  transition: width 0.3s ease;
+`
+
+const ProgressRequired = styled.div<{ required: number }>`
+  height: 0.5rem;
+  position: relative;
+  width: ${(props) => props.required}%;
+  background: ${baseTheme.colors.yellow[200]};
+  transition: width 0.3s ease;
 `
 
 const ProgressValue = styled.span`
@@ -176,9 +189,21 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
               const pointsProgress = courseInstanceProgress.score_maximum
                 ? (courseInstanceProgress.score_given / courseInstanceProgress.score_maximum) * 100
                 : 0
+              const pointsRequired = courseInstanceProgress.score_required
+                ? (courseInstanceProgress.score_required /
+                    (courseInstanceProgress.score_maximum ??
+                      courseInstanceProgress.score_required)) *
+                  100
+                : 0
               const exercisesProgress = courseInstanceProgress.total_exercises
                 ? ((courseInstanceProgress.attempted_exercises ?? 0) /
                     courseInstanceProgress.total_exercises) *
+                  100
+                : 0
+              const exercisesRequired = courseInstanceProgress.attempted_exercises_required
+                ? (courseInstanceProgress.attempted_exercises_required /
+                    (courseInstanceProgress.total_exercises ??
+                      courseInstanceProgress.attempted_exercises_required)) *
                   100
                 : 0
               const completionData = courseModuleCompletions.data?.find((x) => {
@@ -201,34 +226,38 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                         <BooleanAsYesOrNoText value={courseInstanceProgress.completion_attained} />
                       </Value>
                     </InfoItem>
-                    {courseInstanceProgress.attempted_exercises_required !== null && (
-                      <InfoItem>
-                        <Label>{t("label-attempted-exercises-required")}</Label>
-                        <Value>{courseInstanceProgress.attempted_exercises_required}</Value>
-                      </InfoItem>
-                    )}
-                    {courseInstanceProgress.score_required !== null && (
-                      <InfoItem>
-                        <Label>{t("label-points-required")}</Label>
-                        <Value>{courseInstanceProgress.score_required}</Value>
-                      </InfoItem>
-                    )}
                     <InfoItem>
-                      <Label>{t("label-points")}</Label>
-                      <Value>
-                        {courseInstanceProgress.score_given} /{" "}
-                        {courseInstanceProgress.score_maximum ?? 0}
+                      <Label className={lol}>
+                        <span>{t("label-points")}</span> <span>{t("required")}</span>
+                      </Label>
+                      <Value className={lol}>
+                        <span>
+                          {courseInstanceProgress.score_given} /{" "}
+                          {courseInstanceProgress.score_maximum ?? 0}{" "}
+                        </span>
+                        <span>{courseInstanceProgress.score_required ?? 0}</span>
                       </Value>
-                      <ProgressBar progress={pointsProgress} />
+                      <ProgressBar>
+                        <ProgressRequired required={pointsRequired} />
+                        <ProgressDone progress={pointsProgress} />
+                      </ProgressBar>
                       <ProgressValue>{Math.round(pointsProgress)}%</ProgressValue>
                     </InfoItem>
                     <InfoItem>
-                      <Label>{t("label-attempted-exercises")}</Label>
-                      <Value>
-                        {courseInstanceProgress.attempted_exercises ?? 0} /{" "}
-                        {courseInstanceProgress.total_exercises ?? 0}
+                      <Label className={lol}>
+                        <span>{t("label-attempted-exercises")}</span> <span>{t("required")}</span>
+                      </Label>
+                      <Value className={lol}>
+                        <span>
+                          {courseInstanceProgress.attempted_exercises ?? 0} /{" "}
+                          {courseInstanceProgress.total_exercises ?? 0}
+                        </span>
+                        <span>{courseInstanceProgress.attempted_exercises_required ?? 0}</span>
                       </Value>
-                      <ProgressBar progress={exercisesProgress} />
+                      <ProgressBar>
+                        <ProgressRequired required={exercisesRequired} />
+                        <ProgressDone progress={exercisesProgress} />
+                      </ProgressBar>
                       <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
                     </InfoItem>
                     <InfoItem

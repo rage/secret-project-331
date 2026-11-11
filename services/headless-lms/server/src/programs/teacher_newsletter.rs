@@ -19,6 +19,25 @@ use models::library::course_stats::{
 use models::teacher_newsletter::{create_newsletter_item, get_teacher_newsletter_subscriptions};
 use uuid::Uuid;
 
+// struct TeacherNewsletter {
+//     base_url: &str,
+//     course_id: Uuid,
+//     course_name: &String,
+//     returned_exercises_count: i64,
+//     completed_course_count: i64,
+//     started_course_count: i64,
+//     flagged_cheaters_count_period: i64,
+//     flagged_cheaters_count_total: i64,
+//     unread_feedback_count: i64,
+//     proposal_count: i64,
+// }
+
+// impl TeacherNewsletter {
+//     fn as_html(&self) -> String {
+
+//     }
+// }
+
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     ProgramConfig::ensure_default_rust_log_for_workers();
@@ -97,7 +116,8 @@ async fn create_newsletter_items(
         )
         .await?
         .count;
-        let flagged_cheaters_count =
+
+        let flagged_cheaters_count_period =
             models::suspected_cheaters::get_count_in_course_by_status_custom_time_period(
                 conn,
                 course.id,
@@ -106,7 +126,15 @@ async fn create_newsletter_items(
                 period_end,
             )
             .await?;
-        let unread_feedback_count_unsigned =
+        let flagged_cheaters_count_total =
+            models::suspected_cheaters::get_count_in_course_by_status(
+                conn,
+                course.id,
+                models::suspected_cheaters::SuspectedCheaterStatus::Flagged,
+            )
+            .await?;
+
+        let unread_feedback_count_period_unsigned =
             models::feedback::get_feedback_count_for_course_custom_time_period(
                 conn,
                 course.id,
@@ -115,8 +143,14 @@ async fn create_newsletter_items(
             )
             .await?
             .unread;
-        let unread_feedback_count = i64::from(unread_feedback_count_unsigned);
-        let proposal_count_unsigned =
+        let unread_feedback_count_total_unsigned =
+            models::feedback::get_feedback_count_for_course(conn, course.id)
+                .await?
+                .unread;
+        let unread_feedback_count_period = i64::from(unread_feedback_count_period_unsigned);
+        let unread_feedback_count_total = i64::from(unread_feedback_count_total_unsigned);
+
+        let proposal_count_period_unsigned =
             models::proposed_page_edits::get_proposal_count_for_course_custom_time_period(
                 conn,
                 course.id,
@@ -125,7 +159,14 @@ async fn create_newsletter_items(
             )
             .await?
             .pending;
-        let proposal_count = i64::from(proposal_count_unsigned);
+
+        let proposal_count_total_unsigned =
+            models::proposed_page_edits::get_proposal_count_for_course(conn, course.id)
+                .await?
+                .pending;
+        let proposal_count_period = i64::from(proposal_count_period_unsigned);
+        let proposal_count_total = i64::from(proposal_count_total_unsigned);
+
         let html = as_html(
             base_url,
             course.id,
@@ -133,9 +174,12 @@ async fn create_newsletter_items(
             returned_exercises_count,
             completed_course_count,
             started_course_count,
-            flagged_cheaters_count,
-            unread_feedback_count,
-            proposal_count,
+            flagged_cheaters_count_period,
+            flagged_cheaters_count_total,
+            unread_feedback_count_period,
+            unread_feedback_count_total,
+            proposal_count_period,
+            proposal_count_total,
         );
 
         let text = as_text(
@@ -145,9 +189,12 @@ async fn create_newsletter_items(
             returned_exercises_count,
             completed_course_count,
             started_course_count,
-            flagged_cheaters_count,
-            unread_feedback_count,
-            proposal_count,
+            flagged_cheaters_count_period,
+            flagged_cheaters_count_total,
+            unread_feedback_count_period,
+            unread_feedback_count_total,
+            proposal_count_period,
+            proposal_count_total,
         );
 
         create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;
@@ -162,40 +209,45 @@ fn as_html(
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
-    flagged_cheaters_count: i64,
-    unread_feedback_count: i64,
-    proposal_count: i64,
+    flagged_cheaters_count_period: i64,
+    flagged_cheaters_count_total: i64,
+    unread_feedback_count_period: i64,
+    unread_feedback_count_total: i64,
+    proposal_count_period: i64,
+    proposal_count_total: i64,
 ) -> String {
     format!(
         r#"
         <h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{course_name}</h2>
+        {}
+        {}
+        {}
         <table style="width: 100%; border-collapse: separate;border-spacing: 5px;table-layout: fixed; border-bottom: 3px dashed #EBEDEE; padding-bottom: 24px;">
             <tbody>
                 <tr>{}{}{}</tr>
-                <tr>{}{}{}</tr>
             </tbody>
         </table>"#,
-        warning_box_html(
-            base_url,
-            flagged_cheaters_count,
-            "Students flagged as cheaters",
-            format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
+        newsletter_section_html(
+            flagged_cheaters_count_total,
+            flagged_cheaters_count_period,
+            "Suspected cheaters",
+            "Students flagged by automatic detection as possible cheaters."
         ),
-        warning_box_html(
-            base_url,
-            unread_feedback_count,
-            "Unread feedback",
-            format!("manage/courses/{course_id}/feedback/feedback/unread").as_str()
+        newsletter_section_html(
+            unread_feedback_count_total,
+            unread_feedback_count_period,
+            "Feedback",
+            "Unread feedback from students."
         ),
-        warning_box_html(
-            base_url,
-            proposal_count,
-            "Pending proposals",
-            format!("manage/courses/{course_id}/feedback/change-requests/pending").as_str()
+        newsletter_section_html(
+            proposal_count_total,
+            proposal_count_period,
+            "Proposals",
+            "Proposals suggested by students regarding course material.",
         ),
-        regular_box_html(returned_exercises_count, "Students returned exercises"),
-        regular_box_html(completed_course_count, "Students completed course"),
-        regular_box_html(started_course_count, "Students started course"),
+        stats_box_html(returned_exercises_count, "Students returned exercises"),
+        stats_box_html(completed_course_count, "Students completed course"),
+        stats_box_html(started_course_count, "Students started course"),
     )
 }
 
@@ -206,9 +258,12 @@ fn as_text(
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
-    flagged_cheaters_count: i64,
-    unread_feedback_count: i64,
-    proposal_count: i64,
+    flagged_cheaters_count_period: i64,
+    flagged_cheaters_count_total: i64,
+    unread_feedback_count_period: i64,
+    unread_feedback_count_total: i64,
+    proposal_count_period: i64,
+    proposal_count_total: i64,
 ) -> String {
     format!(
         "{}\n
@@ -222,19 +277,19 @@ fn as_text(
         course_name,
         conditional_info_text(
             base_url,
-            flagged_cheaters_count,
+            flagged_cheaters_count_period,
             "students flagged as cheaters",
             format!("manage/courses/{course_id}/other/cheaters/suspected").as_str()
         ),
         conditional_info_text(
             base_url,
-            unread_feedback_count,
+            unread_feedback_count_period,
             "unread feedback",
             format!("manage/courses/{course_id}/feedback/feedback/unread").as_str()
         ),
         conditional_info_text(
             base_url,
-            proposal_count,
+            proposal_count_period,
             "pending proposals",
             format!("manage/courses/{course_id}/feedback/change-requests/pending").as_str()
         ),
@@ -244,33 +299,12 @@ fn as_text(
     )
 }
 
-fn warning_box_html(base_url: &str, count: i64, label: &str, link: &str) -> String {
-    let border_color = if count > 0 { "#ffd444" } else { "#EBEDEE" };
-    let bg_color = if count > 0 {
-        "rgba(255, 212, 68, 0.12)"
-    } else {
-        "none"
-    };
-    let button_display = if count > 0 { "inline-block" } else { "none" };
-
-    // BUILD THE BUTTON AS TABLE INSTEAD!?
-    format!(
-        r#"<td style="border: 3px solid {border_color}; background: {bg_color}; border-radius: 12px;">
-            <p style="font-size: 32px; text-align: center; margin-top: 1rem;">{count}</p>
-            <p style="text-align: center; font-weight: 700; color: #1a2333;">{label}</p>
-            <p style="text-align: center; margin: 0;">
-                <a href="{base_url}/{link}" style="text-decoration: none; background-color: #1F6964; color: #ffffff; padding: 12px 24px; font-weight: 600; border-radius: 6px; display: {button_display};">Take action</a>
-            </p>
-        </td>"#
-    )
-}
-
-fn regular_box_html(count: i64, label: &str) -> String {
+fn stats_box_html(count: i64, label: &str) -> String {
     format!(
         r#"
         <td style="border: 3px solid #EBEDEE; border-radius: 12px;">
-        <p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964">{count}</p>
-        <p style="text-align: center; font-weight: 700;">{label}</p>
+            <p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964; font-weight: bold;">{count}</p>
+            <p style="text-align: center; font-weight: 500;">{label}</p>
         </td>
         "#
     )
@@ -294,4 +328,40 @@ pub fn get_newsletter_period() -> (String, String) {
     let period_start = start_date.format("%Y-%m-%d").to_string();
 
     (period_start, period_end)
+}
+
+fn newsletter_section_html(
+    count_total: i64,
+    count_period: i64,
+    title: &str,
+    label: &str,
+) -> String {
+    let counts_new = if count_total - count_period == 0 {
+        count_period
+    } else {
+        count_total - count_period
+    };
+    format!(
+        r#"
+    <table style="border-collapse: separate; width: 100%; margin-bottom: 8px;">
+        <tbody>
+            <tr>
+                <td style="border: 3px solid #EBEDEE; padding-left: 16px; border-radius: 12px;">
+                    <h2 style="margin-top: 0; margin-bottom: 0; font-weight: 600;">{title}</h2>
+                    <p>{label}</p>
+                    <table style="margin-bottom: 5px;">
+                        <tbody>
+                            <tr>
+                                <td style="padding: 0; color: #1F6964; font-size: 32px; border: none; font-weight: bold;">{count_total}</td>
+                                <td style="border: none; padding: 0; padding-left: 5px;">(+{counts_new} new)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <span style="font-weight: 500;">Total</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    "#
+    )
 }

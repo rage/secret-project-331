@@ -79,35 +79,39 @@ const lol = css`
   justify-content: space-between;
 `
 
-const ProgressBar = styled.div`
+const ProgressBar = styled.div<{ progress: number; required: number }>`
   width: 100%;
   height: 0.5rem;
   background: ${baseTheme.colors.clear[300]};
   border-radius: 0.25rem;
   overflow: hidden;
   margin-top: 0.5rem;
-`
 
-const ProgressDone = styled.div<{ progress: number }>`
-  height: 0.5rem;
-  position: relative;
-  top: -0.5rem;
-  width: ${(props) => props.progress}%;
-  background: ${(props) =>
-    props.progress >= 100
-      ? baseTheme.colors.green[500]
-      : props.progress >= 50
-        ? baseTheme.colors.green[400]
-        : baseTheme.colors.green[300]};
-  transition: width 0.3s ease;
-`
+  ::before {
+    content: "";
+    display: block;
+    height: 0.5rem;
+    position: relative;
+    width: ${(props) => props.required}%;
+    background: ${baseTheme.colors.yellow[200]};
+    transition: width 0.3s ease;
+  }
 
-const ProgressRequired = styled.div<{ required: number }>`
-  height: 0.5rem;
-  position: relative;
-  width: ${(props) => props.required}%;
-  background: ${baseTheme.colors.yellow[200]};
-  transition: width 0.3s ease;
+  ::after {
+    content: "";
+    display: block;
+    height: 0.5rem;
+    position: relative;
+    top: -0.5rem;
+    width: ${(props) => props.progress}%;
+    background: ${(props) =>
+      props.progress >= 100
+        ? baseTheme.colors.green[500]
+        : props.progress >= 50
+          ? baseTheme.colors.green[400]
+          : baseTheme.colors.green[300]};
+    transition: width 0.3s ease;
+  }
 `
 
 const ProgressValue = styled.span`
@@ -237,10 +241,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                         </span>
                         <span>{courseInstanceProgress.score_required ?? 0}</span>
                       </Value>
-                      <ProgressBar>
-                        <ProgressRequired required={pointsRequired} />
-                        <ProgressDone progress={pointsProgress} />
-                      </ProgressBar>
+                      <ProgressBar progress={pointsProgress} required={pointsRequired} />
                       <ProgressValue>{Math.round(pointsProgress)}%</ProgressValue>
                     </InfoItem>
                     <InfoItem>
@@ -254,10 +255,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                         </span>
                         <span>{courseInstanceProgress.attempted_exercises_required ?? 0}</span>
                       </Value>
-                      <ProgressBar>
-                        <ProgressRequired required={exercisesRequired} />
-                        <ProgressDone progress={exercisesProgress} />
-                      </ProgressBar>
+                      <ProgressBar progress={exercisesProgress} required={exercisesRequired} />
                       <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
                     </InfoItem>
                     <InfoItem

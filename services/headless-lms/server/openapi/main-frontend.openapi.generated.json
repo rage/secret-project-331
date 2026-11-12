@@ -14483,7 +14483,7 @@
     "/api/v0/main-frontend/pages/{page_id}/page-read-status": {
       "post": {
         "tags": ["pages"],
-        "summary": "\nPOST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.",
+        "summary": "POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.",
         "operationId": "updatePageReadStatus",
         "parameters": [
           {

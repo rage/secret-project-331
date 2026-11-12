@@ -430,7 +430,7 @@ fn generate_text_svg(
                         .as_str(),
                     ))
                     .with_attribute(("text-anchor", text.text_anchor.to_string().as_str()))
-                    .write_text_content(BytesText::from_escaped(&text.text))
+                    .write_text_content(BytesText::new(&text.text))
                     .map_err(|_original_error| {
                         // Might not be optimal but that's the Error type of the closure that comes from the library and we don't want to unwrap here and potentially crash the process.
                         io::Error::other("Could not write text to svg".to_string())
@@ -476,7 +476,10 @@ fn generate_text_svg(
 
 #[cfg(test)]
 mod tests {
-    use super::{TextToRender, face_covers, generate_certificate_impl, resolve_font_family};
+    use super::{
+        TextToRender, face_covers, generate_certificate_impl, generate_text_svg,
+        resolve_font_family,
+    };
     use headless_lms_models::certificate_configurations::PaperSize;
     use std::sync::Arc;
     use usvg::fontdb;
@@ -577,6 +580,31 @@ mod tests {
             png.len()
         );
         assert_eq!(&png[..8], b"\x89PNG\r\n\x1a\n", "output should be a PNG");
+    }
+
+    /// A student picks the name on their certificate, so markup in it must stay text.
+    #[test]
+    fn name_markup_is_escaped_in_the_text_svg() {
+        let texts = [TextToRender {
+            text: r#"Alice</text><rect width="100%"/><text>"#.to_string(),
+            ..Default::default()
+        }];
+        let svg = generate_text_svg(
+            &texts,
+            false,
+            &PaperSize::HorizontalA4,
+            &fontdb::Database::new(),
+        )
+        .expect("text svg should be generated");
+        let svg = String::from_utf8(svg).expect("svg is utf-8");
+        assert!(
+            !svg.contains("<rect"),
+            "name markup leaked into the svg: {svg}"
+        );
+        assert!(
+            svg.contains("Alice&lt;/text&gt;"),
+            "name should be escaped: {svg}"
+        );
     }
 
     /// Every supported script must resolve to a font that fully covers it, so a real name in that

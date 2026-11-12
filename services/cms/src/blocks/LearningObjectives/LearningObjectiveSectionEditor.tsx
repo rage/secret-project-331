@@ -1,17 +1,14 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { InnerBlocks } from "@wordpress/block-editor"
 import React from "react"
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/list"]
-const LEARNING_OBJECTIVE_SECTION_TEMPLATE: Template[] = [["core/list", { align: "left" }]]
 
 const Wrapper = styled.div`
   margin: 2rem auto;
@@ -105,11 +102,7 @@ const LearningObjectiveSectionEditor: React.FC<
           <h2>{t("learning-objectives-editor-title")}</h2>
         </Header>
         <Content>
-          <InnerBlocks
-            template={LEARNING_OBJECTIVE_SECTION_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            templateLock="all"
-          />
+          <RegisteredInnerBlocks />
         </Content>
       </Wrapper>
     </BlockWrapper>

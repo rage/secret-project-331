@@ -42,6 +42,7 @@ FROM course_modules cm
   AND c.deleted_at IS NULL
 WHERE cm.deleted_at IS NULL
   AND TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
   AND ($1::uuid IS NULL OR cm.course_id = $1)
 ORDER BY cm.course_id,
   cm.order_number
@@ -53,20 +54,24 @@ ORDER BY cm.course_id,
     Ok(res)
 }
 
-/// Modules with a course code the last check found broken. A module nothing has checked yet is not counted:
-/// unknown is not a failure.
+/// Modules with a course code and mooc.fi targets the last check found broken. Unchecked ones are
+/// not counted: unknown is not a failure.
 ///
-/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
-/// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
+/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's
+/// "misconfigured" tile: the boolean covers only the course code, while [`check_module_config`]
 /// also reports missing credits, a missing enrolment link and a double-enabled registration path.
 ///
 /// [`check_module_config`]:
 /// crate::library::credit_registration::config_validation::check_module_config
-pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
-    Ok(get_module_ids_failing_config_check(conn).await?.len() as i64)
+pub async fn count_credit_units_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
+    let modules = get_module_ids_failing_config_check(conn).await?.len();
+    let targets = crate::external_credit_targets::get_ids_failing_config_check(conn)
+        .await?
+        .len();
+    Ok((modules + targets) as i64)
 }
 
-/// The modules [`count_modules_failing_config_check`] counts.
+/// The modules [`count_credit_units_failing_config_check`] counts.
 pub async fn get_module_ids_failing_config_check(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<Uuid>> {
@@ -76,6 +81,7 @@ SELECT conf.course_module_id
 FROM course_module_suotar_configurations conf
   JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL
 WHERE TRIM(cm.uh_course_code) <> ''
+  AND cm.completions_can_be_registered_to_sisu
   AND conf.deleted_at IS NULL
   AND conf.config_checked_at IS NOT NULL
   AND conf.config_check_message IS NOT NULL

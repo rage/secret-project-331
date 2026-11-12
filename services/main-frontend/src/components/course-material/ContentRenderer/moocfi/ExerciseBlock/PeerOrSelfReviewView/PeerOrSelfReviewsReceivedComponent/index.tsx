@@ -10,7 +10,6 @@ import { useTranslation } from "react-i18next"
 
 import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
-import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { Button, Disclosure, QueryResult, ErrorNotice } from "@/shared-module/components"
 
@@ -41,7 +40,6 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
   submissionId,
 }) => {
   const { t } = useTranslation()
-  const userInfo = useUserInfo()
 
   const peerOrSelfReviewsReceivedQuery = useQuery({
     ...fetchPeerReviewDataReceivedByExerciseIdOptions({
@@ -92,10 +90,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
           // questionSubmisssions is non-empty (length === 0 handled above).
           (pr) => pr.id === questionSubmisssions[0]?.peer_or_self_review_submission_id,
         )
-      if (
-        peerOrSelfReviewSubmission &&
-        peerOrSelfReviewSubmission.user_id === userInfo.data?.user_id
-      ) {
+      if (peerOrSelfReviewSubmission?.is_self_review) {
         // oxlint-disable-next-line i18next/no-literal-string
         return "self"
       }
@@ -106,7 +101,6 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
   }, [
     peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_question_submissions,
     peerOrSelfReviewsReceivedQuery.data?.peer_or_self_review_submissions,
-    userInfo.data?.user_id,
   ])
 
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)

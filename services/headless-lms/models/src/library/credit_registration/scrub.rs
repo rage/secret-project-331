@@ -1,13 +1,9 @@
-//! Removing personal data from what the credit registration pipeline keeps of its Suotar
-//! exchanges: the call log's bodies, the ledger's event details and error messages.
+//! Removing personal data from what the credit registration pipeline keeps: its error messages as
+//! they are written, and the ledger's event details once they outlive the call log.
 
-use std::sync::LazyLock;
-
-use regex::{Captures, Regex};
 use serde_json::{Value, json};
 
-/// Replaces a redacted value; the key is kept so the payload shape survives.
-pub const REDACTED: &str = "[redacted]";
+pub use headless_lms_utils::text_scrub::{REDACTED, scrub_text};
 
 /// Keys whose values identify a person or authenticate a request. Matched case-insensitively at any
 /// depth.
@@ -43,23 +39,6 @@ const NEVER_SCANNED_KEYS: &[&str] = &[
     "sisuattainmentid",
     "courseunitrealisationid",
 ];
-
-static EMAIL_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}").expect("hardcoded regex")
-});
-
-/// Student-number-shaped digit runs. The id shapes come first because the `regex` crate has no
-/// lookaround: leftmost-first alternation is the only way to say "digits not part of an id". The
-/// word boundaries keep the digit branch off longer numbers such as millisecond timestamps.
-///
-/// Known cost of the `prefixed` branch: a student number hyphen-joined to a word,
-/// `person-012345678`, survives. A bare digit run, the shape Suotar's messages use, still goes.
-static STUDENT_NUMBER_RE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(
-        r"(?P<uuid>\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b)|(?P<prefixed>\b[A-Za-z][A-Za-z0-9-]*-[0-9]{6,12}\b)|(?P<digits>\b[0-9]{6,12}\b)",
-    )
-    .expect("hardcoded regex")
-});
 
 /// Best-effort removal of personal data from a Suotar request or response body. Not a guarantee and
 /// not an exhaustive PII filter.
@@ -126,35 +105,6 @@ fn normalize_key(key: &str) -> String {
         .filter(|c| c.is_ascii_alphanumeric())
         .flat_map(|c| c.to_lowercase())
         .collect()
-}
-
-/// Scrubs a bare error message with the same rules as a JSON body's free text.
-pub fn scrub_text(text: &str) -> String {
-    let without_emails = EMAIL_RE.replace_all(text, REDACTED);
-    STUDENT_NUMBER_RE
-        .replace_all(&without_emails, |captures: &Captures| {
-            // The id branches exist to beat the digit branch to the match; put them back unchanged.
-            if captures.name("digits").is_some() {
-                REDACTED.to_string()
-            } else {
-                captures[0].to_string()
-            }
-        })
-        .into_owned()
-}
-
-/// Both sides of a Suotar exchange, scrubbed on construction so there is no way to build an
-/// unscrubbed `details`. The request is kept because the ledger row no longer reflects it after a
-/// retry.
-pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>) -> Value {
-    let mut details = serde_json::Map::new();
-    if let Some(request) = request {
-        details.insert("request".to_string(), scrub_suotar_body(request));
-    }
-    if let Some(response) = response {
-        details.insert("response".to_string(), scrub_suotar_body(response));
-    }
-    Value::Object(details)
 }
 
 #[cfg(test)]
@@ -363,23 +313,5 @@ mod tests {
         });
         let once = scrub_suotar_body(&body);
         assert_eq!(scrub_suotar_body(&once), once);
-    }
-
-    #[test]
-    fn exchange_details_scrub_both_sides_and_omit_missing_ones() {
-        let details = suotar_exchange_details(
-            Some(&json!({ "studentNumber": "012345678" })),
-            Some(&json!({ "code": "sent", "fullName": "Aada Virtanen" })),
-        );
-        assert_eq!(
-            details,
-            json!({
-                "request": { "studentNumber": REDACTED },
-                "response": { "code": "sent", "fullName": REDACTED },
-            })
-        );
-
-        let request_only = suotar_exchange_details(Some(&json!({ "code": "x" })), None);
-        assert_eq!(request_only, json!({ "request": { "code": "x" } }));
     }
 }

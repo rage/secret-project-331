@@ -24,6 +24,7 @@ const ConditionalBlockConfiguration: BlockConfiguration<ConditionAttributes> = {
       default: "",
     },
   },
+  allowedBlocks: ["core/heading", "core/buttons", "core/paragraph", "core/image", "core/embed"],
   edit: CodeGiveawayBlockEditor,
   save: CodeGiveawayBlockSave,
 }

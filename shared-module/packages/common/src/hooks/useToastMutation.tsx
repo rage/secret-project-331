@@ -32,6 +32,8 @@ interface EnableNotifications {
   errorHeader?: string
   errorMessage?: string
   toastOptions?: ToastOptions
+  /** Errors for which no error toast is shown because the caller handles them itself. */
+  isErrorHandledByCaller?: (error: unknown) => boolean
 }
 
 interface DisableNotifications {
@@ -155,6 +157,8 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
+      }
+      if (notificationOptions.notify && !notificationOptions.isErrorHandledByCaller?.(error)) {
         let errorMessage = notificationOptions.errorMessage
         if (!errorMessage) {
           errorMessage = errorNotificationMessage(error, t)

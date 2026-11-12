@@ -72,6 +72,7 @@ const Login: React.FC = () => {
 
       <Dialog
         open={step.step === "verification"}
+        size="small"
         onClose={cancelVerification}
         title={t("email-verification-title")}
       >

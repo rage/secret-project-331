@@ -6,8 +6,9 @@ use actix_web::{HttpRequest, Responder};
 pub use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType};
 pub use headless_lms_authorization::{
     Action, ActionOnResource, AuthorizationToken, Resource, authorize, authorize_access_to_chatbot,
-    authorize_access_to_course_material, authorize_with_fetched_list_of_roles,
-    can_user_view_chapter, is_permitted, is_user_global_admin, skip_authorize,
+    authorize_access_to_course_exercise, authorize_access_to_course_material,
+    authorize_with_fetched_list_of_roles, can_user_view_chapter, is_permitted,
+    is_user_global_admin, skip_authorize,
 };
 
 /// A controller's response payload. Only [AuthorizedOk::authorized_ok] can build one, so
@@ -49,7 +50,7 @@ pub async fn ensure_user_can_add_exercise_tasks(
     let added_service_names =
         models::pages::get_global_admin_only_exercise_service_names_added_by_tasks(
             conn,
-            page_id,
+            models::pages::ExistingTasks::OnPage(page_id),
             exercise_tasks,
         )
         .await?;

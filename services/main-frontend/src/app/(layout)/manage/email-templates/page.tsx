@@ -138,12 +138,16 @@ const EmailTemplatesList: React.FC = () => {
           return t("email-template-type-credit-registration-account-linking")
         case "verify_email_address":
           return t("email-template-type-verify-email-address")
+        case "verify_network":
+          return t("email-template-type-verify-network")
         case "credit_registration_action_needed":
           return t("email-template-type-credit-registration-action-needed")
         case "credit_registration_registered":
           return t("email-template-type-credit-registration-registered")
         case "teacher_newsletter":
           return t("email-template-type-teacher-newsletter")
+        case "course_designer_weekly_digest":
+          return t("email-template-type-course-designer-weekly-digest")
       }
     },
     [t],

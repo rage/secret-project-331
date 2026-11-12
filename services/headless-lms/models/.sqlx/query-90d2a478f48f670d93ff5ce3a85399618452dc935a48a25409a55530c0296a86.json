@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plan_stage_tasks t\nSET assignee_user_id = NULL\nFROM course_designer_plan_stages s\nWHERE t.course_designer_plan_stage_id = s.id\n  AND s.course_designer_plan_id = $1\n  AND t.assignee_user_id = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "90d2a478f48f670d93ff5ce3a85399618452dc935a48a25409a55530c0296a86"
+}

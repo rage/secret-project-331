@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT m.user_id\nFROM course_designer_plan_members m\nJOIN users u ON u.id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.receives_weekly_digest\n  AND m.deleted_at IS NULL\n  AND u.deleted_at IS NULL\nORDER BY m.created_at, m.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "62be4f58cb2be142b73830ccadf3cce3b224958a8c0394b87cff6fd8ae2180b7"
+}

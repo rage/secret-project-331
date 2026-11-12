@@ -23,6 +23,7 @@ test.describe("Course metadata generation", () => {
       await page.goto("http://project-331.local/")
       await page.getByRole("link", { name: "Manage course 'Description" }).click()
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await expect(page.getByRole("textbox", { name: "AI generated description" })).toBeVisible()
       const ai_text = await page
         .getByRole("textbox", { name: "AI generated description" })
@@ -105,6 +106,7 @@ test.describe("Course metadata generation", () => {
       await page.getByRole("tab", { name: "Overview" }).click()
 
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await expect(page.getByRole("textbox", { name: "AI generated description" })).toBeVisible()
       const ai_text = await page
         .getByRole("textbox", { name: "AI generated description" })
@@ -133,6 +135,7 @@ test.describe("Course metadata generation", () => {
       await page.goto("http://project-331.local/")
       await page.getByRole("link", { name: "Manage course 'Description" }).click()
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "AI generated description" }).click()
       await page.getByRole("textbox", { name: "AI generated description" }).press("ControlOrMeta+a")
       await page.getByTestId("container-suggested-description").getByRole("checkbox").click()
@@ -152,6 +155,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
@@ -172,6 +176,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("button", { name: "Add new prerequisite" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 3" }).fill("this should be visible")
       await waitForSuccessNotification(page, async () => {
@@ -188,6 +193,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page
         .getByRole("textbox", { name: "Prerequisite 2" })
         .fill("this should be not be visible")
@@ -196,6 +202,7 @@ test.describe("Course metadata generation", () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await expect(page.getByText("this should be not be visible")).toHaveCount(0)
     })
 
@@ -204,6 +211,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
@@ -221,6 +229,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "Prerequisite 1" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 1" }).fill("should not be added")
       await page.getByRole("textbox", { name: "Prerequisite 2" }).click()
@@ -241,10 +250,12 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "Prerequisite 1" }).click()
       await page.getByRole("textbox", { name: "Prerequisite 1" }).press("ControlOrMeta+a")
       await page.getByRole("textbox", { name: "Prerequisite 1" }).fill("this replaces")
@@ -271,6 +282,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
@@ -284,6 +296,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("button", { name: "Add new audience" }).click()
       await page.getByRole("textbox", { name: "Audience 2" }).fill("this should be visible")
       await waitForSuccessNotification(page, async () => {
@@ -300,6 +313,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "Audience 1" }).fill("this should be not be visible")
       await page.getByRole("button", { name: "Remove" }).nth(2).click()
       await waitForSuccessNotification(page, async () => {
@@ -317,10 +331,12 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
@@ -334,6 +350,7 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "Audience" }).click()
       await page.getByRole("textbox", { name: "Audience" }).fill("not here")
       await page.getByRole("button", { name: "Add new audience" }).click()
@@ -354,10 +371,12 @@ test.describe("Course metadata generation", () => {
         "http://project-331.local/manage/courses/84d392c8-3d44-4109-bff1-938fec5cd642/overview",
       )
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await waitForSuccessNotification(page, async () => {
         await page.getByRole("button", { name: "Replace metadata" }).click()
       })
       await page.getByRole("button", { name: "Suggest metadata" }).click()
+      await waitForSpinnersToDisappear(page)
       await page.getByRole("textbox", { name: "Audience 1" }).click()
       await page.getByRole("textbox", { name: "Audience 1" }).press("ControlOrMeta+a")
       await page.getByRole("textbox", { name: "Audience 1" }).fill("this replaces")

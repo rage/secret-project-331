@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT h.created_at AS \"created_at!\",\n  h.author_user_id AS \"author_user_id!\",\n  c.client_name AS \"agent_client_name?\"\nFROM (\n    SELECT ph.id,\n      ph.created_at,\n      ph.author_user_id,\n      ph.agent_call_id\n    FROM page_history ph\n      JOIN pages p ON p.id = ph.page_id\n    WHERE ph.page_id = $1\n      AND (\n        $2::uuid IS NULL\n        OR p.course_id = $2\n      )\n      AND ph.deleted_at IS NULL\n    UNION ALL\n    SELECT id,\n      created_at,\n      author_user_id,\n      agent_call_id\n    FROM entity_history\n    WHERE entity_id = $1\n      AND (\n        $2::uuid IS NULL\n        OR course_id = $2\n      )\n  ) h\n  LEFT JOIN agent_changeset_calls c ON c.id = h.agent_call_id\nORDER BY h.created_at DESC,\n  h.id DESC\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "created_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "author_user_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "agent_client_name?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_calls",
+            "name": "client_name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null,
+      false
+    ]
+  },
+  "hash": "cfce6ceb39248264cfc297f5455afd153c0c019bc4ab394f840e51e650aa46cb"
+}

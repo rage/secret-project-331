@@ -4,8 +4,14 @@
   "default-toast-error-title": "Fel",
   "dynamic-import-error-boundary-reload": "Ladda om sidan",
   "dynamic-import-error-boundary-title": "Något gick fel när den här delen av sidan skulle läsas in.",
+  "error-code": "Kod: {{code}}",
   "error-hide-details": "Dölj detaljer",
   "error-issue": "Problem: {{issue}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Övningsuppgiften saknar övningstyp."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Logga in för att se tentamensövningar.",
@@ -14,18 +20,107 @@
     "chapter_not_open_yet": {
       "message": "Det här kapitlet är inte öppet ännu.",
       "title": "Kapitlet är stängt"
+    },
+    "course_slug_already_taken": {
+      "message": "En annan kurs använder redan den här slugen. Välj en annan.",
+      "title": "Slugen används redan"
+    },
+    "forbidden": {
+      "message": "Du har inte behörighet att göra det här.",
+      "title": "Åtkomst nekad"
+    },
+    "foreign_key_violation": {
+      "message": "Det gick inte att lägga till eller uppdatera i tabellen '{{table}}' på grund av begränsningen '{{constraint}}'. Kontrollera data som hör till begränsningen och försök igen.",
+      "title": "Brott mot främmande nyckel"
+    },
+    "generic_sisu_error": {
+      "message": "Något gick fel när beskrivningen skulle skapas",
+      "title": "Det gick inte att skapa beskrivningen"
+    },
+    "internal_error": {
+      "message": "Försök igen om en stund.",
+      "title": "Något gick fel"
+    },
+    "invalid_course_code": {
+      "message": "Kontrollera att kurskoderna från Helsingfors universitet i modulerna är giltiga.",
+      "title": "Det gick inte att skapa beskrivningen"
+    },
+    "not_found": {
+      "message": "Den begärda resursen hittades inte.",
+      "title": "Hittades inte"
+    },
+    "oauth_error": {
+      "message": "Logga in igen.",
+      "title": "Autentiseringen misslyckades"
+    },
+    "rate_limited": {
+      "message": "Vänta en stund och försök igen.",
+      "title": "För många förfrågningar"
+    },
+    "response_validation_error": {
+      "message": "Servern svarade, men data hade inte det format som förväntades.",
+      "title": "Det gick inte att visa data"
+    },
+    "sisu_resource_not_found": {
+      "message": "Det gick inte att hitta resurser i Sisu.",
+      "title": "Resurserna hittades inte"
+    },
+    "unauthorized": {
+      "message": "Logga in och försök igen.",
+      "title": "Inte inloggad"
+    },
+    "validation_error": {
+      "message": "Kontrollera det du har angett och försök igen.",
+      "title": "Ogiltig inmatning"
+    },
+    "validation_error_with_metadata": {
+      "message": "Kontrollera det markerade innehållet och försök igen.",
+      "title": "Ogiltig inmatning"
     }
   },
+  "error-message-key-line": "Meddelandenyckel: {{messageKey}}",
+  "error-multiple-errors-occurred": "Flera fel inträffade",
   "error-original-message": "Originalmeddelande",
   "error-page-without-course": "Fel: Sidan är inte associerad med någon kurs",
   "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
+  "error-request-cancelled": "Förfrågan avbröts",
+  "error-request-failed": "Förfrågan misslyckades",
   "error-request-id": "Begäran ID: {{requestId}}",
+  "error-retry-after": "Försök igen om: {{seconds}} s",
   "error-show-details": "Visa detaljer",
+  "error-source-method": "Metod: {{method}}",
+  "error-source-url": "URL: {{url}}",
   "error-status": "Status: {{status}}",
   "error-title": "Fel",
+  "error-too-many-requests": "För många förfrågningar. Försök igen senare.",
   "error-type": "Typ: {{type}}",
+  "error-unexpected-error": "Oväntat fel",
+  "error-zod-issue": {
+    "invalid_format": "Förväntade sig {{format}}",
+    "invalid_format_pattern": "Förväntade sig ett format som matchar {{pattern}}",
+    "invalid_type": "Förväntade sig {{expected}}, fick {{received}}",
+    "too_big": "Måste vara {{comparator}} {{maximum}}",
+    "too_small": "Måste vara {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Okända nycklar: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Valideringsfel vid",
+  "errorNotice.code": "Kod",
+  "errorNotice.copyReport": "Kopiera felrapport",
+  "errorNotice.detail": "Detaljer",
+  "errorNotice.messageKey": "Meddelandenyckel",
+  "errorNotice.method": "Metod",
+  "errorNotice.page": "Sida",
+  "errorNotice.rawResponse": "Obearbetat svar",
+  "errorNotice.requestId": "Begärans ID",
+  "errorNotice.retry": "Försök igen",
+  "errorNotice.retryAfter": "Försök igen efter",
+  "errorNotice.seconds": "{{seconds}} s",
+  "errorNotice.stackTrace": "Stackspårning",
   "errorNotice.status": "Status",
+  "errorNotice.technicalDetails": "Tekniska detaljer",
+  "errorNotice.time": "Tid",
   "errorNotice.type": "Typ",
+  "errorNotice.url": "URL",
   "failed-to-send-message": "Misslyckades med att skicka meddelande",
   "go-to-error": "Gå till fel",
   "label-error-loading": "Fel vid laddning av data.",

@@ -73,8 +73,10 @@ import {
   redoEditorHistory,
   undoEditorHistory,
 } from "../../utils/Gutenberg/editorHistory"
+import { normalizePasteEvent } from "../../utils/Gutenberg/paste/normalizePasteEvent"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
+import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
 import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
@@ -405,6 +407,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [])
 
   useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/fileIframePreview", withFileIframePreview)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/fileIframePreview")
+    }
+  }, [])
+
+  useEffect(() => {
     addFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset", withImageFocalPointReset)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset")
@@ -473,6 +482,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 
   return (
     <div
+      onPasteCapture={(event) => normalizePasteEvent(event.nativeEvent)}
       className={css`
         padding-top: 1rem;
         --start-sidebar-top-px: ${sideBarStartingYCoordinate}px;

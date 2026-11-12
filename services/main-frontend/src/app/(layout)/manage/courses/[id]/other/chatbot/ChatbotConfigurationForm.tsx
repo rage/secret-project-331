@@ -7,11 +7,13 @@ import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ContentDisplayBox from "@/app/(layout)/manage/course-auditing/CourseCard/ContentDisplayBox"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
   getChatbotModelsOptions,
+  setChatbotCourseDesignerAssistantMutation as setCourseDesignerAssistantMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   ChatbotConfiguration,
@@ -43,6 +45,7 @@ import {
   TextField,
   useDialog,
 } from "@/shared-module/components"
+import { sanitizeChatbotName } from "@/utils/sanitizeChatbotName"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
 import { headingsCss, itemsContainerCss } from "./styles"
@@ -65,13 +68,18 @@ type ConfigureChatbotFields = Omit<
   | "weekly_tokens_per_user"
   | "max_output_tokens"
   | "enabled_tool_categories"
-> & { suggested_messages: Message[]; tool_categories: Record<ToolCategory, boolean> }
+> & {
+  suggested_messages: Message[]
+  tool_categories: Record<ToolCategory, boolean>
+  course_designer_assistant: boolean
+}
 
 type ToolCategoryUiGroup =
   | "course-assistance"
   | "course-discovery"
   | "interaction"
   | "admin-support"
+  | "course-planning"
 
 /**
  * One entry per `ToolCategory` variant -- missing one here is a compile error. `labelKey` is a
@@ -102,6 +110,7 @@ const TOOL_CATEGORY_META = {
     group: "admin-support",
     labelKey: "tool-category-admin-support-academic-integrity-label",
   },
+  course_planning: { group: "course-planning", labelKey: "tool-category-course-planning-label" },
 } as const satisfies Record<ToolCategory, { group: ToolCategoryUiGroup; labelKey: string }>
 
 const TOOL_CATEGORY_GROUP_HEADING_KEY = {
@@ -116,6 +125,7 @@ const TOOL_CATEGORY_GROUP_ORDER: ToolCategoryUiGroup[] = [
   "course-discovery",
   "interaction",
   "admin-support",
+  "course-planning",
 ]
 
 function categoriesInGroup(group: ToolCategoryUiGroup): ToolCategory[] {
@@ -156,12 +166,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       use_azure_search: oldChatbotConf.use_azure_search,
+      publicly_accessible: oldChatbotConf.publicly_accessible,
+      embeddable: oldChatbotConf.embeddable,
       tool_categories: Object.fromEntries(
         TOOL_CATEGORY_LEAVES.map((category) => [
           category,
           oldChatbotConf.enabled_tool_categories.includes(category),
         ]),
       ) as Record<ToolCategory, boolean>,
+      course_designer_assistant: oldChatbotConf.course_designer_assistant,
       hide_citations: oldChatbotConf.hide_citations,
       use_semantic_reranking: oldChatbotConf.use_semantic_reranking,
       suggest_next_messages: oldChatbotConf.suggest_next_messages,
@@ -194,6 +207,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
 
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
+  const embeddableFieldValue = watch("embeddable")
   const useAzureSearchFieldValue = watch("use_azure_search")
   const toolCategoriesFieldValue = watch("tool_categories")
   const noToolCategoriesEnabled = TOOL_CATEGORY_LEAVES.every(
@@ -222,6 +236,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
   )
 
+  const setCourseDesignerAssistantMutation = useToastMutationOptions(
+    setCourseDesignerAssistantMutationOptions(),
+    {
+      notify: false,
+    },
+    {
+      onSuccess: () => {
+        chatbotQueryRefetch()
+      },
+    },
+  )
+
   const deleteChatbotMutation = useToastMutationOptions(
     deleteChatbotMutationOptions(),
     {
@@ -238,7 +264,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       },
     },
   )
-
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
       throw new Error("handleSubmit triggered without an event")
@@ -278,7 +303,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         ),
         suggest_next_messages: data.suggest_next_messages,
         initial_suggested_messages: data.suggested_messages.map((v) => v.message),
-        publicly_accessible: oldChatbotConf.publicly_accessible, // not editable in this form
+        publicly_accessible: data.publicly_accessible,
+        embeddable: data.embeddable ?? false,
         default_chatbot: oldChatbotConf.default_chatbot, // not editable in this form
         chatbotconf_id: null,
       },
@@ -286,6 +312,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
       },
     })
+
+    if (
+      canEditAdminToolCategories &&
+      data.course_designer_assistant !== oldChatbotConf.course_designer_assistant
+    ) {
+      await setCourseDesignerAssistantMutation.mutateAsync({
+        body: { course_designer_assistant: data.course_designer_assistant },
+        path: {
+          chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
+        },
+      })
+    }
 
     if (event.submitter.name === "preview") {
       // The preview modal starts a fresh conversation on open so it reflects the just-saved config.
@@ -568,6 +606,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           </div>
                         )
                       })}
+                      {canEditAdminToolCategories && oldChatbotConf.course_id && (
+                        <Checkbox
+                          control={control}
+                          label={t("chatbot-course-designer-assistant-label")}
+                          name={"course_designer_assistant"}
+                        />
+                      )}
                       {noToolCategoriesEnabled && (
                         <Infobox
                           // oxlint-disable-next-line i18next/no-literal-string
@@ -578,24 +623,55 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       )}
                     </div>
                     <div className={itemsContainerCss}>
-                      <h4>{t("citations-and-search-tuning")}</h4>
-                      <div
-                        className={css`
-                          margin: 20px 20px;
-                        `}
-                      >
-                        <Checkbox
-                          control={control}
-                          label={t("hide-citations")}
-                          name={"hide_citations"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
-                        <Checkbox
-                          control={control}
-                          label={t("use-semantic-reranking")}
-                          name={"use_semantic_reranking"}
-                          isDisabled={!useAzureSearchFieldValue}
-                        />
+                      <div className={itemsContainerCss}>
+                        <h4>{t("citations-and-search-tuning")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("hide-citations")}
+                            name={"hide_citations"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                          <Checkbox
+                            control={control}
+                            label={t("use-semantic-reranking")}
+                            name={"use_semantic_reranking"}
+                            isDisabled={!useAzureSearchFieldValue}
+                          />
+                        </div>
+                      </div>
+                      <div className={itemsContainerCss}>
+                        <h4>{t("chatbot-access-title")}</h4>
+                        <div
+                          className={css`
+                            margin: 20px 20px;
+                          `}
+                        >
+                          <Checkbox
+                            control={control}
+                            label={t("publicly-accessible")}
+                            name={"publicly_accessible"}
+                          />
+                          <Checkbox control={control} label={t("embeddable")} name={"embeddable"} />
+                          <ContentDisplayBox
+                            label={t("iframe-embed-code-title")}
+                            content={
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '<iframe title="' +
+                              sanitizeChatbotName(oldChatbotConf.chatbot_name) +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '" width="100%" height="600" src="https://courses.mooc.fi/chatbot-embed/' +
+                              oldChatbotConf.id +
+                              // oxlint-disable-next-line i18next/no-literal-string
+                              '"></iframe>'
+                            }
+                            isVisible={embeddableFieldValue ?? false}
+                          ></ContentDisplayBox>
+                        </div>
                       </div>
                     </div>
                     {!selectedModelThinking && (

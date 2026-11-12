@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO agent_changeset_entities (\n    changeset_id,\n    entity_type,\n    entity_id,\n    base_snapshot,\n    after_snapshot,\n    label,\n    revision\n  )\nSELECT $1,\n  k.entity_type,\n  k.entity_id,\n  k.base::jsonb,\n  k.after::jsonb,\n  k.label,\n  $2\nFROM UNNEST(\n    $3::content_entity_type [],\n    $4::uuid [],\n    $5::text [],\n    $6::text [],\n    $7::text []\n  ) AS k(entity_type, entity_id, base, after, label)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        {
+          "Custom": {
+            "name": "content_entity_type[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "content_entity_type",
+                  "kind": {
+                    "Enum": [
+                      "page",
+                      "chapter",
+                      "module",
+                      "course_settings",
+                      "glossary_term",
+                      "reference",
+                      "course_default_review_config"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "UuidArray",
+        "TextArray",
+        "TextArray",
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "05409ca0c56cca4bcd39a65d55b00d66b12015eacefd54948e4325bb2b989ab0"
+}

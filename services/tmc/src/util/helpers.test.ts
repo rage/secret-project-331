@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto"
+import { buffer } from "node:stream/consumers"
 import { zstdCompressSync } from "node:zlib"
 
 import tar from "tar-stream"
@@ -17,11 +18,7 @@ const packTarZstd = async (filepath: string, contents: string): Promise<Buffer> 
   // extractTarZstd strips the project directory every tmc archive is rooted at.
   pack.entry({ name: `project/${filepath}` }, contents)
   pack.finalize()
-  const chunks: Uint8Array[] = []
-  for await (const chunk of pack) {
-    chunks.push(chunk)
-  }
-  return Buffer.from(zstdCompressSync(Buffer.concat(chunks)))
+  return Buffer.from(zstdCompressSync(await buffer(pack)))
 }
 
 describe("extractTarZstd", () => {

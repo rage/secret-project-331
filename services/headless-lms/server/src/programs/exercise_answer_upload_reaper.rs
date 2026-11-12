@@ -153,6 +153,14 @@ mod tests {
             unimplemented!("not reached by the reaper")
         }
 
+        async fn get_direct_attachment_download_url(
+            &self,
+            _path: &Path,
+            _file_name: &str,
+        ) -> UtilResult<String> {
+            unimplemented!("not reached by the reaper")
+        }
+
         async fn delete(&self, path: &Path) -> UtilResult<()> {
             self.deleted
                 .lock()
@@ -209,7 +217,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -263,7 +271,7 @@ mod tests {
         .expect("binding");
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -316,7 +324,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -363,7 +371,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::days(8)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let file_store = RecordingFileStore::default();
@@ -417,6 +425,14 @@ mod tests {
             unimplemented!("not reached by the reaper")
         }
 
+        async fn get_direct_attachment_download_url(
+            &self,
+            _path: &Path,
+            _file_name: &str,
+        ) -> UtilResult<String> {
+            unimplemented!("not reached by the reaper")
+        }
+
         async fn delete(&self, path: &Path) -> UtilResult<()> {
             self.attempts
                 .lock()
@@ -466,7 +482,7 @@ mod tests {
         backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
         tx.commit().await;
 
-        let pool = PgPool::connect(&test_database_url())
+        let pool = PgPool::connect(&dev_database_url())
             .await
             .expect("test pool");
         let failing = FailingFileStore::default();

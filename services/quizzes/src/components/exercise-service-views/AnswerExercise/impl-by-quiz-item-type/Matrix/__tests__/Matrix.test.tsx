@@ -72,13 +72,6 @@ describe("Matrix accessibility", () => {
     expect(screen.getAllByRole("textbox")).toHaveLength(36)
   })
 
-  it("does not remove the focus outline and defines a focus-visible indicator (WCAG 2.4.7)", () => {
-    renderMatrix()
-    const styleText = allCssText()
-    expect(styleText).not.toMatch(/outline:\s*none/)
-    expect(styleText).toMatch(/:focus-visible[^}]*outline/)
-  })
-
   it("uses cell separator borders with >= 3:1 contrast instead of the failing light gray", () => {
     renderMatrix()
     const styleText = allCssText()

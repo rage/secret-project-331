@@ -80,8 +80,8 @@ pub(crate) struct RefusedRow<K> {
     pub audit: ExchangeAudit,
 }
 
-/// The exchange behind one row's answer, as its ledger event records it. No `Debug`: the bodies are
-/// unscrubbed, and are scrubbed only on their way into the event row.
+/// The exchange behind one row's answer, as its ledger event records it. No `Debug`: the bodies carry
+/// student numbers.
 pub(crate) struct ExchangeAudit {
     /// `suotar_api_calls.id`; `None` on a refusal, or when the call row could not be written.
     pub call_id: Option<Uuid>,

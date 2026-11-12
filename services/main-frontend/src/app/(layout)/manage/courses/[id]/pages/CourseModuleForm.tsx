@@ -57,6 +57,7 @@ export interface CourseModuleFormFields {
   automatic_completion_requires_exam: boolean
   override_completion_link: boolean
   completion_registration_link_override: string
+  completions_can_be_registered_to_sisu: boolean
 }
 
 /** Shorter than this is a fragment, not a link a student can follow. */
@@ -146,6 +147,7 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   automatic_completion_requires_exam: module.automatic_completion_requires_exam,
   override_completion_link: module.completion_registration_link_override !== null,
   completion_registration_link_override: module.completion_registration_link_override ?? "",
+  completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
 })
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
@@ -158,10 +160,10 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   if (module.ects_credits !== null) {
     parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
-  if (
-    registersCredits(module.uh_course_code) &&
-    !module.completion_registration_link_override?.trim()
-  ) {
+  if (module.uh_course_code && !module.completions_can_be_registered_to_sisu) {
+    parts.push(t("module-summary-sisu-registration-off"))
+  }
+  if (registersCredits(module) && !module.completion_registration_link_override?.trim()) {
     parts.push(t("module-summary-no-enrolment-link"))
   }
   if (parts.length === 0) {
@@ -210,7 +212,10 @@ const CourseModuleForm: React.FC<Props> = ({
   }, [reset, module, chapters])
   const automaticCompletion = watch("automatic_completion")
   const overrideLink = watch("override_completion_link")
-  const registersToStudyRegistry = registersCredits(watch("uh_course_code"))
+  const registersToStudyRegistry = registersCredits({
+    uh_course_code: watch("uh_course_code"),
+    completions_can_be_registered_to_sisu: watch("completions_can_be_registered_to_sisu"),
+  })
   // Without this, adding a course code shows up only as a disabled Done button, and removing it
   // again leaves the message it raised under a field nothing requires any more.
   useEffect(() => {
@@ -240,7 +245,7 @@ const CourseModuleForm: React.FC<Props> = ({
   }))
   const hasConfigProblem = hasCreditRegistrationConfigProblem(creditRegistrationConfig)
   const courseCodeFoundInSisu =
-    registersCredits(module.uh_course_code) &&
+    registersCredits(module) &&
     creditRegistrationConfig?.credit_registration_course_code_allowed === true
   const nameIsEditable = isCreate || module.name !== null
 
@@ -271,7 +276,7 @@ const CourseModuleForm: React.FC<Props> = ({
           {hasUnsavedChanges && <Badge tone={TONE.WARNING}>{t("badge-unsaved-changes")}</Badge>}
           {!editing && (
             <>
-              {registersCredits(module.uh_course_code) && (
+              {registersCredits(module) && (
                 <Badge tone={TONE.INFO}>{t("badge-registers-to-study-registry")}</Badge>
               )}
               {hasConfigProblem && (
@@ -404,6 +409,12 @@ const CourseModuleForm: React.FC<Props> = ({
                 })}
               </p>
             )}
+            <Checkbox
+              name="completions_can_be_registered_to_sisu"
+              control={control}
+              label={t("completions-can-be-registered-to-sisu")}
+              description={t("description-completions-can-be-registered-to-sisu")}
+            />
           </fieldset>
 
           <fieldset className={groupCss}>

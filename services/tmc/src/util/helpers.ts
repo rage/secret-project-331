@@ -64,7 +64,7 @@ export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFi
     const filepath = header.name.slice(header.name.indexOf("/") + 1)
     const chunks: Uint8Array[] = []
     stream.on("data", (chunk) => {
-      chunks.push(new Uint8Array(chunk))
+      chunks.push(new Uint8Array(chunk as Uint8Array))
     })
     stream.on("end", () => {
       if (header.type === "file") {
@@ -75,9 +75,9 @@ export const extractTarZstd = async (tarZstdArchive: Buffer): Promise<ExerciseFi
     })
     stream.resume()
   })
-  const waitForExtract = new Promise((resolve, reject) => {
-    extract.on("finish", resolve)
-    extract.on("close", resolve)
+  const waitForExtract = new Promise<void>((resolve, reject) => {
+    extract.on("finish", () => resolve())
+    extract.on("close", () => resolve())
     extract.on("error", reject)
   })
   extract.end(tarArchive)

@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pending_roles\nSET deleted_at = NOW()\nWHERE lower(user_email) = lower($1)\n  AND role = $2\n  AND organization_id IS NOT DISTINCT FROM $3\n  AND course_id IS NOT DISTINCT FROM $4\n  AND course_instance_id IS NOT DISTINCT FROM $5\n  AND exam_id IS NOT DISTINCT FROM $6\n  AND is_global = $7\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "user_role",
+            "kind": {
+              "Enum": [
+                "admin",
+                "assistant",
+                "teacher",
+                "reviewer",
+                "course_or_exam_creator",
+                "material_viewer",
+                "teaching_and_learning_services",
+                "stats_viewer",
+                "credit_registration_admin"
+              ]
+            }
+          }
+        },
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c7e65f10cb32df0bfdccf4c130f0b5a054c2ccc84f1f26370563bb6473e3a6e4"
+}

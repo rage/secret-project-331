@@ -7,7 +7,8 @@ use crate::prelude::*;
 
 use super::payload::CompletionFacts;
 
-/// The module's fields, the linked student number and the completion, for one ledger row.
+/// The module's or mooc.fi target's fields, the linked student number and the completion, for one
+/// ledger row.
 #[derive(Debug, Clone)]
 pub struct SubmissionContext {
     pub registration_id: Uuid,
@@ -31,21 +32,22 @@ pub async fn get_submission_contexts(
 SELECT cr.id,
   vsn.student_number AS "student_number?",
   vsn.sisu_person_id AS "sisu_person_id?",
-  cm.uh_course_code,
-  cm.ects_credits,
-  cmc.passed,
-  cmc.grade,
-  cmc.completion_date,
-  cmc.completion_language
+  s.uh_course_code,
+  s.ects_credits,
+  -- An unrecognised mooc.fi grade blocks the row before anything is built from this.
+  COALESCE(s.passed, FALSE) AS "passed!",
+  s.grade,
+  s.completion_date AS "completion_date!",
+  s.completion_language AS "completion_language!"
 FROM credit_registrations cr
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
-  AND cmc.deleted_at IS NULL
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  AND cm.deleted_at IS NULL
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+  AND NOT s.is_withdrawn
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN verified_student_numbers vsn ON vsn.user_id = cr.user_id
   AND vsn.deleted_at IS NULL
 WHERE cr.id = ANY($1::uuid [])
   AND cr.deleted_at IS NULL
+  AND cm.deleted_at IS NULL
         "#,
         registration_ids,
     )

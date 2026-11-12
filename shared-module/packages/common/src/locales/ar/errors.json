@@ -4,8 +4,14 @@
   "default-toast-error-title": "خطأ",
   "dynamic-import-error-boundary-reload": "إعادة تحميل الصفحة",
   "dynamic-import-error-boundary-title": "حدث خطأ أثناء تحميل هذا الجزء من الصفحة.",
+  "error-code": "الرمز: {{code}}",
   "error-hide-details": "إخفاء التفاصيل",
   "error-issue": "المشكلة: {{issue}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "نوع التمرين مفقود لمهمة التمرين."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "يرجى تسجيل الدخول لعرض تمارين الامتحان.",
@@ -14,18 +20,107 @@
     "chapter_not_open_yet": {
       "message": "هذا الفصل غير مفتوح بعد.",
       "title": "الفصل مغلق"
+    },
+    "course_slug_already_taken": {
+      "message": "دورة أخرى تستخدم هذا المعرّف المختصر (slug) بالفعل. يرجى اختيار معرّف آخر.",
+      "title": "المعرّف المختصر (slug) مستخدم بالفعل"
+    },
+    "forbidden": {
+      "message": "ليست لديك صلاحية لتنفيذ هذا الإجراء.",
+      "title": "غير مسموح"
+    },
+    "foreign_key_violation": {
+      "message": "فشل الإدراج أو التحديث في الجدول '{{table}}' بسبب القيد '{{constraint}}'. تحقق من البيانات المرتبطة بالقيد وحاول مرة أخرى.",
+      "title": "انتهاك المفتاح الخارجي"
+    },
+    "generic_sisu_error": {
+      "message": "حدث خطأ أثناء إنشاء الوصف",
+      "title": "تعذّر إنشاء الوصف"
+    },
+    "internal_error": {
+      "message": "يرجى المحاولة مرة أخرى بعد قليل.",
+      "title": "حدث خطأ ما"
+    },
+    "invalid_course_code": {
+      "message": "تأكد من أن رموز مقررات جامعة هلسنكي المدخلة في الوحدات صحيحة.",
+      "title": "تعذّر إنشاء الوصف"
+    },
+    "not_found": {
+      "message": "تعذّر العثور على المورد المطلوب.",
+      "title": "غير موجود"
+    },
+    "oauth_error": {
+      "message": "يرجى تسجيل الدخول مرة أخرى.",
+      "title": "فشلت المصادقة"
+    },
+    "rate_limited": {
+      "message": "يرجى الانتظار ثم المحاولة مرة أخرى.",
+      "title": "عدد كبير جدًا من الطلبات"
+    },
+    "response_validation_error": {
+      "message": "ردّ الخادم بنجاح، لكن البيانات لم تكن بالتنسيق المتوقع.",
+      "title": "تعذّر عرض البيانات"
+    },
+    "sisu_resource_not_found": {
+      "message": "تعذّر العثور على موارد من Sisu.",
+      "title": "الموارد غير موجودة"
+    },
+    "unauthorized": {
+      "message": "يرجى تسجيل الدخول ثم المحاولة مرة أخرى.",
+      "title": "غير مصرّح"
+    },
+    "validation_error": {
+      "message": "يرجى التحقق مما أدخلته وحاول مرة أخرى.",
+      "title": "إدخال غير صالح"
+    },
+    "validation_error_with_metadata": {
+      "message": "يرجى التحقق من المحتوى المميّز وحاول مرة أخرى.",
+      "title": "إدخال غير صالح"
     }
   },
+  "error-message-key-line": "مفتاح الرسالة: {{messageKey}}",
+  "error-multiple-errors-occurred": "حدثت عدة أخطاء",
   "error-original-message": "الرسالة الأصلية",
   "error-page-without-course": "خطأ: الصفحة غير مرتبطة بأي دورة",
   "error-part-of-page-has-crashed-error": "تعطل جزء من الصفحة: {{error}}",
+  "error-request-cancelled": "أُلغي الطلب",
+  "error-request-failed": "فشل الطلب",
   "error-request-id": "معرف الطلب: {{requestId}}",
+  "error-retry-after": "أعد المحاولة بعد: {{seconds}} ث",
   "error-show-details": "إظهار التفاصيل",
+  "error-source-method": "الطريقة: {{method}}",
+  "error-source-url": "عنوان URL: {{url}}",
   "error-status": "الحالة: {{status}}",
   "error-title": "خطأ",
+  "error-too-many-requests": "عدد كبير جدًا من الطلبات. يرجى المحاولة لاحقًا.",
   "error-type": "النوع: {{type}}",
+  "error-unexpected-error": "خطأ غير متوقع",
+  "error-zod-issue": {
+    "invalid_format": "المتوقع: {{format}}",
+    "invalid_format_pattern": "المتوقع تنسيق يطابق {{pattern}}",
+    "invalid_type": "المتوقع {{expected}}، لكن المستلم {{received}}",
+    "too_big": "يجب أن تكون القيمة {{comparator}} {{maximum}}",
+    "too_small": "يجب أن تكون القيمة {{comparator}} {{minimum}}",
+    "unrecognized_keys": "مفاتيح غير معروفة: {{keys}}"
+  },
+  "error-zod-issue-prefix": "مشكلة في التحقق عند",
+  "errorNotice.code": "الرمز",
+  "errorNotice.copyReport": "نسخ تقرير الخطأ",
+  "errorNotice.detail": "التفاصيل",
+  "errorNotice.messageKey": "مفتاح الرسالة",
+  "errorNotice.method": "الطريقة",
+  "errorNotice.page": "الصفحة",
+  "errorNotice.rawResponse": "الاستجابة الخام",
+  "errorNotice.requestId": "معرّف الطلب",
+  "errorNotice.retry": "إعادة المحاولة",
+  "errorNotice.retryAfter": "أعد المحاولة بعد",
+  "errorNotice.seconds": "{{seconds}} ث",
+  "errorNotice.stackTrace": "تتبّع المكدّس",
   "errorNotice.status": "الحالة",
+  "errorNotice.technicalDetails": "التفاصيل التقنية",
+  "errorNotice.time": "الوقت",
   "errorNotice.type": "النوع",
+  "errorNotice.url": "عنوان URL",
   "failed-to-send-message": "فشل في إرسال الرسالة",
   "go-to-error": "اذهب إلى الخطأ",
   "label-error-loading": "خطأ في تحميل البيانات.",

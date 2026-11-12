@@ -12,6 +12,9 @@ const SOURCE_ROOT = join(import.meta.dirname, "..", "..", "src")
 /** The debug modal shows serialized HTML to teachers; nothing persists or re-reads it. */
 const FILES_ALLOWED_TO_SERIALIZE = ["components/SerializeGutenbergModal.tsx"]
 
+/** Classifies clipboard text with Gutenberg's paste handling and discards the blocks it returns. */
+const FILES_ALLOWED_TO_DRY_RUN_PASTE = ["utils/Gutenberg/paste/normalizePasteEvent.ts"]
+
 /** Anything that turns block markup back into blocks, or block state into markup. */
 const FORBIDDEN_BLOCK_HTML_IMPORTS = [
   "parse",
@@ -96,9 +99,30 @@ describe("stored page content stays block JSON", () => {
     const parsingImports = blocksPackageImports.flatMap(({ file, imported }) =>
       imported
         .filter((name) => FORBIDDEN_BLOCK_HTML_IMPORTS.includes(name))
+        .filter((name) => name !== "pasteHandler" || !FILES_ALLOWED_TO_DRY_RUN_PASTE.includes(file))
         .map((name) => `${file}: ${name}`),
     )
 
     expect(parsingImports).toEqual([])
+  })
+})
+
+describe("custom block attributes survive copy and paste", () => {
+  // Copying serializes blocks and pasting parses them back. Custom saves render only the inner
+  // blocks, so an attribute sourced from the save markup comes back empty.
+  const registrations = sources.filter(
+    ({ file }) => file.startsWith("blocks/") && file.endsWith("/index.tsx"),
+  )
+
+  it("finds the custom block registrations", () => {
+    expect(registrations.length).toBeGreaterThan(20)
+  })
+
+  it("keeps every attribute in the block comment, without a source", () => {
+    const sourced = registrations
+      .filter(({ source }) => /\bsource:\s*"/.test(source))
+      .map(({ file }) => file)
+
+    expect(sourced).toEqual([])
   })
 })

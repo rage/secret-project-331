@@ -19,13 +19,14 @@ use actix_web::FromRequest;
 use exercise_services_api as api;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::UserExerciseState;
+use headless_lms_utils::course_url::course_page_url;
+use headless_lms_utils::version::Version;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::HashMap;
 use std::future::{Ready, ready};
-use url::Url;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -66,16 +67,6 @@ const CLIENT_VERSION_HEADER: &str = "X-Client-Version";
 /// `"major.minor.patch"` string rejects older clients with `426 Upgrade Required`.
 const MINIMUM_CLIENT_VERSION: Option<&str> = None;
 
-/// Parses a `major.minor.patch` version string into a comparable tuple. Missing
-/// minor/patch components default to `0`; a malformed string returns `None`.
-fn parse_version(version: &str) -> Option<(u64, u64, u64)> {
-    let mut parts = version.trim().split('.');
-    let major = parts.next()?.parse().ok()?;
-    let minor = parts.next().unwrap_or("0").parse().ok()?;
-    let patch = parts.next().unwrap_or("0").parse().ok()?;
-    Some((major, minor, patch))
-}
-
 /// Rejects clients older than `minimum` with `426 Upgrade Required`; a `None` minimum
 /// passes everything. When a minimum is set, a missing or unparseable client version
 /// counts as obsolete.
@@ -86,9 +77,9 @@ fn check_client_version(
     let Some(minimum) = minimum else {
         return Ok(());
     };
-    let minimum_parsed = parse_version(minimum);
+    let minimum_parsed = Version::parse(minimum);
     if let (Some(client), Some(minimum_parsed)) =
-        (client_version.and_then(parse_version), minimum_parsed)
+        (client_version.and_then(Version::parse), minimum_parsed)
         && client >= minimum_parsed
     {
         return Ok(());
@@ -334,7 +325,7 @@ async fn get_course_exercises(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course).await?;
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
@@ -399,21 +390,6 @@ async fn get_course_exercises(
     }
 
     token.authorized_ok(web::Json(slides))
-}
-
-/// The public URL of a course material page, or `None` when `base_url` is not a valid URL.
-fn course_page_url(
-    base_url: &str,
-    organization_slug: &str,
-    course_slug: &str,
-    page_url_path: &str,
-) -> Option<String> {
-    let mut url = Url::parse(base_url).ok()?;
-    // `set_path` percent-encodes, which the stored path needs: it keeps non-ASCII verbatim.
-    url.set_path(&format!(
-        "/org/{organization_slug}/courses/{course_slug}{page_url_path}"
-    ));
-    Some(url.to_string())
 }
 
 /// The user's progress on an exercise of the given course, with `state` their exercise state
@@ -622,6 +598,23 @@ async fn get_exercise(
     .await?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    // Before selecting a slide, which would be stored for the user even before the exam starts.
+    if exercise.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
+    if let Some(course_id) = exercise.course_id {
+        // The material and the chapter must be open to the user, as in the course material.
+        crate::domain::authorization::authorize_access_to_course_exercise(
+            &mut conn,
+            Some(user.id),
+            course_id,
+            exercise.chapter_id,
+        )
+        .await?;
+    }
     let (exercise_slide, course_or_exam_id) = models::exercises::get_or_select_exercise_slide(
         &mut conn,
         Some(user.id),
@@ -854,6 +847,14 @@ async fn upload_exercise_files(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
@@ -992,6 +993,14 @@ async fn submit_exercise(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
+    // The material and the chapter must be open to the user, as in the course material.
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
@@ -1100,6 +1109,13 @@ async fn get_submission_grading(
         user.id,
         "Cannot view another user's submission grading".to_string(),
     )?;
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if slide_submission.exam_id.is_some() {
+        return Err(controller_err!(
+            NotFound,
+            "This submission belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
     let token = skip_authorize();
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
@@ -1168,6 +1184,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1181,6 +1198,17 @@ async fn get_exercise_submissions(
     let mut conn = pool.acquire().await?;
     // The query is scoped to the current user, so no further authorization is needed.
     let token = skip_authorize();
+    // The exam view hides gradings while the exam runs; this API must not reveal them either.
+    if models::exercises::get_by_id(&mut conn, *exercise_id)
+        .await?
+        .exam_id
+        .is_some()
+    {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    }
 
     // One query for the whole listing, gradings joined in: an editor slide has a single task, so
     // its grading is the slide's grading.
@@ -1424,25 +1452,6 @@ mod tests {
     }
 
     #[test]
-    fn course_page_url_percent_encodes_the_stored_path() {
-        assert_eq!(
-            course_page_url(
-                "https://courses.mooc.fi",
-                "uh-cs",
-                "java",
-                "/chapter-1/tehtävä"
-            )
-            .as_deref(),
-            Some("https://courses.mooc.fi/org/uh-cs/courses/java/chapter-1/teht%C3%A4v%C3%A4")
-        );
-    }
-
-    #[test]
-    fn course_page_url_needs_a_valid_base_url() {
-        assert_eq!(course_page_url("not a url", "org", "course", "/"), None);
-    }
-
-    #[test]
     fn progress_without_state_is_zero_and_untouched() {
         let p = derive_exercise_progress(Uuid::nil(), 5, None, false);
         assert_eq!(p.score_given, 0.0);
@@ -1544,14 +1553,6 @@ mod tests {
         assert!(check_client_version(Some("0.39.3"), Some("0.39.4")).is_err());
         assert!(check_client_version(None, Some("0.39.4")).is_err());
         assert!(check_client_version(Some("not-a-version"), Some("0.39.4")).is_err());
-    }
-
-    #[test]
-    fn parse_version_defaults_missing_components_to_zero() {
-        assert_eq!(parse_version("1"), Some((1, 0, 0)));
-        assert_eq!(parse_version("1.2"), Some((1, 2, 0)));
-        assert_eq!(parse_version("1.2.3"), Some((1, 2, 3)));
-        assert_eq!(parse_version("x"), None);
     }
 
     // submit_exercise builds this exact error for a not-enrolled user; assert it produces the
@@ -1822,7 +1823,8 @@ mod upload_tests {
     use crate::test_helper::*;
     use actix_web::http::header::{CONTENT_TYPE, HeaderMap};
     use headless_lms_base::config::{
-        ApplicationConfiguration, OAuthServerConfiguration, SuotarConfiguration,
+        ApplicationConfiguration, MoocfiConfiguration, OAuthServerConfiguration,
+        SuotarConfiguration,
     };
     use headless_lms_base::jwt::DEVELOPMENT_JWT_PASSWORD;
     use models::exercise_slide_submissions::NewExerciseSlideSubmission;
@@ -1850,15 +1852,19 @@ mod upload_tests {
             test_chatbot: false,
             test_sisu: false,
             test_suotar: false,
+            test_moocfi: false,
             disable_embedding_vector_creation_when_seeding: false,
             suotar_configuration: SuotarConfiguration::mock_conf("http://project-331.local")
                 .expect("Failed to build the mock Suotar configuration"),
+            moocfi_configuration: MoocfiConfiguration::mock_conf("http://project-331.local")
+                .expect("Failed to build the mock mooc.fi configuration"),
             development_uuid_login: false,
             enable_email_ownership_verification: false,
             azure_configuration: None,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock".to_string().into()),
             jwt_password: SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into()),
+            mcp_configuration: None,
             oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "unused".into(),
                 rsa_private_key: SecretString::new("unused".into()),
@@ -2378,6 +2384,7 @@ mod route_tests {
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
+    use headless_lms_models::oauth_user_client_scopes::OAuthUserClientScopes;
     use headless_lms_utils::cache::Cache;
     use headless_lms_utils::file_store::FileStore;
     use models::exercise_task_gradings::ExerciseTaskGradingResult;
@@ -2445,6 +2452,14 @@ mod route_tests {
         )
         .await
         .expect("access token");
+        OAuthUserClientScopes::insert(
+            conn,
+            user,
+            client.id,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+        )
+        .await
+        .expect("grant");
         plaintext
     }
 
@@ -2549,7 +2564,7 @@ mod route_tests {
             client_api_app!(file_store)
         }};
         ($file_store:expr) => {{
-            let pool = PgPool::connect(&test_database_url()).await.expect("pool");
+            let pool = PgPool::connect(&dev_database_url()).await.expect("pool");
             let file_store: Arc<dyn FileStore> = $file_store;
             test::init_service(
                 App::new()
@@ -2744,7 +2759,7 @@ mod route_tests {
     }
 
     async fn expire_deadline(exercise: Uuid) {
-        let mut conn = PgConnection::connect(&test_database_url())
+        let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         models::exercises::set_deadline(
@@ -3327,7 +3342,7 @@ mod route_tests {
     /// store, `file_uploads` rows, and an IFrame-origin binding to this exercise and user — and
     /// returns their ids in order.
     async fn upload_from_the_iframe(fixture: &Fixture, store: &dyn FileStore) -> Vec<Uuid> {
-        let mut conn = PgConnection::connect(&test_database_url())
+        let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         let mut ids = Vec::new();
@@ -3373,7 +3388,7 @@ mod route_tests {
         answer: StudentExerciseTaskSubmission,
         store: &dyn FileStore,
     ) -> Uuid {
-        let mut conn = PgConnection::connect(&test_database_url())
+        let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         let exercise = models::exercises::get_by_id(&mut conn, fixture.exercise)
@@ -3454,7 +3469,7 @@ mod route_tests {
         store: &dyn FileStore,
         body: &serde_json::Value,
     ) -> Vec<(String, String)> {
-        let mut conn = PgConnection::connect(&test_database_url())
+        let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         let mut served = Vec::new();
@@ -3654,7 +3669,7 @@ mod route_tests {
     #[actix_web::test]
     async fn both_course_endpoints_serve_the_courses_ai_policy() {
         let fixture = committed_fixture(true).await;
-        let mut conn = PgConnection::connect(&test_database_url())
+        let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         let course = models::courses::get_course(&mut conn, fixture.course)
@@ -3665,24 +3680,11 @@ mod route_tests {
             &upload_tests::app_conf(),
             fixture.course,
             models::courses::CourseUpdate {
-                name: course.name,
-                description: course.description,
-                is_draft: course.is_draft,
-                is_test_mode: course.is_test_mode,
-                can_add_chatbot: course.can_add_chatbot,
-                is_unlisted: course.is_unlisted,
-                is_joinable_by_code_only: course.is_joinable_by_code_only,
-                ask_marketing_consent: course.ask_marketing_consent,
-                flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or_default(),
-                flagged_answers_skip_manual_review_and_allow_retry: course
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: course.closed_at,
-                closed_additional_message: course.closed_additional_message,
-                closed_course_successor_id: course.closed_course_successor_id,
-                chapter_locking_enabled: course.chapter_locking_enabled,
                 ai_policy: models::courses::CourseAiPolicy::FullUse,
-                course_material_ai_instructions: course.course_material_ai_instructions,
+                ..models::courses::CourseUpdate::from(&course)
             },
+            fixture.user,
+            false,
         )
         .await
         .expect("set ai_policy");

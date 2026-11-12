@@ -98,7 +98,7 @@ async fn set_page_audio(
         let media_path = upload_field_from_cms(
             request.headers(),
             field,
-            StoreKind::Course(course.id),
+            MediaOwner::Course(course.id),
             file_store.as_ref(),
             &mut conn,
             user,

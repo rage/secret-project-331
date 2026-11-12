@@ -176,6 +176,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
         // oxlint-disable-next-line i18next/no-literal-string
         setAddRoleValue("email", "")
         roleQuery.refetch()
+        pendingRolesQuery.refetch()
       },
       onError: setMutationError,
     },
@@ -199,7 +200,10 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       ),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => roleQuery.refetch(),
+      onSuccess: () => {
+        roleQuery.refetch()
+        pendingRolesQuery.refetch()
+      },
       onError: setMutationError,
     },
   )
@@ -207,7 +211,10 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     removeRoleMutationOptions(),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => roleQuery.refetch(),
+      onSuccess: () => {
+        roleQuery.refetch()
+        pendingRolesQuery.refetch()
+      },
       onError: setMutationError,
     },
   )
@@ -377,6 +384,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
           `}
         >
           <h3>{t("title-pending-roles")}</h3>
+          <p>{t("pending-roles-explanation")}</p>
           <ul>
             {pendingRolesQuery.data.map((pendingRole) => (
               <li key={pendingRole.id}>

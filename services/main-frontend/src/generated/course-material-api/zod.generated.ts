@@ -6,7 +6,6 @@
 import * as z from "zod"
 
 /**
- *
  * Indicates what is the user's completion status for a exercise.
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
@@ -97,6 +96,7 @@ export const zChatbotConversation = z.object({
   anonymous_token: z.string().nullish(),
   chatbot_configuration_id: z.uuid(),
   conversation_title: z.string().nullish(),
+  course_designer_plan_id: z.uuid().nullish(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -183,6 +183,12 @@ export const zClientToolName = z.enum([
   "update_cheating_status",
   "edit_user_account",
   "update_certificate",
+  "propose_workspace_edit",
+  "propose_add_task",
+  "propose_update_task",
+  "propose_schedule_adjustment",
+  "propose_section_status",
+  "propose_vision_edit",
 ])
 
 export const zChatbotToolResponse = z.object({
@@ -569,8 +575,6 @@ export const zFeedbackBlock = z.object({
 })
 
 /**
- *
- *
  * Tells what's the status of the grading progress for a user and exercise.
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
@@ -875,26 +879,7 @@ export const zPeerOrSelfReviewQuestion = z.object({
   weight: z.number(),
 })
 
-export const zPeerOrSelfReviewSubmission = z.object({
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  exercise_id: z.uuid(),
-  exercise_slide_submission_id: z.uuid(),
-  id: z.uuid(),
-  peer_or_self_review_config_id: z.uuid(),
-  updated_at: z.iso.datetime(),
-  user_id: z.uuid(),
-})
-
-export const zPeerOrSelfReviewsReceived = z.object({
-  peer_or_self_review_question_submissions: z.array(zPeerOrSelfReviewQuestionSubmission),
-  peer_or_self_review_questions: z.array(zPeerOrSelfReviewQuestion),
-  peer_or_self_review_submissions: z.array(zPeerOrSelfReviewSubmission),
-})
-
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -960,6 +945,23 @@ export const zPrivacyLink = z.object({
   url: z.string(),
 })
 
+/**
+ * A review as its receiver sees it: without the reviewer's identity, which peer review keeps
+ * anonymous.
+ */
+export const zReceivedPeerOrSelfReviewSubmission = z.object({
+  created_at: z.iso.datetime(),
+  exercise_slide_submission_id: z.uuid(),
+  id: z.uuid(),
+  is_self_review: z.boolean(),
+})
+
+export const zPeerOrSelfReviewsReceived = z.object({
+  peer_or_self_review_question_submissions: z.array(zPeerOrSelfReviewQuestionSubmission),
+  peer_or_self_review_questions: z.array(zPeerOrSelfReviewQuestion),
+  peer_or_self_review_submissions: z.array(zReceivedPeerOrSelfReviewSubmission),
+})
+
 export const zReportReason = z.enum(["Spam", "HarmfulContent", "AiGenerated"])
 
 export const zFlaggedAnswer = z.object({
@@ -1015,7 +1017,6 @@ export const zResearchFormQuestionAnswer = z.object({
 })
 
 /**
- *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export const zReviewingStage = z.enum([

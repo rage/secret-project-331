@@ -8,6 +8,8 @@ import { client } from "./client.generated"
 import type {
   GetAuthLoggedInData,
   GetAuthLoggedInResponses,
+  GetAuthSessionStatusData,
+  GetAuthSessionStatusResponses,
   GetAuthUserInfoData,
   GetAuthUserInfoResponses,
   PostAuthAuthorizeData,
@@ -22,6 +24,10 @@ import type {
   PostAuthLogoutResponses,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponses,
+  PostAuthSessionStatusEmailCodeData,
+  PostAuthSessionStatusEmailCodeResponses,
+  PostAuthSessionStatusVerifyData,
+  PostAuthSessionStatusVerifyResponses,
   PostAuthSignupData,
   PostAuthSignupErrors,
   PostAuthSignupResponses,
@@ -30,12 +36,15 @@ import type {
 } from "./types.generated"
 import {
   zGetAuthLoggedInResponse,
+  zGetAuthSessionStatusResponse,
   zGetAuthUserInfoResponse,
   zPostAuthAuthorizeMultipleResponse,
   zPostAuthAuthorizeResponse,
   zPostAuthDeleteUserAccountResponse,
   zPostAuthLoginResponse,
   zPostAuthSendEmailCodeResponse,
+  zPostAuthSessionStatusEmailCodeResponse,
+  zPostAuthSessionStatusVerifyResponse,
   zPostAuthSignupResponse,
   zPostAuthVerifyEmailResponse,
 } from "./zod.generated"
@@ -59,7 +68,6 @@ export type Options<
 }
 
 /**
- *
  * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
  * *
  */
@@ -78,7 +86,6 @@ export const postAuthAuthorize = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
  * Returns booleans for the authorizations in the same order as the input.
  * *
@@ -103,7 +110,6 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -127,7 +133,6 @@ export const postAuthDeleteUserAccount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/auth/logged-in` Returns the current user's login status.
  * *
  */
@@ -142,7 +147,6 @@ export const getAuthLoggedIn = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/login` Logs in to the system.
  * Returns LoginResponse indicating success, email verification required, or failure.
  * *
@@ -162,7 +166,6 @@ export const postAuthLogin = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/logout` Logs out.
  * *
  */
@@ -176,7 +179,6 @@ export const postAuthLogout = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -195,7 +197,68 @@ export const postAuthSendEmailCode = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
+ * GET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an
+ * emailed code: a user with a role on a browser or network they have not confirmed. Only the UI
+ * enforces it.
+ */
+export const getAuthSessionStatus = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAuthSessionStatusData, ThrowOnError>,
+): RequestResult<GetAuthSessionStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAuthSessionStatusResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAuthSessionStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/session-status",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the
+ * session, when [`session_status`] asks for one and no usable code is out already.
+ */
+export const postAuthSessionStatusEmailCode = <ThrowOnError extends boolean = true>(
+  options: Options<PostAuthSessionStatusEmailCodeData, ThrowOnError>,
+): RequestResult<PostAuthSessionStatusEmailCodeResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostAuthSessionStatusEmailCodeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPostAuthSessionStatusEmailCodeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/session-status/email-code",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering
+ * this browser and network for the signed-in user.
+ */
+export const postAuthSessionStatusVerify = <ThrowOnError extends boolean = true>(
+  options: Options<PostAuthSessionStatusVerifyData, ThrowOnError>,
+): RequestResult<PostAuthSessionStatusVerifyResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostAuthSessionStatusVerifyResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zPostAuthSessionStatusVerifyResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/session-status/verify",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
  *
  * # Example
@@ -235,7 +298,6 @@ export const postAuthSignup = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/auth/user-info` Returns the current user's info.
  * *
  */
@@ -250,7 +312,6 @@ export const getAuthUserInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
  * *
  */

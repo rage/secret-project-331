@@ -237,7 +237,7 @@ test("Raising a registered grade starts a new attempt, and the registered one st
   await test.step("The student is told the registry already has a better grade", async () => {
     const live = await latestAttempt(page.request, adminApi)
     await page.goto(completionRegistrationUrl(live.course_module_id))
-    await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Your completion is registered" })).toBeVisible()
     await expect(
       page.getByText("Sisu already has the same or a better grade for this course"),
     ).toBeVisible()
@@ -576,12 +576,13 @@ test("A later completion that is not better waits for the one in flight and is n
     )
   })
 
+  const registeredMails = async (id: string) =>
+    (await adminRegistrationDetails(adminApi, id)).notification_emails.filter(
+      (mail) => mail.kind === "registered",
+    )
+
   await test.step("Only the registered grade is mailed as registered", async () => {
     await runStudentNotificationsTick(page.request, laterScope)
-    const registeredMails = async (id: string) =>
-      (await adminRegistrationDetails(adminApi, id)).notification_emails.filter(
-        (mail) => mail.kind === "registered",
-      )
     expect(await registeredMails(betterId)).toHaveLength(1)
     expect(await registeredMails(worseId)).toHaveLength(0)
   })

@@ -1,4 +1,4 @@
-import type { BrowserContext } from "@playwright/test"
+import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
@@ -14,6 +14,14 @@ const EXERCISE_NAME = "Exercise: Simple multiple choice with automatic reset on 
 let context1: BrowserContext
 let context2: BrowserContext
 let context3: BrowserContext
+
+async function selectPeerReviewAnswer(page: Page, name: string) {
+  const radio = getExerciseRegion(page, EXERCISE_NAME).getByRole("radio", { name })
+  await expect(async () => {
+    await radio.click()
+    await expect(radio).toBeChecked()
+  }).toPass({ timeout: 15_000 })
+}
 
 test.beforeEach(async ({ browser }) => {
   context1 = await browser.newContext({ storageState: "src/states/teacher@example.com.json" })
@@ -89,10 +97,7 @@ test("Automatic reject and reset submission", async () => {
     // Student1 peer reviews Student2 and Teachers answers
     await waitForSpinnersToDisappear(student1Page)
     await student1Page.getByRole("button", { name: "Start peer review", disabled: false }).click()
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("radio", { name: "Strongly agree" })
-      .click()
+    await selectPeerReviewAnswer(student1Page, "Strongly agree")
     await waitForSuccessNotification(student1Page, async () => {
       await student1Page
         .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
@@ -100,10 +105,7 @@ test("Automatic reject and reset submission", async () => {
         .click()
     })
 
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("radio", { name: "Strongly agree" })
-      .click()
+    await selectPeerReviewAnswer(student1Page, "Strongly agree")
     await waitForSuccessNotification(student1Page, async () => {
       await student1Page
         .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
@@ -116,8 +118,11 @@ test("Automatic reject and reset submission", async () => {
     ).toBeVisible()
 
     // Student2 peer reviews Student1 and Teachers answers
-    await student2Page.getByRole("button", { name: "Start peer review" }).click()
-    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
+    await waitForSpinnersToDisappear(student2Page)
+    await getExerciseRegion(student2Page, EXERCISE_NAME)
+      .getByRole("button", { name: "Start peer review", disabled: false })
+      .click()
+    await selectPeerReviewAnswer(student2Page, "Strongly disagree")
     await waitForSuccessNotification(student2Page, async () => {
       await student2Page
         .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
@@ -125,7 +130,7 @@ test("Automatic reject and reset submission", async () => {
         .click()
     })
 
-    await student2Page.getByRole("radio", { name: "Strongly disagree" }).click()
+    await selectPeerReviewAnswer(student2Page, "Strongly disagree")
     await waitForSuccessNotification(student2Page, async () => {
       await student2Page
         .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
@@ -136,8 +141,11 @@ test("Automatic reject and reset submission", async () => {
     await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
 
     // Teacher peer reviews Student1 and Student2 answers
-    await teacherPage.getByRole("button", { name: "Start peer review" }).click()
-    await teacherPage.getByRole("radio", { name: "Strongly disagree" }).click()
+    await waitForSpinnersToDisappear(teacherPage)
+    await getExerciseRegion(teacherPage, EXERCISE_NAME)
+      .getByRole("button", { name: "Start peer review", disabled: false })
+      .click()
+    await selectPeerReviewAnswer(teacherPage, "Strongly disagree")
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage
         .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")

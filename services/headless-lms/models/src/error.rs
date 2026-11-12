@@ -6,6 +6,7 @@ use std::panic::Location;
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
+use chrono::{DateTime, Utc};
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
@@ -177,6 +178,8 @@ pub enum ModelErrorType {
         description: &'static str,
     },
     PreconditionFailed,
+    /// A save was based on a version that has since been replaced by another save.
+    StaleVersion,
     PreconditionFailedWithCMSAnchorBlockId {
         id: Uuid,
         description: &'static str,
@@ -301,6 +304,22 @@ impl From<sqlx::Error> for ModelError {
                             },
                             err.to_string(),
                             Some(err.into()),
+                        ),
+                        "external_credit_targets_tier_overlap" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "These tiers overlap another mooc.fi target of the same course.",
+                            },
+                            err.to_string(),
+                            err
+                        ),
+                        "uq_external_credit_targets_course_code" => model_err!(
+                            DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "The mooc.fi course already has a target with this course code.",
+                            },
+                            err.to_string(),
+                            err
                         ),
                         "uq_credit_registrations_sisu_attainment" => model_err!(
                             DatabaseConstraint {
@@ -461,6 +480,22 @@ pub fn missing_model_error(
 ) -> impl FnOnce() -> ModelError {
     let msg = message.into();
     move || ModelError::new(error_type, msg, None)
+}
+
+/// Refuses with [ModelErrorType::StaleVersion] and `message` unless `current`, a row's locked
+/// `updated_at` (`None` for a missing row), is `expected`. Passes whenever `expected` is `None`.
+#[track_caller]
+pub(crate) fn ensure_version(
+    current: Option<DateTime<Utc>>,
+    expected: Option<DateTime<Utc>>,
+    message: &str,
+) -> ModelResult<()> {
+    match expected {
+        Some(expected) if current != Some(expected) => {
+            Err(model_err!(StaleVersion, message.to_string()))
+        }
+        _ => Ok(()),
+    }
 }
 
 #[cfg(test)]

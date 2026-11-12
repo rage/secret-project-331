@@ -13,7 +13,7 @@ function rootDeclarations(): CSSStyleDeclaration {
   const sheet = document.styleSheets[0]
   const rule = sheet && Array.from(sheet.cssRules).find((r) => r.cssText.startsWith(":root"))
   if (!(rule instanceof CSSStyleRule)) {
-    throw new Error("tokensGlobal did not inject a :root rule")
+    throw new TypeError("tokensGlobal did not inject a :root rule")
   }
   return rule.style
 }

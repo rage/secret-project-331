@@ -18,7 +18,6 @@ import {
   creditRegistrationReconciliation,
   listAdminPhases,
   listAdminRegistrations,
-  listSuotarApiCalls,
   makeRegistrationDueNow,
   pausePhase,
   postAdminManualLink,
@@ -88,14 +87,9 @@ const STALE_ADDRESS_EXACT = new RegExp(
   `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
 )
 
-/**
- * Linked from seed time, so it is the one row on this course a tick can register. No spec applies a
- * scenario to this account, which would rewrite the registry's name and address for it.
- */
+/** Linked from seed time, so it is the one row on this course a tick can register. */
 const ADMIN_LINKED_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email
 const ADMIN_LINKED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_1.studentNumber
-const ADMIN_LINKED_LAST_NAME = CREDIT_REGISTRATION_STUDENT_1.lastName
-const ADMIN_LINKED_SISU_EMAIL = "zzyzx.crsone@helsinki.example.com"
 
 test("Every tab renders, and the phases report heartbeats", async ({ page }) => {
   await page.goto(OVERVIEW_URL)
@@ -221,7 +215,7 @@ test("The explorer filters, and the attempt chain hides the replaced attempt by 
   })
 })
 
-test("No stored body carries a student number, a name or an email address", async ({ page }) => {
+test("Stored Suotar bodies keep the student number they carried", async ({ page }) => {
   const scope = { userEmail: ADMIN_LINKED_EMAIL, courseSlug: ADMIN_COURSE_SLUG }
   await runPhasesUpToSubmission(page.request, scope)
   // Only a control transition registers a submission in the mock.
@@ -266,69 +260,26 @@ test("No stored body carries a student number, a name or an email address", asyn
   const callDetails = await Promise.all(
     details.suotar_api_calls.map((call) => suotarApiCall(page.request, call.id)),
   )
-  const stored = JSON.stringify([
-    details.events.map((event) => event.details),
-    callDetails.map((call) => [call.request_body_sample, call.response_body_sample]),
-  ])
-  // resolve-enrolments and import send only the bare student number; a name or an email would only
-  // ever reach a stored body through resolve-persons, which this pipeline never calls.
-  for (const secret of [
-    ADMIN_LINKED_STUDENT_NUMBER,
-    ADMIN_LINKED_LAST_NAME,
-    ADMIN_LINKED_SISU_EMAIL,
-  ]) {
-    expect(stored, `a stored body carries ${secret}`).not.toContain(secret)
-  }
+  expect(
+    JSON.stringify(details.events.map((event) => event.details)),
+    "the ledger's exchanges lost the student number",
+  ).toContain(ADMIN_LINKED_STUDENT_NUMBER)
+  expect(
+    JSON.stringify(callDetails.map((call) => call.request_body_sample)),
+    "the call log's stored requests lost the student number",
+  ).toContain(ADMIN_LINKED_STUDENT_NUMBER)
 
-  await test.step("The unredacted half is still there, so the panel is worth reading", async () => {
-    // The scrubbing note is what tells an admin the gaps are deliberate; without it, an empty panel
-    // and a redacted one look the same.
+  await test.step("Each call is its own row, its expanded item names the student", async () => {
     await page.goto(`${REGISTRATIONS_URL}/${registered.id}`)
-    await expect(page.getByRole("heading", { name: "Calls to Suotar" })).toBeVisible()
-    await page
-      .getByRole("table", { name: "Calls to Suotar" })
-      .getByRole("button", { name: "Show more" })
-      .first()
-      .click()
-    await expect(
-      page.getByText("Names, student numbers and email addresses are redacted"),
-    ).toBeVisible()
+    const calls = page.getByRole("table", { name: "Calls to Suotar" })
+    await expect(calls.getByRole("button", { name: "Show more" })).toHaveCount(
+      details.suotar_api_calls.length,
+    )
+    await calls.getByRole("button", { name: "Show more" }).first().click()
+    await expect(calls.getByText(ADMIN_LINKED_STUDENT_NUMBER).first()).toBeVisible()
     await page.getByRole("link", { name: "Show the whole call" }).first().click()
     await expect(
       page.getByRole("dialog").getByRole("heading", { name: "Registrations this call carried" }),
-    ).toBeVisible()
-  })
-
-  await test.step("The call log is not a second way to read an unscrubbed body", async () => {
-    const calls = await listSuotarApiCalls(page.request, {
-      credit_registration_id: registered.id,
-    })
-    const [call] = calls.data
-    expect(call, "the call log knows no call carried this row").toBeDefined()
-    const logged = await suotarApiCall(page.request, call?.id ?? "")
-    const bodies = JSON.stringify([logged.request_body_sample, logged.response_body_sample])
-    for (const secret of [
-      ADMIN_LINKED_STUDENT_NUMBER,
-      ADMIN_LINKED_LAST_NAME,
-      ADMIN_LINKED_SISU_EMAIL,
-    ]) {
-      expect(bodies, `the call log's stored body carries ${secret}`).not.toContain(secret)
-    }
-
-    // The reference table is what replaces the redacted identifiers: one row per request item,
-    // resolving the id in the stored body back to a student.
-    const reference = logged.ledger_references.find(
-      (row) => row.credit_registration_id === registered.id,
-    )
-    expect(reference?.request_item_id).toBeTruthy()
-    expect(reference?.student_number).toBe(ADMIN_LINKED_STUDENT_NUMBER)
-
-    // The call log defaults to failures only, and this registration's calls all succeeded.
-    await page.goto(`${SYSTEM_URL}?credit_registration_id=${registered.id}&succeeded=all`)
-    await expect(page.getByRole("table", { name: "Calls to Suotar" })).toBeVisible()
-    await page.getByRole("button", { name: "Show what was sent and received" }).first().click()
-    await expect(
-      page.getByText("Names, student numbers and email addresses are redacted", { exact: false }),
     ).toBeVisible()
   })
 })
@@ -478,9 +429,8 @@ test("The overview reads the daily snapshots", async ({ page }) => {
 
   await test.step("The live counts sit beside the trend", async () => {
     const standing = page.getByRole("list", { name: "Where registrations stand", exact: true })
-    // The seed leaves rows at most steps, so an empty list would mean the section rendered without
-    // reading its counts.
-    expect(await standing.getByRole("link").count()).toBeGreaterThan(0)
+    // The seed leaves rows at most steps. Retrying, because this list's query is not the trend's.
+    await expect(standing.getByRole("link").first()).toBeVisible()
   })
 })
 
@@ -500,7 +450,7 @@ test("The errors tab shows what needs a human, and the overview the verdicts", a
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {
   const stats = await creditRegistrationCourseStats(page.request)
-  const mine = stats.modules.find((module) => module.course_id === ADMIN_COURSE_ID)
+  const mine = stats.credit_units.find((unit) => unit.course_id === ADMIN_COURSE_ID)
   expect(mine, "the admin course has no module with credit registration enabled").toBeDefined()
 
   await page.goto(COURSES_URL)

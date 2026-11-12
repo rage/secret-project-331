@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PlusCircle, Trash } from "@vectopus/atlas-icons-react"
-import React, { useId, useState } from "react"
+import React, { useId, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { checkClosedEndedQuestionCorrectness } from "@/grading/assessment/closed-ended-question"
@@ -199,6 +199,11 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const { t } = useTranslation()
   const formatPresetSelectId = useId()
   const [testStrings, setTestStrings] = useState([""])
+  const abandonedStrategies = useRef<
+    Partial<
+      Record<ClosedEndedQuestionGradingStrategy["strategy"], ClosedEndedQuestionGradingStrategy>
+    >
+  >({})
   const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
   const { selected, updateState } =
@@ -227,14 +232,19 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
   const strategy = selected.gradingStrategy
 
   const selectStrategy = (nextStrategy: ClosedEndedQuestionGradingStrategy["strategy"]) => {
+    if (strategy?.strategy === nextStrategy) {
+      return
+    }
+    // Switching back restores what the teacher had configured instead of resetting to defaults.
+    if (strategy) {
+      abandonedStrategies.current[strategy.strategy] = strategy
+    }
+    const nextGradingStrategy =
+      abandonedStrategies.current[nextStrategy] ?? defaultStrategyFor(nextStrategy)
     updateState((draft) => {
-      // Re-clicking the already-selected radio must not wipe the configured strategy fields.
-      if (!draft || draft.gradingStrategy?.strategy === nextStrategy) {
-        return
+      if (draft) {
+        draft.gradingStrategy = nextGradingStrategy
       }
-      // Persist the chosen strategy in the spec. This is the whole point of the redesign: the choice
-      // used to live in component-local React state and was silently lost on reopen.
-      draft.gradingStrategy = defaultStrategyFor(nextStrategy)
     })
   }
 

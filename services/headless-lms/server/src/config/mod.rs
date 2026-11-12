@@ -93,6 +93,15 @@ impl ServerRuntimeConfig {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let app_conf = ApplicationConfiguration::try_from_env()?;
         let test_mode = app_conf.test_mode;
+        let allow_no_https_for_development =
+            ProgramConfig::bool_flag("ALLOW_NO_HTTPS_FOR_DEVELOPMENT");
+        if allow_no_https_for_development
+            && !headless_lms_base::config::is_local_development_base_url(&app_conf.base_url)
+        {
+            anyhow::bail!(
+                "ALLOW_NO_HTTPS_FOR_DEVELOPMENT drops the session cookie's Secure flag, so it is only allowed when BASE_URL is a local development host"
+            );
+        }
         let file_store = FileStoreRuntimeConfig::try_from_env()?;
         let ratelimit_protection_safe_api_key = match env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
         {
@@ -132,9 +141,7 @@ impl ServerRuntimeConfig {
                     .context("PRIVATE_COOKIE_KEY must be defined")?
                     .into(),
             ),
-            allow_no_https_for_development: ProgramConfig::bool_flag(
-                "ALLOW_NO_HTTPS_FOR_DEVELOPMENT",
-            ),
+            allow_no_https_for_development,
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
             file_store,
@@ -224,7 +231,7 @@ impl ServerConfigBuilder {
         let json_config = web::JsonConfig::default().limit(2_097_152).error_handler(
             |err, _req| -> actix_web::Error {
                 info!("Bad request: {}", &err);
-                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", &err);
+                let body = format!("{{\"title\": \"Bad Request\", \"message\": \"{}\"}}", err);
                 // create custom error response
                 let response = HttpResponse::with_body(StatusCode::BAD_REQUEST, body.boxed());
                 InternalError::from_response(err, response).into()
@@ -277,6 +284,13 @@ impl ServerConfigBuilder {
 
         let jwt_key = Data::new(JwtKey::new(&app_conf.jwt_password)?);
 
+        let mcp_endpoint = Data::new(crate::domain::mcp_endpoint::build_mcp_endpoint(
+            db_pool.as_ref().clone(),
+            &app_conf,
+            jwt_key.clone().into_inner(),
+            self.file_store.clone(),
+        ));
+
         let tmc_client = Data::new(self.tmc_client);
 
         let sisu_client = Data::new(self.sisu_client);
@@ -305,6 +319,7 @@ impl ServerConfigBuilder {
             sisu_client,
             suotar_client,
             mock_suotar_store,
+            mcp_endpoint,
         };
         Ok(config)
     }
@@ -326,6 +341,7 @@ pub struct ServerConfig {
     pub sisu_client: Data<SisuClient>,
     pub suotar_client: Data<SuotarClient>,
     pub mock_suotar_store: Option<Data<MockSuotarStore>>,
+    pub mcp_endpoint: Data<headless_lms_mcp::http::McpEndpoint>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -345,6 +361,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         sisu_client,
         suotar_client,
         mock_suotar_store,
+        mcp_endpoint,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
@@ -367,6 +384,8 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .app_data(sisu_client)
         .app_data(suotar_client)
+        .app_data(mcp_endpoint)
+        .service(web::scope("/.well-known").configure(crate::controllers::well_known::_add_routes))
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config).bypassable())

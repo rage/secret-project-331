@@ -175,13 +175,29 @@ async fn access_to_chatbot(
     chatbot_configuration: &ChatbotConfiguration,
     roles: RoleSource<'_>,
 ) -> AuthorizationResult<AuthorizationToken> {
-    if chatbot_configuration.publicly_accessible {
+    // Until it is enabled to students, a course chatbot is for its staff only, public or not.
+    if chatbot_configuration.publicly_accessible
+        && (chatbot_configuration.enabled_to_students || chatbot_configuration.course_id.is_none())
+    {
         return Ok(skip_authorize());
     }
 
     match (user_id, chatbot_configuration.course_id) {
+        (Some(_), Some(course_id)) if !chatbot_configuration.enabled_to_students => {
+            let user_roles = roles.resolve(conn).await?;
+            authorize_with_fetched_list_of_roles(
+                conn,
+                Action::Teach,
+                Resource::Course(course_id),
+                &user_roles,
+            )
+            .await
+        }
         (Some(_), Some(course_id)) => {
             access_to_course_material(conn, user_id, course_id, roles).await
+        }
+        (Some(_), None) => {
+            authorize(conn, Action::Edit, user_id, Resource::GlobalPermissions).await
         }
         _ => Err(authorization_err!(
             Unauthorized,
@@ -260,6 +276,24 @@ async fn access_to_course_material(
 
     // The course is publicly available, no need to authorize
     Ok(skip_authorize())
+}
+
+/// Checks whether the user may view and answer a course exercise: the course material must be open
+/// to them, and so must the exercise's chapter. Exam exercises have their own check.
+pub async fn authorize_access_to_course_exercise(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+    chapter_id: Option<Uuid>,
+) -> AuthorizationResult<AuthorizationToken> {
+    let token = authorize_access_to_course_material(conn, user_id, course_id).await?;
+    if !can_user_view_chapter(conn, user_id, Some(course_id), chapter_id).await? {
+        return Err(authorization_err!(
+            Forbidden,
+            "This exercise's chapter is not open yet.".to_string()
+        ));
+    }
+    Ok(token)
 }
 
 /// Checks whether the user may view a chapter, which may be closed to everyone but certain roles.
@@ -441,10 +475,8 @@ pub async fn is_permitted(
     resource: Resource,
     user_roles: &[Role],
 ) -> AuthorizationResult<bool> {
-    for role in user_roles {
-        if role.is_global() && has_permission(role.role, action) {
-            return Ok(true);
-        }
+    if has_global_permission(user_roles, action) {
+        return Ok(true);
     }
 
     // for this resource, the domain of the role does not matter (e.g. organization role, course role, etc.)
@@ -515,6 +547,31 @@ pub async fn is_permitted(
     }
 }
 
+/// [`is_permitted`] on a course whose organization the caller already knows, without querying the
+/// database.
+pub fn is_permitted_on_course(
+    user_roles: &[Role],
+    action: Action,
+    course_id: Uuid,
+    organization_id: Uuid,
+) -> bool {
+    has_global_permission(user_roles, action)
+        || has_course_role_permission(user_roles, action, course_id)
+        || check_organization_permission(user_roles, action, organization_id)
+}
+
+fn has_global_permission(roles: &[Role], action: Action) -> bool {
+    roles
+        .iter()
+        .any(|role| role.is_global() && has_permission(role.role, action))
+}
+
+fn has_course_role_permission(roles: &[Role], action: Action, course_id: Uuid) -> bool {
+    roles
+        .iter()
+        .any(|role| role.is_role_for_course(course_id) && has_permission(role.role, action))
+}
+
 fn check_organization_permission(roles: &[Role], action: Action, organization_id: Uuid) -> bool {
     if action == Action::View {
         return true;
@@ -532,10 +589,7 @@ async fn check_course_permission(
     action: Action,
     course_id: Uuid,
 ) -> AuthorizationResult<bool> {
-    if roles
-        .iter()
-        .any(|role| role.is_role_for_course(course_id) && has_permission(role.role, action))
-    {
+    if has_course_role_permission(roles, action, course_id) {
         return Ok(true);
     }
     let organization_id = models::courses::get_organization_id(conn, course_id).await?;

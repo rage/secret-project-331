@@ -2,7 +2,7 @@
 Mock Suotar's simulator: the registry world, its store, the answer logic, faults, scenarios and
 fixtures. Its routes are in `controllers::mock_suotar`.
 
-The mock writes no database table, and its call log holds unscrubbed fake data that must never feed
+The mock writes no database table, and its call log holds fake data that must never feed
 `suotar_api_calls`.
 */
 

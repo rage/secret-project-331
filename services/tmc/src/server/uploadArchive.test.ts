@@ -35,6 +35,26 @@ function sentHeaders(): Record<string, string> {
 }
 
 /**
+ * Mocks the file endpoint with a body built from the multipart field name the client generated,
+ * for the tests that need to tell it apart from the id the endpoint answers with. The field name
+ * is a random UUID internal to `uploadArchive`, so it has to be read off the outgoing body.
+ */
+function mockResponseWith(build: (uploadId: string) => unknown, status = 200): void {
+  global.fetch = vi.fn(async (_url: unknown, init: RequestInit) => {
+    const body = build(await readUploadId(init.body))
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "content-type": "application/json" },
+    })
+  }) as unknown as typeof global.fetch
+}
+
+/** Mocks the file endpoint with a fixed JSON response body. */
+function mockResponse(body: unknown, status = 200): void {
+  mockResponseWith(() => body, status)
+}
+
+/**
  * `uploadArchive` is the only place that validates the file endpoint's response, and its failure
  * mode is silent: a spec carrying an empty or wrong `stub_download_url` looks fine to the backend
  * and only breaks when a client tries to download the archive. Pin the accepted shape.
@@ -43,26 +63,6 @@ describe("uploadArchive", () => {
   const archiveName = "part01/ex01.tar.zst"
   const uploadUrl = "http://headless-lms/api/v0/files/tmc"
   let archivePath: string
-
-  /** Mocks the file endpoint with a fixed JSON response body. */
-  function mockResponse(body: unknown, status = 200): void {
-    mockResponseWith(() => body, status)
-  }
-
-  /**
-   * Mocks the file endpoint with a body built from the multipart field name the client generated,
-   * for the tests that need to tell it apart from the id the endpoint answers with. The field name
-   * is a random UUID internal to `uploadArchive`, so it has to be read off the outgoing body.
-   */
-  function mockResponseWith(build: (uploadId: string) => unknown, status = 200): void {
-    global.fetch = vi.fn(async (_url: unknown, init: RequestInit) => {
-      const body = build(await readUploadId(init.body))
-      return new Response(JSON.stringify(body), {
-        status,
-        headers: { "content-type": "application/json" },
-      })
-    }) as unknown as typeof global.fetch
-  }
 
   const realFetch = global.fetch
 

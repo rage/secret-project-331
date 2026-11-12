@@ -18,7 +18,7 @@ import {
 } from "./constants"
 import { registrationErrorHelp } from "./creditRegistrationCopy"
 import { SisuCourseCode } from "./SisuCourseCode"
-import { unseenEnrolmentSupportMail } from "./studentSupportMail"
+import { type SupportMailCourse, unseenEnrolmentSupportMail } from "./studentSupportMail"
 import { bandCss, stepsCss, subsectionCss } from "./styles"
 import SupportMailLink from "./SupportMailLink"
 import { enrolmentCheckOpening } from "./trackerView"
@@ -29,19 +29,25 @@ const SUPPORT_AFTER_DAYS = 3
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 
 export interface EnrolmentCheckProps {
-  registration: MyCreditRegistration
+  /** `null` before the pipeline has created a ledger row for the completion. */
+  registration: MyCreditRegistration | null
   enrolmentRoute: MyEnrolmentRoute | null
   hasLinkedStudentNumber: boolean
+  course: SupportMailCourse
+  /** The course to enrol on in Sisu. */
+  courseCode: string | null
 }
 
 /**
  * What to check when the enrolment the student said they made has not turned up, and when to
- * involve support. Rendered beside the enrolment answer; hides itself until it applies.
+ * involve support. Hides itself until it applies.
  */
 export const EnrolmentCheck: React.FC<EnrolmentCheckProps> = ({
   registration,
   enrolmentRoute,
   hasLinkedStudentNumber,
+  course,
+  courseCode,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   // Ticks so the box appears on a page left open past the threshold.
@@ -59,8 +65,7 @@ export const EnrolmentCheck: React.FC<EnrolmentCheckProps> = ({
   const supportDate = formatIsoDate(
     new Date(new Date(confirmedAt).getTime() + SUPPORT_AFTER_DAYS * MS_PER_DAY),
   )
-  const supportMail = unseenEnrolmentSupportMail(t, registration, dateToString(confirmedAt))
-  const sisuCourseCode = registration.uh_course_code?.trim() || null
+  const supportMail = unseenEnrolmentSupportMail(t, registration, course, dateToString(confirmedAt))
 
   return (
     <section className={bandCss}>
@@ -79,12 +84,12 @@ export const EnrolmentCheck: React.FC<EnrolmentCheckProps> = ({
                 <li>{t("credit-registration-enrolment-check-open-university-course")}</li>
               </ul>
             </>
-          ) : sisuCourseCode ? (
+          ) : courseCode ? (
             <p>
               <Trans
                 t={t}
                 i18nKey="credit-registration-enrolment-check-sisu-course"
-                components={{ courseCode: <SisuCourseCode code={sisuCourseCode} /> }}
+                components={{ courseCode: <SisuCourseCode code={courseCode} /> }}
               />
             </p>
           ) : null}

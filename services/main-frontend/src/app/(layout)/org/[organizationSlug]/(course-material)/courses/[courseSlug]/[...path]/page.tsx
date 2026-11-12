@@ -10,7 +10,7 @@ import Page from "@/components/course-material/Page"
 import PageNotFound from "@/components/course-material/PageNotFound"
 import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import { useLanguageNavigation } from "@/hooks/course-material/language/useLanguageNavigation"
-import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
+import useScrollToUrlHash from "@/hooks/course-material/useScrollToUrlHash"
 import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
@@ -169,7 +169,7 @@ const PagePage: React.FC = () => {
   }, [courseSlug, courseMaterialState, router])
 
   // Handle scrolling to selector if window has anchor
-  useScrollToSelector(path)
+  useScrollToUrlHash(path, { matchHeadingIdPrefix: true })
 
   const triggerRefetch = useSetAtom(refetchViewAtom)
   const handleRefresh = async () => {

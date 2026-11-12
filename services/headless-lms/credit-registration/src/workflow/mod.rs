@@ -8,7 +8,7 @@ mod decision;
 mod refusal;
 
 pub(crate) use claim::{Claimed, ClaimedRegistration};
-pub(crate) use counts::Counts;
+pub(crate) use counts::{Counts, RequestTally};
 pub(crate) use decision::{
     Applied, Decision, PayloadChange, write_decision, write_decision_committing_if_written,
     write_unasked_move,

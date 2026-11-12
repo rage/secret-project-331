@@ -19,6 +19,8 @@ pub struct ChatbotConversation {
     pub user_id: Option<Uuid>,
     pub chatbot_configuration_id: Uuid,
     pub conversation_title: Option<String>,
+    /// Set for conversations with the course design assistant about this plan.
+    pub course_designer_plan_id: Option<Uuid>,
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -165,6 +167,7 @@ WHERE (
     OR anonymous_token = $2
   )
   AND chatbot_configuration_id = $3
+  AND course_designer_plan_id IS NULL
   AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT 1
@@ -196,6 +199,7 @@ WHERE (
   )
   AND chatbot_configuration_id = $3
   AND id = $4
+  AND course_designer_plan_id IS NULL
   AND deleted_at IS NULL
         "#,
         user_id,
@@ -280,6 +284,17 @@ pub async fn get_conversation_info(
             .optional()?
     };
 
+    conversation_info_for(tx, chatbot_configuration, course, current_conversation).await
+}
+
+/// The display info of `current_conversation` (or of no conversation) held with
+/// `chatbot_configuration`.
+async fn conversation_info_for(
+    tx: &mut PgConnection,
+    chatbot_configuration: crate::chatbot_configurations::ChatbotConfiguration,
+    course: Option<crate::courses::Course>,
+    current_conversation: Option<ChatbotConversation>,
+) -> ModelResult<ChatbotConversationInfo> {
     let conversation_id = current_conversation.as_ref().map(|c| c.id);
 
     let current_conversation_messages = OptionFuture::from(conversation_id.map(|id| {
@@ -322,5 +337,113 @@ pub async fn get_conversation_info(
         chatbot_name: chatbot_configuration.chatbot_name,
         course_name: course.map(|course| course.name),
         hide_citations: chatbot_configuration.hide_citations,
+    })
+}
+
+/// Starts a conversation between `user_id` and the course design assistant about a plan.
+///
+/// The caller must have checked that the user is a member of the plan.
+pub async fn create_for_course_plan(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+    course_designer_plan_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+INSERT INTO chatbot_conversations (
+    course_id,
+    user_id,
+    chatbot_configuration_id,
+    course_designer_plan_id
+  )
+SELECT chatbot_configurations.course_id,
+  $1,
+  chatbot_configurations.id,
+  $3
+FROM chatbot_configurations
+WHERE chatbot_configurations.id = $2
+  AND chatbot_configurations.deleted_at IS NULL
+RETURNING *
+        "#,
+        user_id,
+        chatbot_configuration_id,
+        course_designer_plan_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The user's latest conversation about the plan with this assistant configuration, if any.
+pub async fn get_latest_for_course_plan(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+    course_designer_plan_id: Uuid,
+) -> ModelResult<Option<ChatbotConversation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE user_id = $1
+  AND chatbot_configuration_id = $2
+  AND course_designer_plan_id = $3
+  AND deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT 1
+        "#,
+        user_id,
+        chatbot_configuration_id,
+        course_designer_plan_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Display info of one of the user's conversations about a plan. Never offers suggested messages.
+///
+/// Fails with `RecordNotFound` when the conversation is not the user's, not about this plan or not
+/// held with this configuration.
+pub async fn get_course_plan_conversation_info(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+    course_designer_plan_id: Uuid,
+    conversation_id: Uuid,
+) -> ModelResult<ChatbotConversationInfo> {
+    let conversation = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE id = $1
+  AND user_id = $2
+  AND chatbot_configuration_id = $3
+  AND course_designer_plan_id = $4
+  AND deleted_at IS NULL
+        "#,
+        conversation_id,
+        user_id,
+        chatbot_configuration_id,
+        course_designer_plan_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    let chatbot_configuration =
+        crate::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
+    let course = if let Some(course_id) = chatbot_configuration.course_id {
+        Some(crate::courses::get_course(conn, course_id).await?)
+    } else {
+        None
+    };
+    let info =
+        conversation_info_for(conn, chatbot_configuration, course, Some(conversation)).await?;
+    Ok(ChatbotConversationInfo {
+        suggested_messages: None,
+        ..info
     })
 }

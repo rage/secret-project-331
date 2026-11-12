@@ -17,6 +17,8 @@ pub enum EmailTemplateType {
     CreditRegistrationActionNeeded,
     CreditRegistrationRegistered,
     TeacherNewsletter,
+    VerifyNetwork,
+    CourseDesignerWeeklyDigest,
 }
 
 impl EmailTemplateType {
@@ -28,6 +30,7 @@ impl EmailTemplateType {
             Self::CreditRegistrationAccountLinking
                 | Self::CreditRegistrationActionNeeded
                 | Self::CreditRegistrationRegistered
+                | Self::CourseDesignerWeeklyDigest
         )
     }
 
@@ -43,7 +46,10 @@ impl EmailTemplateType {
                 "RESET_LINK",
                 format!("{base_url}/reset-user-password/{sample_id}"),
             )],
-            Self::DeleteUserEmail | Self::ConfirmEmailCode | Self::VerifyEmailAddress => {
+            Self::DeleteUserEmail
+            | Self::ConfirmEmailCode
+            | Self::VerifyEmailAddress
+            | Self::VerifyNetwork => {
                 vec![("CODE", "123456".to_string())]
             }
 
@@ -65,6 +71,23 @@ impl EmailTemplateType {
                 (
                     "STATUS_LINK",
                     format!("{base_url}/completion-registration/{sample_id}"),
+                ),
+            ],
+            Self::CourseDesignerWeeklyDigest => vec![
+                ("PLAN_NAME", "Introduction to Programming".to_string()),
+                ("ACTIVE_STAGE", "Design".to_string()),
+                ("ACTIVE_STAGE_ENDS_ON", "March 31, 2027".to_string()),
+                ("SCHEDULE_STATUS", "The phase is on schedule.".to_string()),
+                (
+                    "COMPLETED_TASKS_LAST_WEEK",
+                    "Write the learning goals; Choose the content formats".to_string(),
+                ),
+                ("COMPLETED_TASK_COUNT", "7".to_string()),
+                ("TASK_COUNT", "24".to_string()),
+                ("UNFINISHED_SECTIONS", "Design (2)".to_string()),
+                (
+                    "PLAN_LINK",
+                    format!("{base_url}/manage/course-plans/{sample_id}/workspace?stage=design"),
                 ),
             ],
         };

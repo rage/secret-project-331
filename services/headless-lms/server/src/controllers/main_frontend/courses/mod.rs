@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 pub mod chatbots;
+pub mod completion_overview;
 pub mod stats;
 pub mod students;
 
@@ -137,6 +138,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
+        (path = "/{course_id}/completion-overview", api = completion_overview::MainFrontendCourseCompletionOverviewApiDoc),
         (path = "/{course_id}/stats", api = stats::MainFrontendCourseStatsApiDoc),
         (path = "/{course_id}/students", api = students::MainFrontendCourseStudentsApiDoc)
     )
@@ -2949,6 +2951,10 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/{course_id}/stats").configure(stats::_add_routes))
         .service(web::scope("/{course_id}/chatbots").configure(chatbots::_add_routes))
+        .service(
+            web::scope("/{course_id}/completion-overview")
+                .configure(completion_overview::_add_routes),
+        )
         .service(web::scope("/{course_id}/students").configure(students::_add_routes))
         .route("/{course_id}", web::get().to(get_course))
         .route("", web::post().to(post_new_course))

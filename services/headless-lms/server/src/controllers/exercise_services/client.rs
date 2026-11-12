@@ -14,6 +14,7 @@ use crate::controllers::helpers::file_uploading;
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
+use crate::domain::rate_limit_middleware_builder::{EndpointLimiters, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
@@ -29,6 +30,7 @@ use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::{HashMap, HashSet};
 use std::future::{Ready, ready};
+use std::sync::LazyLock;
 use utoipa::{IntoParams, OpenApi};
 
 #[derive(OpenApi)]
@@ -1114,7 +1116,8 @@ async fn submit_exercise(
         (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, the exercise belongs to an exam, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
-        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse),
+        (status = 429, description = "Too many pastes of this exercise by this user recently (at most 3 a minute and 20 an hour)", body = crate::domain::error::ApiErrorResponse)
     )
 )]
 #[instrument(skip(pool, snapshot))]
@@ -1135,6 +1138,16 @@ async fn create_answer_snapshot(
     .await?;
 
     let snapshot = snapshot.into_inner();
+    if snapshot.purpose == api::SnapshotPurpose::Paste
+        && PASTE_LIMITS
+            .check_key(format!("{}:{}", user.id, *exercise_id))
+            .is_err()
+    {
+        return Err(controller_err!(
+            TooManyRequests,
+            "Too many pastes of this exercise; try again later.".to_string()
+        ));
+    }
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let Some(course_id) = exercise.course_id else {
         return Err(controller_err!(
@@ -1188,6 +1201,16 @@ async fn create_answer_snapshot(
         snapshot_id: stored.id,
     }))
 }
+
+/// Pastes per user and exercise. Backups need no limit of their own: each one past the cap
+/// deletes the oldest, so their storage stays bounded.
+static PASTE_LIMITS: LazyLock<EndpointLimiters> = LazyLock::new(|| {
+    EndpointLimiters::from_config(&RateLimitConfig {
+        per_minute: Some(3),
+        per_hour: Some(20),
+        ..Default::default()
+    })
+});
 
 fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
     match purpose {
@@ -4353,5 +4376,90 @@ mod route_tests {
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
         let body: serde_json::Value = test::read_body_json(response).await;
         assert_eq!(message_key(&body), "unknown_upload");
+    }
+
+    fn paste_of(fixture: &Fixture, file: Uuid) -> api::NewAnswerSnapshot {
+        api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Paste,
+            exercise_slide_id: fixture.slide,
+            exercise_task_id: fixture.task,
+            data_json: None,
+            data_files: vec![file],
+        }
+    }
+
+    #[actix_web::test]
+    async fn pastes_beyond_the_per_minute_limit_are_refused() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let mut statuses = vec![];
+        for _ in 0..4 {
+            let request =
+                snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+                    .to_request();
+            statuses.push(test::call_service(&app, request).await.status());
+        }
+        assert_eq!(
+            statuses,
+            vec![
+                StatusCode::OK,
+                StatusCode::OK,
+                StatusCode::OK,
+                StatusCode::TOO_MANY_REQUESTS
+            ]
+        );
+
+        let backup = api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Backup,
+            ..paste_of(&fixture, file)
+        };
+        let request = snapshot_request(fixture.exercise, &fixture.token, &backup).to_request();
+        assert_eq!(
+            test::call_service(&app, request).await.status(),
+            StatusCode::OK,
+            "backups are bounded by their cap, not by the paste limit"
+        );
+    }
+
+    #[actix_web::test]
+    async fn an_exam_exercise_cannot_be_snapshotted() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        {
+            let mut conn = PgConnection::connect(&dev_database_url())
+                .await
+                .expect("connection");
+            let organization_id = models::courses::get_course(&mut conn, fixture.course)
+                .await
+                .expect("course")
+                .organization_id;
+            let exam = models::exams::insert(
+                &mut conn,
+                models::PKeyPolicy::Generate,
+                &models::exams::NewExam {
+                    name: "Exam".to_string(),
+                    starts_at: Some(Utc::now() - ChronoDuration::hours(1)),
+                    ends_at: Some(Utc::now() + ChronoDuration::hours(1)),
+                    time_minutes: 60,
+                    organization_id,
+                    minimum_points_treshold: 0,
+                    grade_manually: false,
+                },
+            )
+            .await
+            .expect("exam");
+            sqlx::query("UPDATE exercises SET course_id = NULL, exam_id = $1 WHERE id = $2")
+                .bind(exam)
+                .bind(fixture.exercise)
+                .execute(&mut conn)
+                .await
+                .expect("move the exercise into the exam");
+        }
+        let app = client_api_app!();
+        let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 }

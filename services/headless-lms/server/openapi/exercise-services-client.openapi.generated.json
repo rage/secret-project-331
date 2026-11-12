@@ -649,6 +649,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many pastes of this exercise by this user recently (at most 3 a minute and 20 an hour)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
           }
         },
         "security": [

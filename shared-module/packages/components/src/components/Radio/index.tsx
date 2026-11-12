@@ -7,7 +7,7 @@ import { RadioInGroup } from "./RadioInGroup"
 import { RadioStandalone } from "./RadioStandalone"
 import type { RadioProps } from "./radioTypes"
 
-export type { RadioProps } from "./radioTypes"
+export type { RadioNestedContentVariant, RadioProps } from "./radioTypes"
 
 export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
   function Radio(props, forwardedRef) {

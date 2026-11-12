@@ -54,10 +54,13 @@ const legendCss = css`
   margin-bottom: var(--space-3);
 `
 
-/** Roomy enough that an option's description does not read as part of the option below it. */
+/**
+ * Roomy enough that an option's description does not read as part of the option below it. A caller
+ * can widen it by setting `--radio-list-gap` through `className`; hidden options read it too.
+ */
 const radioListCss = css`
   display: grid;
-  gap: var(--space-3);
+  gap: var(--radio-list-gap, var(--space-3));
 `
 
 const radioListHorizontalCss = css`

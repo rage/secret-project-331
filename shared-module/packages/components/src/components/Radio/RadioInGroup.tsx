@@ -5,8 +5,10 @@ import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
 import { joinAriaDescribedBy } from "../../lib/utils/field"
+import { below } from "../../styles/breakpoints"
 import { resolveButtonRootCss } from "../primitives/buttonStyles"
 import {
+  checkableBadgeCss,
   checkableContentCss,
   checkableInputCss,
   checkableLabelCss,
@@ -19,6 +21,7 @@ import {
 } from "../primitives/checkableStyles"
 import { CheckIcon } from "../primitives/CheckIcon"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
+import { Reveal } from "../Reveal"
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -60,6 +63,31 @@ const segmentedCheckedLabelCss = css`
   gap: var(--space-2);
 `
 
+/** Lines `nestedContent` up with the label text: the 20px indicator plus the row's gap. */
+const nestedContentCss = css`
+  margin-inline-start: calc(20px + var(--space-3));
+  padding-top: var(--space-3-5);
+  padding-bottom: var(--space-2);
+
+  ${below("sm")} {
+    margin-inline-start: var(--space-3-5);
+  }
+`
+
+const nestedContentRuleCss = css`
+  padding: var(--space-2) 0 var(--space-2) var(--space-4);
+  border-inline-start: 2px solid var(--color-green-600);
+
+  ${below("sm")} {
+    padding-inline-start: var(--space-3-5);
+  }
+`
+
+/** Cancels the list gap a hidden option would still take up; see `RadioGroup`'s `--radio-list-gap`. */
+const hiddenOptionCss = css`
+  --reveal-collapsed-margin-top: calc(-1 * var(--radio-list-gap, var(--space-3)));
+`
+
 /** The option's own description and error, which both variants hang under the label. */
 const RadioNotes: React.FC<{
   description: React.ReactNode
@@ -89,6 +117,7 @@ export function RadioInGroup({
 }: RadioInnerProps & { group: RadioContextValue }) {
   const {
     label,
+    badge,
     description,
     errorMessage,
     fieldSize,
@@ -101,6 +130,9 @@ export function RadioInGroup({
     "aria-describedby": ariaDescribedBy,
     onChange,
     required: _required,
+    nestedContent,
+    nestedContentVariant = "rule",
+    isHidden,
     ...rest
   } = props
 
@@ -182,7 +214,7 @@ export function RadioInGroup({
     )
   }
 
-  return (
+  const option = (
     <label
       {...labelProps}
       className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
@@ -207,7 +239,10 @@ export function RadioInGroup({
         ) : null}
       </span>
       <span className={checkableContentCss}>
-        <span className={checkableLabelCss}>{label}</span>
+        <span className={checkableLabelCss}>
+          {label}
+          {badge ? <span className={checkableBadgeCss}>{badge}</span> : null}
+        </span>
         <RadioNotes
           description={description}
           descriptionId={descriptionId}
@@ -216,5 +251,29 @@ export function RadioInGroup({
         />
       </span>
     </label>
+  )
+
+  const optionWithNestedContent =
+    nestedContent === undefined || nestedContent === null ? (
+      option
+    ) : (
+      <div>
+        {option}
+        <Reveal isOpen={isSelected} className={nestedContentCss}>
+          <div className={nestedContentVariant === "rule" ? nestedContentRuleCss : undefined}>
+            {nestedContent}
+          </div>
+        </Reveal>
+      </div>
+    )
+
+  if (isHidden === undefined) {
+    return optionWithNestedContent
+  }
+
+  return (
+    <Reveal isOpen={!isHidden} rootClassName={hiddenOptionCss}>
+      {optionWithNestedContent}
+    </Reveal>
   )
 }

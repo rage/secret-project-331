@@ -1,1 +1,0 @@
-DROP TABLE exercise_repository_ssh_host_keys;

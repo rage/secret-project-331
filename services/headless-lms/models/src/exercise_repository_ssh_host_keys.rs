@@ -1,6 +1,6 @@
 //! ssh host keys remembered on the first clone from a git server (trust on first use).
 
-use crate::prelude::*;
+use crate::{error::missing_model_error, prelude::*};
 
 /// A git server's remembered ssh host key.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,8 +46,7 @@ pub async fn remember(
         "
 INSERT INTO exercise_repository_ssh_host_keys (host, port, sha256_fingerprint)
 VALUES (lower($1), $2, $3)
-ON CONFLICT (host, port)
-WHERE deleted_at IS NULL DO NOTHING
+ON CONFLICT (host, port, deleted_at) DO NOTHING
 ",
         host,
         i32::from(port),
@@ -55,13 +54,10 @@ WHERE deleted_at IS NULL DO NOTHING
     )
     .execute(&mut *conn)
     .await?;
-    get(conn, host, port).await?.ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::RecordNotFound,
-            "The remembered ssh host key disappeared".to_string(),
-            None,
-        )
-    })
+    get(conn, host, port).await?.ok_or_else(missing_model_error(
+        ModelErrorType::RecordNotFound,
+        "The remembered ssh host key disappeared",
+    ))
 }
 
 #[cfg(test)]

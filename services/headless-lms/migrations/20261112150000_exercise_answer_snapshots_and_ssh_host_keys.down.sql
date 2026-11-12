@@ -1,3 +1,4 @@
+DROP TABLE exercise_repository_ssh_host_keys;
 DELETE FROM exercise_slide_submission_shares
 WHERE exercise_answer_snapshot_id IS NOT NULL;
 ALTER TABLE exercise_slide_submission_shares DROP CONSTRAINT exercise_slide_submission_shares_one_target,

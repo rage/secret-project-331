@@ -500,30 +500,46 @@ async fn build_teacher_newsletter_email_content(
             .await?;
     }
 
-    let newsletter_summary = format!(
-        r#"
-        <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>
-        <table style="width: 100%;">
-            <tbody>
-                <tr>
-                    <td style="border: none; background: rgba(255, 212, 68, 0.12); border-left: 3px solid #ffd444;">
-                        <h2 style="margin-top: 0;">Items waiting for review: </h2>
-                        <ul>
-                            <li>{unread_feedback_count} unread feedback</li>
-                            <li>{pending_proposals_count} pending proposals</li>
-                            <li>{flagged_cheaters_count} flagged cheaters</li>
-                        </ul>
-                        <p style="font-weight: bold; margin-bottom: 0;">See individual courses below for details</p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        "#
-    );
-
-    // let newsletter_summary = format!(
-    //     r#"<h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>"#
-    // );
+    let newsletter_summary = if unread_feedback_count == 0
+        && pending_proposals_count == 0
+        && flagged_cheaters_count == 0
+    {
+        "".to_string()
+    } else {
+        format!(
+            r#"
+            <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>
+            <table style="width: 100%;">
+                <tbody>
+                    <tr>
+                        <td style="border: none; background: rgba(255, 212, 68, 0.12); border-left: 3px solid #ffd444;">
+                            <h2 style="margin-top: 0;">Items waiting for review: </h2>
+                            <ul>
+                            {}{}{}
+                            </ul>
+                            <p style="font-weight: bold; margin-bottom: 0;">See individual courses below for details</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        "#,
+            if unread_feedback_count > 0 {
+                format!("<li>{unread_feedback_count} unread feedback</li>")
+            } else {
+                String::new()
+            },
+            if pending_proposals_count > 0 {
+                format!("<li>{pending_proposals_count} pending proposals</li>")
+            } else {
+                String::new()
+            },
+            if flagged_cheaters_count > 0 {
+                format!("<li>{flagged_cheaters_count} flagged cheaters</li>")
+            } else {
+                String::new()
+            },
+        )
+    };
 
     if !courses.is_empty() {
         let (html, text): (String, String) = newsletter_items

@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use headless_lms_models::{
-    course_modules::{AutomaticCompletionRequirements, CompletionPolicy as ModelCompletionPolicy},
+    course_modules::{CompletionMethod, CompletionPolicy, CompletionRequirements},
     courses::{Course, CourseAiPolicy},
     library::agent_changesets::course_state::{CourseState, PageRecord},
     library::entity_snapshots::{
@@ -17,8 +17,7 @@ use uuid::Uuid;
 
 use crate::engine::blocks;
 use crate::engine::course_settings::{
-    AiPolicy, Audience, CompletionPolicy, CompletionPolicyKind, CourseSettings,
-    CourseSettingsCourse, ModuleSettings,
+    AiPolicy, Audience, CourseSettings, CourseSettingsCourse, ModuleSettings,
 };
 use crate::engine::course_structure::{
     CourseStructure, StructureChapter, StructureModule, StructurePage,
@@ -330,31 +329,17 @@ impl From<AiPolicy> for CourseAiPolicy {
     }
 }
 
-fn completion_policy(policy: &ModelCompletionPolicy) -> CompletionPolicy {
-    match policy {
-        ModelCompletionPolicy::Automatic(requirements) => CompletionPolicy {
-            policy: CompletionPolicyKind::Automatic,
-            number_of_points_treshold: requirements.number_of_points_treshold,
-            number_of_exercises_attempted_treshold: requirements
-                .number_of_exercises_attempted_treshold,
-            requires_exam: requirements.requires_exam,
-        },
-        ModelCompletionPolicy::Manual => CompletionPolicy::manual(),
-    }
-}
-
-fn model_completion_policy(module_id: Uuid, policy: &CompletionPolicy) -> ModelCompletionPolicy {
-    match policy.policy {
-        CompletionPolicyKind::Automatic => {
-            ModelCompletionPolicy::Automatic(AutomaticCompletionRequirements {
-                course_module_id: module_id,
-                number_of_exercises_attempted_treshold: policy
-                    .number_of_exercises_attempted_treshold,
-                number_of_points_treshold: policy.number_of_points_treshold,
-                requires_exam: policy.requires_exam,
-            })
-        }
-        CompletionPolicyKind::Manual => ModelCompletionPolicy::Manual,
+fn completion_policy(module_id: Uuid, settings: &ModuleSettings) -> CompletionPolicy {
+    let requirements = CompletionRequirements {
+        course_module_id: module_id,
+        number_of_exercises_attempted_treshold: settings.exercises_attempted_threshold,
+        number_of_points_treshold: settings.points_threshold,
+    };
+    match settings.completion_method {
+        CompletionMethod::NotDecided => CompletionPolicy::NotDecided,
+        CompletionMethod::ByRequirements => CompletionPolicy::ByRequirements(requirements),
+        CompletionMethod::ByExam => CompletionPolicy::ByExam(requirements),
+        CompletionMethod::TeacherAdds => CompletionPolicy::TeacherAdds,
     }
 }
 
@@ -388,11 +373,23 @@ pub fn settings_document(state: &CourseState, course: &Course) -> CourseSettings
         modules: state
             .modules_in_order()
             .into_iter()
-            .map(|m| ModuleSettings {
-                id: m.id,
-                name: m.name.clone(),
-                completion_policy: completion_policy(&m.completion_policy),
-                certification_enabled: m.certification_enabled,
+            .map(|m| {
+                let requirements = m.completion_policy.requirements();
+                ModuleSettings {
+                    id: m.id,
+                    name: m.name.clone(),
+                    exam_requirement: m.exam_requirement,
+                    exam_location_description: m.exam_location_description.clone(),
+                    completion_method: m.completion_policy.method(),
+                    points_threshold: requirements.and_then(|r| r.number_of_points_treshold),
+                    exercises_attempted_threshold: requirements
+                        .and_then(|r| r.number_of_exercises_attempted_treshold),
+                    credit_registration_route: m.credit_registration_route,
+                    uh_course_code: m.uh_course_code.clone(),
+                    ects_credits: m.ects_credits,
+                    registration_link: m.completion_registration_link_override.clone(),
+                    certification_enabled: m.certification_enabled,
+                }
             })
             .collect(),
     }
@@ -424,8 +421,14 @@ pub fn apply_settings(state: &mut CourseState, document: &CourseSettings) {
             .iter_mut()
             .find(|m| m.id == module_settings.id)
         {
-            module.completion_policy =
-                model_completion_policy(module.id, &module_settings.completion_policy);
+            module.completion_policy = completion_policy(module.id, module_settings);
+            module.exam_requirement = module_settings.exam_requirement;
+            module.exam_location_description = module_settings.exam_location_description.clone();
+            module.credit_registration_route = module_settings.credit_registration_route;
+            module.uh_course_code = module_settings.uh_course_code.clone();
+            module.ects_credits = module_settings.ects_credits;
+            module.completion_registration_link_override =
+                module_settings.registration_link.clone();
             module.certification_enabled = module_settings.certification_enabled;
         }
     }

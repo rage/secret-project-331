@@ -175,7 +175,7 @@ fn nothing_goes_before_the_default_module() {
     )
     .unwrap_err();
     assert_eq!(error.code, EditErrorCode::DefaultModule);
-    let settings = run(&sample(), json!([{"op":"add","path":"/course/modules","position":"end","value":{"name":"X","completion_policy":{}}}])).unwrap_err();
+    let settings = run(&sample(), json!([{"op":"add","path":"/course/modules","position":"end","value":{"name":"X","completion_method":"by_exam"}}])).unwrap_err();
     assert_eq!(settings.code, EditErrorCode::WrongTool);
 }
 

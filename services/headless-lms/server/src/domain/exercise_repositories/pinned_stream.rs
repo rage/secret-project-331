@@ -42,6 +42,10 @@ struct GitStreamRegistration {
     wrap: Option<unsafe extern "C" fn(*mut *mut GitStream, *mut GitStream, *const c_char) -> c_int>,
 }
 
+/// The libgit2 release whose `git_stream` and `git_socket_stream` layouts the structs here mirror.
+/// Any release may change them, so [`register`] refuses every other one.
+const MIRRORED_LIBGIT2_RELEASE: (u32, u32) = (1, 9);
+
 const GIT_STREAM_VERSION: c_int = 1;
 const GIT_STREAM_STANDARD: c_int = 1;
 
@@ -69,6 +73,17 @@ pub(super) fn register() -> anyhow::Result<()> {
     REGISTERED
         .get_or_init(|| {
             libgit2_sys::init();
+            let version = git2::Version::get().libgit2_version();
+            if (version.0, version.1) != MIRRORED_LIBGIT2_RELEASE {
+                return Err(format!(
+                    "the stream structs mirror libgit2 {}.{}, but {}.{}.{} is linked",
+                    MIRRORED_LIBGIT2_RELEASE.0,
+                    MIRRORED_LIBGIT2_RELEASE.1,
+                    version.0,
+                    version.1,
+                    version.2
+                ));
+            }
             let mut registration = GitStreamRegistration {
                 version: GIT_STREAM_VERSION,
                 init: Some(init),
@@ -424,11 +439,9 @@ mod tests {
         );
     }
 
-    /// The structs above mirror libgit2 1.9's `git_stream` and `git_socket_stream`, which libgit2
-    /// may change in any release.
     #[test]
     fn libgit2_is_the_release_whose_layouts_are_mirrored() {
         let (major, minor, _) = git2::Version::get().libgit2_version();
-        assert_eq!((major, minor), (1, 9));
+        assert_eq!((major, minor), MIRRORED_LIBGIT2_RELEASE);
     }
 }

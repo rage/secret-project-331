@@ -871,7 +871,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "Exercise-slide-submission or snapshot id",
+            "description": "Exercise-slide-submission or paste snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -1035,13 +1035,13 @@
     "/api/v0/exercise-services/client/submissions/{id}/share": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "* POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission or snapshot of the current user and returns\n * its URL. A paste is a share of a `paste` snapshot.",
+        "summary": "* POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission or paste of the current user and returns\n * its URL. A paste is a share of a `paste` snapshot.",
         "operationId": "shareClientSubmission",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "Exercise-slide-submission or snapshot id",
+            "description": "Exercise-slide-submission or paste snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -1060,7 +1060,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The shareable URL for the submission or snapshot",
+            "description": "The shareable URL for the submission or paste",
             "content": {
               "application/json": {
                 "schema": {
@@ -1091,6 +1091,16 @@
           },
           "404": {
             "description": "No submission with the given id exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The id is a backup, which cannot be shared",
             "content": {
               "application/json": {
                 "schema": {
@@ -1160,7 +1170,7 @@
       },
       "AnswerSnapshotResult": {
         "type": "object",
-        "description": "Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` and\n`submissions/{id}/share` take, and what the submissions list reports as the entry's `id`.",
+        "description": "Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` (and, for a\npaste, `submissions/{id}/share`) takes, and what the submissions list reports as the entry's `id`.",
         "required": ["snapshot_id"],
         "properties": {
           "snapshot_id": {
@@ -1415,7 +1425,7 @@
       },
       "ExerciseSlideSubmissionListItem": {
         "type": "object",
-        "description": "A past submission or snapshot of the current user to an exercise. `id` is what\n`submissions/{id}/download` and `submissions/{id}/share` take.",
+        "description": "A past submission or snapshot of the current user to an exercise. `id` is what\n`submissions/{id}/download` takes, and `submissions/{id}/share` for anything but a backup.",
         "required": ["id", "exercise_id", "created_at"],
         "properties": {
           "created_at": {
@@ -1588,7 +1598,7 @@
       },
       "PasteResult": {
         "type": "object",
-        "description": "A shareable URL for a submission or snapshot.",
+        "description": "A shareable URL for a submission or paste.",
         "required": ["paste_url"],
         "properties": {
           "paste_url": {

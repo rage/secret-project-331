@@ -1138,16 +1138,6 @@ async fn create_answer_snapshot(
     .await?;
 
     let snapshot = snapshot.into_inner();
-    if snapshot.purpose == api::SnapshotPurpose::Paste
-        && PASTE_LIMITS
-            .check_key(format!("{}:{}", user.id, *exercise_id))
-            .is_err()
-    {
-        return Err(controller_err!(
-            TooManyRequests,
-            "Too many pastes of this exercise; try again later.".to_string()
-        ));
-    }
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let Some(course_id) = exercise.course_id else {
         return Err(controller_err!(
@@ -1181,6 +1171,15 @@ async fn create_answer_snapshot(
         &exercise_task.exercise_type,
         &capable_slugs,
     )?;
+    // Checked last so that a request refused for another reason does not use up the quota.
+    if snapshot.purpose == api::SnapshotPurpose::Paste
+        && let Err(retry_after) = PASTE_LIMITS.check_key(format!("{}:{}", user.id, exercise.id))
+    {
+        return Err(controller_err!(
+            TooManyRequests(Some(retry_after)),
+            "Too many pastes of this exercise; try again later.".to_string()
+        ));
+    }
 
     let stored = domain::exercise_services::answer_snapshots::store_snapshot(
         &mut conn,
@@ -1456,7 +1455,7 @@ fn submission_list_items(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission or snapshot id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or paste snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
@@ -1597,7 +1596,7 @@ fn submission_files_response(
 /**
  * POST /api/v0/exercise-services/client/submissions/:id/share
  *
- * Mints a shareable link to an existing submission or snapshot of the current user and returns
+ * Mints a shareable link to an existing submission or paste of the current user and returns
  * its URL. A paste is a share of a `paste` snapshot.
  */
 #[utoipa::path(
@@ -1607,14 +1606,15 @@ fn submission_files_response(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission or snapshot id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or paste snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The shareable URL for the submission or snapshot", body = api::PasteResult),
+        (status = 200, description = "The shareable URL for the submission or paste", body = api::PasteResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot share another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The id is a backup, which cannot be shared", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1635,6 +1635,13 @@ async fn share_submission(
             user.id,
             "Cannot share another user's submission".to_string(),
         )?;
+        // Backups are pruned past the cap, which would break their links, and are not rate limited.
+        if snapshot.purpose != SnapshotPurpose::Paste {
+            return Err(controller_err!(
+                BadRequest,
+                "Only a paste can be shared, not a backup.".to_string()
+            ));
+        }
         domain::exercise_services::submission_sharing::share_snapshot(
             &mut conn,
             snapshot.id,
@@ -4393,21 +4400,26 @@ mod route_tests {
         let fixture = committed_fixture(true).await;
         let file = upload_two(&fixture).await[0];
         let app = client_api_app!();
-        let mut statuses = vec![];
+        let mut responses = vec![];
         for _ in 0..4 {
             let request =
                 snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
                     .to_request();
-            statuses.push(test::call_service(&app, request).await.status());
+            responses.push(test::call_service(&app, request).await);
         }
         assert_eq!(
-            statuses,
+            responses.iter().map(|r| r.status()).collect::<Vec<_>>(),
             vec![
                 StatusCode::OK,
                 StatusCode::OK,
                 StatusCode::OK,
                 StatusCode::TOO_MANY_REQUESTS
             ]
+        );
+        assert!(
+            responses[3]
+                .headers()
+                .contains_key(actix_web::http::header::RETRY_AFTER)
         );
 
         let backup = api::NewAnswerSnapshot {
@@ -4419,6 +4431,55 @@ mod route_tests {
             test::call_service(&app, request).await.status(),
             StatusCode::OK,
             "backups are bounded by their cap, not by the paste limit"
+        );
+    }
+
+    #[actix_web::test]
+    async fn refused_pastes_do_not_use_up_the_limit() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let unknown_slide = api::NewAnswerSnapshot {
+            exercise_slide_id: Uuid::new_v4(),
+            ..paste_of(&fixture, file)
+        };
+        for _ in 0..4 {
+            let request =
+                snapshot_request(fixture.exercise, &fixture.token, &unknown_slide).to_request();
+            assert_eq!(
+                test::call_service(&app, request).await.status(),
+                StatusCode::NOT_FOUND
+            );
+        }
+        let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+            .to_request();
+        assert_eq!(
+            test::call_service(&app, request).await.status(),
+            StatusCode::OK
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_backup_cannot_be_shared() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let backup = api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Backup,
+            ..paste_of(&fixture, file)
+        };
+        let request = snapshot_request(fixture.exercise, &fixture.token, &backup).to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+
+        let request = test::TestRequest::post()
+            .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        assert_eq!(
+            test::call_service(&app, request).await.status(),
+            StatusCode::UNPROCESSABLE_ENTITY
         );
     }
 

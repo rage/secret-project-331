@@ -65,9 +65,9 @@ pub enum ControllerErrorType {
     #[display("Not found")]
     NotFound,
 
-    /// HTTP status code 429.
+    /// HTTP status code 429, with how long until a retry can succeed for `Retry-After`.
     #[display("Too many requests")]
-    TooManyRequests,
+    TooManyRequests(Option<std::time::Duration>),
 
     /// HTTP status code 401. Needs to log in.
     #[display("Unauthorized")]
@@ -537,7 +537,14 @@ impl error::ResponseError for ControllerError {
             metadata: metadata_json,
         };
 
-        HttpResponseBuilder::new(status)
+        let mut response = HttpResponseBuilder::new(status);
+        if let ControllerErrorType::TooManyRequests(Some(retry_after)) = self.error_type {
+            response.append_header((
+                actix_web::http::header::RETRY_AFTER,
+                retry_after.as_secs().max(1),
+            ));
+        }
+        response
             .append_header(ContentType::json())
             .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
                 error!("Error while serialising error response: {e}");
@@ -553,7 +560,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
-            ControllerErrorType::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
+            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
@@ -598,7 +605,7 @@ impl ControllerError {
             ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
             ControllerErrorType::NotFound => ("not_found", "not_found"),
             // Matches the rate limit middleware's response.
-            ControllerErrorType::TooManyRequests => ("rate_limit", "rate_limited"),
+            ControllerErrorType::TooManyRequests(_) => ("rate_limit", "rate_limited"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::UnauthorizedWithReason(reason) => {
                 ("unauthorized", reason.message_key())

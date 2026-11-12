@@ -287,19 +287,21 @@ async fn process_inner(
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     ensure_clone_url_is_allowed(url).await?;
     pinned_stream::register()?;
-    let mut tx = conn.begin().await?;
 
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
     info!("Cloning {url} to {:?}", temp.path());
+    // Outside the transaction: a first-seen host key must outlive a failed processing, and must not
+    // lock out other clones of the host while processing runs.
     clone_repository(
-        &mut tx,
+        conn,
         url,
         deploy_key.map(|deploy_key| (public_key, deploy_key)),
         temp.path(),
     )
     .await?;
     info!("Finished cloning {url} to {:?}", temp.path());
+    let mut tx = conn.begin().await?;
 
     // create exercises in db and store them in file store
     let found_exercises = find_exercise_directories(temp.path()).await?;
@@ -436,10 +438,10 @@ async fn update_inner(
 ) -> anyhow::Result<()> {
     ensure_clone_url_is_allowed(url).await?;
     pinned_stream::register()?;
-    let mut tx = conn.begin().await?;
 
     let temp = tempfile::tempdir()?;
-    clone_repository(&mut tx, url, None, temp.path()).await?;
+    clone_repository(conn, url, None, temp.path()).await?;
+    let mut tx = conn.begin().await?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
     let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;

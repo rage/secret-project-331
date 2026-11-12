@@ -191,8 +191,8 @@ pub struct NewAnswerSnapshot {
     pub data_files: Vec<Uuid>,
 }
 
-/// Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` and
-/// `submissions/{id}/share` take, and what the submissions list reports as the entry's `id`.
+/// Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` (and, for a
+/// paste, `submissions/{id}/share`) takes, and what the submissions list reports as the entry's `id`.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct AnswerSnapshotResult {
@@ -264,7 +264,7 @@ pub enum SubmissionKind {
 }
 
 /// A past submission or snapshot of the current user to an exercise. `id` is what
-/// `submissions/{id}/download` and `submissions/{id}/share` take.
+/// `submissions/{id}/download` takes, and `submissions/{id}/share` for anything but a backup.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmissionListItem {
@@ -348,7 +348,7 @@ pub enum ExerciseStanding {
     OutOfTries,
 }
 
-/// A shareable URL for a submission or snapshot.
+/// A shareable URL for a submission or paste.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct PasteResult {

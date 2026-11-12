@@ -306,11 +306,10 @@ pub async fn get_shared_view_task(
             None,
         )
     })?;
-    let mut exercise_iframe_url =
-        crate::exercise_services::get_exercise_service_externally_preferred_baseurl(
-            exercise_service,
-        )?;
-    exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
+    let exercise_iframe_url = crate::exercise_services::get_exercise_iframe_url(
+        exercise_service,
+        &service_info.user_interface_iframe_path,
+    )?;
 
     let files = get_files(conn, snapshot.id)
         .await?

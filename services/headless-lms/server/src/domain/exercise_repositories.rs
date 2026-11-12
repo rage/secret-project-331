@@ -119,6 +119,8 @@ async fn clone_repository(
     deploy_key: Option<(Option<&str>, &SecretString)>,
     target: &Path,
 ) -> anyhow::Result<()> {
+    ensure_clone_url_is_allowed(url).await?;
+    pinned_stream::register()?;
     let (host, port) = clone_url_host_and_port(url)
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
@@ -285,9 +287,6 @@ async fn process_inner(
         app_conf,
     }: InnerArgs<'_>,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
-    ensure_clone_url_is_allowed(url).await?;
-    pinned_stream::register()?;
-
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
     info!("Cloning {url} to {:?}", temp.path());
@@ -436,9 +435,6 @@ async fn update_inner(
     new_stored_files: &mut Vec<PathBuf>,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    ensure_clone_url_is_allowed(url).await?;
-    pinned_stream::register()?;
-
     let temp = tempfile::tempdir()?;
     clone_repository(conn, url, None, temp.path()).await?;
     let mut tx = conn.begin().await?;

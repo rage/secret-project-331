@@ -74,13 +74,12 @@ const SharedSubmission: React.FC = () => {
                   opacity: 0.8;
                 `}
               >
-                {submissionInfo.is_graded
-                  ? t("shared-submission-submitted-at", {
-                      time: dateToString(submissionInfo.created_at),
-                    })
-                  : t("shared-submission-saved-at", {
-                      time: dateToString(submissionInfo.created_at),
-                    })}
+                {t(
+                  submissionInfo.is_graded
+                    ? "shared-submission-submitted-at"
+                    : "shared-submission-saved-at",
+                  { time: dateToString(submissionInfo.created_at) },
+                )}
               </p>
 
               {!submissionInfo.is_graded && (

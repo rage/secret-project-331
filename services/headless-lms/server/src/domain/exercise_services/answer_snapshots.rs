@@ -33,13 +33,6 @@ pub async fn store_snapshot(
     answer: SnapshotAnswer,
 ) -> Result<ExerciseAnswerSnapshot, ControllerError> {
     answer_uploads::verify_answer_names_uploads(&answer.file_upload_ids)?;
-    answer_uploads::verify_uploads_belong_to_exercise(
-        conn,
-        answer.exercise_id,
-        answer.user_id,
-        &answer.file_upload_ids,
-    )
-    .await?;
 
     let mut tx = conn.begin().await?;
     answer_uploads::lock_and_verify_uploads_are_usable(

@@ -4233,6 +4233,12 @@ mod route_tests {
             .set_json(body)
     }
 
+    fn share_request(id: Uuid, token: &str) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/submissions/{id}/share"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+    }
+
     async fn list_submissions(
         app: &impl actix_web::dev::Service<
             actix_http::Request,
@@ -4276,13 +4282,7 @@ mod route_tests {
         let request = snapshot_request(
             fixture.exercise,
             &fixture.token,
-            &api::NewAnswerSnapshot {
-                purpose: api::SnapshotPurpose::Paste,
-                exercise_slide_id: fixture.slide,
-                exercise_task_id: fixture.task,
-                data_json: None,
-                data_files: vec![file_id],
-            },
+            &paste_of(&fixture, file_id),
         )
         .to_request();
         let response = test::call_service(&app, request).await;
@@ -4296,10 +4296,7 @@ mod route_tests {
         let downloaded = download(&app, &fixture.token, snapshot.snapshot_id).await;
         assert_eq!(downloaded["data_files"][0]["id"], file_id.to_string());
 
-        let request = test::TestRequest::post()
-            .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
-            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
-            .to_request();
+        let request = share_request(snapshot.snapshot_id, &fixture.token).to_request();
         let response = test::call_service(&app, request).await;
         assert_eq!(response.status(), StatusCode::OK);
 
@@ -4329,10 +4326,7 @@ mod route_tests {
             &owner.token,
             &api::NewAnswerSnapshot {
                 purpose: api::SnapshotPurpose::Backup,
-                exercise_slide_id: owner.slide,
-                exercise_task_id: owner.task,
-                data_json: None,
-                data_files: vec![uploaded.data_files[0].id],
+                ..paste_of(&owner, uploaded.data_files[0].id)
             },
         )
         .to_request();
@@ -4344,9 +4338,7 @@ mod route_tests {
             test::TestRequest::get()
                 .uri(&format!("/submissions/{}/download", snapshot.snapshot_id))
                 .insert_header(("Authorization", format!("Bearer {}", other.token))),
-            test::TestRequest::post()
-                .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
-                .insert_header(("Authorization", format!("Bearer {}", other.token))),
+            share_request(snapshot.snapshot_id, &other.token),
         ] {
             let response = test::call_service(&app, request.to_request()).await;
             assert_eq!(response.status(), StatusCode::FORBIDDEN);
@@ -4370,13 +4362,7 @@ mod route_tests {
         let request = snapshot_request(
             thief.exercise,
             &thief.token,
-            &api::NewAnswerSnapshot {
-                purpose: api::SnapshotPurpose::Paste,
-                exercise_slide_id: thief.slide,
-                exercise_task_id: thief.task,
-                data_json: None,
-                data_files: vec![uploaded.data_files[0].id],
-            },
+            &paste_of(&thief, uploaded.data_files[0].id),
         )
         .to_request();
         let response = test::call_service(&app, request).await;
@@ -4473,10 +4459,7 @@ mod route_tests {
         assert_eq!(response.status(), StatusCode::OK);
         let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
 
-        let request = test::TestRequest::post()
-            .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
-            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
-            .to_request();
+        let request = share_request(snapshot.snapshot_id, &fixture.token).to_request();
         assert_eq!(
             test::call_service(&app, request).await.status(),
             StatusCode::UNPROCESSABLE_ENTITY

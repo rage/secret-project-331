@@ -22,7 +22,13 @@ import {
   getCourseStructureOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourseModules } from "@/generated/api/sdk.generated"
-import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
+import type {
+  CompletionPolicy,
+  CreditRegistrationRoute,
+  ExamRequirement,
+  ModifiedModule,
+  NewModule,
+} from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
@@ -33,9 +39,6 @@ import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
 import type { CourseModuleFormFields, CourseModuleFormMode } from "./CourseModuleForm"
 import CourseModuleForm from "./CourseModuleForm"
 import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
-
-const AUTOMATIC = "automatic"
-const MANUAL = "manual"
 
 const STUDENTS_SUBTAB_COMPLETIONS = "completions"
 const REGISTRATION_VIEW_FAILED = "failed"
@@ -62,6 +65,9 @@ export interface ModuleView {
   automatic_completion_requires_exam: boolean
   completion_registration_link_override: string | null
   completions_can_be_registered_to_sisu: boolean
+  exam_requirement: ExamRequirement
+  exam_location_description: string | null
+  credit_registration_route: CreditRegistrationRoute
 }
 
 interface ChapterView {
@@ -114,6 +120,9 @@ const blankModule = (chapters: number[]): ModuleView => ({
   automatic_completion_requires_exam: false,
   completion_registration_link_override: null,
   completions_can_be_registered_to_sisu: true,
+  exam_requirement: "none",
+  exam_location_description: null,
+  credit_registration_route: "platform",
 })
 
 /** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
@@ -253,27 +262,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           })
         const modules = courseStructure.modules.map<ModuleView>((m) => {
           const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-          if (m.completion_policy.policy === "automatic") {
-            return {
-              id: m.id,
-              name: m.name ?? null,
-              order_number: m.order_number,
-              firstChapter,
-              lastChapter,
-              isNew: false,
-              uh_course_code: m.uh_course_code ?? null,
-              ects_credits: m.ects_credits ?? null,
-              automatic_completion: true,
-              automatic_completion_number_of_points_treshold:
-                m.completion_policy.number_of_points_treshold ?? null,
-              automatic_completion_number_of_exercises_attempted_treshold:
-                m.completion_policy.number_of_exercises_attempted_treshold ?? null,
-              automatic_completion_requires_exam: m.completion_policy.requires_exam,
-              completion_registration_link_override:
-                m.completion_registration_link_override ?? null,
-              completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
-            }
-          }
+          const policy = m.completion_policy
+          const automatic = policy.method === "by_requirements" || policy.method === "by_exam"
           return {
             id: m.id,
             name: m.name ?? null,
@@ -283,12 +273,19 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             isNew: false,
             uh_course_code: m.uh_course_code ?? null,
             ects_credits: m.ects_credits ?? null,
-            automatic_completion: false,
-            automatic_completion_number_of_points_treshold: null,
-            automatic_completion_number_of_exercises_attempted_treshold: null,
-            automatic_completion_requires_exam: false,
+            automatic_completion: automatic,
+            automatic_completion_number_of_points_treshold: automatic
+              ? (policy.number_of_points_treshold ?? null)
+              : null,
+            automatic_completion_number_of_exercises_attempted_treshold: automatic
+              ? (policy.number_of_exercises_attempted_treshold ?? null)
+              : null,
+            automatic_completion_requires_exam: policy.method === "by_exam",
             completion_registration_link_override: m.completion_registration_link_override ?? null,
-            completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
+            completions_can_be_registered_to_sisu: m.credit_registration_route === "platform",
+            exam_requirement: m.exam_requirement,
+            exam_location_description: m.exam_location_description ?? null,
+            credit_registration_route: m.credit_registration_route,
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -343,8 +340,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
-            completions_can_be_registered_to_sisu:
-              courseModule.completions_can_be_registered_to_sisu,
+            ...mapFieldsToExamAndRoute(courseModule),
           })
         } else if (
           initialModule !== undefined &&
@@ -374,8 +370,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             completion_policy: mapFieldsToCompletionPolicy(courseModule),
             completion_registration_link_override:
               courseModule.completion_registration_link_override,
-            completions_can_be_registered_to_sisu:
-              courseModule.completions_can_be_registered_to_sisu,
+            ...mapFieldsToExamAndRoute(courseModule),
           })
         }
       }
@@ -482,6 +477,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           ? completion_registration_link_override
           : null,
         completions_can_be_registered_to_sisu,
+        exam_requirement: existing?.exam_requirement ?? "none",
+        exam_location_description: existing?.exam_location_description ?? null,
+        credit_registration_route: existing?.credit_registration_route ?? "platform",
         // Overwritten below, along with every other module's.
         firstChapter: null,
         lastChapter: null,
@@ -635,13 +633,33 @@ export default CourseModules
 function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
   if (fields.automatic_completion) {
     return {
-      policy: AUTOMATIC,
+      method: fields.automatic_completion_requires_exam ? "by_exam" : "by_requirements",
       course_module_id: fields.id,
       number_of_exercises_attempted_treshold:
         fields.automatic_completion_number_of_exercises_attempted_treshold,
       number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
-      requires_exam: fields.automatic_completion_requires_exam,
     }
   }
-  return { policy: MANUAL }
+  return { method: "teacher_adds" }
+}
+
+function mapFieldsToExamAndRoute(
+  fields: ModuleView,
+): Pick<NewModule, "exam_requirement" | "exam_location_description" | "credit_registration_route"> {
+  const exam_requirement: ExamRequirement = fields.automatic_completion
+    ? fields.automatic_completion_requires_exam
+      ? "platform"
+      : "none"
+    : fields.exam_requirement
+  const credit_registration_route: CreditRegistrationRoute =
+    fields.completions_can_be_registered_to_sisu
+      ? fields.credit_registration_route === "certificate_only"
+        ? "platform"
+        : fields.credit_registration_route
+      : "certificate_only"
+  return {
+    exam_requirement,
+    exam_location_description: fields.exam_location_description,
+    credit_registration_route,
+  }
 }

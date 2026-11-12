@@ -214,7 +214,9 @@ const CourseModuleForm: React.FC<Props> = ({
   const overrideLink = watch("override_completion_link")
   const registersToStudyRegistry = registersCredits({
     uh_course_code: watch("uh_course_code"),
-    completions_can_be_registered_to_sisu: watch("completions_can_be_registered_to_sisu"),
+    credit_registration_route: watch("completions_can_be_registered_to_sisu")
+      ? "platform"
+      : "certificate_only",
   })
   // Without this, adding a course code shows up only as a disabled Done button, and removing it
   // again leaves the message it raised under a field nothing requires any more.

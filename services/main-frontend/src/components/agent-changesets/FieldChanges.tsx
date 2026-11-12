@@ -39,11 +39,13 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
     deadline: t("agent-field-deadline"),
     chapter_image_path: t("agent-field-chapter-image"),
     completion_policy: t("agent-field-completion-policy"),
+    exam_requirement: t("agent-field-exam-requirement"),
+    exam_location_description: t("agent-field-exam-location"),
     certification_enabled: t("enable-module-completion-certificates"),
     uh_course_code: t("agent-field-course-code"),
     ects_credits: t("agent-field-ects-credits"),
     completion_registration_link_override: t("completion-registration-link"),
-    completions_can_be_registered_to_sisu: t("completions-can-be-registered-to-sisu"),
+    credit_registration_route: t("agent-field-credit-registration-route"),
     description: t("agent-field-description"),
     is_draft: t("agent-field-is-draft"),
     is_test_mode: t("agent-field-is-test-mode"),
@@ -78,7 +80,7 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
 }
 
 function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
-  if (policy.policy === "manual") {
+  if (policy.method === "not_decided" || policy.method === "teacher_adds") {
     return t("agent-completion-policy-manual")
   }
   const requirements: string[] = []
@@ -90,7 +92,7 @@ function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
   if (typeof exercises === "number") {
     requirements.push(t("agent-completion-exercises-attempted", { count: exercises }))
   }
-  if (policy.requires_exam) {
+  if (policy.method === "by_exam") {
     requirements.push(t("agent-completion-requires-exam"))
   }
   return requirements.length === 0
@@ -216,6 +218,9 @@ const FieldChanges: React.FC<FieldChangesProps> = ({ changes, caption }) => {
         return value.value.length > 0 ? value.value.join(", ") : ABSENT_LABEL
       case "completion_policy":
         return completionPolicyText(value.value, t)
+      case "exam_requirement":
+      case "credit_registration_route":
+        return value.value
       case "ai_policy":
         return aiPolicyLabel(value.value, t)
       case "blocks":

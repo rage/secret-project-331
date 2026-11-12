@@ -198,8 +198,13 @@ const completionResultLabel = (
 }
 
 /** Whether `ModuleProgress` has anything to show for this module. */
+const completesAutomatically = (module: MyStudiesCourseModule): boolean =>
+  module.completion_method === "by_requirements" || module.completion_method === "by_exam"
+
 const hasProgressToShow = (module: MyStudiesCourseModule): boolean =>
-  (module.score_maximum ?? 0) > 0 || (module.total_exercises ?? 0) > 0 || module.requires_exam
+  (module.score_maximum ?? 0) > 0 ||
+  (module.total_exercises ?? 0) > 0 ||
+  module.completion_method === "by_exam"
 
 /** True when every module grants the same credits, one that grants none included. */
 const modulesShareEcts = (modules: MyStudiesCourseModule[]): boolean => {
@@ -230,7 +235,7 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   // Said once for the course rather than under each of its modules, where it would be the only
   // thing most of them have to say.
   const teacherGradesWholeCourse =
-    modules.every((module) => !module.automatic_completion) &&
+    modules.every((module) => !completesAutomatically(module)) &&
     modules.some((module) => !module.completion)
   // Credits belong to the module that grants them, but a course whose modules all grant the same
   // says it once up here rather than printing one identical line per module.
@@ -426,7 +431,7 @@ const ModuleStatus: React.FC<{
     )
   }
 
-  if (!module.automatic_completion) {
+  if (!completesAutomatically(module)) {
     if (explainTeacherGrading) {
       return <span className={noteCss}>{t("note-graded-by-your-teacher")}</span>
     }
@@ -443,7 +448,9 @@ const ModuleStatus: React.FC<{
   if (remaining === null) {
     return (
       <span className={achievedCss}>
-        {module.requires_exam ? t("label-ready-to-take-the-exam") : t("label-requirements-met")}
+        {module.completion_method === "by_exam"
+          ? t("label-ready-to-take-the-exam")
+          : t("label-requirements-met")}
       </span>
     )
   }
@@ -451,7 +458,7 @@ const ModuleStatus: React.FC<{
   const requirements = remainingRequirementsList(t, i18n.language, remaining)
   return (
     <span className={noteCss}>
-      {module.requires_exam
+      {module.completion_method === "by_exam"
         ? t("x-to-take-the-exam", { requirements })
         : isCourseItself
           ? t("x-to-complete-this-course", { requirements })
@@ -521,14 +528,15 @@ const ModuleProgress: React.FC<{
     )
   }
 
-  const examRow = module.requires_exam ? (
-    <div className={examRowCss}>
-      <span>{t("label-exam")}</span>
-      <span className={examPassed ? achievedCss : examResultCss}>
-        {examPassed ? t("label-passed") : t("label-not-passed")}
-      </span>
-    </div>
-  ) : null
+  const examRow =
+    module.completion_method === "by_exam" ? (
+      <div className={examRowCss}>
+        <span>{t("label-exam")}</span>
+        <span className={examPassed ? achievedCss : examResultCss}>
+          {examPassed ? t("label-passed") : t("label-not-passed")}
+        </span>
+      </div>
+    ) : null
 
   if (dimensions.length === 0 && examRow === null) {
     return null
@@ -551,7 +559,7 @@ const ModuleProgress: React.FC<{
     <div
       className={progressCss}
       role="group"
-      aria-label={completionHeading(t, module.requires_exam, isCourseItself)}
+      aria-label={completionHeading(t, module.completion_method === "by_exam", isCourseItself)}
     >
       {body}
     </div>

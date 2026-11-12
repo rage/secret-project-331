@@ -1,16 +1,28 @@
-use crate::prelude::*;
+use crate::{exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*};
 
-/// A shareable link to an existing exercise-slide submission. The `id` is the
-/// unguessable token used in the shareable URL; a viewer resolves the token back
-/// to the submission it points at.
+/// A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+/// of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+/// resolves the token back to what it points at.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, sqlx::FromRow, utoipa::ToSchema)]
 pub struct ExerciseSlideSubmissionShare {
     pub id: Uuid,
-    pub exercise_slide_submission_id: Uuid,
+    pub exercise_slide_submission_id: Option<Uuid>,
+    pub exercise_answer_snapshot_id: Option<Uuid>,
     pub created_by: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+}
+
+/// What a share-link holder is shown: the shared answer, without the model solution or anything
+/// that identifies the student.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, utoipa::ToSchema)]
+pub struct SharedSubmissionInfo {
+    pub exercise: Exercise,
+    pub tasks: Vec<CourseMaterialExerciseTask>,
+    pub created_at: DateTime<Utc>,
+    /// `false` for a paste or backup snapshot, which is stored but never graded.
+    pub is_graded: bool,
 }
 
 pub async fn insert(
@@ -26,6 +38,26 @@ VALUES ($1, $2)
 RETURNING *
         "#,
         exercise_slide_submission_id,
+        created_by,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(row)
+}
+
+pub async fn insert_for_snapshot(
+    conn: &mut PgConnection,
+    exercise_answer_snapshot_id: Uuid,
+    created_by: Uuid,
+) -> ModelResult<ExerciseSlideSubmissionShare> {
+    let row = sqlx::query_as!(
+        ExerciseSlideSubmissionShare,
+        r#"
+INSERT INTO exercise_slide_submission_shares (exercise_answer_snapshot_id, created_by)
+VALUES ($1, $2)
+RETURNING *
+        "#,
+        exercise_answer_snapshot_id,
         created_by,
     )
     .fetch_one(conn)
@@ -95,22 +127,25 @@ RETURNING id
     Ok(revoked.is_some())
 }
 
-/// Withdraws every live share of one submission at once — the operation a user actually wants
-/// after sharing the same answer more than once.
+/// Withdraws every live share of one submission or snapshot at once — the operation a user actually
+/// wants after sharing the same answer more than once.
 pub async fn revoke_all_for_submission(
     conn: &mut PgConnection,
-    exercise_slide_submission_id: Uuid,
+    submission_or_snapshot_id: Uuid,
     created_by: Uuid,
 ) -> ModelResult<u64> {
     let revoked = sqlx::query!(
         r#"
 UPDATE exercise_slide_submission_shares
 SET deleted_at = now()
-WHERE exercise_slide_submission_id = $1
+WHERE (
+    exercise_slide_submission_id = $1
+    OR exercise_answer_snapshot_id = $1
+  )
   AND created_by = $2
   AND deleted_at IS NULL
         "#,
-        exercise_slide_submission_id,
+        submission_or_snapshot_id,
         created_by,
     )
     .execute(conn)

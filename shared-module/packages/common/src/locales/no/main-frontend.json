@@ -2586,6 +2586,8 @@
   "set-default-chatbot": "Sett som standard chatbot for kurset",
   "set-threshold": "Lagre terskel",
   "settings": "Innstillinger",
+  "shared-submission-not-graded": "Denne kopien ble lagret uten å bli levert, så den er ikke vurdert.",
+  "shared-submission-saved-at": "Lagret {{time}}",
   "shared-submission-submitted-at": "Levert {{time}}",
   "show-activity-chart": "Vis aktivitetsdiagrammet",
   "show-answers": "Vis svar",

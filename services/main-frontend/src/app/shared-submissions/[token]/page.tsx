@@ -74,14 +74,25 @@ const SharedSubmission: React.FC = () => {
                   opacity: 0.8;
                 `}
               >
-                {t("shared-submission-submitted-at", {
-                  time: dateToString(submissionInfo.exercise_slide_submission.created_at),
-                })}
+                {submissionInfo.is_graded
+                  ? t("shared-submission-submitted-at", {
+                      time: dateToString(submissionInfo.created_at),
+                    })
+                  : t("shared-submission-saved-at", {
+                      time: dateToString(submissionInfo.created_at),
+                    })}
               </p>
+
+              {!submissionInfo.is_graded && (
+                <Infobox data-testid="shared-submission-not-graded">
+                  {t("shared-submission-not-graded")}
+                </Infobox>
+              )}
 
               <MainFrontedViewSubmission
                 submissionData={submissionInfo}
                 totalScoreGiven={totalScoreGiven}
+                isGraded={submissionInfo.is_graded}
               />
             </>
           )

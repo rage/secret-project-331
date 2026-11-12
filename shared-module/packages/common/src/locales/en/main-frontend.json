@@ -2549,6 +2549,8 @@
   "set-default-chatbot": "Set as the default chatbot for the course",
   "set-threshold": "Save threshold",
   "settings": "Settings",
+  "shared-submission-not-graded": "This copy was saved without submitting it, so it has not been graded.",
+  "shared-submission-saved-at": "Saved {{time}}",
   "shared-submission-submitted-at": "Submitted {{time}}",
   "show-activity-chart": "Show the activity chart",
   "show-answers": "Show answers",

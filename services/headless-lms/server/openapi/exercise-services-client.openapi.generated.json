@@ -438,7 +438,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/files": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "* POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.\n *\n * Gated on the caller being able to answer the exercise at all, so stored objects cannot be\n * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the\n * whole exercise here, because this route is bound to an exercise rather than a slide.",
+        "summary": "* POST /api/v0/exercise-services/client/exercises/:id/files\n *\n * Stores files for a later submission to this exercise. Every multipart field name must be a\n * UUID the client picks; the host assigns the ids a submit request then names. Uploads are\n * bound to this exercise and user, and unreferenced ones are reaped, so a client should upload\n * immediately before submitting.\n *\n * Gated on the caller being able to answer the exercise at all, so stored objects cannot be\n * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the\n * whole exercise here, because this route is bound to an exercise rather than a slide. Files for a\n * snapshot (`?for=snapshot`) skip the deadline, try-limit and chapter-lock checks, as the\n * snapshot route does.",
         "operationId": "uploadClientExerciseFiles",
         "parameters": [
           {
@@ -449,6 +449,17 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "for",
+            "in": "query",
+            "description": "`snapshot` for files a `snapshots` request will name; absent means a submission's.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "What the uploaded files will be named in.",
+              "enum": ["submission", "snapshot"]
             }
           },
           {
@@ -514,7 +525,113 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries, or the multipart body violates the field-name, file-count or size rules",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries (not checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exercises/{id}/snapshots": {
+      "post": {
+        "tags": ["exercise-services-client"],
+        "summary": "* POST /api/v0/exercise-services/client/exercises/:id/snapshots\n *\n * Stores an ungraded copy of an answer: a paste to share, or a backup kept before local changes are\n * discarded. A snapshot uses no try, awards no points and is never graded, so it is accepted after\n * the deadline and when out of tries. Its files come from this exercise's `files` endpoint,\n * uploaded with `?for=snapshot`.",
+        "operationId": "createClientAnswerSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Why the snapshot is stored, the slide and task it is for, and the files it consists of",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewAnswerSnapshot"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored snapshot's id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnswerSnapshotResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No exercise with the given id exists, the exercise belongs to an exam, or the referenced slide/task does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -544,7 +661,7 @@
     "/api/v0/exercise-services/client/exercises/{id}/submissions": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "* GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions to the given exercise, newest\n * first, each annotated with its grading score and progress if graded, and\n * whether it has a live share link.",
+        "summary": "* GET /api/v0/exercise-services/client/exercises/:id/submissions\n *\n * Returns the current user's past submissions and snapshots of the given exercise, newest first,\n * each annotated with what it is, its grading score and progress if graded, and whether it has a\n * live share link.",
         "operationId": "getClientExerciseSubmissions",
         "parameters": [
           {
@@ -569,7 +686,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The current user's submissions to the exercise, newest first",
+            "description": "The current user's submissions and snapshots of the exercise, newest first",
             "content": {
               "application/json": {
                 "schema": {
@@ -738,13 +855,13 @@
     "/api/v0/exercise-services/client/submissions/{id}/download": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "* GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions list, or by\n * a submit's `slide_submission_id`) to the files it was made from, so the client can restore\n * an old submission.",
+        "summary": "* GET /api/v0/exercise-services/client/submissions/:id/download\n *\n * Resolves an exercise-slide submission (by the id returned from the submissions list, or by\n * a submit's `slide_submission_id`) or a snapshot (by its `snapshot_id`) to the files it was made\n * from, so the client can restore it.",
         "operationId": "downloadClientSubmission",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "Exercise-slide-submission id",
+            "description": "Exercise-slide-submission or snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -763,7 +880,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The files the submission was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame",
+            "description": "The files the submission or snapshot was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame",
             "content": {
               "application/json": {
                 "schema": {
@@ -908,13 +1025,13 @@
     "/api/v0/exercise-services/client/submissions/{id}/share": {
       "post": {
         "tags": ["exercise-services-client"],
-        "summary": "* POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission of the current user and returns\n * its URL.",
+        "summary": "* POST /api/v0/exercise-services/client/submissions/:id/share\n *\n * Mints a shareable link to an existing submission or snapshot of the current user and returns\n * its URL. A paste is a share of a `paste` snapshot.",
         "operationId": "shareClientSubmission",
         "parameters": [
           {
             "name": "id",
             "in": "path",
-            "description": "Exercise-slide-submission id",
+            "description": "Exercise-slide-submission or snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -933,7 +1050,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The shareable URL for the submission",
+            "description": "The shareable URL for the submission or snapshot",
             "content": {
               "application/json": {
                 "schema": {
@@ -1030,6 +1147,17 @@
         "type": "string",
         "description": "Which of the two representations an answer is: the JSON in `data_json`, or the files in\n`data_files`. A request that omits it means `Json`.",
         "enum": ["json", "file"]
+      },
+      "AnswerSnapshotResult": {
+        "type": "object",
+        "description": "Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` and\n`submissions/{id}/share` take, and what the submissions list reports as the entry's `id`.",
+        "required": ["snapshot_id"],
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "ApiErrorIssue": {
         "type": "object",
@@ -1277,7 +1405,7 @@
       },
       "ExerciseSlideSubmissionListItem": {
         "type": "object",
-        "description": "A past submission of the current user to an exercise. `id` is the\nexercise-slide-submission id, which is what `submissions/{id}/download` takes.",
+        "description": "A past submission or snapshot of the current user to an exercise. `id` is what\n`submissions/{id}/download` and `submissions/{id}/share` take.",
         "required": ["id", "exercise_id", "created_at"],
         "properties": {
           "created_at": {
@@ -1291,7 +1419,8 @@
           "grading_progress": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/GradingProgress"
+                "$ref": "#/components/schemas/GradingProgress",
+                "description": "Always `None` for a snapshot."
               },
               {
                 "type": "null"
@@ -1304,11 +1433,16 @@
           },
           "is_shared": {
             "type": "boolean",
-            "description": "Whether the submission has a live share link, which is what a paste makes."
+            "description": "Whether the entry has a live share link right now, whatever its kind: a paste can have been\nrevoked, and a graded submission can have been shared from elsewhere."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SubmissionKind",
+            "description": "Absent from a host that predates the field, which lists only submissions."
           },
           "score_given": {
             "type": ["number", "null"],
-            "format": "float"
+            "format": "float",
+            "description": "Always `None` for a snapshot."
           }
         }
       },
@@ -1413,15 +1547,49 @@
         "description": "How far along a task submission's grading is.",
         "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
       },
+      "NewAnswerSnapshot": {
+        "type": "object",
+        "description": "Body of `POST exercises/{id}/snapshots`. Names files from this exercise's `files` endpoint\nlike a `file` submit does, uploaded with `?for=snapshot` so that a passed deadline or used-up\ntries do not refuse the upload.",
+        "required": ["purpose", "exercise_slide_id", "exercise_task_id", "data_files"],
+        "properties": {
+          "data_files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "At least one id, each uploaded by this user for this exercise."
+          },
+          "data_json": {
+            "description": "The exercise service's own JSON about the files, as in a `file` submit."
+          },
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/SnapshotPurpose"
+          }
+        }
+      },
       "PasteResult": {
         "type": "object",
-        "description": "A shareable URL for a submission.",
+        "description": "A shareable URL for a submission or snapshot.",
         "required": ["paste_url"],
         "properties": {
           "paste_url": {
             "type": "string"
           }
         }
+      },
+      "SnapshotPurpose": {
+        "type": "string",
+        "description": "Why a client stores an answer snapshot. Neither purpose is graded, uses a try or awards points,\nand both are accepted after the deadline and when out of tries.",
+        "enum": ["paste", "backup"]
       },
       "SubmissionFiles": {
         "type": "object",
@@ -1435,6 +1603,11 @@
             }
           }
         }
+      },
+      "SubmissionKind": {
+        "type": "string",
+        "description": "What an entry in the submissions list is.",
+        "enum": ["submission", "paste", "backup"]
       },
       "UploadedFiles": {
         "type": "object",

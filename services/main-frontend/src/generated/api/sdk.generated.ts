@@ -9748,7 +9748,7 @@ export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
 
 /**
  * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
- * share the current user has minted for one submission.
+ * share the current user has minted for one submission or snapshot.
  */
 export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean = true>(
   options: Options<RevokeSubmissionSharesOfSubmissionData, ThrowOnError>,
@@ -9785,7 +9785,7 @@ export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
 
 /**
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
- * render a shared submission.
+ * render a shared submission or ungraded snapshot.
  *
  * The `token` is the unguessable share id minted by the client share endpoint. Login is
  * required, but holding the token is the only capability needed to view the submission —

@@ -69,6 +69,7 @@ pub mod entity_history;
 pub mod error;
 pub mod errors;
 pub mod exams;
+pub mod exercise_answer_snapshots;
 pub mod exercise_answer_uploads;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;

@@ -2689,6 +2689,8 @@
   "set-default-chatbot": "Встановити як чат-бот за замовчуванням для курсу",
   "set-threshold": "Встановити поріг",
   "settings": "Налаштування",
+  "shared-submission-not-graded": "Цю копію збережено без надсилання, тому її не оцінено.",
+  "shared-submission-saved-at": "Збережено {{time}}",
   "shared-submission-submitted-at": "Надіслано {{time}}",
   "show-activity-chart": "Показати діаграму активності",
   "show-answers": "Показати відповіді",

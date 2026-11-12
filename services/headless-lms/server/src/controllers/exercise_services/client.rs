@@ -23,12 +23,13 @@ use headless_lms_utils::course_url::course_page_url;
 use headless_lms_utils::version::Version;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
+use models::exercise_answer_snapshots::{ExerciseAnswerSnapshot, SnapshotPurpose};
 use models::exercise_slide_submissions::UserExerciseSlideSubmissionWithGrading;
 use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::{HashMap, HashSet};
 use std::future::{Ready, ready};
-use utoipa::OpenApi;
+use utoipa::{IntoParams, OpenApi};
 
 #[derive(OpenApi)]
 #[openapi(
@@ -40,6 +41,7 @@ use utoipa::OpenApi;
         get_exercise,
         upload_exercise_files,
         submit_exercise,
+        create_answer_snapshot,
         get_submission_grading,
         get_exercise_submissions,
         download_submission,
@@ -48,6 +50,10 @@ use utoipa::OpenApi;
     components(schemas(
         api::ExerciseSlideSubmission,
         api::ExerciseSlideSubmissionListItem,
+        api::SubmissionKind,
+        api::NewAnswerSnapshot,
+        api::AnswerSnapshotResult,
+        api::SnapshotPurpose,
         api::AnswerFile,
         api::AnswerKind,
         api::UploadedFiles,
@@ -798,7 +804,9 @@ fn verify_task_is_client_capable(
  *
  * Gated on the caller being able to answer the exercise at all, so stored objects cannot be
  * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the
- * whole exercise here, because this route is bound to an exercise rather than a slide.
+ * whole exercise here, because this route is bound to an exercise rather than a slide. Files for a
+ * snapshot (`?for=snapshot`) skip the deadline, try-limit and chapter-lock checks, as the
+ * snapshot route does.
  */
 #[utoipa::path(
     post,
@@ -808,6 +816,7 @@ fn verify_task_is_client_capable(
     security(("bearer_auth" = [])),
     params(
         ("id" = Uuid, Path, description = "Exercise id"),
+        UploadQuery,
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     request_body(
@@ -820,15 +829,17 @@ fn verify_task_is_client_capable(
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries, or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries (not checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
+#[allow(clippy::too_many_arguments)]
 #[instrument(skip(pool, file_store, payload, app_conf))]
 async fn upload_exercise_files(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     exercise_id: web::Path<Uuid>,
+    query: web::Query<UploadQuery>,
     payload: Multipart,
     user: UserFromOAuthToken,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -856,7 +867,9 @@ async fn upload_exercise_files(
         exercise.chapter_id,
     )
     .await?;
-    domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
+    if query.r#for != Some(UploadFor::Snapshot) {
+        domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
+    }
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_client_uploads(
@@ -896,6 +909,22 @@ async fn upload_exercise_files(
         })
         .collect();
     token.authorized_ok(web::Json(api::UploadedFiles { data_files }))
+}
+
+/// What the uploaded files will be named in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "snake_case")]
+enum UploadFor {
+    Submission,
+    Snapshot,
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+struct UploadQuery {
+    /// `snapshot` for files a `snapshots` request will name; absent means a submission's.
+    #[param(inline)]
+    r#for: Option<UploadFor>,
 }
 
 /// Stores the multipart parts and binds them to the exercise and user, so that a failure to
@@ -1061,6 +1090,113 @@ async fn submit_exercise(
 }
 
 /**
+ * POST /api/v0/exercise-services/client/exercises/:id/snapshots
+ *
+ * Stores an ungraded copy of an answer: a paste to share, or a backup kept before local changes are
+ * discarded. A snapshot uses no try, awards no points and is never graded, so it is accepted after
+ * the deadline and when out of tries. Its files come from this exercise's `files` endpoint,
+ * uploaded with `?for=snapshot`.
+ */
+#[utoipa::path(
+    post,
+    path = "/exercises/{id}/snapshots",
+    operation_id = "createClientAnswerSnapshot",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Exercise id"),
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    request_body(content = api::NewAnswerSnapshot, description = "Why the snapshot is stored, the slide and task it is for, and the files it consists of"),
+    responses(
+        (status = 200, description = "The stored snapshot's id", body = api::AnswerSnapshotResult),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, the exercise belongs to an exam, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip(pool, snapshot))]
+async fn create_answer_snapshot(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    snapshot: web::Json<api::NewAnswerSnapshot>,
+    user: UserFromOAuthToken,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<api::AnswerSnapshotResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+
+    let snapshot = snapshot.into_inner();
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let Some(course_id) = exercise.course_id else {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    };
+    verify_enrolled(&mut conn, user.id, course_id).await?;
+    crate::domain::authorization::authorize_access_to_course_exercise(
+        &mut conn,
+        Some(user.id),
+        course_id,
+        exercise.chapter_id,
+    )
+    .await?;
+    let exercise_slide =
+        models::exercise_slides::get_exercise_slide(&mut conn, snapshot.exercise_slide_id).await?;
+    let exercise_task =
+        models::exercise_tasks::get_exercise_task_by_id(&mut conn, snapshot.exercise_task_id)
+            .await?;
+    verify_slide_and_task_belong(
+        exercise.id,
+        exercise_slide.id,
+        exercise_slide.exercise_id,
+        exercise_task.id,
+        exercise_task.exercise_slide_id,
+    )?;
+    let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+    verify_task_is_client_capable(
+        exercise_task.id,
+        &exercise_task.exercise_type,
+        &capable_slugs,
+    )?;
+
+    let stored = domain::exercise_services::answer_snapshots::store_snapshot(
+        &mut conn,
+        domain::exercise_services::answer_snapshots::SnapshotAnswer {
+            user_id: user.id,
+            course_id,
+            exercise_id: exercise.id,
+            exercise_slide_id: exercise_slide.id,
+            exercise_task_id: exercise_task.id,
+            purpose: model_snapshot_purpose(snapshot.purpose),
+            data_json: snapshot.data_json,
+            file_upload_ids: snapshot.data_files,
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(api::AnswerSnapshotResult {
+        snapshot_id: stored.id,
+    }))
+}
+
+fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
+    match purpose {
+        api::SnapshotPurpose::Paste => SnapshotPurpose::Paste,
+        api::SnapshotPurpose::Backup => SnapshotPurpose::Backup,
+    }
+}
+
+/**
  * GET /api/v0/exercise-services/client/submissions/:id/grading
  *
  * Returns the grading status of the given submission.
@@ -1168,9 +1304,9 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
 /**
  * GET /api/v0/exercise-services/client/exercises/:id/submissions
  *
- * Returns the current user's past submissions to the given exercise, newest
- * first, each annotated with its grading score and progress if graded, and
- * whether it has a live share link.
+ * Returns the current user's past submissions and snapshots of the given exercise, newest first,
+ * each annotated with what it is, its grading score and progress if graded, and whether it has a
+ * live share link.
  */
 #[utoipa::path(
     get,
@@ -1183,7 +1319,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
+        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
@@ -1222,42 +1358,73 @@ async fn get_exercise_submissions(
         )
         .await?;
 
-    let shared_submission_ids =
-        models::exercise_slide_submission_shares::list_by_creator(&mut conn, user.id)
-            .await?
-            .into_iter()
-            .map(|share| share.exercise_slide_submission_id)
-            .collect();
+    let snapshots = models::exercise_answer_snapshots::get_by_user_and_exercise(
+        &mut conn,
+        user.id,
+        *exercise_id,
+    )
+    .await?;
+
+    let shared_ids = models::exercise_slide_submission_shares::list_by_creator(&mut conn, user.id)
+        .await?
+        .into_iter()
+        .filter_map(|share| {
+            share
+                .exercise_slide_submission_id
+                .or(share.exercise_answer_snapshot_id)
+        })
+        .collect();
 
     token.authorized_ok(web::Json(submission_list_items(
         submissions,
-        &shared_submission_ids,
+        snapshots,
+        &shared_ids,
     )))
 }
 
+/// Submissions and snapshots in one list, newest first.
 fn submission_list_items(
     submissions: Vec<UserExerciseSlideSubmissionWithGrading>,
-    shared_submission_ids: &HashSet<Uuid>,
+    snapshots: Vec<ExerciseAnswerSnapshot>,
+    shared_ids: &HashSet<Uuid>,
 ) -> Vec<api::ExerciseSlideSubmissionListItem> {
-    submissions
+    let submissions =
+        submissions
+            .into_iter()
+            .map(|submission| api::ExerciseSlideSubmissionListItem {
+                id: submission.id,
+                exercise_id: submission.exercise_id,
+                created_at: submission.created_at,
+                score_given: submission.score_given,
+                grading_progress: submission.grading_progress.map(map_grading_progress),
+                kind: api::SubmissionKind::Submission,
+                is_shared: shared_ids.contains(&submission.id),
+            });
+    let snapshots = snapshots
         .into_iter()
-        .map(|submission| api::ExerciseSlideSubmissionListItem {
-            id: submission.id,
-            exercise_id: submission.exercise_id,
-            created_at: submission.created_at,
-            score_given: submission.score_given,
-            grading_progress: submission.grading_progress.map(map_grading_progress),
-            is_shared: shared_submission_ids.contains(&submission.id),
-        })
-        .collect()
+        .map(|snapshot| api::ExerciseSlideSubmissionListItem {
+            id: snapshot.id,
+            exercise_id: snapshot.exercise_id,
+            created_at: snapshot.created_at,
+            score_given: None,
+            grading_progress: None,
+            kind: match snapshot.purpose {
+                SnapshotPurpose::Paste => api::SubmissionKind::Paste,
+                SnapshotPurpose::Backup => api::SubmissionKind::Backup,
+            },
+            is_shared: shared_ids.contains(&snapshot.id),
+        });
+    let mut items: Vec<_> = submissions.chain(snapshots).collect();
+    items.sort_by(|a, b| b.created_at.cmp(&a.created_at).then(b.id.cmp(&a.id)));
+    items
 }
 
 /**
  * GET /api/v0/exercise-services/client/submissions/:id/download
  *
  * Resolves an exercise-slide submission (by the id returned from the submissions list, or by
- * a submit's `slide_submission_id`) to the files it was made from, so the client can restore
- * an old submission.
+ * a submit's `slide_submission_id`) or a snapshot (by its `snapshot_id`) to the files it was made
+ * from, so the client can restore it.
  */
 #[utoipa::path(
     get,
@@ -1266,11 +1433,11 @@ fn submission_list_items(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The files the submission was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
+        (status = 200, description = "The files the submission or snapshot was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot download another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -1287,6 +1454,22 @@ async fn download_submission(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::SubmissionFiles>> {
     let mut conn = pool.acquire().await?;
+    if let Some(snapshot) =
+        models::exercise_answer_snapshots::try_get_by_id(&mut conn, *submission_id).await?
+    {
+        verify_submission_owner(
+            snapshot.user_id,
+            user.id,
+            "Cannot download another user's submission".to_string(),
+        )?;
+        let token = skip_authorize();
+        let files = models::exercise_answer_snapshots::get_files(&mut conn, snapshot.id).await?;
+        return token.authorized_ok(web::Json(submission_files_response(
+            files,
+            file_store.as_ref(),
+            app_conf.as_ref(),
+        )?));
+    }
     let slide_submission =
         models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
     verify_submission_owner(
@@ -1330,17 +1513,51 @@ fn model_answer_kind(kind: api::AnswerKind) -> AnswerKind {
     }
 }
 
+/// One host-recorded file of a submission or snapshot.
+struct StoredAnswerFile {
+    file_upload_id: Uuid,
+    name: String,
+    mime: String,
+    size_bytes: Option<i64>,
+    order_number: i32,
+}
+
+impl From<models::exercise_task_submission_files::SubmissionFile> for StoredAnswerFile {
+    fn from(file: models::exercise_task_submission_files::SubmissionFile) -> Self {
+        Self {
+            file_upload_id: file.file_upload_id,
+            name: file.name,
+            mime: file.mime,
+            size_bytes: file.size_bytes,
+            order_number: file.order_number,
+        }
+    }
+}
+
+impl From<models::exercise_answer_snapshots::SnapshotFile> for StoredAnswerFile {
+    fn from(file: models::exercise_answer_snapshots::SnapshotFile) -> Self {
+        Self {
+            file_upload_id: file.file_upload_id,
+            name: file.name,
+            mime: file.mime,
+            size_bytes: file.size_bytes,
+            order_number: file.order_number,
+        }
+    }
+}
+
 /// Turns the host's own file records into the download response. Every tracked file is reachable,
 /// not just the first, so a multi-file submission is fully restorable.
 fn submission_files_response(
-    files: Vec<models::exercise_task_submission_files::SubmissionFile>,
+    files: Vec<impl Into<StoredAnswerFile>>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> UtilResult<api::SubmissionFiles> {
     Ok(api::SubmissionFiles {
         data_files: files
             .into_iter()
-            .map(|file| {
+            .map(Into::into)
+            .map(|file: StoredAnswerFile| {
                 Ok(api::AnswerFile {
                     id: file.file_upload_id,
                     name: file.name,
@@ -1357,8 +1574,8 @@ fn submission_files_response(
 /**
  * POST /api/v0/exercise-services/client/submissions/:id/share
  *
- * Mints a shareable link to an existing submission of the current user and returns
- * its URL.
+ * Mints a shareable link to an existing submission or snapshot of the current user and returns
+ * its URL. A paste is a share of a `paste` snapshot.
  */
 #[utoipa::path(
     post,
@@ -1367,11 +1584,11 @@ fn submission_files_response(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The shareable URL for the submission", body = api::PasteResult),
+        (status = 200, description = "The shareable URL for the submission or snapshot", body = api::PasteResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot share another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -1387,21 +1604,36 @@ async fn share_submission(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::PasteResult>> {
     let mut conn = pool.acquire().await?;
-    let slide_submission =
-        models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
-    verify_submission_owner(
-        slide_submission.user_id,
-        user.id,
-        "Cannot share another user's submission".to_string(),
-    )?;
+    let share = if let Some(snapshot) =
+        models::exercise_answer_snapshots::try_get_by_id(&mut conn, *submission_id).await?
+    {
+        verify_submission_owner(
+            snapshot.user_id,
+            user.id,
+            "Cannot share another user's submission".to_string(),
+        )?;
+        domain::exercise_services::submission_sharing::share_snapshot(
+            &mut conn,
+            snapshot.id,
+            user.id,
+        )
+        .await?
+    } else {
+        let slide_submission =
+            models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
+        verify_submission_owner(
+            slide_submission.user_id,
+            user.id,
+            "Cannot share another user's submission".to_string(),
+        )?;
+        domain::exercise_services::submission_sharing::share_submission(
+            &mut conn,
+            *submission_id,
+            user.id,
+        )
+        .await?
+    };
     let token = skip_authorize();
-
-    let share = domain::exercise_services::submission_sharing::share_submission(
-        &mut conn,
-        *submission_id,
-        user.id,
-    )
-    .await?;
     let paste_url = format!(
         "{}/shared-submissions/{}",
         app_conf.base_url.trim_end_matches('/'),
@@ -1425,6 +1657,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(upload_exercise_files),
         )
         .route("/exercises/{id}/submit", web::post().to(submit_exercise))
+        .route(
+            "/exercises/{id}/snapshots",
+            web::post().to(create_answer_snapshot),
+        )
         .route(
             "/exercises/{id}/submissions",
             web::get().to(get_exercise_submissions),
@@ -1483,15 +1719,60 @@ mod tests {
 
         let items = submission_list_items(
             vec![submission(pasted), submission(submitted)],
+            vec![],
             &HashSet::from([pasted]),
+        );
+
+        let mut shared: Vec<_> = items.iter().map(|item| (item.id, item.is_shared)).collect();
+        shared.sort();
+        let mut expected = vec![(pasted, true), (submitted, false)];
+        expected.sort();
+        assert_eq!(shared, expected);
+    }
+
+    #[test]
+    fn submission_list_items_interleave_ungraded_snapshots_newest_first() {
+        let now = Utc::now();
+        let submission = UserExerciseSlideSubmissionWithGrading {
+            id: Uuid::new_v4(),
+            exercise_id: Uuid::nil(),
+            created_at: now - chrono::Duration::minutes(1),
+            score_given: Some(1.0),
+            grading_progress: Some(GradingProgress::FullyGraded),
+        };
+        let snapshot = |purpose, created_at| ExerciseAnswerSnapshot {
+            id: Uuid::new_v4(),
+            created_at,
+            updated_at: created_at,
+            deleted_at: None,
+            user_id: Uuid::nil(),
+            course_id: Uuid::nil(),
+            exercise_id: Uuid::nil(),
+            exercise_slide_id: Uuid::nil(),
+            exercise_task_id: Uuid::nil(),
+            purpose,
+            data_json: None,
+        };
+        let paste = snapshot(SnapshotPurpose::Paste, now);
+        let backup = snapshot(SnapshotPurpose::Backup, now - chrono::Duration::minutes(2));
+        let paste_id = paste.id;
+
+        let items = submission_list_items(
+            vec![submission],
+            vec![backup, paste],
+            &HashSet::from([paste_id]),
         );
 
         assert_eq!(
             items
                 .iter()
-                .map(|item| (item.id, item.is_shared))
+                .map(|item| (item.kind, item.is_shared, item.score_given))
                 .collect::<Vec<_>>(),
-            vec![(pasted, true), (submitted, false)]
+            vec![
+                (api::SubmissionKind::Paste, true, None),
+                (api::SubmissionKind::Submission, false, Some(1.0)),
+                (api::SubmissionKind::Backup, false, None),
+            ]
         );
     }
 
@@ -2359,8 +2640,9 @@ mod upload_tests {
     #[test]
     fn download_reports_an_empty_list_rather_than_failing() {
         let store = temp_file_store();
-        let response = submission_files_response(Vec::new(), &store, &app_conf())
-            .expect("the response is built");
+        let response =
+            submission_files_response(Vec::<StoredAnswerFile>::new(), &store, &app_conf())
+                .expect("the response is built");
         assert!(response.data_files.is_empty());
     }
 
@@ -3908,5 +4190,168 @@ mod route_tests {
             .find(|p| p.exercise_id == fixture.exercise)
             .expect("the fixture exercise has progress");
         assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+    }
+
+    fn snapshot_request(
+        exercise: Uuid,
+        token: &str,
+        body: &api::NewAnswerSnapshot,
+    ) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/exercises/{exercise}/snapshots"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .set_json(body)
+    }
+
+    async fn list_submissions(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        fixture: &Fixture,
+    ) -> Vec<api::ExerciseSlideSubmissionListItem> {
+        let request = test::TestRequest::get()
+            .uri(&format!("/exercises/{}/submissions", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        test::read_body_json(response).await
+    }
+
+    /// A snapshot is the student's own data and is never graded, so neither the deadline nor the
+    /// try limit stands in its way, and storing one must not use a try.
+    #[actix_web::test]
+    async fn a_paste_past_the_deadline_is_stored_listed_downloaded_and_shared_without_using_a_try()
+    {
+        let fixture = committed_fixture(true).await;
+        expire_deadline(fixture.exercise).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "pasted")],
+        )
+        .uri(&format!(
+            "/exercises/{}/files?for=snapshot",
+            fixture.exercise
+        ))
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+        let file_id = uploaded.data_files[0].id;
+
+        let request = snapshot_request(
+            fixture.exercise,
+            &fixture.token,
+            &api::NewAnswerSnapshot {
+                purpose: api::SnapshotPurpose::Paste,
+                exercise_slide_id: fixture.slide,
+                exercise_task_id: fixture.task,
+                data_json: None,
+                data_files: vec![file_id],
+            },
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+        assert_eq!(
+            slide_submission_count(fixture.exercise, fixture.user).await,
+            0
+        );
+
+        let downloaded = download(&app, &fixture.token, snapshot.snapshot_id).await;
+        assert_eq!(downloaded["data_files"][0]["id"], file_id.to_string());
+
+        let request = test::TestRequest::post()
+            .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let listed = list_submissions(&app, &fixture).await;
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].id, snapshot.snapshot_id);
+        assert_eq!(listed[0].kind, api::SubmissionKind::Paste);
+        assert!(listed[0].is_shared);
+        assert!(listed[0].score_given.is_none());
+    }
+
+    #[actix_web::test]
+    async fn another_users_snapshot_cannot_be_downloaded_or_shared() {
+        let owner = committed_fixture(true).await;
+        let other = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            owner.exercise,
+            &owner.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "mine")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+        let request = snapshot_request(
+            owner.exercise,
+            &owner.token,
+            &api::NewAnswerSnapshot {
+                purpose: api::SnapshotPurpose::Backup,
+                exercise_slide_id: owner.slide,
+                exercise_task_id: owner.task,
+                data_json: None,
+                data_files: vec![uploaded.data_files[0].id],
+            },
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+
+        for request in [
+            test::TestRequest::get()
+                .uri(&format!("/submissions/{}/download", snapshot.snapshot_id))
+                .insert_header(("Authorization", format!("Bearer {}", other.token))),
+            test::TestRequest::post()
+                .uri(&format!("/submissions/{}/share", snapshot.snapshot_id))
+                .insert_header(("Authorization", format!("Bearer {}", other.token))),
+        ] {
+            let response = test::call_service(&app, request.to_request()).await;
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        }
+    }
+
+    #[actix_web::test]
+    async fn a_snapshot_naming_another_users_upload_is_reported_as_unknown() {
+        let owner = committed_fixture(true).await;
+        let thief = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            owner.exercise,
+            &owner.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "mine")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+
+        let request = snapshot_request(
+            thief.exercise,
+            &thief.token,
+            &api::NewAnswerSnapshot {
+                purpose: api::SnapshotPurpose::Paste,
+                exercise_slide_id: thief.slide,
+                exercise_task_id: thief.task,
+                data_json: None,
+                data_files: vec![uploaded.data_files[0].id],
+            },
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "unknown_upload");
     }
 }

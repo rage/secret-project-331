@@ -161,6 +161,43 @@ pub struct ExerciseSlideSubmission {
     pub data_files: Option<Vec<Uuid>>,
 }
 
+/// Why a client stores an answer snapshot. Neither purpose is graded, uses a try or awards points,
+/// and both are accepted after the deadline and when out of tries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum SnapshotPurpose {
+    /// To share through `submissions/{id}/share`. Never deleted to make room for others.
+    Paste,
+    /// To keep the answer before discarding local changes. Only the newest 20 per user and
+    /// exercise are kept; storing another deletes the oldest.
+    Backup,
+}
+
+/// Body of `POST exercises/{id}/snapshots`. Names files from this exercise's `files` endpoint
+/// like a `file` submit does, uploaded with `?for=snapshot` so that a passed deadline or used-up
+/// tries do not refuse the upload.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct NewAnswerSnapshot {
+    pub purpose: SnapshotPurpose,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_id: Uuid,
+    /// The exercise service's own JSON about the files, as in a `file` submit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_json: Option<serde_json::Value>,
+    /// At least one id, each uploaded by this user for this exercise.
+    pub data_files: Vec<Uuid>,
+}
+
+/// Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` and
+/// `submissions/{id}/share` take, and what the submissions list reports as the entry's `id`.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct AnswerSnapshotResult {
+    pub snapshot_id: Uuid,
+}
+
 /// Result of a submit. Carries both ids so a client never re-derives one from the other:
 /// grading polling takes `task_submission_id`, download/share take `slide_submission_id`.
 #[derive(Debug, Serialize, Deserialize)]
@@ -211,17 +248,37 @@ pub enum GradingProgress {
     FullyGraded,
 }
 
-/// A past submission of the current user to an exercise. `id` is the
-/// exercise-slide-submission id, which is what `submissions/{id}/download` takes.
+/// What an entry in the submissions list is.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum SubmissionKind {
+    /// A graded submission.
+    #[default]
+    Submission,
+    /// An ungraded snapshot stored to be shared.
+    Paste,
+    /// An ungraded snapshot stored before local changes were discarded.
+    Backup,
+}
+
+/// A past submission or snapshot of the current user to an exercise. `id` is what
+/// `submissions/{id}/download` and `submissions/{id}/share` take.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmissionListItem {
     pub id: Uuid,
     pub exercise_id: Uuid,
     pub created_at: DateTime<Utc>,
+    /// Always `None` for a snapshot.
     pub score_given: Option<f32>,
+    /// Always `None` for a snapshot.
     pub grading_progress: Option<GradingProgress>,
-    /// Whether the submission has a live share link, which is what a paste makes.
+    /// Absent from a host that predates the field, which lists only submissions.
+    #[serde(default)]
+    pub kind: SubmissionKind,
+    /// Whether the entry has a live share link right now, whatever its kind: a paste can have been
+    /// revoked, and a graded submission can have been shared from elsewhere.
     #[serde(default)]
     pub is_shared: bool,
 }
@@ -290,7 +347,7 @@ pub enum ExerciseStanding {
     OutOfTries,
 }
 
-/// A shareable URL for a submission.
+/// A shareable URL for a submission or snapshot.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct PasteResult {
@@ -618,6 +675,7 @@ mod test {
             Some(GradingProgress::FullyGraded)
         ));
         assert!(!item.is_shared);
+        assert_eq!(item.kind, SubmissionKind::Submission);
     }
 
     #[test]
@@ -632,5 +690,23 @@ mod test {
         });
         let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
         assert!(item.is_shared);
+    }
+
+    #[test]
+    fn snapshot_kinds_and_purposes_are_snake_case_on_the_wire() {
+        let value = json!({
+            "id": Uuid::nil(),
+            "exercise_id": Uuid::nil(),
+            "created_at": "2026-07-21T00:00:00Z",
+            "score_given": null,
+            "grading_progress": null,
+            "kind": "backup"
+        });
+        let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
+        assert_eq!(item.kind, SubmissionKind::Backup);
+        assert_eq!(
+            serde_json::to_value(SnapshotPurpose::Paste).unwrap(),
+            json!("paste")
+        );
     }
 }

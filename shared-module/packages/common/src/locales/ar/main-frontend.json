@@ -2776,6 +2776,8 @@
   "set-default-chatbot": "تعيين كروبوت افتراضي للدورة",
   "set-threshold": "تعيين العتبة",
   "settings": "إعدادات",
+  "shared-submission-not-graded": "تم حفظ هذه النسخة دون إرسالها، لذلك لم يتم تقييمها.",
+  "shared-submission-saved-at": "تم الحفظ في {{time}}",
   "shared-submission-submitted-at": "تم الإرسال في {{time}}",
   "show-activity-chart": "عرض مخطط النشاط",
   "show-answers": "عرض الإجابات",

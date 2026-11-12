@@ -68,6 +68,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_answer_snapshot_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "exercise_answer_snapshot_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -77,10 +88,11 @@
     },
     "nullable": [
       false,
+      true,
       false,
       false,
       false,
-      false,
+      true,
       true
     ]
   },

@@ -2586,6 +2586,8 @@
   "set-default-chatbot": "Ställ in som standard chatbot för kursen",
   "set-threshold": "Ställ in tröskel",
   "settings": "Inställningar",
+  "shared-submission-not-graded": "Den här kopian sparades utan att lämnas in, så den har inte bedömts.",
+  "shared-submission-saved-at": "Sparad {{time}}",
   "shared-submission-submitted-at": "Inlämnad {{time}}",
   "show-activity-chart": "Visa aktivitetsdiagrammet",
   "show-answers": "Visa svar",

@@ -3692,15 +3692,16 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
 })
 
 /**
- * A shareable link to an existing exercise-slide submission. The `id` is the
- * unguessable token used in the shareable URL; a viewer resolves the token back
- * to the submission it points at.
+ * A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+ * of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+ * resolves the token back to what it points at.
  */
 export const zExerciseSlideSubmissionShare = z.object({
   created_at: z.iso.datetime(),
   created_by: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
-  exercise_slide_submission_id: z.uuid(),
+  exercise_answer_snapshot_id: z.uuid().nullish(),
+  exercise_slide_submission_id: z.uuid().nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
 })
@@ -6225,6 +6226,17 @@ export const zSetGreatMoocVisionRequest = z.object({
 
 export const zSetWeeklyDigestSubscriptionRequest = z.object({
   receives_weekly_digest: z.boolean(),
+})
+
+/**
+ * What a share-link holder is shown: the shared answer, without the model solution or anything
+ * that identifies the student.
+ */
+export const zSharedSubmissionInfo = z.object({
+  created_at: z.iso.datetime(),
+  exercise: zExercise,
+  is_graded: z.boolean(),
+  tasks: z.array(zCourseMaterialExerciseTask),
 })
 
 export const zSignedInAccount = z.enum(["same", "different", "none"])
@@ -12541,9 +12553,9 @@ export const zGetSharedSubmissionInfoPath = z.object({
 })
 
 /**
- * Data needed to render the shared submission
+ * Data needed to render the shared submission or snapshot
  */
-export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
+export const zGetSharedSubmissionInfoResponse = zSharedSubmissionInfo
 
 /**
  * Cronjobs

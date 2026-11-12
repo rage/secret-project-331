@@ -2549,6 +2549,8 @@
   "set-default-chatbot": "Aseta kurssin oletuskeskustelurobotiksi",
   "set-threshold": "Aseta kynnysarvo",
   "settings": "Asetukset",
+  "shared-submission-not-graded": "Tämä kopio tallennettiin palauttamatta sitä, joten sitä ei ole arvioitu.",
+  "shared-submission-saved-at": "Tallennettu {{time}}",
   "shared-submission-submitted-at": "Palautettu {{time}}",
   "show-activity-chart": "Näytä aktiivisuuskaavio",
   "show-answers": "Näytä vastaukset",

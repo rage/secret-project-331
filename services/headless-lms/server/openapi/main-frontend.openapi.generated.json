@@ -23222,6 +23222,7 @@
       },
       "CourseExamsOverview": {
         "type": "object",
+        "description": "When the course's linked exams are held and whether they can pass anyone automatically.",
         "required": ["count", "pass_marks"],
         "properties": {
           "count": {

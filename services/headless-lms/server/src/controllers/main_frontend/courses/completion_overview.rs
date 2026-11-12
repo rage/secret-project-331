@@ -45,6 +45,7 @@ pub struct CourseModuleCompletionOverview {
     pub credit_registration_pause_reason: Option<String>,
 }
 
+/// When the course's linked exams are held and whether they can pass anyone automatically.
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CourseExamsOverview {
     pub count: usize,

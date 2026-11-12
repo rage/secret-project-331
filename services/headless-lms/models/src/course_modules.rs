@@ -453,6 +453,7 @@ pub enum CompletionPolicy {
 }
 
 impl CompletionPolicy {
+    /// The policy without its thresholds, as stored in `completion_method`.
     pub fn method(&self) -> CompletionMethod {
         match self {
             CompletionPolicy::NotDecided => CompletionMethod::NotDecided,

@@ -2767,6 +2767,9 @@ export type CourseExam = {
   name: string
 }
 
+/**
+ * When the course's linked exams are held and whether they can pass anyone automatically.
+ */
 export type CourseExamsOverview = {
   count: number
   /**

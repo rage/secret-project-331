@@ -3486,6 +3486,9 @@ export const zExamEnrollment = z.object({
  */
 export const zExamPassMarks = z.enum(["no_exams", "some_have_pass_mark", "none_have_pass_mark"])
 
+/**
+ * When the course's linked exams are held and whether they can pass anyone automatically.
+ */
 export const zCourseExamsOverview = z.object({
   count: z.int().gte(0),
   last_ended_at: z.iso.datetime().nullish(),

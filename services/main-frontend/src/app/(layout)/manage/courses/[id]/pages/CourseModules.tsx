@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -19,25 +19,41 @@ import { useCanViewCreditRegistrations } from "@/components/credit-registration/
 import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseCreditRegistrationSummaryOptions,
+  getCourseExercisesOptions,
+  getCourseInstancesOptions,
   getCourseStructureOptions,
+  getOrganizationCourseExamsOptions,
+  getOrganizationExamsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { updateCourseModules } from "@/generated/api/sdk.generated"
-import type {
-  CompletionPolicy,
-  CreditRegistrationRoute,
-  ExamRequirement,
-  ModifiedModule,
-  NewModule,
-} from "@/generated/api/types.generated"
+import {
+  setCourseModuleCertificateGeneration,
+  updateCourseModules,
+} from "@/generated/api/sdk.generated"
+import type { ModifiedModule, NewModule } from "@/generated/api/types.generated"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
-import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
-import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import { Button, QueryResults } from "@/shared-module/components"
+import {
+  manageCourseInstancesRoute,
+  manageCourseStudentsRoute,
+  organizationFrontPageRoute,
+} from "@/shared-module/common/utils/routes"
+import { Button, ErrorNotice, QueryResults } from "@/shared-module/components"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { viewCourseInstanceCertificatesPageRoute } from "@/utils/routing"
 
 import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
-import type { CourseModuleFormFields, CourseModuleFormMode } from "./CourseModuleForm"
+import type { CourseModuleFormMode, ExerciseInChapter } from "./CourseModuleForm"
 import CourseModuleForm from "./CourseModuleForm"
+import type { ModuleCompletionLinks } from "./ModuleCompletionFields"
+import type { CourseModuleFormFields } from "./moduleCompletionForm"
+import type { ModuleCompletionSettings } from "./moduleCompletionSettings"
+import {
+  completionPolicyOf,
+  linkedExamOf,
+  NEW_MODULE_COMPLETION_SETTINGS,
+  settingsOfPolicy,
+} from "./moduleCompletionSettings"
 import ModuleRegistrationStatus from "./ModuleRegistrationStatus"
 
 const STUDENTS_SUBTAB_COMPLETIONS = "completions"
@@ -50,24 +66,13 @@ interface Props {
   courseId: string
 }
 
-export interface ModuleView {
+export interface ModuleView extends ModuleCompletionSettings {
   id: string
   name: string | null
   order_number: number
   firstChapter: number | null
   lastChapter: number | null
   isNew: boolean
-  ects_credits: number | null
-  uh_course_code: string | null
-  automatic_completion: boolean
-  automatic_completion_number_of_points_treshold: number | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_requires_exam: boolean
-  completion_registration_link_override: string | null
-  completions_can_be_registered_to_sisu: boolean
-  exam_requirement: ExamRequirement
-  exam_location_description: string | null
-  credit_registration_route: CreditRegistrationRoute
 }
 
 interface ChapterView {
@@ -112,17 +117,7 @@ const blankModule = (chapters: number[]): ModuleView => ({
   firstChapter: chapters[0] ?? 1,
   lastChapter: chapters.at(-1) ?? 1,
   isNew: true,
-  ects_credits: null,
-  uh_course_code: null,
-  automatic_completion: false,
-  automatic_completion_number_of_points_treshold: null,
-  automatic_completion_number_of_exercises_attempted_treshold: null,
-  automatic_completion_requires_exam: false,
-  completion_registration_link_override: null,
-  completions_can_be_registered_to_sisu: true,
-  exam_requirement: "none",
-  exam_location_description: null,
-  credit_registration_route: "platform",
+  ...NEW_MODULE_COMPLETION_SETTINGS,
 })
 
 /** The completions roster, filtered to one module and, when `failed`, to its failed registrations. */
@@ -134,6 +129,19 @@ const rosterHrefOf = (courseId: string, moduleId: string, failed?: boolean): str
 
 /** What the save sends. `order_number` is renumbered locally as chapters move and is not an edit of its own. */
 const savedFieldsOf = ({ order_number: _orderNumber, ...fields }: ModuleView) => fields
+
+/** What `updateCourseModules` saves; certificates are switched on and off by their own endpoint. */
+const updatedFieldsOf = (module: ModuleView) => ({
+  name: module.name,
+  order_number: module.order_number,
+  uh_course_code: module.uh_course_code,
+  ects_credits: module.ects_credits,
+  completion_policy: completionPolicyOf(module.id, module),
+  completion_registration_link_override: module.completion_registration_link_override,
+  exam_requirement: module.exam_requirement,
+  exam_location_description: module.exam_location_description,
+  credit_registration_route: module.credit_registration_route,
+})
 
 const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
   modules.sort((l, r) => {
@@ -262,8 +270,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           })
         const modules = courseStructure.modules.map<ModuleView>((m) => {
           const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-          const policy = m.completion_policy
-          const automatic = policy.method === "by_requirements" || policy.method === "by_exam"
           return {
             id: m.id,
             name: m.name ?? null,
@@ -271,21 +277,14 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             firstChapter,
             lastChapter,
             isNew: false,
-            uh_course_code: m.uh_course_code ?? null,
-            ects_credits: m.ects_credits ?? null,
-            automatic_completion: automatic,
-            automatic_completion_number_of_points_treshold: automatic
-              ? (policy.number_of_points_treshold ?? null)
-              : null,
-            automatic_completion_number_of_exercises_attempted_treshold: automatic
-              ? (policy.number_of_exercises_attempted_treshold ?? null)
-              : null,
-            automatic_completion_requires_exam: policy.method === "by_exam",
-            completion_registration_link_override: m.completion_registration_link_override ?? null,
-            completions_can_be_registered_to_sisu: m.credit_registration_route === "platform",
+            ...settingsOfPolicy(m.completion_policy),
             exam_requirement: m.exam_requirement,
             exam_location_description: m.exam_location_description ?? null,
             credit_registration_route: m.credit_registration_route,
+            uh_course_code: m.uh_course_code ?? null,
+            ects_credits: m.ects_credits ?? null,
+            completion_registration_link_override: m.completion_registration_link_override ?? null,
+            certification_enabled: m.certification_enabled,
           }
         })
         const error = validateModuleList(modules, chapters)
@@ -295,9 +294,67 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         initialModuleList: makeModuleList(),
         moduleList: makeModuleList(),
         chapterNumbers,
+        organizationId: courseStructure.course.organization_id,
+        chapterNumberById: new Map(
+          courseStructure.chapters.map((c) => [c.id, c.chapter_number] as const),
+        ),
       }
     },
   })
+  const organizationId = courseStructureQuery.data?.organizationId ?? null
+  const chapterNumberById = courseStructureQuery.data?.chapterNumberById
+  const exercisesQuery = useQuery(getCourseExercisesOptions({ path: { course_id: courseId } }))
+  const exercises = useMemo<ExerciseInChapter[] | null>(() => {
+    if (!exercisesQuery.data || !chapterNumberById) {
+      return null
+    }
+    return exercisesQuery.data.flatMap((exercise) => {
+      const chapterNumber = exercise.chapter_id
+        ? chapterNumberById.get(exercise.chapter_id)
+        : undefined
+      return chapterNumber === undefined
+        ? []
+        : [{ chapterNumber, scoreMaximum: exercise.score_maximum }]
+    })
+  }, [exercisesQuery.data, chapterNumberById])
+  // Exams belong to the organization and are linked to courses; both lists are public.
+  const organizationExamsQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: organizationId,
+      build: (id) => getOrganizationExamsOptions({ path: { organization_id: id } }),
+    }),
+  )
+  const organizationCourseExamsQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: organizationId,
+      build: (id) => getOrganizationCourseExamsOptions({ path: { organization_id: id } }),
+    }),
+  )
+  const linkedExams = useMemo(() => {
+    const linkedIds = new Set(
+      (organizationCourseExamsQuery.data ?? [])
+        .filter((courseExam) => courseExam.course_id === courseId)
+        .map((courseExam) => courseExam.id),
+    )
+    return (organizationExamsQuery.data ?? [])
+      .filter((exam) => linkedIds.has(exam.id))
+      .map((exam) => linkedExamOf(exam))
+      .toSorted((l, r) => (l.starts_at ?? "").localeCompare(r.starts_at ?? ""))
+  }, [organizationExamsQuery.data, organizationCourseExamsQuery.data, courseId])
+  const organizationSlug = useCourseBreadcrumbInfoQuery(courseId).data?.organization_slug
+  const courseInstancesQuery = useQuery(
+    getCourseInstancesOptions({ path: { course_id: courseId } }),
+  )
+  const onlyCourseInstance =
+    courseInstancesQuery.data?.length === 1 ? courseInstancesQuery.data[0] : undefined
+  const links: ModuleCompletionLinks = {
+    studentsTab: manageCourseStudentsRoute(courseId, STUDENTS_SUBTAB_COMPLETIONS),
+    examsPage: organizationSlug ? organizationFrontPageRoute(organizationSlug) : null,
+    // Certificates are set up per course instance.
+    certificatesPage: onlyCourseInstance
+      ? viewCourseInstanceCertificatesPageRoute(onlyCourseInstance.id)
+      : manageCourseInstancesRoute(courseId),
+  }
   const initialModuleList = courseStructureQuery.data?.initialModuleList
   useEffect(() => {
     if (!courseStructureQuery.data) {
@@ -309,7 +366,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   }, [courseStructureQuery.data, moduleList])
 
   const moduleUpdatesMutation = useToastMutation(
-    () => {
+    async () => {
       if (!initialModuleList) {
         throw new Error("initialModuleList is undefined")
       }
@@ -330,48 +387,17 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         if (initialModule === undefined && courseModule.name !== null) {
           // new module
           newModules.set(courseModule.id, {
+            ...updatedFieldsOf(courseModule),
             name: courseModule.name,
-            order_number: courseModule.order_number,
             chapters: moduleList.chapters
               .filter((c) => c.module === courseModule.id)
               .map((c) => c.id),
-            uh_course_code: courseModule.uh_course_code,
-            ects_credits: courseModule.ects_credits,
-            completion_policy: mapFieldsToCompletionPolicy(courseModule),
-            completion_registration_link_override:
-              courseModule.completion_registration_link_override,
-            ...mapFieldsToExamAndRoute(courseModule),
           })
         } else if (
           initialModule !== undefined &&
-          // old module, check for modifications
-          (courseModule.name !== initialModule.name ||
-            courseModule.uh_course_code !== initialModule.uh_course_code ||
-            courseModule.ects_credits !== initialModule.ects_credits ||
-            courseModule.automatic_completion !== initialModule.automatic_completion ||
-            courseModule.automatic_completion_number_of_points_treshold !==
-              initialModule.automatic_completion_number_of_points_treshold ||
-            courseModule.ects_credits !== initialModule.ects_credits ||
-            courseModule.automatic_completion_number_of_exercises_attempted_treshold !==
-              initialModule.automatic_completion_number_of_exercises_attempted_treshold ||
-            courseModule.automatic_completion_requires_exam !==
-              initialModule.automatic_completion_requires_exam ||
-            courseModule.completion_registration_link_override !==
-              initialModule.completion_registration_link_override ||
-            courseModule.completions_can_be_registered_to_sisu !==
-              initialModule.completions_can_be_registered_to_sisu)
+          !isEqual(updatedFieldsOf(courseModule), updatedFieldsOf(initialModule))
         ) {
-          modifiedModules.push({
-            id: courseModule.id,
-            name: courseModule.name,
-            order_number: courseModule.order_number,
-            uh_course_code: courseModule.uh_course_code,
-            ects_credits: courseModule.ects_credits,
-            completion_policy: mapFieldsToCompletionPolicy(courseModule),
-            completion_registration_link_override:
-              courseModule.completion_registration_link_override,
-            ...mapFieldsToExamAndRoute(courseModule),
-          })
+          modifiedModules.push({ id: courseModule.id, ...updatedFieldsOf(courseModule) })
         }
       }
 
@@ -406,7 +432,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         }
       }
 
-      return updateCourseModules({
+      await updateCourseModules({
         body: {
           new_modules: Array.from(newModules.values()),
           deleted_modules: deletedModules,
@@ -417,6 +443,20 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           course_id: courseId,
         },
       })
+      for (const courseModule of moduleList.modules) {
+        const initialModule = idToInitialModule.get(courseModule.id)
+        if (
+          initialModule !== undefined &&
+          initialModule.certification_enabled !== courseModule.certification_enabled
+        ) {
+          await setCourseModuleCertificateGeneration({
+            path: {
+              course_module_id: courseModule.id,
+              enabled: courseModule.certification_enabled,
+            },
+          })
+        }
+      }
     },
     { notify: true, method: "POST" },
     {
@@ -432,23 +472,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
    * Applies one card's fields to the staged list, adding the module when it is not in it yet, so
    * creating and editing take the same path through validation and chapter reassignment.
    */
-  const handleSaveModule = (
-    id: string,
-    {
-      name,
-      starts,
-      ends,
-      ects_credits,
-      uh_course_code,
-      automatic_completion,
-      automatic_completion_number_of_points_treshold,
-      automatic_completion_number_of_exercises_attempted_treshold,
-      automatic_completion_requires_exam,
-      completion_registration_link_override,
-      override_completion_link,
-      completions_can_be_registered_to_sisu,
-    }: CourseModuleFormFields,
-  ) => {
+  const handleSaveModule = (id: string, { starts, ends, ...settings }: CourseModuleFormFields) => {
     setEdited(true)
     setModuleList((old) => {
       if (!old) {
@@ -464,22 +488,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       })
       const existing = old.modules.find((m) => m.id === id)
       const saved: ModuleView = {
+        ...settings,
         id,
-        name,
         order_number: existing?.order_number ?? old.modules.length,
-        ects_credits,
-        uh_course_code: nullIfEmptyString(uh_course_code),
-        automatic_completion,
-        automatic_completion_number_of_points_treshold,
-        automatic_completion_number_of_exercises_attempted_treshold,
-        automatic_completion_requires_exam,
-        completion_registration_link_override: override_completion_link
-          ? completion_registration_link_override
-          : null,
-        completions_can_be_registered_to_sisu,
-        exam_requirement: existing?.exam_requirement ?? "none",
-        exam_location_description: existing?.exam_location_description ?? null,
-        credit_registration_route: existing?.credit_registration_route ?? "platform",
         // Overwritten below, along with every other module's.
         firstChapter: null,
         lastChapter: null,
@@ -538,6 +549,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         <>
           <div className={sectionsCss}>
             <h1 className={pageTitleCss}>{t("modules")}</h1>
+            {moduleUpdatesMutation.isError && <ErrorNotice error={moduleUpdatesMutation.error} />}
             {moduleList?.modules
               .toSorted((l, r) => {
                 return l.order_number - r.order_number
@@ -557,6 +569,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                     creditRegistrationConfig={creditRegistrationConfigs?.find(
                       (config) => config.course_module_id === module.id,
                     )}
+                    linkedExams={linkedExams}
+                    exercises={exercises}
+                    links={links}
+                    canToggleCertificates={initialModule?.certification_enabled ?? false}
                     hasUnsavedChanges={
                       edited &&
                       (initialModule === undefined ||
@@ -592,6 +608,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 module={newModule}
                 chapters={data.chapterNumbers}
                 creditRegistrationConfig={undefined}
+                linkedExams={linkedExams}
+                exercises={exercises}
+                links={links}
+                canToggleCertificates={false}
                 onSubmitForm={handleSaveModule}
                 onCancel={() => setNewModule(null)}
               />
@@ -629,37 +649,3 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 }
 
 export default CourseModules
-
-function mapFieldsToCompletionPolicy(fields: ModuleView): CompletionPolicy {
-  if (fields.automatic_completion) {
-    return {
-      method: fields.automatic_completion_requires_exam ? "by_exam" : "by_requirements",
-      course_module_id: fields.id,
-      number_of_exercises_attempted_treshold:
-        fields.automatic_completion_number_of_exercises_attempted_treshold,
-      number_of_points_treshold: fields.automatic_completion_number_of_points_treshold,
-    }
-  }
-  return { method: "teacher_adds" }
-}
-
-function mapFieldsToExamAndRoute(
-  fields: ModuleView,
-): Pick<NewModule, "exam_requirement" | "exam_location_description" | "credit_registration_route"> {
-  const exam_requirement: ExamRequirement = fields.automatic_completion
-    ? fields.automatic_completion_requires_exam
-      ? "platform"
-      : "none"
-    : fields.exam_requirement
-  const credit_registration_route: CreditRegistrationRoute =
-    fields.completions_can_be_registered_to_sisu
-      ? fields.credit_registration_route === "certificate_only"
-        ? "platform"
-        : fields.credit_registration_route
-      : "certificate_only"
-  return {
-    exam_requirement,
-    exam_location_description: fields.exam_location_description,
-    credit_registration_route,
-  }
-}

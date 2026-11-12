@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.automatic_completion,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_requires_exam,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.completions_can_be_registered_to_sisu\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.completion_method AS \"completion_method: CompletionMethod\",\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.exam_requirement AS \"exam_requirement: ExamRequirement\",\n  cm.exam_location_description,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\"\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -104,12 +104,24 @@
       },
       {
         "ordinal": 9,
-        "name": "automatic_completion",
-        "type_info": "Bool",
+        "name": "completion_method: CompletionMethod",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_completion_method",
+            "kind": {
+              "Enum": [
+                "not_decided",
+                "by_requirements",
+                "by_exam",
+                "teacher_adds"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "automatic_completion"
+            "name": "completion_method"
           }
         }
       },
@@ -137,17 +149,40 @@
       },
       {
         "ordinal": 12,
-        "name": "automatic_completion_requires_exam",
-        "type_info": "Bool",
+        "name": "exam_requirement: ExamRequirement",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_exam_requirement",
+            "kind": {
+              "Enum": [
+                "none",
+                "platform",
+                "examinarium",
+                "elsewhere"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "automatic_completion_requires_exam"
+            "name": "exam_requirement"
           }
         }
       },
       {
         "ordinal": 13,
+        "name": "exam_location_description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "exam_location_description"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
         "name": "completion_registration_link_override",
         "type_info": "Varchar",
         "origin": {
@@ -158,7 +193,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "ects_credits",
         "type_info": "Float4",
         "origin": {
@@ -169,7 +204,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "certification_enabled",
         "type_info": "Bool",
         "origin": {
@@ -180,13 +215,24 @@
         }
       },
       {
-        "ordinal": 16,
-        "name": "completions_can_be_registered_to_sisu",
-        "type_info": "Bool",
+        "ordinal": 17,
+        "name": "credit_registration_route: CreditRegistrationRoute",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_credit_registration_route",
+            "kind": {
+              "Enum": [
+                "platform",
+                "external",
+                "certificate_only"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "completions_can_be_registered_to_sisu"
+            "name": "credit_registration_route"
           }
         }
       }
@@ -212,9 +258,10 @@
       false,
       true,
       true,
+      true,
       false,
       false
     ]
   },
-  "hash": "b727957739e50452d4a6f0d752b29a7b8cba3df4779b0c3bd6e429820f9b49d0"
+  "hash": "c66accf0e67d6bf3d8e7af271fbc2df97806bed509274a6816a61e396cbc0c0e"
 }

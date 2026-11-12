@@ -49,7 +49,7 @@ pub async fn ensure_resend_possible(
                 .any(|module| {
                     models::course_modules::registers_credits(
                         module.uh_course_code.as_deref(),
-                        module.completions_can_be_registered_to_sisu,
+                        module.credit_registration_route,
                     )
                 });
             if !registers_credits {

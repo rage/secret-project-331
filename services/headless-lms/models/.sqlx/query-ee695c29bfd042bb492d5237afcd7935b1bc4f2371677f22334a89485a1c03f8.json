@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  automatic_completion,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  automatic_completion_requires_exam,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  completions_can_be_registered_to_sisu\nFROM course_modules\nWHERE course_id = ANY($1)\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  completion_method AS \"completion_method: CompletionMethod\",\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  exam_requirement AS \"exam_requirement: ExamRequirement\",\n  exam_location_description,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\"\nFROM course_modules\nWHERE deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -104,12 +104,24 @@
       },
       {
         "ordinal": 9,
-        "name": "automatic_completion",
-        "type_info": "Bool",
+        "name": "completion_method: CompletionMethod",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_completion_method",
+            "kind": {
+              "Enum": [
+                "not_decided",
+                "by_requirements",
+                "by_exam",
+                "teacher_adds"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "automatic_completion"
+            "name": "completion_method"
           }
         }
       },
@@ -137,17 +149,40 @@
       },
       {
         "ordinal": 12,
-        "name": "automatic_completion_requires_exam",
-        "type_info": "Bool",
+        "name": "exam_requirement: ExamRequirement",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_exam_requirement",
+            "kind": {
+              "Enum": [
+                "none",
+                "platform",
+                "examinarium",
+                "elsewhere"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "automatic_completion_requires_exam"
+            "name": "exam_requirement"
           }
         }
       },
       {
         "ordinal": 13,
+        "name": "exam_location_description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "exam_location_description"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
         "name": "completion_registration_link_override",
         "type_info": "Varchar",
         "origin": {
@@ -158,7 +193,7 @@
         }
       },
       {
-        "ordinal": 14,
+        "ordinal": 15,
         "name": "ects_credits",
         "type_info": "Float4",
         "origin": {
@@ -169,7 +204,7 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "certification_enabled",
         "type_info": "Bool",
         "origin": {
@@ -180,21 +215,30 @@
         }
       },
       {
-        "ordinal": 16,
-        "name": "completions_can_be_registered_to_sisu",
-        "type_info": "Bool",
+        "ordinal": 17,
+        "name": "credit_registration_route: CreditRegistrationRoute",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_credit_registration_route",
+            "kind": {
+              "Enum": [
+                "platform",
+                "external",
+                "certificate_only"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "completions_can_be_registered_to_sisu"
+            "name": "credit_registration_route"
           }
         }
       }
     ],
     "parameters": {
-      "Left": [
-        "UuidArray"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -212,9 +256,10 @@
       false,
       true,
       true,
+      true,
       false,
       false
     ]
   },
-  "hash": "b1f3c58570d4ec73abf82f305761a3bff7e0f2e6405be32c39b75acddeab653a"
+  "hash": "ee695c29bfd042bb492d5237afcd7935b1bc4f2371677f22334a89485a1c03f8"
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id AS course_module_id,\n  cm.course_id,\n  cm.uh_course_code,\n  cm.ects_credits,\n  c.paused_at AS \"credit_registration_paused_at?\",\n  c.paused_by_user_id AS \"credit_registration_paused_by_user_id?\",\n  c.pause_reason AS \"credit_registration_pause_reason?\",\n  c.config_checked_at AS \"credit_registration_config_checked_at?\",\n  c.course_code_allowed AS \"credit_registration_course_code_allowed?\",\n  c.config_check_message AS \"credit_registration_config_check_message?\",\n  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS \"credit_registration_has_enrolment_link!\",\n  cm.completions_can_be_registered_to_sisu\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE ($1::uuid IS NULL OR cm.id = $1)\n  AND ($2::uuid IS NULL OR cm.course_id = $2)\n  AND cm.deleted_at IS NULL\nORDER BY cm.course_id,\n  cm.order_number\n        ",
+  "query": "\nSELECT cm.id AS course_module_id,\n  cm.course_id,\n  cm.uh_course_code,\n  cm.ects_credits,\n  c.paused_at AS \"credit_registration_paused_at?\",\n  c.paused_by_user_id AS \"credit_registration_paused_by_user_id?\",\n  c.pause_reason AS \"credit_registration_pause_reason?\",\n  c.config_checked_at AS \"credit_registration_config_checked_at?\",\n  c.course_code_allowed AS \"credit_registration_course_code_allowed?\",\n  c.config_check_message AS \"credit_registration_config_check_message?\",\n  COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS \"credit_registration_has_enrolment_link!\",\n  cm.credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE ($1::uuid IS NULL OR cm.id = $1)\n  AND ($2::uuid IS NULL OR cm.course_id = $2)\n  AND cm.deleted_at IS NULL\nORDER BY cm.course_id,\n  cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -121,12 +121,23 @@
       },
       {
         "ordinal": 11,
-        "name": "completions_can_be_registered_to_sisu",
-        "type_info": "Bool",
+        "name": "credit_registration_route: CreditRegistrationRoute",
+        "type_info": {
+          "Custom": {
+            "name": "course_module_credit_registration_route",
+            "kind": {
+              "Enum": [
+                "platform",
+                "external",
+                "certificate_only"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "course_modules",
-            "name": "completions_can_be_registered_to_sisu"
+            "name": "credit_registration_route"
           }
         }
       }
@@ -152,5 +163,5 @@
       false
     ]
   },
-  "hash": "c28e410fbbaa5db7a86045e21712823f0cd56df8626476915eaf495bb876160c"
+  "hash": "1550602adbd82fe0b7551c1855238080a5b458650ff9fac0a29f3624989ef25b"
 }

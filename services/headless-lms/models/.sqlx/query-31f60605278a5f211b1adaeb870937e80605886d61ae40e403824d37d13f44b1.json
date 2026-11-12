@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT conf.course_module_id\nFROM course_module_suotar_configurations conf\n  JOIN course_modules cm ON cm.id = conf.course_module_id AND cm.deleted_at IS NULL\nWHERE TRIM(cm.uh_course_code) <> ''\n  AND cm.credit_registration_route = 'platform'\n  AND conf.deleted_at IS NULL\n  AND conf.config_checked_at IS NOT NULL\n  AND conf.config_check_message IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_suotar_configurations",
+            "name": "course_module_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "31f60605278a5f211b1adaeb870937e80605886d61ae40e403824d37d13f44b1"
+}

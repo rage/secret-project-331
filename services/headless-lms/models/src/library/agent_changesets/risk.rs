@@ -357,7 +357,7 @@ impl Classifier<'_> {
         }
     }
 
-    /// Completion policies of modules with completions.
+    /// Completion and credit settings of modules with completions.
     fn classify_modules(&mut self) {
         for live_module in &self.live.modules {
             let module = live_module.id;
@@ -368,6 +368,9 @@ impl Classifier<'_> {
                 .find(|m| m.id == module)
                 .is_some_and(|staged_module| {
                     staged_module.completion_policy != live_module.completion_policy
+                        || staged_module.exam_requirement != live_module.exam_requirement
+                        || staged_module.credit_registration_route
+                            != live_module.credit_registration_route
                 });
             if is_policy_changed && self.activity.modules_with_completions.contains(&module) {
                 self.add(

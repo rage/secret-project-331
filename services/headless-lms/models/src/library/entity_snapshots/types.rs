@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 
 use super::{ContentEntity, ContentEntityType, EntityKey};
 use crate::{
-    course_modules::{self, CompletionPolicy},
+    course_modules::{self, CompletionPolicy, CreditRegistrationRoute, ExamRequirement},
     courses::CourseAiPolicy,
     pages::{
         CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask, CmsPageUpdate,
@@ -241,17 +241,30 @@ pub struct ModuleSnapshot {
     /// 0 only for the course's default module.
     pub order_number: i32,
     pub completion_policy: CompletionPolicy,
+    pub exam_requirement: ExamRequirement,
+    pub exam_location_description: Option<String>,
     pub certification_enabled: bool,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub completion_registration_link_override: Option<String>,
-    pub completions_can_be_registered_to_sisu: bool,
+    pub credit_registration_route: CreditRegistrationRoute,
 }
 
 impl ModuleSnapshot {
     /// A new, unnamed module with the settings modules created in the editor get.
     pub fn new(id: Uuid, course_id: Uuid) -> Self {
         course_modules::NewCourseModule::new(course_id, None, 0).into_snapshot(id)
+    }
+
+    /// The fields [`course_modules::validate_completion_settings`] checks, for telling whether an
+    /// edit touched them.
+    pub fn completion_settings(&self) -> ModuleSnapshot {
+        ModuleSnapshot {
+            name: None,
+            order_number: 0,
+            certification_enabled: false,
+            ..self.clone()
+        }
     }
 }
 

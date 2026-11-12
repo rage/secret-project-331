@@ -71,6 +71,13 @@ describe("CompletionPanel", () => {
       modules: [
         moduleWith({ course_module_id: "a", completion_method: "not_decided" }),
         moduleWith({
+          course_module_id: "c",
+          name: "Project",
+          completion_method: "teacher_adds",
+          exam_requirement: "examinarium",
+          has_completions: false,
+        }),
+        moduleWith({
           course_module_id: "b",
           name: "Final exam",
           completion_method: "teacher_adds",

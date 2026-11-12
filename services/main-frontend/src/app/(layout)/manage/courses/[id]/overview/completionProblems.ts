@@ -104,7 +104,12 @@ const problemsOf = (
   ) {
     problems.push({ kind: "no-exam-has-pass-mark" })
   }
-  if (module.exam_requirement === "examinarium" && !module.has_completions) {
+  // Registered straight from Examinarium, the module already needs action and never has completions.
+  if (
+    module.exam_requirement === "examinarium" &&
+    module.credit_registration_route !== "external" &&
+    !module.has_completions
+  ) {
     problems.push({ kind: "examinarium-access" })
   }
   if (module.credit_registration_route === "certificate_only") {

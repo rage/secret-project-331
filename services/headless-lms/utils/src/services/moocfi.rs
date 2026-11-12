@@ -1,236 +1,227 @@
-//! Client for the old mooc.fi platform's GraphQL API.
+//! Client for mooc.fi's organization API, which delegated credit registration reads a student's
+//! completions from and reports our registrations to.
 
-use std::collections::BTreeMap;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
+use chrono::{DateTime, Utc};
+use headless_lms_base::config::MoocfiDelegationConfiguration;
+use reqwest::header::AUTHORIZATION;
 use secrecy::{ExposeSecret, SecretString};
-use serde::Deserialize;
-use serde_json::json;
+use serde::{Deserialize, Serialize};
+use url::Url;
 use uuid::Uuid;
 
-use crate::http::REQWEST_CLIENT;
+use crate::http::REQWEST_CLIENT_WITHOUT_REDIRECTS;
 use crate::prelude::*;
+use crate::secret_string::serialize_exposed;
+use crate::text_scrub::scrub_text;
 
-const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+/// Must stay well under report-back's lease (`MOOCFI_REPORT_LEASE` in headless-lms-models), which
+/// has to outlast a lookup and a post.
+pub const REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
 
-/// Field names follow the mooc.fi backend's Nexus schema (`backend/schema/User/model.ts` in
-/// rage/mooc.fi). `user(upstream_id:)` is admin-only, which the TMC admin token satisfies.
-const USER_COURSE_PROGRESS_QUERY: &str = r#"
-query ($upstreamId: Int) {
-  user(upstream_id: $upstreamId) {
-    user_course_progresses {
-      n_points
-      max_points
-      course {
-        id
-        name
-      }
-    }
-    completions {
-      course {
-        id
-        name
-      }
-    }
-  }
-}"#;
+/// Error bodies are kept for operators, scrubbed, and only this much of them.
+const MAX_ERROR_BODY_CHARS: usize = 300;
 
-/// A course the user has progress or a completion on in the old mooc.fi.
-#[derive(Debug, Clone, PartialEq)]
-pub struct MoocfiCourseProgress {
+/// One completion as mooc.fi's delegated-completions lookup returns it. mooc.fi applies no
+/// eligibility filter there, so ineligible completions come back too.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DelegatedCompletion {
+    pub id: Uuid,
+    /// The handler course the completion is stored on.
     pub course_id: Uuid,
-    pub name: String,
-    pub completed: bool,
-    pub points: Option<f64>,
-    pub max_points: Option<f64>,
-}
-
-#[derive(Deserialize)]
-struct GraphQlResponse {
-    data: Option<ResponseData>,
+    /// `None` for some manually added completions; see [`Self::effective_date`].
+    pub completion_date: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    /// In mooc.fi's form, such as `fi_FI`.
+    pub completion_language: Option<String>,
+    /// A free string on mooc.fi; parse it with the target's grading before use.
+    pub grade: Option<String>,
+    pub tier: Option<i32>,
+    pub eligible_for_ects: Option<bool>,
     #[serde(default)]
-    errors: Vec<GraphQlError>,
+    pub registrations: Vec<DelegatedCompletionRegistration>,
 }
 
-#[derive(Deserialize)]
-struct GraphQlError {
-    message: String,
+impl DelegatedCompletion {
+    /// The date both platforms split the completion by at the cutoff.
+    pub fn effective_date(&self) -> DateTime<Utc> {
+        self.completion_date.unwrap_or(self.created_at)
+    }
 }
 
-#[derive(Deserialize)]
-struct ResponseData {
-    user: Option<MoocfiUser>,
+/// A registration of a completion that some mooc.fi organization has reported.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DelegatedCompletionRegistration {
+    /// `None` if the reporting organization is gone, which still counts as someone else's.
+    pub organization_slug: Option<String>,
+    pub registration_date: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
 }
 
-#[derive(Deserialize)]
-struct MoocfiUser {
-    user_course_progresses: Vec<UserCourseProgress>,
-    completions: Vec<Completion>,
+/// What courses reads of a handler course from mooc.fi's delegated-courses lookup.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DelegatedCourse {
+    /// Course level only: mooc.fi's certificate page decides per student.
+    pub has_certificate: bool,
 }
 
-#[derive(Deserialize)]
-struct UserCourseProgress {
-    n_points: Option<f64>,
-    max_points: Option<f64>,
-    course: Option<Course>,
+/// The body of mooc.fi's `POST /api/register-completions`.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RegisterCompletionsRequest {
+    pub completions: Vec<CompletionRegistrationReport>,
 }
 
-#[derive(Deserialize)]
-struct Completion {
-    course: Option<Course>,
+/// Tells mooc.fi that we registered one completion in the study registry.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CompletionRegistrationReport {
+    /// mooc.fi's completion id.
+    pub completion_id: Uuid,
+    #[serde(serialize_with = "serialize_exposed")]
+    pub student_number: SecretString,
+    pub registration_date: DateTime<Utc>,
 }
 
-#[derive(Deserialize)]
-struct Course {
-    id: Uuid,
-    name: String,
+/// Why a mooc.fi call got no usable answer.
+#[derive(Debug, thiserror::Error)]
+pub enum MoocfiError {
+    /// No response at all: connection failure or [`REQUEST_TIMEOUT`].
+    #[error("mooc.fi could not be reached: {0}")]
+    Unreachable(#[source] reqwest::Error),
+    #[error("mooc.fi answered {status}: {body}")]
+    Status { status: u16, body: String },
+    #[error("mooc.fi's answer did not parse: {0}")]
+    InvalidResponse(#[source] reqwest::Error),
+    #[error("invalid mooc.fi url: {0}")]
+    Url(#[from] url::ParseError),
 }
 
-/// Every course the user behind `upstream_id` (their tmc.mooc.fi id) has progress or a completion
-/// on in the old mooc.fi. A user mooc.fi does not know has none.
-///
-/// `access_token` must be a TMC admin token.
-pub async fn get_user_course_progress(
-    access_token: &SecretString,
-    upstream_id: i32,
-    timeout: Duration,
-) -> UtilResult<Vec<MoocfiCourseProgress>> {
-    let response = REQWEST_CLIENT
-        .post(MOOCFI_GRAPHQL_URL)
-        .timeout(timeout)
-        .bearer_auth(access_token.expose_secret())
-        .json(&json!({
-            "query": USER_COURSE_PROGRESS_QUERY,
-            "variables": { "upstreamId": upstream_id },
-        }))
-        .send()
-        .await?
-        .error_for_status()?;
-    let body = response.text().await?;
-    parse_user_course_progress(&body)
-}
-
-fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress>> {
-    let response: GraphQlResponse = serde_json::from_str(body)?;
-    let user = match response.data.and_then(|data| data.user) {
-        Some(user) => user,
-        // The resolver throws this rather than returning null for an unknown user.
-        None if response
-            .errors
-            .iter()
-            .any(|error| error.message == "user not found") =>
-        {
-            return Ok(Vec::new());
-        }
-        None => {
-            let messages: Vec<&str> = response.errors.iter().map(|e| e.message.as_str()).collect();
-            return Err(UtilError::new(
-                UtilErrorType::Other,
-                format!("mooc.fi returned no user: {}", messages.join("; ")),
-                None,
-            ));
-        }
-    };
-
-    let mut courses: BTreeMap<Uuid, MoocfiCourseProgress> = BTreeMap::new();
-    for progress in user.user_course_progresses {
-        let Some(course) = progress.course else {
-            continue;
+impl From<MoocfiError> for UtilError {
+    fn from(error: MoocfiError) -> Self {
+        let error_type = match error {
+            MoocfiError::Unreachable(_) | MoocfiError::Status { .. } => UtilErrorType::Unavailable,
+            MoocfiError::InvalidResponse(_) => UtilErrorType::DeserializationError,
+            MoocfiError::Url(_) => UtilErrorType::UrlParse,
         };
-        courses.insert(
-            course.id,
-            MoocfiCourseProgress {
-                course_id: course.id,
-                name: course.name,
-                completed: false,
-                points: progress.n_points,
-                max_points: progress.max_points,
-            },
-        );
+        UtilError::new(error_type, error.to_string(), Some(error.into()))
     }
-    for course in user.completions.into_iter().filter_map(|c| c.course) {
-        courses
-            .entry(course.id)
-            .or_insert_with(|| MoocfiCourseProgress {
-                course_id: course.id,
-                name: course.name,
-                completed: false,
-                points: None,
-                max_points: None,
-            })
-            .completed = true;
-    }
-
-    let mut courses: Vec<MoocfiCourseProgress> = courses.into_values().collect();
-    courses.sort_by(|a, b| a.name.cmp(&b.name));
-    Ok(courses)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Calls mooc.fi as our credit-registering organization. Cheap to build; build one per use from
+/// the configuration.
+#[derive(Clone)]
+pub struct MoocfiClient {
+    api_base_url: Url,
+    authorization: SecretString,
+}
 
-    const COURSE_A: &str = "00000000-0000-0000-0000-00000000000a";
-    const COURSE_B: &str = "00000000-0000-0000-0000-00000000000b";
-
-    #[test]
-    fn merges_progress_and_completions_per_course() {
-        let body = json!({
-            "data": { "user": {
-                "user_course_progresses": [
-                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B" } },
-                    { "n_points": null, "max_points": null, "course": null }
-                ],
-                "completions": [
-                    { "course": { "id": COURSE_B, "name": "B" } },
-                    { "course": { "id": COURSE_A, "name": "A" } }
-                ]
-            }}
-        })
-        .to_string();
-
-        let courses = parse_user_course_progress(&body).unwrap();
-
-        assert_eq!(
-            courses,
-            vec![
-                MoocfiCourseProgress {
-                    course_id: Uuid::parse_str(COURSE_A).unwrap(),
-                    name: "A".to_string(),
-                    completed: true,
-                    points: None,
-                    max_points: None,
-                },
-                MoocfiCourseProgress {
-                    course_id: Uuid::parse_str(COURSE_B).unwrap(),
-                    name: "B".to_string(),
-                    completed: true,
-                    points: Some(12.5),
-                    max_points: Some(20.0),
-                },
-            ]
-        );
+impl MoocfiClient {
+    /// A client authenticating as our organization.
+    pub fn new(config: &MoocfiDelegationConfiguration) -> Self {
+        Self {
+            api_base_url: config.api_base_url.clone(),
+            authorization: SecretString::new(
+                format!("Basic {}", config.organization_secret.expose_secret()).into(),
+            ),
+        }
     }
 
-    #[test]
-    fn unknown_user_has_no_courses() {
-        let body = json!({
-            "data": { "user": null },
-            "errors": [{ "message": "user not found", "extensions": { "code": "BAD_USER_INPUT" } }]
-        })
-        .to_string();
-
-        assert_eq!(parse_user_course_progress(&body).unwrap(), vec![]);
+    /// Every completion, eligible or not, of the TMC user `upstream_id` on the mooc.fi course
+    /// `moocfi_course_id`, which must be the handler course. Empty is a valid answer.
+    #[instrument(skip(self))]
+    pub async fn get_user_completions(
+        &self,
+        moocfi_course_id: Uuid,
+        upstream_id: i32,
+    ) -> Result<Vec<DelegatedCompletion>, MoocfiError> {
+        let url = self.api_base_url.join(&format!(
+            "api/delegated-completions/{moocfi_course_id}/users/{upstream_id}"
+        ))?;
+        self.send(
+            "completion lookup",
+            REQWEST_CLIENT_WITHOUT_REDIRECTS.get(url),
+        )
+        .await?
+        .json::<Vec<DelegatedCompletion>>()
+        .await
+        .map_err(MoocfiError::InvalidResponse)
     }
 
-    #[test]
-    fn other_errors_fail() {
-        let body = json!({
-            "data": null,
-            "errors": [{ "message": "Not authorized" }]
-        })
-        .to_string();
+    /// The handler course `moocfi_course_id`, or `None` when mooc.fi has no delegated handler course
+    /// by that id.
+    #[instrument(skip(self))]
+    pub async fn get_delegated_course(
+        &self,
+        moocfi_course_id: Uuid,
+    ) -> Result<Option<DelegatedCourse>, MoocfiError> {
+        let url = self
+            .api_base_url
+            .join(&format!("api/delegated-courses/{moocfi_course_id}"))?;
+        match self
+            .send("course lookup", REQWEST_CLIENT_WITHOUT_REDIRECTS.get(url))
+            .await
+        {
+            Ok(response) => response
+                .json::<DelegatedCourse>()
+                .await
+                .map(Some)
+                .map_err(MoocfiError::InvalidResponse),
+            Err(MoocfiError::Status { status: 404, .. }) => Ok(None),
+            Err(error) => Err(error),
+        }
+    }
 
-        assert!(parse_user_course_progress(&body).is_err());
+    /// Reports our registrations to mooc.fi. mooc.fi keeps every post as a registration of its own,
+    /// so callers must post each registration only once.
+    #[instrument(skip_all, fields(completions = request.completions.len()))]
+    pub async fn register_completions(
+        &self,
+        request: &RegisterCompletionsRequest,
+    ) -> Result<(), MoocfiError> {
+        let url = self.api_base_url.join("api/register-completions")?;
+        self.send(
+            "registration report",
+            REQWEST_CLIENT_WITHOUT_REDIRECTS.post(url).json(request),
+        )
+        .await?;
+        Ok(())
+    }
+
+    /// Sends `request` authenticated, logging its outcome and duration under `call`.
+    async fn send(
+        &self,
+        call: &'static str,
+        request: reqwest::RequestBuilder,
+    ) -> Result<reqwest::Response, MoocfiError> {
+        let started = Instant::now();
+        let result = async {
+            let response = request
+                .header(AUTHORIZATION, self.authorization.expose_secret())
+                .timeout(REQUEST_TIMEOUT)
+                .send()
+                .await
+                .map_err(MoocfiError::Unreachable)?;
+            let status = response.status();
+            if status.is_success() {
+                return Ok(response);
+            }
+            let body = response.text().await.unwrap_or_default();
+            // Truncated after scrubbing, so the cut cannot leave half an address unmatched.
+            let body = scrub_text(&body)
+                .chars()
+                .take(MAX_ERROR_BODY_CHARS)
+                .collect();
+            Err(MoocfiError::Status {
+                status: status.as_u16(),
+                body,
+            })
+        }
+        .await;
+        let elapsed_ms = started.elapsed().as_millis() as u64;
+        match &result {
+            Ok(_) => info!(call, elapsed_ms, "mooc.fi call succeeded"),
+            Err(error) => warn!(call, elapsed_ms, %error, "mooc.fi call failed"),
+        }
+        result
     }
 }

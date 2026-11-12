@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use futures_util::future::OptionFuture;
 use headless_lms_utils::prelude::UtilResult;
-use headless_lms_utils::services::moocfi::{self, MoocfiCourseProgress};
+use headless_lms_utils::services::moocfi_graphql::{self, MoocfiCourseProgress};
 use headless_lms_utils::services::tmc::{TmcClient, TmcCourseProgress};
 use utoipa::ToSchema;
 
@@ -110,7 +110,7 @@ pub async fn get_progress_by_platform(
         .into();
     let moocfi_progress: OptionFuture<_> = upstream_id
         .map(|id| {
-            moocfi::get_user_course_progress(
+            moocfi_graphql::get_user_course_progress(
                 tmc_client.get_admin_access_token(),
                 id,
                 UPSTREAM_TIMEOUT,

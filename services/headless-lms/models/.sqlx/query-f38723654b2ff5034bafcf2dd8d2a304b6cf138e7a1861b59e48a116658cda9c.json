@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  details AS \"details!\"\nFROM credit_registration_events\nWHERE details IS NOT NULL\n  AND details_redacted_at IS NULL\n  AND created_at < $1\nORDER BY created_at\nLIMIT $2\nFOR UPDATE SKIP LOCKED\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "details!",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "details"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "f38723654b2ff5034bafcf2dd8d2a304b6cf138e7a1861b59e48a116658cda9c"
+}

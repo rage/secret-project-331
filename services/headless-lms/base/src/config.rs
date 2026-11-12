@@ -60,11 +60,13 @@ pub struct ApplicationConfiguration {
     pub test_chatbot: bool,
     pub test_sisu: bool,
     pub test_suotar: bool,
+    pub test_moocfi: bool,
     pub disable_embedding_vector_creation_when_seeding: bool,
     pub development_uuid_login: bool,
     pub enable_email_ownership_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
     pub suotar_configuration: SuotarConfiguration,
+    pub moocfi_configuration: MoocfiConfiguration,
     pub tmc_account_creation_origin: Option<String>,
     pub tmc_admin_access_token: SecretString,
     pub oauth_server_configuration: OAuthServerConfiguration,
@@ -114,6 +116,8 @@ impl ApplicationConfiguration {
         // No mock fallback unlike Azure: credit registration writes to the real student registry.
         let test_suotar = test_mode && bool_env_false_by_default("USE_MOCK_SUOTAR_ENDPOINT");
 
+        let test_moocfi = test_mode && bool_env_false_by_default("USE_MOCK_MOOCFI_ENDPOINT");
+
         let disable_embedding_vector_creation_when_seeding = false;
 
         let azure_configuration = if test_chatbot {
@@ -126,6 +130,12 @@ impl ApplicationConfiguration {
             SuotarConfiguration::mock_conf(&base_url)?
         } else {
             SuotarConfiguration::try_from_env()?
+        };
+
+        let moocfi_configuration = if test_moocfi {
+            MoocfiConfiguration::mock_conf(&base_url)?
+        } else {
+            MoocfiConfiguration::try_from_env()?
         };
 
         let tmc_account_creation_origin = Some(
@@ -159,11 +169,13 @@ impl ApplicationConfiguration {
             test_chatbot,
             test_sisu,
             test_suotar,
+            test_moocfi,
             disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
             enable_email_ownership_verification,
             azure_configuration,
             suotar_configuration,
+            moocfi_configuration,
             tmc_account_creation_origin,
             tmc_admin_access_token,
             oauth_server_configuration,
@@ -181,9 +193,12 @@ impl ApplicationConfiguration {
         let test_chatbot = true;
         let test_sisu = true;
         let test_suotar = false;
+        let test_moocfi = false;
         let disable_embedding_vector_creation_when_seeding = true;
         let suotar_configuration = SuotarConfiguration::mock_conf("http://project-331.local")
             .expect("Failed to build the mock Suotar configuration");
+        let moocfi_configuration = MoocfiConfiguration::mock_conf("http://project-331.local")
+            .expect("Failed to build the mock mooc.fi configuration");
         let tmc_account_creation_origin = None;
         let tmc_admin_access_token = SecretString::new("mock-access-token".to_string().into());
         let oauth_server_configuration = OAuthServerConfiguration {
@@ -202,11 +217,13 @@ impl ApplicationConfiguration {
             test_chatbot,
             test_sisu,
             test_suotar,
+            test_moocfi,
             disable_embedding_vector_creation_when_seeding,
             development_uuid_login,
             enable_email_ownership_verification,
             azure_configuration,
             suotar_configuration,
+            moocfi_configuration,
             tmc_account_creation_origin,
             tmc_admin_access_token,
             oauth_server_configuration,
@@ -317,6 +334,162 @@ impl SuotarConfiguration {
             account_linking_since,
         })
     }
+}
+
+/// The only organization secret the mock mooc.fi accepts. Public on purpose; never a real one.
+pub const MOCK_MOOCFI_ORGANIZATION_SECRET: &str = "mock-moocfi-organization-secret";
+
+/// The organization slug the mock mooc.fi records our registrations under.
+pub const MOCK_MOOCFI_ORGANIZATION_SLUG: &str = "courses-mooc-fi-mock";
+
+/// The handoff secret the mock mooc.fi mints with. Public on purpose: never a real credential.
+pub const MOCK_MOOCFI_HANDOFF_SECRET: &str = "mock-moocfi-handoff-secret";
+
+/// The TMC application uids a mint accepts under the mock unless
+/// `MOOCFI_HANDOFF_TMC_APPLICATION_UIDS` says otherwise. Test-mode tokens skip the check.
+pub const MOCK_MOOCFI_HANDOFF_TMC_APPLICATION_UIDS: [&str; 2] =
+    ["mock-moocfi-frontend", "mock-elements-of-ai"];
+
+const DEFAULT_MOOCFI_URL: &str = "https://www.mooc.fi/";
+
+/// Where mooc.fi is and, when delegated credit registration is on, how courses talks to it.
+#[derive(Clone)]
+pub struct MoocfiConfiguration {
+    /// mooc.fi's backend; its GraphQL API is under it. Ends in `/`, as a [`Url::join`] base.
+    pub base_url: Url,
+    /// mooc.fi's student-facing site, for links back to a course's registration page. Ends in `/`.
+    pub frontend_url: Url,
+    /// `None` turns delegated credit registration off: no lookups, no report-back.
+    pub delegation: Option<MoocfiDelegationConfiguration>,
+    /// Bearer secret mooc.fi's backend mints handoffs with. `None` closes the mint.
+    pub handoff_secret: Option<SecretString>,
+    /// The TMC OAuth applications whose tokens a handoff mint accepts: mooc.fi's frontend and
+    /// Elements of AI, from `MOOCFI_HANDOFF_TMC_APPLICATION_UIDS`, comma separated. Empty closes
+    /// the mint.
+    pub handoff_tmc_application_uids: Vec<String>,
+}
+
+/// How courses calls mooc.fi's organization API as the organization that registers delegated
+/// completions.
+#[derive(Clone)]
+pub struct MoocfiDelegationConfiguration {
+    /// The root the `api/...` routes are joined onto; [`MoocfiConfiguration::base_url`] except
+    /// under the mock. Ends in `/`.
+    pub api_base_url: Url,
+    pub organization_secret: SecretString,
+    /// Our organization's slug on mooc.fi, which tells our registrations from other registrars'.
+    pub organization_slug: String,
+}
+
+impl MoocfiConfiguration {
+    /// Points delegation and the student-facing links at our own mock controller; the GraphQL API
+    /// stays wherever `MOOCFI_BASE_URL` says, so dev logins keep their real mooc.fi ids.
+    pub fn mock_conf(base_url: &str) -> anyhow::Result<Self> {
+        let mock_url = Url::parse(base_url)
+            .context("Invalid URL in BASE_URL")?
+            .join("/api/v0/mock-moocfi/")?;
+        Ok(Self {
+            base_url: Self::base_url_from_env()?,
+            frontend_url: mock_url.clone(),
+            delegation: Some(MoocfiDelegationConfiguration {
+                api_base_url: mock_url,
+                organization_secret: SecretString::new(
+                    MOCK_MOOCFI_ORGANIZATION_SECRET.to_string().into(),
+                ),
+                organization_slug: MOCK_MOOCFI_ORGANIZATION_SLUG.to_string(),
+            }),
+            handoff_secret: Some(SecretString::new(
+                MOCK_MOOCFI_HANDOFF_SECRET.to_string().into(),
+            )),
+            handoff_tmc_application_uids: handoff_tmc_application_uids_from_env().unwrap_or_else(
+                || {
+                    MOCK_MOOCFI_HANDOFF_TMC_APPLICATION_UIDS
+                        .map(str::to_string)
+                        .to_vec()
+                },
+            ),
+        })
+    }
+
+    /// Never fails on a missing variable: delegation is optional, and a missing secret must not
+    /// keep the server from booting. Fails only on a set value that does not parse.
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let base_url = Self::base_url_from_env()?;
+        let frontend_url = parse_join_base(
+            non_empty_env("MOOCFI_FRONTEND_URL")
+                .as_deref()
+                .unwrap_or(DEFAULT_MOOCFI_URL),
+        )
+        .context("Invalid URL in MOOCFI_FRONTEND_URL")?;
+        let delegation = match (
+            non_empty_env("MOOCFI_ORGANIZATION_SECRET"),
+            non_empty_env("MOOCFI_ORGANIZATION_SLUG"),
+        ) {
+            (Some(organization_secret), Some(organization_slug)) => {
+                Some(MoocfiDelegationConfiguration {
+                    api_base_url: base_url.clone(),
+                    organization_secret: SecretString::new(organization_secret.into()),
+                    organization_slug,
+                })
+            }
+            (None, None) => None,
+            _ => {
+                tracing::warn!(
+                    "Delegated mooc.fi credit registration is off: MOOCFI_ORGANIZATION_SECRET and MOOCFI_ORGANIZATION_SLUG must both be set"
+                );
+                None
+            }
+        };
+        Ok(Self {
+            base_url,
+            frontend_url,
+            delegation,
+            handoff_secret: non_empty_env("MOOCFI_HANDOFF_SECRET")
+                .map(|secret| SecretString::new(secret.into())),
+            handoff_tmc_application_uids: handoff_tmc_application_uids_from_env()
+                .unwrap_or_default(),
+        })
+    }
+
+    /// The origin of [`Self::frontend_url`], which a handoff's `Referer` must match to sign in
+    /// without asking.
+    pub fn frontend_origin(&self) -> String {
+        self.frontend_url.origin().ascii_serialization()
+    }
+
+    /// mooc.fi's site in the language nearest the courses UI's: Finnish for `fi`, English for
+    /// anything else, since mooc.fi has only those two. Ends in `/`.
+    pub fn localized_frontend_url(&self, ui_language: Option<&str>) -> anyhow::Result<Url> {
+        if ui_language.is_some_and(|language| language.starts_with("fi")) {
+            Ok(self.frontend_url.clone())
+        } else {
+            Ok(self.frontend_url.join("en/")?)
+        }
+    }
+
+    /// mooc.fi's GraphQL endpoint.
+    pub fn graphql_url(&self) -> anyhow::Result<Url> {
+        Ok(self.base_url.join("api")?)
+    }
+
+    fn base_url_from_env() -> anyhow::Result<Url> {
+        parse_join_base(
+            non_empty_env("MOOCFI_BASE_URL")
+                .as_deref()
+                .unwrap_or(DEFAULT_MOOCFI_URL),
+        )
+        .context("Invalid URL in MOOCFI_BASE_URL")
+    }
+}
+
+fn handoff_tmc_application_uids_from_env() -> Option<Vec<String>> {
+    non_empty_env("MOOCFI_HANDOFF_TMC_APPLICATION_UIDS").map(|uids| {
+        uids.split(',')
+            .map(str::trim)
+            .filter(|uid| !uid.is_empty())
+            .map(str::to_string)
+            .collect()
+    })
 }
 
 #[derive(Clone)]

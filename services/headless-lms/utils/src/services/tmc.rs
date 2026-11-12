@@ -36,6 +36,20 @@ pub struct TmcUserInfo {
     pub upstream_id: i32,
 }
 
+/// What TMC's Doorkeeper says about one of its access tokens.
+#[derive(Debug, Deserialize)]
+pub struct TmcAccessTokenInfo {
+    /// The TMC user the token acts for; `None` for an application's own client_credentials token.
+    pub resource_owner_id: Option<i32>,
+    /// The OAuth application the token was issued to; `None` when Doorkeeper knows of none.
+    pub application: Option<TmcOauthApplication>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct TmcOauthApplication {
+    pub uid: String,
+}
+
 #[derive(Deserialize)]
 pub struct TMCUserResponse {
     pub id: i32,
@@ -112,9 +126,20 @@ enum TMCRequestAuth {
 
 const TMC_API_URL: &str = "https://tmc.mooc.fi/api/v8/users";
 
+/// Doorkeeper's introspection of the bearer itself.
+const TMC_TOKEN_INFO_URL: &str = "https://tmc.mooc.fi/oauth/token/info";
+
 /// Deliberately above tmc.mooc.fi's own 120 s request timeout: giving up earlier would abandon a
 /// delete that upstream then completes, leaving the account gone there and present here.
 const DELETE_ACCOUNT_TIMEOUT: Duration = Duration::from_secs(150);
+
+fn http_client() -> reqwest::Result<Client> {
+    crate::http::base_client_builder()
+        .timeout(Duration::from_secs(15))
+        // Requests carry the admin token or a student's token, which a redirect would forward.
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+}
 
 fn format_tmc_errors(errors: &serde_json::Value) -> String {
     let mut error_messages = Vec::new();
@@ -286,16 +311,13 @@ impl TmcClient {
             ));
         }
 
-        let client = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(15))
-            .build()
-            .map_err(|e| {
-                UtilError::new(
-                    UtilErrorType::Other,
-                    "Failed to build HTTP client".to_string(),
-                    Some(e.into()),
-                )
-            })?;
+        let client = http_client().map_err(|e| {
+            UtilError::new(
+                UtilErrorType::Other,
+                "Failed to build HTTP client".to_string(),
+                Some(e.into()),
+            )
+        })?;
 
         Ok(Self {
             client,
@@ -425,6 +447,19 @@ impl TmcClient {
             &url,
             TMCRequestAuth::UseAdminToken,
             Some(payload_value),
+        )
+        .await
+        .map(|_| ())
+    }
+
+    /// Sets the email of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
+    pub async fn update_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
+        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
+        self.request_with_headers(
+            reqwest::Method::PUT,
+            &url,
+            TMCRequestAuth::UseAdminToken,
+            Some(json!({ "user": { "email": email } })),
         )
         .await
         .map(|_| ())
@@ -624,6 +659,24 @@ impl TmcClient {
         Ok(tmc_user)
     }
 
+    /// Doorkeeper's view of `tmc_access_token`. TMC answers 401 for a revoked or expired token and
+    /// for one it did not issue itself, such as a courses.mooc.fi token it accepts elsewhere.
+    pub async fn get_access_token_info(
+        &self,
+        tmc_access_token: &SecretString,
+    ) -> UtilResult<TmcAccessTokenInfo> {
+        let res = self
+            .request_with_headers(
+                reqwest::Method::GET,
+                TMC_TOKEN_INFO_URL,
+                TMCRequestAuth::UseUserToken(tmc_access_token.clone()),
+                None,
+            )
+            .await?;
+        self.deserialize_response_with_tmc_error_check(res, "access token info from TMC")
+            .await
+    }
+
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(
         &self,
         upstream_id: &i32,
@@ -649,7 +702,7 @@ impl TmcClient {
 
     pub fn mock_for_test() -> Self {
         Self {
-            client: Client::default(),
+            client: http_client().expect("Failed to build HTTP client"),
             admin_access_token: SecretString::new("mock-token".to_string().into()),
             ratelimit_api_key: SecretString::new("mock-api-key".to_string().into()),
         }

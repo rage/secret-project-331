@@ -10,7 +10,7 @@ use headless_lms_models::{
     user_details::{self, EmailVerificationMethod},
     user_email_codes::{self, CodeCheck, UserEmailCodePurpose},
 };
-use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use secrecy::ExposeSecret;
 use utoipa::{IntoParams, OpenApi, ToSchema};
 
@@ -177,12 +177,14 @@ pub async fn request_email_verification_code(
 }
 
 /**
-POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,
+and copies the now proven address to TMC.
 
 Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
-never has to identify anybody on its own.
+never has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot
+be reached, so the code can be tried again.
 */
-#[instrument(skip(req, pool, ip_to_country_mapper, payload, app_conf))]
+#[instrument(skip(req, pool, ip_to_country_mapper, payload, app_conf, tmc_client))]
 #[utoipa::path(
     post,
     path = "/verify",
@@ -201,6 +203,7 @@ pub async fn verify_email_ownership(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailOwnershipPayload>,
     app_conf: web::Data<ApplicationConfiguration>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -245,6 +248,42 @@ pub async fn verify_email_ownership(
                 )
                 .await?,
             );
+        }
+        // An email change waits for this before reaching TMC, where the address signs in. Last
+        // before the commit: TMC cannot be rolled back.
+        if let Some(upstream_id) = user.upstream_id().filter(|_| !app_conf.test_mode) {
+            let email = user_details::get_user_details_by_user_id(&mut tx, user.id)
+                .await?
+                .email;
+            let tmc_email = tmc_client
+                .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
+                .await
+                .map_err(|error| {
+                    controller_err!(
+                        InternalServerError,
+                        "Failed to read the email on TMC".to_string(),
+                        error
+                    )
+                })?
+                .email;
+            if !tmc_email.trim().eq_ignore_ascii_case(email.trim()) {
+                tmc_client
+                    .update_user_email(email, upstream_id)
+                    .await
+                    .map_err(|error| match error.error_type() {
+                        UtilErrorType::TmcHttpStatusError(400 | 422) => controller_err!(
+                            BadRequest,
+                            "This email address cannot be used. It may belong to another account."
+                                .to_string(),
+                            error
+                        ),
+                        _ => controller_err!(
+                            InternalServerError,
+                            "Failed to update the email on TMC".to_string(),
+                            error
+                        ),
+                    })?;
+            }
         }
         VerifyEmailOwnershipResult::Verified
     } else {

@@ -1,8 +1,5 @@
 //! Default identifier derivations for the simulated world. Every control upsert may pass an id
 //! verbatim instead, and the seed does for anything a spec asserts on.
-//!
-//! `derived` never formats a student number into the id: these reach the audited call log and the
-//! event details, where the scrubber's free-text scan only redacts bare digit runs.
 
 use crate::prelude::*;
 

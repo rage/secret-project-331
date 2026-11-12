@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { adminAddCreditRegistrationNote } from "@/generated/api/sdk.generated"
 import type { CreditRegistrationAttentionItem } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { MenuItemDescriptor } from "@/shared-module/components"
 import { Button, Link, Menu } from "@/shared-module/components"
 
@@ -19,6 +18,7 @@ import type { DialogOpenState } from "./AdminActionDialog"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
 import AdminDismissAttentionButton from "./AdminDismissAttentionButton"
 import AdminLinkingCandidatesDialog from "./AdminLinkingCandidatesDialog"
+import { unitConfigurationHref } from "./adminLinks"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import type { ActionResult } from "./AdminTransitionBlock"
@@ -164,7 +164,7 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
         return {
           key: offer,
           label: failureActionLabel(t, offer),
-          href: manageCourseModulesRoute(item.course_id),
+          href: unitConfigurationHref(item.course_id),
         }
       case "email_student":
         return emailAction
@@ -199,7 +199,7 @@ const AttentionRowActions: React.FC<{ item: CreditRegistrationAttentionItem }> =
                 <AdminResendLinkingEmailDialog
                   {...openState}
                   studentNumber={studentNumber}
-                  courseId={item.course_id}
+                  courseOrTargetId={item.course_or_target_id}
                   courseName={item.course_name}
                 />
               ),

@@ -520,8 +520,8 @@ export type AdminCreditRegistrationEvent = {
    */
   credit_registration_id: string
   /**
-   * The `{request, response}` pair, scrubbed at write time: names, student numbers and email
-   * addresses read `[redacted]` while their keys survive. The values we sent are on the row.
+   * The `{request, response}` pair for this row's item. Once older than the call log's 90-day
+   * window, names, student numbers and email addresses in it read `[redacted]`.
    */
   details?: unknown
   error_code?: CreditRegistrationErrorCode | null
@@ -7521,7 +7521,7 @@ export type SuotarApiCallDetails = {
   events: Array<SuotarApiCallEvent>
   ledger_references: Array<SuotarApiCallLedgerReference>
   /**
-   * Scrubbed and truncated when it was written; never un-scrubbed for display.
+   * Sampled when it was written.
    */
   request_body_sample?: unknown
   response_body_sample?: unknown
@@ -7534,7 +7534,7 @@ export type SuotarApiCallEvent = {
   created_at: string
   credit_registration_id: string
   /**
-   * The `{request, response}` pair for this one item, scrubbed at write time.
+   * The `{request, response}` pair for this one item.
    */
   details?: unknown
   error_code?: CreditRegistrationErrorCode | null

@@ -6540,7 +6540,7 @@ export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
  * registry call log, newest first.
  *
  * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
- * the bodies are scrubbed, so there is no student number in them to search.
+ * a sampled body may not hold the student's item.
  */
 export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
   options?: Options<ListSuotarApiCallsData, ThrowOnError>,

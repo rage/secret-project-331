@@ -1,14 +1,11 @@
 //! Append-only audit trail for the credit registration ledger.
-//!
-//! No retention sweep touches this table, so every Suotar payload must go through
-//! [`scrub_suotar_body`](crate::library::credit_registration::scrub::scrub_suotar_body) at the
-//! write site — redacting on read would leave the raw values on disk.
 use std::collections::HashMap;
 
 use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::credit_registrations::{CreditRegistrationErrorCode, CreditRegistrationState};
+use crate::library::credit_registration::scrub::scrub_suotar_body;
 use crate::prelude::*;
 use crate::suotar_api_calls::SuotarEndpoint;
 
@@ -63,6 +60,8 @@ pub struct CreditRegistrationEvent {
     /// Orders the timeline where set: events written in one transaction share `created_at`.
     pub suotar_answered_at: Option<DateTime<Utc>>,
     pub suotar_answer: Option<SuotarAnswer>,
+    /// `None` while `details` still hold what Suotar was sent and answered.
+    pub details_redacted_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -75,9 +74,7 @@ pub struct NewCreditRegistrationEvent {
     pub message: Option<String>,
     pub suotar_api_call_id: Option<Uuid>,
     pub actor_user_id: Option<Uuid>,
-    /// Build with
-    /// [`suotar_exchange_details`](crate::library::credit_registration::scrub::suotar_exchange_details)
-    /// so it is scrubbed.
+    /// Build with [`suotar_exchange_details`].
     pub details: Option<Value>,
     pub request_item_id: Option<String>,
     pub suotar_endpoint: Option<SuotarEndpoint>,
@@ -109,6 +106,20 @@ impl NewCreditRegistrationEvent {
 
 /// Callers that also change `state` must go through `credit_registrations::transition` instead,
 /// which writes both in one transaction.
+/// The `details` of a `suotar_response` event: our item of the request and Suotar's answer to it,
+/// each omitted when missing. The request is kept because the ledger row no longer reflects it
+/// after a retry.
+pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>) -> Value {
+    let mut details = serde_json::Map::new();
+    if let Some(request) = request {
+        details.insert("request".to_string(), request.clone());
+    }
+    if let Some(response) = response {
+        details.insert("response".to_string(), response.clone());
+    }
+    Value::Object(details)
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     new: &NewCreditRegistrationEvent,
@@ -264,6 +275,52 @@ FROM UNNEST($1::uuid []) AS id
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Removes personal data from up to `limit` events' `details` written before `cutoff`, oldest first.
+/// Returns how many it redacted.
+pub async fn redact_details_older_than(
+    conn: &mut PgConnection,
+    cutoff: DateTime<Utc>,
+    limit: i64,
+) -> ModelResult<u64> {
+    let mut tx = conn.begin().await?;
+    let expired = sqlx::query!(
+        r#"
+SELECT id,
+  details AS "details!"
+FROM credit_registration_events
+WHERE details IS NOT NULL
+  AND details_redacted_at IS NULL
+  AND created_at < $1
+ORDER BY created_at
+LIMIT $2
+FOR UPDATE SKIP LOCKED
+        "#,
+        cutoff,
+        limit,
+    )
+    .fetch_all(&mut *tx)
+    .await?;
+    let (ids, details): (Vec<Uuid>, Vec<Value>) = expired
+        .into_iter()
+        .map(|row| (row.id, scrub_suotar_body(&row.details)))
+        .unzip();
+    let res = sqlx::query!(
+        r#"
+UPDATE credit_registration_events AS e
+SET details = redacted.details,
+  details_redacted_at = now()
+FROM UNNEST($1::uuid [], $2::jsonb []) AS redacted(id, details)
+WHERE e.id = redacted.id
+        "#,
+        &ids,
+        &details,
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(res.rows_affected())
 }
 
 /// The per-item timeline, newest first.

@@ -463,8 +463,7 @@ pub struct RecordedItem {
     pub code: String,
 }
 
-/// One entry of the mock's own call log: unscrubbed fake data, capped, never fed to the audited
-/// tables.
+/// One entry of the mock's own call log: fake data, capped, never fed to the audited tables.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RecordedCall {

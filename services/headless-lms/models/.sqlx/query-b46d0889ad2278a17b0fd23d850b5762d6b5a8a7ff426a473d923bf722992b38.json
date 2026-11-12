@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT workspace_data->'payload'->>'language' AS language\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND stage = 'analysis'\n  AND workspace_data->>'schema' = 'analysis_v1'\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "language",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "b46d0889ad2278a17b0fd23d850b5762d6b5a8a7ff426a473d923bf722992b38"
+}

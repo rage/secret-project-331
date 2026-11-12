@@ -1,10 +1,17 @@
 import type { TimelinePhase } from "@/generated/api/types.generated"
 import {
   creditRegistrationAuditRoute,
+  creditRegistrationCoursesRoute,
   creditRegistrationErrorsRoute,
   creditRegistrationLinkingRoute,
   creditRegistrationSystemRoute,
+  manageCourseModulesRoute,
 } from "@/shared-module/common/utils/routes"
+
+/** Where a row's credit registration is configured: its course's modules, or for a mooc.fi row, the
+ *  Courses tab. */
+export const unitConfigurationHref = (courseId: string | null | undefined): string =>
+  courseId ? manageCourseModulesRoute(courseId) : creditRegistrationCoursesRoute()
 
 /** The id of a processing phase's row on the System tab. */
 export const phaseAnchorId = (phase: string): string => `phase-${phase}`

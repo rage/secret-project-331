@@ -69,14 +69,14 @@ const ExerciseList: React.FC<Props> = ({
     }, {})
   }, [exercises, t])
 
+  const selectNone = () => {
+    setSelectedExerciseIds([])
+  }
+
   const renderContent = (allExercises: Exercise[], chapters: DatabaseChapter[], pages: Page[]) => {
     const selectAll = () => {
       const allIds = allExercises.map((ex) => ex.id)
       setSelectedExerciseIds(allIds)
-    }
-
-    const selectNone = () => {
-      setSelectedExerciseIds([])
     }
 
     const invertSelection = () => {

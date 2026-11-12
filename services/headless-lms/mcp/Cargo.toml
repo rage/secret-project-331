@@ -13,31 +13,31 @@ headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
 
 # MCP protocol types only; dispatch is ours. Upgrades are deliberate because rmcp moves fast.
-rmcp = { version = "=3.7.0", default-features = false, features = [
+rmcp = { version = "=3.8.0", default-features = false, features = [
   "request-state",
   "schemars",
   "elicitation",
 ] }
 # JSON Schema generation for tool input schemas.
-schemars = { version = "1.2.2", features = ["chrono04", "uuid1"] }
+schemars = { version = "1.2.3", features = ["chrono04", "uuid1"] }
 # OpenAPI schemas of the CMS validator protocol, which the CMS's generated types are built from.
 utoipa.workspace = true
 # A generic serialization/deserialization framework
 serde = { version = "1.0.229", features = ["derive"] }
 # A JSON serialization file format
-serde_json = { version = "1.0.151", features = ["raw_value"] }
+serde_json = { version = "1.0.154", features = ["raw_value"] }
 # A library to generate and parse UUIDs.
-uuid = { version = "1.26.0", features = ["serde", "v4"] }
+uuid = { version = "1.29.0", features = ["serde", "v4"] }
 # Date and time library for Rust
 chrono = { version = "0.4.45", features = ["serde"] }
 # An implementation of regular expressions for Rust.
 regex = "1.13.1"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
-thiserror = "2.0.20"
+thiserror = "2.0.21"
 # Type erasure for async trait methods
 async-trait = "0.1.92"
 # higher level HTTP client library
-reqwest = { version = "0.13.4", default-features = false, features = ["json", "rustls"] }
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "rustls"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy.workspace = true
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
@@ -47,9 +47,9 @@ tracing = "0.1.44"
 # Decodes base64-wrapped MCP header values.
 base64 = "0.23.1"
 # Hash map that keeps insertion order, so tool lists and result keys stay in a fixed order.
-indexmap = { version = "2.14.1", features = ["serde"] }
+indexmap = { version = "2.14.2", features = ["serde"] }
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "4.15.0"
+actix-web = "4.18.1"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
@@ -67,7 +67,7 @@ test-support = []
 
 [dev-dependencies]
 # Name-based ids for the test fixtures.
-uuid = { version = "1.26.0", features = ["v5"] }
+uuid = { version = "1.29.0", features = ["v5"] }
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
 # HTTP mocking for Rust.

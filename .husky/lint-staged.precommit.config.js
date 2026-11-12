@@ -5,8 +5,14 @@
 export default {
   // bin/oxlint-autofix: safe oxlint fixes, always exits 0; runs before oxfmt.
   // --no-error-on-unmatched-pattern tolerates a fully oxfmt-ignored fileset.
-  "*.{js,jsx,ts,tsx}": ["./bin/oxlint-autofix", "oxfmt --no-error-on-unmatched-pattern"],
-  "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
+  "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}": [
+    "./bin/oxlint-autofix",
+    "oxfmt --no-error-on-unmatched-pattern",
+  ],
+  // Everything else goes to oxfmt, which skips types it can't format, so the hook covers exactly
+  // what CI's `oxfmt --check` does (yaml, toml, html, ...). Negated so JS/TS isn't formatted
+  // concurrently with the rule above.
+  "!(*.{js,jsx,mjs,cjs,ts,tsx,mts,cts})": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
   ],

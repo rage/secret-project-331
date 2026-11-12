@@ -82,7 +82,6 @@ interface LikertScaleProps {
   answerRequired: boolean
   selectedOption: number | null
   setSelectedOption: (value: number | null) => void
-  peerOrSelfReviewQuestionId: string
 }
 
 interface StyledProps {
@@ -95,7 +94,6 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
   answerRequired,
   selectedOption,
   setSelectedOption,
-  peerOrSelfReviewQuestionId,
 }) => {
   const { t } = useTranslation()
 
@@ -129,19 +127,20 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
         {answerRequired && " *"}
       </Question>
 
-      <ToggleButtonGroup>
+      {/* Controlled so the checked state is always the answer the form will submit. */}
+      <ToggleButtonGroup
+        disallowEmptySelection
+        selectedKeys={selectedOption === null ? [] : [selectedOption]}
+        onSelectionChange={(keys) => {
+          const [key] = keys
+          if (!disabled && key !== undefined) {
+            setSelectedOption(Number(key))
+          }
+        }}
+      >
         <Likerts>
           {arr.map((option, n) => (
-            <StyledToggleButton
-              active={selectedOption === n + 1}
-              id={`likert-scale-${peerOrSelfReviewQuestionId}-option-${n + 1}`}
-              key={n + 1}
-              onClick={() => {
-                if (!disabled) {
-                  setSelectedOption(n + 1)
-                }
-              }}
-            >
+            <StyledToggleButton active={selectedOption === n + 1} id={n + 1} key={n + 1}>
               {option.image}
               <p className="likert-scale-text">{option.text}</p>
             </StyledToggleButton>

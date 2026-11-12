@@ -7,6 +7,11 @@
   "error-code": "Koodi: {{code}}",
   "error-hide-details": "Piilota tiedot",
   "error-issue": "Ongelma: {{issue}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Tehtävän osiolta puuttuu tehtävätyyppi."
+    }
+  },
   "error-message-key": {
     "authentication_required_for_exam_exercise": {
       "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
@@ -20,21 +25,102 @@
       "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
       "title": "Lyhyt nimi on jo käytössä"
     },
+    "forbidden": {
+      "message": "Sinulla ei ole oikeutta tähän toimintoon.",
+      "title": "Ei oikeutta"
+    },
     "foreign_key_violation": {
       "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
       "title": "Viiteavainvirhe"
+    },
+    "generic_sisu_error": {
+      "message": "Kuvauksen luonnissa tapahtui virhe.",
+      "title": "Kuvausta ei voitu luoda"
+    },
+    "internal_error": {
+      "message": "Yritä hetken kuluttua uudelleen.",
+      "title": "Jokin meni pieleen"
+    },
+    "invalid_course_code": {
+      "message": "Tarkista, että moduuleihin annetut Helsingin yliopiston kurssikoodit ovat kelvollisia.",
+      "title": "Kuvausta ei voitu luoda"
+    },
+    "not_found": {
+      "message": "Pyydettyä resurssia ei löytynyt.",
+      "title": "Ei löytynyt"
+    },
+    "oauth_error": {
+      "message": "Kirjaudu sisään uudelleen.",
+      "title": "Tunnistautuminen epäonnistui"
+    },
+    "rate_limited": {
+      "message": "Odota hetki ja yritä uudelleen.",
+      "title": "Liikaa pyyntöjä"
+    },
+    "response_validation_error": {
+      "message": "Palvelin vastasi onnistuneesti, mutta tiedot eivät olleet odotetussa muodossa.",
+      "title": "Tietoja ei voitu näyttää"
+    },
+    "sisu_resource_not_found": {
+      "message": "Sisu-palvelusta ei löytynyt resursseja.",
+      "title": "Resursseja ei löytynyt"
+    },
+    "unauthorized": {
+      "message": "Kirjaudu sisään ja yritä uudelleen.",
+      "title": "Ei käyttöoikeutta"
+    },
+    "validation_error": {
+      "message": "Tarkista antamasi tiedot ja yritä uudelleen.",
+      "title": "Virheellinen syöte"
+    },
+    "validation_error_with_metadata": {
+      "message": "Tarkista korostettu sisältö ja yritä uudelleen.",
+      "title": "Virheellinen syöte"
     }
   },
+  "error-message-key-line": "Viestiavain: {{messageKey}}",
+  "error-multiple-errors-occurred": "Useita virheitä",
   "error-original-message": "Alkuperäinen viesti",
   "error-page-without-course": "Virhe: Sivu ei liity mihinkään kurssiin",
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "error-request-cancelled": "Pyyntö peruttiin",
+  "error-request-failed": "Pyyntö epäonnistui",
   "error-request-id": "Pyynnön ID: {{requestId}}",
+  "error-retry-after": "Yritä uudelleen {{seconds}} s kuluttua",
   "error-show-details": "Näytä tiedot",
+  "error-source-method": "Metodi: {{method}}",
+  "error-source-url": "URL: {{url}}",
   "error-status": "Tila: {{status}}",
   "error-title": "Virhe",
+  "error-too-many-requests": "Liikaa pyyntöjä. Yritä myöhemmin uudelleen.",
   "error-type": "Tyyppi: {{type}}",
+  "error-unexpected-error": "Odottamaton virhe",
+  "error-zod-issue": {
+    "invalid_format": "Odotettiin muotoa {{format}}",
+    "invalid_format_pattern": "Odotettiin muotoa {{pattern}}",
+    "invalid_type": "Odotettiin tyyppiä {{expected}}, saatiin {{received}}",
+    "too_big": "Arvon on oltava {{comparator}} {{maximum}}",
+    "too_small": "Arvon on oltava {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Tuntemattomat avaimet: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Validointiongelma kohdassa",
+  "errorNotice.code": "Koodi",
+  "errorNotice.copyReport": "Kopioi virheraportti",
+  "errorNotice.detail": "Lisätiedot",
+  "errorNotice.messageKey": "Viestiavain",
+  "errorNotice.method": "Metodi",
+  "errorNotice.page": "Sivu",
+  "errorNotice.rawResponse": "Raakavastaus",
+  "errorNotice.requestId": "Pyynnön tunniste",
+  "errorNotice.retry": "Yritä uudelleen",
+  "errorNotice.retryAfter": "Yritä uudelleen kuluttua",
+  "errorNotice.seconds": "{{seconds}} s",
+  "errorNotice.stackTrace": "Pinojäljitys",
   "errorNotice.status": "Tila",
+  "errorNotice.technicalDetails": "Tekniset tiedot",
+  "errorNotice.time": "Aika",
   "errorNotice.type": "Tyyppi",
+  "errorNotice.url": "URL",
   "failed-to-send-message": "Viestin lähettäminen epäonnistui",
   "go-to-error": "Siirry virheeseen",
   "label-error-loading": "Virhe datan lataamisessa.",

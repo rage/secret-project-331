@@ -1,3 +1,5 @@
+import type { APIRequestContext } from "@playwright/test"
+
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
@@ -28,7 +30,9 @@ import {
   runStudentNotificationsTick,
   runVerifyPollTick,
   setTestExclusiveHold,
+  type TickScope,
 } from "@/utils/suotarControl"
+import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * The only two emails a student ever gets about credit registration: the registration waits for
@@ -66,6 +70,33 @@ const mailsOfKind = (
 const mailIdentities = (mails: AdminNotificationEmail[]): string[] =>
   mails.map((mail) => `${mail.kind}:${mail.email_delivery_id}`).toSorted()
 
+/**
+ * Materializes the student's completion and parks the row for its first enrolment check. A tick
+ * claims nothing while the live worker has the row locked, and the hold then keeps the worker from
+ * finishing it, so both ticks repeat until the row parks.
+ */
+const parkRegistration = async (
+  request: APIRequestContext,
+  adminApi: APIRequestContext,
+  scope: TickScope & { courseSlug: string },
+) => {
+  let lastSeen = "no row"
+  try {
+    return await pollUntil(
+      async () => {
+        await runMaterializeTick(request, scope)
+        await runPreconditionsTick(request, scope)
+        const row = await myRegistrationOnCourse(request, adminApi, scope.courseSlug)
+        lastSeen = JSON.stringify(row)
+        return row.state === "no_usable_enrolment" ? row : null
+      },
+      { description: `the registration on ${scope.courseSlug} to park at no_usable_enrolment` },
+    )
+  } catch (error) {
+    throw new Error(`${error} Last seen: ${lastSeen}`, { cause: error })
+  }
+}
+
 test.describe("A student whose credits reach the study registry", () => {
   test.use({ storageState: seededStudentStorageState(REGISTERED_EMAIL) })
 
@@ -77,14 +108,9 @@ test.describe("A student whose credits reach the study registry", () => {
     await setTestExclusiveHold(page.request, REGISTERED_EMAIL, HOLD_SECS, SUOTAR_COURSE_ID)
 
     const registration = await test.step("Drive the completion to registered", async () => {
-      await runMaterializeTick(page.request, scope)
-      await runPreconditionsTick(page.request, scope)
-      // Parked for its first enrolment check, which the student is mailed about at once. The mail is
-      // owed only while parked, so it must exist before the check moves the row on; a worker
-      // holding the row can make this tick claim nothing, hence the poll.
-      const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
-        "no_usable_enrolment",
-      ])
+      // The action-needed mail is owed only while parked, so it must exist before the check moves
+      // the row on.
+      const parked = await parkRegistration(page.request, adminApi, scope)
       await runStudentNotificationsTick(page.request, scope)
       await expect
         .poll(
@@ -156,11 +182,7 @@ test.describe("A student the study registry has no enrolment for", () => {
     await setTestExclusiveHold(page.request, NO_ENROLMENT_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
 
     // The row waits a day for its first check, and the student is told what to do meanwhile.
-    await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
-      "no_usable_enrolment",
-    ])
+    const parked = await parkRegistration(page.request, adminApi, scope)
     expect(parked.student_facing_status).toBe("needs_enrolment")
 
     await runStudentNotificationsTick(page.request, scope)

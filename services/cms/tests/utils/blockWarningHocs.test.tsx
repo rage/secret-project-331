@@ -391,13 +391,13 @@ describe("withImageWarnings", () => {
   })
 })
 
-describe("withImageFocalPointReset", () => {
-  const renderImage = async (attributes: Record<string, unknown>, name = "core/image") => {
-    const setAttributes = jest.fn()
-    await renderFiltered(withImageFocalPointReset, { name, attributes, setAttributes })
-    return setAttributes
-  }
+const renderImage = async (attributes: Record<string, unknown>, name = "core/image") => {
+  const setAttributes = jest.fn()
+  await renderFiltered(withImageFocalPointReset, { name, attributes, setAttributes })
+  return setAttributes
+}
 
+describe("withImageFocalPointReset", () => {
   it("clears a scale that no longer crops anything", async () => {
     const setAttributes = await renderImage({
       url: "https://example.com/image.png",

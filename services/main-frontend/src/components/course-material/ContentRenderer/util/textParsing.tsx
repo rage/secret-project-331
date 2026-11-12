@@ -104,7 +104,7 @@ const TILDE_REGEX = /~/g
 
 /** Escapes citation-related text for safe use in HTML attributes. */
 const escapeCitationText = (value: string): string =>
-  value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
+  value.replaceAll(QUOTE_REGEX, HTML_ENTITY_QUOT).replaceAll(TILDE_REGEX, HTML_ENTITY_NBSP)
 
 /**
  * Escapes a citation key for a double-quoted HTML attribute. Unlike escapeCitationText it omits the
@@ -112,7 +112,7 @@ const escapeCitationText = (value: string): string =>
  * round-trips: reading node.dataset.citationId back yields the original key and matches the keys
  * extracted from the block tree.
  */
-const escapeCitationId = (value: string): string => value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT)
+const escapeCitationId = (value: string): string => value.replaceAll(QUOTE_REGEX, HTML_ENTITY_QUOT)
 
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
@@ -168,7 +168,7 @@ export const replaceTextNodeWithGlossarySpans = (
  */
 const convertToLatex = (data: string) => {
   let count = 0
-  const converted = data.replace(LATEX_REGEX, (_, latex) => {
+  const converted = data.replaceAll(LATEX_REGEX, (_, latex) => {
     // Convert ampersand back to special symbol. This is needed e.g. in matrices
     const processed = latex.replaceAll(HTML_ESCAPED_AMPERSAND, AMPERSAND_CHAR)
     count++
@@ -251,7 +251,7 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
   if (!text) {
     return []
   }
-  const withoutLatex = text.replace(LATEX_REGEX, "")
+  const withoutLatex = text.replaceAll(LATEX_REGEX, "")
   // Fresh RegExp so the module-level global regex's lastIndex isn't shared across calls.
   const regex = new RegExp(LATEX_CITE_REGEX.source, LATEX_CITE_REGEX.flags)
   const matches: CitationMatch[] = []
@@ -274,7 +274,7 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
  * appear only in text content, not inside HTML attribute values.
  */
 const parseCitation = (data: string) => {
-  const converted = data.replace(
+  const converted = data.replaceAll(
     LATEX_CITE_REGEX,
 
     (_, prenote, postnote, citationId) => {

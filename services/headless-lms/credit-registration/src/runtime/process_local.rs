@@ -17,6 +17,7 @@ pub(super) enum ScopeKey {
     /// Production, and any unscoped run.
     Global,
     Course(Uuid),
+    ExternalCreditTarget(Uuid),
     User(Uuid),
     Registrations(Vec<Uuid>),
 }
@@ -25,6 +26,8 @@ impl ScopeKey {
     pub(super) fn of(scope: &RegistrationScope) -> Self {
         if let Some(course_id) = scope.course_id {
             Self::Course(course_id)
+        } else if let Some(external_credit_target_id) = scope.external_credit_target_id {
+            Self::ExternalCreditTarget(external_credit_target_id)
         } else if let Some(user_id) = scope.user_id {
             Self::User(user_id)
         } else if !scope.credit_registration_ids.is_empty() {

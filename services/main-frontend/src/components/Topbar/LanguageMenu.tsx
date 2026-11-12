@@ -163,14 +163,15 @@ const LanguageMenuWithHook: React.FC<
   }
 
   const activeNative = items.find((item) => item.isSelected)?.nativeLabel || ""
+  const triggerLabel = areLanguagesOverridden
+    ? t("change-course-language")
+    : t("change-user-interface-language")
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-language-menu"
-        ariaLabel={
-          areLanguagesOverridden ? t("change-course-language") : t("change-user-interface-language")
-        }
+        ariaLabel={activeNative ? `${activeNative}. ${triggerLabel}` : triggerLabel}
         tooltipText={
           areLanguagesOverridden
             ? `${t("change-course-language")}. ${t("course-language-note")}`

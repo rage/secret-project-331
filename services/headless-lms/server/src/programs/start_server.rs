@@ -11,7 +11,7 @@ use actix_web::{
     App, HttpServer,
     cookie::{Key, SameSite},
     dev::ServiceRequest,
-    middleware::Logger,
+    middleware::{DefaultHeaders, Logger},
 };
 use dotenvy::dotenv;
 use listenfd::ListenFd;
@@ -64,6 +64,7 @@ pub async fn main() -> anyhow::Result<()> {
                 ))
                 .build(),
             )
+            .wrap(DefaultHeaders::new().add(("X-Content-Type-Options", "nosniff")))
             .wrap(
                 Logger::new(
                     "Completed %{request_line}xi %s %b bytes - %D ms, request_id=%{request-id}o",

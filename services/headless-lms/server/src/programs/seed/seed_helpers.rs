@@ -780,3 +780,24 @@ pub async fn create_best_peer_review(
     .await?;
     Ok(())
 }
+
+/// Inserts a seeded user whose email counts as verified, as a real account's would once its owner
+/// has confirmed it; roles granted by email only take effect for verified addresses.
+pub async fn insert_user_with_verified_email(
+    conn: &mut PgConnection,
+    pkey_policy: headless_lms_models::PKeyPolicy<Uuid>,
+    email: &str,
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+) -> Result<Uuid> {
+    let user_id =
+        headless_lms_models::users::insert(conn, pkey_policy, email, first_name, last_name).await?;
+    headless_lms_models::user_details::set_email_verified(
+        conn,
+        user_id,
+        headless_lms_models::user_details::EmailVerificationMethod::EmailedCode,
+        Utc::now(),
+    )
+    .await?;
+    Ok(user_id)
+}

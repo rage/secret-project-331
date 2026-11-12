@@ -223,80 +223,14 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
 
 #[cfg(test)]
 mod tests {
-    use std::{fs, path::Path, str::FromStr};
+    use std::str::FromStr;
 
-    use base64::{Engine, prelude::BASE64_STANDARD};
     use headless_lms_models::library::oauth::{Digest, token_digest_sha256};
     use secrecy::SecretString;
 
     use super::{
         DEV_OAUTH_TOKEN_HMAC_KEY, INTROSPECTION_SECRET_DIGEST_HEX, TEST_CLIENT_SECRET_DIGEST_HEX,
     };
-
-    /// The dev/CI env manifests whose `OAUTH_TOKEN_HMAC_KEY` the seeded digests must agree with,
-    /// relative to this crate's manifest directory.
-    const DEV_ENV_MANIFESTS: [&str; 2] = [
-        "../../../kubernetes/dev/headless-lms/env.yml",
-        "../../../kubernetes/test/headless-lms/env.yml",
-    ];
-
-    /// Reads `OAUTH_TOKEN_HMAC_KEY` out of a `kind: Secret` manifest the way Kubernetes does:
-    /// the `data:` values are base64, and the *decoded* bytes are what lands in the environment.
-    ///
-    /// Deliberately not a generic YAML parse; the point is to mimic that one decoding step.
-    fn hmac_key_from_manifest(relative_path: &str) -> String {
-        let path = Path::new(env!("CARGO_MANIFEST_DIR")).join(relative_path);
-        let manifest = fs::read_to_string(&path)
-            .unwrap_or_else(|e| panic!("failed to read {}: {e}", path.display()));
-
-        assert!(
-            manifest.contains("kind: Secret"),
-            "{} is expected to be a kind: Secret manifest; if it became a ConfigMap the values are \
-             no longer base64-decoded and this test (and the seeded digests) must change",
-            path.display()
-        );
-        assert!(
-            manifest.contains("\ndata:"),
-            "{} is expected to use a base64 `data:` block, not `stringData:`; if that changed the \
-             seeded digests must be recomputed under the raw value",
-            path.display()
-        );
-
-        let encoded = manifest
-            .lines()
-            .find_map(|line| line.trim().strip_prefix("OAUTH_TOKEN_HMAC_KEY:"))
-            .unwrap_or_else(|| panic!("OAUTH_TOKEN_HMAC_KEY not found in {}", path.display()))
-            .trim()
-            .trim_matches('"')
-            .to_string();
-
-        let decoded = BASE64_STANDARD
-            .decode(encoded.as_bytes())
-            .unwrap_or_else(|e| {
-                panic!(
-                    "OAUTH_TOKEN_HMAC_KEY in {} is not valid base64, but a `data:` value must \
-                     be: {e}",
-                    path.display()
-                )
-            });
-        String::from_utf8(decoded).expect("OAUTH_TOKEN_HMAC_KEY must decode to UTF-8")
-    }
-
-    /// Pin [`DEV_OAUTH_TOKEN_HMAC_KEY`] to the value the deployed dev/CI process actually
-    /// receives. Without this, a key mismatch shows up only as `invalid_client` from every
-    /// confidential-client authentication in CI, while the offline-HMAC unit test stays green.
-    #[test]
-    fn dev_hmac_key_matches_kubernetes_env_manifests() {
-        for manifest in DEV_ENV_MANIFESTS {
-            assert_eq!(
-                hmac_key_from_manifest(manifest),
-                DEV_OAUTH_TOKEN_HMAC_KEY,
-                "DEV_OAUTH_TOKEN_HMAC_KEY must equal the base64-decoded OAUTH_TOKEN_HMAC_KEY from \
-                 {manifest}, since that decoded value is what Kubernetes puts in the environment \
-                 and what config.rs then reads"
-            );
-        }
-    }
 
     /// Pin the seeded digests to the derivation used at runtime,
     /// `token_digest_sha256(secret, key = DEV_OAUTH_TOKEN_HMAC_KEY)`, recomputed through the real

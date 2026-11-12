@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM external_completions\n    WHERE external_credit_target_id = $1\n  )\n  OR EXISTS (\n    SELECT 1\n    FROM credit_registrations\n    WHERE external_credit_target_id = $1\n  ) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "24ae2c40b78afc3880b239120e3cca8b23fdb4a9521059ae845f244eacc81bf2"
+}

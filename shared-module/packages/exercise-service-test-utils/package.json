@@ -54,7 +54,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@playwright/test": "^1.61.1",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "jsdom": "^27.0.0",
@@ -63,7 +63,7 @@
     "react-dom": "^19.2.6",
     "tsdown": "0.22.7",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   },
   "peerDependencies": {
     "@playwright/test": ">=1.40.0"
@@ -72,5 +72,6 @@
     "@playwright/test": {
       "optional": true
     }
-  }
+  },
+  "packageManager": "pnpm@12.17.0"
 }

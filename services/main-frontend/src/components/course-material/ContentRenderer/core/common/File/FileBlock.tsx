@@ -58,23 +58,22 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
 
   return (
     <div>
-      {displayPreview &&
-        isPdf && (
-          // Not an <object>: the CSP blocks plugins. Not sandboxed: Chromium refuses PDFs in sandboxes.
-          // oxlint-disable-next-line react/iframe-missing-sandbox
-          <iframe
-            src={href}
-            title={t("file-preview", { fileName: fileNameText })}
-            className={css`
-              display: block;
-              width: 100%;
-              height: ${previewHeight ?? 600}px;
-              margin-bottom: var(--space-3);
-              border: 1px solid var(--color-gray-100);
-              border-radius: var(--surface-radius);
-            `}
-          />
-        )}
+      {displayPreview && isPdf && (
+        // Not an <object>: the CSP blocks plugins. Not sandboxed: Chromium refuses PDFs in sandboxes.
+        // oxlint-disable-next-line react/iframe-missing-sandbox
+        <iframe
+          src={href}
+          title={t("file-preview", { fileName: fileNameText })}
+          className={css`
+            display: block;
+            width: 100%;
+            height: ${previewHeight ?? 600}px;
+            margin-bottom: var(--space-3);
+            border: 1px solid var(--color-gray-100);
+            border-radius: var(--surface-radius);
+          `}
+        />
+      )}
       <span>
         <a
           href={href}

@@ -21,36 +21,36 @@ test.afterAll(async () => {
 
 const SCOPES_USER = getOAuthTestUser("scopes")
 
-test.describe("/userinfo endpoint - Scope-Based Claims", () => {
-  async function getTokenWithScopes(page: Page, scopes: string[]): Promise<string> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(scopes, {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
+async function getTokenWithScopes(page: Page, scopes: string[]): Promise<string> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state } = await oauthUrl(scopes, {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
 
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, SCOPES_USER.email, SCOPES_USER.password)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, scopes)
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    return tok.access_token
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    await performLogin(page, SCOPES_USER.email, SCOPES_USER.password)
+  } catch {
+    // Already logged in or consent already granted
   }
 
+  try {
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    const consent = new ConsentPage(page, scopes)
+    await consent.approve()
+  } catch {
+    // Already logged in or consent already granted
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+  return tok.access_token
+}
+
+test.describe("/userinfo endpoint - Scope-Based Claims", () => {
   test("token with profile scope -> sub, first_name, last_name returned", async ({ page }) => {
     const accessToken = await getTokenWithScopes(page, ["openid", "profile"])
     const userinfo = await callUserInfo(accessToken, { kind: "bearer" })

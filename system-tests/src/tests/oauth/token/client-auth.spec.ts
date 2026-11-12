@@ -15,35 +15,35 @@ import { oauthUrl } from "../../../utils/oauth/urlHelpers"
 
 const CLIENT_AUTH_USER = getOAuthTestUser("client-auth")
 
-test.describe("/token endpoint - Client Authentication", () => {
-  async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
+async function getValidAuthCode(page: Page): Promise<{ code: string; codeVerifier: string }> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state } = await oauthUrl(["openid"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
 
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, CLIENT_AUTH_USER.email, CLIENT_AUTH_USER.password)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid"])
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    return { code, codeVerifier }
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    await performLogin(page, CLIENT_AUTH_USER.email, CLIENT_AUTH_USER.password)
+  } catch {
+    // Already logged in or consent already granted
   }
 
+  try {
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    const consent = new ConsentPage(page, ["openid"])
+    await consent.approve()
+  } catch {
+    // Already logged in or consent already granted
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  return { code, codeVerifier }
+}
+
+test.describe("/token endpoint - Client Authentication", () => {
   test("confidential client without client_secret -> invalid_client error", async ({ page }) => {
     const { code, codeVerifier } = await getValidAuthCode(page)
 

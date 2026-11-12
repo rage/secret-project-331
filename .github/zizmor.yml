@@ -1,0 +1,4 @@
+rules:
+  # actionlint can't parse `uses: $/...` yet (rhysd/actionlint#732), so in-repo actions stay `./`.
+  self-repository:
+    disable: true

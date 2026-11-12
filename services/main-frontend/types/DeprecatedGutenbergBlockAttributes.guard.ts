@@ -389,8 +389,6 @@ export function isButtonDeprecated1Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["gradient"] === "string") &&
         (typeof typedObj["width"] === "undefined" ||
             typeof typedObj["width"] === "number") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["fontFamily"] === "undefined" ||
             typeof typedObj["fontFamily"] === "string") &&
         (typeof typedObj["fontSize"] === "undefined" ||
@@ -405,6 +403,8 @@ export function isButtonDeprecated1Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -451,8 +451,6 @@ export function isButtonDeprecated2Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["gradient"] === "string") &&
         (typeof typedObj["width"] === "undefined" ||
             typeof typedObj["width"] === "number") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["fontFamily"] === "undefined" ||
             typeof typedObj["fontFamily"] === "string") &&
         (typeof typedObj["fontSize"] === "undefined" ||
@@ -474,6 +472,8 @@ export function isButtonDeprecated2Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -520,8 +520,6 @@ export function isButtonDeprecated3Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["gradient"] === "string") &&
         (typeof typedObj["width"] === "undefined" ||
             typeof typedObj["width"] === "number") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["fontFamily"] === "undefined" ||
             typeof typedObj["fontFamily"] === "string") &&
         (typeof typedObj["fontSize"] === "undefined" ||
@@ -543,6 +541,8 @@ export function isButtonDeprecated3Attributes(obj: unknown): obj is ButtonDeprec
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -1394,8 +1394,6 @@ export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDepr
             Array.isArray(typedObj["levelOptions"])) &&
         (typeof typedObj["placeholder"] === "undefined" ||
             typeof typedObj["placeholder"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["backgroundColor"] === "undefined" ||
             typeof typedObj["backgroundColor"] === "string") &&
         (typeof typedObj["textColor"] === "undefined" ||
@@ -1426,6 +1424,8 @@ export function isHeadingDeprecated1Attributes(obj: unknown): obj is HeadingDepr
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -1708,8 +1708,6 @@ export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["linkDestination"] === "string") &&
         (typeof typedObj["linkTarget"] === "undefined" ||
             typeof typedObj["linkTarget"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["align"] === "undefined" ||
             typedObj["align"] === "" ||
             typedObj["align"] === "left" ||
@@ -1727,6 +1725,8 @@ export function isImageDeprecated1Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -1785,8 +1785,6 @@ export function isImageDeprecated2Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["linkDestination"] === "string") &&
         (typeof typedObj["linkTarget"] === "undefined" ||
             typeof typedObj["linkTarget"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["lock"] === "undefined" ||
             (typedObj["lock"] !== null &&
                 typeof typedObj["lock"] === "object" ||
@@ -1797,6 +1795,8 @@ export function isImageDeprecated2Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -1849,8 +1849,6 @@ export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["linkDestination"] === "string") &&
         (typeof typedObj["linkTarget"] === "undefined" ||
             typeof typedObj["linkTarget"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["lock"] === "undefined" ||
             (typedObj["lock"] !== null &&
                 typeof typedObj["lock"] === "object" ||
@@ -1861,6 +1859,8 @@ export function isImageDeprecated3Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -1913,8 +1913,6 @@ export function isImageDeprecated4Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["linkDestination"] === "string") &&
         (typeof typedObj["linkTarget"] === "undefined" ||
             typeof typedObj["linkTarget"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["lock"] === "undefined" ||
             (typedObj["lock"] !== null &&
                 typeof typedObj["lock"] === "object" ||
@@ -1925,6 +1923,8 @@ export function isImageDeprecated4Attributes(obj: unknown): obj is ImageDeprecat
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -2743,8 +2743,6 @@ export function isPullquoteDeprecated1Attributes(obj: unknown): obj is Pullquote
             typeof typedObj["citation"] === "string") &&
         (typeof typedObj["textAlign"] === "undefined" ||
             typeof typedObj["textAlign"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["backgroundColor"] === "undefined" ||
             typeof typedObj["backgroundColor"] === "string") &&
         (typeof typedObj["textColor"] === "undefined" ||
@@ -2772,6 +2770,8 @@ export function isPullquoteDeprecated1Attributes(obj: unknown): obj is Pullquote
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -2798,8 +2798,6 @@ export function isPullquoteDeprecated2Attributes(obj: unknown): obj is Pullquote
         typeof typedObj["citation"] === "string" &&
         (typeof typedObj["textAlign"] === "undefined" ||
             typeof typedObj["textAlign"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["backgroundColor"] === "undefined" ||
             typeof typedObj["backgroundColor"] === "string") &&
         (typeof typedObj["textColor"] === "undefined" ||
@@ -2827,6 +2825,8 @@ export function isPullquoteDeprecated2Attributes(obj: unknown): obj is Pullquote
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -2859,8 +2859,6 @@ export function isPullquoteDeprecated3Attributes(obj: unknown): obj is Pullquote
             typeof typedObj["textColor"] === "string") &&
         (typeof typedObj["customTextColor"] === "undefined" ||
             typeof typedObj["customTextColor"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["backgroundColor"] === "undefined" ||
             typeof typedObj["backgroundColor"] === "string") &&
         (typeof typedObj["gradient"] === "undefined" ||
@@ -2882,6 +2880,8 @@ export function isPullquoteDeprecated3Attributes(obj: unknown): obj is Pullquote
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||
@@ -3311,8 +3311,6 @@ export function isVerseDeprecated1Attributes(obj: unknown): obj is VerseDeprecat
             typeof typedObj["content"] === "string") &&
         (typeof typedObj["textAlign"] === "undefined" ||
             typeof typedObj["textAlign"] === "string") &&
-        (typeof typedObj["borderColor"] === "undefined" ||
-            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["backgroundColor"] === "undefined" ||
             typeof typedObj["backgroundColor"] === "string") &&
         (typeof typedObj["textColor"] === "undefined" ||
@@ -3333,6 +3331,8 @@ export function isVerseDeprecated1Attributes(obj: unknown): obj is VerseDeprecat
             typeof typedObj["anchor"] === "string") &&
         (typeof typedObj["className"] === "undefined" ||
             typeof typedObj["className"] === "string") &&
+        (typeof typedObj["borderColor"] === "undefined" ||
+            typeof typedObj["borderColor"] === "string") &&
         (typeof typedObj["style"] === "undefined" ||
             (typedObj["style"] !== null &&
                 typeof typedObj["style"] === "object" ||

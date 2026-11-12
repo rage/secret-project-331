@@ -4,6 +4,7 @@ pub mod builder;
 pub mod certificate_fonts_data;
 pub mod seed_application_task_llms;
 pub mod seed_certificate_fonts;
+pub mod seed_course_designer_plans;
 pub mod seed_courses;
 pub mod seed_exercise_services;
 pub mod seed_file_storage;
@@ -16,6 +17,7 @@ pub mod seed_playground_examples;
 pub mod seed_roles;
 mod seed_user_research_consents;
 pub mod seed_users;
+pub mod seed_verified_browsers;
 
 use std::{env, process::Command, sync::Arc, time::Duration};
 
@@ -116,9 +118,14 @@ pub async fn main() -> anyhow::Result<()> {
             db_pool.clone(),
             seed_users_result
         )),
-        run_parallelly(seed_oauth_clients(db_pool.clone()))
+        run_parallelly(seed_oauth_clients(db_pool.clone())),
+        run_parallelly(seed_course_designer_plans::seed_course_designer_plans(
+            db_pool.clone(),
+            seed_users_result
+        ))
     )?;
     seed_global_chatbots::seed_global_chatbots(db_pool.clone()).await?;
+    seed_verified_browsers::seed_verified_browsers(db_pool.clone()).await?;
     Ok(())
 }
 

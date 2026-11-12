@@ -6,6 +6,7 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { TONE } from "@/components/credit-registration/constants"
+import { registrationStatusPageRoute } from "@/components/credit-registration/creditRegistrationSubject"
 import {
   useDismissEnrolmentBanner,
   useRequestEnrolmentRecheck,
@@ -13,7 +14,6 @@ import {
 import { getMyCreditRegistrationEnrolmentBannersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MyCreditRegistration } from "@/generated/api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { completionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Infobox, Link } from "@/shared-module/components"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
@@ -75,6 +75,7 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
   const recheck = useRequestEnrolmentRecheck()
   const dismiss = useDismissEnrolmentBanner()
   const enrolmentLink = httpsUrlOrNull(registration.enrolment_link)
+  const statusPageRoute = registrationStatusPageRoute(registration)
 
   return (
     <div data-testid={BANNER_TEST_ID}>
@@ -108,9 +109,9 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
                 {t("button-i-have-enrolled")}
               </Button>
             ) : null}
-            <Link href={completionRegistrationRoute(registration.course_module_id)}>
-              {t("credit-registration-see-registration-status")}
-            </Link>
+            {statusPageRoute ? (
+              <Link href={statusPageRoute}>{t("credit-registration-see-registration-status")}</Link>
+            ) : null}
             <Button
               variant="tertiary"
               size="small"

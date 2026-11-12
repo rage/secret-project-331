@@ -16,16 +16,16 @@ import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/iet
 const CourseGrid = styled.div`
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   padding-bottom: 10px;
 
   ${respondToOrLarger.md} {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   ${respondToOrLarger.xxl} {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 `
 
@@ -72,6 +72,7 @@ const CourseHeading = styled.div`
   line-height: 120%;
   color: #1a2333;
   margin-bottom: 13px;
+  overflow-wrap: anywhere;
 `
 
 const CourseDescription = styled.div`

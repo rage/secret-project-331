@@ -71,7 +71,7 @@ export const wordCount = (text: string | null): number => {
 }
 
 export function stripNonPrintableCharacters(string: string): string {
-  return string.replaceAll("\0", "").replace(NON_PRINTING_CHAR_REGEX, "")
+  return string.replaceAll("\0", "").replaceAll(NON_PRINTING_CHAR_REGEX, "")
 }
 
 export function stringToRandomNumber(input: string): number {

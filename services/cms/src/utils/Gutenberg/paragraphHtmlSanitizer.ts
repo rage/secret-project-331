@@ -624,4 +624,5 @@ const shouldPreserveStandaloneBreakTag = (
 const escapeHtmlText = (value: string): string =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
 
-const stripDangerousTagPairs = (html: string): string => html.replace(DANGEROUS_TAG_PAIR_REGEX, "")
+const stripDangerousTagPairs = (html: string): string =>
+  html.replaceAll(DANGEROUS_TAG_PAIR_REGEX, "")

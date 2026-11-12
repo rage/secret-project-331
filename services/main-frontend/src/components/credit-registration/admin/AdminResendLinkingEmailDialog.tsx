@@ -27,7 +27,8 @@ import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props extends DialogOpenState {
   studentNumber: string
-  courseId: string
+  /** The course or mooc.fi target the mail is for. */
+  courseOrTargetId: string
   courseName: string
 }
 
@@ -48,7 +49,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   isOpen,
   onClose,
   studentNumber,
-  courseId,
+  courseOrTargetId,
   courseName,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -61,7 +62,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       adminResendAccountLinkingEmail({
         body: {
           student_number: studentNumber,
-          course_id: courseId,
+          course_or_target_id: courseOrTargetId,
           override_rate_caps: fields.override_rate_caps,
           reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
         },

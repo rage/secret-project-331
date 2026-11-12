@@ -28,6 +28,16 @@ const topLevelBlocks = () =>
       !schema.allowed_parents?.some((parent) => parent !== "root") && name !== "moocfi/exercise",
   )
 
+// Query fields are keyed `<block>.<attribute>.<field>`, and sit under the array's items.
+const exportedSchema = (key: string): AttributeSchema | undefined => {
+  const [blockName = "", attributeName = "", ...fields] = key.split(".")
+  let schema = schemas.blocks[blockName]?.attributes[attributeName]
+  for (const field of fields) {
+    schema = schema?.items?.properties?.[field]
+  }
+  return schema
+}
+
 describe("block schemas", () => {
   it("has a stable content version", async () => {
     const again = await callBlockValidator({ kind: "block-schemas" })
@@ -56,15 +66,6 @@ describe("block schemas", () => {
   })
 
   it("applies every core block refinement to a registered attribute", () => {
-    // Query fields are keyed `<block>.<attribute>.<field>`, and sit under the array's items.
-    const exportedSchema = (key: string): AttributeSchema | undefined => {
-      const [blockName = "", attributeName = "", ...fields] = key.split(".")
-      let schema = schemas.blocks[blockName]?.attributes[attributeName]
-      for (const field of fields) {
-        schema = schema?.items?.properties?.[field]
-      }
-      return schema
-    }
     for (const [key, refinement] of Object.entries(BLOCK_REFINEMENTS)) {
       expect([key, exportedSchema(key)]).toEqual([key, expect.objectContaining(refinement)])
     }

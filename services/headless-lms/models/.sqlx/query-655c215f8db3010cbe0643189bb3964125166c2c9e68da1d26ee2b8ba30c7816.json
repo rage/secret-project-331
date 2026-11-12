@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM staff_security_verified_browsers\nWHERE token_digest = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "655c215f8db3010cbe0643189bb3964125166c2c9e68da1d26ee2b8ba30c7816"
+}

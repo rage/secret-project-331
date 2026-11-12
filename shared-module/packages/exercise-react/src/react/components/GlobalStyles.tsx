@@ -51,8 +51,7 @@ const globalCss = css`
   }
   pre,
   code,
-  kbd,
-  tt {
+  kbd {
     font-family: ${monospaceFont};
     /* Commit Mono's Smart Kerning is contextual alternates, so it has to stay on while
        ligatures stay off. font-variant-ligatures: none would disable both. */

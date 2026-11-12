@@ -54,6 +54,7 @@ interface ParagraphBlockProps {
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const ParagraphWithAiToolbar = (props: ParagraphBlockProps) => {
     const { t } = useTranslation()
     const { prompt } = useDialog()

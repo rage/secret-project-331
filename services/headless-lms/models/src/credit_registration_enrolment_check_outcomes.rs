@@ -18,7 +18,9 @@ pub const VERY_LATE_SECS: i64 = 60 * 60;
 #[derive(Debug, Clone, PartialEq)]
 pub struct NewEnrolmentCheckOutcome {
     pub credit_registration_id: Uuid,
-    pub course_module_id: Uuid,
+    /// The row's module; `None` on a mooc.fi row, which sets `external_credit_target_id` instead.
+    pub course_module_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub enrolment_check_group: EnrolmentCheckGroup,
     pub enrolment_check_step: Option<i32>,
     pub source: EnrolmentCheckSource,
@@ -36,6 +38,7 @@ pub async fn insert(conn: &mut PgConnection, new: &NewEnrolmentCheckOutcome) -> 
 INSERT INTO credit_registration_enrolment_check_outcomes (
     credit_registration_id,
     course_module_id,
+    external_credit_target_id,
     enrolment_check_group,
     enrolment_check_step,
     source,
@@ -45,11 +48,12 @@ INSERT INTO credit_registration_enrolment_check_outcomes (
     is_enrolment_found,
     enrolled_at
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id
         "#,
         new.credit_registration_id,
         new.course_module_id,
+        new.external_credit_target_id,
         new.enrolment_check_group as EnrolmentCheckGroup,
         new.enrolment_check_step,
         new.source as EnrolmentCheckSource,

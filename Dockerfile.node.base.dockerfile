@@ -1,5 +1,5 @@
 # Create a dummy project for installing the right pnpm and node versions
-FROM node:24-bookworm-slim AS dummy-project-builder
+FROM node:26-bookworm-slim AS dummy-project-builder
 
 RUN mkdir -p /tmp/dummy-project
 WORKDIR /tmp/dummy-project
@@ -8,7 +8,7 @@ COPY package.json /tmp/dummy-project/real-package.json
 RUN PNPM_VERSION=$(grep -o '"packageManager": "pnpm@[^"]*"' real-package.json | sed 's/.*pnpm@\([^"]*\).*/\1/') && \
   echo "{\"name\": \"temp\", \"version\": \"1.0.0\", \"packageManager\": \"pnpm@$PNPM_VERSION\"}" > package.json
 
-FROM node:24-bookworm-slim AS node-base
+FROM node:26-bookworm-slim AS node-base
 
 RUN apt-get update \
   && apt-get upgrade -yy \
@@ -38,13 +38,19 @@ RUN mkdir -p /tmp/dummy-project && \
   # Setup corepack as the node user so that the build process can find it later on.
   su node -c "corepack install && \
   corepack enable pnpm && \
-  echo 'pnpm version $(pnpm --version)' && \
+  echo pnpm version \$(pnpm --version) && \
   pnpm install --ignore-scripts" && \
   rm -rf /tmp/dummy-project
 
-# Cache pnpm store in a consistent location
 ENV PNPM_HOME="/pnpm"
 RUN mkdir -p $PNPM_HOME && chown -R node:node $PNPM_HOME
+
+# Installs symlink node_modules into the store's prebuilt package directories instead of copying
+# files out of the cache image's store layer (overlayfs copies up anything hardlinked from a lower
+# layer). Services live in /app/source next to the store so the Next.js roots can be /app.
+RUN mkdir -p /app/pnpm && chown node:node /app /app/pnpm
+ENV PNPM_CONFIG_STORE_DIR="/app/pnpm/store"
+ENV PNPM_CONFIG_VIRTUAL_STORE_TYPE="global"
 
 # Downstream images inherit this and must not silently fetch a pnpm version
 # that doesn't match what's baked in above: a version bump in package.json

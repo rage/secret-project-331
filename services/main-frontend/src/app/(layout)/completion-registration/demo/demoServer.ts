@@ -72,7 +72,6 @@ export const createDemoFetch =
         const body = (await request.json()) as { justification: string }
         state.completion = { ...state.completion, credit_justification: body.justification }
         return json({
-          course_module_completion_id: state.completion.course_module_completion_id,
           justification: body.justification,
           updated_at: nowIso,
         } satisfies MyCreditJustification)

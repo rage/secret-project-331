@@ -27,22 +27,33 @@ const otpSlotsCss = css`
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
-`
 
-/** Shares the row instead of wrapping, so a six-digit code stays on one line at 320px. */
-const otpSlotsFullWidthCss = css`
-  flex-wrap: nowrap;
-  justify-content: center;
-
-  & > input {
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 56px;
+  & > input[data-group-start="true"] {
+    margin-inline-start: var(--space-3);
   }
 `
 
-const otpGroupStartCss = css`
-  margin-inline-start: var(--space-3);
+/**
+ * Shares the row instead of wrapping, so a six-digit code stays on one line at 320px. Starts at the
+ * label's edge; a grouped six-digit row (6 × 56 + 4 × 8 + 48 = 416px) fills a small dialog exactly.
+ */
+const otpSlotsFullWidthCss = css`
+  flex-wrap: nowrap;
+  gap: var(--space-3);
+
+  & > input {
+    flex: 0 1 56px;
+    min-width: 0;
+  }
+
+  & > input[data-group-start="true"] {
+    margin-inline-start: var(--space-6);
+  }
+`
+
+/** Room between the label, the tall slots and the messages under them. */
+const otpFieldCss = css`
+  gap: var(--space-3);
 `
 
 const otpSlotCss = css`
@@ -264,7 +275,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      {...omitUndefined({ className })}
+      className={cx(otpFieldCss, className)}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -325,11 +336,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
             ref={(element) => {
               slotRefs.current[index] = element
             }}
-            className={cx(
-              otpSlotCss,
-              resolveOtpSlotSizeCss(fieldSize),
-              groupSize !== undefined && index > 0 && index % groupSize === 0 && otpGroupStartCss,
-            )}
+            className={cx(otpSlotCss, resolveOtpSlotSizeCss(fieldSize))}
             type="text"
             inputMode="numeric"
             maxLength={1}
@@ -337,6 +344,9 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
             value={slotValue}
             disabled={isDisabled}
             readOnly={isReadOnly}
+            data-group-start={
+              groupSize !== undefined && index > 0 && index % groupSize === 0 ? "true" : undefined
+            }
             data-invalid={isInvalid ? "true" : "false"}
             aria-invalid={isInvalid ? "true" : undefined}
             aria-required={index === 0 && isRequired ? "true" : undefined}

@@ -156,13 +156,13 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "props GutenbergEditor passes to __experimentalListView",
     packageName: "block-editor",
-    files: ["src/components/list-view/index.js"],
+    files: ["src/components/list-view/index.jsx"],
     identifiers: ["showBlockMovers", "isExpanded"],
   },
   {
     usage: "props GutenbergEditor passes to BlockTools and __unstableEditorStyles",
     packageName: "block-editor",
-    files: ["src/components/block-tools/index.js", "src/components/editor-styles/index.js"],
+    files: ["src/components/block-tools/index.jsx", "src/components/editor-styles/index.tsx"],
     identifiers: ["__unstableContentRef", "scope", "transformOptions"],
   },
   {
@@ -174,16 +174,16 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "props GutenbergEditor passes to BlockEditorProvider",
     packageName: "block-editor",
-    files: ["src/components/provider/index.js"],
+    files: ["src/components/provider/index.tsx"],
     identifiers: ["settings", "value", "onInput", "onChange", "selection", "onChangeSelection"],
   },
   {
     usage: "keys in the settings object GutenbergEditor hands BlockEditorProvider",
     packageName: "block-editor",
     files: [
-      "src/components/provider/index.js",
-      "src/store/defaults.js",
-      "src/store/get-block-settings.js",
+      "src/components/provider/index.tsx",
+      "src/store/defaults.ts",
+      "src/store/get-block-settings.ts",
     ],
     identifiers: [
       "allowedBlockTypes",
@@ -197,25 +197,25 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "core/block-editor selectors the editor.BlockEdit filters read",
     packageName: "block-editor",
-    files: ["src/store/selectors.js"],
+    files: ["src/store/selectors.ts"],
     identifiers: ["getBlock", "getBlocksByName", "getSettings"],
   },
   {
     usage: "isPreviewMode, the only route to telling a block preview from the document",
     packageName: "block-editor",
-    files: ["src/store/defaults.js"],
+    files: ["src/store/defaults.ts"],
     identifiers: ["isPreviewMode"],
   },
   {
     usage: "the block editor store name our useSelect calls resolve",
     packageName: "block-editor",
-    files: ["src/store/constants.js"],
+    files: ["src/store/constants.ts"],
     identifiers: ["core/block-editor"],
   },
   {
     usage: "the editor.BlockEdit filter every one of our block HOCs hangs off",
     packageName: "block-editor",
-    files: ["src/components/block-edit/edit.js"],
+    files: ["src/components/block-edit/edit.tsx"],
     identifiers: ["editor.BlockEdit"],
   },
   {
@@ -233,7 +233,7 @@ export const WORDPRESS_SOURCE_CONTRACTS: SourceContract[] = [
   {
     usage: "the BlockControls group withParagraphAiToolbarAction fills",
     packageName: "block-editor",
-    files: ["src/components/block-controls/groups.js"],
+    files: ["src/components/block-controls/groups.ts"],
     identifiers: ["BlockControlsBlock"],
   },
 ]
@@ -378,7 +378,7 @@ describe("@wordpress identifiers our code passes as strings", () => {
 
   it.each(LIST_VIEW_PROPS_REMOVED_UPSTREAM)("reports %s as gone from ListView", (propName) => {
     const source = fs.readFileSync(
-      packageFile("block-editor", "src/components/list-view/index.js"),
+      packageFile("block-editor", "src/components/list-view/index.jsx"),
       "utf8",
     )
     expect(source).not.toContain(propName)

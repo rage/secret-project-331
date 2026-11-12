@@ -54,6 +54,16 @@ pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
         .expect("Failed to build Client")
 });
 
+/// [`REQWEST_CLIENT`] that answers a redirect as the response itself. For calls carrying a credential
+/// to mooc.fi or TMC, whose bearer tokens and secrets a followed redirect could take elsewhere.
+pub static REQWEST_CLIENT_WITHOUT_REDIRECTS: Lazy<reqwest::Client> = Lazy::new(|| {
+    base_client_builder()
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .expect("Failed to build Client")
+});
+
 /// For responses whose body is consumed as a stream. Carries no total or read timeout, because both
 /// would cut off a healthy but slow stream; callers must instead bound the header wait with
 /// [`STREAM_RESPONSE_HEADERS_TIMEOUT`] and each chunk with [`STREAM_IDLE_TIMEOUT`].

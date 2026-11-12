@@ -23,6 +23,7 @@ import { AUDIT_USER_ID_PARAM } from "@/components/credit-registration/admin/admi
 import AdminStateLabel, {
   STATE_ICON_SIZE,
 } from "@/components/credit-registration/admin/AdminStateLabel"
+import { courseFacetOptions } from "@/components/credit-registration/admin/courseFacet"
 import type { FilterFieldDescriptor } from "@/components/credit-registration/admin/useFilteredAdminQuery"
 import {
   selectFilterField,
@@ -310,15 +311,10 @@ const filteredStudentLabel = (
 const AuditPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const courseStatsQuery = useCreditRegistrationCourseStats()
-  // The stats are one row per module, and a course can have several modules: dedupe
-  // by course_id or the Select gets two options with the same value and refuses to render at all.
-  const courseOptions = useMemo(() => {
-    const byCourseId = new Map<string, string>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      byCourseId.set(courseModule.course_id, courseModule.course_name)
-    }
-    return Array.from(byCourseId, ([value, label]) => ({ value, label }))
-  }, [courseStatsQuery.data?.modules])
+  const courseOptions = useMemo(
+    () => courseFacetOptions(courseStatsQuery.data?.credit_units ?? []),
+    [courseStatsQuery.data?.credit_units],
+  )
 
   const {
     control,

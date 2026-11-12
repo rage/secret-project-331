@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.id\nFROM course_designer_plans p\n  JOIN course_designer_plan_stages s ON s.course_designer_plan_id = p.id\n  AND s.deleted_at IS NULL\nWHERE p.status = 'in_progress'\n  AND p.deleted_at IS NULL\n  AND (\n    p.last_weekly_stage_email_sent_at IS NULL\n    OR p.last_weekly_stage_email_sent_at < $1::TIMESTAMPTZ - INTERVAL '6 days'\n  )\nGROUP BY p.id\nHAVING ($1::TIMESTAMPTZ AT TIME ZONE 'Europe/Helsinki')::DATE BETWEEN MIN(s.planned_starts_on) AND MAX(s.planned_ends_on)\nORDER BY p.id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plans",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "2f3c0c79f8f2465d8849c0fdcf3731e0bae20a3b0a8b419ec5ec247febc0cd54"
+}

@@ -166,15 +166,19 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   const selectedKey =
     field.value === null || field.value === undefined ? null : (field.value as ComboBoxKey)
 
+  // Input text equal to the selection is not a search: show every option.
+  const selectedTextValue = normalizedItems.find((item) => item.key === selectedKey)?.textValue
+
   const state = useComboBoxState({
-    items: normalizedItems,
+    defaultItems: normalizedItems,
     children: (item) => (
       <Item key={item.key} textValue={item.textValue}>
         {item.rendered}
       </Item>
     ),
     disabledKeys,
-    defaultFilter: contains,
+    defaultFilter: (textValue, inputValue) =>
+      inputValue === selectedTextValue || contains(textValue, inputValue),
     selectedKey,
     onSelectionChange: (key) => {
       field.onChange(key)

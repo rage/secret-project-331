@@ -281,7 +281,7 @@ async function snapshotWithViewPort({
     await page.waitForTimeout(100)
   }
 
-  const screenshotName = `${snapshotName.replace(
+  const screenshotName = `${snapshotName.replaceAll(
     PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX,
     "-",
   )}-${viewPortName}.png`

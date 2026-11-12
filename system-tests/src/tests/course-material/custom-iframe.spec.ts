@@ -38,7 +38,7 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
     )
   await page.getByRole("button", { name: "Parse" }).click()
 
-  await page.getByRole("button", { name: "Edit" }).waitFor()
+  await page.getByRole("button", { name: "Edit", exact: true }).waitFor()
   await page.getByText("https://example.com/iframe").waitFor()
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()

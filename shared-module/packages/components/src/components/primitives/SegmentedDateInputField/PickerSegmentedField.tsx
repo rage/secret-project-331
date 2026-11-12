@@ -224,8 +224,6 @@ export function PickerSegmentedField({
         aria-describedby={describedBy}
         aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
         aria-invalid={pickerState.isInvalid ? dataStateTrue : undefined}
-        aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
-        aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
       >
         {iconStart ? <span className={inlineAffixCss}>{iconStart}</span> : null}
         <div className={segmentedPickerFieldCss}>

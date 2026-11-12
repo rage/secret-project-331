@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 
 import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
 import { Checkbox } from "@/utils/components/Checkbox"
+import { waitForExerciseServiceIframeToBeStable } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -235,6 +236,8 @@ test.describe("Peer review followed by self review works", () => {
         )
         .waitFor()
       await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+      // The iframe grows as it renders, which moves "Received reviews" away from a quick click.
+      await waitForExerciseServiceIframeToBeStable(student3Page, "quizzes", 1)
       await student3Page.getByText("Received reviews").click()
       await student3Page
         .getByLabel("Exercise:Best quizzes exercise")

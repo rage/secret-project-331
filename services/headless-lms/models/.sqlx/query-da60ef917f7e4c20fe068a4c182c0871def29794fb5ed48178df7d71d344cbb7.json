@@ -798,6 +798,50 @@
             "name": "phase_started_at"
           }
         }
+      },
+      {
+        "ordinal": 65,
+        "name": "external_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 66,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 67,
+        "name": "subject_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "subject_id"
+          }
+        }
+      },
+      {
+        "ordinal": 68,
+        "name": "credit_unit_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "credit_unit_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -807,32 +851,11 @@
     },
     "nullable": [
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
       true,
       false,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
       false,
       false,
       true,
@@ -844,6 +867,27 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       true,
@@ -867,6 +911,10 @@
       true,
       false,
       true,
+      true,
+      true,
+      false,
+      false,
       true,
       true,
       false,

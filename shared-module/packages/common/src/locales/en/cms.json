@@ -175,6 +175,7 @@
   "email-template-type-generic": "Generic",
   "email-template-type-reset-password-email": "Reset Password Email",
   "email-template-type-verify-email-address": "Verify Email Address",
+  "email-template-type-verify-network": "Network verification code",
   "error": "Error",
   "error-cannot-render-editor-for-exercise-service-x": "Cannot render editor for exercise service {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",

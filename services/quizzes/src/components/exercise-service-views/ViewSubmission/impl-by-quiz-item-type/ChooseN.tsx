@@ -147,14 +147,12 @@ const MultipleChoiceClickableFeedback: React.FC<
                 borderColor = "#bbf7d0"
                 backgroundColor = "#ffffff"
               }
+            } else if (isCorrect) {
+              borderColor = "#fecaca"
+              backgroundColor = "#ffffff"
             } else {
-              if (isCorrect) {
-                borderColor = "#fecaca"
-                backgroundColor = "#ffffff"
-              } else {
-                borderColor = "#c53030"
-                backgroundColor = "#fff5f5"
-              }
+              borderColor = "#c53030"
+              backgroundColor = "#fff5f5"
             }
 
             return (

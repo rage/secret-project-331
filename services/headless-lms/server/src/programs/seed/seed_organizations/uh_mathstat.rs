@@ -21,6 +21,7 @@ use crate::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
+            seed_course_design_guide::seed_course_design_guide,
             seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
             seed_introduction_to_codes::seed_introduction_to_codes,
             seed_introduction_to_course_auditing::seed_introduction_to_course_auditing,
@@ -491,6 +492,13 @@ pub async fn seed_organization_uh_mathstat(
         "advanced-chatbot-course",
         uh_data.clone(),
         seed_users_result,
+    )
+    .await?;
+
+    let _course_design_guide_id = seed_course_design_guide(
+        &app_config,
+        Uuid::parse_str("ed16ad3c-5ae4-4595-ab9b-f151f3bf7198")?,
+        uh_data.clone(),
     )
     .await?;
 

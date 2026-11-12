@@ -1,12 +1,15 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
   createCourseDesignerStageTaskMutation,
   deleteCourseDesignerStageTaskMutation,
+  getCoursePlanMembersOptions,
+  setCourseDesignerTaskAssigneeMutation,
   updateCourseDesignerStageTaskMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
@@ -14,7 +17,8 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
 
-import WorkspaceTaskRow from "./WorkspaceTaskRow"
+import { formatPlanDateRange } from "../../../coursePlanDates"
+import WorkspaceTaskRow, { type TaskChanges } from "./WorkspaceTaskRow"
 
 const cardStyles = css`
   background: white;
@@ -148,15 +152,6 @@ const emptyTasksStyles = css`
   padding: 0.5rem 0;
 `
 
-function formatPhaseTimeline(startsOn: string, endsOn: string): string {
-  const s = new Date(startsOn)
-  const e = new Date(endsOn)
-  // oxlint-disable-next-line i18next/no-literal-string
-  const opts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" }
-  // oxlint-disable-next-line i18next/no-literal-string
-  return `${s.toLocaleDateString(undefined, opts)} – ${e.toLocaleDateString(undefined, opts)}`
-}
-
 interface WorkspaceStageSectionProps {
   planId: string
   stage: CourseDesignerPlanStageWithTasks
@@ -164,6 +159,8 @@ interface WorkspaceStageSectionProps {
   isActive: boolean
   onInvalidate: () => void
   showStageTitle?: boolean
+  /** Archived plans: tasks are shown without controls for changing them. */
+  isReadOnly: boolean
 }
 
 const NEW_TASK_FIELD_NAME = "newTaskTitle" as const
@@ -175,6 +172,7 @@ export default function WorkspaceStageSection({
   isActive,
   onInvalidate,
   showStageTitle = true,
+  isReadOnly,
 }: WorkspaceStageSectionProps) {
   const { t } = useTranslation()
   const {
@@ -204,6 +202,37 @@ export default function WorkspaceStageSection({
     { notify: false },
     { onSuccess: onInvalidate },
   )
+
+  const editMutation = useToastMutationOptions(
+    updateCourseDesignerStageTaskMutation(),
+    { notify: true, method: "PATCH" },
+    { onSuccess: onInvalidate },
+  )
+
+  const assigneeMutation = useToastMutationOptions(
+    setCourseDesignerTaskAssigneeMutation(),
+    { notify: true, method: "PUT" },
+    { onSuccess: onInvalidate },
+  )
+
+  const membersQuery = useQuery(getCoursePlanMembersOptions({ path: { plan_id: planId } }))
+  const members = membersQuery.data ?? []
+
+  const saveTask = async (taskId: string, changes: TaskChanges) => {
+    const path = { plan_id: planId, task_id: taskId }
+    if (changes.title !== undefined || changes.description !== undefined) {
+      await editMutation.mutateAsync({
+        path,
+        body: { title: changes.title ?? null, description: changes.description ?? null },
+      })
+    }
+    if (changes.assigneeUserId !== undefined) {
+      await assigneeMutation.mutateAsync({
+        path,
+        body: { assignee_user_id: changes.assigneeUserId },
+      })
+    }
+  }
 
   const deleteMutation = useToastMutationOptions(
     deleteCourseDesignerStageTaskMutation(),
@@ -244,7 +273,7 @@ export default function WorkspaceStageSection({
       <div className={dateRowStyles}>
         <span>{t("course-plans-phase-timeline")}</span>
         <span className={dateRangeStyles}>
-          {formatPhaseTimeline(stage.planned_starts_on, stage.planned_ends_on)}
+          {formatPlanDateRange(stage.planned_starts_on, stage.planned_ends_on, undefined)}
         </span>
       </div>
       <div className={progressBlockStyles}>
@@ -282,30 +311,32 @@ export default function WorkspaceStageSection({
           />
         </div>
       </div>
-      <form
-        className={addRowStyles}
-        onSubmit={(e) => {
-          e.preventDefault()
-          handleAddTask()
-        }}
-      >
-        <TextField
-          id={`stage-task-input-${stage.id}`}
-          name={NEW_TASK_FIELD_NAME}
-          control={newTaskControl}
-          label={t("course-plans-task-placeholder")}
-          placeholder={t("course-plans-task-placeholder")}
-          className={taskFieldStyles}
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          size="medium"
-          disabled={createMutation.isPending || !newTaskTitle.trim()}
+      {isReadOnly ? null : (
+        <form
+          className={addRowStyles}
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleAddTask()
+          }}
         >
-          {t("course-plans-add-task")}
-        </Button>
-      </form>
+          <TextField
+            id={`stage-task-input-${stage.id}`}
+            name={NEW_TASK_FIELD_NAME}
+            control={newTaskControl}
+            label={t("course-plans-task-placeholder")}
+            placeholder={t("course-plans-task-placeholder")}
+            className={taskFieldStyles}
+          />
+          <Button
+            type="submit"
+            variant="secondary"
+            size="medium"
+            disabled={createMutation.isPending || !newTaskTitle.trim()}
+          >
+            {t("course-plans-add-task")}
+          </Button>
+        </form>
+      )}
       <ul className={taskListStyles}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>
@@ -314,6 +345,8 @@ export default function WorkspaceStageSection({
             <WorkspaceTaskRow
               key={task.id}
               task={task}
+              members={members}
+              onSave={(changes) => saveTask(task.id, changes)}
               onToggle={(is_completed) =>
                 updateMutation.mutate({
                   body: { is_completed },
@@ -327,6 +360,7 @@ export default function WorkspaceStageSection({
               }
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
+              isReadOnly={isReadOnly}
             />
           ))
         )}

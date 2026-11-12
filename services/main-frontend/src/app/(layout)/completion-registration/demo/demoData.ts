@@ -2,7 +2,7 @@ import type {
   CreditRegistrationEnrolmentRoute,
   MyCreditRegistration,
   StudentRegistrationProgress,
-  MyCreditRegistrationForCourseModule,
+  MyCreditRegistrationForSubject,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
   StudentFacingCreditRegistrationStatus,
@@ -77,7 +77,7 @@ export interface DemoVariants {
 /** What the demo's fake server holds; buttons on the page change it the way the real API would. */
 export interface DemoState {
   completion: UserCompletionInformation
-  registration: MyCreditRegistrationForCourseModule | null
+  registration: MyCreditRegistrationForSubject | null
   enrolmentRoute: MyEnrolmentRoute
   studentNumber: MyVerifiedStudentNumber | null
 }
@@ -249,7 +249,7 @@ const enrolmentRouteFor = (stage: DemoStage, nowMs: number): MyEnrolmentRoute =>
   const choseCertificate = stage === "certificate_chosen"
   return {
     can_change: true,
-    course_module_completion_id: DEMO_COMPLETION_ID,
+    subject_id: DEMO_COMPLETION_ID,
     route: confirmed ? UNIVERSITY_OF_HELSINKI : choseCertificate ? OPEN_UNIVERSITY : null,
     enrolment_confirmed_at: confirmed ? iso(nowMs - 10 * MINUTE_MS) : null,
     has_finnish_personal_identity_code: choseCertificate ? false : null,

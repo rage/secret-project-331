@@ -32,7 +32,7 @@ export const cleanUrlPath = (path: string): string => {
   const unsafeAscii = /[\u0000-\u002C\u003A-\u0040\u005B-\u005E\u0060\u007B-\u007D\u007F]/g
   return decoded
     .replaceAll(/\s+/g, "-")
-    .replace(unsafeAscii, "")
+    .replaceAll(unsafeAscii, "")
     .replaceAll(/-{2,}/g, "-")
     .replaceAll(/-+\//g, "/")
     .replaceAll(/\/-+/g, "/")

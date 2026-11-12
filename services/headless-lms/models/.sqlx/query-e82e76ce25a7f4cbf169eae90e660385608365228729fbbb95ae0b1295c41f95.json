@@ -1,0 +1,113 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH claimed AS (\n  INSERT INTO moocfi_registration_reports (\n      credit_registration_id,\n      moocfi_completion_id,\n      registration_date,\n      claimed_until\n    )\n  SELECT rr.credit_registration_id,\n    rr.moocfi_completion_id,\n    (\n      SELECT MIN(free.registration_date)\n      FROM generate_series(0, 999) step\n        CROSS JOIN LATERAL (\n          SELECT date_trunc('milliseconds', rr.registration_date) + step * INTERVAL '1 millisecond' AS registration_date\n        ) free\n      WHERE NOT EXISTS (\n          SELECT 1\n          FROM moocfi_registration_reports taken\n          WHERE taken.moocfi_completion_id = rr.moocfi_completion_id\n            AND taken.registration_date = free.registration_date\n            AND taken.deleted_at IS NULL\n        )\n    ),\n    now() + $2::interval\n  FROM moocfi_reportable_registrations rr\n  WHERE rr.credit_registration_id = $1 ON CONFLICT (credit_registration_id)\n  WHERE deleted_at IS NULL DO\n  UPDATE\n  SET claimed_until = EXCLUDED.claimed_until\n  WHERE moocfi_registration_reports.reported_at IS NULL\n    AND (\n      moocfi_registration_reports.claimed_until IS NULL\n      OR moocfi_registration_reports.claimed_until <= now()\n    )\n  RETURNING credit_registration_id,\n    attempt_count,\n    registration_date\n)\nSELECT claimed.credit_registration_id,\n  ec.moocfi_completion_id,\n  ec.user_id,\n  ec.moocfi_user_upstream_id,\n  t.moocfi_course_id,\n  claimed.attempt_count,\n  cr.student_number AS \"student_number!: DbSecret\",\n  claimed.registration_date\nFROM claimed\n  JOIN credit_registrations cr ON cr.id = claimed.credit_registration_id\n  JOIN external_completions ec ON ec.id = cr.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "moocfi_registration_reports",
+            "name": "credit_registration_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "moocfi_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "moocfi_user_upstream_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_user_upstream_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "attempt_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "moocfi_registration_reports",
+            "name": "attempt_count"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "student_number!: DbSecret",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "student_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "registration_date",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "moocfi_registration_reports",
+            "name": "registration_date"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "e82e76ce25a7f4cbf169eae90e660385608365228729fbbb95ae0b1295c41f95"
+}

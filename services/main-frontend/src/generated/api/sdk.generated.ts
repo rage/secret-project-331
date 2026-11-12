@@ -22,12 +22,20 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdjustCourseDesignerScheduleData,
+  AdjustCourseDesignerScheduleResponses,
   AdminAddCreditRegistrationNoteData,
   AdminAddCreditRegistrationNoteErrors,
   AdminAddCreditRegistrationNoteResponses,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminCreateExternalCreditTargetData,
+  AdminCreateExternalCreditTargetErrors,
+  AdminCreateExternalCreditTargetResponses,
+  AdminDeleteExternalCreditTargetData,
+  AdminDeleteExternalCreditTargetErrors,
+  AdminDeleteExternalCreditTargetResponses,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionErrors,
   AdminDismissCreditRegistrationAttentionResponses,
@@ -42,6 +50,9 @@ import type {
   AdminPauseCourseModuleCreditRegistrationData,
   AdminPauseCourseModuleCreditRegistrationErrors,
   AdminPauseCourseModuleCreditRegistrationResponses,
+  AdminPauseExternalCreditTargetData,
+  AdminPauseExternalCreditTargetErrors,
+  AdminPauseExternalCreditTargetResponses,
   AdminPausePhaseData,
   AdminPausePhaseErrors,
   AdminPausePhaseResponses,
@@ -60,6 +71,8 @@ import type {
   AdminResumeCourseModuleCreditRegistrationData,
   AdminResumeCourseModuleCreditRegistrationErrors,
   AdminResumeCourseModuleCreditRegistrationResponses,
+  AdminResumeExternalCreditTargetData,
+  AdminResumeExternalCreditTargetResponses,
   AdminResumePhaseData,
   AdminResumePhaseErrors,
   AdminResumePhaseResponses,
@@ -72,6 +85,9 @@ import type {
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberErrors,
   AdminUnlinkStudentNumberResponses,
+  AdminUpdateExternalCreditTargetData,
+  AdminUpdateExternalCreditTargetErrors,
+  AdminUpdateExternalCreditTargetResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
   ApproveOauthConsentData,
@@ -79,12 +95,16 @@ import type {
   ApproveOauthDeviceVerificationData,
   ApproveOauthDeviceVerificationErrors,
   ApproveOauthDeviceVerificationResponses,
+  ArchiveCourseDesignerPlanData,
+  ArchiveCourseDesignerPlanResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
   ChooseMyCertificateData,
   ChooseMyCertificateResponses,
+  ChooseMyExternalCompletionCertificateData,
+  ChooseMyExternalCompletionCertificateResponses,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenErrors,
   ClaimStudentNumberVerificationTokenResponses,
@@ -95,6 +115,11 @@ import type {
   ConfirmCourseSuspectedCheaterResponses,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponses,
+  ConfirmMyExternalCompletionEnrolmentData,
+  ConfirmMyExternalCompletionEnrolmentResponses,
+  ContinueMoocfiHandoffData,
+  ContinueMoocfiHandoffErrors,
+  ContinueMoocfiHandoffResponses,
   CreateAgentChangesetPreviewLinkData,
   CreateAgentChangesetPreviewLinkResponses,
   CreateChapterData,
@@ -112,6 +137,8 @@ import type {
   CreateCourseDesignerScheduleSuggestionResponses,
   CreateCourseDesignerStageTaskData,
   CreateCourseDesignerStageTaskResponses,
+  CreateCourseFromCourseDesignerPlanData,
+  CreateCourseFromCourseDesignerPlanResponses,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermErrors,
   CreateCourseGlossaryTermResponses,
@@ -134,6 +161,9 @@ import type {
   CreateExerciseServiceResponses,
   CreateExternalCourseData,
   CreateExternalCourseResponses,
+  CreateMyMoocfiHandoffData,
+  CreateMyMoocfiHandoffErrors,
+  CreateMyMoocfiHandoffResponses,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreateOrganizationExamResponses,
@@ -335,10 +365,20 @@ import type {
   GetCourseData,
   GetCourseDefaultPeerReviewData,
   GetCourseDefaultPeerReviewResponses,
+  GetCourseDesignerAssistantConversationInfoData,
+  GetCourseDesignerAssistantConversationInfoResponses,
+  GetCourseDesignerAssistantStatusData,
+  GetCourseDesignerAssistantStatusResponses,
   GetCourseDesignerPlanData,
   GetCourseDesignerPlanResponses,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponses,
+  GetCourseDesignerSectionStatusesData,
+  GetCourseDesignerSectionStatusesResponses,
+  GetCourseDesignerSupportAssistantChatbotsData,
+  GetCourseDesignerSupportAssistantChatbotsResponses,
+  GetCourseDesignerSupportPlansData,
+  GetCourseDesignerSupportPlansResponses,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponses,
   GetCourseExercisesData,
@@ -468,6 +508,8 @@ import type {
   GetCreditRegistrationStatsByCourseResponses,
   GetCreditRegistrationThresholdsData,
   GetCreditRegistrationThresholdsResponses,
+  GetCurrentCourseDesignerAssistantConversationData,
+  GetCurrentCourseDesignerAssistantConversationResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
   GetEditProposalsData,
@@ -517,6 +559,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetMoocfiCourseLinkData,
+  GetMoocfiCourseLinkResponses,
   GetMyCertificatesData,
   GetMyCertificatesResponses,
   GetMyCoursesData,
@@ -525,12 +569,18 @@ import type {
   GetMyCreditRegistrationEnrolmentBannersResponses,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponses,
+  GetMyCreditRegistrationForExternalCompletionData,
+  GetMyCreditRegistrationForExternalCompletionResponses,
   GetMyCreditRegistrationsData,
   GetMyCreditRegistrationsResponses,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponses,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponses,
+  GetMyExternalCompletionEnrolmentRouteData,
+  GetMyExternalCompletionEnrolmentRouteResponses,
+  GetMyMoocfiCreditRegistrationsData,
+  GetMyMoocfiCreditRegistrationsResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -587,6 +637,11 @@ import type {
   GetPageHistoryResponses,
   GetPageInfoData,
   GetPageInfoResponses,
+  GetPendingMoocfiHandoffData,
+  GetPendingMoocfiHandoffErrors,
+  GetPendingMoocfiHandoffResponses,
+  GetPendingRoleCountWaitingForMeData,
+  GetPendingRoleCountWaitingForMeResponses,
   GetPendingRolesData,
   GetPendingRolesResponses,
   GetPlaygroundExamplesData,
@@ -721,6 +776,8 @@ import type {
   ListVerifiedStudentNumbersForAdminResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
+  NewCourseDesignerAssistantConversationData,
+  NewCourseDesignerAssistantConversationResponses,
   PostOauthUserInfoData,
   PostOauthUserInfoErrors,
   PostOauthUserInfoResponses,
@@ -741,6 +798,9 @@ import type {
   RecordMyEnrolmentPageVisitData,
   RecordMyEnrolmentPageVisitErrors,
   RecordMyEnrolmentPageVisitResponses,
+  RecordMyExternalCompletionEnrolmentPageVisitData,
+  RecordMyExternalCompletionEnrolmentPageVisitErrors,
+  RecordMyExternalCompletionEnrolmentPageVisitResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
   RemoveCoursePlanMemberData,
@@ -787,12 +847,26 @@ import type {
   SearchUserDetailsExactResponses,
   SearchUserDetailsFuzzyData,
   SearchUserDetailsFuzzyResponses,
+  SendCourseDesignerAssistantMessageData,
+  SendCourseDesignerAssistantMessageResponses,
+  SendCourseDesignerAssistantToolResponseData,
+  SendCourseDesignerAssistantToolResponseResponses,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponses,
+  SetChatbotCourseDesignerAssistantData,
+  SetChatbotCourseDesignerAssistantResponses,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponses,
   SetCourseChatbotAsNonDefaultData,
   SetCourseChatbotAsNonDefaultResponses,
+  SetCourseDesignerGreatMoocVisionData,
+  SetCourseDesignerGreatMoocVisionResponses,
+  SetCourseDesignerSectionStatusData,
+  SetCourseDesignerSectionStatusResponses,
+  SetCourseDesignerTaskAssigneeData,
+  SetCourseDesignerTaskAssigneeResponses,
+  SetCourseDesignerWeeklyDigestSubscriptionData,
+  SetCourseDesignerWeeklyDigestSubscriptionResponses,
   SetCourseJoinCodeData,
   SetCourseJoinCodeResponses,
   SetCourseModuleCertificateGenerationData,
@@ -803,6 +877,11 @@ import type {
   SetMyCreditJustificationResponses,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponses,
+  SetMyExternalCompletionCreditJustificationData,
+  SetMyExternalCompletionCreditJustificationErrors,
+  SetMyExternalCompletionCreditJustificationResponses,
+  SetMyExternalCompletionEnrolmentRouteData,
+  SetMyExternalCompletionEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
@@ -811,6 +890,8 @@ import type {
   TeacherSetStudentChapterStatusResponses,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponses,
+  UnarchiveCourseDesignerPlanData,
+  UnarchiveCourseDesignerPlanResponses,
   UnhideCourseFromMyCoursesData,
   UnhideCourseFromMyCoursesResponses,
   UnlinkMyStudentNumberData,
@@ -882,12 +963,18 @@ import type {
   WithdrawMyCertificateChoiceResponses,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponses,
+  WithdrawMyExternalCompletionCertificateChoiceData,
+  WithdrawMyExternalCompletionCertificateChoiceResponses,
+  WithdrawMyExternalCompletionEnrolmentConfirmationData,
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
   zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdjustCourseDesignerScheduleResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminCreateExternalCreditTargetResponse,
   zAdminDismissCreditRegistrationAttentionResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
@@ -903,11 +990,15 @@ import {
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zApproveOauthDeviceVerificationResponse,
+  zArchiveCourseDesignerPlanResponse,
   zChangeUserPasswordResponse,
   zChooseMyCertificateResponse,
+  zChooseMyExternalCompletionCertificateResponse,
   zClaimStudentNumberVerificationTokenResponse,
   zConfigureChatbotResponse,
   zConfirmMyEnrolmentResponse,
+  zConfirmMyExternalCompletionEnrolmentResponse,
+  zContinueMoocfiHandoffResponse,
   zCreateAgentChangesetPreviewLinkResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
@@ -916,6 +1007,7 @@ import {
   zCreateCourseDesignerPlanResponse,
   zCreateCourseDesignerScheduleSuggestionResponse,
   zCreateCourseDesignerStageTaskResponse,
+  zCreateCourseFromCourseDesignerPlanResponse,
   zCreateCourseGlossaryTermResponse,
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
@@ -924,6 +1016,7 @@ import {
   zCreateExerciseRepositoryResponse,
   zCreateExerciseServiceResponse,
   zCreateExternalCourseResponse,
+  zCreateMyMoocfiHandoffResponse,
   zCreatePageAudioFileResponse,
   zCreatePageResponse,
   zCreatePlaygroundExampleResponse,
@@ -1001,8 +1094,13 @@ import {
   zGetCourseCreditRegistrationSummaryResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
+  zGetCourseDesignerAssistantConversationInfoResponse,
+  zGetCourseDesignerAssistantStatusResponse,
   zGetCourseDesignerPlanResponse,
   zGetCourseDesignerPlansResponse,
+  zGetCourseDesignerSectionStatusesResponse,
+  zGetCourseDesignerSupportAssistantChatbotsResponse,
+  zGetCourseDesignerSupportPlansResponse,
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
@@ -1062,6 +1160,7 @@ import {
   zGetCreditRegistrationSettingsResponse,
   zGetCreditRegistrationStatsByCourseResponse,
   zGetCreditRegistrationThresholdsResponse,
+  zGetCurrentCourseDesignerAssistantConversationResponse,
   zGetCurrentTimeResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
@@ -1086,13 +1185,17 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetMoocfiCourseLinkResponse,
   zGetMyCertificatesResponse,
   zGetMyCoursesResponse,
   zGetMyCreditRegistrationEnrolmentBannersResponse,
   zGetMyCreditRegistrationForCourseModuleResponse,
+  zGetMyCreditRegistrationForExternalCompletionResponse,
   zGetMyCreditRegistrationsResponse,
   zGetMyEmailVerificationStatusResponse,
   zGetMyEnrolmentRouteResponse,
+  zGetMyExternalCompletionEnrolmentRouteResponse,
+  zGetMyMoocfiCreditRegistrationsResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -1117,6 +1220,8 @@ import {
   zGetPageHistoryCountResponse,
   zGetPageHistoryResponse,
   zGetPageInfoResponse,
+  zGetPendingMoocfiHandoffResponse,
+  zGetPendingRoleCountWaitingForMeResponse,
   zGetPendingRolesResponse,
   zGetPlaygroundExamplesResponse,
   zGetRegradingInfoResponse,
@@ -1179,6 +1284,7 @@ import {
   zListOwnSubmissionSharesResponse,
   zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
+  zNewCourseDesignerAssistantConversationResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
   zPublishAgentChangesetResponse,
@@ -1201,15 +1307,25 @@ import {
   zSaveCourseDesignerScheduleResponse,
   zSearchUserDetailsExactResponse,
   zSearchUserDetailsFuzzyResponse,
+  zSendCourseDesignerAssistantMessageResponse,
+  zSendCourseDesignerAssistantToolResponseResponse,
   zSendResetPasswordEmailResponse,
+  zSetChatbotCourseDesignerAssistantResponse,
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
+  zSetCourseDesignerGreatMoocVisionResponse,
+  zSetCourseDesignerSectionStatusResponse,
+  zSetCourseDesignerTaskAssigneeResponse,
+  zSetCourseDesignerWeeklyDigestSubscriptionResponse,
   zSetCourseModuleCertificateGenerationResponse,
   zSetMyCreditJustificationResponse,
   zSetMyEnrolmentRouteResponse,
+  zSetMyExternalCompletionCreditJustificationResponse,
+  zSetMyExternalCompletionEnrolmentRouteResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
+  zUnarchiveCourseDesignerPlanResponse,
   zUnlinkMyStudentNumberResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
@@ -1234,6 +1350,8 @@ import {
   zVerifyEmailOwnershipResponse,
   zWithdrawMyCertificateChoiceResponse,
   zWithdrawMyEnrolmentConfirmationResponse,
+  zWithdrawMyExternalCompletionCertificateChoiceResponse,
+  zWithdrawMyExternalCompletionEnrolmentConfirmationResponse,
 } from "./zod.generated"
 
 export type Options<
@@ -1255,7 +1373,6 @@ export type Options<
 }
 
 /**
- *
  * POST `/api/v0/files/answer-uploads/:exercise_task_id`
  * Used to upload the files a student is attaching to an answer for the given exercise task.
  *
@@ -1287,7 +1404,6 @@ export const uploadFilesForExerciseAnswer = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * POST `/api/v0/files/:exercise_service_slug`
  * Used to upload data from exercise service iframes.
  *
@@ -1316,7 +1432,6 @@ export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in
  * the course, newest first, with what each changes.
  */
@@ -1331,7 +1446,6 @@ export const getAgentChangesets = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
  * changesets in the course, and how many entities their open one stages, for the course management
  * tab and its badge.
@@ -1347,7 +1461,6 @@ export const getAgentChangesetCounts = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
  * review page: what each staged entity changes, field by field and for pages as students see them,
  * its risk reasons, the conflicts and the agent calls that staged the changes.
@@ -1363,7 +1476,6 @@ export const getAgentChangeset = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
  * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
  * longer open or no longer the reviewed revision.
@@ -1383,7 +1495,6 @@ export const discardAgentChangeset = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
  * short-lived preview link for a page of the user's changeset, so the review page can open the staged
  * page as students would see it.
@@ -1405,7 +1516,6 @@ export const createAgentChangesetPreviewLink = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
  * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
  * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
@@ -1426,7 +1536,6 @@ export const publishAgentChangeset = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
  * published, or for a token of several pages the page `page` with the list of pages. No login: the
  * short-lived random token stands in for it, while its user may still edit the course.
@@ -1442,7 +1551,6 @@ export const getAgentPagePreview = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/certificates/`
  *
  * Updates the certificate configuration for a given module.
@@ -1469,7 +1577,6 @@ export const updateCertificateConfiguration = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/certificates/configuration/{configuration_id}`
  *
  * Deletes the given configuration.
@@ -1491,7 +1598,6 @@ export const deleteCertificateConfiguration = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/certificates/generate`
  *
  * Generates a certificate for a given certificate configuration id.
@@ -1530,7 +1636,6 @@ export const updateGeneratedCertificate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}`
  *
  * Fetches the user's certificate for the given course module and course instance.
@@ -1552,7 +1657,6 @@ export const getCertificateByConfigurationId = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}`
  *
  * Fetches the user's certificate using the verification id.
@@ -1574,7 +1678,6 @@ export const getCertificateByVerificationId = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/chapters` - Create a new course part.
  * # Example
  *
@@ -1606,7 +1709,6 @@ export const createChapter = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
  */
 export const deleteChapter = <ThrowOnError extends boolean = true>(
@@ -1620,7 +1722,6 @@ export const deleteChapter = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/chapters/:chapter_id` - Update chapter.
  * # Example
  *
@@ -1653,7 +1754,6 @@ export const updateChapter = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/chapters/:chapter_id/image` - Removes the chapter image.
  *
  * # Example
@@ -1673,7 +1773,6 @@ export const deleteChapterImage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/chapters/:chapter_id/image` - Sets or updates the chapter image.
  *
  * # Example
@@ -1702,7 +1801,6 @@ export const updateChapterImage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course - Gets all chapters with a course_id
  */
 export const getCourseChapters = <ThrowOnError extends boolean = true>(
@@ -1841,7 +1939,32 @@ export const configureChatbot = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
  *
+ * Makes the chatbot the course design assistant on every plan page, taking the role from any
+ * other configuration, or removes the role from it.
+ */
+export const setChatbotCourseDesignerAssistant = <ThrowOnError extends boolean = true>(
+  options: Options<SetChatbotCourseDesignerAssistantData, ThrowOnError>,
+): RequestResult<SetChatbotCourseDesignerAssistantResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetChatbotCourseDesignerAssistantResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetChatbotCourseDesignerAssistantResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * * POST `/api/v0/main-frontend/code-giveaways - Creates a new code giveaway.
  */
 export const createCodeGiveaway = <ThrowOnError extends boolean = true>(
@@ -1859,7 +1982,6 @@ export const createCodeGiveaway = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
 export const getCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>(
@@ -1873,7 +1995,6 @@ export const getCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id - Gets a code giveaway by ID.
  */
 export const getCodeGiveawayById = <ThrowOnError extends boolean = true>(
@@ -1887,7 +2008,6 @@ export const getCodeGiveawayById = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes - Gets codes for a code giveaway by ID.
  */
 export const getCodeGiveawayCodes = <ThrowOnError extends boolean = true>(
@@ -1901,7 +2021,6 @@ export const getCodeGiveawayCodes = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * POST `/api/v0/main-frontend/code-giveaways/:id/codes - Adds new codes to a code giveaway.
  */
 export const addCodeGiveawayCodes = <ThrowOnError extends boolean = true>(
@@ -1919,7 +2038,6 @@ export const addCodeGiveawayCodes = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes/csv - Gets codes for a code giveaway by ID as CSV.
  */
 export const downloadCodeGiveawayCodesCsv = <ThrowOnError extends boolean = true>(
@@ -1938,7 +2056,6 @@ export const downloadCodeGiveawayCodesCsv = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * * DELETE `/api/v0/main-frontend/code-giveaways/:id/codes/:code_id - Deletes a code giveaway code.
  */
 export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
@@ -1953,7 +2070,6 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/main-frontend/course-auditing`
  */
 export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
@@ -1967,7 +2083,6 @@ export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/course-auditing/:id`
  */
 export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
@@ -1985,7 +2100,6 @@ export const updateCourseAuditingData = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual
  * actions taken on this course's credit registrations, newest first.
  */
@@ -2006,7 +2120,6 @@ export const getCourseCreditRegistrationActions = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
  * registrations of the named students, for the students tab's current page.
  */
@@ -2031,7 +2144,6 @@ export const getCourseCreditRegistrationsForUsers = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit
  * registration of the course as csv.
  */
@@ -2052,7 +2164,6 @@ export const exportCourseCreditRegistrations = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
  * course's registrations, filtered by state and searched by student name, email or student number.
  */
@@ -2072,7 +2183,6 @@ export const getCourseCreditRegistrations = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
  * course's per-module credit registration configuration.
  */
@@ -2098,7 +2208,6 @@ export const getCourseCreditRegistrationModuleConfigs = <ThrowOnError extends bo
   })
 
 /**
- *
  * POST
  * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
  * another account-linking mail for one person on this course.
@@ -2132,7 +2241,6 @@ export const resendCourseCreditRegistrationLinkingEmail = <ThrowOnError extends 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
  * course's failed registrations back on the pipeline.
  *
@@ -2162,7 +2270,6 @@ export const retryFailedCreditRegistrationsForCourse = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
  *
@@ -2186,7 +2293,6 @@ export const getCourseCreditRegistrationSummary = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
  * registration with its timeline and the other attempts for the same completion.
  *
@@ -2214,7 +2320,6 @@ export const getCreditRegistrationDetails = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * POST
  * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
  * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
@@ -2245,7 +2350,6 @@ export const recheckCreditRegistrationEnrolment = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`
  * - Puts one failed registration back on the pipeline.
  *
@@ -2277,7 +2381,6 @@ export const retryCreditRegistration = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /course-instances/:id
  */
 export const getCourseInstance = <ThrowOnError extends boolean = true>(
@@ -2291,7 +2394,6 @@ export const getCourseInstance = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
 export const getCourseInstanceCompletions = <ThrowOnError extends boolean = true>(
@@ -2310,7 +2412,6 @@ export const getCourseInstanceCompletions = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
 export const createCourseInstanceCompletions = <ThrowOnError extends boolean = true>(
@@ -2352,7 +2453,6 @@ export const previewCourseInstanceCompletions = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
 export const getCourseInstanceCourseModuleCompletionsForUser = <
@@ -2377,7 +2477,6 @@ export const getCourseInstanceCourseModuleCompletionsForUser = <
   })
 
 /**
- *
  * GET /course-instances/:id/default-certificate-configurations - gets default certificate configurations of the given course instance. A default certificate configuration requires only one course module to be completed.
  */
 export const getCourseInstanceDefaultCertificateConfigurations = <
@@ -2404,7 +2503,6 @@ export const getCourseInstanceDefaultCertificateConfigurations = <
   })
 
 /**
- *
  * POST /course-instances/:id/delete
  */
 export const deleteCourseInstance = <ThrowOnError extends boolean = true>(
@@ -2417,7 +2515,6 @@ export const deleteCourseInstance = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /course-instances/:id/edit
  */
 export const editCourseInstance = <ThrowOnError extends boolean = true>(
@@ -2470,7 +2567,6 @@ export const createCourseInstanceEmailTemplate = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET /course-instances/:id/export-completions - gets CSV of course completion based on course_instance ID.
  */
 export const exportCourseInstanceCompletionsCsv = <ThrowOnError extends boolean = true>(
@@ -2490,7 +2586,6 @@ export const exportCourseInstanceCompletionsCsv = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
  */
 export const exportCourseInstancePointsCsv = <ThrowOnError extends boolean = true>(
@@ -2520,7 +2615,6 @@ export const getCourseInstancePoints = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
  */
 export const getCourseInstanceUserProgress = <ThrowOnError extends boolean = true>(
@@ -2538,7 +2632,6 @@ export const getCourseInstanceUserProgress = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
  */
 export const getCourseInstanceExerciseStatusesForUser = <ThrowOnError extends boolean = true>(
@@ -2561,7 +2654,6 @@ export const getCourseInstanceExerciseStatusesForUser = <ThrowOnError extends bo
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}`
  *
  * Returns information about the course module.
@@ -2577,7 +2669,6 @@ export const getCourseModule = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
  */
 export const getCourseModuleCompletionRegistrationLink = <ThrowOnError extends boolean = true>(
@@ -2602,7 +2693,6 @@ export const getCourseModuleCompletionRegistrationLink = <ThrowOnError extends b
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion`
  *
  * Gets users's best completion for the course.
@@ -2636,7 +2726,6 @@ export const setCourseModuleCertificateGeneration = <ThrowOnError extends boolea
   })
 
 /**
- *
  * DELETE /api/v0/main-frontend/course-modules/${course_module_id}/threshold - delete threshold for a specific course module.
  */
 export const deleteCourseModuleThreshold = <ThrowOnError extends boolean = true>(
@@ -2654,7 +2743,6 @@ export const deleteCourseModuleThreshold = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * POST /api/v0/main-frontend/course-modules/${course_module_id}/threshold - post threshold for a specific course module.
  */
 export const createCourseModuleThreshold = <ThrowOnError extends boolean = true>(
@@ -2676,7 +2764,6 @@ export const createCourseModuleThreshold = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
  *
  * Gets active users's completion for the course, if it exists.
@@ -2723,6 +2810,49 @@ export const createCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     },
   )
 
+/**
+ * Course chatbots a global admin can choose as the course design assistant.
+ */
+export const getCourseDesignerSupportAssistantChatbots = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData, ThrowOnError>,
+): RequestResult<
+  GetCourseDesignerSupportAssistantChatbotsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetCourseDesignerSupportAssistantChatbotsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSupportAssistantChatbotsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/support/assistant-chatbots",
+    ...options,
+  })
+
+/**
+ * Read-only overview of every plan for global admins doing MOOC support.
+ */
+export const getCourseDesignerSupportPlans = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseDesignerSupportPlansData, ThrowOnError>,
+): RequestResult<GetCourseDesignerSupportPlansResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetCourseDesignerSupportPlansResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSupportPlansResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/support/plans",
+    ...options,
+  })
+
 export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseDesignerPlanData, ThrowOnError>,
 ): RequestResult<GetCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
@@ -2731,6 +2861,189 @@ export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}",
     ...options,
+  })
+
+export const archiveCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<ArchiveCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<ArchiveCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ArchiveCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zArchiveCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/archive",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`
+ *
+ * Whether the assistant can be offered on this plan's pages.
+ */
+export const getCourseDesignerAssistantStatus = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerAssistantStatusData, ThrowOnError>,
+): RequestResult<GetCourseDesignerAssistantStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseDesignerAssistantStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerAssistantStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`
+ *
+ * The user's latest conversation about the plan with the current assistant, or null when there is
+ * none yet.
+ */
+export const getCurrentCourseDesignerAssistantConversation = <ThrowOnError extends boolean = true>(
+  options: Options<GetCurrentCourseDesignerAssistantConversationData, ThrowOnError>,
+): RequestResult<
+  GetCurrentCourseDesignerAssistantConversationResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCurrentCourseDesignerAssistantConversationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCurrentCourseDesignerAssistantConversationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`
+ *
+ * Starts a new conversation about the plan, which becomes the user's current one.
+ */
+export const newCourseDesignerAssistantConversation = <ThrowOnError extends boolean = true>(
+  options: Options<NewCourseDesignerAssistantConversationData, ThrowOnError>,
+): RequestResult<NewCourseDesignerAssistantConversationResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    NewCourseDesignerAssistantConversationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zNewCourseDesignerAssistantConversationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`
+ */
+export const getCourseDesignerAssistantConversationInfo = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerAssistantConversationInfoData, ThrowOnError>,
+): RequestResult<
+  GetCourseDesignerAssistantConversationInfoResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseDesignerAssistantConversationInfoResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerAssistantConversationInfoResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`
+ *
+ * Sends the user's message and streams the assistant's turn, as the course material chatbot's
+ * `send-message` does.
+ */
+export const sendCourseDesignerAssistantMessage = <ThrowOnError extends boolean = true>(
+  options: Options<SendCourseDesignerAssistantMessageData, ThrowOnError>,
+): RequestResult<SendCourseDesignerAssistantMessageResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    SendCourseDesignerAssistantMessageResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSendCourseDesignerAssistantMessageResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`
+ *
+ * Answers a tool call the turn suspended on, such as applying or discarding a proposed change, and
+ * streams the resumed turn, as the course material chatbot's `tool-response` does.
+ */
+export const sendCourseDesignerAssistantToolResponse = <ThrowOnError extends boolean = true>(
+  options: Options<SendCourseDesignerAssistantToolResponseData, ThrowOnError>,
+): RequestResult<SendCourseDesignerAssistantToolResponseResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    SendCourseDesignerAssistantToolResponseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSendCourseDesignerAssistantToolResponseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * Creates a draft course from the plan's course structure. A plan creates at most one course.
+ */
+export const createCourseFromCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseFromCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<CreateCourseFromCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    CreateCourseFromCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateCourseFromCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/course",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 export const getCoursePlanMembers = <ThrowOnError extends boolean = true>(
@@ -2788,6 +3101,28 @@ export const saveCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
     },
   })
 
+/**
+ * Changes the dates of stages that are not completed while the plan is in progress.
+ */
+export const adjustCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
+  options: Options<AdjustCourseDesignerScheduleData, ThrowOnError>,
+): RequestResult<AdjustCourseDesignerScheduleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    AdjustCourseDesignerScheduleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdjustCourseDesignerScheduleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 export const finalizeCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
   options: Options<FinalizeCourseDesignerScheduleData, ThrowOnError>,
 ): RequestResult<FinalizeCourseDesignerScheduleResponses, unknown, ThrowOnError, "data"> =>
@@ -2817,6 +3152,42 @@ export const createCourseDesignerScheduleSuggestion = <ThrowOnError extends bool
       await zCreateCourseDesignerScheduleSuggestionResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const getCourseDesignerSectionStatuses = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerSectionStatusesData, ThrowOnError>,
+): RequestResult<GetCourseDesignerSectionStatusesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseDesignerSectionStatusesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseDesignerSectionStatusesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
+    ...options,
+  })
+
+export const setCourseDesignerSectionStatus = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerSectionStatusData, ThrowOnError>,
+): RequestResult<SetCourseDesignerSectionStatusResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerSectionStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerSectionStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -2934,8 +3305,90 @@ export const updateCourseDesignerStageTask = <ThrowOnError extends boolean = tru
     },
   })
 
+export const setCourseDesignerTaskAssignee = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerTaskAssigneeData, ThrowOnError>,
+): RequestResult<SetCourseDesignerTaskAssigneeResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerTaskAssigneeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerTaskAssigneeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const unarchiveCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<UnarchiveCourseDesignerPlanData, ThrowOnError>,
+): RequestResult<UnarchiveCourseDesignerPlanResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    UnarchiveCourseDesignerPlanResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zUnarchiveCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/unarchive",
+    ...options,
+  })
+
+export const setCourseDesignerGreatMoocVision = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerGreatMoocVisionData, ThrowOnError>,
+): RequestResult<SetCourseDesignerGreatMoocVisionResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetCourseDesignerGreatMoocVisionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerGreatMoocVisionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/vision",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 /**
- *
+ * Opts the current user in or out of the plan's weekly progress email.
+ */
+export const setCourseDesignerWeeklyDigestSubscription = <ThrowOnError extends boolean = true>(
+  options: Options<SetCourseDesignerWeeklyDigestSubscriptionData, ThrowOnError>,
+): RequestResult<
+  SetCourseDesignerWeeklyDigestSubscriptionResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    SetCourseDesignerWeeklyDigestSubscriptionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetCourseDesignerWeeklyDigestSubscriptionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * POST `/api/v0/main-frontend/courses` - Create a new course.
  * # Example
  *
@@ -2966,7 +3419,6 @@ export const createCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses` - Get all courses
  *
  * Returns all courses.
@@ -2982,7 +3434,6 @@ export const getAllCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /courses/join/:join_code - Gets the course related to join code
  */
 export const getCourseByJoinCode = <ThrowOnError extends boolean = true>(
@@ -2996,7 +3447,6 @@ export const getCourseByJoinCode = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
  */
 export const deleteCourse = <ThrowOnError extends boolean = true>(
@@ -3009,7 +3459,6 @@ export const deleteCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id` - Get course.
  */
 export const getCourse = <ThrowOnError extends boolean = true>(
@@ -3023,7 +3472,6 @@ export const getCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id` - Update course.
  * # Example
  *
@@ -3053,7 +3501,6 @@ export const updateCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
  */
 export const getCourseBreadcrumbInfo = <ThrowOnError extends boolean = true>(
@@ -3116,7 +3563,6 @@ export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseInstances = <ThrowOnError extends boolean = true>(
@@ -3130,7 +3576,6 @@ export const getCourseInstances = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id` - Returns all course module completions for a given user for this course.
  */
 export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean = true>(
@@ -3168,7 +3613,6 @@ export const updateCourseModules = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
  */
 export const getCourseUsersCountsByExercise = <ThrowOnError extends boolean = true>(
@@ -3188,7 +3632,6 @@ export const getCourseUsersCountsByExercise = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/create-copy` - Create a copy of a course with specified mode.
  *
  * Different copy modes:
@@ -3246,7 +3689,6 @@ export const createCourseCopy = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
  */
 export const getCourseDailySubmissionCounts = <ThrowOnError extends boolean = true>(
@@ -3266,7 +3708,6 @@ export const getCourseDailySubmissionCounts = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
  */
 export const getCourseDailyUsersWhoSubmittedSomething = <ThrowOnError extends boolean = true>(
@@ -3305,7 +3746,6 @@ export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
  */
 export const getCourseExercises = <ThrowOnError extends boolean = true>(
@@ -3319,7 +3759,6 @@ export const getCourseExercises = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
  */
 export const getCourseExercisesAndAnswersRequiringAttentionCounts = <
@@ -3346,7 +3785,6 @@ export const getCourseExercisesAndAnswersRequiringAttentionCounts = <
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-course-instances`
  *
  * gets SCV course instances for course
@@ -3362,7 +3800,6 @@ export const exportCourseInstancesCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`
  *
  * gets SCV course specific research form questions and user answers for course
@@ -3383,7 +3820,6 @@ export const exportCourseUserConsentsCsv = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
  *
  * gets SCV all exercise-tasks' private specs in course
@@ -3404,7 +3840,6 @@ export const exportCourseExerciseTasksCsv = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${courseId}/export-submissions`
  *
  * gets SCV of course exercise submissions
@@ -3425,7 +3860,6 @@ export const exportCourseSubmissionsCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-user-details`
  *
  * gets SCV of user details for all users having submitted an exercise in the course
@@ -3446,7 +3880,6 @@ export const exportCourseUserDetailsCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`
  *
  * gets CSV for course specific user exercise states
@@ -3468,7 +3901,6 @@ export const exportCourseUserExerciseStatesCsv = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
  */
 export const getCourseFeedback = <ThrowOnError extends boolean = true>(
@@ -3482,7 +3914,6 @@ export const getCourseFeedback = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
  */
 export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>(
@@ -3501,7 +3932,6 @@ export const getCourseFeedbackCategories = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
  */
 export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
@@ -3515,7 +3945,6 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
  */
 export const getCourseAudiences = <ThrowOnError extends boolean = true>(
@@ -3529,7 +3958,6 @@ export const getCourseAudiences = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadata = <ThrowOnError extends boolean = true>(
@@ -3543,7 +3971,6 @@ export const getCourseMetadata = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
  */
 export const getCoursePrerequisites = <ThrowOnError extends boolean = true>(
@@ -3596,7 +4023,6 @@ export const createCourseGlossaryTerm = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
  */
 export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(
@@ -3614,7 +4040,6 @@ export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
  *
  * # Example
@@ -3638,7 +4063,6 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
  *
  * Creates redirects if url_path changes.
@@ -3662,7 +4086,6 @@ export const updateCourseChapterOrdering = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-course-instance`
  */
 export const createCourseInstance = <ThrowOnError extends boolean = true>(
@@ -3680,7 +4103,6 @@ export const createCourseInstance = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
  *
  * Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
@@ -3703,7 +4125,6 @@ export const updateCoursePageOrdering = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummary = <ThrowOnError extends boolean = true>(
@@ -3723,7 +4144,6 @@ export const getCoursePageVisitDatumSummary = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByCountries = <ThrowOnError extends boolean = true>(
@@ -3748,7 +4168,6 @@ export const getCoursePageVisitDatumSummaryByCountries = <ThrowOnError extends b
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByDeviceTypes = <ThrowOnError extends boolean = true>(
@@ -3773,7 +4192,6 @@ export const getCoursePageVisitDatumSummaryByDeviceTypes = <ThrowOnError extends
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByPages = <ThrowOnError extends boolean = true>(
@@ -3793,7 +4211,6 @@ export const getCoursePageVisitDatumSummaryByPages = <ThrowOnError extends boole
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
  */
 export const deleteCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -3811,7 +4228,6 @@ export const deleteCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
  */
 export const getCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -3824,7 +4240,6 @@ export const getCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
  */
 export const upsertCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -3846,7 +4261,6 @@ export const upsertCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user progress for the course.
  */
 export const getCourseProgressForUser = <ThrowOnError extends boolean = true>(
@@ -3905,7 +4319,6 @@ export const updateCourseReference = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/{course_id}/reprocess-completions`
  *
  * Reprocesses all module completions for the given course instance. Only available to admins.
@@ -3926,7 +4339,6 @@ export const reprocessCourseCompletions = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/generate-join-code - Generates a code that is used as a part of URL to join course
  */
 export const setCourseJoinCode = <ThrowOnError extends boolean = true>(
@@ -3939,7 +4351,6 @@ export const setCourseJoinCode = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
  *
  * Returns LLM generated descriptions for a course based on information from Sisu API.
@@ -4600,7 +5011,6 @@ export const getUniqueUsersStartingHistory = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id` - Returns status for all exercises in the course for a given user.
  */
 export const getCourseExerciseStatusesForUser = <ThrowOnError extends boolean = true>(
@@ -4620,7 +5030,6 @@ export const getCourseExerciseStatusesForUser = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure of a course.
  * # Example
  * ```json
@@ -4854,7 +5263,6 @@ export const teacherUnlockStudentChapter = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
  */
 export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean = true>(
@@ -4874,7 +5282,6 @@ export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
  */
 export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(
@@ -4893,7 +5300,6 @@ export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
 export const confirmCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
@@ -4911,7 +5317,6 @@ export const confirmCourseSuspectedCheater = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
 export const dismissCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
@@ -4929,7 +5334,6 @@ export const dismissCourseSuspectedCheater = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
  */
 export const getCourseFlaggedSuspectedCheatersCount = <ThrowOnError extends boolean = true>(
@@ -4949,7 +5353,6 @@ export const getCourseFlaggedSuspectedCheatersCount = <ThrowOnError extends bool
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-everyone` - Can be used by teachers to reset the course progress for all students. Only works when the course is a draft and not published to students. Cannot be used to delete a course that some students have taken.
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
@@ -4971,7 +5374,6 @@ export const resetCourseProgressForEveryone = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-themselves` - Allows a teacher to reset the course progress for themselves. Cannot be used to reset the course for others.
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
@@ -4993,7 +5395,6 @@ export const resetCourseProgressForTeacherThemselves = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
  */
 export const getCourseThresholds = <ThrowOnError extends boolean = true>(
@@ -5007,7 +5408,6 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
  */
 export const updateMetadata = <ThrowOnError extends boolean = true>(
@@ -5025,7 +5425,6 @@ export const updateMetadata = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
  *
  * Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
@@ -5052,7 +5451,6 @@ export const updateCoursePeerReviewQueueReviewsReceived = <ThrowOnError extends 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -5082,7 +5480,6 @@ export const uploadCourseMedia = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get current course settings for a specific user.
  */
 export const getCourseUserSettingsForUser = <ThrowOnError extends boolean = true>(
@@ -5101,7 +5498,6 @@ export const getCourseUserSettingsForUser = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
  */
 export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolean = true>(
@@ -5121,7 +5517,6 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
  * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
  * a student number and the stale-address list.
@@ -5137,7 +5532,6 @@ export const getAccountLinkingStats = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
  * can send a linking email for by hand.
  */
@@ -5154,7 +5548,6 @@ export const getAccountLinkingCourses = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
  * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
  * linking email by hand.
@@ -5183,7 +5576,6 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
  * linking email, newest first.
  *
@@ -5202,7 +5594,6 @@ export const listAccountLinkingEmails = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -5234,7 +5625,6 @@ export const adminRequestEnrolmentListFetch = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
  * number to an account on an admin's judgement.
  *
@@ -5268,7 +5658,6 @@ export const adminManuallyLinkStudentNumber = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
  * account-linking mail for one person on one course.
  *
@@ -5302,7 +5691,6 @@ export const adminResendAccountLinkingEmail = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
  * student number up in the study registry without changing anything.
  *
@@ -5335,7 +5723,6 @@ export const adminResolveStudentNumberForLinking = <ThrowOnError extends boolean
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
  * Takes a student number clash off the list for good.
  *
@@ -5365,7 +5752,6 @@ export const adminDismissStudyRegistryConflict = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
  * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
  * recently dismissed.
@@ -5391,7 +5777,6 @@ export const getCreditRegistrationAttentionItems = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
  * newest first.
  *
@@ -5415,7 +5800,6 @@ export const listCreditRegistrationAdminActions = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
  * before for an action, to pick from instead of typing the same one again.
  *
@@ -5438,7 +5822,6 @@ export const getCreditRegistrationEarlierReasons = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
@@ -5459,7 +5842,138 @@ export const getCreditRegistrationStatsByCourse = <ThrowOnError extends boolean 
   })
 
 /**
- *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets` - Adds a mooc.fi
+ * course whose credits courses registers.
+ */
+export const adminCreateExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminCreateExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminCreateExternalCreditTargetResponses,
+  AdminCreateExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminCreateExternalCreditTargetResponses,
+    AdminCreateExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminCreateExternalCreditTargetResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}`
+ * - Replaces a mooc.fi target's configuration.
+ */
+export const adminUpdateExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUpdateExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminUpdateExternalCreditTargetResponses,
+  AdminUpdateExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    AdminUpdateExternalCreditTargetResponses,
+    AdminUpdateExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete`
+ * - Soft-deletes a mooc.fi target, which withdraws its completions not yet submitted.
+ */
+export const adminDeleteExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDeleteExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminDeleteExternalCreditTargetResponses,
+  AdminDeleteExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDeleteExternalCreditTargetResponses,
+    AdminDeleteExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause`
+ * - Stops every phase from claiming this mooc.fi target's rows, freezing them where they stand.
+ */
+export const adminPauseExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminPauseExternalCreditTargetData, ThrowOnError>,
+): RequestResult<
+  AdminPauseExternalCreditTargetResponses,
+  AdminPauseExternalCreditTargetErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminPauseExternalCreditTargetResponses,
+    AdminPauseExternalCreditTargetErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume`
+ * - Lets the phases claim this mooc.fi target's rows again.
+ */
+export const adminResumeExternalCreditTarget = <ThrowOnError extends boolean = true>(
+  options: Options<AdminResumeExternalCreditTargetData, ThrowOnError>,
+): RequestResult<AdminResumeExternalCreditTargetResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    AdminResumeExternalCreditTargetResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
  * phase from claiming this module's rows.
  *
@@ -5490,7 +6004,6 @@ export const adminPauseCourseModuleCreditRegistration = <ThrowOnError extends bo
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
  * phases claim this module's rows again.
  */
@@ -5518,7 +6031,6 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
  * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
@@ -5539,7 +6051,6 @@ export const getCreditRegistrationEnrolmentChecks = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
  * window and the window before it, with the terminal verdicts of the same window beside them.
  *
@@ -5563,7 +6074,6 @@ export const getCreditRegistrationErrorsByCode = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
@@ -5592,7 +6102,6 @@ export const adminMaterializeCreditRegistrations = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
  * alert banner render, in one request so the tiles cannot contradict each other.
  */
@@ -5613,7 +6122,6 @@ export const getCreditRegistrationOverview = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
  * and the queue it is responsible for, and the workers' circuit breakers.
  */
@@ -5633,7 +6141,6 @@ export const listCreditRegistrationPhases = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
  * worker loop skips it on every tick until it is resumed.
  */
@@ -5657,7 +6164,6 @@ export const adminPausePhase = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
  * phase.
  */
@@ -5681,7 +6187,6 @@ export const adminResumePhase = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
  * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
  */
@@ -5705,7 +6210,6 @@ export const adminRunPhaseNow = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
  * ledger state, with what entered and left each state that day, and the count per timeline step and
  * the Needs attention count from the day those snapshots began.
@@ -5727,7 +6231,6 @@ export const getCreditRegistrationPipelineHistory = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
  * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
  */
@@ -5748,7 +6251,6 @@ export const getCreditRegistrationReconciliation = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
  * and sorted.
  */
@@ -5769,7 +6271,6 @@ export const listCreditRegistrationsForAdmin = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
  * selection of rows by hand, one transaction for the lot.
  *
@@ -5806,7 +6307,6 @@ export const adminBulkTransitionCreditRegistrations = <ThrowOnError extends bool
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
  * `failed_retryable` row waiting out a backoff due now.
  *
@@ -5839,7 +6339,6 @@ export const adminRequeueRetryableCreditRegistrations = <ThrowOnError extends bo
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
  * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
  * the actions taken on it and its linking mails.
@@ -5866,7 +6365,6 @@ export const getCreditRegistrationForAdmin = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
  * - Takes a row off the Needs attention queue.
  *
@@ -5899,7 +6397,6 @@ export const adminDismissCreditRegistrationAttention = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
  * - Who on the code's enrolment list a student stuck waiting for a student number may be.
  *
@@ -5929,7 +6426,6 @@ export const getCreditRegistrationLinkingCandidates = <ThrowOnError extends bool
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
  * - Leaves a note on a registration for whoever handles it next.
  *
@@ -5959,7 +6455,6 @@ export const adminAddCreditRegistrationNote = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
  * - Moves one row by hand.
  *
@@ -5994,7 +6489,6 @@ export const adminTransitionCreditRegistration = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
  * spot-checking and support.
  */
@@ -6015,7 +6509,6 @@ export const listVerifiedStudentNumbersForAdmin = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
  *
  * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
@@ -6046,7 +6539,6 @@ export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
  * registry call log, newest first.
  *
@@ -6064,7 +6556,6 @@ export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
  * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
  */
@@ -6084,7 +6575,6 @@ export const getSuotarApiCall = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
  * success rates and latency percentiles over an hour, a day and a week.
  */
@@ -6099,7 +6589,6 @@ export const getSuotarHealth = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
  * the stuck detectors use.
  *
@@ -6123,7 +6612,6 @@ export const getCreditRegistrationThresholds = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
  * account, newest completion first.
  */
@@ -6140,7 +6628,6 @@ export const getMyCreditRegistrations = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
  * signed-in account's registration for one course module, or null when the pipeline has not created one
  * yet.
@@ -6162,7 +6649,6 @@ export const getMyCreditRegistrationForCourseModule = <ThrowOnError extends bool
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
  * - Records why the caller needs the credits in the study registry rather than a certificate.
  *
@@ -6185,7 +6671,6 @@ export const setMyCreditJustification = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
  * - The caller opened the registration page after completing, and it is showing them how to enrol.
  *
@@ -6215,7 +6700,6 @@ export const recordMyEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
  * - What the caller said about where they enrol this module.
  */
@@ -6230,7 +6714,6 @@ export const getMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
  * - Records which university relationship the caller has, which decides where they are told to enrol,
  * and their answers to the questions that follow it. Replaces every stored answer.
@@ -6250,7 +6733,6 @@ export const setMyEnrolmentRoute = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
  * - The caller takes back choosing the certificate.
  */
@@ -6270,7 +6752,6 @@ export const withdrawMyCertificateChoice = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
  * - The caller takes the certificate instead of registering credits.
  *
@@ -6287,7 +6768,6 @@ export const chooseMyCertificate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller takes back saying they had enrolled.
  */
@@ -6308,7 +6788,6 @@ export const withdrawMyEnrolmentConfirmation = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller says they have enrolled.
  *
@@ -6328,7 +6807,255 @@ export const confirmMyEnrolment = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -
+ * The signed-in account's registration for one mooc.fi completion, or null when the pipeline has not
+ * created one yet.
+ */
+export const getMyCreditRegistrationForExternalCompletion = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyCreditRegistrationForExternalCompletionData, ThrowOnError>,
+): RequestResult<
+  GetMyCreditRegistrationForExternalCompletionResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetMyCreditRegistrationForExternalCompletionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyCreditRegistrationForExternalCompletionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}",
+    ...options,
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`
+ * - [`set_my_credit_justification`] for a mooc.fi completion.
  *
+ * Stored against the mooc.fi completion rather than this row, so the answer survives a tier change
+ * that replaces the row.
+ */
+export const setMyExternalCompletionCreditJustification = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyExternalCompletionCreditJustificationData, ThrowOnError>,
+): RequestResult<
+  SetMyExternalCompletionCreditJustificationResponses,
+  SetMyExternalCompletionCreditJustificationErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    SetMyExternalCompletionCreditJustificationResponses,
+    SetMyExternalCompletionCreditJustificationErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyExternalCompletionCreditJustificationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
+ * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
+ */
+export const recordMyExternalCompletionEnrolmentPageVisit = <ThrowOnError extends boolean = true>(
+  options: Options<RecordMyExternalCompletionEnrolmentPageVisitData, ThrowOnError>,
+): RequestResult<
+  RecordMyExternalCompletionEnrolmentPageVisitResponses,
+  RecordMyExternalCompletionEnrolmentPageVisitErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    RecordMyExternalCompletionEnrolmentPageVisitResponses,
+    RecordMyExternalCompletionEnrolmentPageVisitErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - What the caller said about where they enrol for this mooc.fi completion.
+ */
+export const getMyExternalCompletionEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyExternalCompletionEnrolmentRouteData, ThrowOnError>,
+): RequestResult<GetMyExternalCompletionEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyExternalCompletionEnrolmentRouteResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyExternalCompletionEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route",
+    ...options,
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - [`set_my_enrolment_route`] for a mooc.fi completion.
+ */
+export const setMyExternalCompletionEnrolmentRoute = <ThrowOnError extends boolean = true>(
+  options: Options<SetMyExternalCompletionEnrolmentRouteData, ThrowOnError>,
+): RequestResult<SetMyExternalCompletionEnrolmentRouteResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    SetMyExternalCompletionEnrolmentRouteResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zSetMyExternalCompletionEnrolmentRouteResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`withdraw_my_certificate_choice`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionCertificateChoice = <ThrowOnError extends boolean = true>(
+  options: Options<WithdrawMyExternalCompletionCertificateChoiceData, ThrowOnError>,
+): RequestResult<
+  WithdrawMyExternalCompletionCertificateChoiceResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    WithdrawMyExternalCompletionCertificateChoiceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyExternalCompletionCertificateChoiceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`choose_my_certificate`] for a mooc.fi completion.
+ */
+export const chooseMyExternalCompletionCertificate = <ThrowOnError extends boolean = true>(
+  options: Options<ChooseMyExternalCompletionCertificateData, ThrowOnError>,
+): RequestResult<ChooseMyExternalCompletionCertificateResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ChooseMyExternalCompletionCertificateResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zChooseMyExternalCompletionCertificateResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice",
+    ...options,
+  })
+
+/**
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionEnrolmentConfirmation = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<WithdrawMyExternalCompletionEnrolmentConfirmationData, ThrowOnError>,
+): RequestResult<
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).delete<
+    WithdrawMyExternalCompletionEnrolmentConfirmationResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zWithdrawMyExternalCompletionEnrolmentConfirmationResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`confirm_my_enrolment`] for a mooc.fi completion.
+ */
+export const confirmMyExternalCompletionEnrolment = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmMyExternalCompletionEnrolmentData, ThrowOnError>,
+): RequestResult<ConfirmMyExternalCompletionEnrolmentResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    ConfirmMyExternalCompletionEnrolmentResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zConfirmMyExternalCompletionEnrolmentResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`
+ * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
+ *
+ * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
+ * student and the course from the stored completion, never from this request. Only from the IP that
+ * minted it.
+ */
+export const createMyMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options: Options<CreateMyMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  CreateMyMoocfiHandoffResponses,
+  CreateMyMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    CreateMyMoocfiHandoffResponses,
+    CreateMyMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zCreateMyMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
  * caller's registrations on one course that owe them the in-course re-enrol banner.
  *
@@ -6352,7 +7079,6 @@ export const getMyCreditRegistrationEnrolmentBanners = <ThrowOnError extends boo
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
  * from the signed-in account.
  *
@@ -6371,7 +7097,6 @@ export const unlinkMyStudentNumber = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
  * signed-in account, or null.
  */
@@ -6391,7 +7116,6 @@ export const getMyVerifiedStudentNumber = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -6417,7 +7141,6 @@ export const dismissCreditRegistrationEnrolmentBanner = <ThrowOnError extends bo
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
  * look for an enrolment again, for a row parked because the study registry had none.
  */
@@ -6443,7 +7166,6 @@ export const requestCreditRegistrationEnrolmentRecheck = <ThrowOnError extends b
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
  * switches.
  */
@@ -6464,7 +7186,6 @@ export const getCreditRegistrationSettings = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
  * mailed link would link, without linking it.
  *
@@ -6492,7 +7213,6 @@ export const previewStudentNumberVerificationToken = <ThrowOnError extends boole
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
  * a mailed link and links the student number to the signed-in account.
  *
@@ -6526,7 +7246,6 @@ export const claimStudentNumberVerificationToken = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/email-templates`
  */
 export const getEmailTemplates = <ThrowOnError extends boolean = true>(
@@ -6540,7 +7259,6 @@ export const getEmailTemplates = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/email-templates`
  *
  * Creates a global template; rejects a second live one for the same type and language.
@@ -6560,7 +7278,6 @@ export const createEmailTemplate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/email-templates/:id`
  */
 export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
@@ -6574,7 +7291,6 @@ export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
  * signed-in account's current address.
  */
@@ -6603,7 +7319,6 @@ export const requestEmailVerificationCode = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
  * proven, and what we last mailed about it.
  */
@@ -6623,9 +7338,8 @@ export const getMyEmailVerificationStatus = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
- * verification code.
+ * code for `purpose`, email ownership verification by default.
  *
  * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
  * caller's own account, so an accidentally open gate only ever hands you your own code.
@@ -6652,11 +7366,12 @@ export const getEmailVerificationCodeForTestMode = <ThrowOnError extends boolean
   })
 
 /**
- *
- * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,
+ * and copies the now proven address to TMC.
  *
  * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
- * never has to identify anybody on its own.
+ * never has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot
+ * be reached, so the code can be tried again.
  */
 export const verifyEmailOwnership = <ThrowOnError extends boolean = true>(
   options: Options<VerifyEmailOwnershipData, ThrowOnError>,
@@ -6678,7 +7393,6 @@ export const verifyEmailOwnership = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
  */
 export const getExamExercises = <ThrowOnError extends boolean = true>(
@@ -6692,7 +7406,6 @@ export const getExamExercises = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false. Takes teacher grading decision ids as input.
  */
 export const releaseExamGrades = <ThrowOnError extends boolean = true>(
@@ -6709,7 +7422,6 @@ export const releaseExamGrades = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
  */
 export const getExamSubmissionsWithExamId = <ThrowOnError extends boolean = true>(
@@ -6728,7 +7440,6 @@ export const getExamSubmissionsWithExamId = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
  */
 export const getExamSubmissionsWithExerciseId = <ThrowOnError extends boolean = true>(
@@ -6748,7 +7459,6 @@ export const getExamSubmissionsWithExerciseId = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id
  */
 export const getExam = <ThrowOnError extends boolean = true>(
@@ -6762,7 +7472,6 @@ export const getExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
 export const duplicateExam = <ThrowOnError extends boolean = true>(
@@ -6780,7 +7489,6 @@ export const duplicateExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
  */
 export const editExam = <ThrowOnError extends boolean = true>(
@@ -6797,7 +7505,6 @@ export const editExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id/export-points`
  */
 export const exportExamPointsCsv = <ThrowOnError extends boolean = true>(
@@ -6811,7 +7518,6 @@ export const exportExamPointsCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id/export-submissions`
  */
 export const exportExamSubmissionsCsv = <ThrowOnError extends boolean = true>(
@@ -6825,7 +7531,6 @@ export const exportExamSubmissionsCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exams/:id/set`
  */
 export const setExamCourse = <ThrowOnError extends boolean = true>(
@@ -6842,7 +7547,6 @@ export const setExamCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exams/:id/unset`
  */
 export const unsetExamCourse = <ThrowOnError extends boolean = true>(
@@ -6859,7 +7563,6 @@ export const unsetExamCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-repositories/course/:id`
  */
 export const getExerciseRepositoriesForCourse = <ThrowOnError extends boolean = true>(
@@ -6879,7 +7582,6 @@ export const getExerciseRepositoriesForCourse = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
  */
 export const getExerciseRepositoriesForExam = <ThrowOnError extends boolean = true>(
@@ -6899,7 +7601,6 @@ export const getExerciseRepositoriesForExam = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercise-repositories/new
  */
 export const createExerciseRepository = <ThrowOnError extends boolean = true>(
@@ -6919,7 +7620,6 @@ export const createExerciseRepository = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * DELETE `/api/v0/main-frontend/exercise-repositories/:id`
  */
 export const deleteExerciseRepository = <ThrowOnError extends boolean = true>(
@@ -6938,7 +7638,6 @@ export const deleteExerciseRepository = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-repositories/:id`
  */
 export const updateExerciseRepository = <ThrowOnError extends boolean = true>(
@@ -6956,7 +7655,6 @@ export const updateExerciseRepository = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-services`
  */
 export const getExerciseServices = <ThrowOnError extends boolean = true>(
@@ -6970,7 +7668,6 @@ export const getExerciseServices = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercise-services`
  */
 export const createExerciseService = <ThrowOnError extends boolean = true>(
@@ -6998,7 +7695,6 @@ export const deleteExerciseService = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-services/:id`
  */
 export const getExerciseServiceById = <ThrowOnError extends boolean = true>(
@@ -7012,7 +7708,6 @@ export const getExerciseServiceById = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-services/:id`
  */
 export const updateExerciseService = <ThrowOnError extends boolean = true>(
@@ -7030,7 +7725,6 @@ export const updateExerciseService = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Adds a new teacher grading decision, without updating user exercise state
  */
 export const addTeacherGradingForExamSubmission = <ThrowOnError extends boolean = true>(
@@ -7054,7 +7748,6 @@ export const addTeacherGradingForExamSubmission = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/{exercise_id}/{user_id}/user-exercise-state-info`-
  */
 export const getExamUserExerciseStateInfo = <ThrowOnError extends boolean = true>(
@@ -7073,7 +7766,6 @@ export const getExamUserExerciseStateInfo = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
  */
 export const getExerciseSlideSubmissionInfo = <ThrowOnError extends boolean = true>(
@@ -7093,7 +7785,6 @@ export const getExerciseSlideSubmissionInfo = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Returns all exercises for a course with course_id
  */
 export const getExercisesByCourseId = <ThrowOnError extends boolean = true>(
@@ -7107,7 +7798,6 @@ export const getExercisesByCourseId = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-users` - Resets all selected exercises for selected users and then logs the resets to exercise_reset_logs table
  */
 export const resetExercisesForSelectedUsers = <ThrowOnError extends boolean = true>(
@@ -7131,7 +7821,6 @@ export const resetExercisesForSelectedUsers = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
  */
 export const getExercise = <ThrowOnError extends boolean = true>(
@@ -7145,7 +7834,6 @@ export const getExercise = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolean = true>(
@@ -7165,7 +7853,6 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(
@@ -7185,7 +7872,6 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
  */
 export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>(
@@ -7204,7 +7890,6 @@ export const downloadExerciseAnswerFiles = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
 export const exportExerciseAnswersCsv = <ThrowOnError extends boolean = true>(
@@ -7218,7 +7903,6 @@ export const exportExerciseAnswersCsv = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-definitions-csv` - Exports one exercise task definition as CSV using the task's exercise service.
  */
 export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true>(
@@ -7237,7 +7921,6 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
  */
 export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
@@ -7251,7 +7934,6 @@ export const exerciseHasAnswerFiles = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 export const getExerciseSubmissions = <ThrowOnError extends boolean = true>(
@@ -7265,7 +7947,6 @@ export const getExerciseSubmissions = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
 export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = true>(
@@ -7285,7 +7966,6 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
  */
 export const getExternalCourses = <ThrowOnError extends boolean = true>(
@@ -7299,7 +7979,6 @@ export const getExternalCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
  */
 export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
@@ -7317,7 +7996,6 @@ export const deleteExternalCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
  */
 export const createExternalCourse = <ThrowOnError extends boolean = true>(
@@ -7335,7 +8013,6 @@ export const createExternalCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
  */
 export const updateExternalCourse = <ThrowOnError extends boolean = true>(
@@ -7353,7 +8030,6 @@ export const updateExternalCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
  */
 export const markFeedbackAsRead = <ThrowOnError extends boolean = true>(
@@ -7370,7 +8046,6 @@ export const markFeedbackAsRead = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/completion-stats-by-email-domain`
  * *
  * * Query parameters:
@@ -7393,7 +8068,6 @@ export const getCompletionStatsByEmailDomain = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain`
  * *
  * * Query parameters:
@@ -7417,7 +8091,6 @@ export const getCourseCompletionStatsForEmailDomain = <ThrowOnError extends bool
   })
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
  * *
  * * Query parameters:
@@ -7447,7 +8120,6 @@ export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = <
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
  *
  * Query parameters:
@@ -7470,7 +8142,6 @@ export const getNumberOfPeopleCompletedACourse = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
  *
  * Query parameters:
@@ -7493,7 +8164,6 @@ export const getNumberOfPeopleDoneAtLeastOneExercise = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
  *
  * Query parameters:
@@ -7523,7 +8193,6 @@ export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = <
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
  *
  * Query parameters:
@@ -7575,6 +8244,102 @@ export const updateGlossaryTerm = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}` - Syncs the caller's
+ * completions of a mooc.fi course from mooc.fi and returns them with their registration status.
+ *
+ * When mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with
+ * `is_up_to_date` false.
+ */
+export const getMyMoocfiCreditRegistrations = <ThrowOnError extends boolean = true>(
+  options: Options<GetMyMoocfiCreditRegistrationsData, ThrowOnError>,
+): RequestResult<GetMyMoocfiCreditRegistrationsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetMyMoocfiCreditRegistrationsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetMyMoocfiCreditRegistrationsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link` - The mooc.fi
+ * course's name and registration page, without reading mooc.fi.
+ *
+ * Needs no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.
+ */
+export const getMoocfiCourseLink = <ThrowOnError extends boolean = true>(
+  options: Options<GetMoocfiCourseLinkData, ThrowOnError>,
+): RequestResult<GetMoocfiCourseLinkResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetMoocfiCourseLinkResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMoocfiCourseLinkResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
+ * whoever is signed in and signs in the handoff's account. Single use.
+ *
+ * Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
+ * post it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer
+ * the one the student saw; 403 for an account with a courses role.
+ */
+export const continueMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options: Options<ContinueMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  ContinueMoocfiHandoffResponses,
+  ContinueMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    ContinueMoocfiHandoffResponses,
+    ContinueMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zContinueMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-handoffs/continue",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the
+ * student's confirmation on the course's landing page, or 404 when none is waiting for that course,
+ * it has expired or been used, or it was minted for another IP.
+ */
+export const getPendingMoocfiHandoff = <ThrowOnError extends boolean = true>(
+  options: Options<GetPendingMoocfiHandoffData, ThrowOnError>,
+): RequestResult<
+  GetPendingMoocfiHandoffResponses,
+  GetPendingMoocfiHandoffErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetPendingMoocfiHandoffResponses,
+    GetPendingMoocfiHandoffErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetPendingMoocfiHandoffResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/moocfi-handoffs/pending",
+    ...options,
   })
 
 /**
@@ -7691,7 +8456,6 @@ export const approveOauthConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/oauth/consent-info` - What the consent screen shows: the client asking
  * and a checkbox state per requested scope. The client must already be known, which the authorize
  * endpoint ensures before redirecting to the consent screen.
@@ -7891,7 +8655,6 @@ export const denyOauthDeviceVerification = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent
  * clients, with their scopes and when they were last used.
  */
@@ -7906,7 +8669,6 @@ export const getOauthGrants = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/oauth/grants/{grant_id}` - Revokes one of the signed-in user's grants
  * and every token issued from it. The client has to ask for consent again.
  */
@@ -8215,7 +8977,6 @@ export const postOauthUserInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/org/:slug
  */
 export const getOrganizationBySlug = <ThrowOnError extends boolean = true>(
@@ -8229,7 +8990,6 @@ export const getOrganizationBySlug = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
  */
 export const getOrganizations = <ThrowOnError extends boolean = true>(
@@ -8273,7 +9033,6 @@ export const createOrganization = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
  */
 export const getOrganizationExamByExamId = <ThrowOnError extends boolean = true>(
@@ -8292,7 +9051,6 @@ export const getOrganizationExamByExamId = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
  */
 export const getOrganization = <ThrowOnError extends boolean = true>(
@@ -8315,7 +9073,6 @@ export const softDeleteOrganization = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/organizations/{organization_id}`
  *
  * Updates an organization's name, hidden status, and slug.
@@ -8334,7 +9091,6 @@ export const updateOrganization = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
  */
 export const getOrganizationCourseExams = <ThrowOnError extends boolean = true>(
@@ -8353,7 +9109,6 @@ export const getOrganizationCourseExams = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
  */
 export const getOrganizationCourses = <ThrowOnError extends boolean = true>(
@@ -8413,7 +9168,6 @@ export const getOrganizationCourseCount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"` - Returns a list of all courses in a organization that the current user has permission to duplicate.
  */
 export const getOrganizationDuplicatableCourses = <ThrowOnError extends boolean = true>(
@@ -8433,7 +9187,6 @@ export const getOrganizationDuplicatableCourses = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
  */
 export const createOrganizationExam = <ThrowOnError extends boolean = true>(
@@ -8450,7 +9203,6 @@ export const createOrganizationExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/organizations/:organizations_id/image` - Removes the organizations image.
  *
  * # Example
@@ -8475,7 +9227,6 @@ export const deleteOrganizationImage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/organizations/:organizations_id/image` - Sets or updates the chapter image.
  *
  * # Example
@@ -8503,7 +9254,6 @@ export const updateOrganizationImage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
  */
 export const getOrganizationExams = <ThrowOnError extends boolean = true>(
@@ -8517,7 +9267,6 @@ export const getOrganizationExams = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/page_audio/:file_id` - Removes the chapter image.
  *
  * # Example
@@ -8537,7 +9286,6 @@ export const deletePageAudioFile = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
  *
  * # Example
@@ -8566,7 +9314,6 @@ export const createPageAudioFile = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
  *
  * Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
@@ -8582,7 +9329,6 @@ export const getPageAudioFiles = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/pages` - Create a new page.
  *
  * Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
@@ -8625,7 +9371,6 @@ export const createPage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
  */
 export const getCoursePages = <ThrowOnError extends boolean = true>(
@@ -8639,7 +9384,6 @@ export const getCoursePages = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises, and related exercise tasks by id.
  *
  *
@@ -8658,7 +9402,6 @@ export const deletePage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/main-frontend/pages/:page_id/history
  */
 export const getPageHistory = <ThrowOnError extends boolean = true>(
@@ -8672,7 +9415,6 @@ export const getPageHistory = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/main-frontend/pages/:page_id/history_count
  */
 export const getPageHistoryCount = <ThrowOnError extends boolean = true>(
@@ -8686,7 +9428,6 @@ export const getPageHistoryCount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-fronted/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -8702,7 +9443,6 @@ export const getPageInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
  */
 export const updatePageDetails = <ThrowOnError extends boolean = true>(
@@ -8720,7 +9460,6 @@ export const updatePageDetails = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/pages/:page_id/page-read-status` - Update if the page is read.
  */
 export const updatePageReadStatus = <ThrowOnError extends boolean = true>(
@@ -8738,7 +9477,6 @@ export const updatePageReadStatus = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/main-frontend/pages/:page_id/restore
  */
 export const restorePageHistory = <ThrowOnError extends boolean = true>(
@@ -8787,7 +9525,6 @@ export const getPlaygroundViewsWebsocket = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
  */
 export const getPlaygroundExamples = <ThrowOnError extends boolean = true>(
@@ -8801,7 +9538,6 @@ export const getPlaygroundExamples = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
  */
 export const createPlaygroundExample = <ThrowOnError extends boolean = true>(
@@ -8819,7 +9555,6 @@ export const createPlaygroundExample = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
  */
 export const updatePlaygroundExample = <ThrowOnError extends boolean = true>(
@@ -8837,7 +9572,6 @@ export const updatePlaygroundExample = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
  */
 export const deletePlaygroundExample = <ThrowOnError extends boolean = true>(
@@ -8856,7 +9590,6 @@ export const deletePlaygroundExample = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
  */
 export const getEditProposals = <ThrowOnError extends boolean = true>(
@@ -8870,7 +9603,6 @@ export const getEditProposals = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
 export const processEditProposal = <ThrowOnError extends boolean = true>(
@@ -8887,7 +9619,6 @@ export const processEditProposal = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
  */
 export const getRegradings = <ThrowOnError extends boolean = true>(
@@ -8901,7 +9632,6 @@ export const getRegradings = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
  */
 export const createRegrading = <ThrowOnError extends boolean = true>(
@@ -8919,7 +9649,6 @@ export const createRegrading = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings/count` - Counts regradings
  */
 export const getRegradingsCount = <ThrowOnError extends boolean = true>(
@@ -8933,7 +9662,6 @@ export const getRegradingsCount = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
  */
 export const getRegradingInfo = <ThrowOnError extends boolean = true>(
@@ -8947,7 +9675,6 @@ export const getRegradingInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 export const getRoles = <ThrowOnError extends boolean = true>(
@@ -8961,7 +9688,6 @@ export const getRoles = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * POST /api/v0/main-frontend/roles/add - Give a role to a user.
  */
 export const addRole = <ThrowOnError extends boolean = true>(
@@ -8978,7 +9704,6 @@ export const addRole = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 export const getPendingRoles = <ThrowOnError extends boolean = true>(
@@ -8992,7 +9717,26 @@ export const getPendingRoles = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
+ * GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in
+ * user's email wait for them to verify it.
+ */
+export const getPendingRoleCountWaitingForMe = <ThrowOnError extends boolean = true>(
+  options?: Options<GetPendingRoleCountWaitingForMeData, ThrowOnError>,
+): RequestResult<GetPendingRoleCountWaitingForMeResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetPendingRoleCountWaitingForMeResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetPendingRoleCountWaitingForMeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/roles/pending/waiting-for-me",
+    ...options,
+  })
+
+/**
  * * POST /api/v0/main-frontend/roles/remove - Remove a role from a user.
  */
 export const removeRole = <ThrowOnError extends boolean = true>(
@@ -9009,7 +9753,6 @@ export const removeRole = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
  * newest first, so they can be reviewed and withdrawn.
  */
@@ -9024,7 +9767,6 @@ export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
  * share the current user has minted for one submission.
  */
@@ -9045,7 +9787,6 @@ export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
  * link stops resolving.
  *
@@ -9063,7 +9804,6 @@ export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
  * render a shared submission.
  *
@@ -9082,7 +9822,6 @@ export const getSharedSubmissionInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/cronjobs`
  *
  * Returns the status of all CronJobs in the current namespace.
@@ -9098,7 +9837,6 @@ export const getStatusCronjobs = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/deployments`
  *
  * Returns the status of all Deployments in the current namespace.
@@ -9114,7 +9852,6 @@ export const getStatusDeployments = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/events`
  *
  * Returns the status of all Events in the current namespace.
@@ -9130,7 +9867,6 @@ export const getStatusEvents = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/health`
  *
  * Returns detailed system health status with issues list (admin only).
@@ -9146,7 +9882,6 @@ export const getStatusHealth = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/ingresses`
  *
  * Returns the status of all Ingresses in the current namespace.
@@ -9162,7 +9897,6 @@ export const getStatusIngresses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/jobs`
  *
  * Returns the status of all Jobs in the current namespace.
@@ -9178,7 +9912,6 @@ export const getStatusJobs = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pod-disruption-budgets`
  *
  * Returns the status of all PodDisruptionBudgets in the current namespace.
@@ -9200,7 +9933,6 @@ export const getStatusPodDisruptionBudgets = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pods`
  *
  * Returns the status of all Pods in the current namespace.
@@ -9216,7 +9948,6 @@ export const getStatusPods = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pods/{pod_name}/logs`
  *
  * Returns logs from a specific pod.
@@ -9236,7 +9967,6 @@ export const getStatusPodLogs = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/services`
  *
  * Returns the status of all Services in the current namespace.
@@ -9252,7 +9982,6 @@ export const getStatusServices = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/status/system-health` Returns a boolean indicating whether the system is healthy.
  *
  * Uses the same underlying checking logic as the detailed health endpoint.
@@ -9269,7 +9998,6 @@ export const getStatusSystemHealth = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/teacher-grading-decisions` - Creates a new teacher grading decision, overriding the points a user has received from an exercise.
  */
 export const createTeacherGradingDecision = <ThrowOnError extends boolean = true>(
@@ -9292,7 +10020,6 @@ export const createTeacherGradingDecision = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/time` Returns the server's current UTC time as an RFC3339 timestamp string.
  *
  * Response body example:
@@ -9309,7 +10036,6 @@ export const getCurrentTime = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/bulk-user-details` - Get user details for a list of user IDs with course permission check
  * Only returns user details for users who are actually enrolled in the specified course
  */
@@ -9328,7 +10054,6 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
  */
 export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
@@ -9346,7 +10071,6 @@ export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
 export const searchUserDetailsFuzzy = <ThrowOnError extends boolean = true>(
@@ -9364,8 +10088,11 @@ export const searchUserDetailsFuzzy = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+ *
+ * A new email reaches TMC only once it is verified, through
+ * [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
+ * ownership verification is off.
  */
 export const updateUserInfo = <ThrowOnError extends boolean = true>(
   options: Options<UpdateUserInfoData, ThrowOnError>,
@@ -9382,7 +10109,6 @@ export const updateUserInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/user-by-courses` - Find user details by user id with multi-course permission check
  * Returns user details if the user has permission to view user details through any of the specified courses
  */
@@ -9411,7 +10137,6 @@ export const getUserDetailsByCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
  */
 export const getUserDetailsForAuthenticatedUser = <ThrowOnError extends boolean = true>(
@@ -9441,7 +10166,6 @@ export const getUsersIpCountry = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
  */
 export const getUsersByCourseIdForUserDetails = <ThrowOnError extends boolean = true>(
@@ -9461,7 +10185,6 @@ export const getUsersByCourseIdForUserDetails = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user details by user id with course permission check
  * Only returns user details if the user is enrolled in the specified course
  */
@@ -9496,7 +10219,6 @@ export const changeUserPassword = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
  */
 export const getUserResearchConsent = <ThrowOnError extends boolean = true>(
@@ -9510,7 +10232,6 @@ export const getUserResearchConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
  *
  * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
@@ -9527,7 +10248,6 @@ export const getMyCertificates = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
  */
 export const getMyCourses = <ThrowOnError extends boolean = true>(
@@ -9541,7 +10261,6 @@ export const getMyCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
  * authenticated user's "My courses" list.
  */
@@ -9555,7 +10274,6 @@ export const hideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
  * back into the authenticated user's "My courses" list.
  */
@@ -9574,7 +10292,6 @@ export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
  * course they are enrolled in, its modules, and their completions.
  *
@@ -9639,7 +10356,6 @@ export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
  */
 export const createUserResearchConsent = <ThrowOnError extends boolean = true>(
@@ -9662,7 +10378,6 @@ export const createUserResearchConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
  */
 export const getUserResearchFormQuestionAnswers = <ThrowOnError extends boolean = true>(
@@ -9682,7 +10397,6 @@ export const getUserResearchFormQuestionAnswers = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id`
  */
 export const getUser = <ThrowOnError extends boolean = true>(
@@ -9696,7 +10410,6 @@ export const getUser = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/course-enrollments`
  */
 export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(
@@ -9710,7 +10423,6 @@ export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
  * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
  */
@@ -9730,7 +10442,6 @@ export const getUserCourseSubmissionTimes = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
  * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
  */
@@ -9745,7 +10456,6 @@ export const getUserRoles = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
  * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
  * read-only (confirm/dismiss happen on the per-course cheaters page).
@@ -9761,7 +10471,6 @@ export const getUserSuspectedCheaters = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
  */
 export const getUserResetExerciseLogs = <ThrowOnError extends boolean = true>(

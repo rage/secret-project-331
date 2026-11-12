@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_completions\nSET reported_at = COALESCE(reported_at, now())\nWHERE moocfi_completion_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d05ad49b6baee75ea407f96d725ebd05d7242f8b6381ce33f813da77dc830e9a"
+}

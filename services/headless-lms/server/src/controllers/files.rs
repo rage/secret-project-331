@@ -312,6 +312,12 @@ async fn upload_from_exercise_service(
             }
             (_, Some(_user)) => {
                 // TODO: for now, all users are allowed to upload files
+                // The slug names the storage folder, so it must be a registered service.
+                models::exercise_services::get_exercise_service_by_exercise_type(
+                    &mut conn,
+                    exercise_service_slug.as_str(),
+                )
+                .await?;
             }
             (Err(_), None) => {
                 return Err(ControllerError::new(

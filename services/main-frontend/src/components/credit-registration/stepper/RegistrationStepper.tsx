@@ -21,6 +21,7 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "../constants"
 import { enrolmentConfirmedSentence, myRegistrationStatusLabel } from "../creditRegistrationCopy"
+import type { CertificateOffer, CreditRegistrationSubject } from "../creditRegistrationSubject"
 import { useRecordEnrolmentPageVisitOnce } from "../enrolmentActions"
 import { EnrolmentCheck } from "../EnrolmentCheck"
 import { missingSisuCourseCodeSupportMail } from "../studentSupportMail"
@@ -61,7 +62,7 @@ const ENROLLING_PAGES: readonly (StepperPage | StatusPageKind)[] = [
 ]
 
 export interface RegistrationStepperProps {
-  courseModuleId: string
+  subject: CreditRegistrationSubject
   heading: React.ReactNode
   courseName: string
   moduleName: string | null | undefined
@@ -71,8 +72,8 @@ export interface RegistrationStepperProps {
   statusBeforeRegistration: StudentFacingCreditRegistrationStatus
   enrolmentRoute: MyEnrolmentRoute | null
   verifiedNumber: MyVerifiedStudentNumber | null
-  certificateConfigurationId: string | null | undefined
-  creditJustification: string | null | undefined
+  /** Set when a certificate could serve instead, which asks the detour questions. */
+  certificate: CertificateOffer | null
   /** The Sisu course to enrol on, known before the registration exists. */
   uhCourseCode: string | null | undefined
   /** Where an Open University student enrols, known before the registration exists. */
@@ -90,7 +91,7 @@ export interface RegistrationStepperProps {
  * registration still allows.
  */
 export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
-  courseModuleId,
+  subject,
   heading,
   courseName,
   moduleName,
@@ -99,8 +100,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   statusBeforeRegistration,
   enrolmentRoute,
   verifiedNumber,
-  certificateConfigurationId,
-  creditJustification,
+  certificate,
   uhCourseCode,
   enrolmentLink,
   checkedAt,
@@ -109,7 +109,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const [hasSavedJustificationHere, setHasSavedJustificationHere] = useState(false)
-  const actions = useEnrolmentAnswers(courseModuleId, registration?.course_id ?? null)
+  const actions = useEnrolmentAnswers(subject, registration?.course_id ?? null)
   const { requestedPage, goTo } = useStepParam()
 
   const hasLinkedStudentNumber = verifiedNumber !== null
@@ -118,8 +118,8 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
     statusBeforeRegistration,
     enrolmentRoute,
     hasLinkedStudentNumber,
-    hasCertificate: Boolean(certificateConfigurationId),
-    hasSavedJustification: Boolean(creditJustification) || hasSavedJustificationHere,
+    hasCertificate: certificate !== null,
+    hasSavedJustification: Boolean(certificate?.creditJustification) || hasSavedJustificationHere,
   }
   const statusPage = statusPageOf(input)
   const page: StepperPage | StatusPageKind =
@@ -131,7 +131,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   const courseCode = (registration?.uh_course_code ?? uhCourseCode)?.trim() || null
   const supportCourse = { courseName, moduleName }
 
-  useRecordEnrolmentPageVisitOnce(courseModuleId, ENROLLING_PAGES.includes(page))
+  useRecordEnrolmentPageVisitOnce(subject, ENROLLING_PAGES.includes(page))
 
   // A page change moves focus to its heading, so a screen reader reads where the student now is.
   const pageRef = useRef<HTMLElement>(null)
@@ -227,10 +227,8 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
       case "questions":
         return enrolmentRoute ? (
           <QuestionsPage
-            courseModuleId={courseModuleId}
             enrolmentRoute={enrolmentRoute}
-            certificateConfigurationId={certificateConfigurationId}
-            creditJustification={creditJustification}
+            certificate={certificate}
             hasSavedJustification={input.hasSavedJustification}
             onJustificationSaved={() => setHasSavedJustificationHere(true)}
             actions={actions}
@@ -278,8 +276,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
       case "certificate":
         return (
           <CertificateChosenPage
-            courseModuleId={courseModuleId}
-            certificateConfigurationId={certificateConfigurationId}
+            certificate={certificate}
             isWithdrawing={actions.withdrawCertificateChoice.isPending}
             onChangeChoice={() => void changeCertificateChoice()}
           />

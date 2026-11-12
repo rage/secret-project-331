@@ -92,6 +92,20 @@ const page = (content: unknown[]): PreviewPage => ({
   exercises: [],
 })
 
+const exercisePage = (exercise: Partial<PreviewPage["exercises"][number]>): PreviewPage => ({
+  ...page([{ ...block("moocfi/exercise", "exercise"), attributes: { id: "e1" } }]),
+  exercises: [
+    {
+      id: "e1",
+      name: "Quiz",
+      assignment: [],
+      has_reviews: true,
+      uses_course_default_review_config: false,
+      ...exercise,
+    },
+  ],
+})
+
 describe("StagedPageContent", () => {
   it("lists the references the page cites", () => {
     const cited = {
@@ -171,20 +185,6 @@ describe("StagedPageContent", () => {
   })
 
   describe("review instructions", () => {
-    const exercisePage = (exercise: Partial<PreviewPage["exercises"][number]>): PreviewPage => ({
-      ...page([{ ...block("moocfi/exercise", "exercise"), attributes: { id: "e1" } }]),
-      exercises: [
-        {
-          id: "e1",
-          name: "Quiz",
-          assignment: [],
-          has_reviews: true,
-          uses_course_default_review_config: false,
-          ...exercise,
-        },
-      ],
-    })
-
     it("shows an exercise's review instructions", () => {
       render(
         <StagedPageContent

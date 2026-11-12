@@ -316,25 +316,25 @@ describe("matrix grading: fog of war", () => {
   })
 })
 
-describe("matrix grading: failures", () => {
-  const assess = (item: PrivateSpecQuizItemMatrix, matrix: unknown) =>
-    assessAnswers(
-      {
-        version: "5",
-        itemAnswers: [{ ...answer([]), matrix: matrix as string[][] }],
-      },
-      {
-        version: "5",
-        awardPointsEvenIfWrong: false,
-        grantPointsPolicy: "grant_whenever_possible",
-        title: null,
-        body: null,
-        quizItemDisplayDirection: "vertical",
-        feedbackMessages: [],
-        items: [item],
-      },
-    )[0]
+const assess = (item: PrivateSpecQuizItemMatrix, matrix: unknown) =>
+  assessAnswers(
+    {
+      version: "5",
+      itemAnswers: [{ ...answer([]), matrix: matrix as string[][] }],
+    },
+    {
+      version: "5",
+      awardPointsEvenIfWrong: false,
+      grantPointsPolicy: "grant_whenever_possible",
+      title: null,
+      body: null,
+      quizItemDisplayDirection: "vertical",
+      feedbackMessages: [],
+      items: [item],
+    },
+  )[0]
 
+describe("matrix grading: failures", () => {
   test("a key with a gap is reported as failed instead of scoring 0 as graded", () => {
     const item = matrixItem({
       optionCells: [

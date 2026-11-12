@@ -1,0 +1,108 @@
+use indexmap::IndexMap;
+
+use headless_lms_models::{course_designer_plan_members, course_designer_plans};
+use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::strings::non_empty_trimmed;
+
+use super::{
+    authorized_plan_id, parse_raw_arguments, plan_proposal_items, plan_tool_declaration_items,
+    text_property, updated_plan_payload, verify_current_value,
+};
+use crate::{
+    azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
+    chatbot_tools::{
+        ChatbotToolDeclaration,
+        action_tools::{ActionAuditFields, ConfirmableActionTool, ExecutedAction},
+        tool_authorization::ToolAuthorization,
+    },
+    prelude::*,
+};
+
+/// Proposes new text for the plan's "what makes this MOOC great" vision.
+pub struct ProposeVisionEditTool;
+
+pub struct ProposeVisionEditArguments {
+    current_vision: String,
+    proposed_vision: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct RawArguments {
+    current_vision: String,
+    proposed_vision: String,
+}
+
+impl ChatbotToolDeclaration for ProposeVisionEditTool {
+    const NAME: &'static str = "propose_vision_edit";
+
+    plan_tool_declaration_items!();
+
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition {
+        AzureLLMFunctionToolDefinition {
+            tool_type: LLMToolType::Function,
+            name: Self::NAME.to_string(),
+            description: "Propose new text for the team's vision of what would make this MOOC great (great_mooc_vision on the plan overview). The user applies or discards it; nothing is saved before that.".to_string(),
+            parameters: Schema::strict_object(
+                IndexMap::from([
+                    ("current_vision".to_string(), text_property("The current vision exactly as get_course_plan returned it; empty string for none. Checked before anything is saved.")),
+                    ("proposed_vision".to_string(), text_property("The whole new text, in the user's language. Empty string clears it.")),
+                ]),
+                None,
+            ),
+            strict: true,
+        }
+    }
+}
+
+impl ConfirmableActionTool for ProposeVisionEditTool {
+    type Arguments = ProposeVisionEditArguments;
+    plan_proposal_items!();
+
+    fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments> {
+        let raw: RawArguments = parse_raw_arguments(arguments)?;
+        Ok(ProposeVisionEditArguments {
+            current_vision: raw.current_vision,
+            proposed_vision: non_empty_trimmed(&raw.proposed_vision).map(str::to_string),
+        })
+    }
+
+    async fn execute(
+        conn: &mut PgConnection,
+        _app_config: &ApplicationConfiguration,
+        arguments: &Self::Arguments,
+        authorization: &ToolAuthorization<Self>,
+    ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
+        let plan_id = authorized_plan_id(authorization)?;
+        let user_id = authorization.acting_user_id();
+        let mut tx = conn.begin().await?;
+        course_designer_plan_members::lock_editable_plan_for_user(&mut tx, plan_id, user_id)
+            .await?;
+        let plan =
+            course_designer_plan_members::get_plan_for_user(&mut tx, plan_id, user_id).await?;
+        verify_current_value(
+            "vision",
+            plan.great_mooc_vision.as_deref().unwrap_or(""),
+            &arguments.current_vision,
+        )?;
+        course_designer_plans::set_great_mooc_vision_for_user(
+            &mut tx,
+            plan_id,
+            user_id,
+            arguments.proposed_vision.clone(),
+        )
+        .await?;
+        tx.commit().await?;
+        Ok((
+            ExecutedAction {
+                output: "Saved the new vision.".to_string(),
+                client_payload: Some(updated_plan_payload(conn, plan_id, user_id).await?),
+                audit: ActionAuditFields {
+                    target_user_id: None,
+                    course_id: None,
+                    summary: format!("Edited the vision of course design plan {plan_id}"),
+                },
+            },
+            (),
+        ))
+    }
+}

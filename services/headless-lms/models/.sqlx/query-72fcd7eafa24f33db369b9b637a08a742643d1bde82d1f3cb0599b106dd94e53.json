@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_designer_plan_stage_tasks (\n  course_designer_plan_stage_id,\n  title,\n  order_number,\n  is_auto_generated\n)\nSELECT s.id,\n  titles.title,\n  COALESCE(existing.max_order, 0) + titles.ordinal::INTEGER,\n  TRUE\nFROM course_designer_plan_stages s\nCROSS JOIN UNNEST($3::TEXT []) WITH ORDINALITY AS titles(title, ordinal)\nLEFT JOIN LATERAL (\n  SELECT MAX(order_number) AS max_order\n  FROM course_designer_plan_stage_tasks\n  WHERE course_designer_plan_stage_id = s.id\n    AND deleted_at IS NULL\n) existing ON TRUE\nWHERE s.course_designer_plan_id = $1\n  AND s.stage = $2\n  AND s.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM course_designer_plan_stage_tasks t\n    WHERE t.course_designer_plan_stage_id = s.id\n      AND t.is_auto_generated\n      AND t.deleted_at IS NULL\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "TextArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "72fcd7eafa24f33db369b9b637a08a742643d1bde82d1f3cb0599b106dd94e53"
+}

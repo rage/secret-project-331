@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_roster_schedules (course_code)\nSELECT DISTINCT TRIM(au.uh_course_code)\nFROM credit_registration_active_units au\nWHERE TRIM(COALESCE(au.uh_course_code, '')) <> ''\n  AND ($1::uuid IS NULL OR au.course_id = $1)\n  AND ($2::uuid IS NULL OR au.external_credit_target_id = $2) ON CONFLICT (course_code) DO NOTHING\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "74f344be259dcce649c9ff34ce728fdc9d9ef749edb686f855cc99b387b7f7ce"
+}

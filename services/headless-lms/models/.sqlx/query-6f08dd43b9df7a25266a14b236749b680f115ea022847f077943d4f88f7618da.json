@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT moocfi_course_id\nFROM external_credit_targets\nWHERE moocfi_course_slug = $1\n  AND deleted_at IS NULL\nLIMIT 1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6f08dd43b9df7a25266a14b236749b680f115ea022847f077943d4f88f7618da"
+}

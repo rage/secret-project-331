@@ -161,6 +161,7 @@ import {
   getCourseByJoinCode,
   getCourseChapters,
   getCourseChatbots,
+  getCourseCompletionOverview,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
   getCourseCompletionsHistoryByInstance,
@@ -725,6 +726,8 @@ import type {
   GetCourseChaptersResponse,
   GetCourseChatbotsData,
   GetCourseChatbotsResponse,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponse,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponse,
   GetCourseCompletionsHistoryByInstanceData,
@@ -4357,6 +4360,32 @@ export const setCourseChatbotAsNonDefaultMutation = (
   }
   return mutationOptions
 }
+
+export const getCourseCompletionOverviewQueryKey = (
+  options: Options<GetCourseCompletionOverviewData>,
+) => createQueryKey("getCourseCompletionOverview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverviewOptions = (
+  options: Options<GetCourseCompletionOverviewData>,
+) =>
+  queryOptions<
+    GetCourseCompletionOverviewResponse,
+    DefaultError,
+    GetCourseCompletionOverviewResponse,
+    ReturnType<typeof getCourseCompletionOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCompletionOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCompletionOverviewQueryKey(options),
+  })
 
 export const getCourseInstancesQueryKey = (options: Options<GetCourseInstancesData>) =>
   createQueryKey("getCourseInstances", options)

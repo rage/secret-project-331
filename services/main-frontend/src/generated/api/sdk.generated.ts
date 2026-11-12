@@ -338,6 +338,8 @@ import type {
   GetCourseChaptersResponses,
   GetCourseChatbotsData,
   GetCourseChatbotsResponses,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponses,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponses,
   GetCourseCompletionsHistoryByInstanceData,
@@ -1080,6 +1082,7 @@ import {
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
   zGetCourseChatbotsResponse,
+  zGetCourseCompletionOverviewResponse,
   zGetCourseCompletionsHistoryAllLanguageVersionsResponse,
   zGetCourseCompletionsHistoryByInstanceResponse,
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
@@ -3556,6 +3559,24 @@ export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = true
     responseValidator: async (data) => await zSetCourseChatbotAsNonDefaultResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverview = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCompletionOverviewData, ThrowOnError>,
+): RequestResult<GetCourseCompletionOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCompletionOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCompletionOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/completion-overview",
     ...options,
   })
 

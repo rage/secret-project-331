@@ -20,6 +20,19 @@ function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction<"errors">):
   return localized.trim() === "" ? null : localized
 }
 
+function stringifyMessageKey(value: unknown): string {
+  if (typeof value === "string") {
+    return value
+  }
+  if (isRecord(value)) {
+    const key = Object.keys(value)[0]
+
+    if (key) {
+      return key
+    }
+  }
+}
+
 /**
  * Resolves localized user-facing title and message from normalized error data.
  */
@@ -27,9 +40,16 @@ export function resolveErrorDisplayCopy(
   error: ErrorViewModel,
   t: TFunction<"errors">,
 ): ResolvedErrorDisplayCopy {
-  const localizedTitle = error.messageKey
-    ? t(`error-message-key.${error.messageKey}.title`, { defaultValue: error.title })
-    : error.title
+  const errorIsDatabaseConstraint =
+    isRecord(error.messageKey) && "database_constraint" in error.messageKey
+
+  const localizedTitle = errorIsDatabaseConstraint
+    ? t(`database-constraint-error.${error.messageKey.database_constraint.constraint}.title`)
+    : error.messageKey
+      ? t(`error-message-key.${stringifyMessageKey(error.messageKey)}.title`, {
+          defaultValue: error.title,
+        })
+      : error.title
 
   const issueCodeMessage = resolveIssueCodeMessage(error, t)
   if (issueCodeMessage) {
@@ -39,13 +59,22 @@ export function resolveErrorDisplayCopy(
     }
   }
 
-  const translationVariables = isRecord(error.metadata) ? error.metadata : null
+  const variablesArray = isRecord(error.messageKey) ? Object.values(error.messageKey) : null
+
+  const translationVariables =
+    variablesArray?.length === 1 && isRecord(variablesArray[0]) ? variablesArray[0] : null
 
   if (error.messageKey) {
-    const localizedMessage = t(`error-message-key.${error.messageKey}.message`, {
-      defaultValue: "",
-      ...translationVariables,
-    })
+    const localizedMessage = errorIsDatabaseConstraint
+      ? t(`database-constraint-error.${error.messageKey.database_constraint.constraint}.message`, {
+          defaultValue: "",
+          ...translationVariables,
+        })
+      : t(`error-message-key.${stringifyMessageKey(error.messageKey)}.message`, {
+          defaultValue: "",
+          ...translationVariables,
+        })
+
     if (localizedMessage.trim() !== "") {
       return {
         title: localizedTitle,

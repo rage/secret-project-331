@@ -1,5 +1,6 @@
 import { APP_API_ERROR_NAME } from "@/shared-module/components/lib/errors/normalizeErrorForDisplay"
 
+import type { MessageKey } from "../generated/errors-api"
 import { isRecord } from "../utils/objects"
 
 export type AppApiErrorKind = "api" | "network" | "abort" | "parse" | "client" | "stream"
@@ -16,14 +17,13 @@ export interface CanonicalApiErrorPayload {
   code?: unknown
   message?: unknown
   errors?: unknown
-  metadata?: unknown
 }
 
 export interface AppApiErrorInit {
   kind: AppApiErrorKind
   status?: number | null
   requestId?: string | null
-  messageKey?: string | null
+  messageKey?: MessageKey | null
   type?: string | null
   /** Optional backend machine code. Currently forward-compatible and often absent. */
   code?: string | null
@@ -31,7 +31,6 @@ export interface AppApiErrorInit {
   userMessage?: string | null
   detail?: string | null
   issues?: CanonicalApiIssue[]
-  metadata?: Record<string, unknown> | null
   extra?: Record<string, unknown> | null
   retryAfterSeconds?: number | null
   url?: string | null
@@ -73,14 +72,13 @@ export class AppApiError extends Error {
   public kind: AppApiErrorKind
   public status: number | null
   public requestId: string | null
-  public messageKey: string | null
+  public messageKey: MessageKey | null
   public type: string | null
   /** Optional backend machine code. Keep separate from semantic `type` and `messageKey`. */
   public code: string | null
   public userMessage: string | null
   public detail: string | null
   public issues: CanonicalApiIssue[]
-  public metadata: Record<string, unknown> | null
   public extra: Record<string, unknown> | null
   public retryAfterSeconds: number | null
   public url: string | null
@@ -102,7 +100,6 @@ export class AppApiError extends Error {
     this.userMessage = init.userMessage ?? null
     this.detail = init.detail ?? null
     this.issues = init.issues ?? []
-    this.metadata = init.metadata ?? null
     this.extra = init.extra ?? null
     this.retryAfterSeconds = init.retryAfterSeconds ?? null
     this.url = init.url ?? null
@@ -154,11 +151,10 @@ export function extractRetryAfterSeconds(headers: Headers | null | undefined): n
 /** Parses canonical backend error payload from unknown JSON. */
 export function parseCanonicalApiPayload(payload: unknown): {
   type: string | null
-  messageKey: string | null
+  messageKey: MessageKey | null
   code: string | null
   message: string | null
   issues: CanonicalApiIssue[]
-  metadata: Record<string, unknown> | null
   extra: Record<string, unknown> | null
 } {
   if (!isRecord(payload)) {
@@ -168,7 +164,6 @@ export function parseCanonicalApiPayload(payload: unknown): {
       code: null,
       message: null,
       issues: [],
-      metadata: null,
       extra: null,
     }
   }
@@ -179,17 +174,15 @@ export function parseCanonicalApiPayload(payload: unknown): {
     code: _code,
     message: _message,
     errors: _errors,
-    metadata: _metadata,
     ...extra
   } = payload
 
   return {
     type: asString(payload.type),
-    messageKey: asString(payload.message_key),
+    messageKey: payload.message_key ? (payload.message_key as MessageKey) : null,
     code: asString(payload.code),
     message: asString(payload.message),
     issues: parseIssues(payload.errors),
-    metadata: isRecord(payload.metadata) ? payload.metadata : null,
     extra: Object.keys(extra).length > 0 ? extra : null,
   }
 }
@@ -220,7 +213,6 @@ export function appApiErrorFromHttpFailure(input: {
     userMessage: parsed.message,
     detail: typeof input.body === "string" && input.body.trim() !== "" ? input.body : null,
     issues: parsed.issues,
-    metadata: parsed.metadata,
     extra: parsed.extra,
     retryAfterSeconds: extractRetryAfterSeconds(input.response.headers),
     url: input.request.url,

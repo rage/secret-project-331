@@ -43,6 +43,7 @@ export type MessageKey =
   | "stale_version"
   | "chapter_not_open_yet"
   | "authentication_required_for_exam_exercise"
+  | "response_validation_error"
 
 export type NewErrorReport = {
   app_version?: string | null

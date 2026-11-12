@@ -1,5 +1,43 @@
 {
   "button-text-try-again": "Try again",
+  "database-constraint-error": {
+    "course_language_groups_slug_unique_non_deleted": {
+      "message": "A course with this slug already exists.",
+      "title": "Database constraint"
+    },
+    "courses_slug_key_when_not_deleted": {
+      "message": "A course with this slug already exists.",
+      "title": "Database constraint"
+    },
+    "email_templates_subject_check": {
+      "message": "Subject must not be null",
+      "title": "Database constraint"
+    },
+    "unique_chatbot_names_within_course": {
+      "message": "The chatbot name is already taken by another chatbot on this course",
+      "title": "Database constraint"
+    },
+    "uq_credit_registrations_sisu_attainment": {
+      "message": "This Sisu attainment is already claimed by another credit registration.",
+      "title": "Database constraint"
+    },
+    "uq_oauth_device_codes_user_code_pending": {
+      "message": "A pending device authorization already uses this user_code.",
+      "title": "Database constraint"
+    },
+    "user_details_email_check": {
+      "message": "Email must contain an '@' symbol.",
+      "title": "Database constraint"
+    },
+    "users_email": {
+      "message": "Email is already in use.",
+      "title": "Database constraint"
+    },
+    "users_upstream_id_active_uniq_idx": {
+      "message": "A user with this upstream id already exists.",
+      "title": "Database constraint"
+    }
+  },
   "default-toast-error-message": "An error occurred",
   "default-toast-error-title": "Error",
   "dynamic-import-error-boundary-reload": "Reload page",
@@ -71,6 +109,10 @@
     },
     "validation_error": {
       "message": "Please check your input and try again.",
+      "title": "Invalid input"
+    },
+    "validation_error_with_cms_anchor_block_id": {
+      "message": "Validation error with block id {{block_id}}.",
       "title": "Invalid input"
     },
     "validation_error_with_metadata": {

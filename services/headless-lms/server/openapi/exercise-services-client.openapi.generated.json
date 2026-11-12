@@ -1053,7 +1053,6 @@
           "message_key": {
             "$ref": "#/components/schemas/MessageKey"
           },
-          "metadata": {},
           "type": {
             "type": "string"
           }
@@ -1521,6 +1520,10 @@
           {
             "type": "string",
             "enum": ["authentication_required_for_exam_exercise"]
+          },
+          {
+            "type": "string",
+            "enum": ["response_validation_error"]
           }
         ]
       },

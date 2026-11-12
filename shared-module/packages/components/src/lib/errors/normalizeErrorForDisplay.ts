@@ -1,5 +1,7 @@
 import type { TFunction } from "i18next"
 
+import type { MessageKey } from "../../../../common/src/generated/errors-api"
+
 export type ErrorCategory =
   | "validation"
   | "auth"
@@ -13,24 +15,6 @@ export type ErrorCategory =
   | "unknown"
 
 export type ErrorSeverity = "info" | "warning" | "error"
-
-export type BackendMessageKey =
-  | "internal_error"
-  | "validation_error"
-  | "response_validation_error"
-  | "validation_error_with_metadata"
-  | "course_slug_already_taken"
-  | "not_found"
-  | "unauthorized"
-  | "chapter_not_open_yet"
-  | "authentication_required_for_exam_exercise"
-  | "forbidden"
-  | "rate_limited"
-  | "oauth_error"
-  | "invalid_course_code"
-  | "generic_sisu_error"
-  | "sisu_resource_not_found"
-  | "foreign_key_violation"
 
 export interface ErrorViewIssue {
   path?: string | undefined
@@ -53,14 +37,13 @@ export interface ErrorViewModel {
   message: string | null
   requestId: string | null
   status: number | null
-  messageKey: BackendMessageKey | null
+  messageKey: MessageKey | null
   type: string | null
   code: string | null
   retryable: boolean
   retryAfterSeconds: number | null
   issues: ErrorViewIssue[]
   blockId: string | null
-  metadata: Record<string, unknown> | null
   technicalDetails: ErrorViewTechnicalDetails | null
   raw: unknown
 }
@@ -81,13 +64,12 @@ interface AppApiErrorLike extends Error {
   kind?: string
   status?: number | null
   requestId?: string | null
-  messageKey?: string | null
+  messageKey?: MessageKey | null
   type?: string | null
   code?: string | null
   userMessage?: string | null
   detail?: string | null
   issues?: ErrorViewIssue[]
-  metadata?: Record<string, unknown> | null
   extra?: Record<string, unknown> | null
   retryAfterSeconds?: number | null
   url?: string | null
@@ -131,27 +113,6 @@ function isZodErrorLike(value: unknown): value is ZodErrorLike {
   )
 }
 
-function isBackendMessageKey(value: unknown): value is BackendMessageKey {
-  return (
-    value === "internal_error" ||
-    value === "validation_error" ||
-    value === "response_validation_error" ||
-    value === "validation_error_with_metadata" ||
-    value === "course_slug_already_taken" ||
-    value === "not_found" ||
-    value === "unauthorized" ||
-    value === "chapter_not_open_yet" ||
-    value === "authentication_required_for_exam_exercise" ||
-    value === "forbidden" ||
-    value === "rate_limited" ||
-    value === "oauth_error" ||
-    value === "invalid_course_code" ||
-    value === "generic_sisu_error" ||
-    value === "sisu_resource_not_found" ||
-    value === "foreign_key_violation"
-  )
-}
-
 function categoryFromStatus(status: number | null): ErrorCategory {
   if (status === null) {
     return "unknown"
@@ -186,7 +147,6 @@ interface SimplifiedPayload {
   message_key?: unknown
   message?: unknown
   errors?: unknown
-  metadata?: unknown
 }
 
 interface LegacyErrorResponse {
@@ -205,8 +165,7 @@ function isSimplifiedPayload(value: unknown): value is SimplifiedPayload {
     typeof value.type === "string" ||
     typeof value.message_key === "string" ||
     typeof value.message === "string" ||
-    Array.isArray(value.errors) ||
-    isRecord(value.metadata)
+    Array.isArray(value.errors)
   )
 }
 
@@ -226,8 +185,7 @@ function isFrontendCrashPayload(value: unknown): value is FrontendCrashPayload {
     (value.stack === undefined || typeof value.stack === "string") &&
     value.type === undefined &&
     value.message_key === undefined &&
-    value.errors === undefined &&
-    value.metadata === undefined
+    value.errors === undefined
   )
 }
 
@@ -249,7 +207,6 @@ function normalizeFrontendCrash(
     retryAfterSeconds: null,
     issues: [],
     blockId: null,
-    metadata: null,
     technicalDetails:
       payload.stack === undefined ? null : { stack: payload.stack, detail: payload.message },
     raw: payload,
@@ -341,18 +298,22 @@ function isAggregateLike(value: unknown): value is { message?: unknown; errors?:
 }
 
 function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): ErrorViewModel {
-  const messageKey = isBackendMessageKey(payload.message_key) ? payload.message_key : null
+  const messageKey = payload.message_key as MessageKey
   const type = typeof payload.type === "string" ? payload.type : null
   const message = typeof payload.message === "string" ? payload.message : null
-  const metadata = isRecord(payload.metadata) ? payload.metadata : null
-  const blockId = metadata && typeof metadata.block_id === "string" ? metadata.block_id : null
+
+  const blockId =
+    typeof messageKey === "object" && "validation_error_with_cms_anchor_block_id" in messageKey
+      ? messageKey.validation_error_with_cms_anchor_block_id.block_id
+      : null
+
   const category: ErrorCategory =
     messageKey === "rate_limited"
       ? "rate_limit"
       : messageKey === "validation_error" ||
-          messageKey === "validation_error_with_metadata" ||
           messageKey === "course_slug_already_taken" ||
-          messageKey === "response_validation_error"
+          messageKey === "response_validation_error" ||
+          (typeof messageKey === "object" && "validation_error_cms_anchor_block_id" in messageKey)
         ? "validation"
         : messageKey === "unauthorized" ||
             messageKey === "chapter_not_open_yet" ||
@@ -377,14 +338,13 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): E
     retryAfterSeconds: null,
     issues: parseIssues(payload.errors),
     blockId,
-    metadata,
     technicalDetails: null,
     raw: payload,
   }
 }
 
 function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): ErrorViewModel {
-  const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
+  //const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
   const status = error.status ?? null
   const category =
     error.kind === "abort"
@@ -395,7 +355,15 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): E
           ? "client"
           : categoryFromStatus(status)
   const blockId =
-    error.metadata && typeof error.metadata.block_id === "string" ? error.metadata.block_id : null
+    error.messageKey &&
+    typeof error.messageKey === "object" &&
+    "validation_error_with_cms_anchor_block_id" in error.messageKey
+      ? error.messageKey.validation_error_with_cms_anchor_block_id.block_id
+      : null
+
+  console.log(blockId, "blockIDDD")
+  console.log(typeof error.messageKey === "object", "coooomps")
+  console.log(typeof error.messageKey === "string", "coooomps string")
 
   return {
     category,
@@ -404,14 +372,13 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): E
     message: error.userMessage ?? error.detail ?? null,
     requestId: error.requestId ?? null,
     status,
-    messageKey,
+    messageKey: error.messageKey ?? null,
     type: error.type ?? null,
     code: error.code ?? null,
     retryable: status === null || status >= 500 || status === 429,
     retryAfterSeconds: error.retryAfterSeconds ?? null,
     issues: error.issues ?? [],
     blockId,
-    metadata: error.metadata ?? null,
     technicalDetails: {
       detail: error.detail ?? null,
       method: error.method ?? null,
@@ -423,7 +390,6 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): E
         message: error.userMessage ?? null,
         status,
         issues: error.issues ?? [],
-        metadata: error.metadata ?? null,
         extra: error.extra ?? null,
         body: error.body,
         rawText: error.rawText ?? null,
@@ -463,7 +429,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
       retryAfterSeconds: null,
       issues: [],
       blockId: data && typeof data.block_id === "string" ? data.block_id : null,
-      metadata: null,
       technicalDetails: { detail: typeof error.source === "string" ? error.source : null },
       raw: error,
     }
@@ -519,7 +484,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
       retryAfterSeconds: firstNormalized?.retryAfterSeconds ?? null,
       issues: firstNormalized?.issues ?? [],
       blockId: firstNormalized?.blockId ?? null,
-      metadata: null,
       technicalDetails: { detail: `AggregateError(${String(error.errors?.length ?? 0)})` },
       raw: error,
     }
@@ -545,7 +509,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
       retryAfterSeconds: null,
       issues,
       blockId: null,
-      metadata: null,
       technicalDetails: { raw: error.issues },
       raw: error,
     }
@@ -566,7 +529,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
       retryAfterSeconds: null,
       issues: [],
       blockId: null,
-      metadata: null,
       technicalDetails: null,
       raw: error,
     }
@@ -588,7 +550,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
       retryAfterSeconds: null,
       issues: [],
       blockId: null,
-      metadata: null,
       technicalDetails: { stack: error.stack ?? null, detail: error.message },
       raw: error,
     }
@@ -617,7 +578,6 @@ export function normalizeErrorForDisplay(error: unknown, t: TFunction<"errors">)
     retryAfterSeconds: null,
     issues: [],
     blockId: null,
-    metadata: null,
     technicalDetails: null,
     raw: error,
   }

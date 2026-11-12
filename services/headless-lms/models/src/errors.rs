@@ -79,6 +79,7 @@ pub enum MessageKey {
     StaleVersion,
     ChapterNotOpenYet,
     AuthenticationRequiredForExamExercise,
+    ResponseValidationError,
 }
 
 /// Inserts one error occurrence and upserts its variant in a single transaction.

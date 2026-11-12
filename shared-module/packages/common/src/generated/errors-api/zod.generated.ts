@@ -41,6 +41,7 @@ export const zMessageKey = z.union([
   z.enum(["stale_version"]),
   z.enum(["chapter_not_open_yet"]),
   z.enum(["authentication_required_for_exam_exercise"]),
+  z.enum(["response_validation_error"]),
 ])
 
 export const zNewErrorReport = z.object({

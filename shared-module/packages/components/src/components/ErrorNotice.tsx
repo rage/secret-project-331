@@ -5,6 +5,7 @@ import { ExclamationTriangle, InfoCircle, XmarkCircle } from "@vectopus/atlas-ic
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { MessageKey } from "../../../common/src/generated/errors-api"
 import type { ErrorSeverity, ErrorViewModel } from "../lib/errors/normalizeErrorForDisplay"
 import { normalizeErrorForDisplay } from "../lib/errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../lib/errors/resolveErrorDisplayCopy"
@@ -283,6 +284,25 @@ function issueLine(issue: { path?: string | undefined; message: string }): strin
   return issue.path ? `${issue.path}: ${issue.message}` : issue.message
 }
 
+function stringifyMessageKey(value: MessageKey): string {
+  if (typeof value === "object" && value !== null) {
+    const entry = Object.entries(value)[0]
+
+    if (entry && entry.length === 2) {
+      const messageKey = entry[0]
+      const variables = entry[1]
+
+      if (typeof variables === "object") {
+        return `${messageKey} (${Object.entries(variables)
+          .map(([key, variable]) => `${key}: ${variable}`)
+          .join(", ")})`
+      }
+    }
+    return entry ? entry[0] : ""
+  }
+  return value
+}
+
 /**
  * The clipboard payload of the copy-report button: everything the notice knows, including what is
  * collapsed behind the disclosure, so a reader can paste one block into a bug report instead of
@@ -365,7 +385,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
       rows.push({ label: t("errorNotice.message"), value: view.message })
     }
     if (view.messageKey) {
-      rows.push({ label: t("errorNotice.messageKey"), value: view.messageKey })
+      rows.push({ label: t("errorNotice.messageKey"), value: stringifyMessageKey(view.messageKey) })
     }
     if (view.code && view.code !== view.type) {
       rows.push({ label: t("errorNotice.code"), value: view.code })

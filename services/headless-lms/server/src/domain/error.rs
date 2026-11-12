@@ -25,8 +25,6 @@ use headless_lms_utils::http::escape_auth_param;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 
-use uuid::Uuid;
-
 const MISSING_EXERCISE_TYPE_DESCRIPTION: &str = "Missing exercise type for exercise task.";
 
 /**
@@ -75,32 +73,6 @@ pub enum ControllerErrorType {
     /// SISUERROR
     #[display("SisuError")]
     SisuError(SisuErrorType),
-}
-
-/// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
-/// translation; the rest are consumed by the VSCode client, which renders its own message.
-#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum BadRequestReason {
-    #[display("Course slug already taken")]
-    CourseSlugAlreadyTaken,
-    #[display("Foreign key violation")]
-    ForeignKeyViolation,
-    /// The user is not enrolled on the course the requested exercise belongs to.
-    #[display("Not enrolled")]
-    NotEnrolled,
-    /// A submission named a file that was uploaded but has since been reaped.
-    #[display("Upload expired")]
-    UploadExpired,
-    /// A submission named a file the host has no upload record of for this exercise and user.
-    #[display("Unknown upload")]
-    UnknownUpload,
-    /// A submission named the same uploaded file more than once.
-    #[display("Duplicate upload")]
-    DuplicateUpload,
-    /// A save named a version of the record that is no longer the latest.
-    #[display("Stale version")]
-    StaleVersion,
 }
 
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -269,16 +241,6 @@ impl BackendError for ControllerError {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum ErrorMetadata {
-    BlockId(Uuid),
-    ForeignKeyViolationMetadata {
-        constraint: Option<String>,
-        table: Option<String>,
-    },
-}
-
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct ApiErrorIssue {
     pub path: Option<String>,
@@ -311,8 +273,6 @@ pub struct ApiErrorResponse {
     pub message: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<ApiErrorIssue>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<serde_json::Value>,
 }
 
 impl error::ResponseError for ControllerError {
@@ -429,26 +389,11 @@ impl error::ResponseError for ControllerError {
             default_message_key
         };
 
-        let metadata = match &self.message_key {
-            None => None,
-            Some(MessageKey::ValidationErrorWithCmsAnchorBlockId { block_id }) => {
-                Some(serde_json::json!({"block_id": block_id}))
-            }
-            Some(MessageKey::DatabaseConstraint { constraint }) => {
-                Some(serde_json::json!({"constraint": constraint}))
-            }
-            Some(MessageKey::ForeignKeyViolation { constraint, table }) => {
-                Some(serde_json::json!({"constraint": constraint, "table": table}))
-            }
-            Some(_) => None,
-        };
-
         let error_response = ApiErrorResponse {
             error_type: error_type.to_string(),
             message_key,
             message: self.message.clone(),
             errors,
-            metadata,
         };
 
         HttpResponseBuilder::new(status)
@@ -1136,6 +1081,7 @@ mod tests {
     use super::*;
     use actix_web::ResponseError;
     use futures_util::FutureExt;
+    use uuid::Uuid;
 
     #[test]
     fn test_controller_err_macro_without_source() {

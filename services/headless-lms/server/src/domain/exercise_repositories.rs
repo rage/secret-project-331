@@ -6,7 +6,10 @@ use git2::{
     build::RepoBuilder, cert::Cert,
 };
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{exercise_repositories, repository_exercises};
+use headless_lms_models::{
+    exercise_repositories, exercise_repository_ssh_host_keys,
+    exercise_repository_ssh_host_keys::RememberedSshHostKey, repository_exercises,
+};
 use headless_lms_utils::{
     file_store::{self, FileStore},
     folder_checksum,
@@ -14,6 +17,7 @@ use headless_lms_utils::{
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Acquire, PgConnection};
 use std::{
+    cell::Cell,
     collections::HashMap,
     io::Cursor,
     path::{Path, PathBuf},
@@ -38,9 +42,9 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// SHA-256 host key fingerprints of the git hosts that ssh clones may connect to, as printed by
-/// `ssh-keygen -lf` without the `SHA256:` prefix.
-const KNOWN_SSH_HOST_KEYS: &[(&str, &str)] = &[
+/// SHA-256 host key fingerprints of git hosts whose keys are known in advance, as printed by
+/// `ssh-keygen -lf` without the `SHA256:` prefix. These hosts never fall back to trust on first use.
+const PINNED_SSH_HOST_KEYS: &[(&str, &str)] = &[
     ("github.com", "uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s"),
     ("github.com", "p2QAMXNIC1TJYWeIOttrVc98/R1BUFWu3/LiyKgUfQM"),
     ("github.com", "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"),
@@ -61,48 +65,119 @@ const KNOWN_SSH_HOST_KEYS: &[(&str, &str)] = &[
     ),
 ];
 
-/// The `certificate_check` callback for clones. libgit2 uses one callback for both TLS
-/// certificates and ssh host keys: certificates are left to libgit2's own validation, and an ssh
-/// host key must be one of [`KNOWN_SSH_HOST_KEYS`] for that host.
-fn check_remote_certificate(
-    cert: &Cert<'_>,
+/// Why an ssh host key was accepted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum AcceptedHostKey {
+    /// Pinned, or the key remembered from the first clone.
+    Known,
+    /// The first key seen from this server; it must be remembered once the clone succeeds.
+    FirstSeen(String),
+}
+
+/// Decides whether `seen`, the SHA-256 fingerprint of the host key a server presented, may be
+/// trusted: a pinned host must present a pinned key, any other host the key remembered from its
+/// first clone, or, if none is remembered yet, any key.
+fn check_ssh_host_key(
     host: &str,
-) -> Result<CertificateCheckStatus, git2::Error> {
-    let Some(host_key) = cert.as_hostkey() else {
-        return Ok(CertificateCheckStatus::CertificatePassthrough);
+    port: u16,
+    remembered: Option<&RememberedSshHostKey>,
+    seen: Option<&str>,
+) -> Result<AcceptedHostKey, String> {
+    let Some(seen) = seen else {
+        return Err(format!("{host} sent no SHA-256 host key fingerprint"));
     };
-    let fingerprint = host_key
-        .hash_sha256()
-        .map(|hash| STANDARD_NO_PAD.encode(hash));
-    if is_known_ssh_host_key(host, fingerprint.as_deref()) {
-        Ok(CertificateCheckStatus::CertificateOk)
-    } else {
-        Err(git2::Error::from_str(&format!(
-            "The ssh host key of {host} is not a known key for that host"
-        )))
+    let mut pinned = PINNED_SSH_HOST_KEYS
+        .iter()
+        .filter(|(pinned_host, _)| pinned_host.eq_ignore_ascii_case(host))
+        .peekable();
+    if pinned.peek().is_some() {
+        return if pinned.any(|&(_, key)| key == seen) {
+            Ok(AcceptedHostKey::Known)
+        } else {
+            Err(format!(
+                "The ssh host key of {host} (SHA256:{seen}) is not one of its published keys, so the connection may have been intercepted."
+            ))
+        };
+    }
+    match remembered {
+        Some(remembered) if remembered.sha256_fingerprint == seen => Ok(AcceptedHostKey::Known),
+        Some(remembered) => Err(format!(
+            "The ssh host key of {host}:{port} has changed: it is now SHA256:{seen}, but SHA256:{} was seen on the first clone on {}. If the server's key was changed on purpose, ask an administrator to remove the remembered key for {host}:{port}; otherwise the connection may have been intercepted.",
+            remembered.sha256_fingerprint,
+            remembered.created_at.format("%Y-%m-%d")
+        )),
+        None => Ok(AcceptedHostKey::FirstSeen(seen.to_string())),
     }
 }
 
-fn is_known_ssh_host_key(host: &str, sha256_fingerprint: Option<&str>) -> bool {
-    sha256_fingerprint.is_some_and(|fingerprint| {
-        KNOWN_SSH_HOST_KEYS.iter().any(|&(known_host, known)| {
-            known_host.eq_ignore_ascii_case(host) && known == fingerprint
-        })
-    })
-}
+/// Clones `url` into `target`, verifying the server the way [`check_ssh_host_key`] describes and
+/// remembering a first-seen ssh host key once the clone succeeds. TLS certificates are left to
+/// libgit2's own validation.
+async fn clone_repository(
+    conn: &mut PgConnection,
+    url: &str,
+    deploy_key: Option<(Option<&str>, &SecretString)>,
+    target: &Path,
+) -> anyhow::Result<()> {
+    let (host, port) = clone_url_host_and_port(url)
+        .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
+    let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
+    let first_seen = Cell::new(None);
 
-fn clone_fetch_options<'a>(remote_callbacks: RemoteCallbacks<'a>) -> FetchOptions<'a> {
+    let mut remote_cbs = RemoteCallbacks::new();
+    // libgit2 uses this one callback for both TLS certificates and ssh host keys.
+    remote_cbs.certificate_check(|cert: &Cert<'_>, _| {
+        let Some(host_key) = cert.as_hostkey() else {
+            return Ok(CertificateCheckStatus::CertificatePassthrough);
+        };
+        let seen = host_key
+            .hash_sha256()
+            .map(|hash| STANDARD_NO_PAD.encode(hash));
+        match check_ssh_host_key(&host, port, remembered.as_ref(), seen.as_deref()) {
+            Ok(AcceptedHostKey::Known) => Ok(CertificateCheckStatus::CertificateOk),
+            Ok(AcceptedHostKey::FirstSeen(key)) => {
+                first_seen.set(Some(key));
+                Ok(CertificateCheckStatus::CertificateOk)
+            }
+            Err(message) => Err(git2::Error::from_str(&message)),
+        }
+    });
+    if let Some((public_key, deploy_key)) = deploy_key {
+        remote_cbs.credentials(move |_, username, credential_type| {
+            if credential_type.is_ssh_memory() {
+                Cred::ssh_key_from_memory(
+                    username.unwrap_or("git"),
+                    public_key,
+                    // Exposed only here, where the key is handed to libgit2 in memory.
+                    deploy_key.expose_secret(),
+                    None,
+                )
+            } else {
+                Err(git2::Error::from_str(
+                    "The git server does not support the SSH_MEMORY credential type",
+                ))
+            }
+        });
+    }
     let mut fetch_opts = FetchOptions::new();
     // The clone must come from the URL the teacher saved, not from wherever that server redirects.
     fetch_opts.follow_redirects(RemoteRedirect::None);
-    fetch_opts.remote_callbacks(remote_callbacks);
-    fetch_opts
-}
+    fetch_opts.remote_callbacks(remote_cbs);
+    RepoBuilder::new()
+        .fetch_options(fetch_opts)
+        .clone(url, target)?;
 
-fn clone_remote_callbacks<'a>() -> RemoteCallbacks<'a> {
-    let mut remote_cbs = RemoteCallbacks::new();
-    remote_cbs.certificate_check(check_remote_certificate);
-    remote_cbs
+    if let Some(seen) = first_seen.take() {
+        let remembered =
+            exercise_repository_ssh_host_keys::remember(conn, &host, port, &seen).await?;
+        if remembered.sha256_fingerprint != seen {
+            anyhow::bail!(
+                "Another clone from {host}:{port} saw a different ssh host key at the same time (SHA256:{} instead of SHA256:{seen}), so neither can be trusted. Ask an administrator to check the server's key.",
+                remembered.sha256_fingerprint
+            );
+        }
+    }
+    Ok(())
 }
 
 fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
@@ -216,28 +291,14 @@ async fn process_inner(
 
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
-    let mut remote_cbs = clone_remote_callbacks();
-    if let Some(deploy_key) = deploy_key {
-        remote_cbs.credentials(|_, username, credential_type| {
-            if credential_type.is_ssh_memory() {
-                Cred::ssh_key_from_memory(
-                    username.unwrap_or("git"),
-                    public_key,
-                    // Exposed only here, where the key is handed to libgit2 in memory.
-                    deploy_key.expose_secret(),
-                    None,
-                )
-            } else {
-                Err(git2::Error::from_str(
-                    "The git server does not support the SSH_MEMORY credential type",
-                ))
-            }
-        });
-    }
     info!("Cloning {url} to {:?}", temp.path());
-    RepoBuilder::new()
-        .fetch_options(clone_fetch_options(remote_cbs))
-        .clone(url, temp.path())?;
+    clone_repository(
+        &mut tx,
+        url,
+        deploy_key.map(|deploy_key| (public_key, deploy_key)),
+        temp.path(),
+    )
+    .await?;
     info!("Finished cloning {url} to {:?}", temp.path());
 
     // create exercises in db and store them in file store
@@ -378,9 +439,7 @@ async fn update_inner(
     let mut tx = conn.begin().await?;
 
     let temp = tempfile::tempdir()?;
-    RepoBuilder::new()
-        .fetch_options(clone_fetch_options(clone_remote_callbacks()))
-        .clone(url, temp.path())?;
+    clone_repository(&mut tx, url, None, temp.path()).await?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
     let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;
@@ -746,16 +805,49 @@ mod test {
     }
 
     #[test]
-    fn ssh_host_keys_must_be_known_for_the_host() {
+    fn pinned_hosts_accept_only_their_published_keys() {
         let github = "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU";
-        assert!(is_known_ssh_host_key("github.com", Some(github)));
-        assert!(is_known_ssh_host_key("GitHub.com", Some(github)));
-        assert!(!is_known_ssh_host_key("evil.example", Some(github)));
-        assert!(!is_known_ssh_host_key(
-            "github.com",
-            Some("eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8")
-        ));
-        assert!(!is_known_ssh_host_key("github.com", None));
+        let gitlab = "eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8";
+        assert_eq!(
+            check_ssh_host_key("GitHub.com", 22, None, Some(github)),
+            Ok(AcceptedHostKey::Known)
+        );
+        assert!(check_ssh_host_key("github.com", 22, None, Some(gitlab)).is_err());
+        let remembered = RememberedSshHostKey {
+            sha256_fingerprint: gitlab.to_string(),
+            created_at: chrono::Utc::now(),
+        };
+        assert!(
+            check_ssh_host_key("github.com", 22, Some(&remembered), Some(gitlab)).is_err(),
+            "a remembered key must not override a pinned host"
+        );
+    }
+
+    #[test]
+    fn other_hosts_trust_the_first_key_and_reject_a_changed_one() {
+        assert_eq!(
+            check_ssh_host_key("git.example.org", 22, None, Some("first")),
+            Ok(AcceptedHostKey::FirstSeen("first".to_string()))
+        );
+        let remembered = RememberedSshHostKey {
+            sha256_fingerprint: "first".to_string(),
+            created_at: chrono::Utc::now(),
+        };
+        assert_eq!(
+            check_ssh_host_key("git.example.org", 22, Some(&remembered), Some("first")),
+            Ok(AcceptedHostKey::Known)
+        );
+        let changed =
+            check_ssh_host_key("git.example.org", 2222, Some(&remembered), Some("second"))
+                .unwrap_err();
+        assert!(changed.contains("has changed"), "{changed}");
+        assert!(changed.contains("git.example.org:2222"), "{changed}");
+        assert!(changed.contains("SHA256:first"), "{changed}");
+    }
+
+    #[test]
+    fn a_server_without_a_sha256_fingerprint_is_refused() {
+        assert!(check_ssh_host_key("git.example.org", 22, None, None).is_err());
     }
 
     #[test]

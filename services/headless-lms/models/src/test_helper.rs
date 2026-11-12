@@ -340,20 +340,6 @@ async fn _test() {
     insert_data!(:tx, :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise, :slide, :task);
 }
 
-/// Turns a course exercise into an exam exercise, for testing what exam-only rules refuse.
-pub async fn move_exercise_to_exam(
-    conn: &mut PgConnection,
-    exercise_id: Uuid,
-    exam_id: Uuid,
-) -> ModelResult<()> {
-    sqlx::query("UPDATE exercises SET course_id = NULL, exam_id = $1 WHERE id = $2")
-        .bind(exam_id)
-        .bind(exercise_id)
-        .execute(conn)
-        .await?;
-    Ok(())
-}
-
 /// Inserts a publicly accessible chatbot configuration and a conversation for it, returning their
 /// ids. Needs no course, which keeps a committed fixture small enough to delete again.
 pub async fn insert_chatbot_conversation(conn: &mut PgConnection) -> (Uuid, Uuid) {

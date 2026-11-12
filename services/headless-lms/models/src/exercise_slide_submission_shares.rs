@@ -45,6 +45,7 @@ RETURNING *
     Ok(row)
 }
 
+/// Creates a share link to an ungraded snapshot; [`insert`] shares a submission.
 pub async fn insert_for_snapshot(
     conn: &mut PgConnection,
     exercise_answer_snapshot_id: Uuid,

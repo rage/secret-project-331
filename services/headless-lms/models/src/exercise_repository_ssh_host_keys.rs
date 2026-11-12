@@ -4,9 +4,16 @@ use crate::{error::missing_model_error, prelude::*};
 
 /// A git server's remembered ssh host key.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RememberedSshHostKey {
-    pub sha256_fingerprint: String,
+pub struct ExerciseRepositorySshHostKey {
+    pub id: Uuid,
+    /// When the key was first seen.
     pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    /// Lowercased.
+    pub host: String,
+    pub port: i32,
+    pub sha256_fingerprint: String,
 }
 
 /// The key remembered for `host` (compared case-insensitively) and `port`, if any.
@@ -14,12 +21,11 @@ pub async fn get(
     conn: &mut PgConnection,
     host: &str,
     port: u16,
-) -> ModelResult<Option<RememberedSshHostKey>> {
+) -> ModelResult<Option<ExerciseRepositorySshHostKey>> {
     let res = sqlx::query_as!(
-        RememberedSshHostKey,
+        ExerciseRepositorySshHostKey,
         "
-SELECT sha256_fingerprint,
-  created_at
+SELECT *
 FROM exercise_repository_ssh_host_keys
 WHERE host = lower($1)
   AND port = $2
@@ -41,7 +47,7 @@ pub async fn remember(
     host: &str,
     port: u16,
     sha256_fingerprint: &str,
-) -> ModelResult<RememberedSshHostKey> {
+) -> ModelResult<ExerciseRepositorySshHostKey> {
     sqlx::query!(
         "
 INSERT INTO exercise_repository_ssh_host_keys (host, port, sha256_fingerprint)

@@ -327,6 +327,23 @@ pub async fn get_shared_view_task(
     })
 }
 
+/// Moves a snapshot's creation time `age` into the past, which decides which backups
+/// [`delete_backups_beyond`] keeps.
+pub async fn backdate(
+    conn: &mut PgConnection,
+    snapshot_id: Uuid,
+    age: chrono::Duration,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE exercise_answer_snapshots SET created_at = now() - $2::interval WHERE id = $1",
+        snapshot_id,
+        age as chrono::Duration
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -409,15 +426,10 @@ mod test {
             &[oldest_upload],
         )
         .await;
-        // now() is fixed for the whole test transaction, so give the oldest backup an older time.
-        let conn: &mut PgConnection = tx.as_mut();
-        sqlx::query(
-            "UPDATE exercise_answer_snapshots SET created_at = now() - interval '1 hour' WHERE id = $1",
-        )
-        .bind(oldest.id)
-        .execute(conn)
-        .await
-        .unwrap();
+        // Snapshots inserted in one transaction share its now(), so make this one older.
+        backdate(tx.as_mut(), oldest.id, chrono::Duration::hours(1))
+            .await
+            .unwrap();
         let mut newer = vec![];
         for _ in 0..2 {
             newer.push(

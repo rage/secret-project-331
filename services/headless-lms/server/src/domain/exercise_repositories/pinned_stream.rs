@@ -124,10 +124,12 @@ fn connect_to_public_addresses<T>(
     connect(&addresses)
 }
 
+/// The resolver clones use; tests substitute their own.
 fn resolve_with_system_resolver(host: &str, port: u16) -> io::Result<Vec<SocketAddr>> {
     Ok((host, port).to_socket_addrs()?.collect())
 }
 
+/// Tries the addresses in order and returns the first connection, or the last attempt's error.
 fn connect_to_first_reachable(
     addresses: &[SocketAddr],
     connect_timeout: Option<Duration>,
@@ -146,6 +148,7 @@ fn connect_to_first_reachable(
     Err(last_error)
 }
 
+/// A libgit2 millisecond setting as a socket timeout; zero or negative means none.
 fn positive_millis(millis: c_int) -> Option<Duration> {
     u64::try_from(millis)
         .ok()
@@ -153,6 +156,7 @@ fn positive_millis(millis: c_int) -> Option<Duration> {
         .map(Duration::from_millis)
 }
 
+/// Sets the message libgit2 reports for a callback that returns -1.
 fn set_error(message: &str) {
     let message = CString::new(message.replace('\0', "")).unwrap_or_default();
     let class = libgit2_sys::GIT_ERROR_NET as c_int;
@@ -175,6 +179,7 @@ unsafe fn pinned<'a>(stream: *mut GitStream) -> &'a mut PinnedStream {
     unsafe { &mut *stream.cast::<PinnedStream>() }
 }
 
+/// libgit2's stream constructor. Only records the host and port; [`connect`] opens the socket.
 unsafe extern "C" fn init(
     out: *mut *mut GitStream,
     host: *const c_char,
@@ -222,6 +227,7 @@ unsafe extern "C" fn init(
     })
 }
 
+/// Connects to the first reachable public address of the host, never to a private one.
 unsafe extern "C" fn connect(stream: *mut GitStream) -> c_int {
     // SAFETY: libgit2 only calls back with streams `init` created.
     let stream = unsafe { pinned(stream) };
@@ -264,16 +270,19 @@ unsafe extern "C" fn connect(stream: *mut GitStream) -> c_int {
     })
 }
 
+/// A plain socket has no certificate; TLS is layered on top by libgit2.
 unsafe extern "C" fn certificate(_out: *mut *mut c_void, _stream: *mut GitStream) -> c_int {
     set_error("a plain socket has no certificate");
     -1
 }
 
+/// Refuses a proxy, which would connect to an address this stream never checked.
 unsafe extern "C" fn set_proxy(_stream: *mut GitStream, _proxy_options: *const c_void) -> c_int {
     set_error("the git socket stream does not support proxies");
     -1
 }
 
+/// Reads up to `len` bytes into libgit2's buffer, retrying on interruption.
 unsafe extern "C" fn read(stream: *mut GitStream, data: *mut c_void, len: usize) -> isize {
     // SAFETY: libgit2 only calls back with streams `init` created.
     let stream = unsafe { pinned(stream) };
@@ -297,6 +306,7 @@ unsafe extern "C" fn read(stream: *mut GitStream, data: *mut c_void, len: usize)
     })
 }
 
+/// Writes up to `len` bytes from libgit2's buffer, retrying on interruption.
 unsafe extern "C" fn write(
     stream: *mut GitStream,
     data: *const c_char,
@@ -325,6 +335,7 @@ unsafe extern "C" fn write(
     })
 }
 
+/// Closes the socket; the stream itself lives until [`free`].
 unsafe extern "C" fn close(stream: *mut GitStream) -> c_int {
     // SAFETY: libgit2 only calls back with streams `init` created.
     let stream = unsafe { pinned(stream) };
@@ -333,6 +344,7 @@ unsafe extern "C" fn close(stream: *mut GitStream) -> c_int {
     0
 }
 
+/// Releases the stream [`init`] allocated.
 unsafe extern "C" fn free(stream: *mut GitStream) {
     // SAFETY: `init` allocated the stream with Box::into_raw and libgit2 frees it exactly once.
     drop(unsafe { Box::from_raw(stream.cast::<PinnedStream>()) });

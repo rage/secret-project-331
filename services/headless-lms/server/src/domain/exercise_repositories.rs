@@ -8,7 +8,7 @@ use git2::{
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     exercise_repositories, exercise_repository_ssh_host_keys,
-    exercise_repository_ssh_host_keys::RememberedSshHostKey, repository_exercises,
+    exercise_repository_ssh_host_keys::ExerciseRepositorySshHostKey, repository_exercises,
 };
 use headless_lms_utils::{
     file_store::{self, FileStore},
@@ -80,7 +80,7 @@ enum AcceptedHostKey {
 fn check_ssh_host_key(
     host: &str,
     port: u16,
-    remembered: Option<&RememberedSshHostKey>,
+    remembered: Option<&ExerciseRepositorySshHostKey>,
     seen: Option<&str>,
 ) -> Result<AcceptedHostKey, String> {
     let Some(seen) = seen else {
@@ -770,6 +770,18 @@ mod test {
     use super::*;
     use std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
 
+    fn remembered_key(sha256_fingerprint: &str) -> ExerciseRepositorySshHostKey {
+        ExerciseRepositorySshHostKey {
+            id: Uuid::new_v4(),
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+            deleted_at: None,
+            host: "git.example.org".to_string(),
+            port: 22,
+            sha256_fingerprint: sha256_fingerprint.to_string(),
+        }
+    }
+
     #[tokio::test]
     async fn finds_exercise_dirs() {
         let repo = tempfile::tempdir().unwrap();
@@ -837,10 +849,7 @@ mod test {
             Ok(AcceptedHostKey::Known)
         );
         assert!(check_ssh_host_key("github.com", 22, None, Some(gitlab)).is_err());
-        let remembered = RememberedSshHostKey {
-            sha256_fingerprint: gitlab.to_string(),
-            created_at: chrono::Utc::now(),
-        };
+        let remembered = remembered_key(gitlab);
         assert!(
             check_ssh_host_key("github.com", 22, Some(&remembered), Some(gitlab)).is_err(),
             "a remembered key must not override a pinned host"
@@ -853,10 +862,7 @@ mod test {
             check_ssh_host_key("git.example.org", 22, None, Some("first")),
             Ok(AcceptedHostKey::FirstSeen("first".to_string()))
         );
-        let remembered = RememberedSshHostKey {
-            sha256_fingerprint: "first".to_string(),
-            created_at: chrono::Utc::now(),
-        };
+        let remembered = remembered_key("first");
         assert_eq!(
             check_ssh_host_key("git.example.org", 22, Some(&remembered), Some("first")),
             Ok(AcceptedHostKey::Known)

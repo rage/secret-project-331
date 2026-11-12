@@ -16,7 +16,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { monospaceFont } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Infobox, LoadingRegion, TextField } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
@@ -39,7 +39,7 @@ const userCodeStyles = css`
   font-weight: 600;
   letter-spacing: 0.15em;
   padding: 0.5rem 1rem;
-  border: 2px solid var(--color-gray-300);
+  border: 2px solid ${baseTheme.colors.gray[300]};
   border-radius: 4px;
 `
 

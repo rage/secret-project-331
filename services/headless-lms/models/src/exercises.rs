@@ -511,6 +511,29 @@ WHERE exam_id = $1
     Ok(exercises)
 }
 
+/// Detaches the exercise from its course and puts it in the exam. [`insert`] creates only course
+/// exercises; this is how an exam exercise is made from one.
+pub async fn move_to_exam(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exam_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercises
+SET course_id = NULL,
+  exam_id = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+",
+        exercise_id,
+        exam_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn get_course_or_exam_id(
     conn: &mut PgConnection,
     id: Uuid,

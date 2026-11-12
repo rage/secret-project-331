@@ -1190,6 +1190,7 @@ async fn create_answer_snapshot(
     }))
 }
 
+/// The client API's snapshot purpose as the models crate stores it.
 fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
     match purpose {
         api::SnapshotPurpose::Paste => SnapshotPurpose::Paste,
@@ -4469,7 +4470,7 @@ mod route_tests {
             )
             .await
             .expect("exam");
-            models::test_helper::move_exercise_to_exam(&mut conn, fixture.exercise, exam)
+            models::exercises::move_to_exam(&mut conn, fixture.exercise, exam)
                 .await
                 .expect("move the exercise into the exam");
         }

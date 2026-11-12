@@ -179,6 +179,7 @@
   "email-template-type-generic": "عام",
   "email-template-type-reset-password-email": "رسالة إعادة تعيين كلمة المرور",
   "email-template-type-verify-email-address": "التحقق من عنوان البريد الإلكتروني",
+  "email-template-type-verify-network": "رمز التحقق من الشبكة",
   "error": "خطأ",
   "error-cannot-render-editor-for-exercise-service-x": "لا يمكن عرض المحرر لخدمة التمرين {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "لا يمكن عرض مهمة التمرين، عنوان URL مفقود.",

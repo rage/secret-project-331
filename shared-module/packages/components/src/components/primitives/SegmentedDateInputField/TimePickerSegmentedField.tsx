@@ -228,8 +228,6 @@ export function TimePickerSegmentedField({
             aria-disabled={resolvedState.isDisabled ? dataStateTrue : undefined}
             aria-describedby={describedBy}
             aria-invalid={state.isInvalid ? dataStateTrue : undefined}
-            aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
-            aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
           >
             <div
               className={cx(

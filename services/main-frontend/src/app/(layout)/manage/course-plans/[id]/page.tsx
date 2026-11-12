@@ -3,7 +3,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {
@@ -11,11 +13,15 @@ import {
   manageCoursePlanWorkspaceRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Link, QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
-/** Redirects to schedule wizard or workspace based on plan status. */
+/**
+ * Redirects to the schedule wizard or the workspace based on plan status. Archived plans stay
+ * here; the layout shows the archived notice and this page links to the workspace.
+ */
 function CoursePlanHubRedirect() {
+  const { t } = useTranslation()
   const params = useParams<{ id: string }>()
   const router = useRouter()
   const planId = params.id
@@ -47,7 +53,22 @@ function CoursePlanHubRedirect() {
     }
   }, [planQuery.data, planId, router])
 
-  return <QueryResult query={planQuery}>{() => null}</QueryResult>
+  return (
+    <QueryResult query={planQuery}>
+      {({ plan, stages }) =>
+        plan.status === "Archived" ? (
+          <>
+            <h1 className={pageTitleCss}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
+            {stages.length > 0 && (
+              <Link href={manageCoursePlanWorkspaceRoute(planId)}>
+                {t("course-plans-open-archived-plan")}
+              </Link>
+            )}
+          </>
+        ) : null
+      }
+    </QueryResult>
+  )
 }
 
 export default withErrorBoundary(withSignedIn(CoursePlanHubRedirect))

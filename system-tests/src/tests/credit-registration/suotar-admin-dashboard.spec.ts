@@ -478,9 +478,8 @@ test("The overview reads the daily snapshots", async ({ page }) => {
 
   await test.step("The live counts sit beside the trend", async () => {
     const standing = page.getByRole("list", { name: "Where registrations stand", exact: true })
-    // The seed leaves rows at most steps, so an empty list would mean the section rendered without
-    // reading its counts.
-    expect(await standing.getByRole("link").count()).toBeGreaterThan(0)
+    // The seed leaves rows at most steps. Retrying, because this list's query is not the trend's.
+    await expect(standing.getByRole("link").first()).toBeVisible()
   })
 })
 
@@ -500,7 +499,7 @@ test("The errors tab shows what needs a human, and the overview the verdicts", a
 
 test("The courses tab reports each enabled module's configuration", async ({ page }) => {
   const stats = await creditRegistrationCourseStats(page.request)
-  const mine = stats.modules.find((module) => module.course_id === ADMIN_COURSE_ID)
+  const mine = stats.credit_units.find((unit) => unit.course_id === ADMIN_COURSE_ID)
   expect(mine, "the admin course has no module with credit registration enabled").toBeDefined()
 
   await page.goto(COURSES_URL)

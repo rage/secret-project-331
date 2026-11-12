@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_credit_targets\nSET config_checked_at = now(),\n  course_code_allowed = $2,\n  config_check_message = $3,\n  checked_course_code = $4,\n  course_code_rejection = $5\nWHERE id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Text",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a3f6b1535fd3893bd282f2bb5abc0fc5ec2bdcc21784c87068811a2b42f445f7"
+}

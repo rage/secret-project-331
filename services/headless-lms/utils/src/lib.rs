@@ -26,6 +26,7 @@ pub mod secret_string;
 pub mod services;
 pub mod stable_digest;
 pub mod strings;
+pub mod text_scrub;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
 pub mod version;

@@ -82,11 +82,13 @@ async fn insert_registration(
         conn,
         PKeyPolicy::Generate,
         &NewCreditRegistration {
-            course_module_completion_id: completion.id,
+            subject: NewRegistrationSubject::CourseModule {
+                course_module_completion_id: completion.id,
+                course_id: course,
+                course_module_id: course_module,
+                course_instance_id: course_instance,
+            },
             user_id: user,
-            course_id: course,
-            course_module_id: course_module,
-            course_instance_id: course_instance,
             attempt_number: 1,
         },
         None,

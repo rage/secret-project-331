@@ -2,17 +2,19 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 
-import { getMyEnrolmentRouteQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  chooseMyCertificate,
-  confirmMyEnrolment,
-  setMyEnrolmentRoute,
-  withdrawMyCertificateChoice,
-  withdrawMyEnrolmentConfirmation,
-} from "@/generated/api/sdk.generated"
 import type { MyEnrolmentRoute, SetEnrolmentRoutePayload } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
+import {
+  chooseCertificate as chooseCertificateFor,
+  confirmEnrolment as confirmEnrolmentFor,
+  type CreditRegistrationSubject,
+  myEnrolmentRouteQueryKey,
+  setEnrolmentRoute,
+  subjectId,
+  withdrawCertificateChoice as withdrawCertificateChoiceFor,
+  withdrawEnrolmentConfirmation as withdrawEnrolmentConfirmationFor,
+} from "../creditRegistrationSubject"
 import { invalidateRegistrationViews } from "../enrolmentActions"
 
 /** The answers the student gives on the questions page, as the server stores them. */
@@ -38,11 +40,12 @@ export const storedAnswersOf = (enrolmentRoute: MyEnrolmentRoute): EnrolmentAnsw
  * click instead of after a round trip; a failed save puts the old answers back. `courseId` is
  * `null` before the pipeline has created the registration.
  */
-export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | null) => {
+export const useEnrolmentAnswers = (
+  subject: CreditRegistrationSubject,
+  courseId: string | null,
+) => {
   const queryClient = useQueryClient()
-  const routeQueryKey = getMyEnrolmentRouteQueryKey({
-    path: { course_module_id: courseModuleId },
-  })
+  const routeQueryKey = myEnrolmentRouteQueryKey(subject)
 
   const invalidateRoute = async () => {
     await queryClient.invalidateQueries({ queryKey: routeQueryKey })
@@ -53,7 +56,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
   }
 
   // Each save replaces every answer, so saves run in order and only the last one refetches.
-  const saveScopeId = `enrolment-answers-${courseModuleId}`
+  const saveScopeId = `enrolment-answers-${subjectId(subject)}`
   const saveAnswers = useToastMutation<
     void,
     unknown,
@@ -61,7 +64,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
     { previous: MyEnrolmentRoute | null | undefined }
   >(
     async (answers) => {
-      await setMyEnrolmentRoute({ path: { course_module_id: courseModuleId }, body: answers })
+      await setEnrolmentRoute(subject, answers)
     },
     { notify: false },
     {
@@ -92,7 +95,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
 
   const confirmEnrolment = useToastMutation<void, unknown, void>(
     async () => {
-      await confirmMyEnrolment({ path: { course_module_id: courseModuleId } })
+      await confirmEnrolmentFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateEverything },
@@ -100,7 +103,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
 
   const withdrawEnrolmentConfirmation = useToastMutation<void, unknown, void>(
     async () => {
-      await withdrawMyEnrolmentConfirmation({ path: { course_module_id: courseModuleId } })
+      await withdrawEnrolmentConfirmationFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateEverything },
@@ -108,7 +111,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
 
   const chooseCertificate = useToastMutation<void, unknown, void>(
     async () => {
-      await chooseMyCertificate({ path: { course_module_id: courseModuleId } })
+      await chooseCertificateFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateRoute },
@@ -116,7 +119,7 @@ export const useEnrolmentAnswers = (courseModuleId: string, courseId: string | n
 
   const withdrawCertificateChoice = useToastMutation<void, unknown, void>(
     async () => {
-      await withdrawMyCertificateChoice({ path: { course_module_id: courseModuleId } })
+      await withdrawCertificateChoiceFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateRoute },

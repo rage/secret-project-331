@@ -4,7 +4,7 @@ use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chatbot_configurations::CreateChatbotRequest,
 };
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use models::chatbot_configurations::{
     ChatbotConfiguration, NewChatbotConf, normalized_tool_categories,
@@ -16,7 +16,8 @@ use models::chatbot_configurations::{
     edit_chatbot,
     delete_chatbot,
     get_all_chatbots,
-    create_chatbot
+    create_chatbot,
+    put_course_designer_assistant
 ))]
 pub(crate) struct MainFrontendChatbotsApiDoc;
 
@@ -272,6 +273,62 @@ async fn create_chatbot(
     token.authorized_ok(web::Json(configuration))
 }
 
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct SetCourseDesignerAssistantRequest {
+    pub course_designer_assistant: bool,
+}
+
+/// PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
+///
+/// Makes the chatbot the course design assistant on every plan page, taking the role from any
+/// other configuration, or removes the role from it.
+#[utoipa::path(
+    put,
+    path = "/{chatbot_configuration_id}/course-designer-assistant",
+    operation_id = "setChatbotCourseDesignerAssistant",
+    tag = "chatbots",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    request_body = SetCourseDesignerAssistantRequest,
+    responses(
+        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration)
+    )
+)]
+#[instrument(skip(pool))]
+async fn put_course_designer_assistant(
+    chatbot_configuration_id: web::Path<Uuid>,
+    payload: web::Json<SetCourseDesignerAssistantRequest>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<ChatbotConfiguration>> {
+    let mut conn = pool.acquire().await?;
+    // Every plan member on the site talks to this chatbot, so only a global admin may choose it.
+    let token = authorize(
+        &mut conn,
+        Act::Administrate,
+        Some(user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
+    if payload.course_designer_assistant {
+        models::chatbot_configurations::set_course_designer_assistant(
+            &mut conn,
+            *chatbot_configuration_id,
+        )
+        .await?;
+    } else {
+        models::chatbot_configurations::clear_course_designer_assistant(
+            &mut conn,
+            *chatbot_configuration_id,
+        )
+        .await?;
+    }
+    let configuration =
+        models::chatbot_configurations::get_by_id(&mut conn, *chatbot_configuration_id).await?;
+    token.authorized_ok(web::Json(configuration))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
         .route("/create", web::post().to(create_chatbot))
@@ -279,6 +336,10 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
         .route(
             "/{chatbot_configuration_id}",
             web::delete().to(delete_chatbot),
+        )
+        .route(
+            "/{chatbot_configuration_id}/course-designer-assistant",
+            web::put().to(put_course_designer_assistant),
         )
         .route("/", web::get().to(get_all_chatbots));
 }

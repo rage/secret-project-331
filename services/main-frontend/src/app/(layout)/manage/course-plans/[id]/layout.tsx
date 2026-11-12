@@ -14,7 +14,14 @@ import {
   manageCoursePlanWorkspaceRoute,
 } from "@/shared-module/common/utils/routes"
 
-/** Registers the breadcrumb for an individual course plan, using its name once loaded. */
+import { CoursePlanAssistantProvider } from "./assistant/CoursePlanAssistant"
+import ArchivedPlanNotice from "./components/ArchivedPlanNotice"
+import { PendingSavesProvider } from "./components/PendingSavesContext"
+
+/**
+ * Registers the breadcrumb for an individual course plan, flags archived plans and keeps the
+ * course design assistant's conversation across the plan's pages.
+ */
 export default function CoursePlanLayout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
@@ -60,5 +67,14 @@ export default function CoursePlanLayout({ children }: { children: React.ReactNo
     disabled: planId === "",
   })
 
-  return children
+  return (
+    <PendingSavesProvider>
+      {planQuery.data?.plan.status === "Archived" && <ArchivedPlanNotice planId={planId} />}
+      {planId === "" ? (
+        children
+      ) : (
+        <CoursePlanAssistantProvider planId={planId}>{children}</CoursePlanAssistantProvider>
+      )}
+    </PendingSavesProvider>
+  )
 }

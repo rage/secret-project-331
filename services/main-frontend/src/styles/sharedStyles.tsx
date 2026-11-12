@@ -59,6 +59,36 @@ export const actionButtonStyle = css`
   }
 `
 
+/** A settings card's title row: icon chip, then an `h2`. */
+export const settingsCardHeaderCss = css`
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: 1.25rem;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-gray-100);
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--color-gray-700);
+  }
+`
+
+/** The square icon beside a settings card's title. */
+export const settingsCardIconChipCss = css`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--color-green-75);
+  color: var(--color-green-700);
+`
+
 export const settingsCardCss = css`
   background: var(--color-clear-50);
   border: 1px solid var(--color-gray-100);

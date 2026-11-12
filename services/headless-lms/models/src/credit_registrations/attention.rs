@@ -17,6 +17,7 @@ use crate::library::credit_registration::backoff::{
     NOT_REGISTERED_REIMPORT_ADMIN_THRESHOLD, PARTIAL_REGISTRATION_ADMIN_AFTER, VERIFY_MAX_AGE,
 };
 use crate::library::credit_registration::classification::{Retryability, retryability};
+use crate::library::credit_registration::moocfi_report::MOOCFI_REPORT_OVERDUE_AFTER;
 use crate::library::credit_registration::timeline::{Engagement, TimelinePosition};
 use crate::prelude::*;
 
@@ -63,6 +64,9 @@ pub enum AttentionReason {
     /// linking began and were never mailed, whom the student may be among. Measured in fetches so a
     /// paused pipeline does not count against the student.
     StudentNumberStuck,
+    /// A registration of a mooc.fi completion made [`MOOCFI_REPORT_OVERDUE_AFTER`] ago or more has
+    /// still not been reported to mooc.fi.
+    ReportBackOverdue,
     /// The pipeline's flag is up and no other reason explains it.
     FlaggedByPipeline,
 }
@@ -97,7 +101,7 @@ pub enum BlockingProblemKind {
     ProcessingPhaseStopped,
     /// The course code's enrolment list keeps failing to arrive. The subject is the course code.
     CourseCodeFailing,
-    /// The module fails its configuration check. The subject is the course module id.
+    /// The module or mooc.fi target fails its configuration check. The subject is its id.
     ModuleMisconfigured,
 }
 
@@ -116,6 +120,8 @@ pub struct StoppedPhase {
     pub owned_states: Vec<CreditRegistrationState>,
     /// Whether it is one of the phases a waiting student's linking email goes out through.
     pub sends_linking_emails: bool,
+    /// Whether it is the phase that reports registrations to mooc.fi.
+    pub reports_to_moocfi: bool,
 }
 
 /// The problems currently holding up many rows at once, as the alert rules see them.
@@ -123,6 +129,7 @@ pub struct StoppedPhase {
 pub struct BlockingProblems {
     pub stopped_phases: Vec<StoppedPhase>,
     pub failing_course_codes: Vec<String>,
+    /// Modules and mooc.fi targets.
     pub misconfigured_module_ids: Vec<Uuid>,
 }
 
@@ -150,13 +157,21 @@ pub struct AttentionRegistration {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row, as are the module and the course module completion.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
-    /// The module's code now, trimmed; not the one frozen on the row.
+    pub course_or_target_id: Uuid,
+    /// The module or mooc.fi target, whichever kind it is.
+    pub credit_unit_id: Uuid,
+    /// The module's or target's code now, trimmed; not the one frozen on the row.
     pub uh_course_code: Option<String>,
-    pub course_module_completion_id: Uuid,
+    pub course_module_completion_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
+    /// The completion, whichever kind it is.
+    pub subject_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
     pub state_changed_at: DateTime<Utc>,
@@ -181,6 +196,7 @@ pub struct AttentionRegistration {
     pub last_mailing_fetch_started_at: Option<DateTime<Utc>>,
     /// The code's last enrolment list listed nobody.
     pub is_enrolment_list_empty: bool,
+    pub is_superseded: bool,
     pub reasons: Vec<AttentionReason>,
     pub dismissed_reasons: Option<Vec<AttentionReason>>,
     pub dismissed_at: Option<DateTime<Utc>>,
@@ -191,12 +207,11 @@ pub struct AttentionRegistration {
 }
 
 impl AttentionRegistration {
-    /// What decides whether a human may move this row; see [`ResubmissionFacts`]. The queue never
-    /// holds a superseded row.
+    /// What decides whether a human may move this row; see [`ResubmissionFacts`].
     pub fn resubmission_facts(&self) -> ResubmissionFacts {
         ResubmissionFacts {
             state: self.state,
-            is_superseded: false,
+            is_superseded: self.is_superseded,
             error_code: self.error_code,
             resubmit_not_before: self.resubmit_not_before,
             submitted_at: self.submitted_at,
@@ -231,6 +246,7 @@ impl AttentionRegistration {
             let explains = |reason: AttentionReason| match reason {
                 AttentionReason::StuckInState => phase.owned_states.contains(&self.state),
                 AttentionReason::StudentNumberStuck => phase.sends_linking_emails,
+                AttentionReason::ReportBackOverdue => phase.reports_to_moocfi,
                 _ => false,
             };
             if explains_all(&explains) {
@@ -253,7 +269,7 @@ impl AttentionRegistration {
         }
         if problems
             .misconfigured_module_ids
-            .contains(&self.course_module_id)
+            .contains(&self.credit_unit_id)
             && self.needs_course_setup()
             && explains_all(&|reason| {
                 matches!(
@@ -264,7 +280,7 @@ impl AttentionRegistration {
         {
             return Some(BlockingProblem {
                 kind: BlockingProblemKind::ModuleMisconfigured,
-                subject: self.course_module_id.to_string(),
+                subject: self.credit_unit_id.to_string(),
             });
         }
         None
@@ -292,8 +308,8 @@ impl AttentionRegistration {
 }
 
 /// Every live row at least one detector picks, oldest phase start first, narrowed to `only_ids`
-/// when given. Superseded rows are outside every detector: acting on a replaced attempt is never
-/// right.
+/// when given. A superseded row is picked only when its report-back is late: acting on a replaced
+/// attempt is never right, but mooc.fi still has to learn of its registration.
 pub async fn get_attention_items(
     conn: &mut PgConnection,
     rules: &AttentionRules,
@@ -309,12 +325,16 @@ SELECT cr.id,
   ud.last_name AS "last_name?",
   ud.email AS "email?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   cr.course_module_id,
-  cm.name AS course_module_name,
-  NULLIF(TRIM(cm.uh_course_code), '') AS uh_course_code,
+  cm.name AS "course_module_name?",
+  COALESCE(cr.course_id, cr.external_credit_target_id) AS "course_or_target_id!",
+  cr.credit_unit_id,
+  NULLIF(TRIM(subj.uh_course_code), '') AS uh_course_code,
   cr.course_module_completion_id,
-  cmc.completion_date,
+  cr.external_completion_id,
+  cr.subject_id,
+  subj.completion_date AS "completion_date!",
   cr.state,
   cr.state_changed_at,
   cr.phase_started_at,
@@ -334,6 +354,7 @@ SELECT cr.id,
   sig.last_visited_at AS "last_visited_at?",
   s.last_mailing_fetch_started_at AS "last_mailing_fetch_started_at?",
   COALESCE(s.last_listed_person_count = 0, FALSE) AS "is_enrolment_list_empty!",
+  cr.superseded_by_id IS NOT NULL AS "is_superseded!",
   ARRAY_REMOVE(
     ARRAY [
       CASE WHEN d.stuck_in_state THEN 'stuck_in_state'::credit_registration_attention_reason END,
@@ -346,6 +367,7 @@ SELECT cr.id,
       CASE WHEN d.verification_gave_up THEN 'verification_gave_up'::credit_registration_attention_reason END,
       CASE WHEN d.repeatedly_not_registered THEN 'repeatedly_not_registered'::credit_registration_attention_reason END,
       CASE WHEN d.student_number_stuck THEN 'student_number_stuck'::credit_registration_attention_reason END,
+      CASE WHEN d.report_back_overdue THEN 'report_back_overdue'::credit_registration_attention_reason END,
       CASE WHEN flagged.only_flag THEN 'flagged_by_pipeline'::credit_registration_attention_reason END
     ],
     NULL
@@ -357,16 +379,23 @@ SELECT cr.id,
   dismisser.last_name AS "dismissed_by_last_name?",
   dis.reason AS "dismissal_reason?"
 FROM credit_registrations cr
-  JOIN courses c ON c.id = cr.course_id
-  JOIN course_modules cm ON cm.id = cr.course_module_id
-  JOIN course_module_completions cmc ON cmc.id = cr.course_module_completion_id
+  JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
-  LEFT JOIN credit_registration_enrolment_routes route ON route.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_routes route ON COALESCE(
+    route.course_module_completion_id,
+    route.external_completion_id
+  ) = cr.subject_id
   AND route.deleted_at IS NULL
-  LEFT JOIN credit_registration_enrolment_check_signals sig ON sig.course_module_completion_id = cr.course_module_completion_id
+  LEFT JOIN credit_registration_enrolment_check_signals sig ON COALESCE(
+    sig.course_module_completion_id,
+    sig.external_completion_id
+  ) = cr.subject_id
   AND sig.deleted_at IS NULL
-  LEFT JOIN credit_registration_roster_schedules s ON s.course_code = TRIM(cm.uh_course_code)
+  LEFT JOIN credit_registration_roster_schedules s ON s.course_code = TRIM(subj.uh_course_code)
   LEFT JOIN credit_registration_attention_dismissals dis ON dis.credit_registration_id = cr.id
   AND dis.deleted_at IS NULL
   LEFT JOIN user_details dismisser ON dismisser.user_id = dis.dismissed_by_user_id
@@ -374,11 +403,11 @@ FROM credit_registrations cr
     SELECT u.threshold_secs
     FROM UNNEST($1::credit_registration_state [], $2::double precision []) AS u(state, threshold_secs)
     WHERE u.state = cr.state
-  ) t ON TRUE
+  ) threshold ON TRUE
   CROSS JOIN LATERAL (
     SELECT cr.terminal_at IS NULL
-      AND t.threshold_secs IS NOT NULL
-      AND now() - cr.state_changed_at > MAKE_INTERVAL(secs => t.threshold_secs) AS stuck_in_state,
+      AND threshold.threshold_secs IS NOT NULL
+      AND now() - cr.state_changed_at > MAKE_INTERVAL(secs => threshold.threshold_secs) AS stuck_in_state,
       cr.state = 'failed_permanent'
       AND cr.needs_admin_attention
       AND cr.error_code IS DISTINCT FROM 'retry_window_expired' AS permanent_error,
@@ -403,22 +432,47 @@ FROM credit_registrations cr
         cr.state = 'pending'
         AND p.completion_eligible
         AND NOT p.has_verified_student_number
-        AND cmc.completion_date >= $7::timestamptz
+        AND subj.completion_date >= $7::timestamptz
         AND s.last_mailing_fetch_started_at >= route.enrolment_confirmed_at + ($8::bigint * INTERVAL '1 second')
         AND (
           s.linking_unlinked_enrolled_before_count > 0
           OR NOT EXISTS (
             SELECT 1
             FROM credit_registration_account_linking_emails e
-              JOIN course_modules code_module ON code_module.course_id = e.course_id
-              AND code_module.deleted_at IS NULL
-            WHERE TRIM(code_module.uh_course_code) = s.course_code
-              AND e.sent_at >= route.enrolment_confirmed_at
+            WHERE e.sent_at >= route.enrolment_confirmed_at
               AND e.deleted_at IS NULL
+              AND (
+                EXISTS (
+                  SELECT 1
+                  FROM course_modules code_module
+                  WHERE code_module.course_id = e.course_id
+                    AND code_module.deleted_at IS NULL
+                    AND TRIM(code_module.uh_course_code) = s.course_code
+                )
+                OR EXISTS (
+                  SELECT 1
+                  FROM external_credit_targets code_target
+                  WHERE code_target.id = e.external_credit_target_id
+                    AND TRIM(code_target.uh_course_code) = s.course_code
+                )
+              )
           )
         ),
         FALSE
-      ) AS student_number_stuck
+      ) AS student_number_stuck,
+      EXISTS (
+        SELECT 1
+        FROM moocfi_reportable_registrations rr
+        WHERE rr.credit_registration_id = cr.id
+          AND rr.registration_date <= now() - ($10::bigint * INTERVAL '1 second')
+          AND NOT EXISTS (
+            SELECT 1
+            FROM moocfi_registration_reports report
+            WHERE report.credit_registration_id = rr.credit_registration_id
+              AND report.deleted_at IS NULL
+              AND report.reported_at IS NOT NULL
+          )
+      ) AS report_back_overdue
   ) d
   CROSS JOIN LATERAL (
     SELECT cr.needs_admin_attention
@@ -433,9 +487,13 @@ FROM credit_registrations cr
         OR d.verification_gave_up
         OR d.repeatedly_not_registered
         OR d.student_number_stuck
+        OR d.report_back_overdue
       ) AS only_flag
   ) flagged
-WHERE cr.superseded_by_id IS NULL
+WHERE (
+    cr.superseded_by_id IS NULL
+    OR d.report_back_overdue
+  )
   AND cr.deleted_at IS NULL
   AND (
     $9::uuid [] IS NULL
@@ -453,6 +511,7 @@ WHERE cr.superseded_by_id IS NULL
     OR d.verification_gave_up
     OR d.repeatedly_not_registered
     OR d.student_number_stuck
+    OR d.report_back_overdue
   )
 ORDER BY cr.phase_started_at,
   cr.id
@@ -466,6 +525,7 @@ ORDER BY cr.phase_started_at,
         rules.account_linking_since,
         STUDENT_NUMBER_STUCK_AFTER_PRESS.num_seconds(),
         only_ids as Option<&[Uuid]>,
+        MOOCFI_REPORT_OVERDUE_AFTER.num_seconds(),
     )
     .fetch_all(conn)
     .await?;
@@ -493,8 +553,11 @@ pub struct AttentionDismissal {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi row.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
+    pub external_credit_target_id: Option<Uuid>,
     pub dismissed_reasons: Vec<AttentionReason>,
     pub dismissed_at: DateTime<Utc>,
     pub dismissed_by_user_id: Uuid,
@@ -518,7 +581,8 @@ SELECT dis.credit_registration_id,
   ud.last_name AS "last_name?",
   ud.email AS "email?",
   cr.course_id,
-  c.name AS course_name,
+  COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
+  cr.external_credit_target_id,
   dis.dismissed_reasons AS "dismissed_reasons: Vec<AttentionReason>",
   dis.created_at AS dismissed_at,
   dis.dismissed_by_user_id,
@@ -527,7 +591,8 @@ SELECT dis.credit_registration_id,
   dis.reason
 FROM credit_registration_attention_dismissals dis
   JOIN credit_registrations cr ON cr.id = dis.credit_registration_id
-  JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN courses c ON c.id = cr.course_id
+  LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
   LEFT JOIN user_details actor ON actor.user_id = dis.dismissed_by_user_id
 WHERE dis.deleted_at IS NULL

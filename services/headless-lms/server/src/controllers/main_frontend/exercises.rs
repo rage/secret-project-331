@@ -310,6 +310,10 @@ fn write_csv_rows(
             }
         }
 
+        // Answers are student text; a teacher opens this in a spreadsheet.
+        let record = record
+            .iter()
+            .map(|cell| crate::domain::csv_export::neutralize_formula(cell.as_bytes()));
         writer.write_record(record).map_err(|error| {
             ControllerError::new(
                 ControllerErrorType::InternalServerError,

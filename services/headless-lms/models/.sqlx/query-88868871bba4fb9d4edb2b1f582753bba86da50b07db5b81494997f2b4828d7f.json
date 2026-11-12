@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n  SELECT 1\n  FROM course_designer_plan_members\n  WHERE course_designer_plan_id = $1\n    AND user_id = $2\n    AND deleted_at IS NULL\n) AS \"is_member!\"\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_member!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "88868871bba4fb9d4edb2b1f582753bba86da50b07db5b81494997f2b4828d7f"
+}

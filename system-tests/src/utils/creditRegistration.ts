@@ -63,6 +63,7 @@
  * |                             | frozen rows only                | states         |
  * | suotar-account-linking      | credit-registration-link-claimer | none          |
  * | suotar-enrolment-check-pacing | credit-registration-student-3 | its own, one per test |
+ * | moocfi-*                    | moocfi-student-1–4, per `mockMoocfi.ts` | mooc.fi targets |
  *
  * `student6` holds nothing a student is asked to act on, because its studies page is asserted to be
  * clean.

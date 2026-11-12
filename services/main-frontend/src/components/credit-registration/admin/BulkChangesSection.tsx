@@ -41,6 +41,7 @@ import {
 } from "./adminCreditRegistrationHooks"
 import AdminRequeueRetryableDialog from "./AdminRequeueRetryableDialog"
 import AdminStateLabel from "./AdminStateLabel"
+import { courseFacetOptions } from "./courseFacet"
 import { ALL_STATES } from "./queueBuckets"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 
@@ -113,13 +114,10 @@ const BulkChangesSection: React.FC<{ prefilledErrorCode: CreditRegistrationError
       hand_actions: row.hand_actions,
     }))
 
-  const courseOptions = useMemo(() => {
-    const byCourseId = new Map<string, string>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      byCourseId.set(courseModule.course_id, courseModule.course_name)
-    }
-    return Array.from(byCourseId, ([value, label]) => ({ value, label }))
-  }, [courseStatsQuery.data?.modules])
+  const courseOptions = useMemo(
+    () => courseFacetOptions(courseStatsQuery.data?.credit_units ?? []),
+    [courseStatsQuery.data?.credit_units],
+  )
 
   return (
     <div className={subsectionCss}>

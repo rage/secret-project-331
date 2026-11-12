@@ -262,6 +262,12 @@ fn log_skip_if_changed(phase: CreditRegistrationPhase, reason: PhaseSkipReason) 
                 "Credit registration phase skipped: Sisu is still on the previous day"
             );
         }
+        PhaseSkipReason::MoocfiDelegationDisabled => {
+            debug!(
+                phase = phase.as_str(),
+                "Credit registration phase skipped: delegated mooc.fi credit registration is off"
+            );
+        }
     }
 }
 

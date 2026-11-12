@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT moocfi_course_id\nFROM external_credit_targets\nWHERE enabled_at IS NOT NULL\n  AND deleted_at IS NULL\n  AND ($1::uuid IS NULL OR id = $1)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b26a7be822bdaa2268a74637d196ac12206df14bca2c50e1603514698351e2fd"
+}

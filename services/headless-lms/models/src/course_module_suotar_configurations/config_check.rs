@@ -54,20 +54,24 @@ ORDER BY cm.course_id,
     Ok(res)
 }
 
-/// Modules with a course code the last check found broken. A module nothing has checked yet is not counted:
-/// unknown is not a failure.
+/// Modules with a course code and mooc.fi targets the last check found broken. Unchecked ones are
+/// not counted: unknown is not a failure.
 ///
-/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's own
-/// "misconfigured" tile. The boolean covers only the course code, while [`check_module_config`]
+/// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's
+/// "misconfigured" tile: the boolean covers only the course code, while [`check_module_config`]
 /// also reports missing credits, a missing enrolment link and a double-enabled registration path.
 ///
 /// [`check_module_config`]:
 /// crate::library::credit_registration::config_validation::check_module_config
-pub async fn count_modules_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
-    Ok(get_module_ids_failing_config_check(conn).await?.len() as i64)
+pub async fn count_credit_units_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
+    let modules = get_module_ids_failing_config_check(conn).await?.len();
+    let targets = crate::external_credit_targets::get_ids_failing_config_check(conn)
+        .await?
+        .len();
+    Ok((modules + targets) as i64)
 }
 
-/// The modules [`count_modules_failing_config_check`] counts.
+/// The modules [`count_credit_units_failing_config_check`] counts.
 pub async fn get_module_ids_failing_config_check(
     conn: &mut PgConnection,
 ) -> ModelResult<Vec<Uuid>> {

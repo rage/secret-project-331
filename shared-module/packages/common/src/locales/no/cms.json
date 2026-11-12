@@ -175,6 +175,7 @@
   "email-template-type-generic": "Generisk",
   "email-template-type-reset-password-email": "Tilbakestill passord epost",
   "email-template-type-verify-email-address": "Bekreft e-postadresse",
+  "email-template-type-verify-network": "Kode for nettverksbekreftelse",
   "error": "Feil",
   "error-cannot-render-editor-for-exercise-service-x": "Kan ikke vise redigeringsverktøy {{slug}}.",
   "error-cannot-render-exercise-task-missing-url": "Kan ikke vise øvingsoppgaven fordi URL mangler..",

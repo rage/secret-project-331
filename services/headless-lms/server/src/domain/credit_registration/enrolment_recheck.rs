@@ -4,7 +4,7 @@ use headless_lms_models::credit_registration_enrolment_check_signals;
 use headless_lms_models::credit_registration_events::{
     CreditRegistrationEventKind, NewCreditRegistrationEvent,
 };
-use headless_lms_models::credit_registrations::CreditRegistrationState;
+use headless_lms_models::credit_registrations::{CreditRegistrationState, SubjectId};
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     self, CheckRequestOutcome,
@@ -39,11 +39,11 @@ pub fn can_student_request_enrolment_recheck(
         && can_request_enrolment_recheck(state, enrolment_check_requested_at, enrolment_checked_at)
 }
 
-/// A row waiting for an enrolment to check, and the completion it registers.
+/// A row waiting for an enrolment to check, and the completion it registers, of either kind.
 #[derive(Debug, Clone, Copy)]
 pub struct RecheckTarget {
     pub registration_id: Uuid,
-    pub course_module_completion_id: Uuid,
+    pub subject: SubjectId,
 }
 
 /// Asks for an enrolment check of a row waiting for one, and records who asked.
@@ -118,7 +118,7 @@ async fn start_recheck(
     }
     credit_registration_enrolment_check_signals::record_check_request(
         &mut tx,
-        target.course_module_completion_id,
+        target.subject,
         source,
     )
     .await?;

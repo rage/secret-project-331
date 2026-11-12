@@ -447,7 +447,10 @@ pub async fn verify_exam_submission_can_be_made(
     let student_has_time =
         Utc::now() <= enrollment.started_at + Duration::minutes(exam.time_minutes.into());
     let exam_is_ongoing = exam.ends_at.map(|ea| Utc::now() < ea).unwrap_or_default();
-    Ok(student_has_time && exam_is_ongoing)
+    // A student who ended their exam early has handed it in. Teacher testing resets progress
+    // without clearing `ended_at`, so it is exempt.
+    let not_handed_in = enrollment.ended_at.is_none() || enrollment.is_teacher_testing;
+    Ok(student_has_time && exam_is_ongoing && not_handed_in)
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]

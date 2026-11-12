@@ -1060,6 +1060,48 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant": {
+      "put": {
+        "tags": ["chatbots"],
+        "summary": "PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`",
+        "description": "Makes the chatbot the course design assistant on every plan page, taking the role from any\nother configuration, or removes the role from it.",
+        "operationId": "setChatbotCourseDesignerAssistant",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCourseDesignerAssistantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated chatbot configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/code-giveaways": {
       "post": {
         "tags": ["code_giveaways"],
@@ -2637,6 +2679,50 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/support/assistant-chatbots": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "Course chatbots a global admin can choose as the course design assistant.",
+        "operationId": "getCourseDesignerSupportAssistantChatbots",
+        "responses": {
+          "200": {
+            "description": "Chatbots that belong to a course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseChatbotOption"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/support/plans": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "Read-only overview of every plan for global admins doing MOOC support.",
+        "operationId": "getCourseDesignerSupportPlans",
+        "responses": {
+          "200": {
+            "description": "All plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDesignerSupportPlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/{plan_id}": {
       "get": {
         "tags": ["course-plans"],
@@ -2660,6 +2746,320 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/archive": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "archiveCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Archived plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`\n\nWhether the assistant can be offered on this plan's pages.",
+        "operationId": "getCourseDesignerAssistantStatus",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assistant status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerAssistantStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`\n\nThe user's latest conversation about the plan with the current assistant, or null when there is\nnone yet.",
+        "operationId": "getCurrentCourseDesignerAssistantConversation",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ChatbotConversationInfo"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`\n\nStarts a new conversation about the plan, which becomes the user's current one.",
+        "operationId": "newCourseDesignerAssistantConversation",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConversation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info": {
+      "get": {
+        "tags": ["course-plans"],
+        "summary": "GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`",
+        "operationId": "getCourseDesignerAssistantConversationInfo",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConversationInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`\n\nSends the user's message and streams the assistant's turn, as the course material chatbot's\n`send-message` does.",
+        "operationId": "sendCourseDesignerAssistantMessage",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendCourseDesignerAssistantMessage"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`\n\nAnswers a tool call the turn suspended on, such as applying or discarding a proposed change, and\nstreams the resumed turn, as the course material chatbot's `tool-response` does.",
+        "operationId": "sendCourseDesignerAssistantToolResponse",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatbotToolResponse"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "application/x-ndjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/course": {
+      "post": {
+        "tags": ["course-plans"],
+        "summary": "Creates a draft course from the plan's course structure. A plan creates at most one course.",
+        "operationId": "createCourseFromCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseFromPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
                 }
               }
             }
@@ -2811,6 +3211,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment": {
+      "put": {
+        "tags": ["course-plans"],
+        "summary": "Changes the dates of stages that are not completed while the plan is in progress.",
+        "operationId": "adjustCourseDesignerSchedule",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdjustCourseDesignerScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/{plan_id}/schedule/finalize": {
       "post": {
         "tags": ["course-plans"],
@@ -2874,6 +3315,77 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerScheduleSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses": {
+      "get": {
+        "tags": ["course-plans"],
+        "operationId": "getCourseDesignerSectionStatuses",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Section statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerSectionStatus",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCourseDesignerSectionStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved section status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
                 }
               }
             }
@@ -3039,7 +3551,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CourseDesignerStageWorkspace"
+                "$ref": "#/components/schemas/UpdateCourseDesignerStageWorkspaceRequest"
               }
             }
           },
@@ -3133,6 +3645,167 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee": {
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerTaskAssignee",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCourseDesignerTaskAssigneeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/unarchive": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "unarchiveCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Restored plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/vision": {
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "setCourseDesignerGreatMoocVision",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetGreatMoocVisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription": {
+      "put": {
+        "tags": ["course-plans"],
+        "summary": "Opts the current user in or out of the plan's weekly progress email.",
+        "operationId": "setCourseDesignerWeeklyDigestSubscription",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetWeeklyDigestSubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated membership",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanMember"
                 }
               }
             }
@@ -8024,6 +8697,184 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets` - Adds a mooc.fi\ncourse whose credits courses registers.",
+        "operationId": "adminCreateExternalCreditTarget",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminExternalCreditTargetPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The new target's id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid configuration, overlapping tiers or a course code the mooc.fi course already has"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}": {
+      "put": {
+        "tags": ["credit-registration-admin"],
+        "summary": "PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}`\n- Replaces a mooc.fi target's configuration.",
+        "operationId": "adminUpdateExternalCreditTarget",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminExternalCreditTargetPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved"
+          },
+          "422": {
+            "description": "Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete`\n- Soft-deletes a mooc.fi target, which withdraws its completions not yet submitted.",
+        "operationId": "adminDeleteExternalCreditTarget",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDeleteExternalCreditTargetPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "422": {
+            "description": "No reason given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause`\n- Stops every phase from claiming this mooc.fi target's rows, freezing them where they stand.",
+        "operationId": "adminPauseExternalCreditTarget",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminPauseCourseModulePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Paused"
+          },
+          "422": {
+            "description": "No reason given"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume`\n- Lets the phases claim this mooc.fi target's rows again.",
+        "operationId": "adminResumeExternalCreditTarget",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminResumeCourseModulePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Resumed"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause": {
       "post": {
         "tags": ["credit-registration-admin"],
@@ -8461,7 +9312,7 @@
           {
             "name": "course_id",
             "in": "query",
-            "description": "Course filter",
+            "description": "Course or mooc.fi target filter",
             "required": false,
             "schema": {
               "type": "string",
@@ -8471,7 +9322,7 @@
           {
             "name": "course_module_id",
             "in": "query",
-            "description": "Course module filter",
+            "description": "Course module or mooc.fi target filter",
             "required": false,
             "schema": {
               "type": "string",
@@ -9200,7 +10051,7 @@
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/MyCreditRegistrationForCourseModule"
+                      "$ref": "#/components/schemas/MyCreditRegistrationForSubject"
                     },
                     {
                       "type": "null"
@@ -9467,6 +10318,352 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -\nThe signed-in account's registration for one mooc.fi completion, or null when the pipeline has not\ncreated one yet.",
+        "operationId": "getMyCreditRegistrationForExternalCompletion",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's registration for the mooc.fi completion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MyCreditRegistrationForSubject"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification": {
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`\n- [`set_my_credit_justification`] for a mooc.fi completion.\n\nStored against the mooc.fi completion rather than this row, so the answer survives a tier change\nthat replaces the row.",
+        "operationId": "setMyExternalCompletionCreditJustification",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetCreditJustificationPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCreditJustification"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such mooc.fi completion of the caller's"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`\n- [`record_my_enrolment_page_visit`] for a mooc.fi completion.",
+        "operationId": "recordMyExternalCompletionEnrolmentPageVisit",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The visit is recorded"
+          },
+          "404": {
+            "description": "No such mooc.fi completion of the caller's"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route": {
+      "get": {
+        "tags": ["credit-registrations"],
+        "summary": "GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`\n- What the caller said about where they enrol for this mooc.fi completion.",
+        "operationId": "getMyExternalCompletionEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's answer for the mooc.fi completion",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["credit-registrations"],
+        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`\n- [`set_my_enrolment_route`] for a mooc.fi completion.",
+        "operationId": "setMyExternalCompletionEnrolmentRoute",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetEnrolmentRoutePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`\n- [`choose_my_certificate`] for a mooc.fi completion.",
+        "operationId": "chooseMyExternalCompletionCertificate",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`\n- [`withdraw_my_certificate_choice`] for a mooc.fi completion.",
+        "operationId": "withdrawMyExternalCompletionCertificateChoice",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`\n- [`confirm_my_enrolment`] for a mooc.fi completion.",
+        "operationId": "confirmMyExternalCompletionEnrolment",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["credit-registrations"],
+        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`\n- [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.",
+        "operationId": "withdrawMyExternalCompletionEnrolmentConfirmation",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The stored answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyEnrolmentRoute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff": {
+      "post": {
+        "tags": ["credit-registrations"],
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. Only from the IP that\nminted it.",
+        "operationId": "createMyMoocfiHandoff",
+        "parameters": [
+          {
+            "name": "external_completion_id",
+            "in": "path",
+            "description": "External completion id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMoocfiHandoffPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Where to send the browser",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such mooc.fi completion of the caller's"
+          },
+          "503": {
+            "description": "Handoffs to mooc.fi are not configured"
           }
         }
       }
@@ -9844,8 +11041,21 @@
     "/api/v0/main-frontend/email-verification/test-mode-code": {
       "get": {
         "tags": ["email-verification"],
-        "summary": "GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending\nverification code.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own code.",
+        "summary": "GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending\ncode for `purpose`, email ownership verification by default.\n\nExists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the\ncaller's own account, so an accidentally open gate only ever hands you your own code.",
         "operationId": "getEmailVerificationCodeForTestMode",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "query",
+            "description": "Which of the caller's codes to return. Email ownership verification when left out.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "The kinds of code the test-mode endpoint hands out.",
+              "enum": ["email_ownership_verification", "network_verification"]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The caller's pending verification code",
@@ -9866,7 +11076,7 @@
     "/api/v0/main-frontend/email-verification/verify": {
       "post": {
         "tags": ["email-verification"],
-        "summary": "POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.\n\nAuthenticated and scoped to the caller's own account, so the code is the only secret involved and it\nnever has to identify anybody on its own.",
+        "summary": "POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,\nand copies the now proven address to TMC.\n\nAuthenticated and scoped to the caller's own account, so the code is the only secret involved and it\nnever has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot\nbe reached, so the code can be tried again.",
         "operationId": "verifyEmailOwnership",
         "requestBody": {
           "content": {
@@ -11636,6 +12846,149 @@
           },
           "403": {
             "description": "User is not allowed to manage glossary terms"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}": {
+      "get": {
+        "tags": ["moocfi-credit-registrations"],
+        "summary": "GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}` - Syncs the caller's\ncompletions of a mooc.fi course from mooc.fi and returns them with their registration status.\n\nWhen mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with\n`is_up_to_date` false.",
+        "operationId": "getMyMoocfiCreditRegistrations",
+        "parameters": [
+          {
+            "name": "moocfi_course_id",
+            "in": "path",
+            "description": "The handler course id on mooc.fi",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ui_language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The caller's completions of the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoocfiCreditRegistrations"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link": {
+      "get": {
+        "tags": ["moocfi-credit-registrations"],
+        "summary": "GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link` - The mooc.fi\ncourse's name and registration page, without reading mooc.fi.\n\nNeeds no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.",
+        "operationId": "getMoocfiCourseLink",
+        "parameters": [
+          {
+            "name": "moocfi_course_id",
+            "in": "path",
+            "description": "The handler course id on mooc.fi",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ui_language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's name and registration page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MoocfiCourseLink"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-handoffs/continue": {
+      "post": {
+        "tags": ["moocfi-handoffs"],
+        "summary": "POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out\nwhoever is signed in and signs in the handoff's account. Single use.\n\nOnly from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot\npost it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer\nthe one the student saw; 403 for an account with a courses role.",
+        "operationId": "continueMoocfiHandoff",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContinueMoocfiHandoffPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in; where to go next",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContinuedMoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No handoff is waiting"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/moocfi-handoffs/pending": {
+      "get": {
+        "tags": ["moocfi-handoffs"],
+        "summary": "GET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the\nstudent's confirmation on the course's landing page, or 404 when none is waiting for that course,\nit has expired or been used, or it was minted for another IP.",
+        "operationId": "getPendingMoocfiHandoff",
+        "parameters": [
+          {
+            "name": "moocfi_course_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The waiting handoff",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PendingMoocfiHandoff"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No handoff is waiting"
           }
         }
       }
@@ -13697,6 +15050,26 @@
         }
       }
     },
+    "/api/v0/main-frontend/roles/pending/waiting-for-me": {
+      "get": {
+        "tags": ["roles"],
+        "summary": "GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in\nuser's email wait for them to verify it.",
+        "operationId": "getPendingRoleCountWaitingForMe",
+        "responses": {
+          "200": {
+            "description": "Number of pending roles waiting for email verification",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/roles/remove": {
       "post": {
         "tags": ["roles"],
@@ -14248,7 +15621,7 @@
     "/api/v0/main-frontend/user-details/update-user-info": {
       "post": {
         "tags": ["user-details"],
-        "summary": "POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent",
+        "summary": "POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent\n\nA new email reaches TMC only once it is verified, through\n[`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email\nownership verification is off.",
         "operationId": "updateUserInfo",
         "requestBody": {
           "content": {
@@ -14985,27 +16358,31 @@
       },
       "AccountLinkingCodeModule": {
         "type": "object",
-        "description": "A module on a course code, which shares the code's enrolment list.",
-        "required": ["course_id", "course_name", "course_module_id"],
+        "description": "A module or mooc.fi target on a course code, which shares the code's enrolment list.",
+        "required": ["credit_unit_id", "course_name"],
         "properties": {
           "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "course_module_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The module's course; `None` for a mooc.fi target."
           },
           "course_module_name": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "`None` for a mooc.fi target."
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "credit_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The module's or target's id."
           },
           "last_listed_at": {
             "type": ["string", "null"],
             "format": "date-time",
-            "description": "When an enrolment list last fed account linking for the module."
+            "description": "When an enrolment list last fed account linking for the module or target."
           }
         }
       },
@@ -15119,7 +16496,7 @@
         "description": "One linking email, in the full list or the dashboard's recent ones.",
         "required": [
           "id",
-          "course_id",
+          "course_or_target_id",
           "course_name",
           "emailed_to",
           "student_number",
@@ -15138,12 +16515,14 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course or mooc.fi target the mail was sent for."
           },
           "emailed_to": {
             "type": "string",
@@ -15290,7 +16669,7 @@
         "required": [
           "credit_registration_id",
           "user_id",
-          "course_id",
+          "course_or_target_id",
           "course_name",
           "completion_date",
           "pressed_at",
@@ -15306,15 +16685,16 @@
             "type": "string",
             "format": "date-time"
           },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "credit_registration_id": {
             "type": "string",
@@ -15471,11 +16851,11 @@
       },
       "AccountLinkingStaleAddress": {
         "type": "object",
-        "description": "A person mailed to the cap for one course whose number was never claimed.",
+        "description": "A person mailed to the cap for one course or mooc.fi target whose number was never claimed.",
         "required": [
           "student_number",
           "sisu_person_id",
-          "course_id",
+          "course_or_target_id",
           "course_name",
           "mail_count",
           "first_sent_at",
@@ -15483,12 +16863,14 @@
           "sends"
         ],
         "properties": {
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course or mooc.fi target the mails were sent for."
           },
           "first_sent_at": {
             "type": "string",
@@ -15667,18 +17049,27 @@
       "AccountLinkingUnusedLink": {
         "type": "object",
         "description": "A link that can still be used, and how old it is.",
-        "required": ["id", "course_id", "course_name", "emailed_to", "claimed_at", "expires_at"],
+        "required": [
+          "id",
+          "course_or_target_id",
+          "course_name",
+          "emailed_to",
+          "claimed_at",
+          "expires_at"
+        ],
         "properties": {
           "claimed_at": {
             "type": "string",
             "format": "date-time"
           },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course or mooc.fi target the mail was sent for."
           },
           "emailed_to": {
             "type": "string",
@@ -15703,7 +17094,7 @@
         "required": [
           "credit_registration_id",
           "user_id",
-          "course_id",
+          "course_or_target_id",
           "course_name",
           "completion_date",
           "engagement"
@@ -15713,15 +17104,16 @@
             "type": "string",
             "format": "date-time"
           },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "credit_registration_id": {
             "type": "string",
@@ -15770,6 +17162,19 @@
           "email": {
             "type": "string",
             "format": "email"
+          }
+        }
+      },
+      "AdjustCourseDesignerScheduleRequest": {
+        "type": "object",
+        "description": "The whole schedule in stage order. Completed stages must keep their dates, and later stages\nmust already be shifted so there are no gaps or overlaps.",
+        "required": ["stages"],
+        "properties": {
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerScheduleStageInput"
+            }
           }
         }
       },
@@ -15987,6 +17392,17 @@
             },
             "description": "Linking emails sent by hand as a guess for this row's student, newest first."
           },
+          "moocfi_completion": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AdminMoocfiCompletion",
+                "description": "The mooc.fi completion behind a mooc.fi row; `None` for a course module row."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "not_improved_attainment": {
             "oneOf": [
               {
@@ -16182,11 +17598,8 @@
           "id",
           "created_at",
           "user_id",
-          "course_id",
           "course_name",
-          "course_module_id",
-          "course_instance_id",
-          "course_module_completion_id",
+          "course_or_target_id",
           "completion_date",
           "state",
           "timeline_step",
@@ -16234,26 +17647,32 @@
             "format": "date-time"
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration, as are the module, instance and course module completion."
           },
           "course_instance_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_completion_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "created_at": {
             "type": "string",
@@ -16310,6 +17729,15 @@
                 "type": "null"
               }
             ]
+          },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set on a mooc.fi registration only, as is `external_completion_id`."
           },
           "first_name": {
             "type": ["string", "null"]
@@ -16487,6 +17915,15 @@
         "description": "The states an admin may move a row to; everything else is the pipeline's to decide.",
         "enum": ["ready_to_submit", "cancelled"]
       },
+      "AdminDeleteExternalCreditTargetPayload": {
+        "type": "object",
+        "required": ["reason"],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
       "AdminDismissAttentionPayload": {
         "type": "object",
         "required": ["reason"],
@@ -16514,6 +17951,74 @@
         "required": ["reason"],
         "properties": {
           "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "AdminExternalCreditTargetPayload": {
+        "type": "object",
+        "description": "A mooc.fi target's configuration as the admin form sends it, with the audit reason.",
+        "required": [
+          "moocfi_course_id",
+          "moocfi_course_slug",
+          "name",
+          "language_code",
+          "uh_course_code",
+          "ects_credits",
+          "grading",
+          "delegated_at",
+          "enabled",
+          "reason"
+        ],
+        "properties": {
+          "delegated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Must equal mooc.fi's `credit_registration_delegated_at` and the other live targets' cutoff\nof the same mooc.fi course. Cannot change once the target has registrations."
+          },
+          "ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"]
+          },
+          "grading": {
+            "$ref": "#/components/schemas/ExternalGrading"
+          },
+          "language_code": {
+            "type": "string",
+            "description": "BCP 47, e.g. `fi-FI`."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The handler course on mooc.fi, which the completions are stored on."
+          },
+          "moocfi_course_slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "tiers": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TierRange",
+                "description": "`None` for an untiered course."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uh_course_code": {
             "type": "string"
           }
         }
@@ -16566,7 +18071,7 @@
       "AdminLinkingCandidates": {
         "type": "object",
         "required": [
-          "course_id",
+          "course_or_target_id",
           "course_name",
           "course_code",
           "account_linking_since",
@@ -16588,12 +18093,14 @@
           "course_code": {
             "type": "string"
           },
-          "course_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The registration's course or mooc.fi target, which mails to a candidate are sent for."
           },
           "study_registry_unavailable": {
             "type": "boolean",
@@ -16626,7 +18133,6 @@
         "type": "object",
         "required": [
           "id",
-          "course_id",
           "student_number",
           "sisu_person_id",
           "emailed_to",
@@ -16639,12 +18145,17 @@
             "format": "date-time"
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for a mooc.fi target's mail."
           },
           "emailed_to": {
             "type": "string",
             "description": "In full."
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "id": {
             "type": "string",
@@ -16810,11 +18321,81 @@
           "created_registration_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Rows created, both for newly eligible completions and for grades that improved on a\nregistered one."
+            "description": "Rows created: for newly eligible completions, for grades that improved on a registered one,\nand for completions registrable again after a withdrawal."
           },
           "moved_registration_count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "AdminMoocfiCompletion": {
+        "type": "object",
+        "description": "A mooc.fi completion as courses last read it, and how reporting this registration back went.",
+        "required": ["moocfi_completion_id", "upstream_checked_at", "registration_report"],
+        "properties": {
+          "moocfi_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "raw_grade": {
+            "type": ["string", "null"],
+            "description": "mooc.fi's grade verbatim, before parsing."
+          },
+          "registered_equivalent_moocfi_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The earlier, registered completion with the same grade and tier that keeps this one from\nbeing registered."
+          },
+          "registered_upstream_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When another organization's registration of it was first seen on mooc.fi."
+          },
+          "registration_report": {
+            "$ref": "#/components/schemas/AdminMoocfiRegistrationReport"
+          },
+          "tier": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "upstream_checked_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The last successful read from mooc.fi."
+          },
+          "upstream_missing_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When mooc.fi stopped returning the completion."
+          }
+        }
+      },
+      "AdminMoocfiRegistrationReport": {
+        "type": "object",
+        "description": "Reporting this registration back to mooc.fi.",
+        "required": ["is_skipped", "attempt_count"],
+        "properties": {
+          "attempt_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "is_skipped": {
+            "type": "boolean",
+            "description": "A success mooc.fi is never told about: a duplicate or not-improved row after an earlier\nsuccess of the same completion."
+          },
+          "last_error": {
+            "type": ["string", "null"]
+          },
+          "next_attempt_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` until a report has been tried."
+          },
+          "reported_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When this registration was reported to mooc.fi, or found already there."
           }
         }
       },
@@ -16947,6 +18528,11 @@
           },
           "course_module_id": {
             "type": ["string", "null"],
+            "format": "uuid",
+            "description": "A course module, or a mooc.fi target."
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "reason": {
@@ -16970,16 +18556,17 @@
       },
       "AdminResendAccountLinkingEmailPayload": {
         "type": "object",
-        "required": ["student_number", "course_id", "override_rate_caps"],
+        "required": ["student_number", "course_or_target_id", "override_rate_caps"],
         "properties": {
-          "course_id": {
+          "course_or_target_id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The course or mooc.fi target to mail for."
           },
           "credit_registration_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "The registration whose student the mail is a guess for, from the linking candidates. Must be\non `course_id`; recorded on the audit row."
+            "description": "The registration whose student the mail is a guess for, from the linking candidates. Must be\non the course or target; recorded on the audit row."
           },
           "override_rate_caps": {
             "type": "boolean",
@@ -17418,34 +19005,26 @@
       "AnalysisWorkspaceV1": {
         "type": "object",
         "description": "Analysis stage form: course metadata, needs, wishes, market, resources, contributors.",
-        "required": [
-          "mode_synchronous",
-          "mode_asynchronous",
-          "open_period_i",
-          "open_period_ii",
-          "open_period_iii",
-          "open_period_iv",
-          "open_period_all",
-          "wishes_content_format_text",
-          "wishes_content_format_video",
-          "wishes_content_format_podcast",
-          "wishes_content_format_xr"
-        ],
         "properties": {
           "contributors_editors": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_instructional_designer": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_subject_matter_experts": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "contributors_support_staff": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "course_title": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "course_type": {
             "oneOf": [
@@ -17455,80 +19034,105 @@
               {
                 "type": "null"
               }
-            ]
+            ],
+            "default": null
           },
           "credits": {
             "type": ["number", "null"],
-            "format": "double"
+            "format": "double",
+            "default": null
           },
           "degree_programme": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "language": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "market_results": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "mode_asynchronous": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "mode_synchronous": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_all": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_i": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_ii": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_iii": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "open_period_iv": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "resources_purchase_budget": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "resources_university": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "responsible_teachers": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "students_demographic_data": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "target_group": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_assessment_text": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_content_format_notes": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_content_format_podcast": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_text": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_video": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_content_format_xr": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
           },
           "wishes_other_suggestions": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           },
           "wishes_topics": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "default": null
           }
         }
       },
@@ -18489,6 +20093,139 @@
           }
         }
       },
+      "ChatbotChatStreamEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["text", "message_id"],
+                "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Delta"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["finished", "reasoning_id"],
+                "properties": {
+                  "finished": {
+                    "type": "boolean"
+                  },
+                  "reasoning_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Reasoning"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["tool_call_id", "finished"],
+                "properties": {
+                  "arguments": {
+                    "type": ["string", "null"]
+                  },
+                  "finished": {
+                    "type": "boolean"
+                  },
+                  "tool_call_id": {
+                    "type": "string"
+                  },
+                  "tool_name": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ToolCall"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Done"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The turn stopped to wait for the client to answer a tool call, so it ends with neither an\nanswer nor an error. Terminal like `Done`: the client stops reading, answers the call\nthrough the tool-response endpoint, and reads the stream that returns.\n\nCarries nothing, because the call it waits on was already streamed as an unfinished\n`ToolCall` event, and survives a reload only through the conversation's messages anyway.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Suspended"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "A confirmed action tool call executed, carrying data for the confirming admin's browser\nonly (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and\nthe model never sees it either.",
+                "required": ["tool_call_id", "payload"],
+                "properties": {
+                  "payload": {},
+                  "tool_call_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ActionExecuted"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "$ref": "#/components/schemas/StreamEventError"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Error"]
+              }
+            }
+          }
+        ]
+      },
       "ChatbotConfiguration": {
         "type": "object",
         "required": [
@@ -18517,11 +20254,16 @@
           "default_chatbot",
           "suggest_next_messages",
           "publicly_accessible",
-          "embeddable"
+          "embeddable",
+          "course_designer_assistant"
         ],
         "properties": {
           "chatbot_name": {
             "type": "string"
+          },
+          "course_designer_assistant": {
+            "type": "boolean",
+            "description": "Answers on course design plan pages; at most one live configuration has this set."
           },
           "course_id": {
             "type": ["string", "null"],
@@ -18671,6 +20413,435 @@
           }
         }
       },
+      "ChatbotConversation": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "chatbot_configuration_id"],
+        "properties": {
+          "anonymous_token": {
+            "type": ["string", "null"]
+          },
+          "chatbot_configuration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversation_title": {
+            "type": ["string", "null"]
+          },
+          "course_designer_plan_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set for conversations with the course design assistant about this plan."
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          }
+        }
+      },
+      "ChatbotConversationInfo": {
+        "type": "object",
+        "description": "Everything needed to display the chatbot to the user.",
+        "required": ["chatbot_name", "hide_citations"],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "course_name": {
+            "type": ["string", "null"]
+          },
+          "current_conversation": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ChatbotConversation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_conversation_message_citations": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationMessageCitation"
+            }
+          },
+          "current_conversation_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationMessage"
+            }
+          },
+          "hide_citations": {
+            "type": "boolean"
+          },
+          "suggested_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationSuggestedMessage"
+            },
+            "description": "What to offer the learner as their next message. Absent when nothing should be offered: the\nconfiguration has suggestions off, or the conversation is at a point where a suggestion does\nnot belong, such as a turn suspended on a question to the learner. Empty means suggestions\nare wanted but none have been generated yet, which is what makes the endpoint generate them."
+          }
+        }
+      },
+      "ChatbotConversationMessage": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "conversation_id",
+          "order_number",
+          "message"
+        ],
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageCitation": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "conversation_message_id",
+          "conversation_id",
+          "title",
+          "content",
+          "document_url",
+          "citation_number"
+        ],
+        "properties": {
+          "citation_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_material_chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "document_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageMessage": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "chatbot_conversation_message_id",
+          "text",
+          "message_role",
+          "message_is_complete",
+          "used_tokens"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message_is_complete": {
+            "type": "boolean"
+          },
+          "message_role": {
+            "$ref": "#/components/schemas/MessageRole"
+          },
+          "response_id": {
+            "type": ["string", "null"]
+          },
+          "text": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "used_tokens": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ChatbotConversationMessageReasoning": {
+        "type": "object",
+        "required": [
+          "id",
+          "chatbot_conversation_message_id",
+          "created_at",
+          "updated_at",
+          "reasoning_id",
+          "response_id"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reasoning_id": {
+            "type": "string"
+          },
+          "response_id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageToolCall": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "chatbot_conversation_message_id",
+          "tool_name",
+          "tool_arguments",
+          "tool_call_id",
+          "tool_kind",
+          "response_id"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "response_id": {
+            "type": "string"
+          },
+          "tool_arguments": {
+            "type": "string",
+            "description": "Is type = string in the OpenApi schema, because there is no known shape\nfor this JSON value/object so we treat it as 'string' instead of\n'unknown' in the API autogenerated types. Since it's valid JSON, we save\nit as JSON in our DB."
+          },
+          "tool_call_id": {
+            "type": "string"
+          },
+          "tool_kind": {
+            "$ref": "#/components/schemas/ToolKind"
+          },
+          "tool_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageToolOutput": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "chatbot_conversation_message_id",
+          "output",
+          "tool_call_id",
+          "tool_kind",
+          "response_id"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_answer": {
+            "type": ["object", "null"],
+            "description": "The answer payload the client sent, in the shape the answered tool defines. None for\noutputs no client answered."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "output": {
+            "type": "string"
+          },
+          "response_id": {
+            "type": "string"
+          },
+          "tool_call_id": {
+            "type": "string"
+          },
+          "tool_kind": {
+            "$ref": "#/components/schemas/ToolKind"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationSuggestedMessage": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "conversation_message_id", "message"],
+        "properties": {
+          "conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotToolResponse": {
+        "type": "object",
+        "required": ["tool_call_id", "tool_name", "answer"],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/ClientToolAnswer"
+          },
+          "tool_call_id": {
+            "type": "string",
+            "description": "The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event."
+          },
+          "tool_name": {
+            "$ref": "#/components/schemas/ClientToolName",
+            "description": "The tool the caller believes `tool_call_id` belongs to, checked against the call's\nrecorded name so a client answering the wrong bubble fails clearly instead of being\nsilently accepted as whatever tool the call actually was."
+          }
+        }
+      },
       "CheckNowTarget": {
         "type": "string",
         "description": "What checking a row now brings forward.",
@@ -18720,6 +20891,51 @@
             "type": ["string", "null"]
           }
         }
+      },
+      "ClientToolAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "description": "The tool ran on the client. `result` is JSON of whatever shape the tool defines.",
+                "required": ["result"],
+                "properties": {
+                  "result": {
+                    "type": "object",
+                    "description": "An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not\nknown here. Unlike the tool call arguments we hand back to clients, this one is built\nby the client, so declaring it a string would make the generated binding unusable."
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Data"]
+              }
+            }
+          }
+        ],
+        "description": "What a client answered a tool call with.\n\nThe tool the call belongs to decides what shape the answer has to be in and what the model is\ntold it means."
+      },
+      "ClientToolName": {
+        "type": "string",
+        "description": "The name of a client tool, generated into the frontend as a string union so it names one of\n[ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.\n\nThe bounds a tool enforces on its arguments and the shape of its answer stay hand-written on\nthe frontend: routing those through the OpenAPI schema would need either a schema per tool or\nwidening the argument and answer types this crate uses to serialize them, for a part of the\ncontract that only fails loudly, unlike the name.",
+        "enum": [
+          "ask_multiple_choice_question",
+          "generate_password_reset_link",
+          "reset_exercises",
+          "update_cheating_status",
+          "edit_user_account",
+          "update_certificate",
+          "propose_workspace_edit",
+          "propose_add_task",
+          "propose_update_task",
+          "propose_schedule_adjustment",
+          "propose_section_status",
+          "propose_vision_edit"
+        ]
       },
       "CmsPageExercise": {
         "type": "object",
@@ -19296,6 +21512,31 @@
           "course_default_review_config"
         ]
       },
+      "ContinueMoocfiHandoffPayload": {
+        "type": "object",
+        "required": ["moocfi_course_id", "expected_signed_in_account"],
+        "properties": {
+          "expected_signed_in_account": {
+            "$ref": "#/components/schemas/SignedInAccount",
+            "description": "Who was signed in when the student confirmed, as `pending` said. If it has changed since,\nthe student confirmed something else, so nothing is switched."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course whose landing page the student confirmed on."
+          }
+        }
+      },
+      "ContinuedMoocfiHandoff": {
+        "type": "object",
+        "required": ["redirect_path"],
+        "properties": {
+          "redirect_path": {
+            "type": "string",
+            "description": "The registration page; open it with a full navigation so the new session takes over."
+          }
+        }
+      },
       "CopyCourseMode": {
         "oneOf": [
           {
@@ -19750,6 +21991,30 @@
           },
           "organization_slug": {
             "type": "string"
+          }
+        }
+      },
+      "CourseChatbotOption": {
+        "type": "object",
+        "description": "A course's chatbot as offered when choosing the course design assistant.",
+        "required": ["id", "chatbot_name", "course_id", "course_name", "course_designer_assistant"],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "course_designer_assistant": {
+            "type": "boolean"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -20258,6 +22523,20 @@
         ],
         "description": "A change to the course default review config, which every exercise without its own uses."
       },
+      "CourseDesignerAssistantStatus": {
+        "type": "object",
+        "required": ["available", "has_guide_course"],
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "description": "Whether the chatbot backend is configured and a chatbot has been chosen as the assistant."
+          },
+          "has_guide_course": {
+            "type": "boolean",
+            "description": "Whether the assistant belongs to a guide course, so answers can cite guide pages. When\nfalse the assistant answers from the plan and general knowledge only."
+          }
+        }
+      },
       "CourseDesignerCourseSize": {
         "type": "string",
         "enum": ["small", "medium", "large"]
@@ -20284,9 +22563,17 @@
             "type": "string",
             "format": "uuid"
           },
+          "created_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set once a course has been created from the plan; see [`crate::library::course_designer::create_course_from_plan`]."
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "great_mooc_vision": {
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string",
@@ -20310,7 +22597,7 @@
       },
       "CourseDesignerPlanDetails": {
         "type": "object",
-        "required": ["plan", "members", "stages"],
+        "required": ["plan", "members", "stages", "section_statuses"],
         "properties": {
           "members": {
             "type": "array",
@@ -20320,6 +22607,12 @@
           },
           "plan": {
             "$ref": "#/components/schemas/CourseDesignerPlan"
+          },
+          "section_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+            }
           },
           "stages": {
             "type": "array",
@@ -20331,7 +22624,7 @@
       },
       "CourseDesignerPlanMember": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_id"],
+        "required": ["id", "created_at", "updated_at", "user_id", "receives_weekly_digest"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -20341,11 +22634,62 @@
             "type": "string",
             "format": "uuid"
           },
+          "receives_weekly_digest": {
+            "type": "boolean"
+          },
           "updated_at": {
             "type": "string",
             "format": "date-time"
           },
           "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseDesignerPlanSectionStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_designer_plan_id",
+          "stage",
+          "section_key",
+          "status",
+          "updated_by_user_id"
+        ],
+        "properties": {
+          "comment": {
+            "type": ["string", "null"]
+          },
+          "course_designer_plan_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "section_key": {
+            "type": "string",
+            "description": "Defined by the frontend forms, e.g. `design.learning_goals`."
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_by_user_id": {
             "type": "string",
             "format": "uuid"
           }
@@ -20360,7 +22704,8 @@
           "stage",
           "status",
           "planned_starts_on",
-          "planned_ends_on"
+          "planned_ends_on",
+          "workspace_revision"
         ],
         "properties": {
           "actual_completed_at": {
@@ -20397,7 +22742,12 @@
             "type": "string",
             "format": "date-time"
           },
-          "workspace_data": {}
+          "workspace_data": {},
+          "workspace_revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Bumped on every save of `workspace_data`; saves must name the revision they were based on."
+          }
         }
       },
       "CourseDesignerPlanStageStatus": {
@@ -20417,6 +22767,11 @@
           "is_auto_generated"
         ],
         "properties": {
+          "assignee_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Always a current plan member; cleared when that member leaves."
+          },
           "completed_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -20586,6 +22941,10 @@
           }
         }
       },
+      "CourseDesignerSectionStatus": {
+        "type": "string",
+        "enum": ["Ready", "Unfinished"]
+      },
       "CourseDesignerStage": {
         "type": "string",
         "enum": ["Analysis", "Design", "Development", "Implementation", "Evaluation"]
@@ -20604,9 +22963,85 @@
                 "enum": ["analysis_v1"]
               }
             }
+          },
+          {
+            "type": "object",
+            "required": ["payload", "schema"],
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/DesignWorkspaceV1"
+              },
+              "schema": {
+                "type": "string",
+                "enum": ["design_v1"]
+              }
+            }
           }
         ],
-        "description": "Discriminant for forward-compatible workspace payloads stored in `workspace_data`."
+        "description": "Discriminant for forward-compatible workspace payloads stored in `workspace_data`.\n\nEach schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`]."
+      },
+      "CourseDesignerSupportPlan": {
+        "type": "object",
+        "description": "One plan as global admins see it in the MOOC support listing.",
+        "required": ["plan", "members", "stages", "section_statuses"],
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanMemberWithDetails"
+            }
+          },
+          "plan": {
+            "$ref": "#/components/schemas/CourseDesignerPlan"
+          },
+          "section_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanSectionStatus"
+            }
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerSupportStage"
+            }
+          }
+        }
+      },
+      "CourseDesignerSupportStage": {
+        "type": "object",
+        "required": [
+          "stage",
+          "status",
+          "planned_starts_on",
+          "planned_ends_on",
+          "task_count",
+          "completed_task_count"
+        ],
+        "properties": {
+          "completed_task_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "planned_ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "planned_starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerPlanStageStatus"
+          },
+          "task_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
       },
       "CourseEnrollmentInfo": {
         "type": "object",
@@ -21508,6 +23943,39 @@
           }
         }
       },
+      "CreateCourseFromPlanRequest": {
+        "type": "object",
+        "required": ["organization_id"],
+        "properties": {
+          "language_code": {
+            "type": ["string", "null"],
+            "description": "Defaults to the Analysis form's language when it reads as one, else English."
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "Defaults to the Analysis form's course title, then the plan name."
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "An organization the user may create courses in."
+          }
+        }
+      },
+      "CreateMoocfiHandoffPayload": {
+        "type": "object",
+        "description": "Where the caller asks to be sent on mooc.fi.",
+        "required": ["destination"],
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/MoocfiHandoffDestination"
+          },
+          "ui_language": {
+            "type": ["string", "null"],
+            "description": "The language the caller is using courses in; see\n[`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`]."
+          }
+        }
+      },
       "CreatedRedirect": {
         "type": "object",
         "description": "A redirect from a page's old path, created when the page moved to a new one.",
@@ -21547,7 +24015,10 @@
           "request_enrolment_list_fetch",
           "dismiss_study_registry_conflict",
           "dismiss_attention",
-          "add_note"
+          "add_note",
+          "configure_external_credit_target",
+          "pause_external_credit_target",
+          "resume_external_credit_target"
         ]
       },
       "CreditRegistrationAdminActionRecord": {
@@ -21739,7 +24210,8 @@
           "verified_student_number",
           "student_number_verification_token",
           "roster_schedule",
-          "study_registry_student_number_conflict"
+          "study_registry_student_number_conflict",
+          "external_credit_target"
         ]
       },
       "CreditRegistrationAlert": {
@@ -21810,7 +24282,6 @@
         "required": [
           "credit_registration_id",
           "user_id",
-          "course_id",
           "course_name",
           "dismissed_reasons",
           "dismissed_at",
@@ -21819,11 +24290,13 @@
         ],
         "properties": {
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration."
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
           },
           "credit_registration_id": {
             "type": "string",
@@ -21852,6 +24325,10 @@
           "email": {
             "type": ["string", "null"]
           },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "first_name": {
             "type": ["string", "null"]
           },
@@ -21872,9 +24349,8 @@
         "required": [
           "credit_registration_id",
           "user_id",
-          "course_id",
           "course_name",
-          "course_module_id",
+          "course_or_target_id",
           "state",
           "state_changed_at",
           "phase_started_at",
@@ -21908,18 +24384,24 @@
             ]
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration, as is `course_module_id`."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid"
           },
           "credit_registration_id": {
             "type": "string",
@@ -22152,6 +24634,7 @@
           "verification_gave_up",
           "repeatedly_not_registered",
           "student_number_stuck",
+          "report_back_overdue",
           "flagged_by_pipeline"
         ]
       },
@@ -22249,10 +24732,10 @@
       },
       "CreditRegistrationCourseStats": {
         "type": "object",
+        "description": "One row of the Courses tab: a course module or a mooc.fi target.",
         "required": [
-          "course_id",
+          "credit_unit_id",
           "course_name",
-          "course_module_id",
           "check",
           "eligible_completion_count",
           "registration_count",
@@ -22280,18 +24763,25 @@
             "description": "When the `config-validation` phase last stamped its verdict on the row. `None` means never,\nwhich the stored verdict beside it cannot express on its own."
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for a mooc.fi target, as is `course_module_id`."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "credit_unit_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The module's or target's id, which the Registrations list's `course_module_id` filter takes."
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -22300,11 +24790,22 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn\nones left out."
           },
           "enrolment_link": {
             "type": ["string", "null"],
             "description": "Where a student with no usable enrolment is sent to enrol."
+          },
+          "external_credit_target": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExternalCreditTarget",
+                "description": "The target's configuration, for a mooc.fi target only."
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "failed_count": {
             "type": "integer",
@@ -22325,7 +24826,7 @@
           "needs_attention_count": {
             "type": "integer",
             "format": "int64",
-            "description": "The module's rows counted in Needs attention: the Registrations list with\n`course_module_id` and `needs_attention=true` holds exactly these."
+            "description": "The row's registrations counted in Needs attention: the Registrations list with\n`course_module_id` and `needs_attention=true` holds exactly these."
           },
           "pause_reason": {
             "type": ["string", "null"]
@@ -23191,18 +25692,19 @@
       },
       "CreditRegistrationStatsByCourse": {
         "type": "object",
-        "required": ["modules", "misconfigured_count"],
+        "required": ["credit_units", "misconfigured_count"],
         "properties": {
-          "misconfigured_count": {
-            "type": "integer",
-            "format": "int64",
-            "description": "Modules whose current facts fail the check, which is the tab badge."
-          },
-          "modules": {
+          "credit_units": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationCourseStats"
-            }
+            },
+            "description": "Modules first, then mooc.fi targets."
+          },
+          "misconfigured_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Modules and targets whose current facts fail the check, which is the tab badge."
           }
         }
       },
@@ -23470,6 +25972,284 @@
             "propertyNames": {
               "type": "string"
             }
+          }
+        }
+      },
+      "DesignChapter": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client so edits and the assistant can address a chapter stably.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "learning_objectives": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignChapterTopic"
+            },
+            "description": "Topics in order; each becomes a page between the chapter's Introduction and Conclusion.",
+            "default": []
+          }
+        }
+      },
+      "DesignChapterTopic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignPlannedContentFormats": {
+        "type": "object",
+        "properties": {
+          "chatbots": {
+            "type": "boolean",
+            "default": false
+          },
+          "infographics": {
+            "type": "boolean",
+            "default": false
+          },
+          "photos": {
+            "type": "boolean",
+            "default": false
+          },
+          "podcast": {
+            "type": "boolean",
+            "default": false
+          },
+          "simulations": {
+            "type": "boolean",
+            "default": false
+          },
+          "text": {
+            "type": "boolean",
+            "default": false
+          },
+          "thinglink": {
+            "type": "boolean",
+            "default": false
+          },
+          "videos": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "DesignStyleGuide": {
+        "type": "object",
+        "description": "The \"Page/Screen Layout Elements\" style guide: one free-text rule per item.",
+        "properties": {
+          "active_passive_voice": {
+            "type": "string",
+            "default": ""
+          },
+          "blocks": {
+            "type": "string",
+            "default": ""
+          },
+          "bulleted_lists": {
+            "type": "string",
+            "default": ""
+          },
+          "capitalization": {
+            "type": "string",
+            "default": ""
+          },
+          "colour_palette": {
+            "type": "string",
+            "default": ""
+          },
+          "file_naming": {
+            "type": "string",
+            "default": ""
+          },
+          "font": {
+            "type": "string",
+            "default": ""
+          },
+          "graphics_background": {
+            "type": "string",
+            "default": ""
+          },
+          "podcast": {
+            "type": "string",
+            "default": ""
+          },
+          "punctuation": {
+            "type": "string",
+            "default": ""
+          },
+          "references_and_citations": {
+            "type": "string",
+            "default": ""
+          },
+          "terminology_and_acronyms": {
+            "type": "string",
+            "default": ""
+          },
+          "video_styles": {
+            "type": "string",
+            "default": ""
+          },
+          "writing_style": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignWorkloadActivity": {
+        "type": "object",
+        "properties": {
+          "activity_type": {
+            "$ref": "#/components/schemas/DesignWorkloadActivityType",
+            "default": "acquisition_reading"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many times the activity occurs in the course.",
+            "default": 0,
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Generated by the client.",
+            "default": "00000000-0000-0000-0000-000000000000"
+          },
+          "minutes_each": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Estimated student time for one occurrence, in minutes.",
+            "default": 0,
+            "minimum": 0
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "DesignWorkloadActivityType": {
+        "type": "string",
+        "description": "ABC learning design activity types used by the student workload calculator.",
+        "enum": [
+          "acquisition_audio",
+          "acquisition_video",
+          "acquisition_reading",
+          "discussion",
+          "collaboration",
+          "investigation",
+          "practice",
+          "production"
+        ]
+      },
+      "DesignWorkspaceV1": {
+        "type": "object",
+        "description": "Design stage form: learning goals, core content, course structure, content formats, style\nguide, exercises and student workload.",
+        "properties": {
+          "accessibility_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignChapter"
+            },
+            "description": "Planned chapters in course order. Creating a course from the plan turns each into a chapter.",
+            "default": []
+          },
+          "content_format_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "core_content_must_know": {
+            "type": "string",
+            "description": "What every student must learn, about 80 % of the content.",
+            "default": ""
+          },
+          "core_content_nice_to_know": {
+            "type": "string",
+            "description": "About 5 % of the content.",
+            "default": ""
+          },
+          "core_content_should_know": {
+            "type": "string",
+            "description": "About 15 % of the content.",
+            "default": ""
+          },
+          "exercise_notes": {
+            "type": "string",
+            "default": ""
+          },
+          "learning_goals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": []
+          },
+          "planned_content_formats": {
+            "$ref": "#/components/schemas/DesignPlannedContentFormats",
+            "default": {
+              "chatbots": false,
+              "infographics": false,
+              "photos": false,
+              "podcast": false,
+              "simulations": false,
+              "text": false,
+              "thinglink": false,
+              "videos": false
+            }
+          },
+          "style_guide": {
+            "$ref": "#/components/schemas/DesignStyleGuide",
+            "default": {
+              "active_passive_voice": "",
+              "blocks": "",
+              "bulleted_lists": "",
+              "capitalization": "",
+              "colour_palette": "",
+              "file_naming": "",
+              "font": "",
+              "graphics_background": "",
+              "podcast": "",
+              "punctuation": "",
+              "references_and_citations": "",
+              "terminology_and_acronyms": "",
+              "video_styles": "",
+              "writing_style": ""
+            }
+          },
+          "workload_activities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DesignWorkloadActivity"
+            },
+            "default": []
           }
         }
       },
@@ -23934,7 +26714,9 @@
           "credit_registration_account_linking",
           "verify_email_address",
           "credit_registration_action_needed",
-          "credit_registration_registered"
+          "credit_registration_registered",
+          "verify_network",
+          "course_designer_weekly_digest"
         ]
       },
       "EmailVerificationEmailInfo": {
@@ -25457,6 +28239,7 @@
           "months": {
             "type": "integer",
             "format": "int32",
+            "description": "1 to 24.",
             "minimum": 0
           }
         }
@@ -25482,6 +28265,154 @@
             "type": "string"
           }
         }
+      },
+      "ExternalCreditTarget": {
+        "type": "object",
+        "description": "A mooc.fi course, or a tier range of one, whose completions courses registers under one course\ncode.",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "moocfi_course_id",
+          "moocfi_course_slug",
+          "name",
+          "language_code",
+          "uh_course_code",
+          "ects_credits",
+          "grading",
+          "delegated_at",
+          "consecutive_listing_failures"
+        ],
+        "properties": {
+          "checked_course_code": {
+            "type": ["string", "null"],
+            "description": "The course code `course_code_allowed` is a verdict on."
+          },
+          "config_check_message": {
+            "type": ["string", "null"]
+          },
+          "config_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_code_allowed": {
+            "type": ["boolean", "null"],
+            "description": "`None` means never checked, which is not the same as a failed check."
+          },
+          "course_code_rejection": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "delegated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The cutoff: completions dated at or after it are ours, earlier ones mooc.fi's pull path's."
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "enabled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` keeps every phase away from the target."
+          },
+          "enrolment_link": {
+            "type": ["string", "null"]
+          },
+          "grading": {
+            "$ref": "#/components/schemas/ExternalGrading"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_error": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "moocfi_course_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The mooc.fi course the completions are stored on, never the slug."
+          },
+          "moocfi_course_slug": {
+            "type": "string"
+          },
+          "moocfi_has_certificate": {
+            "type": ["boolean", "null"],
+            "description": "What mooc.fi last said; `None` until it has answered."
+          },
+          "name": {
+            "type": "string"
+          },
+          "pause_reason": {
+            "type": ["string", "null"]
+          },
+          "paused_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "paused_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "tiers": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TierRange",
+                "description": "`None` for an untiered course, which registers every completion."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "uh_course_code": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExternalGrading": {
+        "type": "string",
+        "description": "How a mooc.fi completion with no grade reads on a target.",
+        "enum": ["pass_fail", "numeric"]
       },
       "Feedback": {
         "type": "object",
@@ -26153,14 +29084,11 @@
       },
       "LegacyLedgerDivergenceRow": {
         "type": "object",
-        "description": "A ledger row the legacy study-registry ledger contradicts.",
+        "description": "A ledger row the legacy study-registry ledger, or for a mooc.fi row mooc.fi, contradicts.",
         "required": [
           "credit_registration_id",
-          "course_module_completion_id",
           "user_id",
-          "course_id",
           "course_name",
-          "course_module_id",
           "state",
           "state_entered_at",
           "mirror_missing",
@@ -26168,19 +29096,21 @@
         ],
         "properties": {
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_completion_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration, as are the course and the module."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
           },
           "credit_registration_id": {
             "type": "string",
@@ -26188,6 +29118,14 @@
           },
           "email": {
             "type": ["string", "null"]
+          },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "first_name": {
             "type": ["string", "null"]
@@ -26197,11 +29135,11 @@
           },
           "mirror_missing": {
             "type": "boolean",
-            "description": "We registered it and the legacy ledger has no row of ours, so the teacher views and the pull\nstream still call the completion unregistered."
+            "description": "We registered it and the legacy ledger has no row of ours, so the teacher views and the pull\nstream still call the completion unregistered. Never set on a mooc.fi row."
           },
           "registered_by_a_registrar": {
             "type": "boolean",
-            "description": "A registrar took the completion through the pull path while our pipeline had not finished\nwith it: the shape a double registration would have."
+            "description": "A registrar took the completion through the pull path while our pipeline had not finished\nwith it, or another organization registered a mooc.fi completion we had already submitted:\nthe shape a double registration would have."
           },
           "state": {
             "$ref": "#/components/schemas/CreditRegistrationState"
@@ -26352,6 +29290,26 @@
           }
         }
       },
+      "Message": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageMessage"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageToolCall"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageToolOutput"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageReasoning"
+          }
+        ]
+      },
+      "MessageRole": {
+        "type": "string",
+        "enum": ["assistant", "user", "developer", "system"]
+      },
       "ModelType": {
         "type": "string",
         "enum": ["GPTThinking", "GPTNonThinking", "GPTHardThinking", "Mistral"]
@@ -26454,6 +29412,168 @@
           }
         }
       },
+      "MoocfiCompletionRegistration": {
+        "type": "object",
+        "description": "One mooc.fi completion and what is happening to its credits.",
+        "required": ["moocfi_completion_id", "completion_date", "status", "offers_certificate"],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "credit_justification": {
+            "type": ["string", "null"],
+            "description": "The student's saved reason for needing the credits rather than the certificate."
+          },
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The live ledger row, once the pipeline has created one."
+          },
+          "credit_unit": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MoocfiCreditUnit",
+                "description": "The course code the completion registers as, when a target covers its tier."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set for completions courses has taken up."
+          },
+          "moocfi_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "offers_certificate": {
+            "type": "boolean",
+            "description": "Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's\nanswer is unknown: its certificate page copes with a course that has none."
+          },
+          "status": {
+            "$ref": "#/components/schemas/MoocfiCompletionStatus"
+          },
+          "student_facing_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tier": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
+      "MoocfiCompletionStatus": {
+        "type": "string",
+        "description": "Why a completion is or is not registered through courses.",
+        "enum": [
+          "registering_on_courses",
+          "registration_paused",
+          "before_cutoff",
+          "not_eligible",
+          "registered_on_moocfi",
+          "equivalent_registered",
+          "no_credit_unit",
+          "removed_from_moocfi"
+        ]
+      },
+      "MoocfiCourseLink": {
+        "type": "object",
+        "description": "A mooc.fi course's name and registration page, for pages that only link back to it.",
+        "properties": {
+          "course_name": {
+            "type": ["string", "null"],
+            "description": "`None` when no target is configured for the course, as is the URL."
+          },
+          "moocfi_course_url": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "MoocfiCreditRegistrations": {
+        "type": "object",
+        "description": "What the registration page shows for one mooc.fi course.",
+        "required": ["moocfi_course_id", "signed_in_email", "is_up_to_date", "completions"],
+        "properties": {
+          "completions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocfiCompletionRegistration"
+            },
+            "description": "Newest first."
+          },
+          "course_name": {
+            "type": ["string", "null"],
+            "description": "`None` when no target is configured for the course."
+          },
+          "is_up_to_date": {
+            "type": "boolean",
+            "description": "False when mooc.fi could not be asked just now, so `completions` is only what was stored\nearlier and the page should offer to try again."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "moocfi_course_url": {
+            "type": ["string", "null"],
+            "description": "The course's registration page on mooc.fi, for links back."
+          },
+          "signed_in_email": {
+            "type": "string",
+            "description": "The page must show it: a handoff signs in whichever account the TMC token belongs to."
+          }
+        }
+      },
+      "MoocfiCreditUnit": {
+        "type": "object",
+        "description": "The study-registry course a completion registers as.",
+        "required": ["external_credit_target_id", "name", "uh_course_code", "ects_credits"],
+        "properties": {
+          "ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"],
+            "description": "Where an Open University student enrols."
+          },
+          "external_credit_target_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "uh_course_code": {
+            "type": "string"
+          }
+        }
+      },
+      "MoocfiHandoff": {
+        "type": "object",
+        "required": ["redirect_url"],
+        "properties": {
+          "redirect_url": {
+            "type": "string",
+            "description": "Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads."
+          }
+        }
+      },
+      "MoocfiHandoffDestination": {
+        "type": "string",
+        "description": "Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.",
+        "enum": ["certificate"]
+      },
       "MyCourse": {
         "allOf": [
           {
@@ -26474,12 +29594,8 @@
       "MyCreditJustification": {
         "type": "object",
         "description": "What the caller wrote about needing the credits rather than a certificate.",
-        "required": ["course_module_completion_id", "justification", "updated_at"],
+        "required": ["justification", "updated_at"],
         "properties": {
-          "course_module_completion_id": {
-            "type": "string",
-            "format": "uuid"
-          },
           "justification": {
             "type": "string"
           },
@@ -26493,10 +29609,7 @@
         "type": "object",
         "required": [
           "id",
-          "course_id",
           "course_name",
-          "course_slug",
-          "course_module_id",
           "completion_date",
           "student_facing_status",
           "registry_already_held_equal_or_better",
@@ -26521,21 +29634,23 @@
             "format": "date-time"
           },
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration, as are the slug and the module."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the mooc.fi course's."
           },
           "course_slug": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "credits": {
             "type": ["number", "null"],
@@ -26571,6 +29686,11 @@
               }
             ]
           },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set on a mooc.fi registration only, as is `moocfi_course_id`."
+          },
           "grade_id": {
             "type": ["string", "null"]
           },
@@ -26596,6 +29716,11 @@
                 "type": "null"
               }
             ]
+          },
+          "moocfi_course_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The mooc.fi course whose registration page shows this registration."
           },
           "next_attempt_at": {
             "type": "string",
@@ -26658,9 +29783,9 @@
           }
         }
       },
-      "MyCreditRegistrationForCourseModule": {
+      "MyCreditRegistrationForSubject": {
         "type": "object",
-        "description": "The live registration for one course module, with the attempts a newer one replaced.",
+        "description": "The live registration for one course module or mooc.fi completion, with the attempts a newer one\nreplaced.",
         "required": ["registration", "earlier_attempts"],
         "properties": {
           "earlier_attempts": {
@@ -26668,7 +29793,7 @@
             "items": {
               "$ref": "#/components/schemas/MyCreditRegistration"
             },
-            "description": "The module's other rows, newest completion first. Shown because the study registry may hold an\nearlier attempt's attainment as well as the current one's."
+            "description": "The other rows, newest completion first. Shown because the study registry may hold an\nearlier attempt's attainment as well as the current one's."
           },
           "registration": {
             "$ref": "#/components/schemas/MyCreditRegistration"
@@ -26677,8 +29802,8 @@
       },
       "MyEnrolmentRoute": {
         "type": "object",
-        "description": "The caller's answer about where they enrol one module, and whether it can still be changed.",
-        "required": ["course_module_completion_id", "can_change"],
+        "description": "The caller's answer about where they enrol for one completion, and whether it can still be\nchanged.",
+        "required": ["subject_id", "can_change"],
         "properties": {
           "can_change": {
             "type": "boolean",
@@ -26687,10 +29812,6 @@
           "certificate_chosen_at": {
             "type": ["string", "null"],
             "format": "date-time"
-          },
-          "course_module_completion_id": {
-            "type": "string",
-            "format": "uuid"
           },
           "enrolment_confirmed_at": {
             "type": ["string", "null"],
@@ -26739,6 +29860,11 @@
                 "type": "null"
               }
             ]
+          },
+          "subject_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course module completion or mooc.fi completion the answer is for."
           }
         }
       },
@@ -27028,11 +30154,8 @@
         "type": "object",
         "description": "A completion that satisfies the materialise predicate and has no ledger row.",
         "required": [
-          "course_module_completion_id",
           "user_id",
-          "course_id",
           "course_name",
-          "course_module_id",
           "completion_date",
           "created_at",
           "missing_enrolment"
@@ -27043,22 +30166,24 @@
             "format": "date-time"
           },
           "course_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_completion_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for a mooc.fi completion, as are the course and the module."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
           },
           "created_at": {
             "type": "string",
@@ -27066,6 +30191,14 @@
           },
           "email": {
             "type": ["string", "null"]
+          },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "first_name": {
             "type": ["string", "null"]
@@ -28323,7 +31456,7 @@
               "description": "One linking email, in the full list or the dashboard's recent ones.",
               "required": [
                 "id",
-                "course_id",
+                "course_or_target_id",
                 "course_name",
                 "emailed_to",
                 "student_number",
@@ -28342,12 +31475,14 @@
                   "type": ["string", "null"],
                   "format": "uuid"
                 },
-                "course_id": {
-                  "type": "string",
-                  "format": "uuid"
-                },
                 "course_name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The course's name, or \"mooc.fi: \" and the target's name."
+                },
+                "course_or_target_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "The course or mooc.fi target the mail was sent for."
                 },
                 "emailed_to": {
                   "type": "string",
@@ -28420,11 +31555,8 @@
                 "id",
                 "created_at",
                 "user_id",
-                "course_id",
                 "course_name",
-                "course_module_id",
-                "course_instance_id",
-                "course_module_completion_id",
+                "course_or_target_id",
                 "completion_date",
                 "state",
                 "timeline_step",
@@ -28472,26 +31604,32 @@
                   "format": "date-time"
                 },
                 "course_id": {
-                  "type": "string",
-                  "format": "uuid"
+                  "type": ["string", "null"],
+                  "format": "uuid",
+                  "description": "`None` on a mooc.fi registration, as are the module, instance and course module completion."
                 },
                 "course_instance_id": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "format": "uuid"
                 },
                 "course_module_completion_id": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "format": "uuid"
                 },
                 "course_module_id": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "format": "uuid"
                 },
                 "course_module_name": {
                   "type": ["string", "null"]
                 },
                 "course_name": {
-                  "type": "string"
+                  "type": "string",
+                  "description": "The course's name, or \"mooc.fi: \" and the target's name."
+                },
+                "course_or_target_id": {
+                  "type": "string",
+                  "format": "uuid"
                 },
                 "created_at": {
                   "type": "string",
@@ -28548,6 +31686,15 @@
                       "type": "null"
                     }
                   ]
+                },
+                "external_completion_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
+                },
+                "external_credit_target_id": {
+                  "type": ["string", "null"],
+                  "format": "uuid",
+                  "description": "Set on a mooc.fi registration only, as is `external_completion_id`."
                 },
                 "first_name": {
                   "type": ["string", "null"]
@@ -29373,6 +32520,29 @@
           }
         }
       },
+      "PendingMoocfiHandoff": {
+        "type": "object",
+        "description": "Which account a pending continuation would sign in, beside whoever is signed in now.",
+        "required": ["moocfi_course_id", "email", "signed_in_account", "redirect_path"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The handoff account's email, in full: the student confirms by recognising it, and only the\nbrowser the handoff was minted for, from its IP, gets this far."
+          },
+          "moocfi_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "redirect_path": {
+            "type": "string",
+            "description": "The registration page to open once the right account is signed in."
+          },
+          "signed_in_account": {
+            "$ref": "#/components/schemas/SignedInAccount",
+            "description": "When `Same`, the continuation is already spent: open `redirect_path`."
+          }
+        }
+      },
       "PendingReasonCounts": {
         "type": "object",
         "description": "Live `pending` rows per blocker, for the admin dashboard and the account-linking page.",
@@ -29394,7 +32564,16 @@
       },
       "PendingRole": {
         "type": "object",
-        "required": ["id", "created_at", "updated_at", "user_email", "role", "expires_at"],
+        "description": "A role granted to an email address that is not verified yet. See [`activate_for_user`].",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_email",
+          "role",
+          "expires_at",
+          "is_global"
+        ],
         "properties": {
           "course_id": {
             "type": ["string", "null"],
@@ -29412,12 +32591,23 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "expires_at": {
             "type": "string",
             "format": "date-time"
           },
           "id": {
             "type": "string",
+            "format": "uuid"
+          },
+          "is_global": {
+            "type": "boolean"
+          },
+          "organization_id": {
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "role": {
@@ -29434,7 +32624,7 @@
       },
       "PlanMemberWithDetails": {
         "type": "object",
-        "required": ["id", "user_id", "email", "created_at"],
+        "required": ["id", "user_id", "email", "created_at", "receives_weekly_digest"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -29453,6 +32643,9 @@
           },
           "last_name": {
             "type": ["string", "null"]
+          },
+          "receives_weekly_digest": {
+            "type": "boolean"
           },
           "user_id": {
             "type": "string",
@@ -30134,26 +33327,26 @@
         "required": [
           "credit_registration_id",
           "user_id",
-          "course_id",
           "course_name",
-          "course_module_id",
           "state",
           "state_entered_at"
         ],
         "properties": {
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration, as is `course_module_id`."
           },
           "course_module_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
             "type": ["string", "null"]
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
           },
           "credit_registration_id": {
             "type": "string",
@@ -30161,6 +33354,10 @@
           },
           "email": {
             "type": ["string", "null"]
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "first_name": {
             "type": ["string", "null"]
@@ -31075,6 +34272,15 @@
           }
         }
       },
+      "SendCourseDesignerAssistantMessage": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "ServiceInfo": {
         "type": "object",
         "required": ["name", "ports"],
@@ -31109,6 +34315,45 @@
           },
           "target_port": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "SetCourseDesignerAssistantRequest": {
+        "type": "object",
+        "required": ["course_designer_assistant"],
+        "properties": {
+          "course_designer_assistant": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetCourseDesignerSectionStatusRequest": {
+        "type": "object",
+        "required": ["stage", "section_key", "status"],
+        "properties": {
+          "comment": {
+            "type": ["string", "null"],
+            "description": "Blank or `null` stores no comment."
+          },
+          "section_key": {
+            "type": "string",
+            "description": "Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters."
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerSectionStatus"
+          }
+        }
+      },
+      "SetCourseDesignerTaskAssigneeRequest": {
+        "type": "object",
+        "properties": {
+          "assignee_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "A current plan member, or `null` to unassign."
           }
         }
       },
@@ -31164,6 +34409,28 @@
           }
         }
       },
+      "SetGreatMoocVisionRequest": {
+        "type": "object",
+        "properties": {
+          "great_mooc_vision": {
+            "type": ["string", "null"],
+            "description": "Blank or `null` clears the vision."
+          }
+        }
+      },
+      "SetWeeklyDigestSubscriptionRequest": {
+        "type": "object",
+        "required": ["receives_weekly_digest"],
+        "properties": {
+          "receives_weekly_digest": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SignedInAccount": {
+        "type": "string",
+        "enum": ["same", "different", "none"]
+      },
       "SisuDescriptionResponse": {
         "type": "object",
         "required": ["course_description", "audience", "modules"],
@@ -31182,6 +34449,18 @@
             "items": {
               "$ref": "#/components/schemas/Module"
             }
+          }
+        }
+      },
+      "StreamEventError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "details": {
+            "type": ["string", "null"]
+          },
+          "message": {
+            "type": "string"
           }
         }
       },
@@ -31531,14 +34810,16 @@
       "SuotarApiCallLedgerReference": {
         "type": "object",
         "description": "One ledger row a call carried, resolved from `credit_registration_ids`. This is what stands in\nfor the redacted body: the identifiers are here, beside the item they belong to.",
-        "required": ["credit_registration_id", "user_id", "course_id", "course_name", "state"],
+        "required": ["credit_registration_id", "user_id", "course_name", "state"],
         "properties": {
           "course_id": {
-            "type": "string",
-            "format": "uuid"
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` on a mooc.fi registration."
           },
           "course_name": {
-            "type": "string"
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
           },
           "credit_registration_id": {
             "type": "string",
@@ -31556,6 +34837,10 @@
                 "type": "null"
               }
             ]
+          },
+          "external_credit_target_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           },
           "first_name": {
             "type": ["string", "null"]
@@ -32118,6 +35403,20 @@
           }
         }
       },
+      "TierRange": {
+        "type": "object",
+        "description": "The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.",
+        "properties": {
+          "highest": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "lowest": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
       "TimeGranularity": {
         "type": "string",
         "enum": ["Year", "Month", "Day"]
@@ -32160,8 +35459,14 @@
           "admin_support_accounts",
           "admin_support_courses",
           "admin_support_learning_progress",
-          "admin_support_academic_integrity"
+          "admin_support_academic_integrity",
+          "course_planning"
         ]
+      },
+      "ToolKind": {
+        "type": "string",
+        "description": "Who answers a tool call, which decides what happens to a call that has no output yet.",
+        "enum": ["function", "azure_ai_search", "client_tool"]
       },
       "UnlinkMyStudentNumberResult": {
         "type": "object",
@@ -32176,6 +35481,7 @@
       },
       "UpdateCourseDesignerStageTaskRequest": {
         "type": "object",
+        "description": "Fields left out stay unchanged. An empty `description` clears it.",
         "properties": {
           "description": {
             "type": ["string", "null"]
@@ -32185,6 +35491,20 @@
           },
           "title": {
             "type": ["string", "null"]
+          }
+        }
+      },
+      "UpdateCourseDesignerStageWorkspaceRequest": {
+        "type": "object",
+        "required": ["workspace", "base_revision"],
+        "properties": {
+          "base_revision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The stage's `workspace_revision` the edit started from. A save based on an older revision\nis refused with `stale_version`."
+          },
+          "workspace": {
+            "$ref": "#/components/schemas/CourseDesignerStageWorkspace"
           }
         }
       },

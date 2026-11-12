@@ -14,7 +14,6 @@ use crate::{
     library::grading::SubmittedAnswer,
     peer_or_self_review_question_submissions::PeerOrSelfReviewQuestionSubmission,
     peer_or_self_review_questions::PeerOrSelfReviewQuestion,
-    peer_or_self_review_submissions::PeerOrSelfReviewSubmission,
     prelude::*,
 };
 
@@ -351,7 +350,17 @@ fn answer_columns(answer: &SubmittedAnswer) -> ModelResult<AnswerColumns<'_>> {
 pub struct PeerOrSelfReviewsReceived {
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
     pub peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
-    pub peer_or_self_review_submissions: Vec<PeerOrSelfReviewSubmission>,
+    pub peer_or_self_review_submissions: Vec<ReceivedPeerOrSelfReviewSubmission>,
+}
+
+/// A review as its receiver sees it: without the reviewer's identity, which peer review keeps
+/// anonymous.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct ReceivedPeerOrSelfReviewSubmission {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub exercise_slide_submission_id: Uuid,
+    pub is_self_review: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -755,7 +764,15 @@ pub async fn get_peer_reviews_received(
     Ok(PeerOrSelfReviewsReceived {
         peer_or_self_review_questions,
         peer_or_self_review_question_submissions,
-        peer_or_self_review_submissions,
+        peer_or_self_review_submissions: peer_or_self_review_submissions
+            .into_iter()
+            .map(|review| ReceivedPeerOrSelfReviewSubmission {
+                id: review.id,
+                created_at: review.created_at,
+                exercise_slide_submission_id: review.exercise_slide_submission_id,
+                is_self_review: review.user_id == user_id,
+            })
+            .collect(),
     })
 }
 

@@ -73,7 +73,7 @@ test("Email ownership verification: the emailed code proves the address and an e
     spentCode = await pendingVerificationCode(page)
 
     await enterCode(page, wrongCode(spentCode))
-    await expect(page.locator("#code-error")).toContainText("That code didn't work")
+    await expect(page.getByTestId("one-time-code-error")).toContainText("That code didn't work")
 
     await enterCode(page, spentCode)
 

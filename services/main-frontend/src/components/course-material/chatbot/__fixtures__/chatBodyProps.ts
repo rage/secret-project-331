@@ -11,6 +11,7 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 
 import type { ChatbotConversationMessageWithStatus } from "../shared/ChatbotChatBody"
+import { BASE_CLIENT_TOOL_REGISTRY } from "../shared/clientToolRegistry"
 import type {
   ChatbotComposerValues,
   ChatbotStateAndData,
@@ -165,8 +166,10 @@ export const makeChatBodyProps = ({
     messageState: { messages: streamedMessages, executionPayloadByToolCallId: {} },
     dispatch: jest.fn(),
     chatbotMessageAnnouncement: "",
+    clientToolRegistry: BASE_CLIENT_TOOL_REGISTRY,
     newMessageMutation,
     toolResponseMutation,
+    answerErrorByToolCallId: {},
     isTurnInFlight,
     stopTurn,
     setDialogOpen: jest.fn(),

@@ -12,7 +12,7 @@ import { below } from "../styles/breakpoints"
 import { DURATION_MS } from "../styles/motion"
 import { Button, type ButtonProps } from "./Button"
 
-export type DialogSize = "normal" | "wide"
+export type DialogSize = "small" | "normal" | "wide"
 export type DialogPadding = "normal" | "none"
 export type DialogRole = "dialog" | "alertdialog"
 export type DialogExit = "fade" | "handoff"
@@ -149,6 +149,12 @@ const surfaceCss = css`
 `
 
 const sizeCss: Record<DialogSize, string> = {
+  /* For a short form such as a one-time code; full padding under so little body detaches its last
+     line from the footer. */
+  small: css`
+    --dialog-width-cap: 480px;
+    --dialog-body-padding-bottom: var(--space-4);
+  `,
   normal: css`
     --dialog-width-cap: 700px;
   `,
@@ -259,6 +265,7 @@ const contentCss = css`
   overflow-x: hidden;
   overflow-wrap: break-word;
   padding: var(--dialog-padding);
+  padding-bottom: var(--dialog-body-padding-bottom, var(--dialog-padding));
 
   &[data-below-header="true"] {
     padding-top: var(--dialog-gap-below-header);

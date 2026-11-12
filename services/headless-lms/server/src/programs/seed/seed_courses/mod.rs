@@ -3,6 +3,7 @@ pub mod seed_agent_changesets;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
+pub mod seed_course_design_guide;
 pub mod seed_lock_chapter_course;
 pub use seed_lock_chapter_course::seed_lock_chapter_course;
 pub mod seed_material_reference_course;

@@ -28,15 +28,27 @@ export type AccountLinkingCodeCounters = {
 }
 
 /**
- * A module on a course code, which shares the code's enrolment list.
+ * A module or mooc.fi target on a course code, which shares the code's enrolment list.
  */
 export type AccountLinkingCodeModule = {
-  course_id: string
-  course_module_id: string
+  /**
+   * The module's course; `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
+   * `None` for a mooc.fi target.
+   */
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   /**
-   * When an enrolment list last fed account linking for the module.
+   * The module's or target's id.
+   */
+  credit_unit_id: string
+  /**
+   * When an enrolment list last fed account linking for the module or target.
    */
   last_listed_at?: string | null
 }
@@ -96,8 +108,14 @@ export type AccountLinkingEmailRow = {
   claimed_at: string
   claimed_by_email?: string | null
   claimed_by_user_id?: string | null
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
   /**
    * In full: support finds a student's mail by it.
    */
@@ -166,9 +184,12 @@ export type AccountLinkingFunnel = {
  */
 export type AccountLinkingPresser = {
   completion_date: string
-  course_id: string
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
@@ -244,11 +265,17 @@ export type AccountLinkingSendStatusTotals = {
 }
 
 /**
- * A person mailed to the cap for one course whose number was never claimed.
+ * A person mailed to the cap for one course or mooc.fi target whose number was never claimed.
  */
 export type AccountLinkingStaleAddress = {
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mails were sent for.
+   */
+  course_or_target_id: string
   first_sent_at: string
   last_sent_at: string
   mail_count: number
@@ -325,8 +352,14 @@ export type AccountLinkingStats = {
  */
 export type AccountLinkingUnusedLink = {
   claimed_at: string
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The course or mooc.fi target the mail was sent for.
+   */
+  course_or_target_id: string
   /**
    * In full: support tells the recipients apart by it.
    */
@@ -341,9 +374,12 @@ export type AccountLinkingUnusedLink = {
  */
 export type AccountLinkingWaitingStudent = {
   completion_date: string
-  course_id: string
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   email?: string | null
   /**
@@ -370,6 +406,14 @@ export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submi
 
 export type AddPlanMemberRequest = {
   email: string
+}
+
+/**
+ * The whole schedule in stage order. Completed stages must keep their dates, and later stages
+ * must already be shifted so there are no gaps or overlaps.
+ */
+export type AdjustCourseDesignerScheduleRequest = {
+  stages: Array<CourseDesignerScheduleStageInput>
 }
 
 /**
@@ -454,6 +498,7 @@ export type AdminCreditRegistrationDetails = {
    * Linking emails sent by hand as a guess for this row's student, newest first.
    */
   manual_linking_email_sends: Array<AdminManualLinkingEmailSend>
+  moocfi_completion?: AdminMoocfiCompletion | null
   not_improved_attainment?: NotImprovedAttainment | null
   /**
    * The student mails queued for every attempt ("Please register" is `action_needed`), with the
@@ -542,12 +587,19 @@ export type AdminCreditRegistrationRow = {
   attention_reasons: Array<CreditRegistrationAttentionReason>
   attention_standing?: AttentionStanding | null
   completion_date: string
-  course_id: string
-  course_instance_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as are the module, instance and course module completion.
+   */
+  course_id?: string | null
+  course_instance_id?: string | null
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   created_at: string
   credits?: number | null
   /**
@@ -563,6 +615,11 @@ export type AdminCreditRegistrationRow = {
   enrolment_checks_stopped_at?: string | null
   enrolment_route?: CreditRegistrationEnrolmentRoute | null
   error_code?: CreditRegistrationErrorCode | null
+  external_completion_id?: string | null
+  /**
+   * Set on a mooc.fi registration only, as is `external_completion_id`.
+   */
+  external_credit_target_id?: string | null
   first_name?: string | null
   grade_id?: string | null
   grade_scale_id?: string | null
@@ -642,6 +699,10 @@ export type AdminCreditRegistrationRow = {
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
 
+export type AdminDeleteExternalCreditTargetPayload = {
+  reason: string
+}
+
 export type AdminDismissAttentionPayload = {
   reason: string
 }
@@ -655,6 +716,34 @@ export type AdminDismissAttentionResult = {
 
 export type AdminDismissStudyRegistryConflictPayload = {
   reason: string
+}
+
+/**
+ * A mooc.fi target's configuration as the admin form sends it, with the audit reason.
+ */
+export type AdminExternalCreditTargetPayload = {
+  /**
+   * Must equal mooc.fi's `credit_registration_delegated_at` and the other live targets' cutoff
+   * of the same mooc.fi course. Cannot change once the target has registrations.
+   */
+  delegated_at: string
+  ects_credits: number
+  enabled: boolean
+  enrolment_link?: string | null
+  grading: ExternalGrading
+  /**
+   * BCP 47, e.g. `fi-FI`.
+   */
+  language_code: string
+  /**
+   * The handler course on mooc.fi, which the completions are stored on.
+   */
+  moocfi_course_id: string
+  moocfi_course_slug: string
+  name: string
+  reason: string
+  tiers?: TierRange | null
+  uh_course_code: string
 }
 
 /**
@@ -700,8 +789,14 @@ export type AdminLinkingCandidates = {
    */
   candidates: Array<AdminLinkingCandidate>
   course_code: string
-  course_id: string
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The registration's course or mooc.fi target, which mails to a candidate are sent for.
+   */
+  course_or_target_id: string
   /**
    * The study registry gave no usable answer, so an empty `candidates` says nothing.
    */
@@ -723,11 +818,15 @@ export type AdminLinkingCourse = {
 
 export type AdminLinkingEmail = {
   claimed_at: string
-  course_id: string
+  /**
+   * `None` for a mooc.fi target's mail.
+   */
+  course_id?: string | null
   /**
    * In full.
    */
   emailed_to: string
+  external_credit_target_id?: string | null
   id: string
   send_status: EmailSendStatusReport
   sisu_person_id: string
@@ -808,11 +907,62 @@ export type AdminMaterializePayload = {
 
 export type AdminMaterializeResult = {
   /**
-   * Rows created, both for newly eligible completions and for grades that improved on a
-   * registered one.
+   * Rows created: for newly eligible completions, for grades that improved on a registered one,
+   * and for completions registrable again after a withdrawal.
    */
   created_registration_count: number
   moved_registration_count: number
+}
+
+/**
+ * A mooc.fi completion as courses last read it, and how reporting this registration back went.
+ */
+export type AdminMoocfiCompletion = {
+  moocfi_completion_id: string
+  /**
+   * mooc.fi's grade verbatim, before parsing.
+   */
+  raw_grade?: string | null
+  /**
+   * The earlier, registered completion with the same grade and tier that keeps this one from
+   * being registered.
+   */
+  registered_equivalent_moocfi_completion_id?: string | null
+  /**
+   * When another organization's registration of it was first seen on mooc.fi.
+   */
+  registered_upstream_at?: string | null
+  registration_report: AdminMoocfiRegistrationReport
+  tier?: number | null
+  /**
+   * The last successful read from mooc.fi.
+   */
+  upstream_checked_at: string
+  /**
+   * When mooc.fi stopped returning the completion.
+   */
+  upstream_missing_at?: string | null
+}
+
+/**
+ * Reporting this registration back to mooc.fi.
+ */
+export type AdminMoocfiRegistrationReport = {
+  attempt_count: number
+  /**
+   * A success mooc.fi is never told about: a duplicate or not-improved row after an earlier
+   * success of the same completion.
+   */
+  is_skipped: boolean
+  last_error?: string | null
+  /**
+   * `None` until a report has been tried.
+   */
+  next_attempt_at?: string | null
+  /**
+   * When this registration was reported to mooc.fi, or found already there.
+   */
+  reported_at?: string | null
 }
 
 /**
@@ -876,7 +1026,11 @@ export type AdminRequestEnrolmentListFetchResult = {
 
 export type AdminRequeueRetryablePayload = {
   course_id?: string | null
+  /**
+   * A course module, or a mooc.fi target.
+   */
   course_module_id?: string | null
+  external_credit_target_id?: string | null
   reason: string
 }
 
@@ -886,10 +1040,13 @@ export type AdminRequeueRetryableResult = {
 }
 
 export type AdminResendAccountLinkingEmailPayload = {
-  course_id: string
+  /**
+   * The course or mooc.fi target to mail for.
+   */
+  course_or_target_id: string
   /**
    * The registration whose student the mail is a guess for, from the linking candidates. Must be
-   * on `course_id`; recorded on the audit row.
+   * on the course or target; recorded on the audit row.
    */
   credit_registration_id?: string | null
   /**
@@ -1105,13 +1262,13 @@ export type AnalysisWorkspaceV1 = {
   degree_programme?: string | null
   language?: string | null
   market_results?: string | null
-  mode_asynchronous: boolean
-  mode_synchronous: boolean
-  open_period_all: boolean
-  open_period_i: boolean
-  open_period_ii: boolean
-  open_period_iii: boolean
-  open_period_iv: boolean
+  mode_asynchronous?: boolean
+  mode_synchronous?: boolean
+  open_period_all?: boolean
+  open_period_i?: boolean
+  open_period_ii?: boolean
+  open_period_iii?: boolean
+  open_period_iv?: boolean
   resources_purchase_budget?: string | null
   resources_university?: string | null
   responsible_teachers?: string | null
@@ -1119,10 +1276,10 @@ export type AnalysisWorkspaceV1 = {
   target_group?: string | null
   wishes_assessment_text?: string | null
   wishes_content_format_notes?: string | null
-  wishes_content_format_podcast: boolean
-  wishes_content_format_text: boolean
-  wishes_content_format_video: boolean
-  wishes_content_format_xr: boolean
+  wishes_content_format_podcast?: boolean
+  wishes_content_format_text?: boolean
+  wishes_content_format_video?: boolean
+  wishes_content_format_xr?: boolean
   wishes_other_suggestions?: string | null
   wishes_topics?: string | null
 }
@@ -1482,8 +1639,59 @@ export type ChapterUpdate = {
   opens_at?: string | null
 }
 
+export type ChatbotChatStreamEvent =
+  | {
+      data: {
+        message_id: string
+        text: string
+      }
+      type: "Delta"
+    }
+  | {
+      data: {
+        finished: boolean
+        reasoning_id: string
+      }
+      type: "Reasoning"
+    }
+  | {
+      data: {
+        arguments?: string | null
+        finished: boolean
+        tool_call_id: string
+        tool_name?: string | null
+      }
+      type: "ToolCall"
+    }
+  | {
+      type: "Done"
+    }
+  | {
+      type: "Suspended"
+    }
+  | {
+      /**
+       * A confirmed action tool call executed, carrying data for the confirming admin's browser
+       * only (e.g. a reset link). Never persisted: it is not in `payload` again after a reload, and
+       * the model never sees it either.
+       */
+      data: {
+        payload: unknown
+        tool_call_id: string
+      }
+      type: "ActionExecuted"
+    }
+  | {
+      data: StreamEventError
+      type: "Error"
+    }
+
 export type ChatbotConfiguration = {
   chatbot_name: string
+  /**
+   * Answers on course design plan pages; at most one live configuration has this set.
+   */
+  course_designer_assistant: boolean
   course_id?: string | null
   created_at: string
   daily_tokens_per_user: number
@@ -1525,6 +1733,150 @@ export type ChatbotConfigurationModel = {
   updated_at: string
 }
 
+export type ChatbotConversation = {
+  anonymous_token?: string | null
+  chatbot_configuration_id: string
+  conversation_title?: string | null
+  /**
+   * Set for conversations with the course design assistant about this plan.
+   */
+  course_designer_plan_id?: string | null
+  course_id?: string | null
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  updated_at: string
+  user_id?: string | null
+}
+
+/**
+ * Everything needed to display the chatbot to the user.
+ */
+export type ChatbotConversationInfo = {
+  chatbot_name: string
+  course_name?: string | null
+  current_conversation?: ChatbotConversation | null
+  current_conversation_message_citations?: Array<ChatbotConversationMessageCitation> | null
+  current_conversation_messages?: Array<ChatbotConversationMessage> | null
+  hide_citations: boolean
+  /**
+   * What to offer the learner as their next message. Absent when nothing should be offered: the
+   * configuration has suggestions off, or the conversation is at a point where a suggestion does
+   * not belong, such as a turn suspended on a question to the learner. Empty means suggestions
+   * are wanted but none have been generated yet, which is what makes the endpoint generate them.
+   */
+  suggested_messages?: Array<ChatbotConversationSuggestedMessage> | null
+}
+
+export type ChatbotConversationMessage = {
+  conversation_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message: Message
+  order_number: number
+  updated_at: string
+}
+
+export type ChatbotConversationMessageCitation = {
+  citation_number: number
+  content: string
+  conversation_id: string
+  conversation_message_id: string
+  course_material_chapter_number?: number | null
+  created_at: string
+  deleted_at?: string | null
+  document_url: string
+  id: string
+  title: string
+  updated_at: string
+}
+
+export type ChatbotConversationMessageMessage = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message_is_complete: boolean
+  message_role: MessageRole
+  response_id?: string | null
+  text: string
+  updated_at: string
+  used_tokens: number
+}
+
+export type ChatbotConversationMessageReasoning = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  reasoning_id: string
+  response_id: string
+  summary?: string | null
+  updated_at: string
+}
+
+export type ChatbotConversationMessageToolCall = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  response_id: string
+  /**
+   * Is type = string in the OpenApi schema, because there is no known shape
+   * for this JSON value/object so we treat it as 'string' instead of
+   * 'unknown' in the API autogenerated types. Since it's valid JSON, we save
+   * it as JSON in our DB.
+   */
+  tool_arguments: string
+  tool_call_id: string
+  tool_kind: ToolKind
+  tool_name: string
+  updated_at: string
+}
+
+export type ChatbotConversationMessageToolOutput = {
+  chatbot_conversation_message_id: string
+  /**
+   * The answer payload the client sent, in the shape the answered tool defines. None for
+   * outputs no client answered.
+   */
+  client_answer?: {
+    [key: string]: unknown
+  } | null
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  output: string
+  response_id: string
+  tool_call_id: string
+  tool_kind: ToolKind
+  updated_at: string
+}
+
+export type ChatbotConversationSuggestedMessage = {
+  conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  message: string
+  updated_at: string
+}
+
+export type ChatbotToolResponse = {
+  answer: ClientToolAnswer
+  /**
+   * The call being answered, as its `tool_call_id` arrived in the `ToolCall` stream event.
+   */
+  tool_call_id: string
+  /**
+   * The tool the caller believes `tool_call_id` belongs to, checked against the call's
+   * recorded name so a client answering the wrong bubble fails clearly instead of being
+   * silently accepted as whatever tool the call actually was.
+   */
+  tool_name: ClientToolName
+}
+
 /**
  * What checking a row now brings forward.
  */
@@ -1561,6 +1913,49 @@ export type ClaimStudentNumberVerificationTokenResult = {
   outcome: ClaimStudentNumberVerificationTokenOutcome
   student_number?: string | null
 }
+
+/**
+ * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+ */
+export type ClientToolAnswer = {
+  /**
+   * The tool ran on the client. `result` is JSON of whatever shape the tool defines.
+   */
+  data: {
+    /**
+     * An untyped object in the OpenApi schema: the shape belongs to the tool, so it is not
+     * known here. Unlike the tool call arguments we hand back to clients, this one is built
+     * by the client, so declaring it a string would make the generated binding unusable.
+     */
+    result: {
+      [key: string]: unknown
+    }
+  }
+  type: "Data"
+}
+
+/**
+ * The name of a client tool, generated into the frontend as a string union so it names one of
+ * [ClientChatbotTool::NAME] by construction instead of by a hand-copied literal.
+ *
+ * The bounds a tool enforces on its arguments and the shape of its answer stay hand-written on
+ * the frontend: routing those through the OpenAPI schema would need either a schema per tool or
+ * widening the argument and answer types this crate uses to serialize them, for a part of the
+ * contract that only fails loudly, unlike the name.
+ */
+export type ClientToolName =
+  | "ask_multiple_choice_question"
+  | "generate_password_reset_link"
+  | "reset_exercises"
+  | "update_cheating_status"
+  | "edit_user_account"
+  | "update_certificate"
+  | "propose_workspace_edit"
+  | "propose_add_task"
+  | "propose_update_task"
+  | "propose_schedule_adjustment"
+  | "propose_section_status"
+  | "propose_vision_edit"
 
 export type CmsPageExercise = {
   deadline?: string | null
@@ -1787,6 +2182,25 @@ export type ContentEntityType =
   | "reference"
   | "course_default_review_config"
 
+export type ContinueMoocfiHandoffPayload = {
+  /**
+   * Who was signed in when the student confirmed, as `pending` said. If it has changed since,
+   * the student confirmed something else, so nothing is switched.
+   */
+  expected_signed_in_account: SignedInAccount
+  /**
+   * The course whose landing page the student confirmed on.
+   */
+  moocfi_course_id: string
+}
+
+export type ContinuedMoocfiHandoff = {
+  /**
+   * The registration page; open it with a full navigation so the new session takes over.
+   */
+  redirect_path: string
+}
+
 export type CopyCourseMode =
   | {
       mode: "duplicate"
@@ -1921,6 +2335,17 @@ export type CourseBreadcrumbInfo = {
   course_slug: string
   organization_name: string
   organization_slug: string
+}
+
+/**
+ * A course's chatbot as offered when choosing the course design assistant.
+ */
+export type CourseChatbotOption = {
+  chatbot_name: string
+  course_designer_assistant: boolean
+  course_id: string
+  course_name: string
+  id: string
 }
 
 export type CourseCompletionStats = {
@@ -2108,13 +2533,30 @@ export type CourseDefaultReviewConfigChange = EntityChange & {
   exercise_count: number
 }
 
+export type CourseDesignerAssistantStatus = {
+  /**
+   * Whether the chatbot backend is configured and a chatbot has been chosen as the assistant.
+   */
+  available: boolean
+  /**
+   * Whether the assistant belongs to a guide course, so answers can cite guide pages. When
+   * false the assistant answers from the plan and general knowledge only.
+   */
+  has_guide_course: boolean
+}
+
 export type CourseDesignerCourseSize = "small" | "medium" | "large"
 
 export type CourseDesignerPlan = {
   active_stage?: CourseDesignerStage | null
   created_at: string
   created_by_user_id: string
+  /**
+   * Set once a course has been created from the plan; see [`crate::library::course_designer::create_course_from_plan`].
+   */
+  created_course_id?: string | null
   deleted_at?: string | null
+  great_mooc_vision?: string | null
   id: string
   last_weekly_stage_email_sent_at?: string | null
   name?: string | null
@@ -2125,14 +2567,31 @@ export type CourseDesignerPlan = {
 export type CourseDesignerPlanDetails = {
   members: Array<CourseDesignerPlanMember>
   plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
   stages: Array<CourseDesignerPlanStageWithTasks>
 }
 
 export type CourseDesignerPlanMember = {
   created_at: string
   id: string
+  receives_weekly_digest: boolean
   updated_at: string
   user_id: string
+}
+
+export type CourseDesignerPlanSectionStatus = {
+  comment?: string | null
+  course_designer_plan_id: string
+  created_at: string
+  id: string
+  /**
+   * Defined by the frontend forms, e.g. `design.learning_goals`.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+  updated_at: string
+  updated_by_user_id: string
 }
 
 export type CourseDesignerPlanStage = {
@@ -2146,11 +2605,19 @@ export type CourseDesignerPlanStage = {
   status: CourseDesignerPlanStageStatus
   updated_at: string
   workspace_data?: unknown
+  /**
+   * Bumped on every save of `workspace_data`; saves must name the revision they were based on.
+   */
+  workspace_revision: number
 }
 
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
 
 export type CourseDesignerPlanStageTask = {
+  /**
+   * Always a current plan member; cleared when that member leaves.
+   */
+  assignee_user_id?: string | null
   completed_at?: string | null
   completed_by_user_id?: string | null
   course_designer_plan_stage_id: string
@@ -2204,6 +2671,8 @@ export type CourseDesignerScheduleSuggestionResponse = {
   stages: Array<CourseDesignerScheduleStageInput>
 }
 
+export type CourseDesignerSectionStatus = "Ready" | "Unfinished"
+
 export type CourseDesignerStage =
   | "Analysis"
   | "Design"
@@ -2213,10 +2682,36 @@ export type CourseDesignerStage =
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ *
+ * Each schema belongs to exactly one stage; see [`CourseDesignerStageWorkspace::stage`].
  */
-export type CourseDesignerStageWorkspace = {
-  payload: AnalysisWorkspaceV1
-  schema: "analysis_v1"
+export type CourseDesignerStageWorkspace =
+  | {
+      payload: AnalysisWorkspaceV1
+      schema: "analysis_v1"
+    }
+  | {
+      payload: DesignWorkspaceV1
+      schema: "design_v1"
+    }
+
+/**
+ * One plan as global admins see it in the MOOC support listing.
+ */
+export type CourseDesignerSupportPlan = {
+  members: Array<PlanMemberWithDetails>
+  plan: CourseDesignerPlan
+  section_statuses: Array<CourseDesignerPlanSectionStatus>
+  stages: Array<CourseDesignerSupportStage>
+}
+
+export type CourseDesignerSupportStage = {
+  completed_task_count: number
+  planned_ends_on: string
+  planned_starts_on: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  task_count: number
 }
 
 export type CourseEnrollmentInfo = {
@@ -2577,6 +3072,33 @@ export type CreateCourseDesignerStageTaskRequest = {
   title: string
 }
 
+export type CreateCourseFromPlanRequest = {
+  /**
+   * Defaults to the Analysis form's language when it reads as one, else English.
+   */
+  language_code?: string | null
+  /**
+   * Defaults to the Analysis form's course title, then the plan name.
+   */
+  name?: string | null
+  /**
+   * An organization the user may create courses in.
+   */
+  organization_id: string
+}
+
+/**
+ * Where the caller asks to be sent on mooc.fi.
+ */
+export type CreateMoocfiHandoffPayload = {
+  destination: MoocfiHandoffDestination
+  /**
+   * The language the caller is using courses in; see
+   * [`headless_lms_base::config::MoocfiConfiguration::localized_frontend_url`].
+   */
+  ui_language?: string | null
+}
+
 /**
  * A redirect from a page's old path, created when the page moved to a new one.
  */
@@ -2607,6 +3129,9 @@ export type CreditRegistrationAdminAction =
   | "dismiss_study_registry_conflict"
   | "dismiss_attention"
   | "add_note"
+  | "configure_external_credit_target"
+  | "pause_external_credit_target"
+  | "resume_external_credit_target"
 
 export type CreditRegistrationAdminActionRecord = {
   action: CreditRegistrationAdminAction
@@ -2682,6 +3207,7 @@ export type CreditRegistrationAdminActionTarget =
   | "student_number_verification_token"
   | "roster_schedule"
   | "study_registry_student_number_conflict"
+  | "external_credit_target"
 
 export type CreditRegistrationAlert = {
   /**
@@ -2737,7 +3263,13 @@ export type CreditRegistrationAlertSeverity = "info" | "warning" | "critical"
  * A dismissal made recently, for the "Dismissed recently" section.
  */
 export type CreditRegistrationAttentionDismissal = {
-  course_id: string
+  /**
+   * `None` on a mooc.fi registration.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   dismissed_at: string
@@ -2746,6 +3278,7 @@ export type CreditRegistrationAttentionDismissal = {
   dismissed_by_user_id: string
   dismissed_reasons: Array<CreditRegistrationAttentionReason>
   email?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   reason: string
@@ -2755,10 +3288,17 @@ export type CreditRegistrationAttentionDismissal = {
 export type CreditRegistrationAttentionItem = {
   attempt_count: number
   blocking_problem?: BlockingProblem | null
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  course_or_target_id: string
   credit_registration_id: string
   /**
    * In full: this is the list support works from.
@@ -2881,6 +3421,7 @@ export type CreditRegistrationAttentionReason =
   | "verification_gave_up"
   | "repeatedly_not_registered"
   | "student_number_stuck"
+  | "report_back_overdue"
   | "flagged_by_pipeline"
 
 export type CreditRegistrationAttentionReasonCount = {
@@ -2938,6 +3479,9 @@ export type CreditRegistrationCourseConfigCheck = {
   message?: string | null
 }
 
+/**
+ * One row of the Courses tab: a course module or a mooc.fi target.
+ */
 export type CreditRegistrationCourseStats = {
   /**
    * Of `success_count`, already in Sisu or with a better grade there.
@@ -2953,28 +3497,40 @@ export type CreditRegistrationCourseStats = {
    * which the stored verdict beside it cannot express on its own.
    */
   config_checked_at?: string | null
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` for a mooc.fi target, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
+  /**
+   * The module's or target's id, which the Registrations list's `course_module_id` filter takes.
+   */
+  credit_unit_id: string
   ects_credits?: number | null
   /**
    * Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
    * what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
    * a module keeps a permanent gap against `registration_count` for the completions that predate
-   * the push path.
+   * the push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn
+   * ones left out.
    */
   eligible_completion_count: number
   /**
    * Where a student with no usable enrolment is sent to enrol.
    */
   enrolment_link?: string | null
+  external_credit_target?: ExternalCreditTarget | null
   failed_count: number
   in_flight_count: number
   last_listed_at?: string | null
   last_registered_at?: string | null
   /**
-   * The module's rows counted in Needs attention: the Registrations list with
+   * The row's registrations counted in Needs attention: the Registrations list with
    * `course_module_id` and `needs_attention=true` holds exactly these.
    */
   needs_attention_count: number
@@ -3431,10 +3987,13 @@ export type CreditRegistrationStateTotal = {
 
 export type CreditRegistrationStatsByCourse = {
   /**
-   * Modules whose current facts fail the check, which is the tab badge.
+   * Modules first, then mooc.fi targets.
+   */
+  credit_units: Array<CreditRegistrationCourseStats>
+  /**
+   * Modules and targets whose current facts fail the check, which is the tab badge.
    */
   misconfigured_count: number
-  modules: Array<CreditRegistrationCourseStats>
 }
 
 /**
@@ -3535,6 +4094,118 @@ export type DeploymentInfo = {
   selector_labels: {
     [key: string]: string
   }
+}
+
+export type DesignChapter = {
+  /**
+   * Generated by the client so edits and the assistant can address a chapter stably.
+   */
+  id?: string
+  learning_objectives?: Array<string>
+  title?: string
+  /**
+   * Topics in order; each becomes a page between the chapter's Introduction and Conclusion.
+   */
+  topics?: Array<DesignChapterTopic>
+}
+
+export type DesignChapterTopic = {
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  title?: string
+}
+
+export type DesignPlannedContentFormats = {
+  chatbots?: boolean
+  infographics?: boolean
+  photos?: boolean
+  podcast?: boolean
+  simulations?: boolean
+  text?: boolean
+  thinglink?: boolean
+  videos?: boolean
+}
+
+/**
+ * The "Page/Screen Layout Elements" style guide: one free-text rule per item.
+ */
+export type DesignStyleGuide = {
+  active_passive_voice?: string
+  blocks?: string
+  bulleted_lists?: string
+  capitalization?: string
+  colour_palette?: string
+  file_naming?: string
+  font?: string
+  graphics_background?: string
+  podcast?: string
+  punctuation?: string
+  references_and_citations?: string
+  terminology_and_acronyms?: string
+  video_styles?: string
+  writing_style?: string
+}
+
+export type DesignWorkloadActivity = {
+  activity_type?: DesignWorkloadActivityType
+  /**
+   * How many times the activity occurs in the course.
+   */
+  count?: number
+  /**
+   * Generated by the client.
+   */
+  id?: string
+  /**
+   * Estimated student time for one occurrence, in minutes.
+   */
+  minutes_each?: number
+  title?: string
+}
+
+/**
+ * ABC learning design activity types used by the student workload calculator.
+ */
+export type DesignWorkloadActivityType =
+  | "acquisition_audio"
+  | "acquisition_video"
+  | "acquisition_reading"
+  | "discussion"
+  | "collaboration"
+  | "investigation"
+  | "practice"
+  | "production"
+
+/**
+ * Design stage form: learning goals, core content, course structure, content formats, style
+ * guide, exercises and student workload.
+ */
+export type DesignWorkspaceV1 = {
+  accessibility_notes?: string
+  /**
+   * Planned chapters in course order. Creating a course from the plan turns each into a chapter.
+   */
+  chapters?: Array<DesignChapter>
+  content_format_notes?: string
+  /**
+   * What every student must learn, about 80 % of the content.
+   */
+  core_content_must_know?: string
+  /**
+   * About 5 % of the content.
+   */
+  core_content_nice_to_know?: string
+  /**
+   * About 15 % of the content.
+   */
+  core_content_should_know?: string
+  exercise_notes?: string
+  learning_goals?: Array<string>
+  planned_content_formats?: DesignPlannedContentFormats
+  style_guide?: DesignStyleGuide
+  workload_activities?: Array<DesignWorkloadActivity>
 }
 
 /**
@@ -3735,6 +4406,8 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "verify_network"
+  | "course_designer_weekly_digest"
 
 /**
  * What we last mailed about the address the account holds now. Never a delivery confirmation: we
@@ -4310,6 +4983,9 @@ export type ExerciseUserCounts = {
 }
 
 export type ExtendStageRequest = {
+  /**
+   * 1 to 24.
+   */
   months: number
 }
 
@@ -4320,6 +4996,65 @@ export type ExternalCourseOutput = {
   on_old_platform: boolean
   url: string
 }
+
+/**
+ * A mooc.fi course, or a tier range of one, whose completions courses registers under one course
+ * code.
+ */
+export type ExternalCreditTarget = {
+  /**
+   * The course code `course_code_allowed` is a verdict on.
+   */
+  checked_course_code?: string | null
+  config_check_message?: string | null
+  config_checked_at?: string | null
+  consecutive_listing_failures: number
+  /**
+   * `None` means never checked, which is not the same as a failed check.
+   */
+  course_code_allowed?: boolean | null
+  course_code_rejection?: string | null
+  created_at: string
+  /**
+   * The cutoff: completions dated at or after it are ours, earlier ones mooc.fi's pull path's.
+   */
+  delegated_at: string
+  deleted_at?: string | null
+  ects_credits: number
+  /**
+   * `None` keeps every phase away from the target.
+   */
+  enabled_at?: string | null
+  enrolment_link?: string | null
+  grading: ExternalGrading
+  id: string
+  language_code: string
+  last_listed_at?: string | null
+  last_listing_attempted_at?: string | null
+  last_listing_error?: CreditRegistrationErrorCode | null
+  moocfi_course_checked_at?: string | null
+  /**
+   * The mooc.fi course the completions are stored on, never the slug.
+   */
+  moocfi_course_id: string
+  moocfi_course_slug: string
+  /**
+   * What mooc.fi last said; `None` until it has answered.
+   */
+  moocfi_has_certificate?: boolean | null
+  name: string
+  pause_reason?: string | null
+  paused_at?: string | null
+  paused_by_user_id?: string | null
+  tiers?: TierRange | null
+  uh_course_code: string
+  updated_at: string
+}
+
+/**
+ * How a mooc.fi completion with no grade reads on a target.
+ */
+export type ExternalGrading = "pass_fail" | "numeric"
 
 export type Feedback = {
   blocks: Array<FeedbackBlock>
@@ -4534,25 +5269,34 @@ export type JoinCourseWithJoinCodePayload = {
 }
 
 /**
- * A ledger row the legacy study-registry ledger contradicts.
+ * A ledger row the legacy study-registry ledger, or for a mooc.fi row mooc.fi, contradicts.
  */
 export type LegacyLedgerDivergenceRow = {
-  course_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  course_id?: string | null
+  /**
+   * `None` on a mooc.fi registration, as are the course and the module.
+   */
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
+  external_completion_id?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
    * We registered it and the legacy ledger has no row of ours, so the teacher views and the pull
-   * stream still call the completion unregistered.
+   * stream still call the completion unregistered. Never set on a mooc.fi row.
    */
   mirror_missing: boolean
   /**
    * A registrar took the completion through the pull path while our pipeline had not finished
-   * with it: the shape a double registration would have.
+   * with it, or another organization registered a mooc.fi completion we had already submitted:
+   * the shape a double registration would have.
    */
   registered_by_a_registrar: boolean
   state: CreditRegistrationState
@@ -4620,6 +5364,14 @@ export type MaterialReference = {
   updated_at: string
 }
 
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
+
 export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
 export type ModifiedModule = {
@@ -4646,6 +5398,113 @@ export type ModuleUpdates = {
   new_modules: Array<NewModule>
 }
 
+/**
+ * One mooc.fi completion and what is happening to its credits.
+ */
+export type MoocfiCompletionRegistration = {
+  completion_date: string
+  /**
+   * The student's saved reason for needing the credits rather than the certificate.
+   */
+  credit_justification?: string | null
+  /**
+   * The live ledger row, once the pipeline has created one.
+   */
+  credit_registration_id?: string | null
+  credit_unit?: MoocfiCreditUnit | null
+  /**
+   * Set for completions courses has taken up.
+   */
+  external_completion_id?: string | null
+  moocfi_completion_id: string
+  /**
+   * Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
+   * answer is unknown: its certificate page copes with a course that has none.
+   */
+  offers_certificate: boolean
+  status: MoocfiCompletionStatus
+  student_facing_status?: StudentFacingCreditRegistrationStatus | null
+  tier?: number | null
+}
+
+/**
+ * Why a completion is or is not registered through courses.
+ */
+export type MoocfiCompletionStatus =
+  | "registering_on_courses"
+  | "registration_paused"
+  | "before_cutoff"
+  | "not_eligible"
+  | "registered_on_moocfi"
+  | "equivalent_registered"
+  | "no_credit_unit"
+  | "removed_from_moocfi"
+
+/**
+ * A mooc.fi course's name and registration page, for pages that only link back to it.
+ */
+export type MoocfiCourseLink = {
+  /**
+   * `None` when no target is configured for the course, as is the URL.
+   */
+  course_name?: string | null
+  moocfi_course_url?: string | null
+}
+
+/**
+ * What the registration page shows for one mooc.fi course.
+ */
+export type MoocfiCreditRegistrations = {
+  /**
+   * Newest first.
+   */
+  completions: Array<MoocfiCompletionRegistration>
+  /**
+   * `None` when no target is configured for the course.
+   */
+  course_name?: string | null
+  /**
+   * False when mooc.fi could not be asked just now, so `completions` is only what was stored
+   * earlier and the page should offer to try again.
+   */
+  is_up_to_date: boolean
+  moocfi_course_id: string
+  /**
+   * The course's registration page on mooc.fi, for links back.
+   */
+  moocfi_course_url?: string | null
+  /**
+   * The page must show it: a handoff signs in whichever account the TMC token belongs to.
+   */
+  signed_in_email: string
+}
+
+/**
+ * The study-registry course a completion registers as.
+ */
+export type MoocfiCreditUnit = {
+  ects_credits: number
+  /**
+   * Where an Open University student enrols.
+   */
+  enrolment_link?: string | null
+  external_credit_target_id: string
+  name: string
+  uh_course_code: string
+}
+
+export type MoocfiHandoff = {
+  /**
+   * Open it with a full navigation: the token is in the fragment, which mooc.fi's page reads.
+   */
+  redirect_url: string
+}
+
+/**
+ * Where on mooc.fi a handoff sends the student; mooc.fi maps it to its own path.
+ */
+export type MoocfiHandoffDestination = "certificate"
+
 export type MyCourse = Course & {
   /**
    * Whether the course can be hidden from the "My courses" list. False for courses the user has
@@ -4658,7 +5517,6 @@ export type MyCourse = Course & {
  * What the caller wrote about needing the credits rather than a certificate.
  */
 export type MyCreditJustification = {
-  course_module_completion_id: string
   justification: string
   updated_at: string
 }
@@ -4667,11 +5525,17 @@ export type MyCreditRegistration = {
   attempt_number: number
   can_request_enrolment_recheck: boolean
   completion_date: string
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as are the slug and the module.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the mooc.fi course's.
+   */
   course_name: string
-  course_slug: string
+  course_slug?: string | null
   credits?: number | null
   ects_credits?: number | null
   /**
@@ -4690,6 +5554,10 @@ export type MyCreditRegistration = {
   enrolment_link?: string | null
   enrolment_realisation_name?: string | null
   error_code?: CreditRegistrationErrorCode | null
+  /**
+   * Set on a mooc.fi registration only, as is `moocfi_course_id`.
+   */
+  external_completion_id?: string | null
   grade_id?: string | null
   /**
    * Names the scale `grade_id` is on, without which "1" reads as a one out of five when it means
@@ -4702,6 +5570,10 @@ export type MyCreditRegistration = {
    */
   is_processing_in_sisu: boolean
   linking_email?: LinkingEmailStatus | null
+  /**
+   * The mooc.fi course whose registration page shows this registration.
+   */
+  moocfi_course_id?: string | null
   next_attempt_at: string
   notification_email?: NotificationEmailStatus | null
   progress?: StudentRegistrationProgress | null
@@ -4734,11 +5606,12 @@ export type MyCreditRegistration = {
 }
 
 /**
- * The live registration for one course module, with the attempts a newer one replaced.
+ * The live registration for one course module or mooc.fi completion, with the attempts a newer one
+ * replaced.
  */
-export type MyCreditRegistrationForCourseModule = {
+export type MyCreditRegistrationForSubject = {
   /**
-   * The module's other rows, newest completion first. Shown because the study registry may hold an
+   * The other rows, newest completion first. Shown because the study registry may hold an
    * earlier attempt's attainment as well as the current one's.
    */
   earlier_attempts: Array<MyCreditRegistration>
@@ -4746,7 +5619,8 @@ export type MyCreditRegistrationForCourseModule = {
 }
 
 /**
- * The caller's answer about where they enrol one module, and whether it can still be changed.
+ * The caller's answer about where they enrol for one completion, and whether it can still be
+ * changed.
  */
 export type MyEnrolmentRoute = {
   /**
@@ -4756,13 +5630,16 @@ export type MyEnrolmentRoute = {
    */
   can_change: boolean
   certificate_chosen_at?: string | null
-  course_module_completion_id: string
   enrolment_confirmed_at?: string | null
   has_finnish_personal_identity_code?: boolean | null
   identification?: CreditRegistrationIdentification | null
   need?: CreditRegistrationNeed | null
   need_after_reconsider?: CreditRegistrationNeed | null
   route?: CreditRegistrationEnrolmentRoute | null
+  /**
+   * The course module completion or mooc.fi completion the answer is for.
+   */
+  subject_id: string
 }
 
 export type MyStudies = {
@@ -4934,13 +5811,21 @@ export type NameReplacement = {
  */
 export type NeverEnteredCompletion = {
   completion_date: string
-  course_id: string
-  course_module_completion_id: string
-  course_module_id: string
+  course_id?: string | null
+  /**
+   * `None` for a mooc.fi completion, as are the course and the module.
+   */
+  course_module_completion_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   created_at: string
   email?: string | null
+  external_completion_id?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -5387,8 +6272,14 @@ export type PageAccountLinkingEmailRow = {
     claimed_at: string
     claimed_by_email?: string | null
     claimed_by_user_id?: string | null
-    course_id: string
+    /**
+     * The course's name, or "mooc.fi: " and the target's name.
+     */
     course_name: string
+    /**
+     * The course or mooc.fi target the mail was sent for.
+     */
+    course_or_target_id: string
     /**
      * In full: support finds a student's mail by it.
      */
@@ -5422,12 +6313,19 @@ export type PageAdminCreditRegistrationRow = {
     attention_reasons: Array<CreditRegistrationAttentionReason>
     attention_standing?: AttentionStanding | null
     completion_date: string
-    course_id: string
-    course_instance_id: string
-    course_module_completion_id: string
-    course_module_id: string
+    /**
+     * `None` on a mooc.fi registration, as are the module, instance and course module completion.
+     */
+    course_id?: string | null
+    course_instance_id?: string | null
+    course_module_completion_id?: string | null
+    course_module_id?: string | null
     course_module_name?: string | null
+    /**
+     * The course's name, or "mooc.fi: " and the target's name.
+     */
     course_name: string
+    course_or_target_id: string
     created_at: string
     credits?: number | null
     /**
@@ -5443,6 +6341,11 @@ export type PageAdminCreditRegistrationRow = {
     enrolment_checks_stopped_at?: string | null
     enrolment_route?: CreditRegistrationEnrolmentRoute | null
     error_code?: CreditRegistrationErrorCode | null
+    external_completion_id?: string | null
+    /**
+     * Set on a mooc.fi registration only, as is `external_completion_id`.
+     */
+    external_credit_target_id?: string | null
     first_name?: string | null
     grade_id?: string | null
     grade_scale_id?: string | null
@@ -5729,6 +6632,26 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 /**
+ * Which account a pending continuation would sign in, beside whoever is signed in now.
+ */
+export type PendingMoocfiHandoff = {
+  /**
+   * The handoff account's email, in full: the student confirms by recognising it, and only the
+   * browser the handoff was minted for, from its IP, gets this far.
+   */
+  email: string
+  moocfi_course_id: string
+  /**
+   * The registration page to open once the right account is signed in.
+   */
+  redirect_path: string
+  /**
+   * When `Same`, the continuation is already spent: open `redirect_path`.
+   */
+  signed_in_account: SignedInAccount
+}
+
+/**
  * Live `pending` rows per blocker, for the admin dashboard and the account-linking page.
  */
 export type PendingReasonCounts = {
@@ -5737,13 +6660,19 @@ export type PendingReasonCounts = {
   student_number_count: number
 }
 
+/**
+ * A role granted to an email address that is not verified yet. See [`activate_for_user`].
+ */
 export type PendingRole = {
   course_id?: string | null
   course_instance_id?: string | null
   created_at: string
   deleted_at?: string | null
+  exam_id?: string | null
   expires_at: string
   id: string
+  is_global: boolean
+  organization_id?: string | null
   role: UserRole
   updated_at: string
   user_email: string
@@ -5755,6 +6684,7 @@ export type PlanMemberWithDetails = {
   first_name?: string | null
   id: string
   last_name?: string | null
+  receives_weekly_digest: boolean
   user_id: string
 }
 
@@ -5986,12 +6916,19 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
  * onwards.
  */
 export type ReconciliationRegistration = {
-  course_id: string
-  course_module_id: string
+  /**
+   * `None` on a mooc.fi registration, as is `course_module_id`.
+   */
+  course_id?: string | null
+  course_module_id?: string | null
   course_module_name?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   registered_at?: string | null
@@ -6353,6 +7290,10 @@ export type SearchRequest = {
   query: string
 }
 
+export type SendCourseDesignerAssistantMessage = {
+  message: string
+}
+
 export type ServiceInfo = {
   cluster_ip?: string | null
   name: string
@@ -6364,6 +7305,30 @@ export type ServicePortInfo = {
   port: number
   protocol?: string | null
   target_port?: string | null
+}
+
+export type SetCourseDesignerAssistantRequest = {
+  course_designer_assistant: boolean
+}
+
+export type SetCourseDesignerSectionStatusRequest = {
+  /**
+   * Blank or `null` stores no comment.
+   */
+  comment?: string | null
+  /**
+   * Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters.
+   */
+  section_key: string
+  stage: CourseDesignerStage
+  status: CourseDesignerSectionStatus
+}
+
+export type SetCourseDesignerTaskAssigneeRequest = {
+  /**
+   * A current plan member, or `null` to unassign.
+   */
+  assignee_user_id?: string | null
 }
 
 export type SetCreditJustificationPayload = {
@@ -6381,10 +7346,28 @@ export type SetEnrolmentRoutePayload = {
   route: CreditRegistrationEnrolmentRoute
 }
 
+export type SetGreatMoocVisionRequest = {
+  /**
+   * Blank or `null` clears the vision.
+   */
+  great_mooc_vision?: string | null
+}
+
+export type SetWeeklyDigestSubscriptionRequest = {
+  receives_weekly_digest: boolean
+}
+
+export type SignedInAccount = "same" | "different" | "none"
+
 export type SisuDescriptionResponse = {
   audience: Array<string>
   course_description: string
   modules: Array<Module>
+}
+
+export type StreamEventError = {
+  details?: string | null
+  message: string
 }
 
 /**
@@ -6570,11 +7553,18 @@ export type SuotarApiCallEvent = {
  * for the redacted body: the identifiers are here, beside the item they belong to.
  */
 export type SuotarApiCallLedgerReference = {
-  course_id: string
+  /**
+   * `None` on a mooc.fi registration.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
   course_name: string
   credit_registration_id: string
   email?: string | null
   error_code?: CreditRegistrationErrorCode | null
+  external_credit_target_id?: string | null
   first_name?: string | null
   last_name?: string | null
   /**
@@ -6793,6 +7783,14 @@ export type ThresholdData = {
   duration_seconds: number
 }
 
+/**
+ * The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.
+ */
+export type TierRange = {
+  highest?: number | null
+  lowest?: number | null
+}
+
 export type TimeGranularity = "Year" | "Month" | "Day"
 
 /**
@@ -6837,6 +7835,12 @@ export type ToolCategory =
   | "admin_support_courses"
   | "admin_support_learning_progress"
   | "admin_support_academic_integrity"
+  | "course_planning"
+
+/**
+ * Who answers a tool call, which decides what happens to a call that has no output yet.
+ */
+export type ToolKind = "function" | "azure_ai_search" | "client_tool"
 
 export type UnlinkMyStudentNumberResult = {
   /**
@@ -6845,10 +7849,22 @@ export type UnlinkMyStudentNumberResult = {
   affected_registration_count: number
 }
 
+/**
+ * Fields left out stay unchanged. An empty `description` clears it.
+ */
 export type UpdateCourseDesignerStageTaskRequest = {
   description?: string | null
   is_completed?: boolean | null
   title?: string | null
+}
+
+export type UpdateCourseDesignerStageWorkspaceRequest = {
+  /**
+   * The stage's `workspace_revision` the edit started from. A save based on an older revision
+   * is refused with `stale_version`.
+   */
+  base_revision: number
+  workspace: CourseDesignerStageWorkspace
 }
 
 /**
@@ -7753,6 +8769,28 @@ export type ConfigureChatbotResponses = {
 }
 
 export type ConfigureChatbotResponse = ConfigureChatbotResponses[keyof ConfigureChatbotResponses]
+
+export type SetChatbotCourseDesignerAssistantData = {
+  body: SetCourseDesignerAssistantRequest
+  path: {
+    /**
+     * Chatbot configuration id
+     */
+    chatbot_configuration_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant"
+}
+
+export type SetChatbotCourseDesignerAssistantResponses = {
+  /**
+   * Updated chatbot configuration
+   */
+  200: ChatbotConfiguration
+}
+
+export type SetChatbotCourseDesignerAssistantResponse =
+  SetChatbotCourseDesignerAssistantResponses[keyof SetChatbotCourseDesignerAssistantResponses]
 
 export type CreateCodeGiveawayData = {
   body: NewCodeGiveaway
@@ -8764,6 +9802,40 @@ export type CreateCourseDesignerPlanResponses = {
 export type CreateCourseDesignerPlanResponse =
   CreateCourseDesignerPlanResponses[keyof CreateCourseDesignerPlanResponses]
 
+export type GetCourseDesignerSupportAssistantChatbotsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/support/assistant-chatbots"
+}
+
+export type GetCourseDesignerSupportAssistantChatbotsResponses = {
+  /**
+   * Chatbots that belong to a course
+   */
+  200: Array<CourseChatbotOption>
+}
+
+export type GetCourseDesignerSupportAssistantChatbotsResponse =
+  GetCourseDesignerSupportAssistantChatbotsResponses[keyof GetCourseDesignerSupportAssistantChatbotsResponses]
+
+export type GetCourseDesignerSupportPlansData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/support/plans"
+}
+
+export type GetCourseDesignerSupportPlansResponses = {
+  /**
+   * All plans
+   */
+  200: Array<CourseDesignerSupportPlan>
+}
+
+export type GetCourseDesignerSupportPlansResponse =
+  GetCourseDesignerSupportPlansResponses[keyof GetCourseDesignerSupportPlansResponses]
+
 export type GetCourseDesignerPlanData = {
   body?: never
   path: {
@@ -8785,6 +9857,194 @@ export type GetCourseDesignerPlanResponses = {
 
 export type GetCourseDesignerPlanResponse =
   GetCourseDesignerPlanResponses[keyof GetCourseDesignerPlanResponses]
+
+export type ArchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/archive"
+}
+
+export type ArchiveCourseDesignerPlanResponses = {
+  /**
+   * Archived plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type ArchiveCourseDesignerPlanResponse =
+  ArchiveCourseDesignerPlanResponses[keyof ArchiveCourseDesignerPlanResponses]
+
+export type GetCourseDesignerAssistantStatusData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant"
+}
+
+export type GetCourseDesignerAssistantStatusResponses = {
+  /**
+   * Assistant status
+   */
+  200: CourseDesignerAssistantStatus
+}
+
+export type GetCourseDesignerAssistantStatusResponse =
+  GetCourseDesignerAssistantStatusResponses[keyof GetCourseDesignerAssistantStatusResponses]
+
+export type GetCurrentCourseDesignerAssistantConversationData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current"
+}
+
+export type GetCurrentCourseDesignerAssistantConversationResponses = {
+  /**
+   * Current conversation
+   */
+  200: ChatbotConversationInfo | null
+}
+
+export type GetCurrentCourseDesignerAssistantConversationResponse =
+  GetCurrentCourseDesignerAssistantConversationResponses[keyof GetCurrentCourseDesignerAssistantConversationResponses]
+
+export type NewCourseDesignerAssistantConversationData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new"
+}
+
+export type NewCourseDesignerAssistantConversationResponses = {
+  /**
+   * Created conversation
+   */
+  200: ChatbotConversation
+}
+
+export type NewCourseDesignerAssistantConversationResponse =
+  NewCourseDesignerAssistantConversationResponses[keyof NewCourseDesignerAssistantConversationResponses]
+
+export type GetCourseDesignerAssistantConversationInfoData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info"
+}
+
+export type GetCourseDesignerAssistantConversationInfoResponses = {
+  /**
+   * Conversation
+   */
+  200: ChatbotConversationInfo
+}
+
+export type GetCourseDesignerAssistantConversationInfoResponse =
+  GetCourseDesignerAssistantConversationInfoResponses[keyof GetCourseDesignerAssistantConversationInfoResponses]
+
+export type SendCourseDesignerAssistantMessageData = {
+  body: SendCourseDesignerAssistantMessage
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message"
+}
+
+export type SendCourseDesignerAssistantMessageResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendCourseDesignerAssistantMessageResponse =
+  SendCourseDesignerAssistantMessageResponses[keyof SendCourseDesignerAssistantMessageResponses]
+
+export type SendCourseDesignerAssistantToolResponseData = {
+  body: ChatbotToolResponse
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Conversation id
+     */
+    conversation_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response"
+}
+
+export type SendCourseDesignerAssistantToolResponseResponses = {
+  /**
+   * Chatbot response stream
+   */
+  200: ChatbotChatStreamEvent
+}
+
+export type SendCourseDesignerAssistantToolResponseResponse =
+  SendCourseDesignerAssistantToolResponseResponses[keyof SendCourseDesignerAssistantToolResponseResponses]
+
+export type CreateCourseFromCourseDesignerPlanData = {
+  body: CreateCourseFromPlanRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/course"
+}
+
+export type CreateCourseFromCourseDesignerPlanResponses = {
+  /**
+   * Created course
+   */
+  200: Course
+}
+
+export type CreateCourseFromCourseDesignerPlanResponse =
+  CreateCourseFromCourseDesignerPlanResponses[keyof CreateCourseFromCourseDesignerPlanResponses]
 
 export type GetCoursePlanMembersData = {
   body?: never
@@ -8878,6 +10138,28 @@ export type SaveCourseDesignerScheduleResponses = {
 export type SaveCourseDesignerScheduleResponse =
   SaveCourseDesignerScheduleResponses[keyof SaveCourseDesignerScheduleResponses]
 
+export type AdjustCourseDesignerScheduleData = {
+  body: AdjustCourseDesignerScheduleRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/adjustment"
+}
+
+export type AdjustCourseDesignerScheduleResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type AdjustCourseDesignerScheduleResponse =
+  AdjustCourseDesignerScheduleResponses[keyof AdjustCourseDesignerScheduleResponses]
+
 export type FinalizeCourseDesignerScheduleData = {
   body?: never
   path: {
@@ -8921,6 +10203,50 @@ export type CreateCourseDesignerScheduleSuggestionResponses = {
 
 export type CreateCourseDesignerScheduleSuggestionResponse =
   CreateCourseDesignerScheduleSuggestionResponses[keyof CreateCourseDesignerScheduleSuggestionResponses]
+
+export type GetCourseDesignerSectionStatusesData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type GetCourseDesignerSectionStatusesResponses = {
+  /**
+   * Section statuses
+   */
+  200: Array<CourseDesignerPlanSectionStatus>
+}
+
+export type GetCourseDesignerSectionStatusesResponse =
+  GetCourseDesignerSectionStatusesResponses[keyof GetCourseDesignerSectionStatusesResponses]
+
+export type SetCourseDesignerSectionStatusData = {
+  body: SetCourseDesignerSectionStatusRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/section-statuses"
+}
+
+export type SetCourseDesignerSectionStatusResponses = {
+  /**
+   * Saved section status
+   */
+  200: CourseDesignerPlanSectionStatus
+}
+
+export type SetCourseDesignerSectionStatusResponse =
+  SetCourseDesignerSectionStatusResponses[keyof SetCourseDesignerSectionStatusResponses]
 
 export type AdvanceCourseDesignerStageData = {
   body?: never
@@ -8997,7 +10323,7 @@ export type ExtendCourseDesignerStageResponse =
   ExtendCourseDesignerStageResponses[keyof ExtendCourseDesignerStageResponses]
 
 export type UpdateCourseDesignerStageWorkspaceData = {
-  body: CourseDesignerStageWorkspace
+  body: UpdateCourseDesignerStageWorkspaceRequest
   path: {
     /**
      * Plan id
@@ -9073,6 +10399,98 @@ export type UpdateCourseDesignerStageTaskResponses = {
 
 export type UpdateCourseDesignerStageTaskResponse =
   UpdateCourseDesignerStageTaskResponses[keyof UpdateCourseDesignerStageTaskResponses]
+
+export type SetCourseDesignerTaskAssigneeData = {
+  body: SetCourseDesignerTaskAssigneeRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Task id
+     */
+    task_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}/assignee"
+}
+
+export type SetCourseDesignerTaskAssigneeResponses = {
+  /**
+   * Updated task
+   */
+  200: CourseDesignerPlanStageTask
+}
+
+export type SetCourseDesignerTaskAssigneeResponse =
+  SetCourseDesignerTaskAssigneeResponses[keyof SetCourseDesignerTaskAssigneeResponses]
+
+export type UnarchiveCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/unarchive"
+}
+
+export type UnarchiveCourseDesignerPlanResponses = {
+  /**
+   * Restored plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type UnarchiveCourseDesignerPlanResponse =
+  UnarchiveCourseDesignerPlanResponses[keyof UnarchiveCourseDesignerPlanResponses]
+
+export type SetCourseDesignerGreatMoocVisionData = {
+  body: SetGreatMoocVisionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/vision"
+}
+
+export type SetCourseDesignerGreatMoocVisionResponses = {
+  /**
+   * Updated plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type SetCourseDesignerGreatMoocVisionResponse =
+  SetCourseDesignerGreatMoocVisionResponses[keyof SetCourseDesignerGreatMoocVisionResponses]
+
+export type SetCourseDesignerWeeklyDigestSubscriptionData = {
+  body: SetWeeklyDigestSubscriptionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/weekly-digest-subscription"
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponses = {
+  /**
+   * Updated membership
+   */
+  200: CourseDesignerPlanMember
+}
+
+export type SetCourseDesignerWeeklyDigestSubscriptionResponse =
+  SetCourseDesignerWeeklyDigestSubscriptionResponses[keyof SetCourseDesignerWeeklyDigestSubscriptionResponses]
 
 export type CreateCourseData = {
   body: NewCourse
@@ -12055,6 +13473,127 @@ export type GetCreditRegistrationStatsByCourseResponses = {
 export type GetCreditRegistrationStatsByCourseResponse =
   GetCreditRegistrationStatsByCourseResponses[keyof GetCreditRegistrationStatsByCourseResponses]
 
+export type AdminCreateExternalCreditTargetData = {
+  body: AdminExternalCreditTargetPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets"
+}
+
+export type AdminCreateExternalCreditTargetErrors = {
+  /**
+   * Invalid configuration, overlapping tiers or a course code the mooc.fi course already has
+   */
+  422: unknown
+}
+
+export type AdminCreateExternalCreditTargetResponses = {
+  /**
+   * The new target's id
+   */
+  200: string
+}
+
+export type AdminCreateExternalCreditTargetResponse =
+  AdminCreateExternalCreditTargetResponses[keyof AdminCreateExternalCreditTargetResponses]
+
+export type AdminUpdateExternalCreditTargetData = {
+  body: AdminExternalCreditTargetPayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}"
+}
+
+export type AdminUpdateExternalCreditTargetErrors = {
+  /**
+   * Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions
+   */
+  422: unknown
+}
+
+export type AdminUpdateExternalCreditTargetResponses = {
+  /**
+   * Saved
+   */
+  200: unknown
+}
+
+export type AdminDeleteExternalCreditTargetData = {
+  body: AdminDeleteExternalCreditTargetPayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete"
+}
+
+export type AdminDeleteExternalCreditTargetErrors = {
+  /**
+   * No reason given
+   */
+  422: unknown
+}
+
+export type AdminDeleteExternalCreditTargetResponses = {
+  /**
+   * Deleted
+   */
+  200: unknown
+}
+
+export type AdminPauseExternalCreditTargetData = {
+  body: AdminPauseCourseModulePayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause"
+}
+
+export type AdminPauseExternalCreditTargetErrors = {
+  /**
+   * No reason given
+   */
+  422: unknown
+}
+
+export type AdminPauseExternalCreditTargetResponses = {
+  /**
+   * Paused
+   */
+  200: unknown
+}
+
+export type AdminResumeExternalCreditTargetData = {
+  body: AdminResumeCourseModulePayload
+  path: {
+    /**
+     * mooc.fi target id
+     */
+    external_credit_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume"
+}
+
+export type AdminResumeExternalCreditTargetResponses = {
+  /**
+   * Resumed
+   */
+  200: unknown
+}
+
 export type AdminPauseCourseModuleCreditRegistrationData = {
   body: AdminPauseCourseModulePayload
   path: {
@@ -12346,11 +13885,11 @@ export type ListCreditRegistrationsForAdminData = {
      */
     error_code?: Array<CreditRegistrationErrorCode>
     /**
-     * Course filter
+     * Course or mooc.fi target filter
      */
     course_id?: string
     /**
-     * Course module filter
+     * Course module or mooc.fi target filter
      */
     course_module_id?: string
     /**
@@ -12820,7 +14359,7 @@ export type GetMyCreditRegistrationForCourseModuleResponses = {
   /**
    * The caller's registration for the module
    */
-  200: MyCreditRegistrationForCourseModule | null
+  200: MyCreditRegistrationForSubject | null
 }
 
 export type GetMyCreditRegistrationForCourseModuleResponse =
@@ -13005,6 +14544,248 @@ export type ConfirmMyEnrolmentResponses = {
 
 export type ConfirmMyEnrolmentResponse =
   ConfirmMyEnrolmentResponses[keyof ConfirmMyEnrolmentResponses]
+
+export type GetMyCreditRegistrationForExternalCompletionData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}"
+}
+
+export type GetMyCreditRegistrationForExternalCompletionResponses = {
+  /**
+   * The caller's registration for the mooc.fi completion
+   */
+  200: MyCreditRegistrationForSubject | null
+}
+
+export type GetMyCreditRegistrationForExternalCompletionResponse =
+  GetMyCreditRegistrationForExternalCompletionResponses[keyof GetMyCreditRegistrationForExternalCompletionResponses]
+
+export type SetMyExternalCompletionCreditJustificationData = {
+  body: SetCreditJustificationPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification"
+}
+
+export type SetMyExternalCompletionCreditJustificationErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type SetMyExternalCompletionCreditJustificationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyCreditJustification
+}
+
+export type SetMyExternalCompletionCreditJustificationResponse =
+  SetMyExternalCompletionCreditJustificationResponses[keyof SetMyExternalCompletionCreditJustificationResponses]
+
+export type RecordMyExternalCompletionEnrolmentPageVisitData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit"
+}
+
+export type RecordMyExternalCompletionEnrolmentPageVisitErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+}
+
+export type RecordMyExternalCompletionEnrolmentPageVisitResponses = {
+  /**
+   * The visit is recorded
+   */
+  200: unknown
+}
+
+export type GetMyExternalCompletionEnrolmentRouteData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
+}
+
+export type GetMyExternalCompletionEnrolmentRouteResponses = {
+  /**
+   * The caller's answer for the mooc.fi completion
+   */
+  200: MyEnrolmentRoute
+}
+
+export type GetMyExternalCompletionEnrolmentRouteResponse =
+  GetMyExternalCompletionEnrolmentRouteResponses[keyof GetMyExternalCompletionEnrolmentRouteResponses]
+
+export type SetMyExternalCompletionEnrolmentRouteData = {
+  body: SetEnrolmentRoutePayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
+}
+
+export type SetMyExternalCompletionEnrolmentRouteResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type SetMyExternalCompletionEnrolmentRouteResponse =
+  SetMyExternalCompletionEnrolmentRouteResponses[keyof SetMyExternalCompletionEnrolmentRouteResponses]
+
+export type WithdrawMyExternalCompletionCertificateChoiceData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+}
+
+export type WithdrawMyExternalCompletionCertificateChoiceResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyExternalCompletionCertificateChoiceResponse =
+  WithdrawMyExternalCompletionCertificateChoiceResponses[keyof WithdrawMyExternalCompletionCertificateChoiceResponses]
+
+export type ChooseMyExternalCompletionCertificateData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+}
+
+export type ChooseMyExternalCompletionCertificateResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ChooseMyExternalCompletionCertificateResponse =
+  ChooseMyExternalCompletionCertificateResponses[keyof ChooseMyExternalCompletionCertificateResponses]
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+}
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type WithdrawMyExternalCompletionEnrolmentConfirmationResponse =
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponses[keyof WithdrawMyExternalCompletionEnrolmentConfirmationResponses]
+
+export type ConfirmMyExternalCompletionEnrolmentData = {
+  body?: never
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+}
+
+export type ConfirmMyExternalCompletionEnrolmentResponses = {
+  /**
+   * The stored answer
+   */
+  200: MyEnrolmentRoute
+}
+
+export type ConfirmMyExternalCompletionEnrolmentResponse =
+  ConfirmMyExternalCompletionEnrolmentResponses[keyof ConfirmMyExternalCompletionEnrolmentResponses]
+
+export type CreateMyMoocfiHandoffData = {
+  body: CreateMoocfiHandoffPayload
+  path: {
+    /**
+     * External completion id
+     */
+    external_completion_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff"
+}
+
+export type CreateMyMoocfiHandoffErrors = {
+  /**
+   * No such mooc.fi completion of the caller's
+   */
+  404: unknown
+  /**
+   * Handoffs to mooc.fi are not configured
+   */
+  503: unknown
+}
+
+export type CreateMyMoocfiHandoffResponses = {
+  /**
+   * Where to send the browser
+   */
+  200: MoocfiHandoff
+}
+
+export type CreateMyMoocfiHandoffResponse =
+  CreateMyMoocfiHandoffResponses[keyof CreateMyMoocfiHandoffResponses]
 
 export type GetMyCreditRegistrationEnrolmentBannersData = {
   body?: never
@@ -13299,7 +15080,12 @@ export type GetMyEmailVerificationStatusResponse =
 export type GetEmailVerificationCodeForTestModeData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+     * The kinds of code the test-mode endpoint hands out.
+     */
+    purpose?: "email_ownership_verification" | "network_verification"
+  }
   url: "/api/v0/main-frontend/email-verification/test-mode-code"
 }
 
@@ -14449,6 +16235,104 @@ export type UpdateGlossaryTermResponses = {
    */
   200: unknown
 }
+
+export type GetMyMoocfiCreditRegistrationsData = {
+  body?: never
+  path: {
+    /**
+     * The handler course id on mooc.fi
+     */
+    moocfi_course_id: string
+  }
+  query?: {
+    ui_language?: string
+  }
+  url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}"
+}
+
+export type GetMyMoocfiCreditRegistrationsResponses = {
+  /**
+   * The caller's completions of the course
+   */
+  200: MoocfiCreditRegistrations
+}
+
+export type GetMyMoocfiCreditRegistrationsResponse =
+  GetMyMoocfiCreditRegistrationsResponses[keyof GetMyMoocfiCreditRegistrationsResponses]
+
+export type GetMoocfiCourseLinkData = {
+  body?: never
+  path: {
+    /**
+     * The handler course id on mooc.fi
+     */
+    moocfi_course_id: string
+  }
+  query?: {
+    ui_language?: string
+  }
+  url: "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link"
+}
+
+export type GetMoocfiCourseLinkResponses = {
+  /**
+   * The course's name and registration page
+   */
+  200: MoocfiCourseLink
+}
+
+export type GetMoocfiCourseLinkResponse =
+  GetMoocfiCourseLinkResponses[keyof GetMoocfiCourseLinkResponses]
+
+export type ContinueMoocfiHandoffData = {
+  body: ContinueMoocfiHandoffPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/moocfi-handoffs/continue"
+}
+
+export type ContinueMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type ContinueMoocfiHandoffResponses = {
+  /**
+   * Signed in; where to go next
+   */
+  200: ContinuedMoocfiHandoff
+}
+
+export type ContinueMoocfiHandoffResponse =
+  ContinueMoocfiHandoffResponses[keyof ContinueMoocfiHandoffResponses]
+
+export type GetPendingMoocfiHandoffData = {
+  body?: never
+  path?: never
+  query: {
+    moocfi_course_id: string
+  }
+  url: "/api/v0/main-frontend/moocfi-handoffs/pending"
+}
+
+export type GetPendingMoocfiHandoffErrors = {
+  /**
+   * No handoff is waiting
+   */
+  404: unknown
+}
+
+export type GetPendingMoocfiHandoffResponses = {
+  /**
+   * The waiting handoff
+   */
+  200: PendingMoocfiHandoff
+}
+
+export type GetPendingMoocfiHandoffResponse =
+  GetPendingMoocfiHandoffResponses[keyof GetPendingMoocfiHandoffResponses]
 
 export type GetOauthOpenidConfigurationData = {
   body?: never
@@ -15745,6 +17629,23 @@ export type GetPendingRolesResponses = {
 }
 
 export type GetPendingRolesResponse = GetPendingRolesResponses[keyof GetPendingRolesResponses]
+
+export type GetPendingRoleCountWaitingForMeData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/roles/pending/waiting-for-me"
+}
+
+export type GetPendingRoleCountWaitingForMeResponses = {
+  /**
+   * Number of pending roles waiting for email verification
+   */
+  200: number
+}
+
+export type GetPendingRoleCountWaitingForMeResponse =
+  GetPendingRoleCountWaitingForMeResponses[keyof GetPendingRoleCountWaitingForMeResponses]
 
 export type RemoveRoleData = {
   body: RoleInfo

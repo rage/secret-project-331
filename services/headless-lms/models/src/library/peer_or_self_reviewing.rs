@@ -139,6 +139,27 @@ pub async fn create_peer_or_self_review_submission_for_user(
     let peer_reviews_given = peer_reviews_given_before_this_review + 1;
 
     if !is_self_review {
+        // The review token is reusable until it expires, so a replay would count as another review.
+        let already_reviewed =
+            peer_or_self_review_submissions::get_peer_reviews_given_by_user_and_course_instance_and_exercise(
+                &mut tx,
+                giver_exercise_state.user_id,
+                giver_exercise_state.get_course_id()?,
+                giver_exercise_state.exercise_id,
+            )
+            .await?
+            .iter()
+            .any(|review| {
+                review.exercise_slide_submission_id
+                    == peer_review_submission.exercise_slide_submission_id
+            });
+        if already_reviewed {
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "You have already reviewed this answer.".to_string(),
+                None,
+            ));
+        }
         let unacceptable_amount_of_peer_reviews =
             std::cmp::max(peer_or_self_review_config.peer_reviews_to_give, 1) * 15;
         let suspicious_amount_of_peer_reviews = std::cmp::max(

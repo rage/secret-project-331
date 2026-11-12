@@ -15,6 +15,8 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToNumberOrNull } from "@/shared-module/components"
 
+import { SECTION_KEYS } from "../section-status/sectionKeys"
+
 export const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
 export const FIELD_CREDITS = "credits"
 export const FIELD_LANGUAGE = "language"
@@ -51,10 +53,6 @@ export const LANGUAGE_OPTIONS = [
   { key: "es", value: "Spanish" },
   { key: "it", value: "Italian" },
 ] as const
-export const SECTION_COUNT = 6
-export const SECTION_DOM_PREFIX = "analysis-section-"
-
-export type AnalysisSectionIndex = 1 | 2 | 3 | 4 | 5 | 6
 
 export type AnalysisWorkspaceFormValues = Omit<AnalysisWorkspaceV1, "open_period_all">
 
@@ -65,16 +63,6 @@ export type ContributorFieldKey = keyof Pick<
   | "contributors_editors"
   | "contributors_support_staff"
 >
-
-/** Stable DOM id for the section heading (aria-labelledby). */
-export function analysisSectionHeadingId(n: AnalysisSectionIndex): string {
-  return `${SECTION_DOM_PREFIX}${n}-heading`
-}
-
-/** Stable DOM id for the collapsible section body (aria-controls). */
-export function analysisSectionBodyId(n: AnalysisSectionIndex): string {
-  return `${SECTION_DOM_PREFIX}${n}-body`
-}
 
 /** Default empty Analysis workspace v1 payload. */
 export function defaultAnalysisWorkspaceV1(): AnalysisWorkspaceV1 {
@@ -162,22 +150,44 @@ export function buildCreditsFieldRules(t: TFunction) {
   }
 }
 
-export const SECTION_NAV_KEYS = [
-  "course-plans-analysis-section-1",
-  "course-plans-analysis-section-2",
-  "course-plans-analysis-section-3",
-  "course-plans-analysis-section-4",
-  "course-plans-analysis-section-5",
-  "course-plans-analysis-section-6",
-] as const
-
-export const SECTION_HEADER_ICONS = [
-  Document,
-  Users,
-  Pencil,
-  Statistics,
-  Coins,
-  AccountsGroupPeople,
+/** The Analysis form's sections in display order. */
+export const ANALYSIS_SECTIONS = [
+  {
+    domId: "analysis-section-1",
+    sectionKey: SECTION_KEYS.analysisMyCourse,
+    titleKey: "course-plans-analysis-section-1",
+    icon: Document,
+  },
+  {
+    domId: "analysis-section-2",
+    sectionKey: SECTION_KEYS.analysisNeedsAnalysis,
+    titleKey: "course-plans-analysis-section-2",
+    icon: Users,
+  },
+  {
+    domId: "analysis-section-3",
+    sectionKey: SECTION_KEYS.analysisWishes,
+    titleKey: "course-plans-analysis-section-3",
+    icon: Pencil,
+  },
+  {
+    domId: "analysis-section-4",
+    sectionKey: SECTION_KEYS.analysisMarketAnalysis,
+    titleKey: "course-plans-analysis-section-4",
+    icon: Statistics,
+  },
+  {
+    domId: "analysis-section-5",
+    sectionKey: SECTION_KEYS.analysisResources,
+    titleKey: "course-plans-analysis-section-5",
+    icon: Coins,
+  },
+  {
+    domId: "analysis-section-6",
+    sectionKey: SECTION_KEYS.analysisKeyContributors,
+    titleKey: "course-plans-analysis-section-6",
+    icon: AccountsGroupPeople,
+  },
 ] as const
 
 export const CONTENT_FORMAT_FIELDS = [
@@ -218,7 +228,7 @@ export const CONTRIBUTOR_ROLES = [
  * Renders a line of localized resource text with mailto and https links activated.
  */
 export function linkifyResourceLine(line: string): ReactNode {
-  const re = /(https?:\/\/[^\s]+)|([\w.+-]+@[\w.-]+\.[a-z]{2,})/gi
+  const re = /(https?:\/\/[^\s]*[^\s.,;:)])|([\w.+-]+@[\w.-]+\.[a-z]{2,})/gi
   const parts: ReactNode[] = []
   let last = 0
   let match: RegExpExecArray | null

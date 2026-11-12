@@ -294,6 +294,10 @@ export function manageCoursePlansListRoute() {
   return `/manage/course-plans`
 }
 
+export function manageCoursePlansSupportRoute() {
+  return `/manage/course-plans/support`
+}
+
 export function manageCoursePlanRoute(planId: string) {
   return `/manage/course-plans/${planId}`
 }
@@ -348,6 +352,11 @@ export function userSettingsStudentNumberRoute() {
 
 export function completionRegistrationRoute(courseModuleId: string) {
   return `/completion-registration/${courseModuleId}`
+}
+
+/** Must match the backend's handoff redirect and the status link in its mails. */
+export function moocfiCompletionRegistrationRoute(moocfiCourseId: string) {
+  return `/completion-registration/mooc-fi/${moocfiCourseId}`
 }
 
 /** Must match the backend's `LINK_STUDENT_NUMBER_PATH`; a divergence breaks every mail already sent. */

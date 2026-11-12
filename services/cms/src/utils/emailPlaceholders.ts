@@ -46,6 +46,10 @@ export const TEMPLATE_PLACEHOLDER_CONFIG: Record<string, PlaceholderConfig> = {
     required: [PLACEHOLDER_CODE],
     available: [PLACEHOLDER_CODE],
   },
+  verify_network: {
+    required: [PLACEHOLDER_CODE],
+    available: [PLACEHOLDER_CODE],
+  },
   credit_registration_account_linking: {
     required: [PLACEHOLDER_LINK],
     available: [

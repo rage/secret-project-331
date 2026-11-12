@@ -14,6 +14,7 @@ import {
   domainStatsRoute,
   globalPermissionsRoute,
   globalStatsRoute,
+  manageCoursePlansSupportRoute,
   manageExerciseServicesRoute,
   regradingsRoute,
   searchUsersRoute,
@@ -116,6 +117,9 @@ const FrontPage = () => {
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link href={courseAuditingRoute()}>{t("link-course-auditing")}</Link>
+        </div>
+        <div>
+          <Link href={manageCoursePlansSupportRoute()}>{t("course-plans-support-title")}</Link>
         </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>

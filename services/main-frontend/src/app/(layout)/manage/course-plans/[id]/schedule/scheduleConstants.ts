@@ -13,3 +13,6 @@ export const SCHEDULE_STAGE_COUNT = SCHEDULE_STAGE_ORDER.length
 export const SCHEDULE_WIZARD_STEPS = ["name", "setup", "schedule"] as const
 
 export type ScheduleWizardStepId = (typeof SCHEDULE_WIZARD_STEPS)[number]
+
+/** Longest single extension of the active stage the backend accepts. */
+export const MAX_EXTEND_MONTHS = 24

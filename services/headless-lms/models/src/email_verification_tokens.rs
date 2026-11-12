@@ -93,19 +93,6 @@ WHERE email_verification_token = $1
     Ok(record)
 }
 
-pub async fn verify_code(
-    conn: &mut PgConnection,
-    email_verification_token: &DbSecret,
-    code: &DbSecret,
-) -> ModelResult<bool> {
-    let token = get_by_email_verification_token(conn, email_verification_token).await?;
-
-    match token {
-        Some(t) => Ok(t.code.expose_secret() == code.expose_secret()),
-        None => Ok(false),
-    }
-}
-
 pub async fn mark_as_used(
     conn: &mut PgConnection,
     email_verification_token: &DbSecret,

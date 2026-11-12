@@ -58,11 +58,11 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
   const isNotEmailedShown = showsNotEmailed(data?.candidates ?? [])
 
   const { result, setResult, mutation } = useActionResult(
-    ({ fields, courseId }: { fields: Fields; courseId: string }) =>
+    ({ fields, courseOrTargetId }: { fields: Fields; courseOrTargetId: string }) =>
       adminResendAccountLinkingEmail({
         body: {
           student_number: fields.student_number,
-          course_id: courseId,
+          course_or_target_id: courseOrTargetId,
           override_rate_caps: false,
           reason: null,
           credit_registration_id: registrationId,
@@ -103,7 +103,7 @@ const AdminLinkingCandidatesDialog: React.FC<Props> = ({ isOpen, onClose, regist
   const hasCandidates = Boolean(data && data.candidates.length > 0)
   const submit = handleSubmit((fields) => {
     if (data) {
-      mutation.mutate({ fields, courseId: data.course_id })
+      mutation.mutate({ fields, courseOrTargetId: data.course_or_target_id })
     }
   })
   const actions: readonly [DialogAction] = [

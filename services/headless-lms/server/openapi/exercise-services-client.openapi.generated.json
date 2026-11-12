@@ -601,6 +601,16 @@
               }
             }
           },
+          "404": {
+            "description": "No exercise with the given id exists, or it belongs to an exam (not served by this API)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
           "426": {
             "description": "The client is obsolete and must be upgraded",
             "content": {

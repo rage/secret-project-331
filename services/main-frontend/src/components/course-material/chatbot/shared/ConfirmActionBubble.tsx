@@ -19,8 +19,14 @@ export interface ConfirmActionBubbleProps<TCall> extends ClientToolBubbleProps<T
   /** Whether this action is destructive or hard to reverse, which styles it red instead of green. */
   danger: boolean
   confirmLabel: string
+  /** Defaults to "Cancel". */
+  declineLabel?: string
+  /** Shown above the buttons while the call waits, e.g. why the last confirmation failed. */
+  notice?: React.ReactNode
   /** Extra content to show once the action has executed, built from `executionPayload`. */
   executedContent?: React.ReactNode
+  /** Runs when the admin confirms; resolving to false keeps the call open without answering. */
+  beforeConfirm?: () => Promise<boolean>
 }
 
 type BubbleVisualState =
@@ -141,7 +147,10 @@ const ConfirmActionBubble = <TCall,>({
   rows,
   danger,
   confirmLabel,
+  declineLabel,
+  notice,
   executedContent,
+  beforeConfirm,
   toolCallId,
   isOpen,
   isTurnInFlight,
@@ -190,7 +199,10 @@ const ConfirmActionBubble = <TCall,>({
     return BUBBLE_CLASS_BY_STATE[isOpenState ? "safe-open" : "safe-closed"]
   })()
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    if (beforeConfirm && !(await beforeConfirm())) {
+      return
+    }
     onAnswer(toolCallId, toolName, {
       type: "Data",
       data: { result: { confirmed: true } },
@@ -215,13 +227,14 @@ const ConfirmActionBubble = <TCall,>({
 
       {visualState === "open" && (
         <>
+          {notice}
           <p className={hintStyle}>{t("chatbot-action-pending-confirmation")}</p>
           <div className={buttonsStyle}>
             <Button
               variant="primary"
               size="small"
               disabled={buttonsDisabled}
-              onClick={handleConfirm}
+              onClick={() => void handleConfirm()}
             >
               {confirmLabel}
             </Button>
@@ -231,7 +244,7 @@ const ConfirmActionBubble = <TCall,>({
               disabled={buttonsDisabled}
               onClick={handleCancel}
             >
-              {t("button-text-cancel")}
+              {declineLabel ?? t("button-text-cancel")}
             </Button>
           </div>
         </>

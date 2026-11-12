@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_completions\nSET grade = $2,\n  passed = COALESCE($3, passed)\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "424320e2396cbedb168c299c0f285d5639c59b7696cdd65eac24f007284fd203"
+}

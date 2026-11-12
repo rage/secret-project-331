@@ -403,6 +403,24 @@ AND roles.deleted_at IS NULL
     Ok(roles)
 }
 
+/// Whether the user holds any role at any scope.
+pub async fn has_any_role(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    let has_role = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM roles
+    WHERE user_id = $1
+      AND deleted_at IS NULL
+  ) AS "has_role!"
+"#,
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(has_role)
+}
+
 pub async fn get_by_user_id_and_course_ids(
     conn: &mut PgConnection,
     user_id: Uuid,

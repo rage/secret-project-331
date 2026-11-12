@@ -1,0 +1,63 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ec.moocfi_completion_id,\n  ec.external_credit_target_id,\n  t.grading AS \"grading: ExternalGrading\"\nFROM external_completions ec\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\nWHERE ec.user_id = $1\n  AND t.moocfi_course_id = $2\n  AND ec.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "moocfi_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "moocfi_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_completions",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "grading: ExternalGrading",
+        "type_info": {
+          "Custom": {
+            "name": "external_grading",
+            "kind": {
+              "Enum": [
+                "pass_fail",
+                "numeric"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "grading"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d27b737da9316b8ccda905a206cfc18732f722c106bfdad9d7411f685255bd7b"
+}

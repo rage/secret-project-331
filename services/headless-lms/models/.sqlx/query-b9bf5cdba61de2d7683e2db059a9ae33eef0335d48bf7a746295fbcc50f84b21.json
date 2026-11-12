@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM staff_security_verified_networks\nWHERE user_id = $1\n  AND NOT (id = ANY($2))\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b9bf5cdba61de2d7683e2db059a9ae33eef0335d48bf7a746295fbcc50f84b21"
+}

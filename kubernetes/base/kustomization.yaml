@@ -12,6 +12,7 @@ resources:
   - ingress-other-domains.yml
   - ingress-ai-suggestions.yml
   - headless-lms/ended-exams-processor.yml
+  - headless-lms/course-designer-weekly-digest.yml
   - headless-lms/calculate-page-visit-stats.yml
   - headless-lms/open-university-registration-link-fetcher.yml
   - headless-lms/service-info-fetcher.yml

@@ -89,7 +89,8 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
     (target: { student_number: string; course_id: string }) =>
       adminResendAccountLinkingEmail({
         body: {
-          ...target,
+          student_number: target.student_number,
+          course_or_target_id: target.course_id,
           override_rate_caps: false,
           reason: null,
           credit_registration_id: null,

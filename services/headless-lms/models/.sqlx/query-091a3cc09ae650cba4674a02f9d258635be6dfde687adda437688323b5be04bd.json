@@ -36,7 +36,10 @@
                 "request_enrolment_list_fetch",
                 "dismiss_study_registry_conflict",
                 "dismiss_attention",
-                "add_note"
+                "add_note",
+                "configure_external_credit_target",
+                "pause_external_credit_target",
+                "resume_external_credit_target"
               ]
             }
           }

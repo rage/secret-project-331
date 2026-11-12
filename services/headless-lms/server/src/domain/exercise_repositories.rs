@@ -19,9 +19,12 @@ use std::{
 use uuid::Uuid;
 use walkdir::{DirEntry, WalkDir};
 
-/// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that resolves
-/// to public addresses, so a teacher can't make the server reach local files or the cluster
-/// network.
+mod pinned_stream;
+
+/// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that
+/// currently resolves to public addresses, so a teacher gets a clear error when saving the URL.
+/// This is an early check, not the enforcement: the clone's own connections go through
+/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then.
 pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
     let (host, port) = clone_url_host_and_port(url)
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
@@ -29,14 +32,16 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
         .await
         .with_context(|| format!("Could not resolve {host}"))?
         .collect();
-    if addresses.is_empty()
-        || addresses.iter().any(|address| {
-            !crate::domain::oauth::client_metadata_document::is_public_address(address.ip())
-        })
-    {
-        anyhow::bail!("{host} is not a public address");
-    }
+    pinned_stream::public_addresses(&host, addresses)?;
     Ok(())
+}
+
+fn clone_fetch_options<'a>(remote_callbacks: RemoteCallbacks<'a>) -> FetchOptions<'a> {
+    let mut fetch_opts = FetchOptions::new();
+    // The clone must come from the URL the teacher saved, not from wherever that server redirects.
+    fetch_opts.follow_redirects(RemoteRedirect::None);
+    fetch_opts.remote_callbacks(remote_callbacks);
+    fetch_opts
 }
 
 fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
@@ -145,13 +150,11 @@ async fn process_inner(
     }: InnerArgs<'_>,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
     ensure_clone_url_is_allowed(url).await?;
+    pinned_stream::register()?;
     let mut tx = conn.begin().await?;
 
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
-    let mut fetch_opts = FetchOptions::new();
-    // A redirect could point the clone at an address ensure_clone_url_is_allowed never saw.
-    fetch_opts.follow_redirects(RemoteRedirect::None);
     let mut remote_cbs = RemoteCallbacks::new();
     if let Some(deploy_key) = deploy_key {
         remote_cbs
@@ -172,10 +175,9 @@ async fn process_inner(
                 }
             });
     }
-    fetch_opts.remote_callbacks(remote_cbs);
     info!("Cloning {url} to {:?}", temp.path());
     RepoBuilder::new()
-        .fetch_options(fetch_opts)
+        .fetch_options(clone_fetch_options(remote_cbs))
         .clone(url, temp.path())?;
     info!("Finished cloning {url} to {:?}", temp.path());
 
@@ -313,13 +315,12 @@ async fn update_inner(
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
     ensure_clone_url_is_allowed(url).await?;
+    pinned_stream::register()?;
     let mut tx = conn.begin().await?;
 
     let temp = tempfile::tempdir()?;
-    let mut fetch_opts = FetchOptions::new();
-    fetch_opts.follow_redirects(RemoteRedirect::None);
     RepoBuilder::new()
-        .fetch_options(fetch_opts)
+        .fetch_options(clone_fetch_options(RemoteCallbacks::new()))
         .clone(url, temp.path())?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;

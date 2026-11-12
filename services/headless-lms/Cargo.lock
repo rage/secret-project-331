@@ -3242,6 +3242,8 @@ dependencies = [
  "k8s-openapi",
  "kube",
  "lettre",
+ "libc",
+ "libgit2-sys",
  "listenfd",
  "mime",
  "mockito",

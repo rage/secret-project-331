@@ -22,11 +22,11 @@ export {
   OneTimeCodeForm,
 } from "./components/OneTimeCodeForm"
 export type { OneTimeCodeFormProps, OneTimeCodeResendProps } from "./components/OneTimeCodeForm"
-export { FormSection } from "./components/FormSection"
+export { FormSection, formSectionTitleCss } from "./components/FormSection"
 export type { FormSectionHeadingLevel, FormSectionProps } from "./components/FormSection"
 export { Radio } from "./components/Radio"
 export type { RadioNestedContentVariant, RadioProps } from "./components/Radio"
-export { RadioGroup, questionLegendCss } from "./components/RadioGroup"
+export { RadioGroup, questionLegendCss, radioListRevealCss } from "./components/RadioGroup"
 export type { RadioGroupProps, RadioGroupVariant } from "./components/RadioGroup"
 export { default as RouteFocusManager } from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"

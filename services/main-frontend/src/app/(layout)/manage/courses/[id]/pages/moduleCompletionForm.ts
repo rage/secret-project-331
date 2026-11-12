@@ -105,12 +105,17 @@ export const formFieldsOf = (state: CourseModuleFormState): CourseModuleFormFiel
   }
 }
 
-/** Mirrors the server: students follow the link as an `href`, so only https is stored. */
-export const isHttpsUrl = (value: string): boolean => {
-  try {
-    const url = new URL(value.trim())
-    return url.protocol === "https:" && url.hostname !== ""
-  } catch {
-    return false
-  }
-}
+/**
+ * Passing by requirements with none chosen, which would pass everyone. An exam on this platform
+ * is a requirement of its own, so passing by it needs none.
+ */
+export const lacksRequirement = (
+  state: Pick<
+    CourseModuleFormState,
+    "pass_method" | "exam_required" | "exam_location" | "requires_points" | "requires_exercises"
+  >,
+): boolean =>
+  state.pass_method === "automatic" &&
+  examRequirementOf(state) !== "platform" &&
+  !state.requires_points &&
+  !state.requires_exercises

@@ -1,12 +1,18 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+
+import type { LinkedExam } from "@/generated/api/types.generated"
 
 import CourseModuleForm from "../CourseModuleForm"
 import type { ModuleView } from "../CourseModules"
-import type { LinkedExam } from "../moduleCompletionSettings"
 import { NEW_MODULE_COMPLETION_SETTINGS } from "../moduleCompletionSettings"
+
+jest.mock("@/generated/api/sdk.generated", () => ({
+  getCourseExercises: () => Promise.resolve([]),
+}))
 
 const LINKS = {
   studentsTab: "/students",
@@ -38,18 +44,22 @@ const moduleWith = (overrides: Partial<ModuleView>): ModuleView => ({
 
 function renderForm(module: ModuleView, linkedExams: LinkedExam[] = []) {
   const onSubmitForm = jest.fn()
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   render(
-    <CourseModuleForm
-      mode="edit"
-      module={module}
-      chapters={[1]}
-      creditRegistrationConfig={undefined}
-      linkedExams={linkedExams}
-      exercises={[]}
-      links={LINKS}
-      canToggleCertificates
-      onSubmitForm={onSubmitForm}
-    />,
+    <QueryClientProvider client={queryClient}>
+      <CourseModuleForm
+        mode="edit"
+        module={module}
+        chapters={[1]}
+        creditRegistrationConfig={undefined}
+        linkedExams={linkedExams}
+        courseId="course-1"
+        chapterNumberById={new Map()}
+        links={LINKS}
+        canToggleCertificates
+        onSubmitForm={onSubmitForm}
+      />
+    </QueryClientProvider>,
   )
   fireEvent.click(screen.getByRole("button", { name: "edit" }))
   return { onSubmitForm }
@@ -83,17 +93,17 @@ describe("CourseModuleForm", () => {
     await waitFor(() => expect(passMethod("pass-method-by-exam")).toBeChecked())
     expect(screen.getByText("pass-method-switched-by-exam")).toBeInTheDocument()
 
-    await act(async () => {
-      fireEvent.submit(document.querySelector("form") as HTMLFormElement)
-    })
-    expect(onSubmitForm).toHaveBeenCalledWith(
-      "module-1",
-      expect.objectContaining({
-        completion_method: "by_exam",
-        exam_requirement: "platform",
-        number_of_points_treshold: null,
-        credit_registration_route: "platform",
-      }),
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement)
+    await waitFor(() =>
+      expect(onSubmitForm).toHaveBeenCalledWith(
+        "module-1",
+        expect.objectContaining({
+          completion_method: "by_exam",
+          exam_requirement: "platform",
+          number_of_points_treshold: null,
+          credit_registration_route: "platform",
+        }),
+      ),
     )
   })
 })

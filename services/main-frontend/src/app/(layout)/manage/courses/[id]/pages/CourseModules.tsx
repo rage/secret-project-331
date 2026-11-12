@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -19,17 +19,15 @@ import { useCanViewCreditRegistrations } from "@/components/credit-registration/
 import {
   getCourseCreditRegistrationModuleConfigsOptions,
   getCourseCreditRegistrationSummaryOptions,
-  getCourseExercisesOptions,
   getCourseInstancesOptions,
+  getCourseLinkedExamsOptions,
   getCourseStructureOptions,
-  getOrganizationCourseExamsOptions,
-  getOrganizationExamsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import {
   setCourseModuleCertificateGeneration,
   updateCourseModules,
 } from "@/generated/api/sdk.generated"
-import type { ModifiedModule, NewModule } from "@/generated/api/types.generated"
+import type { CourseStructure, ModifiedModule, NewModule } from "@/generated/api/types.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -39,18 +37,16 @@ import {
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
 import { Button, ErrorNotice, QueryResults } from "@/shared-module/components"
-import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { viewCourseInstanceCertificatesPageRoute } from "@/utils/routing"
 
 import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
-import type { CourseModuleFormMode, ExerciseInChapter } from "./CourseModuleForm"
+import type { CourseModuleFormMode } from "./CourseModuleForm"
 import CourseModuleForm from "./CourseModuleForm"
 import type { ModuleCompletionLinks } from "./ModuleCompletionFields"
 import type { CourseModuleFormFields } from "./moduleCompletionForm"
 import type { ModuleCompletionSettings } from "./moduleCompletionSettings"
 import {
   completionPolicyOf,
-  linkedExamOf,
   NEW_MODULE_COMPLETION_SETTINGS,
   settingsOfPolicy,
 } from "./moduleCompletionSettings"
@@ -143,26 +139,19 @@ const updatedFieldsOf = (module: ModuleView) => ({
   credit_registration_route: module.credit_registration_route,
 })
 
-const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] => {
-  modules.sort((l, r) => {
-    // sort default module first
-    if (l.name === null) {
-      return -1
-    } else if (r.name === null) {
-      return 1
-    }
-    // sort according to first chapters, empty modules last
-    return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
-  })
-
-  // update order numbers
-  let order = 0
-  modules.forEach((m) => {
-    m.order_number = order
-    order += 1
-  })
-  return modules
-}
+/** Copies rather than mutates: the staged list shares its modules with the initial one. */
+const sortAndUpdateOrderNumbers = (modules: ModuleView[]): ModuleView[] =>
+  modules
+    .toSorted((l, r) => {
+      if (l.name === null) {
+        return -1
+      } else if (r.name === null) {
+        return 1
+      }
+      // Empty modules last.
+      return (l.firstChapter ?? Infinity) - (r.firstChapter ?? 0)
+    })
+    .map((m, order) => ({ ...m, order_number: order }))
 
 const CourseModules: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
@@ -171,65 +160,62 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
   const [newModule, setNewModule] = useState<ModuleView | null>(null)
 
-  // helper functions
-  const validateModuleList = (modules: ModuleView[], chapters: ChapterView[]): string | null => {
-    const seenModules = new Map<string, number>()
+  const validateModuleList = useCallback(
+    (modules: ModuleView[], chapters: ChapterView[]): string | null => {
+      const seenModules = new Map<string, number>()
 
-    chapters.sort((l, r) => l.chapter_number - r.chapter_number)
+      chapters.sort((l, r) => l.chapter_number - r.chapter_number)
 
-    // check that the first chapter is in the default module
-    const firstChapter = chapters[0]
-    if (firstChapter !== undefined) {
-      const firstModule = modules.find((m) => m.id === firstChapter.module)
-      if (firstModule !== undefined && firstModule.name !== null) {
-        return t("error-modules-first-chapter-not-in-default-module")
-      }
-    }
-
-    // check that the chapters are continuous to disallow configurations such as:
-    // module 1: [chapter 1, chapter 3], module 2: [chapter 2]
-    // also checks that all chapters belong to some module
-    let currentModule: string | null = null
-    for (const chapter of chapters) {
-      if (chapter.module !== null) {
-        if (chapter.module !== currentModule) {
-          currentModule = chapter.module
-          // should be unseen module
-          const prevChapter = seenModules.get(chapter.module)
-          if (prevChapter !== undefined) {
-            // oxlint-disable-next-line no-loop-func -- find runs synchronously; currentModule read immediately
-            const erroringModule = modules.find((m) => m.id === currentModule)
-            return erroringModule?.name === null
-              ? t("error-modules-default-noncontinuous-chapters", {
-                  prevChapter,
-                  currChapter: chapter.chapter_number,
-                })
-              : t("error-modules-noncontinuous-chapters", {
-                  moduleName: erroringModule?.name ?? "",
-                  prevChapter,
-                  currChapter: chapter.chapter_number,
-                })
-          }
+      const firstChapter = chapters[0]
+      if (firstChapter !== undefined) {
+        const firstModule = modules.find((m) => m.id === firstChapter.module)
+        if (firstModule !== undefined && firstModule.name !== null) {
+          return t("error-modules-first-chapter-not-in-default-module")
         }
-        seenModules.set(chapter.module, chapter.chapter_number)
-      } else {
-        return t("error-modules-chapter-not-in-module", {
-          chapterNumber: chapter.chapter_number,
-          chapterName: chapter.name,
-        })
       }
-    }
 
-    // check that no module is empty
-    for (const courseModule of modules) {
-      if (!seenModules.has(courseModule.id)) {
-        return t("error-modules-empty-module", { moduleName: courseModule.name })
+      // Each module's chapters must be contiguous (rejects module 1: [1, 3], module 2: [2]), and
+      // every chapter must belong to a module.
+      let currentModule: string | null = null
+      for (const chapter of chapters) {
+        if (chapter.module !== null) {
+          if (chapter.module !== currentModule) {
+            currentModule = chapter.module
+            const prevChapter = seenModules.get(chapter.module)
+            if (prevChapter !== undefined) {
+              // oxlint-disable-next-line no-loop-func -- find runs synchronously; currentModule read immediately
+              const erroringModule = modules.find((m) => m.id === currentModule)
+              return erroringModule?.name === null
+                ? t("error-modules-default-noncontinuous-chapters", {
+                    prevChapter,
+                    currChapter: chapter.chapter_number,
+                  })
+                : t("error-modules-noncontinuous-chapters", {
+                    moduleName: erroringModule?.name ?? "",
+                    prevChapter,
+                    currChapter: chapter.chapter_number,
+                  })
+            }
+          }
+          seenModules.set(chapter.module, chapter.chapter_number)
+        } else {
+          return t("error-modules-chapter-not-in-module", {
+            chapterNumber: chapter.chapter_number,
+            chapterName: chapter.name,
+          })
+        }
       }
-    }
 
-    // all ok
-    return null
-  }
+      for (const courseModule of modules) {
+        if (!seenModules.has(courseModule.id)) {
+          return t("error-modules-empty-module", { moduleName: courseModule.name })
+        }
+      }
+
+      return null
+    },
+    [t],
+  )
 
   // queries and mutations
   const creditRegistrationConfigsQuery = useQuery(
@@ -246,101 +232,49 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     enabled: canViewCreditRegistrations && courseUsesStudyRegistry,
   })
   const registrationSummaries = registrationSummaryQuery.data?.modules
-  const courseStructureQuery = useQuery({
-    ...getCourseStructureOptions({
-      path: {
-        course_id: courseId,
-      },
-    }),
-    select: (courseStructure) => {
-      const chapterNumbers = courseStructure.chapters
+  const selectCourseStructure = useCallback(
+    (courseStructure: CourseStructure) => {
+      const chapters = courseStructure.chapters
         .toSorted((l, r) => l.chapter_number - r.chapter_number)
-        .map((c) => c.chapter_number)
-
-      const makeModuleList = () => {
-        const chapters = courseStructure.chapters
-          .toSorted((l, r) => l.chapter_number - r.chapter_number)
-          .map((c) => {
-            return {
-              id: c.id,
-              name: c.name,
-              module: c.course_module_id,
-              chapter_number: c.chapter_number,
-            }
-          })
-        const modules = courseStructure.modules.map<ModuleView>((m) => {
-          const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
-          return {
-            id: m.id,
-            name: m.name ?? null,
-            order_number: m.order_number,
-            firstChapter,
-            lastChapter,
-            isNew: false,
-            ...settingsOfPolicy(m.completion_policy),
-            exam_requirement: m.exam_requirement,
-            exam_location_description: m.exam_location_description ?? null,
-            credit_registration_route: m.credit_registration_route,
-            uh_course_code: m.uh_course_code ?? null,
-            ects_credits: m.ects_credits ?? null,
-            completion_registration_link_override: m.completion_registration_link_override ?? null,
-            certification_enabled: m.certification_enabled,
-          }
-        })
-        const error = validateModuleList(modules, chapters)
-        return { modules, chapters, error }
-      }
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          module: c.course_module_id,
+          chapter_number: c.chapter_number,
+        }))
+      const modules = courseStructure.modules.map<ModuleView>((m) => {
+        const [firstChapter, lastChapter] = firstAndLastChaptersOfModule(m.id, chapters)
+        return {
+          id: m.id,
+          name: m.name ?? null,
+          order_number: m.order_number,
+          firstChapter,
+          lastChapter,
+          isNew: false,
+          ...settingsOfPolicy(m.completion_policy),
+          exam_requirement: m.exam_requirement,
+          exam_location_description: m.exam_location_description ?? null,
+          credit_registration_route: m.credit_registration_route,
+          uh_course_code: m.uh_course_code ?? null,
+          ects_credits: m.ects_credits ?? null,
+          completion_registration_link_override: m.completion_registration_link_override ?? null,
+          certification_enabled: m.certification_enabled,
+        }
+      })
       return {
-        initialModuleList: makeModuleList(),
-        moduleList: makeModuleList(),
-        chapterNumbers,
-        organizationId: courseStructure.course.organization_id,
-        chapterNumberById: new Map(
-          courseStructure.chapters.map((c) => [c.id, c.chapter_number] as const),
-        ),
+        initialModuleList: { modules, chapters, error: validateModuleList(modules, chapters) },
+        chapterNumbers: chapters.map((c) => c.chapter_number),
+        chapterNumberById: new Map(chapters.map((c) => [c.id, c.chapter_number] as const)),
       }
     },
+    [validateModuleList],
+  )
+  const courseStructureQuery = useQuery({
+    ...getCourseStructureOptions({ path: { course_id: courseId } }),
+    select: selectCourseStructure,
   })
-  const organizationId = courseStructureQuery.data?.organizationId ?? null
-  const chapterNumberById = courseStructureQuery.data?.chapterNumberById
-  const exercisesQuery = useQuery(getCourseExercisesOptions({ path: { course_id: courseId } }))
-  const exercises = useMemo<ExerciseInChapter[] | null>(() => {
-    if (!exercisesQuery.data || !chapterNumberById) {
-      return null
-    }
-    return exercisesQuery.data.flatMap((exercise) => {
-      const chapterNumber = exercise.chapter_id
-        ? chapterNumberById.get(exercise.chapter_id)
-        : undefined
-      return chapterNumber === undefined
-        ? []
-        : [{ chapterNumber, scoreMaximum: exercise.score_maximum }]
-    })
-  }, [exercisesQuery.data, chapterNumberById])
-  // Exams belong to the organization and are linked to courses; both lists are public.
-  const organizationExamsQuery = useQuery(
-    optionalGeneratedQueryOptions({
-      value: organizationId,
-      build: (id) => getOrganizationExamsOptions({ path: { organization_id: id } }),
-    }),
-  )
-  const organizationCourseExamsQuery = useQuery(
-    optionalGeneratedQueryOptions({
-      value: organizationId,
-      build: (id) => getOrganizationCourseExamsOptions({ path: { organization_id: id } }),
-    }),
-  )
-  const linkedExams = useMemo(() => {
-    const linkedIds = new Set(
-      (organizationCourseExamsQuery.data ?? [])
-        .filter((courseExam) => courseExam.course_id === courseId)
-        .map((courseExam) => courseExam.id),
-    )
-    return (organizationExamsQuery.data ?? [])
-      .filter((exam) => linkedIds.has(exam.id))
-      .map((exam) => linkedExamOf(exam))
-      .toSorted((l, r) => (l.starts_at ?? "").localeCompare(r.starts_at ?? ""))
-  }, [organizationExamsQuery.data, organizationCourseExamsQuery.data, courseId])
+  const linkedExams =
+    useQuery(getCourseLinkedExamsOptions({ path: { course_id: courseId } })).data ?? []
   const organizationSlug = useCourseBreadcrumbInfoQuery(courseId).data?.organization_slug
   const courseInstancesQuery = useQuery(
     getCourseInstancesOptions({ path: { course_id: courseId } }),
@@ -361,7 +295,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       return
     }
     if (moduleList === null) {
-      setModuleList(courseStructureQuery.data.moduleList)
+      setModuleList(courseStructureQuery.data.initialModuleList)
     }
   }, [courseStructureQuery.data, moduleList])
 
@@ -570,7 +504,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                       (config) => config.course_module_id === module.id,
                     )}
                     linkedExams={linkedExams}
-                    exercises={exercises}
+                    courseId={courseId}
+                    chapterNumberById={data.chapterNumberById}
                     links={links}
                     canToggleCertificates={initialModule?.certification_enabled ?? false}
                     hasUnsavedChanges={
@@ -609,7 +544,8 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 chapters={data.chapterNumbers}
                 creditRegistrationConfig={undefined}
                 linkedExams={linkedExams}
-                exercises={exercises}
+                courseId={courseId}
+                chapterNumberById={data.chapterNumberById}
                 links={links}
                 canToggleCertificates={false}
                 onSubmitForm={handleSaveModule}

@@ -4449,6 +4449,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/exams": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.",
+        "operationId": "getCourseLinkedExams",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exams linked to the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkedExam"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/exercises": {
       "get": {
         "tags": ["courses"],
@@ -22087,8 +22121,12 @@
       "CourseCompletionOverview": {
         "type": "object",
         "description": "How students complete a course and get its credits, for the course Overview tab.",
-        "required": ["modules", "exams"],
+        "required": ["modules", "exams", "can_view_registrations"],
         "properties": {
+          "can_view_registrations": {
+            "type": "boolean",
+            "description": "Whether the user can view the course's credit registrations; without it every module's\n`not_yet_registered_count` is 0 and `credit_registration_pause_reason` is `None`."
+          },
           "exams": {
             "$ref": "#/components/schemas/CourseExamsOverview",
             "description": "The exams linked to the course, which every module passed by an exam on this platform uses."
@@ -22097,7 +22135,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CourseModuleCompletionOverview"
-            }
+            },
+            "description": "In module order."
           }
         }
       },
@@ -23223,8 +23262,12 @@
       "CourseExamsOverview": {
         "type": "object",
         "description": "When the course's linked exams are held and whether they can pass anyone automatically.",
-        "required": ["count", "pass_marks"],
+        "required": ["count", "any_has_pass_mark"],
         "properties": {
+          "any_has_pass_mark": {
+            "type": "boolean",
+            "description": "Whether at least one exam completes the students who reach its pass mark; otherwise every\nexam is graded manually or has no pass mark, and the teacher adds the completions."
+          },
           "count": {
             "type": "integer",
             "minimum": 0
@@ -23242,9 +23285,6 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "The window of the exam that ends next among those not ended yet."
-          },
-          "pass_marks": {
-            "$ref": "#/components/schemas/ExamPassMarks"
           }
         }
       },
@@ -23634,7 +23674,8 @@
           "credit_registration_route",
           "certification_enabled",
           "has_registration_link",
-          "has_completions"
+          "has_completions",
+          "not_yet_registered_count"
         ],
         "properties": {
           "certification_enabled": {
@@ -23652,8 +23693,7 @@
             "format": "uuid"
           },
           "credit_registration_pause_reason": {
-            "type": ["string", "null"],
-            "description": "`None` also when the user can't view the course's credit registrations."
+            "type": ["string", "null"]
           },
           "credit_registration_paused_at": {
             "type": ["string", "null"],
@@ -23685,9 +23725,9 @@
             "description": "`None` for the default module."
           },
           "not_yet_registered_count": {
-            "type": ["integer", "null"],
+            "type": "integer",
             "format": "int64",
-            "description": "Credit registrations neither in Sisu yet nor given up on; `None` unless the user can view\nthe course's credit registrations."
+            "description": "Credit registrations neither in Sisu yet nor given up on."
           },
           "order_number": {
             "type": "integer",
@@ -27476,11 +27516,6 @@
           }
         }
       },
-      "ExamPassMarks": {
-        "type": "string",
-        "description": "Whether the linked exams can complete anyone automatically.",
-        "enum": ["no_exams", "some_have_pass_mark", "none_have_pass_mark"]
-      },
       "ExamRequirement": {
         "type": "string",
         "description": "Whether passing a module requires an exam, and where it is held.",
@@ -29392,6 +29427,33 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "LinkedExam": {
+        "type": "object",
+        "description": "An exam linked to the course, as the module editor lists it.",
+        "required": ["id", "name"],
+        "properties": {
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pass_mark": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The points that complete the course automatically; `None` when the teacher adds the\ncompletions."
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           }
         }
       },

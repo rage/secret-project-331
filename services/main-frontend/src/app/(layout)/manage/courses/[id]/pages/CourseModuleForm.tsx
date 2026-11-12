@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { Trash } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
@@ -18,25 +19,23 @@ import {
   noteCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
-import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { getCourseExercisesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  CompletionMethod,
+  CourseModuleCreditRegistrationConfig,
+  Exercise,
+  LinkedExam,
+} from "@/generated/api/types.generated"
 import { Badge, Button, Select, TextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
 import type { ModuleCompletionLinks, ModuleTotals } from "./ModuleCompletionFields"
-import ModuleCompletionFields from "./ModuleCompletionFields"
+import ModuleCompletionFields, { fieldRowCss } from "./ModuleCompletionFields"
 import type { CourseModuleFormFields, CourseModuleFormState } from "./moduleCompletionForm"
-import { formFieldsOf, formStateOf } from "./moduleCompletionForm"
-import type { LinkedExam } from "./moduleCompletionSettings"
+import { formFieldsOf, formStateOf, lacksRequirement } from "./moduleCompletionForm"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
-
-/** One exercise as it counts towards a module's totals. */
-export interface ExerciseInChapter {
-  chapterNumber: number
-  scoreMaximum: number
-}
 
 interface Props {
   mode: CourseModuleFormMode
@@ -45,8 +44,9 @@ interface Props {
   chapters: number[]
   creditRegistrationConfig: CourseModuleCreditRegistrationConfig | undefined
   linkedExams: LinkedExam[]
-  /** The course's exercises, for the module totals; `null` while loading. */
-  exercises: ExerciseInChapter[] | null
+  courseId: string
+  /** For placing the course's exercises in chapters, to total up the module's. */
+  chapterNumberById: ReadonlyMap<string, number>
   links: ModuleCompletionLinks
   /** See `ModuleCompletionFields`. */
   canToggleCertificates: boolean
@@ -92,15 +92,6 @@ const groupCss = css`
   border: 0;
 `
 
-const fieldRowCss = css`
-  display: grid;
-  gap: var(--space-4);
-  ${respondToOrLarger.md} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-`
-
 const deleteButtonCss = css`
   color: var(--color-red-600);
 `
@@ -122,38 +113,39 @@ const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModule
   )
 
 const totalsOf = (
-  exercises: ExerciseInChapter[],
+  exercises: Exercise[],
+  chapterNumberById: ReadonlyMap<string, number>,
   firstChapter: number,
   lastChapter: number,
 ): ModuleTotals =>
-  exercises
-    .filter((e) => firstChapter <= e.chapterNumber && e.chapterNumber <= lastChapter)
-    .reduce(
-      (totals, e) => ({
-        exercises: totals.exercises + 1,
-        points: totals.points + e.scoreMaximum,
-      }),
-      { exercises: 0, points: 0 },
-    )
+  exercises.reduce(
+    (totals, exercise) => {
+      const chapterNumber = exercise.chapter_id
+        ? chapterNumberById.get(exercise.chapter_id)
+        : undefined
+      return chapterNumber !== undefined &&
+        firstChapter <= chapterNumber &&
+        chapterNumber <= lastChapter
+        ? {
+            exercises: totals.exercises + 1,
+            points: totals.points + exercise.score_maximum,
+          }
+        : totals
+    },
+    { exercises: 0, points: 0 },
+  )
+
+const COMPLETION_METHOD_LABEL_KEYS = {
+  not_decided: "pass-method-not-decided",
+  by_requirements: "pass-method-by-requirements",
+  by_exam: "pass-method-by-exam",
+  teacher_adds: "pass-method-teacher-adds",
+} as const satisfies Record<CompletionMethod, string>
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
 const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const parts: string[] = []
-  switch (module.completion_method) {
-    case "not_decided":
-      parts.push(t("pass-method-not-decided"))
-      break
-    case "by_requirements":
-      parts.push(t("pass-method-by-requirements"))
-      break
-    case "by_exam":
-      parts.push(t("pass-method-by-exam"))
-      break
-    case "teacher_adds":
-      parts.push(t("pass-method-teacher-adds"))
-      break
-  }
+  const parts: string[] = [t(COMPLETION_METHOD_LABEL_KEYS[module.completion_method])]
   if (module.uh_course_code) {
     parts.push(module.uh_course_code)
   }
@@ -185,7 +177,8 @@ const CourseModuleForm: React.FC<Props> = ({
   chapters,
   creditRegistrationConfig,
   linkedExams,
-  exercises,
+  courseId,
+  chapterNumberById,
   links,
   canToggleCertificates,
   hasUnsavedChanges = false,
@@ -212,19 +205,20 @@ const CourseModuleForm: React.FC<Props> = ({
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
 
-  const starts = Number(watch("starts"))
-  const ends = Number(watch("ends"))
+  const formState = watch()
+  const starts = Number(formState.starts)
+  const ends = Number(formState.ends)
+  const hasNoRequirement = lacksRequirement(formState)
+  const exercisesQuery = useQuery({
+    ...getCourseExercisesOptions({ path: { course_id: courseId } }),
+    // Only the requirement fields use the totals.
+    enabled: editing && formState.pass_method === "automatic",
+  })
+  const exercises = exercisesQuery.data
   const moduleTotals = useMemo(
-    () => (exercises === null ? null : totalsOf(exercises, starts, ends)),
-    [exercises, starts, ends],
+    () => (exercises ? totalsOf(exercises, chapterNumberById, starts, ends) : null),
+    [exercises, chapterNumberById, starts, ends],
   )
-  const passMethod = watch("pass_method")
-  const examLocation = watch("exam_location")
-  const hasNoRequirement =
-    passMethod === "automatic" &&
-    !(watch("exam_required") === "yes" && examLocation === "platform") &&
-    !watch("requires_points") &&
-    !watch("requires_exercises")
 
   const onSubmitFormWrapper = (state: CourseModuleFormState): void => {
     setEditing(isCreate)
@@ -340,6 +334,7 @@ const CourseModuleForm: React.FC<Props> = ({
             <div>
               <ModuleCompletionFields
                 linkedExams={linkedExams}
+                hasNoRequirement={hasNoRequirement}
                 moduleTotals={moduleTotals}
                 links={links}
                 canToggleCertificates={canToggleCertificates}

@@ -58,25 +58,18 @@ fn pairing_refused(page_id: Uuid, message: String) -> ToolError {
 /// teacher's module editor, so agents can't stage what teachers can't save.
 fn validate_module_settings(before: &CourseState, after: &CourseState) -> Result<(), ToolError> {
     for module in &after.modules {
-        let unchanged = before
-            .modules
-            .iter()
-            .find(|m| m.id == module.id)
-            .is_some_and(|m| m.completion_settings() == module.completion_settings());
-        if unchanged {
-            continue;
-        }
-        course_modules::validate_completion_registration_link(
-            module.completion_registration_link_override.as_deref(),
-        )
-        .and_then(|()| course_modules::validate_completion_settings(module))
-        .map_err(|error| {
-            ToolError::Edit(
-                EditError::new(EditErrorCode::InvalidValue, error.message().to_string()).with_fix(
-                    format!("change the settings of module {} together", module.id),
-                ),
-            )
-        })?;
+        let previous = before.modules.iter().find(|m| m.id == module.id);
+        course_modules::validate_completion_settings_if_changed(previous, module).map_err(
+            |error| {
+                ToolError::Edit(
+                    EditError::new(EditErrorCode::InvalidValue, error.message().to_string())
+                        .with_fix(format!(
+                            "change the settings of module {} together",
+                            module.id
+                        )),
+                )
+            },
+        )?;
     }
     Ok(())
 }

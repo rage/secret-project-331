@@ -1,12 +1,12 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses/{course_id}/completion-overview`.
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 use crate::controllers::main_frontend::course_credit_registrations::stage_of;
-use crate::domain::authorization::is_permitted;
+use crate::domain::authorization::{authorize_with_fetched_list_of_roles, is_permitted};
 use crate::prelude::*;
 
 use headless_lms_models::course_modules::{
-    CompletionMethod, CreditRegistrationRoute, ExamRequirement,
+    CompletionMethod, CreditRegistrationRoute, ExamRequirement, is_non_blank,
 };
 use headless_lms_models::library::credit_registration::StudentFacingCreditRegistrationStatus;
 use utoipa::{OpenApi, ToSchema};
@@ -18,9 +18,13 @@ pub(crate) struct MainFrontendCourseCompletionOverviewApiDoc;
 /// How students complete a course and get its credits, for the course Overview tab.
 #[derive(Debug, Serialize, ToSchema)]
 pub struct CourseCompletionOverview {
+    /// In module order.
     pub modules: Vec<CourseModuleCompletionOverview>,
     /// The exams linked to the course, which every module passed by an exam on this platform uses.
     pub exams: CourseExamsOverview,
+    /// Whether the user can view the course's credit registrations; without it every module's
+    /// `not_yet_registered_count` is 0 and `credit_registration_pause_reason` is `None`.
+    pub can_view_registrations: bool,
 }
 
 /// One module's completion and credit settings with the facts that tell whether they work.
@@ -42,13 +46,11 @@ pub struct CourseModuleCompletionOverview {
     pub certification_enabled: bool,
     pub has_registration_link: bool,
     pub has_completions: bool,
-    /// Credit registrations neither in Sisu yet nor given up on; `None` unless the user can view
-    /// the course's credit registrations.
-    pub not_yet_registered_count: Option<i64>,
+    /// Credit registrations neither in Sisu yet nor given up on.
+    pub not_yet_registered_count: i64,
     /// `None` until Sisu has been asked about the course code.
     pub course_code_allowed: Option<bool>,
     pub credit_registration_paused_at: Option<DateTime<Utc>>,
-    /// `None` also when the user can't view the course's credit registrations.
     pub credit_registration_pause_reason: Option<String>,
 }
 
@@ -61,18 +63,9 @@ pub struct CourseExamsOverview {
     /// The window of the exam that ends next among those not ended yet.
     pub next_starts_at: Option<DateTime<Utc>>,
     pub next_ends_at: Option<DateTime<Utc>>,
-    pub pass_marks: ExamPassMarks,
-}
-
-/// Whether the linked exams can complete anyone automatically.
-#[derive(Debug, Serialize, ToSchema, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum ExamPassMarks {
-    NoExams,
-    /// At least one exam completes the students who reach its pass mark.
-    SomeHavePassMark,
-    /// Every exam is graded manually or has no pass mark, so the teacher adds the completions.
-    NoneHavePassMark,
+    /// Whether at least one exam completes the students who reach its pass mark; otherwise every
+    /// exam is graded manually or has no pass mark, and the teacher adds the completions.
+    pub any_has_pass_mark: bool,
 }
 
 /**
@@ -95,14 +88,14 @@ async fn get_completion_overview(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseCompletionOverview>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
+    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
+    let token = authorize_with_fetched_list_of_roles(
         &mut conn,
         Act::ViewInternalCourseStructure,
-        Some(user.id),
         Res::Course(*course_id),
+        &user_roles,
     )
     .await?;
-    let user_roles = models::roles::get_roles(&mut conn, user.id).await?;
     let can_view_registrations = is_permitted(
         &mut conn,
         Act::ViewAndManageCreditRegistrations,
@@ -111,74 +104,64 @@ async fn get_completion_overview(
     )
     .await?;
 
-    let mut modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
-    modules.sort_by_key(|module| module.order_number);
-    let configs =
-        models::course_modules::get_credit_registration_configs_by_course_id(&mut conn, *course_id)
-            .await?;
-    let completed_module_ids: HashSet<Uuid> =
-        models::course_module_completions::get_completed_module_ids_by_course_id(
-            &mut conn, *course_id,
+    let setups =
+        models::course_modules::get_completion_setups_by_course_id(&mut conn, *course_id).await?;
+    let mut not_yet_registered_counts: HashMap<Uuid, i64> = HashMap::new();
+    if can_view_registrations {
+        let counts = models::credit_registrations::count_by_module_and_state_for_course(
+            &mut conn, *course_id, None,
         )
-        .await?
-        .into_iter()
-        .collect();
-    let registration_counts = if can_view_registrations {
-        Some(
-            models::credit_registrations::count_by_module_and_state_for_course(
-                &mut conn, *course_id, None,
-            )
-            .await?,
-        )
-    } else {
-        None
-    };
-    let exam_ids = models::course_exams::get_exam_ids_by_course_id(&mut conn, *course_id).await?;
-    let exams = models::exams::get_summaries_by_ids(&mut conn, &exam_ids).await?;
+        .await?;
+        for group in &counts {
+            if !matches!(
+                stage_of(group),
+                StudentFacingCreditRegistrationStatus::Registered
+                    | StudentFacingCreditRegistrationStatus::NotRegistering
+            ) {
+                *not_yet_registered_counts
+                    .entry(group.course_module_id)
+                    .or_default() += group.count;
+            }
+        }
+    }
+    let exams = models::exams::get_summaries_by_course_id(&mut conn, *course_id).await?;
 
-    let modules = modules
+    let modules = setups
         .into_iter()
-        .map(|module| {
-            let config = configs.iter().find(|c| c.course_module_id == module.id);
-            let not_yet_registered_count = registration_counts.as_ref().map(|counts| {
-                counts
-                    .iter()
-                    .filter(|group| group.course_module_id == module.id)
-                    .filter(|group| {
-                        !matches!(
-                            stage_of(group),
-                            StudentFacingCreditRegistrationStatus::Registered
-                                | StudentFacingCreditRegistrationStatus::NotRegistering
-                        )
-                    })
-                    .map(|group| group.count)
-                    .sum()
-            });
-            let requirements = module.completion_policy.requirements();
+        .map(|setup| {
+            let has_thresholds = matches!(
+                setup.completion_method,
+                CompletionMethod::ByRequirements | CompletionMethod::ByExam
+            );
             CourseModuleCompletionOverview {
-                course_module_id: module.id,
-                order_number: module.order_number,
-                completion_method: module.completion_policy.method(),
-                points_threshold: requirements.and_then(|r| r.number_of_points_treshold),
-                exercises_attempted_threshold: requirements
-                    .and_then(|r| r.number_of_exercises_attempted_treshold),
-                exam_requirement: module.exam_requirement,
-                credit_registration_route: module.credit_registration_route,
-                certification_enabled: module.certification_enabled,
-                has_registration_link: module
-                    .completion_registration_link_override
-                    .as_deref()
-                    .is_some_and(|link| !link.trim().is_empty()),
-                has_completions: completed_module_ids.contains(&module.id),
-                not_yet_registered_count,
-                course_code_allowed: config.and_then(|c| c.credit_registration_course_code_allowed),
-                credit_registration_paused_at: config.and_then(|c| c.credit_registration_paused_at),
-                credit_registration_pause_reason: config
-                    .filter(|_| can_view_registrations)
-                    .and_then(|c| c.credit_registration_pause_reason.clone()),
-                name: module.name,
-                uh_course_code: module.uh_course_code,
-                ects_credits: module.ects_credits,
+                course_module_id: setup.id,
+                order_number: setup.order_number,
+                completion_method: setup.completion_method,
+                points_threshold: setup
+                    .automatic_completion_number_of_points_treshold
+                    .filter(|_| has_thresholds),
+                exercises_attempted_threshold: setup
+                    .automatic_completion_number_of_exercises_attempted_treshold
+                    .filter(|_| has_thresholds),
+                exam_requirement: setup.exam_requirement,
+                credit_registration_route: setup.credit_registration_route,
+                certification_enabled: setup.certification_enabled,
+                has_registration_link: is_non_blank(
+                    setup.completion_registration_link_override.as_deref(),
+                ),
+                has_completions: setup.has_completions,
+                not_yet_registered_count: not_yet_registered_counts
+                    .get(&setup.id)
+                    .copied()
+                    .unwrap_or(0),
+                course_code_allowed: setup.credit_registration_course_code_allowed,
+                credit_registration_paused_at: setup.credit_registration_paused_at,
+                credit_registration_pause_reason: setup
+                    .credit_registration_pause_reason
+                    .filter(|_| can_view_registrations),
+                name: setup.name,
+                uh_course_code: setup.uh_course_code,
+                ects_credits: setup.ects_credits,
             }
         })
         .collect();
@@ -193,16 +176,6 @@ async fn get_completion_overview(
         .iter()
         .filter(|exam| exam.ends_at.is_some_and(|ends_at| ends_at > now))
         .min_by_key(|exam| exam.ends_at);
-    let pass_marks = if exams.is_empty() {
-        ExamPassMarks::NoExams
-    } else if exams
-        .iter()
-        .any(|exam| !exam.grade_manually && exam.minimum_points_treshold > 0)
-    {
-        ExamPassMarks::SomeHavePassMark
-    } else {
-        ExamPassMarks::NoneHavePassMark
-    };
 
     token.authorized_ok(web::Json(CourseCompletionOverview {
         modules,
@@ -211,8 +184,9 @@ async fn get_completion_overview(
             last_ended_at,
             next_starts_at: next.and_then(|exam| exam.starts_at),
             next_ends_at: next.and_then(|exam| exam.ends_at),
-            pass_marks,
+            any_has_pass_mark: exams.iter().any(|exam| exam.pass_mark().is_some()),
         },
+        can_view_registrations,
     }))
 }
 

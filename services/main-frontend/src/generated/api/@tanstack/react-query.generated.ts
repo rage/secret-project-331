@@ -200,6 +200,7 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseLinkedExams,
   getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
@@ -801,6 +802,8 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
@@ -4614,6 +4617,29 @@ export const getCourseDefaultPeerReviewOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseDefaultPeerReviewQueryKey(options),
+  })
+
+export const getCourseLinkedExamsQueryKey = (options: Options<GetCourseLinkedExamsData>) =>
+  createQueryKey("getCourseLinkedExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExamsOptions = (options: Options<GetCourseLinkedExamsData>) =>
+  queryOptions<
+    GetCourseLinkedExamsResponse,
+    DefaultError,
+    GetCourseLinkedExamsResponse,
+    ReturnType<typeof getCourseLinkedExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkedExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkedExamsQueryKey(options),
   })
 
 export const getCourseExercisesQueryKey = (options: Options<GetCourseExercisesData>) =>

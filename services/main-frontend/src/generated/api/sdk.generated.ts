@@ -418,6 +418,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponses,
   GetCourseMetadataData,
   GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
@@ -1117,6 +1119,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseLinkedExamsResponse,
   zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
@@ -3760,6 +3763,19 @@ export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/default-peer-review",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkedExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkedExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/exams",
     ...options,
   })
 

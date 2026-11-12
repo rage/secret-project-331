@@ -7,13 +7,16 @@ import type { Path } from "react-hook-form"
 import { useFormContext } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { DAY_AND_MONTH_FORMAT } from "@/components/credit-registration/constants"
+import { DAY_AND_MONTH_FORMAT, formatDateWindow } from "@/components/credit-registration/constants"
+import type { LinkedExam } from "@/generated/api/types.generated"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageExamRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
+  Button,
   Checkbox,
   FormSection,
+  formSectionTitleCss,
   Infobox,
   Link,
   NumberField,
@@ -21,16 +24,17 @@ import {
   questionLegendCss,
   Radio,
   RadioGroup,
+  radioListRevealCss,
   Reveal,
   TextField,
   TONE,
   TransLink,
 } from "@/shared-module/components"
+import { isOutsidePlatform } from "@/utils/examRequirement"
+import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
 import type { CourseModuleFormState } from "./moduleCompletionForm"
-import { examRequirementOf, isHttpsUrl } from "./moduleCompletionForm"
-import type { LinkedExam } from "./moduleCompletionSettings"
-import { isOutsidePlatform } from "./moduleCompletionSettings"
+import { examRequirementOf } from "./moduleCompletionForm"
 
 /** The number of exercises and the maximum points in the chapters the module spans. */
 export interface ModuleTotals {
@@ -49,6 +53,8 @@ export interface ModuleCompletionLinks {
 
 interface Props {
   linkedExams: LinkedExam[]
+  /** See `lacksRequirement`. */
+  hasNoRequirement: boolean
   /** `null` while loading. */
   moduleTotals: ModuleTotals | null
   links: ModuleCompletionLinks
@@ -88,14 +94,6 @@ const CROSS_CHECKED_FIELDS: Path<CourseModuleFormState>[] = [
   "number_of_exercises_attempted_treshold",
   "completion_registration_link_override",
 ]
-
-const nestedQuestionCss = css`
-  margin: 0 0 var(--space-3-5);
-  color: var(--color-gray-700);
-  font-size: var(--font-size-2);
-  font-weight: 600;
-  line-height: 1.3;
-`
 
 const nestedCss = css`
   display: grid;
@@ -164,26 +162,7 @@ const requirementValueCss = css`
 `
 
 const linkButtonCss = css`
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--link-fg);
-  font: inherit;
   font-size: var(--font-size-1);
-  text-align: start;
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-  cursor: pointer;
-
-  &:hover {
-    color: var(--link-fg-hover);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-    border-radius: var(--space-1);
-  }
 `
 
 const certificateRowCss = css`
@@ -193,7 +172,8 @@ const certificateRowCss = css`
   align-items: center;
 `
 
-const fieldRowCss = css`
+/** Two fields side by side from `md` up. */
+export const fieldRowCss = css`
   display: grid;
   gap: var(--space-4);
   ${respondToOrLarger.md} {
@@ -207,30 +187,56 @@ const fieldGroupCss = css`
   gap: var(--space-4);
 `
 
-/** Cancels the radio list gap a closed Reveal at the head of the list would still take up. */
-const collapsedListItemCss = css`
-  --reveal-collapsed-margin-top: calc(-1 * var(--radio-list-gap, var(--space-3)));
-`
-
 const LinkButton: React.FC<{ onPress: () => void; children: React.ReactNode }> = ({
   onPress,
   children,
 }) => (
-  <button type="button" className={linkButtonCss} onClick={onPress}>
+  <Button variant="link" className={linkButtonCss} onPress={onPress}>
     {children}
-  </button>
+  </Button>
 )
 
-const REQUIREMENT_FIELDS: Record<
-  Requirement,
-  { enabled: Path<CourseModuleFormState>; value: Path<CourseModuleFormState> }
-> = {
-  points: { enabled: "requires_points", value: "number_of_points_treshold" },
+/** Each requirement's form fields, its strings, and the module total it is a share of. */
+const REQUIREMENT_FIELDS = {
+  points: {
+    enabled: "requires_points",
+    value: "number_of_points_treshold",
+    label: "requirement-points-at-least",
+    unit: "unit-points",
+    count: "count-points",
+    unitPlural: "unit-plural-points",
+    calculatorTitle: "calculator-title-points",
+    totalOf: (totals: ModuleTotals) => totals.points,
+  },
   exercises: {
     enabled: "requires_exercises",
     value: "number_of_exercises_attempted_treshold",
+    label: "requirement-exercises-attempted-at-least",
+    unit: "unit-exercises",
+    count: "count-exercises",
+    unitPlural: "unit-plural-exercises",
+    calculatorTitle: "calculator-title-exercises",
+    totalOf: (totals: ModuleTotals) => totals.exercises,
   },
-}
+} as const satisfies Record<
+  Requirement,
+  {
+    enabled: Path<CourseModuleFormState>
+    value: Path<CourseModuleFormState>
+    label: string
+    unit: string
+    count: string
+    unitPlural: string
+    calculatorTitle: string
+    totalOf: (totals: ModuleTotals) => number
+  }
+>
+
+const SWITCH_EXPLANATION_KEYS = {
+  "outside-exam": "pass-method-switched-outside-exam",
+  "no-pass-mark": "pass-method-switched-no-pass-mark",
+  "by-exam": "pass-method-switched-by-exam",
+} as const satisfies Record<SwitchReason, string>
 
 /**
  * The exam, pass method and credit questions of the module editor. Options that don't fit the
@@ -238,6 +244,7 @@ const REQUIREMENT_FIELDS: Record<
  */
 const ModuleCompletionFields: React.FC<Props> = ({
   linkedExams,
+  hasNoRequirement,
   moduleTotals,
   links,
   canToggleCertificates,
@@ -261,8 +268,6 @@ const ModuleCompletionFields: React.FC<Props> = ({
   const noLinkedExamHasPassMark =
     isOnPlatform && linkedExams.length > 0 && linkedExams.every((e) => e.pass_mark === null)
   const passesByExam = isOnPlatform && !noLinkedExamHasPassMark
-  const hasNoRequirement =
-    passMethod === "automatic" && !isOnPlatform && !requiresPoints && !requiresExercises
 
   const [switchReason, setSwitchReason] = useState<SwitchReason | null>(null)
   /** The pass method this editor last chose by itself; a different value means the teacher chose. */
@@ -334,20 +339,10 @@ const ModuleCompletionFields: React.FC<Props> = ({
 
   const studentsTabLink = <TransLink href={links.studentsTab} />
 
-  const formatExamWindow = (linkedExam: LinkedExam): string | null => {
-    const starts = linkedExam.starts_at ? new Date(linkedExam.starts_at) : null
-    const ends = linkedExam.ends_at ? new Date(linkedExam.ends_at) : null
-    if (starts && ends) {
-      return dateFormatter.formatRange(starts, ends)
-    }
-    const only = starts ?? ends
-    return only ? dateFormatter.format(only) : null
-  }
-
   const linkedExamsContent = (
     <div className={nestedCss}>
       <div>
-        <h4 className={nestedQuestionCss}>{t("heading-linked-exams")}</h4>
+        <h4 className={formSectionTitleCss}>{t("heading-linked-exams")}</h4>
         {linkedExams.length === 0 ? (
           <p className={emptyExamListCss}>{t("linked-exams-empty")}</p>
         ) : (
@@ -356,8 +351,8 @@ const ModuleCompletionFields: React.FC<Props> = ({
               <li key={linkedExam.id}>
                 <Link href={manageExamRoute(linkedExam.id)}>{linkedExam.name}</Link>
                 {[
-                  formatExamWindow(linkedExam),
-                  linkedExam.pass_mark === null
+                  formatDateWindow(dateFormatter, linkedExam.starts_at, linkedExam.ends_at),
+                  linkedExam.pass_mark === null || linkedExam.pass_mark === undefined
                     ? t("linked-exam-graded-manually")
                     : t("linked-exam-pass-mark", { points: linkedExam.pass_mark }),
                 ]
@@ -398,7 +393,9 @@ const ModuleCompletionFields: React.FC<Props> = ({
       <RadioGroup
         name="credit_registration_route"
         control={control}
-        label={<span className={nestedQuestionCss}>{t("question-credit-registration-route")}</span>}
+        label={
+          <span className={formSectionTitleCss}>{t("question-credit-registration-route")}</span>
+        }
         isRequired
       >
         <Radio
@@ -455,11 +452,8 @@ const ModuleCompletionFields: React.FC<Props> = ({
 
   const requirementRow = (requirement: Requirement) => {
     const fields = REQUIREMENT_FIELDS[requirement]
-    const isPoints = requirement === "points"
-    const label = isPoints
-      ? t("requirement-points-at-least")
-      : t("requirement-exercises-attempted-at-least")
-    const value = watch(fields.value) as number | null
+    const label = t(fields.label)
+    const value = watch(fields.value)
     return (
       <div className={requirementRowCss}>
         <Checkbox name={fields.enabled} control={control} label={label} />
@@ -468,11 +462,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
             name={fields.value}
             control={control}
             label={<VisuallyHidden elementType={HIDDEN_TEXT_ELEMENT}>{label}</VisuallyHidden>}
-            unit={
-              isPoints
-                ? t("unit-points", { count: value ?? 0 })
-                : t("unit-exercises", { count: value ?? 0 })
-            }
+            unit={t(fields.unit, { count: value ?? 0 })}
             minValue={0}
             step={1}
             helperAction={
@@ -495,15 +485,14 @@ const ModuleCompletionFields: React.FC<Props> = ({
     )
   }
 
-  const calculatorTotal =
-    calculatorFor === "points" ? (moduleTotals?.points ?? 0) : (moduleTotals?.exercises ?? 0)
-  const formatCalculatorQuantity = (count: number) =>
-    calculatorFor === "points" ? t("count-points", { count }) : t("count-exercises", { count })
+  const calculatorFields = REQUIREMENT_FIELDS[calculatorFor ?? POINTS]
+  const calculatorTotal = moduleTotals ? calculatorFields.totalOf(moduleTotals) : 0
+  const formatCalculatorQuantity = (count: number) => t(calculatorFields.count, { count })
 
   const requirementsContent = (
     <div className={nestedCss}>
       <div>
-        <h4 className={nestedQuestionCss}>
+        <h4 className={formSectionTitleCss}>
           {isOnPlatform ? t("requirements-to-take-exam") : t("requirements-all-must-be-true")}
         </h4>
         {isOnPlatform && (
@@ -534,14 +523,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
     </div>
   )
 
-  const switchExplanation =
-    switchReason === "outside-exam"
-      ? t("pass-method-switched-outside-exam")
-      : switchReason === "no-pass-mark"
-        ? t("pass-method-switched-no-pass-mark")
-        : switchReason === "by-exam"
-          ? t("pass-method-switched-by-exam")
-          : null
+  const switchExplanation = switchReason ? t(SWITCH_EXPLANATION_KEYS[switchReason]) : null
 
   return (
     <>
@@ -641,7 +623,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
             control={control}
             label={<span className={questionLegendCss}>{t("question-how-students-pass")}</span>}
           >
-            <Reveal isOpen={switchExplanation !== null} rootClassName={collapsedListItemCss}>
+            <Reveal isOpen={switchExplanation !== null} rootClassName={radioListRevealCss}>
               <Infobox tone={TONE.INFO} announce>
                 {switchExplanation}
               </Infobox>
@@ -732,7 +714,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
               </p>
             ))}
           <div className={fieldGroupCss}>
-            <h4 className={nestedQuestionCss}>{t("heading-course-code-and-credits")}</h4>
+            <h4 className={formSectionTitleCss}>{t("heading-course-code-and-credits")}</h4>
             <div className={fieldRowCss}>
               <TextField
                 name="uh_course_code"
@@ -776,7 +758,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
                     if (value.trim() === "") {
                       return t("error-registration-link-required")
                     }
-                    return isHttpsUrl(value) || t("error-registration-link-https")
+                    return httpsUrlOrNull(value) !== null || t("error-registration-link-https")
                   },
                 }}
               />
@@ -788,25 +770,18 @@ const ModuleCompletionFields: React.FC<Props> = ({
       <PercentageCalculatorDialog
         open={calculatorFor !== null}
         onClose={() => setCalculatorFor(null)}
-        title={
-          calculatorFor === "points"
-            ? t("calculator-title-points")
-            : t("calculator-title-exercises")
-        }
+        title={t(calculatorFields.calculatorTitle)}
         description={t("calculator-module-has", {
           quantity: formatCalculatorQuantity(calculatorTotal),
         })}
         total={calculatorTotal}
         formatQuantity={formatCalculatorQuantity}
-        unitPlural={
-          calculatorFor === "points" ? t("unit-plural-points") : t("unit-plural-exercises")
-        }
+        unitPlural={t(calculatorFields.unitPlural)}
         defaultPercentage={DEFAULT_PERCENTAGE}
         onUse={(count) => {
           if (calculatorFor !== null) {
-            const fields = REQUIREMENT_FIELDS[calculatorFor]
-            setValue(fields.enabled, true, { shouldDirty: true })
-            setValue(fields.value, count, { shouldDirty: true, shouldValidate: true })
+            setValue(calculatorFields.enabled, true, { shouldDirty: true })
+            setValue(calculatorFields.value, count, { shouldDirty: true, shouldValidate: true })
           }
           setCalculatorFor(null)
         }}

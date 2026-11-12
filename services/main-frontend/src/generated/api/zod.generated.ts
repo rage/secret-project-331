@@ -1672,6 +1672,17 @@ export const zCourseExam = z.object({
   name: z.string(),
 })
 
+/**
+ * When the course's linked exams are held and whether they can pass anyone automatically.
+ */
+export const zCourseExamsOverview = z.object({
+  any_has_pass_mark: z.boolean(),
+  count: z.int().gte(0),
+  last_ended_at: z.iso.datetime().nullish(),
+  next_ends_at: z.iso.datetime().nullish(),
+  next_starts_at: z.iso.datetime().nullish(),
+})
+
 export const zCourseInstance = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -3482,22 +3493,6 @@ export const zExamEnrollment = z.object({
 })
 
 /**
- * Whether the linked exams can complete anyone automatically.
- */
-export const zExamPassMarks = z.enum(["no_exams", "some_have_pass_mark", "none_have_pass_mark"])
-
-/**
- * When the course's linked exams are held and whether they can pass anyone automatically.
- */
-export const zCourseExamsOverview = z.object({
-  count: z.int().gte(0),
-  last_ended_at: z.iso.datetime().nullish(),
-  next_ends_at: z.iso.datetime().nullish(),
-  next_starts_at: z.iso.datetime().nullish(),
-  pass_marks: zExamPassMarks,
-})
-
-/**
  * Whether passing a module requires an exam, and where it is held.
  */
 export const zExamRequirement = z.enum(["none", "platform", "examinarium", "elsewhere"])
@@ -3587,8 +3582,7 @@ export const zCourseModuleCompletionOverview = z.object({
     })
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    })
-    .nullish(),
+    }),
   order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -3605,6 +3599,7 @@ export const zCourseModuleCompletionOverview = z.object({
  * How students complete a course and get its credits, for the course Overview tab.
  */
 export const zCourseCompletionOverview = z.object({
+  can_view_registrations: z.boolean(),
   exams: zCourseExamsOverview,
   modules: z.array(zCourseModuleCompletionOverview),
 })
@@ -4138,6 +4133,21 @@ export const zLegacyLedgerDivergenceRow = z.object({
   state: zCreditRegistrationState,
   state_entered_at: z.iso.datetime(),
   user_id: z.uuid(),
+})
+
+/**
+ * An exam linked to the course, as the module editor lists it.
+ */
+export const zLinkedExam = z.object({
+  ends_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  pass_mark: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  starts_at: z.iso.datetime().nullish(),
 })
 
 /**
@@ -9837,6 +9847,15 @@ export const zGetCourseDailyUsersWhoSubmittedSomethingResponse = z.array(
 export const zGetCourseDefaultPeerReviewPath = z.object({
   course_id: z.uuid(),
 })
+
+export const zGetCourseLinkedExamsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Exams linked to the course
+ */
+export const zGetCourseLinkedExamsResponse = z.array(zLinkedExam)
 
 export const zGetCourseExercisesPath = z.object({
   course_id: z.uuid(),

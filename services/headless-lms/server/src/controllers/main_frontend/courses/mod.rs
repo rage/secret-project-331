@@ -82,6 +82,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_course_structure,
         add_media_for_course,
         get_all_exercises,
+        get_linked_exams,
         get_all_exercises_and_count_of_answers_requiring_attention,
         get_all_course_language_versions,
         create_course_copy,
@@ -722,6 +723,61 @@ async fn get_all_exercises(
     let exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(exercises))
+}
+
+/// An exam linked to the course, as the module editor lists it.
+#[derive(Debug, Serialize, ToSchema)]
+pub struct LinkedExam {
+    pub id: Uuid,
+    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    /// The points that complete the course automatically; `None` when the teacher adds the
+    /// completions.
+    pub pass_mark: Option<i32>,
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exams",
+    operation_id = "getCourseLinkedExams",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exams linked to the course", body = [LinkedExam])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_linked_exams(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<LinkedExam>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewInternalCourseStructure,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let exams = models::exams::get_summaries_by_course_id(&mut conn, *course_id)
+        .await?
+        .into_iter()
+        .map(|exam| LinkedExam {
+            pass_mark: exam.pass_mark(),
+            id: exam.id,
+            name: exam.name,
+            starts_at: exam.starts_at,
+            ends_at: exam.ends_at,
+        })
+        .collect();
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -2977,6 +3033,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_daily_user_counts_with_submissions),
         )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
+        .route("/{course_id}/exams", web::get().to(get_linked_exams))
         .route(
             "/{course_id}/exercises-and-count-of-answers-requiring-attention",
             web::get().to(get_all_exercises_and_count_of_answers_requiring_attention),

@@ -30,7 +30,8 @@ const rootCss = css`
   }
 `
 
-const titleCss = css`
+/** The section title's style, for a heading of the same weight nested inside a section. */
+export const formSectionTitleCss = css`
   margin: 0 0 var(--space-3-5);
   color: var(--color-gray-700);
   font-size: var(--font-size-2);
@@ -64,7 +65,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
       data-testid={dataTestId}
     >
       {title ? (
-        <Heading id={titleId} className={titleCss}>
+        <Heading id={titleId} className={formSectionTitleCss}>
           {title}
         </Heading>
       ) : null}

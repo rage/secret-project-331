@@ -21,6 +21,7 @@ import {
 } from "../primitives/checkableStyles"
 import { CheckIcon } from "../primitives/CheckIcon"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
+import { radioListRevealCss } from "../RadioGroup"
 import { Reveal } from "../Reveal"
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
@@ -81,11 +82,6 @@ const nestedContentRuleCss = css`
   ${below("sm")} {
     padding-inline-start: var(--space-3-5);
   }
-`
-
-/** Cancels the list gap a hidden option would still take up; see `RadioGroup`'s `--radio-list-gap`. */
-const hiddenOptionCss = css`
-  --reveal-collapsed-margin-top: calc(-1 * var(--radio-list-gap, var(--space-3)));
 `
 
 /** The option's own description and error, which both variants hang under the label. */
@@ -272,7 +268,7 @@ export function RadioInGroup({
   }
 
   return (
-    <Reveal isOpen={!isHidden} rootClassName={hiddenOptionCss}>
+    <Reveal isOpen={!isHidden} rootClassName={radioListRevealCss}>
       {optionWithNestedContent}
     </Reveal>
   )

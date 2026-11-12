@@ -18,11 +18,6 @@ jest.mock("@/generated/api/sdk.generated", () => ({
   getCourseCompletionOverview: () => mockOverview(),
 }))
 
-jest.mock("@/shared-module/common/hooks/useAuthorizeMultiple", () => ({
-  __esModule: true,
-  default: () => ({ data: [true] }),
-}))
-
 const course = { id: "course-1", is_draft: false } as Course
 
 const moduleWith = (
@@ -48,7 +43,7 @@ const moduleWith = (
   ...overrides,
 })
 
-const NO_EXAMS = { count: 0, pass_marks: "no_exams" } as const
+const NO_EXAMS = { count: 0, any_has_pass_mark: false } as const
 
 function renderPanel(overview: CourseCompletionOverview) {
   mockOverview.mockResolvedValue(overview)
@@ -62,7 +57,7 @@ function renderPanel(overview: CourseCompletionOverview) {
 
 describe("CompletionPanel", () => {
   it("says all set when nothing needs attention", async () => {
-    renderPanel({ modules: [moduleWith({})], exams: NO_EXAMS })
+    renderPanel({ modules: [moduleWith({})], exams: NO_EXAMS, can_view_registrations: true })
     expect(await screen.findByText("completion-all-set")).toBeInTheDocument()
     expect(screen.queryByText("needs-action-prefix")).not.toBeInTheDocument()
   })
@@ -89,6 +84,7 @@ describe("CompletionPanel", () => {
         }),
       ],
       exams: NO_EXAMS,
+      can_view_registrations: true,
     })
     expect(await screen.findByText("completion-things-need-action")).toBeInTheDocument()
     expect(screen.getByText("completion-to-check")).toBeInTheDocument()

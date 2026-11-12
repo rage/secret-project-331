@@ -2369,9 +2369,17 @@ export type CourseChatbotOption = {
  */
 export type CourseCompletionOverview = {
   /**
+   * Whether the user can view the course's credit registrations; without it every module's
+   * `not_yet_registered_count` is 0 and `credit_registration_pause_reason` is `None`.
+   */
+  can_view_registrations: boolean
+  /**
    * The exams linked to the course, which every module passed by an exam on this platform uses.
    */
   exams: CourseExamsOverview
+  /**
+   * In module order.
+   */
   modules: Array<CourseModuleCompletionOverview>
 }
 
@@ -2771,6 +2779,11 @@ export type CourseExam = {
  * When the course's linked exams are held and whether they can pass anyone automatically.
  */
 export type CourseExamsOverview = {
+  /**
+   * Whether at least one exam completes the students who reach its pass mark; otherwise every
+   * exam is graded manually or has no pass mark, and the teacher adds the completions.
+   */
+  any_has_pass_mark: boolean
   count: number
   /**
    * The latest end of an exam that has ended.
@@ -2781,7 +2794,6 @@ export type CourseExamsOverview = {
    * The window of the exam that ends next among those not ended yet.
    */
   next_starts_at?: string | null
-  pass_marks: ExamPassMarks
 }
 
 export type CourseInstance = {
@@ -2917,9 +2929,6 @@ export type CourseModuleCompletionOverview = {
    */
   course_code_allowed?: boolean | null
   course_module_id: string
-  /**
-   * `None` also when the user can't view the course's credit registrations.
-   */
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_route: CreditRegistrationRoute
@@ -2936,10 +2945,9 @@ export type CourseModuleCompletionOverview = {
    */
   name?: string | null
   /**
-   * Credit registrations neither in Sisu yet nor given up on; `None` unless the user can view
-   * the course's credit registrations.
+   * Credit registrations neither in Sisu yet nor given up on.
    */
-  not_yet_registered_count?: number | null
+  not_yet_registered_count: number
   order_number: number
   /**
    * By requirements, the points needed to pass; by an exam, to take the exam.
@@ -4775,11 +4783,6 @@ export type ExamEnrollment = {
 }
 
 /**
- * Whether the linked exams can complete anyone automatically.
- */
-export type ExamPassMarks = "no_exams" | "some_have_pass_mark" | "none_have_pass_mark"
-
-/**
  * Whether passing a module requires an exam, and where it is held.
  */
 export type ExamRequirement = "none" | "platform" | "examinarium" | "elsewhere"
@@ -5415,6 +5418,21 @@ export type LegacyLedgerDivergenceRow = {
   state: CreditRegistrationState
   state_entered_at: string
   user_id: string
+}
+
+/**
+ * An exam linked to the course, as the module editor lists it.
+ */
+export type LinkedExam = {
+  ends_at?: string | null
+  id: string
+  name: string
+  /**
+   * The points that complete the course automatically; `None` when the teacher adds the
+   * completions.
+   */
+  pass_mark?: number | null
+  starts_at?: string | null
 }
 
 /**
@@ -11013,6 +11031,28 @@ export type GetCourseDefaultPeerReviewResponses = {
    */
   200: unknown
 }
+
+export type GetCourseLinkedExamsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/exams"
+}
+
+export type GetCourseLinkedExamsResponses = {
+  /**
+   * Exams linked to the course
+   */
+  200: Array<LinkedExam>
+}
+
+export type GetCourseLinkedExamsResponse =
+  GetCourseLinkedExamsResponses[keyof GetCourseLinkedExamsResponses]
 
 export type GetCourseExercisesData = {
   body?: never

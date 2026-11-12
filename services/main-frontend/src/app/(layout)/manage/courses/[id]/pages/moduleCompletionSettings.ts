@@ -3,7 +3,6 @@ import type {
   CompletionPolicy,
   CreditRegistrationRoute,
   ExamRequirement,
-  OrgExam,
 } from "@/generated/api/types.generated"
 
 /** A module's completion and credit settings as the modules page stages them before saving. */
@@ -34,32 +33,8 @@ export const NEW_MODULE_COMPLETION_SETTINGS: ModuleCompletionSettings = {
   certification_enabled: false,
 }
 
-/** An exam linked to the course, as the module settings list it. */
-export interface LinkedExam {
-  id: string
-  name: string
-  starts_at: string | null
-  ends_at: string | null
-  /** Completes the students who reach it automatically; `null` when graded manually or unset. */
-  pass_mark: number | null
-}
-
-/** Mirrors the server's rule: an exam graded manually or with a zero threshold passes nobody. */
-export const linkedExamOf = (exam: OrgExam): LinkedExam => ({
-  id: exam.id,
-  name: exam.name,
-  starts_at: exam.starts_at ?? null,
-  ends_at: exam.ends_at ?? null,
-  pass_mark:
-    !exam.grade_manually && exam.minimum_points_treshold > 0 ? exam.minimum_points_treshold : null,
-})
-
 /** Where the form's "Where will the exam be held?" answer can point. */
 export type ExamLocation = Exclude<ExamRequirement, "none">
-
-/** Whether the platform can see the exam's results: it can't for Examinarium or elsewhere. */
-export const isOutsidePlatform = (exam: ExamRequirement): boolean =>
-  exam === "examinarium" || exam === "elsewhere"
 
 /** The completion method a module with these settings has, with its thresholds. */
 export const completionPolicyOf = (

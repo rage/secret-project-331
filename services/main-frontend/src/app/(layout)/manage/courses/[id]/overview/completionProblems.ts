@@ -1,7 +1,10 @@
+import { uniqBy } from "lodash"
+
 import type {
   CourseCompletionOverview,
   CourseModuleCompletionOverview,
 } from "@/generated/api/types.generated"
+import { isOutsidePlatform } from "@/utils/examRequirement"
 
 /** Something a module's settings or state does to students that the teacher should know about. */
 export type ModuleProblem =
@@ -61,9 +64,8 @@ const statusOf = (
   if (module.credit_registration_route === "external") {
     return { kind: "not-tracked" }
   }
-  const notYetRegisteredCount = module.not_yet_registered_count ?? 0
-  if (module.credit_registration_route === "platform" && notYetRegisteredCount > 0) {
-    return { kind: "not-yet-registered", count: notYetRegisteredCount }
+  if (module.credit_registration_route === "platform" && module.not_yet_registered_count > 0) {
+    return { kind: "not-yet-registered", count: module.not_yet_registered_count }
   }
   if (
     module.completion_method === "by_exam" &&
@@ -72,10 +74,7 @@ const statusOf = (
   ) {
     return { kind: "waiting-for-exam" }
   }
-  if (
-    (module.exam_requirement === "examinarium" || module.exam_requirement === "elsewhere") &&
-    !module.has_completions
-  ) {
+  if (isOutsidePlatform(module.exam_requirement) && !module.has_completions) {
     return { kind: "no-completions-yet" }
   }
   return null
@@ -101,7 +100,8 @@ const problemsOf = (
   }
   if (
     module.completion_method === "by_exam" &&
-    overview.exams.pass_marks === "none_have_pass_mark"
+    overview.exams.count > 0 &&
+    !overview.exams.any_has_pass_mark
   ) {
     problems.push({ kind: "no-exam-has-pass-mark" })
   }
@@ -124,44 +124,44 @@ export const courseCompletionStateOf = (
   overview: CourseCompletionOverview,
   isDraft: boolean,
 ): CourseCompletionState => {
-  const modules = overview.modules
-    .toSorted((l, r) => l.order_number - r.order_number)
-    .map((module) => ({
-      module,
-      status: statusOf(module, overview),
-      problems: problemsOf(module, overview, isDraft),
-    }))
+  const modules = overview.modules.map((module) => ({
+    module,
+    status: statusOf(module, overview),
+    problems: problemsOf(module, overview, isDraft),
+  }))
 
   const rejectedCourseCodes = [
     ...new Set(
-      overview.modules
-        .filter(
-          (module) =>
-            module.credit_registration_route === "platform" &&
-            module.course_code_allowed === false &&
-            module.uh_course_code,
-        )
-        .map((module) => module.uh_course_code as string),
+      overview.modules.flatMap((module) =>
+        module.credit_registration_route === "platform" &&
+        module.course_code_allowed === false &&
+        module.uh_course_code
+          ? [module.uh_course_code]
+          : [],
+      ),
     ),
   ]
 
-  const pauses = new Map<string, RegistrationPause>()
-  for (const courseModule of overview.modules) {
-    if (courseModule.credit_registration_paused_at) {
-      const pause = {
-        pausedAt: courseModule.credit_registration_paused_at,
-        reason: courseModule.credit_registration_pause_reason?.trim() || null,
-      }
-      pauses.set(`${pause.pausedAt}|${pause.reason ?? ""}`, pause)
-    }
-  }
+  const pauses = uniqBy(
+    overview.modules.flatMap((module): RegistrationPause[] =>
+      module.credit_registration_paused_at
+        ? [
+            {
+              pausedAt: module.credit_registration_paused_at,
+              reason: module.credit_registration_pause_reason?.trim() || null,
+            },
+          ]
+        : [],
+    ),
+    (pause) => `${pause.pausedAt}|${pause.reason ?? ""}`,
+  )
 
   const allProblems = modules.flatMap((m) => m.problems)
   const needsActionProblemCount = allProblems.filter((problem) => needsAction(problem)).length
   return {
     modules,
     rejectedCourseCodes,
-    pauses: [...pauses.values()],
+    pauses,
     needsActionCount: needsActionProblemCount + rejectedCourseCodes.length,
     toCheckCount: allProblems.length - needsActionProblemCount,
   }

@@ -7,8 +7,7 @@ import React from "react"
 import { useDateFormatter, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { DAY_AND_MONTH_FORMAT } from "@/components/credit-registration/constants"
-import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
+import { DAY_AND_MONTH_FORMAT, formatDateWindow } from "@/components/credit-registration/constants"
 import { getCourseCompletionOverviewOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   Course,
@@ -28,6 +27,7 @@ import {
   QueryResult,
   TONE,
 } from "@/shared-module/components"
+import { isOutsidePlatform } from "@/utils/examRequirement"
 
 import { MODULE_PARAM } from "../students/StudentsContext"
 import type { ModuleCompletionState, ModuleProblem, ModuleStatus } from "./completionProblems"
@@ -165,9 +165,6 @@ const thresholdsOf = (module: CourseModuleCompletionOverview): Thresholds => ({
   exercises: module.exercises_attempted_threshold ?? null,
 })
 
-const isOutsidePlatform = (module: CourseModuleCompletionOverview) =>
-  module.exam_requirement === "examinarium" || module.exam_requirement === "elsewhere"
-
 interface Props {
   course: Course
 }
@@ -181,16 +178,9 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
   const overviewQuery = useQuery(
     getCourseCompletionOverviewOptions({ path: { course_id: course.id } }),
   )
-  const canViewCreditRegistrations = useCanViewCreditRegistrations(course.id)
   const dateFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
 
   const formatDate = (iso: string) => dateFormatter.format(new Date(iso))
-  const formatWindow = (starts: string | null | undefined, ends: string | null | undefined) =>
-    starts && ends
-      ? dateFormatter.formatRange(new Date(starts), new Date(ends))
-      : ends
-        ? formatDate(ends)
-        : null
 
   const modulesHref = manageCourseModulesRoute(course.id)
   const completionsHref = manageCourseStudentsRoute(course.id, STUDENTS_SUBTAB_COMPLETIONS)
@@ -242,7 +232,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
         return `${pass} ${gate}`
       }
       case "teacher_adds":
-        return isOutsidePlatform(module)
+        return isOutsidePlatform(module.exam_requirement)
           ? t("completion-how-teacher-adds-after-each-exam")
           : module.exam_requirement === "platform"
             ? t("completion-how-teacher-adds-after-grading")
@@ -265,7 +255,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
         if (exams.count === 0) {
           return { label: t("label-exam"), value: t("exams-none-linked-yet") }
         }
-        const next = formatWindow(exams.next_starts_at, exams.next_ends_at)
+        const next = formatDateWindow(dateFormatter, exams.next_starts_at, exams.next_ends_at)
         const lastEnded = exams.last_ended_at ? formatDate(exams.last_ended_at) : null
         const secondary =
           lastEnded && next
@@ -320,6 +310,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
   const statusItem = (
     module: CourseModuleCompletionOverview,
     status: ModuleStatus,
+    canViewRegistrations: boolean,
   ): DescriptionListItem => {
     const label = t("label-status")
     switch (status.kind) {
@@ -340,7 +331,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
         const text = t("status-not-yet-registered-in-sisu", { count: status.count })
         return {
           label,
-          value: canViewCreditRegistrations ? (
+          value: canViewRegistrations ? (
             <Link href={moduleCompletionsHref(module.course_module_id)}>{text}</Link>
           ) : (
             text
@@ -424,7 +415,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
             module.credit_registration_route !== "external"
               ? null
               : creditsItem(module),
-            status ? statusItem(module, status) : null,
+            status ? statusItem(module, status, overview.can_view_registrations) : null,
           ].filter((item): item is DescriptionListItem => item !== null)
           return (
             <div key={module.course_module_id} className={blockCss}>
@@ -455,7 +446,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
               </ul>
               <span className={headLinksCss}>
                 <Link href={modulesHref}>{t("link-module-settings")}</Link>
-                {canViewCreditRegistrations && registersAny && (
+                {overview.can_view_registrations && registersAny && (
                   <Link href={completionsHref}>{t("link-registration-status")}</Link>
                 )}
               </span>

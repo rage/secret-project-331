@@ -81,6 +81,14 @@ const segmentedListCss = css`
  * `list`-variant group is likewise the subject of its own band, not a field among others in a
  * longer form, can pass it as the `label` to get the same weight.
  */
+/**
+ * For a `Reveal` that is an item of the list: cancels the list gap it would still take up while
+ * closed, reading `--radio-list-gap` like the list does.
+ */
+export const radioListRevealCss = css`
+  --reveal-collapsed-margin-top: calc(-1 * var(--radio-list-gap, var(--space-3)));
+`
+
 export const questionLegendCss = css`
   color: var(--color-gray-700);
   font-size: var(--font-size-3);

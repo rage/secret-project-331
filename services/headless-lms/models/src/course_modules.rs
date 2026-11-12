@@ -314,6 +314,11 @@ pub fn normalize_uh_course_code(uh_course_code: Option<String>) -> Option<String
         .filter(|code| !code.is_empty())
 }
 
+/// Whether an optional text setting, such as a course code or link, holds more than whitespace.
+pub fn is_non_blank(value: Option<&str>) -> bool {
+    value.is_some_and(|value| !value.trim().is_empty())
+}
+
 /// Whether this platform registers a module's completions at all: it needs a course code and the
 /// [`CreditRegistrationRoute::Platform`] route. Mirrors the SQL side's
 /// `TRIM(cm.uh_course_code) <> '' AND cm.credit_registration_route = 'platform'` predicates.
@@ -321,8 +326,7 @@ pub fn registers_credits(
     uh_course_code: Option<&str>,
     credit_registration_route: CreditRegistrationRoute,
 ) -> bool {
-    credit_registration_route == CreditRegistrationRoute::Platform
-        && uh_course_code.is_some_and(|code| !code.trim().is_empty())
+    credit_registration_route == CreditRegistrationRoute::Platform && is_non_blank(uh_course_code)
 }
 
 /// Per-module credit-registration configuration: the module's own fields merged with its
@@ -411,6 +415,13 @@ pub struct CompletionRequirements {
 }
 
 impl CompletionRequirements {
+    /// Whether any threshold is set; without one, passing by requirements would pass everyone and
+    /// the exam is open to everyone.
+    pub fn has_any_threshold(&self) -> bool {
+        self.number_of_exercises_attempted_treshold.is_some()
+            || self.number_of_points_treshold.is_some()
+    }
+
     /// Shorthand for checking whether the given exercise related values pass their respective
     /// tresholds.
     pub fn passes_exercise_tresholds(
@@ -1044,6 +1055,73 @@ pub async fn get_credit_registration_configs_by_course_id(
     credit_registration_configs(conn, None, Some(course_id)).await
 }
 
+/// One module's completion and credit settings with its Suotar state and whether anyone has
+/// completed it, for the course's completion overview.
+pub struct CourseModuleCompletionSetup {
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub order_number: i32,
+    pub completion_method: CompletionMethod,
+    /// Stored for every method, but only meaningful for those [`CompletionPolicy::requirements`]
+    /// returns thresholds for.
+    pub automatic_completion_number_of_points_treshold: Option<i32>,
+    pub automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    pub exam_requirement: ExamRequirement,
+    pub credit_registration_route: CreditRegistrationRoute,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    pub certification_enabled: bool,
+    pub completion_registration_link_override: Option<String>,
+    pub has_completions: bool,
+    pub credit_registration_course_code_allowed: Option<bool>,
+    pub credit_registration_paused_at: Option<DateTime<Utc>>,
+    pub credit_registration_pause_reason: Option<String>,
+}
+
+/// The course's modules in order, each with what [`CourseModuleCompletionSetup`] carries.
+pub async fn get_completion_setups_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CourseModuleCompletionSetup>> {
+    let res = sqlx::query_as!(
+        CourseModuleCompletionSetup,
+        r#"
+SELECT cm.id,
+  cm.name,
+  cm.order_number,
+  cm.completion_method AS "completion_method: CompletionMethod",
+  cm.automatic_completion_number_of_points_treshold,
+  cm.automatic_completion_number_of_exercises_attempted_treshold,
+  cm.exam_requirement AS "exam_requirement: ExamRequirement",
+  cm.credit_registration_route AS "credit_registration_route: CreditRegistrationRoute",
+  cm.uh_course_code,
+  cm.ects_credits,
+  cm.certification_enabled,
+  cm.completion_registration_link_override,
+  EXISTS (
+    SELECT 1
+    FROM course_module_completions cmc
+    WHERE cmc.course_module_id = cm.id
+      AND cmc.course_id = cm.course_id
+      AND cmc.deleted_at IS NULL
+  ) AS "has_completions!",
+  c.course_code_allowed AS "credit_registration_course_code_allowed?",
+  c.paused_at AS "credit_registration_paused_at?",
+  c.pause_reason AS "credit_registration_pause_reason?"
+FROM course_modules cm
+  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+WHERE cm.course_id = $1
+  AND cm.deleted_at IS NULL
+ORDER BY cm.order_number
+        "#,
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Sets how students pass the module, without recording history. `exam_requirement` must fit
 /// the policy (see the `course_module_completion_method_fits_exam` constraint).
 pub async fn update_completion_policy(
@@ -1248,16 +1326,13 @@ pub fn validate_completion_settings(module: &ModuleSnapshot) -> ModelResult<()> 
         if matches!(
             module.completion_policy,
             CompletionPolicy::ByRequirements(_)
-        ) && thresholds.iter().all(Option::is_none)
+        ) && !requirements.has_any_threshold()
         {
             return invalid("passing by requirements needs at least one requirement.");
         }
     }
     if exam == ExamRequirement::Elsewhere
-        && module
-            .exam_location_description
-            .as_deref()
-            .is_none_or(|description| description.trim().is_empty())
+        && !is_non_blank(module.exam_location_description.as_deref())
     {
         return invalid("describe where the exam is held.");
     }
@@ -1275,23 +1350,35 @@ pub fn validate_completion_settings(module: &ModuleSnapshot) -> ModelResult<()> 
             "a module with an exam outside this platform can't be certificate only; either this platform or the teacher registers its credits.",
         );
     }
-    if normalize_uh_course_code(module.uh_course_code.clone()).is_none() {
+    if !is_non_blank(module.uh_course_code.as_deref()) {
         return invalid("the course code is required.");
     }
     if module.ects_credits.is_none_or(|credits| credits <= 0.0) {
         return invalid("the credits are required.");
     }
     if module.credit_registration_route == CreditRegistrationRoute::Platform
-        && module
-            .completion_registration_link_override
-            .as_deref()
-            .is_none_or(|link| link.trim().is_empty())
+        && !is_non_blank(module.completion_registration_link_override.as_deref())
     {
         return invalid(
             "the registration link is required when this platform registers the credits.",
         );
     }
     Ok(())
+}
+
+/// Holds an edit of a module to the editor's rules when it touches the completion or credit settings
+/// (see [`validate_completion_settings`]). `previous` is `None` for a new module. Reordering or
+/// renaming alone must not force filling in settings the module has lacked so far.
+pub fn validate_completion_settings_if_changed(
+    previous: Option<&ModuleSnapshot>,
+    next: &ModuleSnapshot,
+) -> ModelResult<()> {
+    if previous.is_some_and(|previous| previous.completion_settings() == next.completion_settings())
+    {
+        return Ok(());
+    }
+    validate_completion_registration_link(next.completion_registration_link_override.as_deref())?;
+    validate_completion_settings(next)
 }
 
 /// Errors with `InvalidRequest` unless every module and chapter id is a live row of `course_id`.
@@ -1400,10 +1487,7 @@ pub async fn update_modules(
             credit_registration_route,
             ..current.clone()
         };
-        // Reordering alone must not force filling in settings the module has lacked so far.
-        if snapshot.completion_settings() != current.completion_settings() {
-            validate_completion_settings(&snapshot)?;
-        }
+        validate_completion_settings_if_changed(Some(&current), &snapshot)?;
         upsert_from_snapshot(&mut tx, &snapshot, actor_user_id).await?;
         written_module_ids.push(id);
     }
@@ -1429,7 +1513,7 @@ pub async fn update_modules(
             .set_completion_registration_link_override(completion_registration_link_override)
             .set_credit_registration_route(credit_registration_route)
             .into_snapshot(Uuid::new_v4());
-        validate_completion_settings(&snapshot)?;
+        validate_completion_settings_if_changed(None, &snapshot)?;
         upsert_from_snapshot(&mut tx, &snapshot, actor_user_id).await?;
         for chapter in chapters {
             chapters::set_module(&mut tx, chapter, snapshot.id).await?;

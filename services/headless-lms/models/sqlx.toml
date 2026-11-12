@@ -32,6 +32,7 @@
 'email_verification_method' = "crate::user_details::EmailVerificationMethod"
 'entity_history_change_reason' = "crate::entity_history::EntityHistoryChangeReason"
 'error_source' = "crate::errors::ErrorSource"
+'exercise_answer_snapshot_purpose' = "crate::exercise_answer_snapshots::SnapshotPurpose"
 'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
 'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"
 'grading_progress' = "crate::exercises::GradingProgress"

@@ -125,6 +125,8 @@ async fn clone_repository(
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
     let first_seen = Cell::new(None);
+    // libgit2 replaces a rejecting callback's error with a generic one.
+    let rejection = Cell::new(None);
 
     let mut remote_cbs = RemoteCallbacks::new();
     // libgit2 uses this one callback for both TLS certificates and ssh host keys.
@@ -141,7 +143,11 @@ async fn clone_repository(
                 first_seen.set(Some(key));
                 Ok(CertificateCheckStatus::CertificateOk)
             }
-            Err(message) => Err(git2::Error::from_str(&message)),
+            Err(message) => {
+                let error = git2::Error::from_str(&message);
+                rejection.set(Some(message));
+                Err(error)
+            }
         }
     });
     if let Some((public_key, deploy_key)) = deploy_key {
@@ -165,9 +171,14 @@ async fn clone_repository(
     // The clone must come from the URL the teacher saved, not from wherever that server redirects.
     fetch_opts.follow_redirects(RemoteRedirect::None);
     fetch_opts.remote_callbacks(remote_cbs);
-    RepoBuilder::new()
+    if let Err(error) = RepoBuilder::new()
         .fetch_options(fetch_opts)
-        .clone(url, target)?;
+        .clone(url, target)
+    {
+        return Err(rejection
+            .take()
+            .map_or_else(|| error.into(), |message| anyhow::anyhow!(message)));
+    }
 
     if let Some(seen) = first_seen.take() {
         let remembered =
@@ -199,11 +210,11 @@ fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
     }
     if url.starts_with("https://") || url.starts_with("ssh://") {
         let parsed = url::Url::parse(url).ok()?;
-        let host = parsed.host_str()?.trim_matches(['[', ']']).to_string();
+        let host = parsed.host_str()?.trim_matches(['[', ']']);
         let port = parsed
             .port()
             .unwrap_or(if parsed.scheme() == "https" { 443 } else { 22 });
-        return Some((host, port));
+        return Some((canonical_host(host)?, port));
     }
     // scp-like syntax: user@host:path, which git treats as ssh.
     let (user_and_host, path) = url.split_once(':')?;
@@ -211,7 +222,14 @@ fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
     if host.is_empty() || path.is_empty() || host.contains('/') || path.starts_with("//") {
         return None;
     }
-    Some((host.to_string(), 22))
+    Some((canonical_host(host)?, 22))
+}
+
+/// One spelling per host, so that pins and remembered keys cannot be sidestepped by writing the
+/// same host as `GitHub.com` or with the root's trailing dot.
+fn canonical_host(host: &str) -> Option<String> {
+    let host = host.strip_suffix('.').unwrap_or(host);
+    (!host.is_empty()).then(|| host.to_ascii_lowercase())
 }
 
 pub struct StoredRepositoryExercise {
@@ -710,6 +728,14 @@ mod test {
         assert_eq!(
             clone_url_host_and_port("git@github.com:rage/x.git"),
             Some(("github.com".to_string(), 22))
+        );
+        assert_eq!(
+            clone_url_host_and_port("git@GitHub.com.:rage/x.git"),
+            Some(("github.com".to_string(), 22))
+        );
+        assert_eq!(
+            clone_url_host_and_port("https://github.com./rage/x.git"),
+            Some(("github.com".to_string(), 443))
         );
         for refused in [
             "http://github.com/rage/x.git",

@@ -240,6 +240,14 @@ unsafe extern "C" fn connect(stream: *mut GitStream) -> c_int {
                 let timeout = positive_millis(stream.parent.timeout);
                 tcp.set_read_timeout(timeout)?;
                 tcp.set_write_timeout(timeout)?;
+                // libgit2's own socket stream does the same; without it, a read from a peer that
+                // vanished never returns, as no server timeout is configured.
+                socket2::SockRef::from(&tcp).set_tcp_keepalive(
+                    &socket2::TcpKeepalive::new()
+                        .with_time(Duration::from_secs(60))
+                        .with_interval(Duration::from_secs(10))
+                        .with_retries(3),
+                )?;
                 Ok(tcp)
             });
         match connected {

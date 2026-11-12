@@ -14,7 +14,6 @@ use crate::controllers::helpers::file_uploading;
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
-use crate::domain::rate_limit_middleware_builder::{EndpointLimiters, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
@@ -30,7 +29,6 @@ use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
 use std::collections::{HashMap, HashSet};
 use std::future::{Ready, ready};
-use std::sync::LazyLock;
 use utoipa::{IntoParams, OpenApi};
 
 #[derive(OpenApi)]
@@ -1171,15 +1169,6 @@ async fn create_answer_snapshot(
         &exercise_task.exercise_type,
         &capable_slugs,
     )?;
-    // Checked last so that a request refused for another reason does not use up the quota.
-    if snapshot.purpose == api::SnapshotPurpose::Paste
-        && let Err(retry_after) = PASTE_LIMITS.check_key(format!("{}:{}", user.id, exercise.id))
-    {
-        return Err(controller_err!(
-            TooManyRequests(Some(retry_after)),
-            "Too many pastes of this exercise; try again later.".to_string()
-        ));
-    }
 
     let stored = domain::exercise_services::answer_snapshots::store_snapshot(
         &mut conn,
@@ -1200,16 +1189,6 @@ async fn create_answer_snapshot(
         snapshot_id: stored.id,
     }))
 }
-
-/// Pastes per user and exercise. Backups need no limit of their own: each one past the cap
-/// deletes the oldest, so their storage stays bounded.
-static PASTE_LIMITS: LazyLock<EndpointLimiters> = LazyLock::new(|| {
-    EndpointLimiters::from_config(&RateLimitConfig {
-        per_minute: Some(3),
-        per_hour: Some(20),
-        ..Default::default()
-    })
-});
 
 fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
     match purpose {
@@ -4425,16 +4404,13 @@ mod route_tests {
         let fixture = committed_fixture(true).await;
         let file = upload_two(&fixture).await[0];
         let app = client_api_app!();
-        let unknown_slide = api::NewAnswerSnapshot {
-            exercise_slide_id: Uuid::new_v4(),
-            ..paste_of(&fixture, file)
-        };
+        let unknown_upload = paste_of(&fixture, Uuid::new_v4());
         for _ in 0..4 {
             let request =
-                snapshot_request(fixture.exercise, &fixture.token, &unknown_slide).to_request();
+                snapshot_request(fixture.exercise, &fixture.token, &unknown_upload).to_request();
             assert_eq!(
                 test::call_service(&app, request).await.status(),
-                StatusCode::NOT_FOUND
+                StatusCode::UNPROCESSABLE_ENTITY
             );
         }
         let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
@@ -4493,10 +4469,7 @@ mod route_tests {
             )
             .await
             .expect("exam");
-            sqlx::query("UPDATE exercises SET course_id = NULL, exam_id = $1 WHERE id = $2")
-                .bind(exam)
-                .bind(fixture.exercise)
-                .execute(&mut conn)
+            models::test_helper::move_exercise_to_exam(&mut conn, fixture.exercise, exam)
                 .await
                 .expect("move the exercise into the exam");
         }

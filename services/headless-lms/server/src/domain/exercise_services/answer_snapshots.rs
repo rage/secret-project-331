@@ -1,14 +1,26 @@
 //! Storing ungraded answer snapshots (pastes and backups) for a native client.
 
 use crate::domain::exercise_services::answer_uploads;
+use crate::domain::rate_limit_middleware_builder::{EndpointLimiters, RateLimitConfig};
 use crate::prelude::*;
 use models::exercise_answer_snapshots::{
     ExerciseAnswerSnapshot, NewExerciseAnswerSnapshot, SnapshotPurpose,
 };
+use std::sync::LazyLock;
 
 /// How many backups of one exercise a user keeps; storing another deletes the oldest. Pastes are
 /// not counted, since each one backs a link the user has handed out.
 pub const MAX_BACKUPS_PER_USER_AND_EXERCISE: i64 = 20;
+
+/// Pastes per user and exercise. Backups need no limit of their own: each one past the cap
+/// deletes the oldest, so their storage stays bounded.
+static PASTE_LIMITS: LazyLock<EndpointLimiters> = LazyLock::new(|| {
+    EndpointLimiters::from_config(&RateLimitConfig {
+        per_minute: Some(3),
+        per_hour: Some(20),
+        ..Default::default()
+    })
+});
 
 /// The answer a snapshot stores. The caller has established which course exercise, slide and task
 /// it is for and that the user may view them.
@@ -24,7 +36,8 @@ pub struct SnapshotAnswer {
 }
 
 /// Stores a snapshot of the named uploads, then trims the user's backups of the exercise to
-/// [`MAX_BACKUPS_PER_USER_AND_EXERCISE`].
+/// [`MAX_BACKUPS_PER_USER_AND_EXERCISE`]. A paste over the per-user, per-exercise limit is
+/// refused with 429.
 ///
 /// Applies the same upload checks as a file submit, but nothing a submit's acceptance depends on:
 /// no deadline, try limit or chapter lock, because a snapshot is never graded.
@@ -42,6 +55,16 @@ pub async fn store_snapshot(
         &answer.file_upload_ids,
     )
     .await?;
+    // Last before the insert, so that a request refused for another reason uses up no quota.
+    if answer.purpose == SnapshotPurpose::Paste
+        && let Err(retry_after) =
+            PASTE_LIMITS.check_key(format!("{}:{}", answer.user_id, answer.exercise_id))
+    {
+        return Err(controller_err!(
+            TooManyRequests(Some(retry_after)),
+            "Too many pastes of this exercise; try again later.".to_string()
+        ));
+    }
     let snapshot = models::exercise_answer_snapshots::insert(
         &mut tx,
         NewExerciseAnswerSnapshot {

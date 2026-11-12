@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  user_id,\n  course_id,\n  exercise_id,\n  exercise_slide_id,\n  exercise_task_id,\n  purpose AS \"purpose: SnapshotPurpose\",\n  data_json\nFROM exercise_answer_snapshots\nWHERE user_id = $1\n  AND exercise_id = $2\n  AND deleted_at IS NULL\nORDER BY created_at DESC,\n  id DESC\n",
+  "query": "\nSELECT *\nFROM exercise_answer_snapshots\nWHERE id = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "purpose: SnapshotPurpose",
+        "name": "purpose",
         "type_info": {
           "Custom": {
             "name": "exercise_answer_snapshot_purpose",
@@ -137,7 +137,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -155,5 +154,5 @@
       true
     ]
   },
-  "hash": "d492736ec0ce46f3f9b3eed3294856a51516fb863d75e227fa01e150fd3dfef1"
+  "hash": "09834e99e74624cfa5bfde5d7297bba94d5513c7af7474f19a355dfadd01aa88"
 }

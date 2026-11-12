@@ -6,6 +6,7 @@
 //! that table, and none of them has to remember to skip snapshots.
 
 use crate::{
+    error::missing_model_error,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_submissions::{AnswerFile, AnswerKind, ExerciseTaskSubmission},
     exercise_tasks::CourseMaterialExerciseTask,
@@ -87,24 +88,14 @@ INSERT INTO exercise_answer_snapshots (
     data_json
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  user_id,
-  course_id,
-  exercise_id,
-  exercise_slide_id,
-  exercise_task_id,
-  purpose AS "purpose: SnapshotPurpose",
-  data_json
+RETURNING *
 "#,
         snapshot.user_id,
         snapshot.course_id,
         snapshot.exercise_id,
         snapshot.exercise_slide_id,
         snapshot.exercise_task_id,
-        snapshot.purpose as SnapshotPurpose,
+        snapshot.purpose,
         snapshot.data_json,
     )
     .fetch_one(&mut *tx)
@@ -139,17 +130,7 @@ pub async fn try_get_by_id(
     let res = sqlx::query_as!(
         ExerciseAnswerSnapshot,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  user_id,
-  course_id,
-  exercise_id,
-  exercise_slide_id,
-  exercise_task_id,
-  purpose AS "purpose: SnapshotPurpose",
-  data_json
+SELECT *
 FROM exercise_answer_snapshots
 WHERE id = $1
   AND deleted_at IS NULL
@@ -163,13 +144,12 @@ WHERE id = $1
 
 /// The live snapshot with this id; `RecordNotFound` when there is none.
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExerciseAnswerSnapshot> {
-    try_get_by_id(conn, id).await?.ok_or_else(|| {
-        ModelError::new(
+    try_get_by_id(conn, id)
+        .await?
+        .ok_or_else(missing_model_error(
             ModelErrorType::RecordNotFound,
-            "Snapshot not found".to_string(),
-            None,
-        )
-    })
+            "Snapshot not found",
+        ))
 }
 
 /// The user's live snapshots of an exercise, newest first.
@@ -181,17 +161,7 @@ pub async fn get_by_user_and_exercise(
     let res = sqlx::query_as!(
         ExerciseAnswerSnapshot,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  user_id,
-  course_id,
-  exercise_id,
-  exercise_slide_id,
-  exercise_task_id,
-  purpose AS "purpose: SnapshotPurpose",
-  data_json
+SELECT *
 FROM exercise_answer_snapshots
 WHERE user_id = $1
   AND exercise_id = $2
@@ -259,6 +229,7 @@ WHERE id IN (
       id DESC
     OFFSET $3
   )
+  AND deleted_at IS NULL
 RETURNING id
 ",
         user_id,
@@ -299,13 +270,13 @@ pub async fn get_shared_view_task(
         fetch_service_info,
     )
     .await?;
-    let (exercise_service, service_info) = services.get(&task.exercise_type).ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Exercise service not found".to_string(),
-            None,
-        )
-    })?;
+    let (exercise_service, service_info) =
+        services
+            .get(&task.exercise_type)
+            .ok_or_else(missing_model_error(
+                ModelErrorType::InvalidRequest,
+                "Exercise service not found",
+            ))?;
     let exercise_iframe_url = crate::exercise_services::get_exercise_iframe_url(
         exercise_service,
         &service_info.user_interface_iframe_path,

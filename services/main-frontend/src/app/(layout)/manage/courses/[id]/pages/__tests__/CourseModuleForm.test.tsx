@@ -4,14 +4,18 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
-import type { LinkedExam } from "@/generated/api/types.generated"
+import type { LinkableExam, LinkedExam } from "@/generated/api/types.generated"
 
 import CourseModuleForm from "../CourseModuleForm"
 import type { ModuleView } from "../CourseModules"
 import { NEW_MODULE_COMPLETION_SETTINGS } from "../moduleCompletionSettings"
 
+const mockSetExamCourse = jest.fn()
+
 jest.mock("@/generated/api/sdk.generated", () => ({
   getCourseExercises: () => Promise.resolve([]),
+  getCourseLinkableExams: () => Promise.resolve([mockLinkableExam]),
+  setExamCourse: (options: unknown) => mockSetExamCourse(options),
 }))
 
 const LINKS = {
@@ -26,6 +30,16 @@ const EXAM_WITH_PASS_MARK: LinkedExam = {
   starts_at: null,
   ends_at: null,
   pass_mark: 30,
+}
+
+const mockLinkableExam: LinkableExam = {
+  id: "exam-2",
+  name: "Retake exam",
+  starts_at: null,
+  ends_at: null,
+  pass_mark: null,
+  linked_course_names: ["Other course"],
+  hidden_linked_course_count: 0,
 }
 
 const moduleWith = (overrides: Partial<ModuleView>): ModuleView => ({
@@ -103,6 +117,23 @@ describe("CourseModuleForm", () => {
           number_of_points_treshold: null,
           credit_registration_route: "platform",
         }),
+      ),
+    )
+  })
+
+  it("links an exam picked from the organization's exams", async () => {
+    mockSetExamCourse.mockResolvedValue(undefined)
+    renderForm(moduleWith({ exam_requirement: "platform", completion_method: "by_exam" }))
+
+    fireEvent.click(screen.getByRole("button", { name: "link-an-exam" }))
+    fireEvent.click(await screen.findByRole("button", { name: /label-exam-to-link/ }))
+    fireEvent.click(screen.getByRole("option", { name: /Retake exam/ }))
+    expect(screen.getByText("exam-also-used-in")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "button-link-exam" }))
+
+    await waitFor(() =>
+      expect(mockSetExamCourse).toHaveBeenCalledWith(
+        expect.objectContaining({ path: { id: "exam-2" }, body: { course_id: "course-1" } }),
       ),
     )
   })

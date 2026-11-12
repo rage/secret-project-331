@@ -5142,6 +5142,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/linkable-exams": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.",
+        "operationId": "getCourseLinkableExams",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exams the user can link to the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkableExam"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering": {
       "post": {
         "tags": ["courses"],
@@ -29427,6 +29461,45 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "LinkableExam": {
+        "type": "object",
+        "description": "An exam of the course's organization that the module editor offers to link to the course.",
+        "required": ["id", "name", "linked_course_names", "hidden_linked_course_count"],
+        "properties": {
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "hidden_linked_course_count": {
+            "type": "integer",
+            "description": "How many more courses the exam is linked to, whose names the user may not see.",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "linked_course_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The other courses the exam is linked to that the user may see; linking it here keeps\nthose links."
+          },
+          "name": {
+            "type": "string"
+          },
+          "pass_mark": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "See [`LinkedExam::pass_mark`]."
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           }
         }
       },

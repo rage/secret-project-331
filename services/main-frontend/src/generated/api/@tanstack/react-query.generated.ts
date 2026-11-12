@@ -200,6 +200,7 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseLinkableExams,
   getCourseLinkedExams,
   getCourseMetadata,
   getCourseModule,
@@ -802,6 +803,8 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponse,
   GetCourseLinkedExamsData,
   GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
@@ -5139,6 +5142,29 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
         throwOnError: true,
       }),
     queryKey: getCourseLanguageVersionsQueryKey(options),
+  })
+
+export const getCourseLinkableExamsQueryKey = (options: Options<GetCourseLinkableExamsData>) =>
+  createQueryKey("getCourseLinkableExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkableExamsData>) =>
+  queryOptions<
+    GetCourseLinkableExamsResponse,
+    DefaultError,
+    GetCourseLinkableExamsResponse,
+    ReturnType<typeof getCourseLinkableExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkableExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkableExamsQueryKey(options),
   })
 
 /**

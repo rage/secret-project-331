@@ -5421,6 +5421,29 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
+ * An exam of the course's organization that the module editor offers to link to the course.
+ */
+export type LinkableExam = {
+  ends_at?: string | null
+  /**
+   * How many more courses the exam is linked to, whose names the user may not see.
+   */
+  hidden_linked_course_count: number
+  id: string
+  /**
+   * The other courses the exam is linked to that the user may see; linking it here keeps
+   * those links.
+   */
+  linked_course_names: Array<string>
+  name: string
+  /**
+   * See [`LinkedExam::pass_mark`].
+   */
+  pass_mark?: number | null
+  starts_at?: string | null
+}
+
+/**
  * An exam linked to the course, as the module editor lists it.
  */
 export type LinkedExam = {
@@ -11490,6 +11513,28 @@ export type GetCourseLanguageVersionsResponses = {
 
 export type GetCourseLanguageVersionsResponse =
   GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
+
+export type GetCourseLinkableExamsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams"
+}
+
+export type GetCourseLinkableExamsResponses = {
+  /**
+   * Exams the user can link to the course
+   */
+  200: Array<LinkableExam>
+}
+
+export type GetCourseLinkableExamsResponse =
+  GetCourseLinkableExamsResponses[keyof GetCourseLinkableExamsResponses]
 
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>

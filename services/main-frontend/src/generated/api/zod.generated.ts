@@ -4136,6 +4136,23 @@ export const zLegacyLedgerDivergenceRow = z.object({
 })
 
 /**
+ * An exam of the course's organization that the module editor offers to link to the course.
+ */
+export const zLinkableExam = z.object({
+  ends_at: z.iso.datetime().nullish(),
+  hidden_linked_course_count: z.int().gte(0),
+  id: z.uuid(),
+  linked_course_names: z.array(z.string()),
+  name: z.string(),
+  pass_mark: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  starts_at: z.iso.datetime().nullish(),
+})
+
+/**
  * An exam linked to the course, as the module editor lists it.
  */
 export const zLinkedExam = z.object({
@@ -10051,6 +10068,15 @@ export const zGetCourseLanguageVersionsPath = z.object({
  * Course language versions
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse)
+
+export const zGetCourseLinkableExamsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Exams the user can link to the course
+ */
+export const zGetCourseLinkableExamsResponse = z.array(zLinkableExam)
 
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 

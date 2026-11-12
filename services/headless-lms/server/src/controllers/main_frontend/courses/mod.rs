@@ -21,6 +21,9 @@ use headless_lms_models::{
 use std::sync::Arc;
 use utoipa::{OpenApi, ToSchema};
 
+use crate::domain::authorization::{
+    fetch_user_roles, is_permitted_on_course, is_permitted_on_exam,
+};
 use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
     chapters::Chapter,
@@ -83,6 +86,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         add_media_for_course,
         get_all_exercises,
         get_linked_exams,
+        get_linkable_exams,
         get_all_exercises_and_count_of_answers_requiring_attention,
         get_all_course_language_versions,
         create_course_copy,
@@ -775,6 +779,87 @@ async fn get_linked_exams(
             name: exam.name,
             starts_at: exam.starts_at,
             ends_at: exam.ends_at,
+        })
+        .collect();
+    token.authorized_ok(web::Json(exams))
+}
+
+/// An exam of the course's organization that the module editor offers to link to the course.
+#[derive(Debug, Serialize, ToSchema)]
+pub struct LinkableExam {
+    pub id: Uuid,
+    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    /// See [`LinkedExam::pass_mark`].
+    pub pass_mark: Option<i32>,
+    /// The other courses the exam is linked to that the user may see; linking it here keeps
+    /// those links.
+    pub linked_course_names: Vec<String>,
+    /// How many more courses the exam is linked to, whose names the user may not see.
+    pub hidden_linked_course_count: usize,
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/linkable-exams",
+    operation_id = "getCourseLinkableExams",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exams the user can link to the course", body = [LinkableExam])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_linkable_exams(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<LinkableExam>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let organization_id = models::courses::get_organization_id(&mut conn, *course_id).await?;
+    let roles = fetch_user_roles(&mut conn, Some(user.id)).await?;
+    let linked_exam_ids =
+        models::course_exams::get_exam_ids_by_course_id(&mut conn, *course_id).await?;
+    let course_links =
+        models::exams::get_course_exams_for_organization(&mut conn, organization_id).await?;
+    let mut exams = models::exams::get_exams_for_organization(&mut conn, organization_id).await?;
+    exams.sort_by(|a, b| a.name.cmp(&b.name).then(a.starts_at.cmp(&b.starts_at)));
+    let exams = exams
+        .into_iter()
+        .filter(|exam| !linked_exam_ids.contains(&exam.id))
+        // Linking also needs edit rights on the exam, so leave out the ones it would refuse.
+        .filter(|exam| is_permitted_on_exam(&roles, Act::Edit, exam.id, organization_id))
+        .map(|exam| {
+            let (visible_links, hidden_links): (Vec<_>, Vec<_>) = course_links
+                .iter()
+                .filter(|link| link.id == exam.id)
+                .partition(|link| {
+                    is_permitted_on_course(
+                        &roles,
+                        Act::ViewInternalCourseStructure,
+                        link.course_id,
+                        organization_id,
+                    )
+                });
+            LinkableExam {
+                pass_mark: exam.pass_mark(),
+                linked_course_names: visible_links
+                    .into_iter()
+                    .map(|link| link.course_name.clone())
+                    .collect(),
+                hidden_linked_course_count: hidden_links.len(),
+                id: exam.id,
+                name: exam.name,
+                starts_at: exam.starts_at,
+                ends_at: exam.ends_at,
+            }
         })
         .collect();
     token.authorized_ok(web::Json(exams))
@@ -3034,6 +3119,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
         .route("/{course_id}/exams", web::get().to(get_linked_exams))
+        .route(
+            "/{course_id}/linkable-exams",
+            web::get().to(get_linkable_exams),
+        )
         .route(
             "/{course_id}/exercises-and-count-of-answers-requiring-attention",
             web::get().to(get_all_exercises_and_count_of_answers_requiring_attention),

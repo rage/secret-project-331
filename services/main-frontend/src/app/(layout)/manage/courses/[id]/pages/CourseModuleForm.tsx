@@ -333,6 +333,7 @@ const CourseModuleForm: React.FC<Props> = ({
 
             <div>
               <ModuleCompletionFields
+                courseId={courseId}
                 linkedExams={linkedExams}
                 hasNoRequirement={hasNoRequirement}
                 moduleTotals={moduleTotals}

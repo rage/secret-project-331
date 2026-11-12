@@ -89,6 +89,13 @@ pub struct OrgExam {
     pub grade_manually: bool,
 }
 
+impl OrgExam {
+    /// See [`Exam::pass_mark`].
+    pub fn pass_mark(&self) -> Option<i32> {
+        automatic_pass_mark(self.grade_manually, self.minimum_points_treshold)
+    }
+}
+
 /// Returns exam identity metadata for a non-deleted exam id.
 pub async fn get_identity_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExamIdentity> {
     let exam = sqlx::query_as!(

@@ -1,20 +1,27 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useEffect, useRef, useState } from "react"
-import { useDateFormatter, VisuallyHidden } from "react-aria"
+import { VisuallyHidden } from "react-aria"
 import type { Path } from "react-hook-form"
 import { useFormContext } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { DAY_AND_MONTH_FORMAT, formatDateWindow } from "@/components/credit-registration/constants"
+import {
+  getCourseLinkableExamsQueryKey,
+  getCourseLinkedExamsQueryKey,
+  unsetExamCourseMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { LinkedExam } from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageExamRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
   Button,
   Checkbox,
+  ConfirmDialog,
   FormSection,
   formSectionTitleCss,
   Infobox,
@@ -33,6 +40,7 @@ import {
 import { isOutsidePlatform } from "@/utils/examRequirement"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
 
+import ExamLinkPicker, { useExamDetails } from "./ExamLinkPicker"
 import type { CourseModuleFormState } from "./moduleCompletionForm"
 import { examRequirementOf } from "./moduleCompletionForm"
 
@@ -52,6 +60,7 @@ export interface ModuleCompletionLinks {
 }
 
 interface Props {
+  courseId: string
   linkedExams: LinkedExam[]
   /** See `lacksRequirement`. */
   hasNoRequirement: boolean
@@ -144,6 +153,18 @@ const examLinksCss = css`
   align-items: baseline;
   margin: 0;
   font-size: var(--font-size-1);
+`
+
+const examRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  justify-content: space-between;
+`
+
+const examPickerRevealCss = css`
+  padding-top: var(--space-3);
 `
 
 const examLinksHintCss = css`
@@ -243,6 +264,7 @@ const SWITCH_EXPLANATION_KEYS = {
  * exam are hidden, and the pass method follows the exam by itself, saying so when it changes.
  */
 const ModuleCompletionFields: React.FC<Props> = ({
+  courseId,
   linkedExams,
   hasNoRequirement,
   moduleTotals,
@@ -251,7 +273,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { control, watch, setValue, getValues, trigger } = useFormContext<CourseModuleFormState>()
-  const dateFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
+  const examDetails = useExamDetails()
 
   const examRequired = watch("exam_required")
   const examLocation = watch("exam_location")
@@ -277,19 +299,30 @@ const ModuleCompletionFields: React.FC<Props> = ({
 
   /** The exam last handled below: only the teacher changing it moves other answers, never loading. */
   const handledExam = useRef(exam)
+  /** An exam the teacher linked or unlinked here, until the refetched list shows the change. */
+  const awaitedExamLink = useRef<{ examId: string; isLinked: boolean } | null>(null)
 
   useEffect(() => {
-    if (exam === handledExam.current) {
+    const awaited = awaitedExamLink.current
+    const hasAwaitedLinkArrived =
+      awaited !== null &&
+      linkedExams.some((linkedExam) => linkedExam.id === awaited.examId) === awaited.isLinked
+    if (exam === handledExam.current && !hasAwaitedLinkArrived) {
       return
     }
-    handledExam.current = exam
-    // Moves the route off an option the new exam hides.
-    const currentRoute = getValues("credit_registration_route")
-    if (
-      (!isOutside && currentRoute === "external") ||
-      (isOutside && currentRoute === "certificate_only")
-    ) {
-      setValue("credit_registration_route", "platform", { shouldDirty: true })
+    if (hasAwaitedLinkArrived) {
+      awaitedExamLink.current = null
+    }
+    if (exam !== handledExam.current) {
+      handledExam.current = exam
+      // Moves the route off an option the new exam hides.
+      const currentRoute = getValues("credit_registration_route")
+      if (
+        (!isOutside && currentRoute === "external") ||
+        (isOutside && currentRoute === "certificate_only")
+      ) {
+        setValue("credit_registration_route", "platform", { shouldDirty: true })
+      }
     }
     const choose = (method: CourseModuleFormState["pass_method"], reason: SwitchReason | null) => {
       autoChosenMethod.current = method
@@ -314,7 +347,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
     } else if (passesByExam && method === "teacher_adds") {
       choose(AUTOMATIC, SWITCHED_FOR_BY_EXAM)
     }
-  }, [exam, isOutside, noLinkedExamHasPassMark, passesByExam, getValues, setValue])
+  }, [exam, linkedExams, isOutside, noLinkedExamHasPassMark, passesByExam, getValues, setValue])
 
   useEffect(() => {
     if (autoChosenMethod.current !== null && passMethod !== autoChosenMethod.current) {
@@ -339,6 +372,27 @@ const ModuleCompletionFields: React.FC<Props> = ({
 
   const studentsTabLink = <TransLink href={links.studentsTab} />
 
+  const queryClient = useQueryClient()
+  const [isExamPickerOpen, setIsExamPickerOpen] = useState(false)
+  const [examToUnlink, setExamToUnlink] = useState<LinkedExam | null>(null)
+  const unlinkMutation = useToastMutationOptions(
+    unsetExamCourseMutation(),
+    { notify: true, method: "POST" },
+    {
+      onSuccess: async (_data, variables) => {
+        awaitedExamLink.current = { examId: variables.path.id, isLinked: false }
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: getCourseLinkedExamsQueryKey({ path: { course_id: courseId } }),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: getCourseLinkableExamsQueryKey({ path: { course_id: courseId } }),
+          }),
+        ])
+      },
+    },
+  )
+
   const linkedExamsContent = (
     <div className={nestedCss}>
       <div>
@@ -348,18 +402,15 @@ const ModuleCompletionFields: React.FC<Props> = ({
         ) : (
           <ul className={examListCss}>
             {linkedExams.map((linkedExam) => (
-              <li key={linkedExam.id}>
-                <Link href={manageExamRoute(linkedExam.id)}>{linkedExam.name}</Link>
-                {[
-                  formatDateWindow(dateFormatter, linkedExam.starts_at, linkedExam.ends_at),
-                  linkedExam.pass_mark === null || linkedExam.pass_mark === undefined
-                    ? t("linked-exam-graded-manually")
-                    : t("linked-exam-pass-mark", { points: linkedExam.pass_mark }),
-                ]
-                  .filter((part): part is string => part !== null)
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  .map((part) => ` · ${part}`)
-                  .join("")}
+              <li key={linkedExam.id} className={examRowCss}>
+                <span>
+                  <Link href={manageExamRoute(linkedExam.id)}>{linkedExam.name}</Link>
+                  {/* oxlint-disable-next-line i18next/no-literal-string */}
+                  {` · ${examDetails(linkedExam)}`}
+                </span>
+                <LinkButton onPress={() => setExamToUnlink(linkedExam)}>
+                  {t("button-unlink-exam")}
+                </LinkButton>
               </li>
             ))}
           </ul>
@@ -368,23 +419,63 @@ const ModuleCompletionFields: React.FC<Props> = ({
       {linkedExams.length > 0 && !noLinkedExamHasPassMark && (
         <p className={noteCss}>{t("linked-exams-rule")}</p>
       )}
-      {links.examsPage && (
+      <div>
         <p className={examLinksCss}>
-          <Link href={links.examsPage}>
+          <Button
+            variant="link"
+            className={linkButtonCss}
+            aria-expanded={isExamPickerOpen}
+            onPress={() => setIsExamPickerOpen((isOpen) => !isOpen)}
+          >
             {linkedExams.length === 0 ? t("link-an-exam") : t("link-another-exam")}
-          </Link>
-          <span className={examLinksHintCss}>
-            <Trans
-              t={t}
-              i18nKey="exams-are-made-on-exams-page"
-              components={{ link: <TransLink href={links.examsPage} /> }}
-            />
-          </span>
+          </Button>
+          {links.examsPage && (
+            <span className={examLinksHintCss}>
+              <Trans
+                t={t}
+                i18nKey="exams-are-made-on-exams-page"
+                components={{ link: <TransLink href={links.examsPage} /> }}
+              />
+            </span>
+          )}
         </p>
-      )}
+        <Reveal isOpen={isExamPickerOpen} className={examPickerRevealCss}>
+          <ExamLinkPicker
+            courseId={courseId}
+            isOpen={isExamPickerOpen}
+            examsPage={links.examsPage}
+            onLinked={(examId) => {
+              awaitedExamLink.current = { examId, isLinked: true }
+              setIsExamPickerOpen(false)
+            }}
+            onCancel={() => setIsExamPickerOpen(false)}
+          />
+        </Reveal>
+      </div>
       {noLinkedExamHasPassMark && (
         <Infobox tone={TONE.NEUTRAL}>{t("linked-exams-no-pass-mark")}</Infobox>
       )}
+      <ConfirmDialog
+        open={examToUnlink !== null}
+        onClose={() => setExamToUnlink(null)}
+        title={t("unlink-exam-title", { name: examToUnlink?.name ?? "" })}
+        description={t("unlink-exam-description")}
+        confirmLabel={t("button-unlink-exam")}
+        onConfirm={async () => {
+          if (!examToUnlink) {
+            return
+          }
+          try {
+            await unlinkMutation.mutateAsync({
+              path: { id: examToUnlink.id },
+              body: { course_id: courseId },
+            })
+            setExamToUnlink(null)
+          } catch {
+            // The toast reports the failure; the dialog stays open for another try.
+          }
+        }}
+      />
     </div>
   )
 

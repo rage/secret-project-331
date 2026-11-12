@@ -418,6 +418,8 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponses,
   GetCourseLinkedExamsData,
   GetCourseLinkedExamsResponses,
   GetCourseMetadataData,
@@ -1119,6 +1121,7 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseLinkableExamsResponse,
   zGetCourseLinkedExamsResponse,
   zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
@@ -4095,6 +4098,19 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkableExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkableExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams",
+    ...options,
+  })
 
 /**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#

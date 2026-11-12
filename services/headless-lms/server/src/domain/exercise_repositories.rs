@@ -1,7 +1,9 @@
 use anyhow::Context;
+use base64::{Engine as _, engine::general_purpose::STANDARD_NO_PAD};
 use blake3::Hash;
 use git2::{
-    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect, build::RepoBuilder,
+    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect,
+    build::RepoBuilder, cert::Cert,
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{exercise_repositories, repository_exercises};
@@ -36,12 +38,71 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// SHA-256 host key fingerprints of the git hosts that ssh clones may connect to, as printed by
+/// `ssh-keygen -lf` without the `SHA256:` prefix.
+const KNOWN_SSH_HOST_KEYS: &[(&str, &str)] = &[
+    ("github.com", "uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s"),
+    ("github.com", "p2QAMXNIC1TJYWeIOttrVc98/R1BUFWu3/LiyKgUfQM"),
+    ("github.com", "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"),
+    ("gitlab.com", "ROQFvPThGrW4RuWLoL9tq9I9zJ42fK4XywyRtbOz/EQ"),
+    ("gitlab.com", "HbW3g8zUjNSksFbqTiUWPWg2Bq1x8xdGUrliXFzSnUw"),
+    ("gitlab.com", "eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8"),
+    (
+        "bitbucket.org",
+        "46OSHA1Rmj8E8ERTC6xkNcmGOw9oFxYr0WF6zWW8l1E",
+    ),
+    (
+        "bitbucket.org",
+        "FC73VB6C4OQLSCrjEayhMp9UMxS97caD/Yyi2bhW/J0",
+    ),
+    (
+        "bitbucket.org",
+        "ybgmFkzwOSotHTHLJgHO0QN8L0xErw6vd0VhFA9m3SM",
+    ),
+];
+
+/// The `certificate_check` callback for clones. libgit2 uses one callback for both TLS
+/// certificates and ssh host keys: certificates are left to libgit2's own validation, and an ssh
+/// host key must be one of [`KNOWN_SSH_HOST_KEYS`] for that host.
+fn check_remote_certificate(
+    cert: &Cert<'_>,
+    host: &str,
+) -> Result<CertificateCheckStatus, git2::Error> {
+    let Some(host_key) = cert.as_hostkey() else {
+        return Ok(CertificateCheckStatus::CertificatePassthrough);
+    };
+    let fingerprint = host_key
+        .hash_sha256()
+        .map(|hash| STANDARD_NO_PAD.encode(hash));
+    if is_known_ssh_host_key(host, fingerprint.as_deref()) {
+        Ok(CertificateCheckStatus::CertificateOk)
+    } else {
+        Err(git2::Error::from_str(&format!(
+            "The ssh host key of {host} is not a known key for that host"
+        )))
+    }
+}
+
+fn is_known_ssh_host_key(host: &str, sha256_fingerprint: Option<&str>) -> bool {
+    sha256_fingerprint.is_some_and(|fingerprint| {
+        KNOWN_SSH_HOST_KEYS.iter().any(|&(known_host, known)| {
+            known_host.eq_ignore_ascii_case(host) && known == fingerprint
+        })
+    })
+}
+
 fn clone_fetch_options<'a>(remote_callbacks: RemoteCallbacks<'a>) -> FetchOptions<'a> {
     let mut fetch_opts = FetchOptions::new();
     // The clone must come from the URL the teacher saved, not from wherever that server redirects.
     fetch_opts.follow_redirects(RemoteRedirect::None);
     fetch_opts.remote_callbacks(remote_callbacks);
     fetch_opts
+}
+
+fn clone_remote_callbacks<'a>() -> RemoteCallbacks<'a> {
+    let mut remote_cbs = RemoteCallbacks::new();
+    remote_cbs.certificate_check(check_remote_certificate);
+    remote_cbs
 }
 
 fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
@@ -155,25 +216,23 @@ async fn process_inner(
 
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
-    let mut remote_cbs = RemoteCallbacks::new();
+    let mut remote_cbs = clone_remote_callbacks();
     if let Some(deploy_key) = deploy_key {
-        remote_cbs
-            .certificate_check(|_, _| Ok(CertificateCheckStatus::CertificateOk))
-            .credentials(|_, username, credential_type| {
-                if credential_type.is_ssh_memory() {
-                    Cred::ssh_key_from_memory(
-                        username.unwrap_or("git"),
-                        public_key,
-                        // Exposed only here, where the key is handed to libgit2 in memory.
-                        deploy_key.expose_secret(),
-                        None,
-                    )
-                } else {
-                    Err(git2::Error::from_str(
-                        "The git server does not support the SSH_MEMORY credential type",
-                    ))
-                }
-            });
+        remote_cbs.credentials(|_, username, credential_type| {
+            if credential_type.is_ssh_memory() {
+                Cred::ssh_key_from_memory(
+                    username.unwrap_or("git"),
+                    public_key,
+                    // Exposed only here, where the key is handed to libgit2 in memory.
+                    deploy_key.expose_secret(),
+                    None,
+                )
+            } else {
+                Err(git2::Error::from_str(
+                    "The git server does not support the SSH_MEMORY credential type",
+                ))
+            }
+        });
     }
     info!("Cloning {url} to {:?}", temp.path());
     RepoBuilder::new()
@@ -320,7 +379,7 @@ async fn update_inner(
 
     let temp = tempfile::tempdir()?;
     RepoBuilder::new()
-        .fetch_options(clone_fetch_options(RemoteCallbacks::new()))
+        .fetch_options(clone_fetch_options(clone_remote_callbacks()))
         .clone(url, temp.path())?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
@@ -684,6 +743,19 @@ mod test {
         let version = git2::Version::get();
         assert!(version.https(), "git2 is missing its `https` feature");
         assert!(version.ssh(), "git2 is missing its `ssh` feature");
+    }
+
+    #[test]
+    fn ssh_host_keys_must_be_known_for_the_host() {
+        let github = "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU";
+        assert!(is_known_ssh_host_key("github.com", Some(github)));
+        assert!(is_known_ssh_host_key("GitHub.com", Some(github)));
+        assert!(!is_known_ssh_host_key("evil.example", Some(github)));
+        assert!(!is_known_ssh_host_key(
+            "github.com",
+            Some("eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8")
+        ));
+        assert!(!is_known_ssh_host_key("github.com", None));
     }
 
     #[test]

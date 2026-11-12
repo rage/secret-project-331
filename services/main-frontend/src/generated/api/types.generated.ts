@@ -2917,11 +2917,18 @@ export type CourseModuleCompletionOverview = {
    */
   course_code_allowed?: boolean | null
   course_module_id: string
+  /**
+   * `None` also when the user can't view the course's credit registrations.
+   */
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_route: CreditRegistrationRoute
   ects_credits?: number | null
   exam_requirement: ExamRequirement
+  /**
+   * By requirements, the exercises attempted needed to pass; by an exam, to take the exam.
+   */
+  exercises_attempted_threshold?: number | null
   has_completions: boolean
   has_registration_link: boolean
   /**
@@ -2929,10 +2936,15 @@ export type CourseModuleCompletionOverview = {
    */
   name?: string | null
   /**
-   * Credit registrations neither in Sisu yet nor given up on.
+   * Credit registrations neither in Sisu yet nor given up on; `None` unless the user can view
+   * the course's credit registrations.
    */
-  not_yet_registered_count: number
+  not_yet_registered_count?: number | null
   order_number: number
+  /**
+   * By requirements, the points needed to pass; by an exam, to take the exam.
+   */
+  points_threshold?: number | null
   uh_course_code?: string | null
 }
 

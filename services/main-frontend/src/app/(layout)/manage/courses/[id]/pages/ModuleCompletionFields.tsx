@@ -270,7 +270,22 @@ const ModuleCompletionFields: React.FC<Props> = ({
   /** Set while "Teacher adds completions" is in force only because the exam is outside. */
   const switchedForOutsideExam = useRef(false)
 
+  /** The exam last handled below: only the teacher changing it moves other answers, never loading. */
+  const handledExam = useRef(exam)
+
   useEffect(() => {
+    if (exam === handledExam.current) {
+      return
+    }
+    handledExam.current = exam
+    // Moves the route off an option the new exam hides.
+    const currentRoute = getValues("credit_registration_route")
+    if (
+      (!isOutside && currentRoute === "external") ||
+      (isOutside && currentRoute === "certificate_only")
+    ) {
+      setValue("credit_registration_route", "platform", { shouldDirty: true })
+    }
     const choose = (method: CourseModuleFormState["pass_method"], reason: SwitchReason | null) => {
       autoChosenMethod.current = method
       setValue("pass_method", method, { shouldDirty: true, shouldValidate: true })
@@ -294,7 +309,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
     } else if (passesByExam && method === "teacher_adds") {
       choose(AUTOMATIC, SWITCHED_FOR_BY_EXAM)
     }
-  }, [isOutside, noLinkedExamHasPassMark, passesByExam, getValues, setValue])
+  }, [exam, isOutside, noLinkedExamHasPassMark, passesByExam, getValues, setValue])
 
   useEffect(() => {
     if (autoChosenMethod.current !== null && passMethod !== autoChosenMethod.current) {
@@ -303,14 +318,6 @@ const ModuleCompletionFields: React.FC<Props> = ({
       setSwitchReason(null)
     }
   }, [passMethod])
-
-  // Moves the route off an option the exam has just hidden.
-  useEffect(() => {
-    const current = getValues("credit_registration_route")
-    if ((!isOutside && current === "external") || (isOutside && current === "certificate_only")) {
-      setValue("credit_registration_route", "platform", { shouldDirty: true })
-    }
-  }, [isOutside, getValues, setValue])
 
   const [isExternalRouteRevealed, setIsExternalRouteRevealed] = useState(route === "external")
 
@@ -646,7 +653,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
             />
             <Radio
               value="automatic"
-              isHidden={isOutside || noLinkedExamHasPassMark}
+              isHidden={(isOutside || noLinkedExamHasPassMark) && passMethod !== AUTOMATIC}
               label={isOnPlatform ? t("pass-method-by-exam") : t("pass-method-by-requirements")}
               description={
                 isOnPlatform
@@ -658,7 +665,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
             />
             <Radio
               value="teacher_adds"
-              isHidden={passesByExam}
+              isHidden={passesByExam && passMethod !== TEACHER_ADDS}
               label={t("pass-method-teacher-adds")}
               badge={
                 isOutside ? (

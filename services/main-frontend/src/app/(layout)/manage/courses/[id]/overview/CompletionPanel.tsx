@@ -9,12 +9,8 @@ import { useTranslation } from "react-i18next"
 
 import { DAY_AND_MONTH_FORMAT } from "@/components/credit-registration/constants"
 import { useCanViewCreditRegistrations } from "@/components/credit-registration/teacherCreditRegistrations"
-import {
-  getCourseCompletionOverviewOptions,
-  getCourseStructureOptions,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { getCourseCompletionOverviewOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
-  CompletionPolicy,
   Course,
   CourseExamsOverview,
   CourseModuleCompletionOverview,
@@ -164,13 +160,10 @@ interface Thresholds {
   exercises: number | null
 }
 
-const thresholdsOf = (policy: CompletionPolicy | undefined): Thresholds =>
-  policy && (policy.method === "by_requirements" || policy.method === "by_exam")
-    ? {
-        points: policy.number_of_points_treshold ?? null,
-        exercises: policy.number_of_exercises_attempted_treshold ?? null,
-      }
-    : { points: null, exercises: null }
+const thresholdsOf = (module: CourseModuleCompletionOverview): Thresholds => ({
+  points: module.points_threshold ?? null,
+  exercises: module.exercises_attempted_threshold ?? null,
+})
 
 const isOutsidePlatform = (module: CourseModuleCompletionOverview) =>
   module.exam_requirement === "examinarium" || module.exam_requirement === "elsewhere"
@@ -188,7 +181,6 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
   const overviewQuery = useQuery(
     getCourseCompletionOverviewOptions({ path: { course_id: course.id } }),
   )
-  const structureQuery = useQuery(getCourseStructureOptions({ path: { course_id: course.id } }))
   const canViewCreditRegistrations = useCanViewCreditRegistrations(course.id)
   const dateFormatter = useDateFormatter(DAY_AND_MONTH_FORMAT)
 
@@ -419,9 +411,6 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
           return null
         }
         const state = courseCompletionStateOf(overview, course.is_draft)
-        const policies = new Map(
-          (structureQuery.data?.modules ?? []).map((m) => [m.id, m.completion_policy] as const),
-        )
         const registersAny = overview.modules.some(
           (m) => m.credit_registration_route === "platform",
         )
@@ -440,13 +429,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
           return (
             <div key={module.course_module_id} className={blockCss}>
               <h3 className={moduleNameCss}>{module.name ?? t("default-module")}</h3>
-              <p className={howCss}>
-                {howSentence(
-                  module,
-                  overview.exams,
-                  thresholdsOf(policies.get(module.course_module_id)),
-                )}
-              </p>
+              <p className={howCss}>{howSentence(module, overview.exams, thresholdsOf(module))}</p>
               {items.length > 0 && <DescriptionList items={items} />}
               {problems.map((problem, index) => problemLine(problem, index))}
             </div>

@@ -210,10 +210,18 @@ fn push_exercises_scores_progress(
     if requires_exam {
         res += &format!(" To pass this {course_or_module}, it's required to complete an exam.");
     }
-    if !automatic_completion {
-        res += &format!(
-            " This {course_or_module} is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the {course_or_module} in the course material or contact the teacher."
-        );
+    match module_progress.completion_method {
+        CompletionMethod::NotDecided => {
+            res += &format!(
+                " Information about how this {course_or_module} is completed isn't available yet."
+            );
+        }
+        CompletionMethod::TeacherAdds => {
+            res += &format!(
+                " This {course_or_module} is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the {course_or_module} in the course material or contact the teacher."
+            );
+        }
+        CompletionMethod::ByRequirements | CompletionMethod::ByExam => {}
     }
 
     if attempted_exercises_required.is_some() || score_required.is_some() {

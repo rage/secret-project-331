@@ -16,7 +16,6 @@ const mockOverview = jest.fn<Promise<CourseCompletionOverview>, []>()
 
 jest.mock("@/generated/api/sdk.generated", () => ({
   getCourseCompletionOverview: () => mockOverview(),
-  getCourseStructure: () => new Promise(() => {}),
 }))
 
 jest.mock("@/shared-module/common/hooks/useAuthorizeMultiple", () => ({
@@ -33,6 +32,8 @@ const moduleWith = (
   name: null,
   order_number: 0,
   completion_method: "by_requirements",
+  points_threshold: 10,
+  exercises_attempted_threshold: null,
   exam_requirement: "none",
   credit_registration_route: "platform",
   uh_course_code: "TKT-12345",

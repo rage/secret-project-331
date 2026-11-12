@@ -57,7 +57,7 @@ ALTER TABLE course_modules DROP CONSTRAINT course_module_automatic_completion_va
   ),
   ADD CONSTRAINT course_module_exam_location_described CHECK (
     exam_requirement <> 'elsewhere'
-    OR TRIM(exam_location_description) <> ''
+    OR COALESCE(TRIM(exam_location_description), '') <> ''
   );
 
 COMMENT ON COLUMN course_modules.exam_requirement IS 'Whether passing the module requires an exam and where it is held: on this platform (an exam linked to the course), in Examinarium, or elsewhere. The platform knows nothing about Examinarium or other outside exams.';

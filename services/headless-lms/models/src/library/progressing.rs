@@ -278,7 +278,12 @@ pub async fn user_can_take_exam(
     let mut can_take_exam = true;
     for course_id in course_ids {
         let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
-        if let Some(requirements) = default_module.completion_policy.requirements() {
+        if let Some(requirements) = default_module.completion_policy.requirements()
+            && (requirements
+                .number_of_exercises_attempted_treshold
+                .is_some()
+                || requirements.number_of_points_treshold.is_some())
+        {
             if let Some(s) = settings.iter().find(|x| x.current_course_id == course_id) {
                 let eligible = user_passes_automatic_completion_exercise_tresholds(
                     conn,

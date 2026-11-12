@@ -67,8 +67,8 @@ pub enum RiskReason {
     },
     /// The open chapter opens again only later.
     OpeningMovedLater { opens_at: DateTime<Utc> },
-    /// How students pass the module, its exam or its credit registration route changes after
-    /// students have completed it.
+    /// How students pass the module, its exam or its credit registration (route, course code,
+    /// credits or registration link) changes after students have completed it.
     CompletionPolicyChangedAfterCompletions,
     /// The number of module completions the base module requires changes after modules have
     /// completions.

@@ -1268,6 +1268,13 @@ pub fn validate_completion_settings(module: &ModuleSnapshot) -> ModelResult<()> 
             "credits can be registered outside this platform only when the exam is held outside it.",
         );
     }
+    if module.credit_registration_route == CreditRegistrationRoute::CertificateOnly
+        && exam.is_outside_platform()
+    {
+        return invalid(
+            "a module with an exam outside this platform can't be certificate only; either this platform or the teacher registers its credits.",
+        );
+    }
     if normalize_uh_course_code(module.uh_course_code.clone()).is_none() {
         return invalid("the course code is required.");
     }

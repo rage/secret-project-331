@@ -197,10 +197,14 @@ const completionResultLabel = (
   return completion.passed ? t("label-passed") : t("label-not-passed")
 }
 
-/** Whether `ModuleProgress` has anything to show for this module. */
+/** Whether students can complete the module without a teacher adding the completion. */
 const completesAutomatically = (module: MyStudiesCourseModule): boolean =>
   module.completion_method === "by_requirements" || module.completion_method === "by_exam"
 
+const isGradedByTeacher = (module: MyStudiesCourseModule): boolean =>
+  module.completion_method === "teacher_adds"
+
+/** Whether `ModuleProgress` has anything to show for this module. */
 const hasProgressToShow = (module: MyStudiesCourseModule): boolean =>
   (module.score_maximum ?? 0) > 0 ||
   (module.total_exercises ?? 0) > 0 ||
@@ -235,7 +239,7 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   // Said once for the course rather than under each of its modules, where it would be the only
   // thing most of them have to say.
   const teacherGradesWholeCourse =
-    modules.every((module) => !completesAutomatically(module)) &&
+    modules.every((module) => isGradedByTeacher(module)) &&
     modules.some((module) => !module.completion)
   // Credits belong to the module that grants them, but a course whose modules all grant the same
   // says it once up here rather than printing one identical line per module.
@@ -432,7 +436,7 @@ const ModuleStatus: React.FC<{
   }
 
   if (!completesAutomatically(module)) {
-    if (explainTeacherGrading) {
+    if (explainTeacherGrading && isGradedByTeacher(module)) {
       return <span className={noteCss}>{t("note-graded-by-your-teacher")}</span>
     }
     return rowWouldBeBare ? <span className={noteCss}>{t("module-not-completed-yet")}</span> : null

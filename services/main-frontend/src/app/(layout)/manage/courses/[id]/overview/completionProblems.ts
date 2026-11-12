@@ -61,8 +61,9 @@ const statusOf = (
   if (module.credit_registration_route === "external") {
     return { kind: "not-tracked" }
   }
-  if (module.credit_registration_route === "platform" && module.not_yet_registered_count > 0) {
-    return { kind: "not-yet-registered", count: module.not_yet_registered_count }
+  const notYetRegisteredCount = module.not_yet_registered_count ?? 0
+  if (module.credit_registration_route === "platform" && notYetRegisteredCount > 0) {
+    return { kind: "not-yet-registered", count: notYetRegisteredCount }
   }
   if (
     module.completion_method === "by_exam" &&

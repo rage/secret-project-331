@@ -3572,6 +3572,11 @@ export const zCourseModuleCompletionOverview = z.object({
   credit_registration_route: zCreditRegistrationRoute,
   ects_credits: z.number().nullish(),
   exam_requirement: zExamRequirement,
+  exercises_attempted_threshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   has_completions: z.boolean(),
   has_registration_link: z.boolean(),
   name: z.string().nullish(),
@@ -3582,11 +3587,17 @@ export const zCourseModuleCompletionOverview = z.object({
     })
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
-    }),
+    })
+    .nullish(),
   order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  points_threshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
   uh_course_code: z.string().nullish(),
 })
 

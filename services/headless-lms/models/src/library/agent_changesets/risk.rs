@@ -371,6 +371,10 @@ impl Classifier<'_> {
                         || staged_module.exam_requirement != live_module.exam_requirement
                         || staged_module.credit_registration_route
                             != live_module.credit_registration_route
+                        || staged_module.uh_course_code != live_module.uh_course_code
+                        || staged_module.ects_credits != live_module.ects_credits
+                        || staged_module.completion_registration_link_override
+                            != live_module.completion_registration_link_override
                 });
             if is_policy_changed && self.activity.modules_with_completions.contains(&module) {
                 self.add(

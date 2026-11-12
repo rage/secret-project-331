@@ -68,7 +68,7 @@ impl From<RiskReason> for ExplainedRiskReason {
                 "students lose access to the chapter until it opens again",
             ),
             RiskReason::CompletionPolicyChangedAfterCompletions => (
-                "changes how students pass a module, its exam or its credit registration route after students have completed it"
+                "changes how students pass a module, its exam, or its credit registration (route, course code, credits or registration link) after students have completed it"
                     .to_string(),
                 "who completes the module, or how their credits are registered, changes from now on, while existing completions stay",
             ),

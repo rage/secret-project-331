@@ -23634,8 +23634,7 @@
           "credit_registration_route",
           "certification_enabled",
           "has_registration_link",
-          "has_completions",
-          "not_yet_registered_count"
+          "has_completions"
         ],
         "properties": {
           "certification_enabled": {
@@ -23653,7 +23652,8 @@
             "format": "uuid"
           },
           "credit_registration_pause_reason": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "`None` also when the user can't view the course's credit registrations."
           },
           "credit_registration_paused_at": {
             "type": ["string", "null"],
@@ -23669,6 +23669,11 @@
           "exam_requirement": {
             "$ref": "#/components/schemas/ExamRequirement"
           },
+          "exercises_attempted_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "By requirements, the exercises attempted needed to pass; by an exam, to take the exam."
+          },
           "has_completions": {
             "type": "boolean"
           },
@@ -23680,13 +23685,18 @@
             "description": "`None` for the default module."
           },
           "not_yet_registered_count": {
-            "type": "integer",
+            "type": ["integer", "null"],
             "format": "int64",
-            "description": "Credit registrations neither in Sisu yet nor given up on."
+            "description": "Credit registrations neither in Sisu yet nor given up on; `None` unless the user can view\nthe course's credit registrations."
           },
           "order_number": {
             "type": "integer",
             "format": "int32"
+          },
+          "points_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "By requirements, the points needed to pass; by an exam, to take the exam."
           },
           "uh_course_code": {
             "type": ["string", "null"]
@@ -34312,7 +34322,7 @@
           },
           {
             "type": "object",
-            "description": "How students pass the module, its exam or its credit registration route changes after\nstudents have completed it.",
+            "description": "How students pass the module, its exam or its credit registration (route, course code,\ncredits or registration link) changes after students have completed it.",
             "required": ["code"],
             "properties": {
               "code": {

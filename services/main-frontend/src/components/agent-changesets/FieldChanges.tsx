@@ -8,7 +8,9 @@ import { useTranslation } from "react-i18next"
 import { aiPolicyLabel } from "@/app/(layout)/manage/courses/[id]/overview/EditCourseForm/AiPolicyFields"
 import type {
   CompletionPolicy,
+  CreditRegistrationRoute,
   EntityField,
+  ExamRequirement,
   FieldChange,
   FieldValue,
 } from "@/generated/api/types.generated"
@@ -80,8 +82,11 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
 }
 
 function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
-  if (policy.method === "not_decided" || policy.method === "teacher_adds") {
-    return t("agent-completion-policy-manual")
+  switch (policy.method) {
+    case "not_decided":
+      return t("pass-method-not-decided")
+    case "teacher_adds":
+      return t("pass-method-teacher-adds")
   }
   const requirements: string[] = []
   const points = policy.number_of_points_treshold
@@ -92,12 +97,36 @@ function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
   if (typeof exercises === "number") {
     requirements.push(t("agent-completion-exercises-attempted", { count: exercises }))
   }
-  if (policy.method === "by_exam") {
-    requirements.push(t("agent-completion-requires-exam"))
+  if (requirements.length === 0) {
+    return policy.method === "by_exam" ? t("pass-method-by-exam") : t("pass-method-by-requirements")
   }
-  return requirements.length === 0
-    ? t("agent-completion-policy-automatic")
-    : t("agent-completion-policy-automatic-with", { requirements: requirements.join(", ") })
+  return policy.method === "by_exam"
+    ? t("agent-completion-by-exam-with", { requirements: requirements.join(", ") })
+    : t("agent-completion-by-requirements-with", { requirements: requirements.join(", ") })
+}
+
+function examRequirementText(requirement: ExamRequirement, t: TFunction): string {
+  switch (requirement) {
+    case "none":
+      return t("agent-exam-requirement-none")
+    case "platform":
+      return t("exam-location-platform")
+    case "examinarium":
+      return t("exam-location-examinarium")
+    case "elsewhere":
+      return t("exam-location-elsewhere")
+  }
+}
+
+function creditRegistrationRouteText(route: CreditRegistrationRoute, t: TFunction): string {
+  switch (route) {
+    case "platform":
+      return t("route-platform")
+    case "external":
+      return t("route-external-outside-exam")
+    case "certificate_only":
+      return t("route-certificate-only")
+  }
 }
 
 /** A field is unique per entity, except exercise fields, which repeat per exercise and task. */
@@ -219,8 +248,9 @@ const FieldChanges: React.FC<FieldChangesProps> = ({ changes, caption }) => {
       case "completion_policy":
         return completionPolicyText(value.value, t)
       case "exam_requirement":
+        return examRequirementText(value.value, t)
       case "credit_registration_route":
-        return value.value
+        return creditRegistrationRouteText(value.value, t)
       case "ai_policy":
         return aiPolicyLabel(value.value, t)
       case "blocks":

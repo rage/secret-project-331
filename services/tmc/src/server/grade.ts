@@ -131,6 +131,17 @@ async function gradeAndReport(
   await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
 }
 
+/**
+ * The exercise template could not be extracted or read. The fault is the service's, so the student
+ * gets the server-error feedback even when tmc-langs names a cause.
+ */
+export class TemplateError extends Error {
+  public constructor(cause: unknown) {
+    super("Failed to prepare the exercise template", { cause })
+    this.name = "TemplateError"
+  }
+}
+
 /** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
 const NO_PROJECT_IN_ARCHIVE = "No project directory found in archive"
 
@@ -208,8 +219,13 @@ const gradeAnswer = async (
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()
     tempPaths.push(extractedTemplatePath)
-    await extractProject(templateArchivePath, extractedTemplatePath, log)
-    const points = await fastAvailablePoints(extractedTemplatePath, log)
+    let points: string[]
+    try {
+      await extractProject(templateArchivePath, extractedTemplatePath, log)
+      points = await fastAvailablePoints(extractedTemplatePath, log)
+    } catch (e) {
+      throw new TemplateError(e)
+    }
     const preparedSubmissionArchivePath = temporaryFile()
     tempPaths.push(preparedSubmissionArchivePath)
     const sandboxImage = await prepareSubmission(

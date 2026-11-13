@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { LangsError } from "@/tmc/langs"
 
-import { gradingFailureFeedback, handleGrade, runScore } from "./grade"
+import { gradingFailureFeedback, handleGrade, runScore, TemplateError } from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -166,6 +166,17 @@ describe("gradingFailureFeedback", () => {
     ])
     expect(gradingFailureFeedback(failure)).toBe(
       "The submission does not contain the exercise's files, so it could not be graded. Submit the whole exercise, including its source files.",
+    )
+  })
+
+  it("blames the server, not the answer, when the template has no project", () => {
+    const failure = new TemplateError(
+      new LangsError("No project directory found in archive", [
+        "Caused by: No project directory found in archive",
+      ]),
+    )
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission could not be graded because of an error on the server. Try submitting again later.",
     )
   })
 

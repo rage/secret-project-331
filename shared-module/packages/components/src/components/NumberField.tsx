@@ -17,7 +17,7 @@ import {
   resolveRenderedErrorMessage,
 } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
-import { below } from "../styles/breakpoints"
+import { atLeast } from "../styles/breakpoints"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -102,11 +102,11 @@ const unitCss = css`
 `
 
 const helperActionCss = css`
-  margin-inline-start: var(--space-3);
+  flex-basis: 100%;
 
-  ${below("sm")} {
-    flex-basis: 100%;
-    margin-inline-start: 0;
+  ${atLeast("sm")} {
+    flex-basis: auto;
+    margin-inline-start: var(--space-3);
   }
 `
 

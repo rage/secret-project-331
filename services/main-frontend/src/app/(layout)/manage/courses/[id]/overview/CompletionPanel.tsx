@@ -14,6 +14,8 @@ import type {
   CourseExamsOverview,
   CourseModuleCompletionOverview,
 } from "@/generated/api/types.generated"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   manageCourseModulesRoute,
   manageCourseStudentsRoute,
@@ -40,12 +42,12 @@ const HIDDEN_TEXT_ELEMENT = "span"
 
 const panelCss = css`
   margin: var(--space-5) 0 0;
-  padding: var(--space-4-5) var(--space-4-5) var(--space-3);
+  padding: var(--space-4) var(--space-4) 0;
   border: 1px solid var(--color-gray-100);
   border-radius: var(--surface-radius);
 
-  @media (max-width: 600px) {
-    padding: var(--space-4) var(--space-4) 0;
+  ${respondToOrLarger.sm} {
+    padding: var(--space-4-5) var(--space-4-5) var(--space-3);
   }
 `
 
@@ -89,12 +91,12 @@ const headLinksCss = css`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-4);
-  margin-left: auto;
+  width: 100%;
   font-size: var(--font-size-1);
 
-  @media (max-width: 600px) {
-    width: 100%;
-    margin-left: 0;
+  ${respondToOrLarger.sm} {
+    width: auto;
+    margin-left: auto;
   }
 `
 
@@ -268,7 +270,7 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
         return {
           label: exams.count > 1 ? t("label-exams") : t("label-exam"),
           value: t("exams-on-this-platform", { count: exams.count }),
-          ...(secondary ? { secondary } : {}),
+          ...includeIf(secondary, { secondary }),
         }
       }
     }
@@ -301,9 +303,9 @@ const CompletionPanel: React.FC<Props> = ({ course }) => {
     return {
       label: t("label-credits"),
       value,
-      ...(route !== "external" && !module.certification_enabled
-        ? { secondary: t("credits-no-certificate") }
-        : {}),
+      ...includeIf(route !== "external" && !module.certification_enabled, {
+        secondary: t("credits-no-certificate"),
+      }),
     }
   }
 

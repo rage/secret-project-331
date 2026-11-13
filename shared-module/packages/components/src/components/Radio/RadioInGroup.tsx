@@ -5,7 +5,7 @@ import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
 import { joinAriaDescribedBy } from "../../lib/utils/field"
-import { below } from "../../styles/breakpoints"
+import { atLeast } from "../../styles/breakpoints"
 import { resolveButtonRootCss } from "../primitives/buttonStyles"
 import {
   checkableBadgeCss,
@@ -66,21 +66,21 @@ const segmentedCheckedLabelCss = css`
 
 /** Lines `nestedContent` up with the label text: the 20px indicator plus the row's gap. */
 const nestedContentCss = css`
-  margin-inline-start: calc(20px + var(--space-3));
+  margin-inline-start: var(--space-3-5);
   padding-top: var(--space-3-5);
   padding-bottom: var(--space-2);
 
-  ${below("sm")} {
-    margin-inline-start: var(--space-3-5);
+  ${atLeast("sm")} {
+    margin-inline-start: calc(20px + var(--space-3));
   }
 `
 
 const nestedContentRuleCss = css`
-  padding: var(--space-2) 0 var(--space-2) var(--space-4);
+  padding: var(--space-2) 0 var(--space-2) var(--space-3-5);
   border-inline-start: 2px solid var(--color-green-600);
 
-  ${below("sm")} {
-    padding-inline-start: var(--space-3-5);
+  ${atLeast("sm")} {
+    padding-inline-start: var(--space-4);
   }
 `
 

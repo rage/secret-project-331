@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import React from "react"
 
-import { below } from "../styles/breakpoints"
+import { atLeast } from "../styles/breakpoints"
 
 export type FormSectionHeadingLevel = 2 | 3 | 4
 
@@ -22,11 +22,11 @@ export interface FormSectionProps {
 }
 
 const rootCss = css`
-  padding: var(--space-5) 0;
+  padding: var(--space-4-5) 0;
   border-top: 1px solid var(--color-gray-100);
 
-  ${below("sm")} {
-    padding: var(--space-4-5) 0;
+  ${atLeast("sm")} {
+    padding: var(--space-5) 0;
   }
 `
 

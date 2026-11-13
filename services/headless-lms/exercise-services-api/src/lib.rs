@@ -13,6 +13,14 @@ use uuid::Uuid;
 pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
+/// The user the bearer token acts for, so a client can tell when a login switched accounts.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct CurrentUser {
+    /// Stable for the lifetime of the account.
+    pub id: Uuid,
+}
+
 /// A course the current user can browse or is enrolled in.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]

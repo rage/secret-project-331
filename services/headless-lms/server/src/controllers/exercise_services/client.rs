@@ -34,6 +34,7 @@ use utoipa::{IntoParams, OpenApi};
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        get_current_user,
         get_courses,
         get_course,
         get_course_exercises,
@@ -259,6 +260,37 @@ impl FromRequest for SupportedClient {
             check_client_version(client_version.as_deref(), MINIMUM_CLIENT_VERSION).map(|()| Self),
         )
     }
+}
+
+/**
+ * GET /api/v0/exercise-services/client/me
+ *
+ * Returns the user the bearer token acts for.
+ */
+#[utoipa::path(
+    get,
+    path = "/me",
+    operation_id = "getClientCurrentUser",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    responses(
+        (status = 200, description = "The user the token acts for", body = api::CurrentUser),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip_all)]
+async fn get_current_user(
+    user: UserFromOAuthToken,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<api::CurrentUser>> {
+    // Every token may name its own user.
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(api::CurrentUser { id: user.id }))
 }
 
 /**
@@ -1801,7 +1833,8 @@ async fn share_submission(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/courses", web::get().to(get_courses))
+    cfg.route("/me", web::get().to(get_current_user))
+        .route("/courses", web::get().to(get_courses))
         .route("/courses/{id}", web::get().to(get_course))
         .route(
             "/courses/{id}/exercises",
@@ -4196,6 +4229,14 @@ mod route_tests {
             .find(|course| course.id == fixture.course)
             .expect("the fixture course is listed");
         assert_eq!(listed.ai_policy, api::CourseAiPolicy::FullUse);
+    }
+
+    #[actix_web::test]
+    async fn me_names_the_tokens_user() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let me: api::CurrentUser = get_json(&app, &fixture.token, "/me".to_string()).await;
+        assert_eq!(me.id, fixture.user);
     }
 
     /// Runs `sql` with `id` bound as `$1`, for state no model function sets.

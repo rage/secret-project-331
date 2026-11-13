@@ -862,6 +862,71 @@
         ]
       }
     },
+    "/api/v0/exercise-services/client/me": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "* GET /api/v0/exercise-services/client/me\n *\n * Returns the user the bearer token acts for.",
+        "operationId": "getClientCurrentUser",
+        "parameters": [
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user the token acts for",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/v0/exercise-services/client/submissions/{id}/download": {
       "get": {
         "tags": ["exercise-services-client"],
@@ -1306,6 +1371,18 @@
             "items": {
               "$ref": "#/components/schemas/ExerciseProgress"
             }
+          }
+        }
+      },
+      "CurrentUser": {
+        "type": "object",
+        "description": "The user the bearer token acts for, so a client can tell when a login switched accounts.",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Stable for the lifetime of the account."
           }
         }
       },

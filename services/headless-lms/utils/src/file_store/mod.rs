@@ -95,7 +95,7 @@ pub trait FileStore: Send + Sync {
             )
         })
     }
-    /// Delete a file.
+    /// Delete a file. Errors with [`UtilErrorType::FileNotFound`] when nothing is stored at `path`.
     async fn delete(&self, path: &Path) -> UtilResult<()>;
 
     /// This function returns a path to a folder where downloaded files can be cached.

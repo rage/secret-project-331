@@ -1,11 +1,13 @@
 import { promises as fs } from "fs"
+import os from "node:os"
+import path from "node:path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import { extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
+import { LangsError, extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
@@ -43,7 +45,8 @@ interface NormalizedTestResult {
   successful: boolean
   points: string[]
 }
-interface NormalizedRunResult {
+/** A tmc-langs run result reduced to what scoring needs. */
+export interface NormalizedRunResult {
   status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
   testResults: NormalizedTestResult[]
 }
@@ -121,14 +124,60 @@ async function gradeAndReport(
   try {
     result = await gradeAnswer(req, answerArchiveUrl)
   } catch (e) {
-    error(`Failed to grade: ${String(e)}`)
+    error("Failed to grade", e)
     result = {
       ...PENDING_RESULT,
       grading_progress: "Failed",
-      feedback_text: `Something went wrong: ${String(e)}`,
+      feedback_text: gradingFailureFeedback(e),
     }
   }
   await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
+}
+
+/**
+ * The exercise template could not be extracted or read. The fault is the service's, so the student
+ * gets the server-error feedback even when tmc-langs names a cause.
+ */
+export class TemplateError extends Error {
+  public constructor(cause: unknown) {
+    super("Failed to prepare the exercise template", { cause })
+    this.name = "TemplateError"
+  }
+}
+
+/** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
+const NO_PROJECT_IN_ARCHIVE = "No project directory found in archive"
+
+/**
+ * What the student is told when grading could not run. A tmc-langs failure names a cause about the
+ * answer; any other failure is the service's own, and its details, which can include signed file
+ * URLs, stay in the log.
+ */
+export function gradingFailureFeedback(e: unknown): string {
+  if (e instanceof LangsError) {
+    if (e.rootCause === NO_PROJECT_IN_ARCHIVE) {
+      return "The submission does not contain the exercise's files, so it could not be graded. Submit the whole exercise, including its source files."
+    }
+    return `The submission could not be graded: ${withoutServerPaths(e.rootCause)}`
+  }
+  return "The submission could not be graded because of an error on the server. Try submitting again later."
+}
+
+/**
+ * `cause` with each absolute path cut to what the student recognises: the part inside the
+ * temporary directory the answer was extracted to, else the file name.
+ */
+function withoutServerPaths(cause: string): string {
+  const temporaryRoot = `${os.tmpdir()}/`
+  return cause.replaceAll(/(?<=^|[\s'"`(])\/[^\s'"`()]+/g, (absolutePath) => {
+    if (absolutePath.startsWith(temporaryRoot)) {
+      const insideAnswer = absolutePath.slice(temporaryRoot.length).split("/").slice(1).join("/")
+      if (insideAnswer) {
+        return insideAnswer
+      }
+    }
+    return path.posix.basename(absolutePath)
+  })
 }
 
 /**
@@ -190,8 +239,13 @@ const gradeAnswer = async (
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()
     tempPaths.push(extractedTemplatePath)
-    await extractProject(templateArchivePath, extractedTemplatePath, log)
-    const points = await fastAvailablePoints(extractedTemplatePath, log)
+    let points: string[]
+    try {
+      await extractProject(templateArchivePath, extractedTemplatePath, log)
+      points = await fastAvailablePoints(extractedTemplatePath, log)
+    } catch (e) {
+      throw new TemplateError(e)
+    }
     const preparedSubmissionArchivePath = temporaryFile()
     tempPaths.push(preparedSubmissionArchivePath)
     const sandboxImage = await prepareSubmission(
@@ -222,12 +276,12 @@ const gradeInPod = async (
   try {
     outcome = await runInSandboxPod(sandboxImage, submissionPath, logger)
   } catch (e) {
-    logger.error(`Failed to grade in pod: ${e}`)
+    logger.error("Failed to grade in pod", e)
     return {
       grading_progress: "Failed",
       score_given: 0,
       score_maximum: 0,
-      feedback_text: `Something went wrong: ${e}`,
+      feedback_text: gradingFailureFeedback(e),
       feedback_json: null,
     }
   }
@@ -252,28 +306,34 @@ const gradeInPod = async (
   if (normalized.status === "COMPILE_FAILED") {
     feedbackText = "Could not compile the submission"
   } else if (normalized.status === "GENERIC_ERROR") {
-    feedbackText = "Something went wrong"
+    feedbackText = "The tests could not be run"
   } else if (normalized.status === "TESTRUN_INTERRUPTED") {
     feedbackText = "Tests were interrupted"
-  } else if (normalized.status === "PASSED") {
+  } else {
+    // The score already says whether the tests passed; clients show it as the result.
     gradingProgress = "FullyGraded"
-    feedbackText = "Tests passed"
-  } else if (normalized.status === "TESTS_FAILED") {
-    gradingProgress = "FullyGraded"
-    feedbackText = "Tests failed"
   }
-
-  const allPassed =
-    normalized.status === "PASSED" &&
-    normalized.testResults.length > 0 &&
-    normalized.testResults.every((tr) => tr.successful)
-  const score_given = allPassed ? points.length : 0
 
   return {
     grading_progress: gradingProgress,
-    score_given,
-    score_maximum: points.length,
+    ...runScore(normalized, points.length),
     feedback_text: feedbackText,
     feedback_json: outcome.parsed,
   }
+}
+
+/**
+ * All of the exercise's points when every test passed, else none. An exercise that declares no
+ * points, such as a no-tests one, is scored out of one point: the host awards nothing for 0 of 0.
+ */
+export function runScore(
+  run: NormalizedRunResult,
+  availablePointCount: number,
+): { score_given: number; score_maximum: number } {
+  const allPassed =
+    run.status === "PASSED" &&
+    run.testResults.length > 0 &&
+    run.testResults.every((tr) => tr.successful)
+  const scoreMaximum = Math.max(availablePointCount, 1)
+  return { score_given: allPassed ? scoreMaximum : 0, score_maximum: scoreMaximum }
 }

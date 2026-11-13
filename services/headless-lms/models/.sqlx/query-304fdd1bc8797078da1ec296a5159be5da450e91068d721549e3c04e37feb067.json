@@ -1,0 +1,174 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO exercise_answer_snapshots (\n    user_id,\n    course_id,\n    exercise_id,\n    exercise_slide_id,\n    exercise_task_id,\n    purpose,\n    data_json\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING *\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_task_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "exercise_task_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "purpose",
+        "type_info": {
+          "Custom": {
+            "name": "exercise_answer_snapshot_purpose",
+            "kind": {
+              "Enum": [
+                "paste",
+                "backup"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "purpose"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "data_json",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "data_json"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "exercise_answer_snapshot_purpose",
+            "kind": {
+              "Enum": [
+                "paste",
+                "backup"
+              ]
+            }
+          }
+        },
+        "Jsonb"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "304fdd1bc8797078da1ec296a5159be5da450e91068d721549e3c04e37feb067"
+}

@@ -96,7 +96,8 @@ WHERE file_upload_id = ANY($1)
 }
 
 /// Like [`get_for_exercise_and_user`], but takes a row lock on the bindings so the reaper cannot
-/// retire them between this check and the caller's `exercise_task_submission_files` insert.
+/// retire them between this check and the caller's `exercise_task_submission_files` or
+/// `exercise_answer_snapshot_files` insert.
 ///
 /// Must be called inside the transaction that later records the association, or the lock is
 /// released before it protects anything. Without it, a reap that lands between validation and the
@@ -133,7 +134,7 @@ FOR UPDATE
         .collect())
 }
 
-/// An upload the reaper may remove: old enough, and named by no submission.
+/// An upload the reaper may remove: old enough, and named by no submission or snapshot.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ReapableUpload {
     pub id: Uuid,
@@ -142,7 +143,7 @@ pub struct ReapableUpload {
     pub path: String,
 }
 
-/// Answer uploads past their origin's retention window that no submission was ever made from,
+/// Answer uploads past their origin's retention window that no live submission or snapshot names,
 /// oldest first, at most [`REAP_BATCH_LIMIT`] of them.
 ///
 /// `FROM exercise_answer_uploads` is the safety property of this whole feature, not an
@@ -182,6 +183,12 @@ WHERE f.deleted_at IS NULL
     WHERE s.file_upload_id = u.file_upload_id
       AND s.deleted_at IS NULL
   )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_answer_snapshot_files AS sf
+    WHERE sf.file_upload_id = u.file_upload_id
+      AND sf.deleted_at IS NULL
+  )
 ORDER BY u.created_at
 LIMIT $1
 ",
@@ -196,8 +203,8 @@ LIMIT $1
 /// the misleading `unknown_upload`. Idempotent, so a run retrying a failed object delete can call
 /// it again.
 ///
-/// Re-checks that no submission has come to reference the upload since `get_reapable` listed it,
-/// and reports `false` if one has. That re-check plus the row lock
+/// Re-checks that no submission or snapshot has come to reference the upload since `get_reapable`
+/// listed it, and reports `false` if one has. That re-check plus the row lock
 /// [`lock_for_exercise_and_user`] takes is what stops a reap from landing in the middle of a
 /// submit and destroying its files.
 ///
@@ -235,6 +242,12 @@ WHERE u.id = $1
     FROM exercise_task_submission_files AS s
     WHERE s.file_upload_id = u.file_upload_id
       AND s.deleted_at IS NULL
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_answer_snapshot_files AS sf
+    WHERE sf.file_upload_id = u.file_upload_id
+      AND sf.deleted_at IS NULL
   )
 RETURNING u.id
 ",
@@ -679,6 +692,60 @@ mod test {
         assert_eq!(
             reapable_among(tx.as_mut(), &[submitted, orphan]).await,
             vec![orphan]
+        );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn an_upload_a_live_snapshot_names_is_not_reaped() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let snapshotted = insert_file(tx.as_mut(), "snapshotted").await;
+        let pruned = insert_file(tx.as_mut(), "pruned").await;
+        insert_many(
+            tx.as_mut(),
+            exercise_id,
+            user_id,
+            &[snapshotted, pruned],
+            AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .unwrap();
+        backdate(tx.as_mut(), snapshotted, Duration::hours(2)).await;
+        backdate(tx.as_mut(), pruned, Duration::hours(2)).await;
+        let new_backup = || crate::exercise_answer_snapshots::NewExerciseAnswerSnapshot {
+            user_id,
+            course_id,
+            exercise_id,
+            exercise_slide_id: slide_id,
+            exercise_task_id: task_id,
+            purpose: crate::exercise_answer_snapshots::SnapshotPurpose::Backup,
+            data_json: None,
+        };
+        crate::exercise_answer_snapshots::insert(tx.as_mut(), new_backup(), &[pruned])
+            .await
+            .unwrap();
+        crate::exercise_answer_snapshots::delete_backups_beyond(
+            tx.as_mut(),
+            user_id,
+            exercise_id,
+            0,
+        )
+        .await
+        .unwrap();
+        crate::exercise_answer_snapshots::insert(tx.as_mut(), new_backup(), &[snapshotted])
+            .await
+            .unwrap();
+
+        assert_eq!(
+            reapable_among(tx.as_mut(), &[snapshotted, pruned]).await,
+            vec![pruned]
+        );
+        let binding = get_id_by_file_upload_id(tx.as_mut(), snapshotted)
+            .await
+            .unwrap();
+        assert!(
+            !mark_reaped(tx.as_mut(), binding).await.unwrap(),
+            "retiring must re-check snapshots too"
         );
         tx.rollback().await;
     }

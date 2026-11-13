@@ -1,10 +1,15 @@
 use anyhow::Context;
+use base64::{Engine as _, engine::general_purpose::STANDARD_NO_PAD};
 use blake3::Hash;
 use git2::{
-    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect, build::RepoBuilder,
+    CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect,
+    build::RepoBuilder, cert::Cert,
 };
 use headless_lms_base::config::ApplicationConfiguration;
-use headless_lms_models::{exercise_repositories, repository_exercises};
+use headless_lms_models::{
+    exercise_repositories, exercise_repository_ssh_host_keys,
+    exercise_repository_ssh_host_keys::ExerciseRepositorySshHostKey, repository_exercises,
+};
 use headless_lms_utils::{
     file_store::{self, FileStore},
     folder_checksum,
@@ -12,6 +17,7 @@ use headless_lms_utils::{
 use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Acquire, PgConnection};
 use std::{
+    cell::Cell,
     collections::HashMap,
     io::Cursor,
     path::{Path, PathBuf},
@@ -19,9 +25,12 @@ use std::{
 use uuid::Uuid;
 use walkdir::{DirEntry, WalkDir};
 
-/// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that resolves
-/// to public addresses, so a teacher can't make the server reach local files or the cluster
-/// network.
+mod pinned_stream;
+
+/// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that
+/// currently resolves to public addresses, so a teacher gets a clear error when saving the URL.
+/// This is an early check, not the enforcement: the clone's own connections go through
+/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then.
 pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
     let (host, port) = clone_url_host_and_port(url)
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
@@ -29,12 +38,157 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
         .await
         .with_context(|| format!("Could not resolve {host}"))?
         .collect();
-    if addresses.is_empty()
-        || addresses.iter().any(|address| {
-            !crate::domain::oauth::client_metadata_document::is_public_address(address.ip())
-        })
+    pinned_stream::public_addresses(&host, addresses)?;
+    Ok(())
+}
+
+/// SHA-256 host key fingerprints of git hosts whose keys are known in advance, as printed by
+/// `ssh-keygen -lf` without the `SHA256:` prefix. These hosts never fall back to trust on first use.
+const PINNED_SSH_HOST_KEYS: &[(&str, &str)] = &[
+    ("github.com", "uNiVztksCsDhcc0u9e8BujQXVUpKZIDTMczCvj3tD2s"),
+    ("github.com", "p2QAMXNIC1TJYWeIOttrVc98/R1BUFWu3/LiyKgUfQM"),
+    ("github.com", "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"),
+    ("gitlab.com", "ROQFvPThGrW4RuWLoL9tq9I9zJ42fK4XywyRtbOz/EQ"),
+    ("gitlab.com", "HbW3g8zUjNSksFbqTiUWPWg2Bq1x8xdGUrliXFzSnUw"),
+    ("gitlab.com", "eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8"),
+    (
+        "bitbucket.org",
+        "46OSHA1Rmj8E8ERTC6xkNcmGOw9oFxYr0WF6zWW8l1E",
+    ),
+    (
+        "bitbucket.org",
+        "FC73VB6C4OQLSCrjEayhMp9UMxS97caD/Yyi2bhW/J0",
+    ),
+    (
+        "bitbucket.org",
+        "ybgmFkzwOSotHTHLJgHO0QN8L0xErw6vd0VhFA9m3SM",
+    ),
+];
+
+/// Why an ssh host key was accepted.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum AcceptedHostKey {
+    /// Pinned, or the key remembered from the first clone.
+    Known,
+    /// The first key seen from this server; it must be remembered once the clone succeeds.
+    FirstSeen(String),
+}
+
+/// Decides whether `seen`, the SHA-256 fingerprint of the host key a server presented, may be
+/// trusted: a pinned host must present a pinned key, any other host the key remembered from its
+/// first clone, or, if none is remembered yet, any key.
+fn check_ssh_host_key(
+    host: &str,
+    port: u16,
+    remembered: Option<&ExerciseRepositorySshHostKey>,
+    seen: Option<&str>,
+) -> Result<AcceptedHostKey, String> {
+    let Some(seen) = seen else {
+        return Err(format!("{host} sent no SHA-256 host key fingerprint"));
+    };
+    let mut pinned = PINNED_SSH_HOST_KEYS
+        .iter()
+        .filter(|(pinned_host, _)| pinned_host.eq_ignore_ascii_case(host))
+        .peekable();
+    if pinned.peek().is_some() {
+        return if pinned.any(|&(_, key)| key == seen) {
+            Ok(AcceptedHostKey::Known)
+        } else {
+            Err(format!(
+                "The ssh host key of {host} (SHA256:{seen}) is not one of its published keys, so the connection may have been intercepted."
+            ))
+        };
+    }
+    match remembered {
+        Some(remembered) if remembered.sha256_fingerprint == seen => Ok(AcceptedHostKey::Known),
+        Some(remembered) => Err(format!(
+            "The ssh host key of {host}:{port} has changed: it is now SHA256:{seen}, but SHA256:{} was seen on the first clone on {}. If the server's key was changed on purpose, ask an administrator to remove the remembered key for {host}:{port}; otherwise the connection may have been intercepted.",
+            remembered.sha256_fingerprint,
+            remembered.created_at.format("%Y-%m-%d")
+        )),
+        None => Ok(AcceptedHostKey::FirstSeen(seen.to_string())),
+    }
+}
+
+/// Clones `url` into `target`, verifying the server the way [`check_ssh_host_key`] describes and
+/// remembering a first-seen ssh host key once the clone succeeds. TLS certificates are left to
+/// libgit2's own validation.
+async fn clone_repository(
+    conn: &mut PgConnection,
+    url: &str,
+    deploy_key: Option<(Option<&str>, &SecretString)>,
+    target: &Path,
+) -> anyhow::Result<()> {
+    ensure_clone_url_is_allowed(url).await?;
+    pinned_stream::register()?;
+    let (host, port) = clone_url_host_and_port(url)
+        .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
+    let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
+    let first_seen = Cell::new(None);
+    // libgit2 replaces a rejecting callback's error with a generic one.
+    let rejection = Cell::new(None);
+
+    let mut remote_cbs = RemoteCallbacks::new();
+    // libgit2 uses this one callback for both TLS certificates and ssh host keys.
+    remote_cbs.certificate_check(|cert: &Cert<'_>, _| {
+        let Some(host_key) = cert.as_hostkey() else {
+            return Ok(CertificateCheckStatus::CertificatePassthrough);
+        };
+        let seen = host_key
+            .hash_sha256()
+            .map(|hash| STANDARD_NO_PAD.encode(hash));
+        match check_ssh_host_key(&host, port, remembered.as_ref(), seen.as_deref()) {
+            Ok(AcceptedHostKey::Known) => Ok(CertificateCheckStatus::CertificateOk),
+            Ok(AcceptedHostKey::FirstSeen(key)) => {
+                first_seen.set(Some(key));
+                Ok(CertificateCheckStatus::CertificateOk)
+            }
+            Err(message) => {
+                let error = git2::Error::from_str(&message);
+                rejection.set(Some(message));
+                Err(error)
+            }
+        }
+    });
+    if let Some((public_key, deploy_key)) = deploy_key {
+        remote_cbs.credentials(move |_, username, credential_type| {
+            if credential_type.is_ssh_memory() {
+                Cred::ssh_key_from_memory(
+                    username.unwrap_or("git"),
+                    public_key,
+                    // Exposed only here, where the key is handed to libgit2 in memory.
+                    deploy_key.expose_secret(),
+                    None,
+                )
+            } else {
+                Err(git2::Error::from_str(
+                    "The git server does not support the SSH_MEMORY credential type",
+                ))
+            }
+        });
+    }
+    let mut fetch_opts = FetchOptions::new();
+    // The clone must come from the URL the teacher saved, not from wherever that server redirects.
+    fetch_opts.follow_redirects(RemoteRedirect::None);
+    fetch_opts.remote_callbacks(remote_cbs);
+    if let Err(error) = RepoBuilder::new()
+        .fetch_options(fetch_opts)
+        .clone(url, target)
     {
-        anyhow::bail!("{host} is not a public address");
+        return Err(rejection
+            .take()
+            .map_or_else(|| error.into(), |message| anyhow::anyhow!(message)));
+    }
+
+    if let Some(seen) = first_seen.take() {
+        let remembered =
+            exercise_repository_ssh_host_keys::remember(conn, &host, port, &seen).await?;
+        if remembered.sha256_fingerprint != seen {
+            anyhow::bail!(
+                "Another clone from {host}:{port} saw a different ssh host key at the same time (SHA256:{} instead of SHA256:{seen}), so neither can be trusted. Ask an administrator to check the server's key.",
+                remembered.sha256_fingerprint
+            );
+        }
     }
     Ok(())
 }
@@ -56,11 +210,11 @@ fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
     }
     if url.starts_with("https://") || url.starts_with("ssh://") {
         let parsed = url::Url::parse(url).ok()?;
-        let host = parsed.host_str()?.trim_matches(['[', ']']).to_string();
+        let host = parsed.host_str()?.trim_matches(['[', ']']);
         let port = parsed
             .port()
             .unwrap_or(if parsed.scheme() == "https" { 443 } else { 22 });
-        return Some((host, port));
+        return Some((canonical_host(host)?, port));
     }
     // scp-like syntax: user@host:path, which git treats as ssh.
     let (user_and_host, path) = url.split_once(':')?;
@@ -68,7 +222,14 @@ fn clone_url_host_and_port(url: &str) -> Option<(String, u16)> {
     if host.is_empty() || path.is_empty() || host.contains('/') || path.starts_with("//") {
         return None;
     }
-    Some((host.to_string(), 22))
+    Some((canonical_host(host)?, 22))
+}
+
+/// One spelling per host, so that pins and remembered keys cannot be sidestepped by writing the
+/// same host as `GitHub.com` or with the root's trailing dot.
+fn canonical_host(host: &str) -> Option<String> {
+    let host = host.strip_suffix('.').unwrap_or(host);
+    (!host.is_empty()).then(|| host.to_ascii_lowercase())
 }
 
 pub struct StoredRepositoryExercise {
@@ -144,40 +305,20 @@ async fn process_inner(
         app_conf,
     }: InnerArgs<'_>,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
-    ensure_clone_url_is_allowed(url).await?;
-    let mut tx = conn.begin().await?;
-
     // clone repo to temp dir
     let temp = tempfile::tempdir()?;
-    let mut fetch_opts = FetchOptions::new();
-    // A redirect could point the clone at an address ensure_clone_url_is_allowed never saw.
-    fetch_opts.follow_redirects(RemoteRedirect::None);
-    let mut remote_cbs = RemoteCallbacks::new();
-    if let Some(deploy_key) = deploy_key {
-        remote_cbs
-            .certificate_check(|_, _| Ok(CertificateCheckStatus::CertificateOk))
-            .credentials(|_, username, credential_type| {
-                if credential_type.is_ssh_memory() {
-                    Cred::ssh_key_from_memory(
-                        username.unwrap_or("git"),
-                        public_key,
-                        // Exposed only here, where the key is handed to libgit2 in memory.
-                        deploy_key.expose_secret(),
-                        None,
-                    )
-                } else {
-                    Err(git2::Error::from_str(
-                        "The git server does not support the SSH_MEMORY credential type",
-                    ))
-                }
-            });
-    }
-    fetch_opts.remote_callbacks(remote_cbs);
     info!("Cloning {url} to {:?}", temp.path());
-    RepoBuilder::new()
-        .fetch_options(fetch_opts)
-        .clone(url, temp.path())?;
+    // Outside the transaction: a first-seen host key must outlive a failed processing, and must not
+    // lock out other clones of the host while processing runs.
+    clone_repository(
+        conn,
+        url,
+        deploy_key.map(|deploy_key| (public_key, deploy_key)),
+        temp.path(),
+    )
+    .await?;
     info!("Finished cloning {url} to {:?}", temp.path());
+    let mut tx = conn.begin().await?;
 
     // create exercises in db and store them in file store
     let found_exercises = find_exercise_directories(temp.path()).await?;
@@ -312,15 +453,9 @@ async fn update_inner(
     new_stored_files: &mut Vec<PathBuf>,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<()> {
-    ensure_clone_url_is_allowed(url).await?;
-    let mut tx = conn.begin().await?;
-
     let temp = tempfile::tempdir()?;
-    let mut fetch_opts = FetchOptions::new();
-    fetch_opts.follow_redirects(RemoteRedirect::None);
-    RepoBuilder::new()
-        .fetch_options(fetch_opts)
-        .clone(url, temp.path())?;
+    clone_repository(conn, url, None, temp.path()).await?;
+    let mut tx = conn.begin().await?;
 
     let repository_exercises = find_exercise_directories(temp.path()).await?;
     let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;
@@ -594,6 +729,14 @@ mod test {
             clone_url_host_and_port("git@github.com:rage/x.git"),
             Some(("github.com".to_string(), 22))
         );
+        assert_eq!(
+            clone_url_host_and_port("git@GitHub.com.:rage/x.git"),
+            Some(("github.com".to_string(), 22))
+        );
+        assert_eq!(
+            clone_url_host_and_port("https://github.com./rage/x.git"),
+            Some(("github.com".to_string(), 443))
+        );
         for refused in [
             "http://github.com/rage/x.git",
             "file:///etc",
@@ -626,6 +769,18 @@ mod test {
 
     use super::*;
     use std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
+
+    fn remembered_key(sha256_fingerprint: &str) -> ExerciseRepositorySshHostKey {
+        ExerciseRepositorySshHostKey {
+            id: Uuid::new_v4(),
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+            deleted_at: None,
+            host: "git.example.org".to_string(),
+            port: 22,
+            sha256_fingerprint: sha256_fingerprint.to_string(),
+        }
+    }
 
     #[tokio::test]
     async fn finds_exercise_dirs() {
@@ -683,6 +838,46 @@ mod test {
         let version = git2::Version::get();
         assert!(version.https(), "git2 is missing its `https` feature");
         assert!(version.ssh(), "git2 is missing its `ssh` feature");
+    }
+
+    #[test]
+    fn pinned_hosts_accept_only_their_published_keys() {
+        let github = "+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU";
+        let gitlab = "eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8";
+        assert_eq!(
+            check_ssh_host_key("GitHub.com", 22, None, Some(github)),
+            Ok(AcceptedHostKey::Known)
+        );
+        assert!(check_ssh_host_key("github.com", 22, None, Some(gitlab)).is_err());
+        let remembered = remembered_key(gitlab);
+        assert!(
+            check_ssh_host_key("github.com", 22, Some(&remembered), Some(gitlab)).is_err(),
+            "a remembered key must not override a pinned host"
+        );
+    }
+
+    #[test]
+    fn other_hosts_trust_the_first_key_and_reject_a_changed_one() {
+        assert_eq!(
+            check_ssh_host_key("git.example.org", 22, None, Some("first")),
+            Ok(AcceptedHostKey::FirstSeen("first".to_string()))
+        );
+        let remembered = remembered_key("first");
+        assert_eq!(
+            check_ssh_host_key("git.example.org", 22, Some(&remembered), Some("first")),
+            Ok(AcceptedHostKey::Known)
+        );
+        let changed =
+            check_ssh_host_key("git.example.org", 2222, Some(&remembered), Some("second"))
+                .unwrap_err();
+        assert!(changed.contains("has changed"), "{changed}");
+        assert!(changed.contains("git.example.org:2222"), "{changed}");
+        assert!(changed.contains("SHA256:first"), "{changed}");
+    }
+
+    #[test]
+    fn a_server_without_a_sha256_fingerprint_is_refused() {
+        assert!(check_ssh_host_key("git.example.org", 22, None, None).is_err());
     }
 
     #[test]

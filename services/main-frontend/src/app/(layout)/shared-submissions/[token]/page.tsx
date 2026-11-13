@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
-import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
@@ -14,12 +13,11 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Breadcrumbs, type BreadcrumbItem, Infobox, QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 
 const SharedSubmission: React.FC = () => {
   const { token } = useParams<{ token: string }>()
   const { t } = useTranslation()
-  usePageTitle(t("title-shared-submission"))
 
   const getSharedSubmission = useQuery({
     ...getSharedSubmissionInfoOptions({
@@ -28,8 +26,10 @@ const SharedSubmission: React.FC = () => {
       },
     }),
   })
-
-  const items: BreadcrumbItem[] = useMemo(() => [{ label: t("title-shared-submission") }], [t])
+  const title = t(
+    getSharedSubmission.data?.is_graded === false ? "title-shared-copy" : "title-shared-submission",
+  )
+  usePageTitle(getSharedSubmission.data ? title : null)
 
   return (
     <div
@@ -38,7 +38,6 @@ const SharedSubmission: React.FC = () => {
         margin: 0 auto;
       `}
     >
-      <Breadcrumbs items={items} />
       <QueryResult
         query={getSharedSubmission}
         renderBlockingError={() => <Infobox>{t("message-shared-submission-not-found")}</Infobox>}
@@ -48,40 +47,56 @@ const SharedSubmission: React.FC = () => {
             .map((task) => task.previous_submission_grading?.score_given)
             .reduce((a, b) => (a ?? 0) + (b ?? 0), 0)
 
+          const exerciseName = (
+            <HideTextInSystemTests text={submissionInfo.exercise.name} testPlaceholder={title} />
+          )
+
           return (
             <>
-              <h1
-                className={css`
-                  margin-bottom: 0.25rem;
-                `}
-              >
-                {t("title-shared-submission")}
-              </h1>
               <div
                 className={css`
                   font-size: 1.1rem;
                   margin-bottom: 0.25rem;
                 `}
               >
-                <HideTextInSystemTests
-                  text={submissionInfo.exercise.name}
-                  testPlaceholder={t("title-shared-submission")}
-                />
+                {title}
               </div>
+              <h1
+                className={css`
+                  margin-bottom: 0.25rem;
+                  overflow-wrap: anywhere;
+                `}
+              >
+                {submissionInfo.exercise_page_url ? (
+                  <a href={submissionInfo.exercise_page_url}>{exerciseName}</a>
+                ) : (
+                  exerciseName
+                )}
+              </h1>
               <p
                 className={css`
                   margin-bottom: 2rem;
                   opacity: 0.8;
                 `}
               >
-                {t("shared-submission-submitted-at", {
-                  time: dateToString(submissionInfo.exercise_slide_submission.created_at),
-                })}
+                {t(
+                  submissionInfo.is_graded
+                    ? "shared-submission-submitted-at"
+                    : "shared-submission-saved-at",
+                  { time: dateToString(submissionInfo.created_at) },
+                )}
               </p>
+
+              {!submissionInfo.is_graded && (
+                <Infobox data-testid="shared-submission-not-graded">
+                  {t("shared-submission-not-graded")}
+                </Infobox>
+              )}
 
               <MainFrontedViewSubmission
                 submissionData={submissionInfo}
                 totalScoreGiven={totalScoreGiven}
+                isGraded={submissionInfo.is_graded}
               />
             </>
           )

@@ -1,7 +1,7 @@
-//! Sharing exercise-slide submissions via unguessable-token links.
+//! Sharing exercise-slide submissions and answer snapshots via unguessable-token links.
 //!
-//! A legacy "paste" is modelled as a share capability on an existing
-//! `exercise_slide_submission`, not as a separate stored copy of the answer.
+//! A share is a capability on an answer that already exists, not a copy of it. A client's paste is
+//! a share of an ungraded paste snapshot, so pasting never uses a try.
 
 use crate::prelude::*;
 use models::exercise_slide_submission_shares::ExerciseSlideSubmissionShare;
@@ -19,6 +19,22 @@ pub async fn share_submission(
     let share = models::exercise_slide_submission_shares::insert(
         conn,
         exercise_slide_submission_id,
+        created_by,
+    )
+    .await?;
+    Ok(share)
+}
+
+/// [`share_submission`] for an answer snapshot. Callers must have verified that the snapshot
+/// belongs to the user.
+pub async fn share_snapshot(
+    conn: &mut PgConnection,
+    exercise_answer_snapshot_id: Uuid,
+    created_by: Uuid,
+) -> Result<ExerciseSlideSubmissionShare, ControllerError> {
+    let share = models::exercise_slide_submission_shares::insert_for_snapshot(
+        conn,
+        exercise_answer_snapshot_id,
         created_by,
     )
     .await?;

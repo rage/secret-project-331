@@ -8,6 +8,7 @@ import {
 } from "../../utils/oauth/constants"
 import {
   callClientCourses,
+  type DeviceAuthorizationResponse,
   pollDeviceToken,
   requestDeviceAuthorization,
 } from "../../utils/oauth/deviceFlowHelpers"
@@ -28,12 +29,13 @@ async function loginAndDecide(
   page: Page,
   email: string,
   password: string,
-  verificationUriComplete: string,
+  device: DeviceAuthorizationResponse,
   decision: "approve" | "deny",
 ): Promise<void> {
   await login(email, password, page, true)
-  await page.goto(verificationUriComplete)
+  await page.goto(device.verification_uri_complete)
   // The user_code came in via the query string, so the consent form resolves directly.
+  await expect(page.getByTestId("oauth-device-user-code")).toHaveText(device.user_code)
   const button =
     decision === "approve"
       ? page.getByTestId("oauth-device-approve-button")
@@ -64,13 +66,7 @@ test.describe("OAuth device authorization flow", () => {
     expect(tooFast.body.error).toBe("slow_down")
 
     // Approve in the browser as a distinct user.
-    await loginAndDecide(
-      page,
-      "student1@example.com",
-      "student1",
-      device.verification_uri_complete,
-      "approve",
-    )
+    await loginAndDecide(page, "student1@example.com", "student1", device, "approve")
 
     // Poll again: tokens are issued.
     const issued = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
@@ -87,13 +83,7 @@ test.describe("OAuth device authorization flow", () => {
   test("denying the device code yields access_denied on the next poll", async ({ page }) => {
     const device = await requestDeviceAuthorization(TMC_VSCODE_CLIENT_ID, EXERCISE_SERVICES_SCOPE)
 
-    await loginAndDecide(
-      page,
-      "student2@example.com",
-      "student2",
-      device.verification_uri_complete,
-      "deny",
-    )
+    await loginAndDecide(page, "student2@example.com", "student2", device, "deny")
 
     const denied = await pollDeviceToken(device.device_code, TMC_VSCODE_CLIENT_ID)
     expect(denied.status).toBe(400)
@@ -107,13 +97,7 @@ test.describe("OAuth device authorization flow", () => {
     // lacks exercise-services and must be refused by the scope gate.
     const device = await requestDeviceAuthorization(TMC_VSCODE_NOSCOPE_CLIENT_ID, "openid")
 
-    await loginAndDecide(
-      page,
-      "student3@example.com",
-      "student3",
-      device.verification_uri_complete,
-      "approve",
-    )
+    await loginAndDecide(page, "student3@example.com", "student3", device, "approve")
 
     const issued = await pollDeviceToken(device.device_code, TMC_VSCODE_NOSCOPE_CLIENT_ID)
     expect(issued.status).toBe(200)

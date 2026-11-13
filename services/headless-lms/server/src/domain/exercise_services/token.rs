@@ -12,6 +12,7 @@ use models::{
         bearer::{BearerTokenError, bearer_token, resolve_bearer_token},
         token_digest_sha256,
     },
+    oauth_user_client_scopes::OAuthUserClientScopes,
     users::User,
 };
 use secrecy::{ExposeSecret, SecretString};
@@ -79,10 +80,11 @@ fn bearer_error(err: BearerTokenError) -> ControllerError {
 }
 
 /// Resolve an opaque Bearer access token to the local user that owns it, requiring the
-/// `exercise-services` scope.
+/// `exercise-services` scope, and record its grant as used.
 ///
 /// Pure DB work (no actix, no cache) so it can be unit-tested directly. Also returns the token's
-/// `expires_at`, so the caller can cap cache TTL to it.
+/// `expires_at`, so the caller can cap cache TTL to it. A cache hit skips this, so the grant's
+/// `last_used_at` lags real use by up to the cache TTL.
 async fn resolve_oauth_user(
     conn: &mut PgConnection,
     token: &SecretString,
@@ -99,6 +101,15 @@ async fn resolve_oauth_user(
         return Err(forbidden(
             "The access token does not grant the required exercise-services scope.",
         ));
+    }
+    // Only the account page reads it, so a failed write must not fail the request.
+    if let Err(err) =
+        OAuthUserClientScopes::mark_grant_used(conn, token.grant.id, token.grant.last_used_at).await
+    {
+        warn!(
+            "Could not record the use of OAuth grant {}: {err}",
+            token.grant.id
+        );
     }
     Ok((token.user, token.expires_at))
 }
@@ -305,7 +316,6 @@ mod tests {
     use headless_lms_models::oauth_client::{
         ApplicationType, NewClientParams, OAuthClient, TokenEndpointAuthMethod,
     };
-    use headless_lms_models::oauth_user_client_scopes::OAuthUserClientScopes;
 
     fn hmac_key() -> SecretString {
         SecretString::new("test-exercise-services-hmac-key".to_string().into())
@@ -401,6 +411,41 @@ mod tests {
             .await
             .expect("valid token should resolve");
         assert_eq!(resolved.id, user);
+    }
+
+    #[actix_web::test]
+    async fn resolving_a_token_records_its_grant_as_used() {
+        insert_data!(:tx, :user);
+        let client = insert_client(tx.as_mut(), &[EXERCISE_SERVICES_SCOPE.to_string()], true).await;
+        let token = insert_token(
+            tx.as_mut(),
+            &client,
+            user,
+            &[EXERCISE_SERVICES_SCOPE.to_string()],
+            TokenType::Bearer,
+            Utc::now() + ChronoDuration::hours(1),
+        )
+        .await;
+        let last_used_at = |grants: Vec<models::oauth_user_client_scopes::OAuthGrant>| {
+            grants
+                .into_iter()
+                .find(|g| g.client_name == client.client_name)
+                .expect("the grant is listed")
+                .last_used_at
+        };
+        let before = OAuthUserClientScopes::get_grants_for_user(tx.as_mut(), user)
+            .await
+            .unwrap();
+        assert_eq!(last_used_at(before), None);
+
+        resolve_oauth_user(tx.as_mut(), &secret(&token), &hmac_key())
+            .await
+            .expect("valid token should resolve");
+
+        let after = OAuthUserClientScopes::get_grants_for_user(tx.as_mut(), user)
+            .await
+            .unwrap();
+        assert!(last_used_at(after).is_some());
     }
 
     #[test]

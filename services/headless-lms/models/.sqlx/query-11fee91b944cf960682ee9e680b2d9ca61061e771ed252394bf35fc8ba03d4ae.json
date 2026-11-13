@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_answer_snapshots\nSET deleted_at = now()\nWHERE id IN (\n    SELECT id\n    FROM exercise_answer_snapshots\n    WHERE user_id = $1\n      AND exercise_id = $2\n      AND purpose = 'backup'\n      AND deleted_at IS NULL\n    ORDER BY created_at DESC,\n      id DESC\n    OFFSET $3\n  )\n  AND deleted_at IS NULL\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_answer_snapshots",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "11fee91b944cf960682ee9e680b2d9ca61061e771ed252394bf35fc8ba03d4ae"
+}

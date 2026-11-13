@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_answer_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE f.deleted_at IS NULL\n  AND u.created_at < now() - CASE\n    u.origin\n    WHEN 'native_client' THEN interval '1 hour'\n    ELSE interval '7 days'\n  END\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\nORDER BY u.created_at\nLIMIT $1\n",
+  "query": "\nSELECT u.id,\n  u.file_upload_id,\n  f.path\nFROM exercise_answer_uploads AS u\n  JOIN file_uploads AS f ON f.id = u.file_upload_id\nWHERE f.deleted_at IS NULL\n  AND u.created_at < now() - CASE\n    u.origin\n    WHEN 'native_client' THEN interval '1 hour'\n    ELSE interval '7 days'\n  END\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submission_files AS s\n    WHERE s.file_upload_id = u.file_upload_id\n      AND s.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_answer_snapshot_files AS sf\n    WHERE sf.file_upload_id = u.file_upload_id\n      AND sf.deleted_at IS NULL\n  )\nORDER BY u.created_at\nLIMIT $1\n",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       false
     ]
   },
-  "hash": "a57e7bb3fdbf14c3e2c886a72e672ccdc28dcd0b61c13d5db60636f164a894a2"
+  "hash": "f062500947b2ef88dd43f6ce8a46d93fb73bd115d95980a6552f213fd5e87548"
 }

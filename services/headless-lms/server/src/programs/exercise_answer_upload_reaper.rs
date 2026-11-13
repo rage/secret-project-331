@@ -12,8 +12,10 @@ use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
 use crate::{setup_file_store, setup_tracing};
 use dotenvy::dotenv;
 use futures::{StreamExt, stream};
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{self as models, error::TryToOptional};
 use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::prelude::UtilErrorType;
 use sqlx::{PgConnection, PgPool};
 
 const MAX_CONCURRENT_REAPS: usize = 8;
@@ -91,7 +93,16 @@ async fn reap_one(
     if !models::exercise_answer_uploads::mark_reaped(conn, upload.id).await? {
         return Ok(false);
     }
-    file_store.delete(Path::new(&upload.path)).await?;
+    match file_store.delete(Path::new(&upload.path)).await {
+        Ok(()) => {}
+        Err(err) if matches!(err.error_type(), UtilErrorType::FileNotFound) => {
+            warn!(
+                "Answer upload {} was already gone from the file store at {}.",
+                upload.file_upload_id, upload.path
+            );
+        }
+        Err(err) => return Err(err.into()),
+    }
     // `optional` tolerates a file a previous interrupted run already soft-deleted, without
     // swallowing real database errors.
     models::file_uploads::delete_and_fetch_path(conn, upload.file_upload_id)
@@ -105,8 +116,7 @@ mod tests {
     use super::*;
     use crate::test_helper::*;
     use chrono::Duration;
-    use headless_lms_base::error::backend_error::BackendError;
-    use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
+    use headless_lms_utils::prelude::{UtilError, UtilResult};
     use std::sync::{LazyLock, Mutex};
 
     /// `reap` is global: it takes every eligible row in the shared test database, so two of
@@ -505,6 +515,53 @@ mod tests {
         let retry = RecordingFileStore::default();
         reap(&pool, &retry).await.expect("retry");
         assert_eq!(deletions_of(&retry.deleted, path), 1);
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
+        assert!(
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
+                .await
+                .expect("file lookup")
+                .is_empty()
+        );
+        check_tx.rollback().await;
+    }
+
+    /// An object that is already gone counts as deleted, or the row would fail every run forever.
+    ///
+    /// Committed, for the same reason as the tests above.
+    #[actix_web::test]
+    async fn reaps_an_upload_whose_object_is_already_gone() {
+        let _serialized = REAPER_TESTS.lock().await;
+        insert_data!(:tx, user: user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide, task: _task);
+        let file_id = models::file_uploads::insert(
+            tx.as_mut(),
+            "vanished.tar.zst",
+            "exercise-services-client/vanished",
+            "application/octet-stream",
+            Some(user),
+            None,
+        )
+        .await
+        .expect("file upload");
+        models::exercise_answer_uploads::insert_many(
+            tx.as_mut(),
+            exercise,
+            user,
+            &[file_id],
+            models::exercise_answer_uploads::AnswerUploadOrigin::NativeClient,
+        )
+        .await
+        .expect("binding");
+        backdate(tx.as_mut(), file_id, Duration::hours(2)).await;
+        tx.commit().await;
+
+        let pool = PgPool::connect(&dev_database_url())
+            .await
+            .expect("test pool");
+        let empty_store = TempFileStore(tempfile::tempdir().expect("temp dir"));
+        reap(&pool, &empty_store)
+            .await
+            .expect("a missing object must not fail the run");
         let mut check_conn = Conn::init().await;
         let mut check_tx = check_conn.begin().await;
         assert!(

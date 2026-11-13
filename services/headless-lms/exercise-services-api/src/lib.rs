@@ -13,6 +13,14 @@ use uuid::Uuid;
 pub type Token =
     oauth2::StandardTokenResponse<oauth2::EmptyExtraTokenFields, oauth2::basic::BasicTokenType>;
 
+/// The user the bearer token acts for, so a client can tell when a login switched accounts.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct CurrentUser {
+    /// Stable for the lifetime of the account.
+    pub id: Uuid,
+}
+
 /// A course the current user can browse or is enrolled in.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
@@ -65,6 +73,8 @@ pub struct ExerciseSlide {
     pub course_id: Uuid,
     pub exercise_name: String,
     pub exercise_order_number: i32,
+    /// The effective deadline: the exercise's own, else its chapter's. Submissions are refused
+    /// from this moment on.
     pub deadline: Option<DateTime<Utc>>,
     pub tasks: Vec<ExerciseTask>,
     /// The course material page the exercise is on, where the student can also see their latest
@@ -85,6 +95,29 @@ pub struct ExerciseChapter {
     pub name: String,
     /// The chapter's position in the course, from 1.
     pub chapter_number: i32,
+    /// The user's status in the course's chapter locking. Submissions to the chapter's exercises
+    /// are refused unless it is `unlocked`. Absent when the course does not lock chapters, and from
+    /// a host that predates the field.
+    #[serde(default)]
+    pub locking_status: Option<ChapterLockingStatus>,
+}
+
+/// Where the user is in a course's chapter locking, which opens chapters one at a time as the
+/// previous ones are completed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ChapterLockingStatus {
+    /// The chapter's exercises can be submitted to.
+    Unlocked,
+    /// The user has completed the chapter and locked it; its exercises take no more submissions.
+    CompletedAndLocked,
+    /// The previous chapters must be completed first.
+    NotUnlockedYet,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// One task of an exercise slide, as produced by a specific exercise service.
@@ -161,6 +194,44 @@ pub struct ExerciseSlideSubmission {
     pub data_files: Option<Vec<Uuid>>,
 }
 
+/// Why a client stores an answer snapshot. Neither purpose is graded, uses a try or awards points,
+/// and both are accepted after the deadline and when out of tries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum SnapshotPurpose {
+    /// To share through `submissions/{id}/share`. Never deleted to make room for others, so
+    /// rate limited per user and exercise.
+    Paste,
+    /// To keep the answer before discarding local changes. Only the newest few per user and
+    /// exercise are kept, a number the host sets; storing another deletes the oldest.
+    Backup,
+}
+
+/// Body of `POST exercises/{id}/snapshots`. Names files from this exercise's `files` endpoint
+/// like a `file` submit does, uploaded with `?for=snapshot` so that a passed deadline or used-up
+/// tries do not refuse the upload.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct NewAnswerSnapshot {
+    pub purpose: SnapshotPurpose,
+    pub exercise_slide_id: Uuid,
+    pub exercise_task_id: Uuid,
+    /// The exercise service's own JSON about the files, as in a `file` submit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub data_json: Option<serde_json::Value>,
+    /// At least one id, each uploaded by this user for this exercise.
+    pub data_files: Vec<Uuid>,
+}
+
+/// Result of storing a snapshot. `snapshot_id` is what `submissions/{id}/download` (and, for a
+/// paste, `submissions/{id}/share`) takes, and what the submissions list reports as the entry's `id`.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct AnswerSnapshotResult {
+    pub snapshot_id: Uuid,
+}
+
 /// Result of a submit. Carries both ids so a client never re-derives one from the other:
 /// grading polling takes `task_submission_id`, download/share take `slide_submission_id`.
 #[derive(Debug, Serialize, Deserialize)]
@@ -177,8 +248,9 @@ pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
         grading_progress: GradingProgress,
-        /// Absent until grading has produced a value; a partial value while `grading_progress`
-        /// is still pending.
+        /// What the grading gave this submission. Absent until grading has produced a value; a
+        /// partial value while `grading_progress` is still pending. The exercise's awarded points
+        /// need not include it while a teacher review is pending (see `exercise_progress`).
         score_given: Option<f32>,
         grading_started_at: Option<DateTime<Utc>>,
         grading_completed_at: Option<DateTime<Utc>>,
@@ -211,16 +283,39 @@ pub enum GradingProgress {
     FullyGraded,
 }
 
-/// A past submission of the current user to an exercise. `id` is the
-/// exercise-slide-submission id, which is what `submissions/{id}/download` takes.
+/// What an entry in the submissions list is.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum SubmissionKind {
+    /// A graded submission.
+    #[default]
+    Submission,
+    /// An ungraded snapshot stored to be shared.
+    Paste,
+    /// An ungraded snapshot stored before local changes were discarded.
+    Backup,
+}
+
+/// A past submission or snapshot of the current user to an exercise. `id` is what
+/// `submissions/{id}/download` takes, and `submissions/{id}/share` for anything but a backup.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlideSubmissionListItem {
     pub id: Uuid,
     pub exercise_id: Uuid,
     pub created_at: DateTime<Utc>,
+    /// Always `None` for a snapshot.
     pub score_given: Option<f32>,
+    /// Always `None` for a snapshot.
     pub grading_progress: Option<GradingProgress>,
+    /// Absent from a host that predates the field, which lists only submissions.
+    #[serde(default)]
+    pub kind: SubmissionKind,
+    /// Whether the entry has a live share link right now, whatever its kind: a paste can have been
+    /// revoked, and a graded submission can have been shared from elsewhere.
+    #[serde(default)]
+    pub is_shared: bool,
 }
 
 /// Response of `GET submissions/{id}/download`: the files the submission was made from, recovered
@@ -247,6 +342,24 @@ pub struct CourseProgress {
     /// The course these progress entries belong to; echoes the path id.
     pub course_id: Uuid,
     pub exercises: Vec<ExerciseProgress>,
+    /// The chapters that have not opened yet, with the user's progress on their exercises. Those
+    /// exercises are absent from `exercises` and from `courses/{id}/exercises` until the chapter
+    /// opens, so a client must not take their absence to mean they were removed. Absent from a
+    /// host that predates the field.
+    #[serde(default)]
+    pub closed_chapters: Vec<ClosedChapter>,
+}
+
+/// A chapter of the course that opens later.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct ClosedChapter {
+    pub id: Uuid,
+    pub name: String,
+    /// The chapter's position in the course, from 1.
+    pub chapter_number: i32,
+    pub opens_at: DateTime<Utc>,
+    pub exercises: Vec<ExerciseProgress>,
 }
 
 /// The current user's progress on a single exercise.
@@ -270,6 +383,44 @@ pub struct ExerciseProgress {
     /// Absent only from a host that predates the field.
     #[serde(default)]
     pub standing: Option<ExerciseStanding>,
+    /// How many graded submissions the exercise accepts per slide. Absent when tries are
+    /// unlimited, and from a host that predates the field.
+    #[serde(default)]
+    pub max_tries: Option<i32>,
+    /// How many of `max_tries` are left on the slide the user answers. Absent when tries are
+    /// unlimited, and from a host that predates the field.
+    #[serde(default)]
+    pub tries_left: Option<i32>,
+    /// What the user's points wait for while a teacher review holds them back; `score_given` is
+    /// `0.0` until then. Absent when no points are held back, including when the answer got its
+    /// points before the course turned chapter locking on, and from a host that predates the field.
+    #[serde(default)]
+    pub pending_teacher_review: Option<PendingTeacherReview>,
+    /// `true` once the exercise takes no more submissions from the user, whatever the chapter's
+    /// `locking_status` says: their answer was locked for review, graded by a teacher, or locked
+    /// unanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are
+    /// refused with 403 `chapter_completed_and_locked` while the chapter is locked for the user,
+    /// and with `exercise_locked` otherwise. Absent from a host that predates the field.
+    #[serde(default)]
+    pub exercise_locked: bool,
+}
+
+/// What a user's points on an exercise wait for when a teacher reviews answers before awarding
+/// points.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum PendingTeacherReview {
+    /// The answer is graded, but the course locks chapters and awards this exercise's points only
+    /// after the user completes and locks its chapter and a teacher reviews the answer. The user
+    /// can still submit until they lock the chapter.
+    AwaitsChapterLock,
+    /// The answer is waiting for a teacher's review, and the exercise is locked.
+    AwaitsTeacher,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// Where the user stands on an exercise, decided by the host so every client agrees.
@@ -278,16 +429,17 @@ pub struct ExerciseProgress {
 pub enum ExerciseStanding {
     /// No graded submission and no try used.
     NotAttempted,
-    /// Below full points with tries left, or still being graded.
+    /// Below full points with tries left, still being graded, in peer or self review, or waiting
+    /// for a teacher's review (`pending_teacher_review`).
     Attempted,
     /// A grading awarded full points. An exercise worth 0 points passes on its first grading.
     Passed,
-    /// Below full points (0 included) and the try limit is used up on every slide, so the
-    /// score is final.
+    /// Below full points (0 included), the try limit is used up on every slide and no review is
+    /// pending, so the score is final.
     OutOfTries,
 }
 
-/// A shareable URL for a submission.
+/// A shareable URL for a submission or paste.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct PasteResult {
@@ -324,6 +476,10 @@ mod test {
                 completed: true,
                 attempted: true,
                 standing: Some(ExerciseStanding::Passed),
+                max_tries: None,
+                tries_left: None,
+                pending_teacher_review: None,
+                exercise_locked: false,
             }),
         };
         assert_eq!(
@@ -343,6 +499,10 @@ mod test {
                         "completed": true,
                         "attempted": true,
                         "standing": "Passed",
+                        "max_tries": null,
+                        "tries_left": null,
+                        "pending_teacher_review": null,
+                        "exercise_locked": false,
                     },
                 }
             }),
@@ -571,7 +731,12 @@ mod test {
                 completed: false,
                 attempted: true,
                 standing: Some(ExerciseStanding::OutOfTries),
+                max_tries: Some(3),
+                tries_left: Some(0),
+                pending_teacher_review: None,
+                exercise_locked: false,
             }],
+            closed_chapters: Vec::new(),
         })
         .unwrap();
         let obj = value.as_object().unwrap();
@@ -583,11 +748,85 @@ mod test {
         assert_eq!(ex["completed"], json!(false));
         assert_eq!(ex["attempted"], json!(true));
         assert_eq!(ex["standing"], json!("OutOfTries"));
+        assert_eq!(ex["max_tries"], json!(3));
+        assert_eq!(ex["tries_left"], json!(0));
+        assert_eq!(obj["closed_chapters"], json!([]));
     }
 
-    /// A newer client must still read a host that predates `standing`.
+    /// A newer client must still read a host that predates the try counts and closed chapters,
+    /// and reads their absence as unlimited tries and no closed chapters.
     #[test]
-    fn progress_without_standing_still_parses() {
+    fn progress_without_tries_or_closed_chapters_still_parses() {
+        let progress: CourseProgress = serde_json::from_value(json!({
+            "course_id": Uuid::nil(),
+            "exercises": [{
+                "exercise_id": Uuid::nil(),
+                "score_given": 0.0,
+                "score_maximum": 1,
+                "completed": false,
+                "attempted": false,
+                "standing": "NotAttempted",
+            }],
+        }))
+        .unwrap();
+        assert_eq!(progress.exercises[0].max_tries, None);
+        assert_eq!(progress.exercises[0].tries_left, None);
+        assert!(progress.closed_chapters.is_empty());
+    }
+
+    #[test]
+    fn chapter_locking_status_wire_values() {
+        let chapter: ExerciseChapter = serde_json::from_value(json!({
+            "id": Uuid::nil(),
+            "name": "name",
+            "chapter_number": 1,
+            "locking_status": "not_unlocked_yet",
+        }))
+        .unwrap();
+        assert_eq!(
+            chapter.locking_status,
+            Some(ChapterLockingStatus::NotUnlockedYet)
+        );
+        assert_eq!(
+            serde_json::to_value(ChapterLockingStatus::CompletedAndLocked).unwrap(),
+            json!("completed_and_locked")
+        );
+        assert_eq!(
+            serde_json::from_value::<ChapterLockingStatus>(json!("some_future_status")).unwrap(),
+            ChapterLockingStatus::Unrecognized
+        );
+    }
+
+    #[test]
+    fn a_pending_teacher_review_and_a_locked_exercise_are_on_the_wire() {
+        let value = serde_json::to_value(ExerciseProgress {
+            exercise_id: Uuid::nil(),
+            score_given: 0.0,
+            score_maximum: 1,
+            completed: true,
+            attempted: true,
+            standing: Some(ExerciseStanding::Attempted),
+            max_tries: None,
+            tries_left: None,
+            pending_teacher_review: Some(PendingTeacherReview::AwaitsTeacher),
+            exercise_locked: true,
+        })
+        .unwrap();
+        assert_eq!(value["pending_teacher_review"], json!("awaits_teacher"));
+        assert_eq!(value["exercise_locked"], json!(true));
+        assert_eq!(
+            serde_json::to_value(PendingTeacherReview::AwaitsChapterLock).unwrap(),
+            json!("awaits_chapter_lock")
+        );
+        assert_eq!(
+            serde_json::from_value::<PendingTeacherReview>(json!("some_future_review")).unwrap(),
+            PendingTeacherReview::Unrecognized
+        );
+    }
+
+    /// A newer client reads a missing field as no review pending and an open exercise.
+    #[test]
+    fn progress_from_an_older_host_still_parses() {
         let progress: ExerciseProgress = serde_json::from_value(json!({
             "exercise_id": Uuid::nil(),
             "score_given": 0.0,
@@ -597,6 +836,8 @@ mod test {
         }))
         .unwrap();
         assert_eq!(progress.standing, None);
+        assert_eq!(progress.pending_teacher_review, None);
+        assert!(!progress.exercise_locked);
     }
 
     #[test]
@@ -614,5 +855,39 @@ mod test {
             item.grading_progress,
             Some(GradingProgress::FullyGraded)
         ));
+        assert!(!item.is_shared);
+        assert_eq!(item.kind, SubmissionKind::Submission);
+    }
+
+    #[test]
+    fn submission_list_item_reads_is_shared() {
+        let value = json!({
+            "id": Uuid::nil(),
+            "exercise_id": Uuid::nil(),
+            "created_at": "2026-07-21T00:00:00Z",
+            "score_given": null,
+            "grading_progress": null,
+            "is_shared": true
+        });
+        let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
+        assert!(item.is_shared);
+    }
+
+    #[test]
+    fn snapshot_kinds_and_purposes_are_snake_case_on_the_wire() {
+        let value = json!({
+            "id": Uuid::nil(),
+            "exercise_id": Uuid::nil(),
+            "created_at": "2026-07-21T00:00:00Z",
+            "score_given": null,
+            "grading_progress": null,
+            "kind": "backup"
+        });
+        let item: ExerciseSlideSubmissionListItem = serde_json::from_value(value).unwrap();
+        assert_eq!(item.kind, SubmissionKind::Backup);
+        assert_eq!(
+            serde_json::to_value(SnapshotPurpose::Paste).unwrap(),
+            json!("paste")
+        );
     }
 }

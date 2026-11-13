@@ -16,8 +16,10 @@ use crate::config::{FileStoreRuntimeConfig, program_config::ProgramConfig};
 use crate::{setup_file_store, setup_tracing};
 use dotenvy::dotenv;
 use futures::{StreamExt, stream};
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{self as models, error::TryToOptional};
 use headless_lms_utils::file_store::FileStore;
+use headless_lms_utils::prelude::UtilErrorType;
 use sqlx::{PgConnection, PgPool};
 
 const MAX_CONCURRENT_REAPS: usize = 8;
@@ -91,11 +93,68 @@ async fn reap_one(
     if !models::exercise_spec_uploads::mark_reaped(conn, upload.id).await? {
         return Ok(false);
     }
-    file_store.delete(Path::new(&upload.path)).await?;
+    match file_store.delete(Path::new(&upload.path)).await {
+        Ok(()) => {}
+        Err(err) if matches!(err.error_type(), UtilErrorType::FileNotFound) => {
+            warn!(
+                "Spec upload {} was already gone from the file store at {}.",
+                upload.file_upload_id, upload.path
+            );
+        }
+        Err(err) => return Err(err.into()),
+    }
     // `optional` tolerates a file a previous interrupted run already soft-deleted, without
     // swallowing real database errors.
     models::file_uploads::delete_and_fetch_path(conn, upload.file_upload_id)
         .await
         .optional()?;
     Ok(true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+    use chrono::Duration;
+
+    /// An object that is already gone counts as deleted, or the row would fail every run forever.
+    ///
+    /// Committed, because `reap` reads through a pool of its own.
+    #[actix_web::test]
+    async fn reaps_an_upload_whose_object_is_already_gone() {
+        insert_data!(:tx);
+        let file_id = models::file_uploads::insert(
+            tx.as_mut(),
+            "vanished.png",
+            "playground/vanished",
+            "image/png",
+            None,
+            None,
+        )
+        .await
+        .expect("file upload");
+        models::exercise_spec_uploads::insert_many(tx.as_mut(), "playground", None, &[file_id])
+            .await
+            .expect("spec upload");
+        models::exercise_spec_uploads::backdate(tx.as_mut(), file_id, Duration::days(8))
+            .await
+            .expect("backdate");
+        tx.commit().await;
+
+        let pool = PgPool::connect(&dev_database_url())
+            .await
+            .expect("test pool");
+        reap(&pool, &temp_file_store())
+            .await
+            .expect("a missing object must not fail the run");
+        let mut check_conn = Conn::init().await;
+        let mut check_tx = check_conn.begin().await;
+        assert!(
+            models::file_uploads::get_many(check_tx.as_mut(), &[file_id])
+                .await
+                .expect("file lookup")
+                .is_empty()
+        );
+        check_tx.rollback().await;
+    }
 }

@@ -383,6 +383,7 @@ fn unknown_module_field(path: &str) -> EditError {
     .with_fix(format!("settings: {}", EDITABLE_MODULE_FIELDS.join(", ")))
 }
 
+/// Whether the method uses the points and exercises-attempted thresholds.
 fn has_thresholds(method: CompletionMethod) -> bool {
     matches!(
         method,

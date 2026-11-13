@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.created_at,\n  cm.updated_at,\n  cm.deleted_at,\n  cm.name,\n  cm.course_id,\n  cm.order_number,\n  cm.copied_from,\n  cm.uh_course_code,\n  cm.completion_method AS \"completion_method: CompletionMethod\",\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.exam_requirement AS \"exam_requirement: ExamRequirement\",\n  cm.exam_location_description,\n  cm.completion_registration_link_override,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\"\nFROM course_modules as cm\nWHERE EXISTS (\n  SELECT 1\n  FROM chapters as ch\n  WHERE ch.course_module_id = cm.id\n    AND ((ch.opens_at < now()) OR ch.opens_at IS NULL)\n    AND ch.deleted_at IS NULL\n)\n  AND cm.course_id = $1\n  AND cm.deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  completion_method,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  exam_requirement,\n  exam_location_description,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  credit_registration_route\nFROM course_modules\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "completion_method: CompletionMethod",
+        "name": "completion_method",
         "type_info": {
           "Custom": {
             "name": "course_module_completion_method",
@@ -149,7 +149,7 @@
       },
       {
         "ordinal": 12,
-        "name": "exam_requirement: ExamRequirement",
+        "name": "exam_requirement",
         "type_info": {
           "Custom": {
             "name": "course_module_exam_requirement",
@@ -216,7 +216,7 @@
       },
       {
         "ordinal": 17,
-        "name": "credit_registration_route: CreditRegistrationRoute",
+        "name": "credit_registration_route",
         "type_info": {
           "Custom": {
             "name": "course_module_credit_registration_route",
@@ -263,5 +263,5 @@
       false
     ]
   },
-  "hash": "c66accf0e67d6bf3d8e7af271fbc2df97806bed509274a6816a61e396cbc0c0e"
+  "hash": "db6a3ad5f1aacb5108c1b6286a45e4a1eece8a07371b4a3c83489f721c649248"
 }

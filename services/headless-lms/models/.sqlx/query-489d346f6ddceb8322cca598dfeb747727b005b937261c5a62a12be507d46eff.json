@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  completion_method AS \"completion_method: CompletionMethod\",\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  exam_requirement AS \"exam_requirement: ExamRequirement\",\n  exam_location_description,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\"\nFROM course_modules\nWHERE deleted_at IS NULL\n        ",
+  "query": "\nUPDATE course_modules\nSET completion_method = $1,\n  automatic_completion_number_of_exercises_attempted_treshold = $2,\n  automatic_completion_number_of_points_treshold = $3,\n  exam_requirement = $4\nWHERE id = $5\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  completion_method,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  exam_requirement,\n  exam_location_description,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  credit_registration_route\n        ",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "completion_method: CompletionMethod",
+        "name": "completion_method",
         "type_info": {
           "Custom": {
             "name": "course_module_completion_method",
@@ -149,7 +149,7 @@
       },
       {
         "ordinal": 12,
-        "name": "exam_requirement: ExamRequirement",
+        "name": "exam_requirement",
         "type_info": {
           "Custom": {
             "name": "course_module_exam_requirement",
@@ -216,7 +216,7 @@
       },
       {
         "ordinal": 17,
-        "name": "credit_registration_route: CreditRegistrationRoute",
+        "name": "credit_registration_route",
         "type_info": {
           "Custom": {
             "name": "course_module_credit_registration_route",
@@ -238,7 +238,37 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        {
+          "Custom": {
+            "name": "course_module_completion_method",
+            "kind": {
+              "Enum": [
+                "not_decided",
+                "by_requirements",
+                "by_exam",
+                "teacher_adds"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "course_module_exam_requirement",
+            "kind": {
+              "Enum": [
+                "none",
+                "platform",
+                "examinarium",
+                "elsewhere"
+              ]
+            }
+          }
+        },
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -261,5 +291,5 @@
       false
     ]
   },
-  "hash": "ee695c29bfd042bb492d5237afcd7935b1bc4f2371677f22334a89485a1c03f8"
+  "hash": "489d346f6ddceb8322cca598dfeb747727b005b937261c5a62a12be507d46eff"
 }

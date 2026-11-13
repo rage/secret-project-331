@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT cm.id,\n  cm.name,\n  cm.order_number,\n  cm.completion_method AS \"completion_method: CompletionMethod\",\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.exam_requirement AS \"exam_requirement: ExamRequirement\",\n  cm.credit_registration_route AS \"credit_registration_route: CreditRegistrationRoute\",\n  cm.uh_course_code,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.completion_registration_link_override,\n  EXISTS (\n    SELECT 1\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.course_id = cm.course_id\n      AND cmc.deleted_at IS NULL\n  ) AS \"has_completions!\",\n  c.course_code_allowed AS \"credit_registration_course_code_allowed?\",\n  c.paused_at AS \"credit_registration_paused_at?\",\n  c.pause_reason AS \"credit_registration_pause_reason?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.course_id = $1\n  AND cm.deleted_at IS NULL\nORDER BY cm.order_number\n        ",
+  "query": "\nSELECT cm.id,\n  cm.name,\n  cm.order_number,\n  cm.completion_method,\n  cm.automatic_completion_number_of_points_treshold,\n  cm.automatic_completion_number_of_exercises_attempted_treshold,\n  cm.exam_requirement,\n  cm.credit_registration_route,\n  cm.uh_course_code,\n  cm.ects_credits,\n  cm.certification_enabled,\n  cm.completion_registration_link_override,\n  EXISTS (\n    SELECT 1\n    FROM course_module_completions cmc\n    WHERE cmc.course_module_id = cm.id\n      AND cmc.course_id = cm.course_id\n      AND cmc.deleted_at IS NULL\n  ) AS \"has_completions!\",\n  c.course_code_allowed AS \"credit_registration_course_code_allowed?\",\n  c.paused_at AS \"credit_registration_paused_at?\",\n  c.pause_reason AS \"credit_registration_pause_reason?\"\nFROM course_modules cm\n  LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id\n  AND c.deleted_at IS NULL\nWHERE cm.course_id = $1\n  AND cm.deleted_at IS NULL\nORDER BY cm.order_number\n        ",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,7 @@
       },
       {
         "ordinal": 3,
-        "name": "completion_method: CompletionMethod",
+        "name": "completion_method",
         "type_info": {
           "Custom": {
             "name": "course_module_completion_method",
@@ -83,7 +83,7 @@
       },
       {
         "ordinal": 6,
-        "name": "exam_requirement: ExamRequirement",
+        "name": "exam_requirement",
         "type_info": {
           "Custom": {
             "name": "course_module_exam_requirement",
@@ -106,7 +106,7 @@
       },
       {
         "ordinal": 7,
-        "name": "credit_registration_route: CreditRegistrationRoute",
+        "name": "credit_registration_route",
         "type_info": {
           "Custom": {
             "name": "course_module_credit_registration_route",
@@ -234,5 +234,5 @@
       true
     ]
   },
-  "hash": "365c6c2c88e42eba51b9a164806fbaa27d857cc57477d8932fb499bdff75182f"
+  "hash": "1454c6b801667cfe4b0fb3c915d64960828acd202b7dba3bc3e1e26b91bb4690"
 }

@@ -483,6 +483,7 @@ impl CompletionPolicy {
         }
     }
 
+    /// The `completion_method` column and the exercises-attempted and points threshold columns.
     fn to_database_fields(&self) -> (CompletionMethod, Option<i32>, Option<i32>) {
         let requirements = self.requirements();
         (
@@ -502,7 +503,7 @@ pub async fn insert(
         new_course_module.completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 INSERT INTO course_modules (
     id,
     course_id,
@@ -528,29 +529,29 @@ RETURNING id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
-        "#,
+  credit_registration_route
+        ",
         pkey_policy.into_uuid(),
         new_course_module.course_id,
         new_course_module.name,
         new_course_module.order_number,
-        completion_method as CompletionMethod,
+        completion_method,
         exercises_treshold,
         points_treshold,
-        new_course_module.exam_requirement as ExamRequirement,
+        new_course_module.exam_requirement,
         new_course_module.exam_location_description,
         new_course_module.ects_credits,
         normalize_uh_course_code(new_course_module.uh_course_code.clone()),
         new_course_module.completion_registration_link_override,
-        new_course_module.credit_registration_route as CreditRegistrationRoute,
+        new_course_module.credit_registration_route,
     )
     .fetch_one(conn)
     .await?;
@@ -603,7 +604,7 @@ AND deleted_at IS NULL
 pub async fn get_all_modules(conn: &mut PgConnection) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -613,18 +614,18 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE deleted_at IS NULL
-        "#,
+        ",
     )
     .map(|x| x.into())
     .fetch_all(conn)
@@ -635,7 +636,7 @@ WHERE deleted_at IS NULL
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -645,19 +646,19 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE id = $1
   AND deleted_at IS NULL
-        "#,
+        ",
         id,
     )
     .fetch_one(conn)
@@ -668,7 +669,7 @@ WHERE id = $1
 pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -678,19 +679,19 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE id = ANY($1)
   AND deleted_at IS NULL
-        "#,
+        ",
         ids,
     )
     .map(|x| x.into())
@@ -705,7 +706,7 @@ pub async fn get_by_course_id(
 ) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -715,19 +716,19 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE course_id = $1
 AND deleted_at IS NULL
-"#,
+",
         course_id
     )
     .map(|x| x.into())
@@ -744,7 +745,7 @@ pub async fn get_by_course_ids(
 ) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -754,19 +755,19 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE course_id = ANY($1)
 AND deleted_at IS NULL
-"#,
+",
         course_ids
     )
     .map(|x| x.into())
@@ -781,7 +782,7 @@ pub async fn get_by_course_id_only_with_open_chapters(
 ) -> ModelResult<Vec<CourseModule>> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT cm.id,
   cm.created_at,
   cm.updated_at,
@@ -791,15 +792,15 @@ SELECT cm.id,
   cm.order_number,
   cm.copied_from,
   cm.uh_course_code,
-  cm.completion_method AS "completion_method: CompletionMethod",
+  cm.completion_method,
   cm.automatic_completion_number_of_exercises_attempted_treshold,
   cm.automatic_completion_number_of_points_treshold,
-  cm.exam_requirement AS "exam_requirement: ExamRequirement",
+  cm.exam_requirement,
   cm.exam_location_description,
   cm.completion_registration_link_override,
   cm.ects_credits,
   cm.certification_enabled,
-  cm.credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  cm.credit_registration_route
 FROM course_modules as cm
 WHERE EXISTS (
   SELECT 1
@@ -810,7 +811,7 @@ WHERE EXISTS (
 )
   AND cm.course_id = $1
   AND cm.deleted_at IS NULL
-"#,
+",
         course_id
     )
     .map(|x| x.into())
@@ -837,15 +838,15 @@ SELECT course_modules.id AS "id!",
   course_modules.order_number AS "order_number!",
   course_modules.copied_from,
   course_modules.uh_course_code,
-  course_modules.completion_method AS "completion_method!: CompletionMethod",
+  course_modules.completion_method AS "completion_method!",
   course_modules.automatic_completion_number_of_exercises_attempted_treshold,
   course_modules.automatic_completion_number_of_points_treshold,
-  course_modules.exam_requirement AS "exam_requirement!: ExamRequirement",
+  course_modules.exam_requirement AS "exam_requirement!",
   course_modules.exam_location_description,
   course_modules.completion_registration_link_override,
   course_modules.ects_credits,
   course_modules.certification_enabled AS "certification_enabled!",
-  course_modules.credit_registration_route AS "credit_registration_route!: CreditRegistrationRoute"
+  course_modules.credit_registration_route AS "credit_registration_route!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
@@ -907,7 +908,7 @@ pub async fn get_default_by_course_id(
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 SELECT id,
   created_at,
   updated_at,
@@ -917,20 +918,20 @@ SELECT id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  credit_registration_route
 FROM course_modules
 WHERE course_id = $1
   AND name IS NULL
   AND deleted_at IS NULL
-        "#,
+        ",
         course_id,
     )
     .fetch_one(conn)
@@ -1015,7 +1016,7 @@ SELECT cm.id AS course_module_id,
   c.course_code_allowed AS "credit_registration_course_code_allowed?",
   c.config_check_message AS "credit_registration_config_check_message?",
   COALESCE(TRIM(cm.completion_registration_link_override) <> '', FALSE) AS "credit_registration_has_enrolment_link!",
-  cm.credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
+  cm.credit_registration_route
 FROM course_modules cm
   LEFT JOIN course_module_suotar_configurations c ON c.course_module_id = cm.id
   AND c.deleted_at IS NULL
@@ -1089,11 +1090,11 @@ pub async fn get_completion_setups_by_course_id(
 SELECT cm.id,
   cm.name,
   cm.order_number,
-  cm.completion_method AS "completion_method: CompletionMethod",
+  cm.completion_method,
   cm.automatic_completion_number_of_points_treshold,
   cm.automatic_completion_number_of_exercises_attempted_treshold,
-  cm.exam_requirement AS "exam_requirement: ExamRequirement",
-  cm.credit_registration_route AS "credit_registration_route: CreditRegistrationRoute",
+  cm.exam_requirement,
+  cm.credit_registration_route,
   cm.uh_course_code,
   cm.ects_credits,
   cm.certification_enabled,
@@ -1134,7 +1135,7 @@ pub async fn update_completion_policy(
         completion_policy.to_database_fields();
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 UPDATE course_modules
 SET completion_method = $1,
   automatic_completion_number_of_exercises_attempted_treshold = $2,
@@ -1151,20 +1152,20 @@ RETURNING id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
-        "#,
-        completion_method as CompletionMethod,
+  credit_registration_route
+        ",
+        completion_method,
         exercises_treshold,
         points_treshold,
-        exam_requirement as ExamRequirement,
+        exam_requirement,
         id,
     )
     .fetch_one(conn)
@@ -1179,7 +1180,7 @@ pub async fn update_uh_course_code(
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        r#"
+        "
 UPDATE course_modules
 SET uh_course_code = $1
 WHERE id = $2
@@ -1193,16 +1194,16 @@ RETURNING id,
   order_number,
   copied_from,
   uh_course_code,
-  completion_method AS "completion_method: CompletionMethod",
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  exam_requirement AS "exam_requirement: ExamRequirement",
+  exam_requirement,
   exam_location_description,
   completion_registration_link_override,
   ects_credits,
   certification_enabled,
-  credit_registration_route AS "credit_registration_route: CreditRegistrationRoute"
-        "#,
+  credit_registration_route
+        ",
         normalize_uh_course_code(uh_course_code),
         id,
     )
@@ -1625,16 +1626,16 @@ WHERE course_modules.course_id = EXCLUDED.course_id
         snapshot.course_id,
         snapshot.name,
         snapshot.order_number,
-        completion_method as CompletionMethod,
+        completion_method,
         exercises_treshold,
         points_treshold,
-        snapshot.exam_requirement as ExamRequirement,
+        snapshot.exam_requirement,
         snapshot.exam_location_description,
         snapshot.certification_enabled,
         normalize_uh_course_code(snapshot.uh_course_code.clone()),
         snapshot.ects_credits,
         snapshot.completion_registration_link_override,
-        snapshot.credit_registration_route as CreditRegistrationRoute,
+        snapshot.credit_registration_route,
     )
     .execute(&mut *conn)
     .await?;

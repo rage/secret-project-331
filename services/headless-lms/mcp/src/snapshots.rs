@@ -329,6 +329,7 @@ impl From<AiPolicy> for CourseAiPolicy {
     }
 }
 
+/// The policy the settings document's method and thresholds describe.
 fn completion_policy(module_id: Uuid, settings: &ModuleSettings) -> CompletionPolicy {
     let requirements = CompletionRequirements {
         course_module_id: module_id,

@@ -1,11 +1,11 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT course_modules.id AS \"id!\",\n  course_modules.created_at AS \"created_at!\",\n  course_modules.updated_at AS \"updated_at!\",\n  course_modules.deleted_at,\n  course_modules.name,\n  course_modules.course_id AS \"course_id!\",\n  course_modules.order_number AS \"order_number!\",\n  course_modules.copied_from,\n  course_modules.uh_course_code,\n  course_modules.completion_method AS \"completion_method!: CompletionMethod\",\n  course_modules.automatic_completion_number_of_exercises_attempted_treshold,\n  course_modules.automatic_completion_number_of_points_treshold,\n  course_modules.exam_requirement AS \"exam_requirement!: ExamRequirement\",\n  course_modules.exam_location_description,\n  course_modules.completion_registration_link_override,\n  course_modules.ects_credits,\n  course_modules.certification_enabled AS \"certification_enabled!\",\n  course_modules.credit_registration_route AS \"credit_registration_route!: CreditRegistrationRoute\"\nFROM exercises\n  LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)\n  LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)\nWHERE exercises.id = $1\n  AND chapters.deleted_at IS NULL\n  AND course_modules.deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  name,\n  course_id,\n  order_number,\n  copied_from,\n  uh_course_code,\n  completion_method,\n  automatic_completion_number_of_exercises_attempted_treshold,\n  automatic_completion_number_of_points_treshold,\n  exam_requirement,\n  exam_location_description,\n  completion_registration_link_override,\n  ects_credits,\n  certification_enabled,\n  credit_registration_route\nFROM course_modules\nWHERE course_id = ANY($1)\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "id!",
+        "name": "id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -16,7 +16,7 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at!",
+        "name": "created_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "updated_at!",
+        "name": "updated_at",
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
@@ -60,7 +60,7 @@
       },
       {
         "ordinal": 5,
-        "name": "course_id!",
+        "name": "course_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "order_number!",
+        "name": "order_number",
         "type_info": "Int4",
         "origin": {
           "Table": {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "completion_method!: CompletionMethod",
+        "name": "completion_method",
         "type_info": {
           "Custom": {
             "name": "course_module_completion_method",
@@ -149,7 +149,7 @@
       },
       {
         "ordinal": 12,
-        "name": "exam_requirement!: ExamRequirement",
+        "name": "exam_requirement",
         "type_info": {
           "Custom": {
             "name": "course_module_exam_requirement",
@@ -205,7 +205,7 @@
       },
       {
         "ordinal": 16,
-        "name": "certification_enabled!",
+        "name": "certification_enabled",
         "type_info": "Bool",
         "origin": {
           "Table": {
@@ -216,7 +216,7 @@
       },
       {
         "ordinal": 17,
-        "name": "credit_registration_route!: CreditRegistrationRoute",
+        "name": "credit_registration_route",
         "type_info": {
           "Custom": {
             "name": "course_module_credit_registration_route",
@@ -239,29 +239,29 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      true,
+      false,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true
+      false,
+      false
     ]
   },
-  "hash": "a87ab4ed6cf4381bb7b1af7dc3105c538b9254323420fed2a674236880596f84"
+  "hash": "126bbfc87c0722c5fde4030cd1c94c5f63ab7d2cec5a106344d483987c11aec2"
 }

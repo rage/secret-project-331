@@ -33,6 +33,8 @@ interface ChatbotDialogHeaderProps {
 
 interface ChatbotNoDialogHeaderProps {
   isAlwaysOpen: true
+  /** Leaves out the edit-chatbot menu item even for users allowed to edit, e.g. in the public embed. */
+  hideEditChatbot?: boolean
 }
 
 type ChatbotChatHeaderProps = ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps
@@ -187,8 +189,9 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   )
 
   const hasPermission = permissionCheck.isSuccess && permissionCheck.data?.some(Boolean)
+  const hideEditChatbot = isAlwaysOpen && props.hideEditChatbot
 
-  if (hasPermission && chatbotConversationInfo) {
+  if (hasPermission && !hideEditChatbot && chatbotConversationInfo) {
     items.push({
       // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-edit-chatbot-button",

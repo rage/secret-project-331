@@ -1435,7 +1435,7 @@
           },
           "exercise_locked": {
             "type": "boolean",
-            "description": "`true` once the exercise takes no more submissions from the user, whatever the chapter's\n`locking_status` says: their answer was locked for review, graded by a teacher, or locked\nunanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are\nrefused with 403 `exercise_locked`. Absent from a host that predates the field."
+            "description": "`true` once the exercise takes no more submissions from the user, whatever the chapter's\n`locking_status` says: their answer was locked for review, graded by a teacher, or locked\nunanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are\nrefused with 403 `chapter_completed_and_locked` while the chapter is locked for the user,\nand with `exercise_locked` otherwise. Absent from a host that predates the field."
           },
           "max_tries": {
             "type": ["integer", "null"],
@@ -1708,7 +1708,7 @@
                   "score_given": {
                     "type": ["number", "null"],
                     "format": "float",
-                    "description": "Absent until grading has produced a value; a partial value while `grading_progress`\nis still pending. What the grading gave this submission, which the exercise's awarded\npoints need not include while a teacher review is pending (see `exercise_progress`)."
+                    "description": "What the grading gave this submission. Absent until grading has produced a value; a\npartial value while `grading_progress` is still pending. The exercise's awarded points\nneed not include it while a teacher review is pending (see `exercise_progress`)."
                   }
                 }
               }

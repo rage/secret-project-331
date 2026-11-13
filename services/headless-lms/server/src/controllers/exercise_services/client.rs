@@ -578,18 +578,17 @@ async fn exercise_progress(
 }
 
 /// What the user's points wait for, if a teacher must review their answer before awarding any.
-/// `reviews_after_chapter_lock` is whether the course locks chapters and the exercise has a teacher
-/// review its answers once the chapter is locked, which withholds the automatic points from the
-/// first graded answer on.
+/// `is_held_for_review_after_chapter_lock` withholds the automatic points from the first graded
+/// answer on.
 fn pending_teacher_review(
-    reviews_after_chapter_lock: bool,
+    is_held_for_review_after_chapter_lock: bool,
     state: Option<&UserExerciseState>,
 ) -> Option<api::PendingTeacherReview> {
     let state = state?;
     match state.reviewing_stage {
         ReviewingStage::WaitingForManualGrading => Some(api::PendingTeacherReview::AwaitsTeacher),
         ReviewingStage::NotStarted
-            if reviews_after_chapter_lock
+            if is_held_for_review_after_chapter_lock
                 && state.activity_progress != ActivityProgress::Initialized =>
         {
             Some(api::PendingTeacherReview::AwaitsChapterLock)

@@ -248,9 +248,9 @@ pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
     Grading {
         grading_progress: GradingProgress,
-        /// Absent until grading has produced a value; a partial value while `grading_progress`
-        /// is still pending. What the grading gave this submission, which the exercise's awarded
-        /// points need not include while a teacher review is pending (see `exercise_progress`).
+        /// What the grading gave this submission. Absent until grading has produced a value; a
+        /// partial value while `grading_progress` is still pending. The exercise's awarded points
+        /// need not include it while a teacher review is pending (see `exercise_progress`).
         score_given: Option<f32>,
         grading_started_at: Option<DateTime<Utc>>,
         grading_completed_at: Option<DateTime<Utc>>,
@@ -399,7 +399,8 @@ pub struct ExerciseProgress {
     /// `true` once the exercise takes no more submissions from the user, whatever the chapter's
     /// `locking_status` says: their answer was locked for review, graded by a teacher, or locked
     /// unanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are
-    /// refused with 403 `exercise_locked`. Absent from a host that predates the field.
+    /// refused with 403 `chapter_completed_and_locked` while the chapter is locked for the user,
+    /// and with `exercise_locked` otherwise. Absent from a host that predates the field.
     #[serde(default)]
     pub exercise_locked: bool,
 }
@@ -823,10 +824,9 @@ mod test {
         );
     }
 
-    /// A newer client must still read a host that predates `standing`, the teacher review and the
-    /// exercise lock, and reads their absence as no review pending and an open exercise.
+    /// A newer client reads a missing field as no review pending and an open exercise.
     #[test]
-    fn progress_without_standing_still_parses() {
+    fn progress_from_an_older_host_still_parses() {
         let progress: ExerciseProgress = serde_json::from_value(json!({
             "exercise_id": Uuid::nil(),
             "score_given": 0.0,

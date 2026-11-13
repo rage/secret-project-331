@@ -214,8 +214,7 @@ pub async fn verify_user_can_answer_exercise_slide(
 ///
 /// The try limit is per slide, so without a slide id this can only reject a user who has exhausted
 /// *every* slide of the exercise; one who is out of tries on the slide they actually mean to answer
-/// still gets through here and is rejected on submit. Everything else -- deadline, enrolment, exam
-/// window -- is checked in full.
+/// still gets through here and is rejected on submit. Everything else is checked in full.
 pub async fn verify_user_can_answer_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,

@@ -5,6 +5,7 @@ import Script from "next/script"
 import React, { Suspense, useEffect } from "react"
 
 import DesignTokensRoot from "@/components/DesignTokensRoot"
+import FramedNavigationGuard from "@/components/FramedNavigationGuard"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
 import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
@@ -38,6 +39,7 @@ const RootLayout = ({
     <html lang="en" dir={getDir("en")}>
       <body>
         <DesignTokensRoot />
+        <FramedNavigationGuard />
         <Script noModule id="outdated-browser-warning">
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>

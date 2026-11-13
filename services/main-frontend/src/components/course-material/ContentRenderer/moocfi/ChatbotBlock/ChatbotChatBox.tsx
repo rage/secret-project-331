@@ -7,7 +7,12 @@ import ChatbotChatBody from "@/components/course-material/chatbot/shared/Chatbot
 import ChatbotChatHeader from "@/components/course-material/chatbot/shared/ChatbotChatHeader"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const ChatbotChatBox: React.FC = () => {
+interface ChatbotChatBoxProps {
+  /** Leaves out the edit-chatbot menu item even for users allowed to edit, e.g. in the public embed. */
+  hideEditChatbot?: boolean
+}
+
+const ChatbotChatBox: React.FC<ChatbotChatBoxProps> = ({ hideEditChatbot = false }) => {
   return (
     <div
       className={css`
@@ -20,7 +25,7 @@ const ChatbotChatBox: React.FC = () => {
         border-radius: 10px;
       `}
     >
-      <ChatbotChatHeader isAlwaysOpen={true} />
+      <ChatbotChatHeader isAlwaysOpen={true} hideEditChatbot={hideEditChatbot} />
       <ChatbotChatBody />
     </div>
   )

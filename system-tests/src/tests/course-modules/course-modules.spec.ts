@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test"
+import type { Locator, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -10,6 +10,16 @@ import accessibilityCheck from "../../utils/accessibilityCheck"
 const pickChapter = async (page: Page, triggerId: string, chapter: string) => {
   await page.locator(triggerId).click()
   await page.getByRole("option", { name: chapter, exact: true }).click()
+}
+
+/** Fills the course code, credits and registration link a module form needs before it can be submitted. */
+const fillCreditFields = async (form: Locator, courseCode: string) => {
+  await form.getByRole("textbox", { name: "Course code", exact: true }).fill(courseCode)
+  await form.getByRole("textbox", { name: "Credits (ECTS)", exact: true }).fill("5")
+  await form
+    .getByRole("textbox", { name: "Registration link", exact: true })
+    .fill("https://example.com/register")
+  await form.page().keyboard.press("Tab")
 }
 
 test.use({
@@ -46,6 +56,10 @@ test("Course modules test", async ({ page }) => {
   await page.getByRole("textbox", { name: "Name of module" }).fill("invalid module")
   await pickChapter(page, "#new-module-start", "2")
   await pickChapter(page, "#new-module-ends", "3")
+  await fillCreditFields(
+    page.getByRole("button", { name: "Create module" }).locator("xpath=ancestor::form[1]"),
+    "TEST003",
+  )
   await page.getByRole("button", { name: "Create module" }).click()
   await page.getByText("Error: Default module has missing chapters between 1 and 4").waitFor()
 
@@ -65,6 +79,10 @@ test("Course modules test", async ({ page }) => {
   await page.getByRole("button", { name: "Edit" }).nth(2).click()
   await page.getByRole("textbox", { name: "Edit module" }).fill("renamed module")
   await pickChapter(page, "#editing-module-start", "3")
+  await fillCreditFields(
+    page.getByRole("button", { name: "Done" }).locator("xpath=ancestor::form[1]"),
+    "TEST004",
+  )
   await page.getByRole("button", { name: "Done" }).click()
   await page.getByText("2. renamed module").waitFor()
 

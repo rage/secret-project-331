@@ -57,6 +57,11 @@ test.describe("Course metadata generation", () => {
       ).toHaveValue("TEST002")
       await page
         .locator("form")
+        .filter({ hasText: "Edit module" })
+        .getByRole("button", { name: "Cancel" })
+        .click()
+      await page
+        .locator("form")
         .filter({ hasText: "Default module" })
         .getByRole("button", { name: "Edit", exact: true })
         .click()

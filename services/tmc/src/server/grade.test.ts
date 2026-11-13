@@ -1,3 +1,5 @@
+import os from "node:os"
+
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
@@ -187,6 +189,15 @@ describe("gradingFailureFeedback", () => {
     ])
     expect(gradingFailureFeedback(failure)).toBe(
       "The submission could not be graded: Failed to read file at src/main.py",
+    )
+  })
+
+  it("keeps the service's paths out of a tmc-langs cause", () => {
+    const failure = new LangsError("Failed to prepare submission", [
+      `Caused by: Failed to read ${os.tmpdir()}/a1b2c3/src/main.py and /app/config/limits.toml`,
+    ])
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission could not be graded: Failed to read src/main.py and limits.toml",
     )
   })
 

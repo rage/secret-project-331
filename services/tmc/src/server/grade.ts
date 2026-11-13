@@ -1,4 +1,6 @@
 import { promises as fs } from "fs"
+import os from "node:os"
+import path from "node:path"
 
 import { temporaryDirectory, temporaryFile } from "tempy"
 
@@ -43,6 +45,7 @@ interface NormalizedTestResult {
   successful: boolean
   points: string[]
 }
+/** A tmc-langs run result reduced to what scoring needs. */
 export interface NormalizedRunResult {
   status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
   testResults: NormalizedTestResult[]
@@ -155,9 +158,26 @@ export function gradingFailureFeedback(e: unknown): string {
     if (e.rootCause === NO_PROJECT_IN_ARCHIVE) {
       return "The submission does not contain the exercise's files, so it could not be graded. Submit the whole exercise, including its source files."
     }
-    return `The submission could not be graded: ${e.rootCause}`
+    return `The submission could not be graded: ${withoutServerPaths(e.rootCause)}`
   }
   return "The submission could not be graded because of an error on the server. Try submitting again later."
+}
+
+/**
+ * `cause` with each absolute path cut to what the student recognises: the part inside the
+ * temporary directory the answer was extracted to, else the file name.
+ */
+function withoutServerPaths(cause: string): string {
+  const temporaryRoot = `${os.tmpdir()}/`
+  return cause.replaceAll(/(?<=^|[\s'"`(])\/[^\s'"`()]+/g, (absolutePath) => {
+    if (absolutePath.startsWith(temporaryRoot)) {
+      const insideAnswer = absolutePath.slice(temporaryRoot.length).split("/").slice(1).join("/")
+      if (insideAnswer) {
+        return insideAnswer
+      }
+    }
+    return path.posix.basename(absolutePath)
+  })
 }
 
 /**

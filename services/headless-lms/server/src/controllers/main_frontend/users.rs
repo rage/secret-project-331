@@ -1,3 +1,5 @@
+use crate::domain::progress_by_platform::{self, ProgressByPlatform};
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
@@ -28,6 +30,7 @@ use utoipa::{OpenApi, ToSchema};
     unhide_course_from_my_courses,
     get_my_studies,
     get_my_certificates,
+    get_my_progress_by_platform,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -693,6 +696,41 @@ async fn get_my_certificates(
 }
 
 /**
+GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+
+A platform that cannot be reached is reported in its status rather than failing the request.
+*/
+#[instrument(skip(pool, tmc_client, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/my-progress-by-platform",
+    operation_id = "getMyProgressByPlatform",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's courses grouped by platform", body = ProgressByPlatform)
+    )
+)]
+async fn get_my_progress_by_platform(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<ProgressByPlatform>> {
+    let token = skip_authorize();
+    // Test mode never talks to the real platforms, matching account deletion.
+    let res = progress_by_platform::get_progress_by_platform(
+        &pool,
+        &tmc_client,
+        user.id,
+        !app_conf.test_mode,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
 */
 #[instrument(skip(pool))]
@@ -1073,6 +1111,19 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
     .route("/my-certificates", web::get().to(get_my_certificates))
+    // Each request calls tmc.mooc.fi and mooc.fi.
+    .service(
+        web::resource("/my-progress-by-platform")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(60),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .route(web::get().to(get_my_progress_by_platform)),
+    )
     .route(
         "/my-courses/{course_id}/hide",
         web::post().to(hide_course_from_my_courses),

@@ -3056,6 +3056,24 @@ export type CourseUpdate = {
   name: string
 }
 
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
+export type CoursesMoocFiCourseProgress = {
+  /**
+   * Modules with a passed completion.
+   */
+  completed_modules: number
+  course_id: string
+  /**
+   * `None` when the course has no exercises.
+   */
+  max_points?: number | null
+  name: string
+  points: number
+  total_modules: number
+}
+
 export type CreateChatbotRequest = {
   course_id?: string | null
   name: string
@@ -5056,6 +5074,11 @@ export type ExternalCreditTarget = {
  */
 export type ExternalGrading = "pass_fail" | "numeric"
 
+/**
+ * How querying an external platform for the user's courses went.
+ */
+export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
+
 export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
@@ -5396,6 +5419,21 @@ export type ModuleUpdates = {
   modified_modules: Array<ModifiedModule>
   moved_chapters: Array<[string, string]>
   new_modules: Array<NewModule>
+}
+
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
+export type MoocFiCourseProgress = {
+  completed: boolean
+  course_id: string
+  max_points?: number | null
+  name: string
+  points?: number | null
+  /**
+   * tmc.mooc.fi courses that report their progress to this one.
+   */
+  tmc_mooc_fi_courses: Array<TmcMoocFiCourseProgress>
 }
 
 /**
@@ -6794,6 +6832,18 @@ export type PreviewReference = {
   reference: string
 }
 
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export type ProgressByPlatform = {
+  courses_mooc_fi: Array<CoursesMoocFiCourseProgress>
+  mooc_fi: Array<MoocFiCourseProgress>
+  mooc_fi_status: ExternalPlatformStatus
+  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
+  tmc_mooc_fi_status: ExternalPlatformStatus
+}
+
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
 /**
@@ -7820,6 +7870,18 @@ export type TimelineStep =
   | "needs_a_person"
   | "not_registering"
   | "no_longer_registrable"
+
+/**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
+export type TmcMoocFiCourseProgress = {
+  /**
+   * Number of points awarded, not a score.
+   */
+  awarded_points: number
+  name: string
+  submissions: number
+}
 
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -18254,6 +18316,23 @@ export type UnhideCourseFromMyCoursesResponses = {
    */
   200: unknown
 }
+
+export type GetMyProgressByPlatformData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-progress-by-platform"
+}
+
+export type GetMyProgressByPlatformResponses = {
+  /**
+   * The authenticated user's courses grouped by platform
+   */
+  200: ProgressByPlatform
+}
+
+export type GetMyProgressByPlatformResponse =
+  GetMyProgressByPlatformResponses[keyof GetMyProgressByPlatformResponses]
 
 export type GetMyStudiesData = {
   body?: never

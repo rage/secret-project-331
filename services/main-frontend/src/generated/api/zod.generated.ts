@@ -1833,6 +1833,28 @@ export const zCourseUpdate = z.object({
   name: z.string(),
 })
 
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
+export const zCoursesMoocFiCourseProgress = z.object({
+  completed_modules: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_id: z.uuid(),
+  max_points: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  name: z.string(),
+  points: z.number(),
+  total_modules: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zCreateChatbotRequest = z.object({
   course_id: z.uuid().nullish(),
   name: z.string(),
@@ -3783,6 +3805,11 @@ export const zExternalCourseOutput = z.object({
  * How a mooc.fi completion with no grade reads on a target.
  */
 export const zExternalGrading = z.enum(["pass_fail", "numeric"])
+
+/**
+ * How querying an external platform for the user's courses went.
+ */
+export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
 
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
@@ -7605,6 +7632,45 @@ export const zCreditRegistrationStatsByCourse = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+/**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
+export const zTmcMoocFiCourseProgress = z.object({
+  awarded_points: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+  submissions: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
+export const zMoocFiCourseProgress = z.object({
+  completed: z.boolean(),
+  course_id: z.uuid(),
+  max_points: z.number().nullish(),
+  name: z.string(),
+  points: z.number().nullish(),
+  tmc_mooc_fi_courses: z.array(zTmcMoocFiCourseProgress),
+})
+
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zProgressByPlatform = z.object({
+  courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+  mooc_fi: z.array(zMoocFiCourseProgress),
+  mooc_fi_status: zExternalPlatformStatus,
+  tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
+  tmc_mooc_fi_status: zExternalPlatformStatus,
 })
 
 /**
@@ -12720,6 +12786,11 @@ export const zHideCourseFromMyCoursesPath = z.object({
 export const zUnhideCourseFromMyCoursesPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * The authenticated user's courses grouped by platform
+ */
+export const zGetMyProgressByPlatformResponse = zProgressByPlatform
 
 /**
  * The authenticated user's study record

@@ -15951,6 +15951,25 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/my-progress-by-platform": {
+      "get": {
+        "tags": ["users"],
+        "summary": "GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on\ncourses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.\n\nA platform that cannot be reached is reported in its status rather than failing the request.",
+        "operationId": "getMyProgressByPlatform",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's courses grouped by platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressByPlatform"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/my-studies": {
       "get": {
         "tags": ["users"],
@@ -23904,6 +23923,41 @@
           }
         }
       },
+      "CoursesMoocFiCourseProgress": {
+        "type": "object",
+        "description": "A course the user is enrolled on in courses.mooc.fi.",
+        "required": ["course_id", "name", "completed_modules", "total_modules", "points"],
+        "properties": {
+          "completed_modules": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Modules with a passed completion.",
+            "minimum": 0
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "max_points": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` when the course has no exercises.",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string"
+          },
+          "points": {
+            "type": "number",
+            "format": "float"
+          },
+          "total_modules": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
       "CreateChatbotRequest": {
         "type": "object",
         "required": ["name", "purpose", "skip_azure_stuff"],
@@ -28414,6 +28468,11 @@
         "description": "How a mooc.fi completion with no grade reads on a target.",
         "enum": ["pass_fail", "numeric"]
       },
+      "ExternalPlatformStatus": {
+        "type": "string",
+        "description": "How querying an external platform for the user's courses went.",
+        "enum": ["loaded", "not_queried", "unavailable"]
+      },
       "Feedback": {
         "type": "object",
         "required": [
@@ -29409,6 +29468,38 @@
             "items": {
               "$ref": "#/components/schemas/NewModule"
             }
+          }
+        }
+      },
+      "MoocFiCourseProgress": {
+        "type": "object",
+        "description": "A course the user has progress or a completion on in the old mooc.fi.",
+        "required": ["course_id", "name", "completed", "tmc_mooc_fi_courses"],
+        "properties": {
+          "completed": {
+            "type": "boolean"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "max_points": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "name": {
+            "type": "string"
+          },
+          "points": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "tmc_mooc_fi_courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
+            },
+            "description": "tmc.mooc.fi courses that report their progress to this one."
           }
         }
       },
@@ -32929,6 +33020,43 @@
           }
         }
       },
+      "ProgressByPlatform": {
+        "type": "object",
+        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course.",
+        "required": [
+          "courses_mooc_fi",
+          "mooc_fi_status",
+          "mooc_fi",
+          "tmc_mooc_fi_status",
+          "tmc_mooc_fi"
+        ],
+        "properties": {
+          "courses_mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+            }
+          },
+          "mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiCourseProgress"
+            }
+          },
+          "mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          },
+          "tmc_mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
+            }
+          },
+          "tmc_mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          }
+        }
+      },
       "ProposalStatus": {
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
@@ -35447,6 +35575,25 @@
           "not_registering",
           "no_longer_registrable"
         ]
+      },
+      "TmcMoocFiCourseProgress": {
+        "type": "object",
+        "description": "A course the user has submissions or awarded points on in tmc.mooc.fi.",
+        "required": ["name", "awarded_points", "submissions"],
+        "properties": {
+          "awarded_points": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of points awarded, not a score."
+          },
+          "name": {
+            "type": "string"
+          },
+          "submissions": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "ToolCategory": {
         "type": "string",

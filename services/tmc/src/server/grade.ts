@@ -5,7 +5,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import { extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
+import { LangsError, extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
@@ -121,14 +121,32 @@ async function gradeAndReport(
   try {
     result = await gradeAnswer(req, answerArchiveUrl)
   } catch (e) {
-    error(`Failed to grade: ${String(e)}`)
+    error("Failed to grade", e)
     result = {
       ...PENDING_RESULT,
       grading_progress: "Failed",
-      feedback_text: `Something went wrong: ${String(e)}`,
+      feedback_text: gradingFailureFeedback(e),
     }
   }
   await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
+}
+
+/** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
+const NO_PROJECT_IN_ARCHIVE = "No project directory found in archive"
+
+/**
+ * What the student is told when grading could not run. A tmc-langs failure names a cause about the
+ * answer; any other failure is the service's own, and its details, which can include signed file
+ * URLs, stay in the log.
+ */
+export function gradingFailureFeedback(e: unknown): string {
+  if (e instanceof LangsError) {
+    if (e.rootCause === NO_PROJECT_IN_ARCHIVE) {
+      return "The submission does not contain the exercise's files, so it could not be graded. Submit the whole exercise, including its source files."
+    }
+    return `The submission could not be graded: ${e.rootCause}`
+  }
+  return "The submission could not be graded because of an error on the server. Try submitting again later."
 }
 
 /**
@@ -222,12 +240,12 @@ const gradeInPod = async (
   try {
     outcome = await runInSandboxPod(sandboxImage, submissionPath, logger)
   } catch (e) {
-    logger.error(`Failed to grade in pod: ${e}`)
+    logger.error("Failed to grade in pod", e)
     return {
       grading_progress: "Failed",
       score_given: 0,
       score_maximum: 0,
-      feedback_text: `Something went wrong: ${e}`,
+      feedback_text: gradingFailureFeedback(e),
       feedback_json: null,
     }
   }
@@ -252,15 +270,12 @@ const gradeInPod = async (
   if (normalized.status === "COMPILE_FAILED") {
     feedbackText = "Could not compile the submission"
   } else if (normalized.status === "GENERIC_ERROR") {
-    feedbackText = "Something went wrong"
+    feedbackText = "The tests could not be run"
   } else if (normalized.status === "TESTRUN_INTERRUPTED") {
     feedbackText = "Tests were interrupted"
-  } else if (normalized.status === "PASSED") {
+  } else {
+    // The score already says whether the tests passed; clients show it as the result.
     gradingProgress = "FullyGraded"
-    feedbackText = "Tests passed"
-  } else if (normalized.status === "TESTS_FAILED") {
-    gradingProgress = "FullyGraded"
-    feedbackText = "Tests failed"
   }
 
   const allPassed =

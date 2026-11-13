@@ -9,6 +9,24 @@ import kill from "tree-kill"
 import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
 import { isCliOutput } from "./cli.guard"
 
+/** A failure tmc-langs-cli reported. */
+export class LangsError extends Error {
+  /** The cause chain, outermost first, as tmc-langs prints it ("Caused by: …"). */
+  public readonly trace: string[]
+
+  public constructor(message: string, trace: string[]) {
+    super(message)
+    this.name = "LangsError"
+    this.trace = trace
+  }
+
+  /** The innermost cause, which names what actually went wrong. */
+  public get rootCause(): string {
+    const last = this.trace.at(-1)
+    return last === undefined ? this.message : last.replace(/^Caused by: /, "")
+  }
+}
+
 // oxlint-disable-next-line eslint/require-await -- async so sync throws surface as promise rejections
 const execute = async (
   cmd: string,
@@ -59,7 +77,7 @@ const execute = async (
             if (data?.["output-data-kind"] === "error") {
               console.error("Error:", json.message)
               console.error("Trace:", data["output-data"].trace.join("\n"))
-              reject(json)
+              reject(new LangsError(json.message, data["output-data"].trace))
             } else {
               // not an error
               resolve(json)

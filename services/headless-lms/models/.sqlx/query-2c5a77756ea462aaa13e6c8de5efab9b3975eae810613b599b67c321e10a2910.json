@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT exams.id,\n  courses.id as course_id,\n  courses.name as course_name,\n  exams.name\nFROM exams\n  JOIN course_exams ON course_exams.exam_id = exams.id\n  JOIN courses ON courses.id = course_exams.course_id\nWHERE exams.organization_id = $1\n  AND exams.deleted_at IS NULL\n  AND courses.deleted_at IS NULL\n",
+  "query": "\nSELECT exams.id,\n  courses.id as course_id,\n  courses.name as course_name,\n  exams.name\nFROM exams\n  JOIN course_exams ON course_exams.exam_id = exams.id\n  JOIN courses ON courses.id = course_exams.course_id\nWHERE exams.organization_id = $1\n  AND exams.deleted_at IS NULL\n  AND course_exams.deleted_at IS NULL\n  AND courses.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "4422d198c0e9c4502344c5b1145df37a6cf0b8a85e43390dfc3c5a1ed57549d2"
+  "hash": "2c5a77756ea462aaa13e6c8de5efab9b3975eae810613b599b67c321e10a2910"
 }

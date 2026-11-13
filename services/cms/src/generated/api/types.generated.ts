@@ -31,16 +31,6 @@ export type AgentChangeset = {
 
 export type AgentChangesetStatus = "open" | "published" | "discarded" | "expired"
 
-export type AutomaticCompletionRequirements = {
-  /**
-   * Course module associated with these requirements.
-   */
-  course_module_id: string
-  number_of_exercises_attempted_treshold?: number | null
-  number_of_points_treshold?: number | null
-  requires_exam: boolean
-}
-
 /**
  * One block type's registration: its attributes, where it may be nested and an example.
  */
@@ -281,13 +271,34 @@ export type CodeGiveaway = {
   updated_at: string
 }
 
+/**
+ * How students get a module's completion, with the thresholds the method uses.
+ */
 export type CompletionPolicy =
-  | (AutomaticCompletionRequirements & {
-      policy: "automatic"
+  | {
+      method: "not_decided"
+    }
+  | (CompletionRequirements & {
+      method: "by_requirements"
+    })
+  | (CompletionRequirements & {
+      method: "by_exam"
     })
   | {
-      policy: "manual"
+      method: "teacher_adds"
     }
+
+/**
+ * Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.
+ */
+export type CompletionRequirements = {
+  /**
+   * Course module associated with these requirements.
+   */
+  course_module_id: string
+  number_of_exercises_attempted_treshold?: number | null
+  number_of_points_treshold?: number | null
+}
 
 export type ContentManagementPage = {
   exercise_slides: Array<CmsPageExerciseSlide>
@@ -372,7 +383,7 @@ export type CourseInstance = {
 }
 
 /**
- * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
  * `completion_policy`.
  */
 export type CourseModule = {
@@ -382,21 +393,28 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
-  /**
-   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
-   */
-  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
+  credit_registration_route: CreditRegistrationRoute
   deleted_at?: string | null
   ects_credits?: number | null
+  /**
+   * Where the exam is held, when `exam_requirement` is [`ExamRequirement::Elsewhere`].
+   */
+  exam_location_description?: string | null
+  exam_requirement: ExamRequirement
   id: string
   name?: string | null
   order_number: number
   uh_course_code?: string | null
   updated_at: string
 }
+
+/**
+ * How a module's completions turn into credits.
+ */
+export type CreditRegistrationRoute = "platform" | "external" | "certificate_only"
 
 export type DatabaseChapter = {
   chapter_image_path?: string | null
@@ -477,6 +495,11 @@ export type ExamInstructions = {
 export type ExamInstructionsUpdate = {
   instructions: unknown
 }
+
+/**
+ * Whether passing a module requires an exam, and where it is held.
+ */
+export type ExamRequirement = "none" | "platform" | "examinarium" | "elsewhere"
 
 /**
  * The exercise block a list of blocks is validated as the children of.

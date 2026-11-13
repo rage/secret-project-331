@@ -4133,6 +4133,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/completion-overview": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`",
+        "operationId": "getCourseCompletionOverview",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "How students complete the course and get its credits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCompletionOverview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/course-instances": {
       "get": {
         "tags": ["courses"],
@@ -4412,6 +4443,40 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/exams": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.",
+        "operationId": "getCourseLinkedExams",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exams linked to the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkedExam"
+                  }
+                }
               }
             }
           }
@@ -5069,6 +5134,40 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/Course"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/linkable-exams": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.",
+        "operationId": "getCourseLinkableExams",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exams the user can link to the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LinkableExam"
                   }
                 }
               }
@@ -19308,28 +19407,6 @@
         "description": "Which section of the Needs attention tab a picked row belongs to. Exactly one per row.",
         "enum": ["needs_attention", "running_late", "dismissed", "explained_by_problem"]
       },
-      "AutomaticCompletionRequirements": {
-        "type": "object",
-        "required": ["course_module_id", "requires_exam"],
-        "properties": {
-          "course_module_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "Course module associated with these requirements."
-          },
-          "number_of_exercises_attempted_treshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "number_of_points_treshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "requires_exam": {
-            "type": "boolean"
-          }
-        }
-      },
       "AverageMetric": {
         "type": "object",
         "description": "A generic result representing an average metric over a time period.\nThe average value (e.g. average time in seconds) may be absent if no data is available.",
@@ -21358,36 +21435,73 @@
           }
         }
       },
+      "CompletionMethod": {
+        "type": "string",
+        "description": "How students get a module's completion; [`CompletionPolicy`] is the same with its thresholds.",
+        "enum": ["not_decided", "by_requirements", "by_exam", "teacher_adds"]
+      },
       "CompletionPolicy": {
         "oneOf": [
           {
+            "type": "object",
+            "required": ["method"],
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["not_decided"]
+              }
+            }
+          },
+          {
             "allOf": [
               {
-                "$ref": "#/components/schemas/AutomaticCompletionRequirements"
+                "$ref": "#/components/schemas/CompletionRequirements",
+                "description": "Completed automatically once the student reaches the thresholds."
               },
               {
                 "type": "object",
-                "required": ["policy"],
+                "required": ["method"],
                 "properties": {
-                  "policy": {
+                  "method": {
                     "type": "string",
-                    "enum": ["automatic"]
+                    "enum": ["by_requirements"]
                   }
                 }
               }
-            ]
+            ],
+            "description": "Completed automatically once the student reaches the thresholds."
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CompletionRequirements",
+                "description": "Completed when the student reaches the pass mark of an ended exam linked to the course; the\nthresholds are the condition for taking the exam."
+              },
+              {
+                "type": "object",
+                "required": ["method"],
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "enum": ["by_exam"]
+                  }
+                }
+              }
+            ],
+            "description": "Completed when the student reaches the pass mark of an ended exam linked to the course; the\nthresholds are the condition for taking the exam."
           },
           {
             "type": "object",
-            "required": ["policy"],
+            "required": ["method"],
             "properties": {
-              "policy": {
+              "method": {
                 "type": "string",
-                "enum": ["manual"]
+                "enum": ["teacher_adds"]
               }
             }
           }
-        ]
+        ],
+        "description": "How students get a module's completion, with the thresholds the method uses."
       },
       "CompletionRegistrationLink": {
         "type": "object",
@@ -21395,6 +21509,26 @@
         "properties": {
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "CompletionRequirements": {
+        "type": "object",
+        "description": "Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.",
+        "required": ["course_module_id"],
+        "properties": {
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Course module associated with these requirements."
+          },
+          "number_of_exercises_attempted_treshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "number_of_points_treshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
           }
         }
       },
@@ -22034,6 +22168,28 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "CourseCompletionOverview": {
+        "type": "object",
+        "description": "How students complete a course and get its credits, for the course Overview tab.",
+        "required": ["modules", "exams", "can_view_registrations"],
+        "properties": {
+          "can_view_registrations": {
+            "type": "boolean",
+            "description": "Whether the user can view the course's credit registrations; without it every module's\n`not_yet_registered_count` is 0 and `credit_registration_pause_reason` is `None`."
+          },
+          "exams": {
+            "$ref": "#/components/schemas/CourseExamsOverview",
+            "description": "The exams linked to the course, which every module passed by an exam on this platform uses."
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleCompletionOverview"
+            },
+            "description": "In module order."
           }
         }
       },
@@ -23156,6 +23312,35 @@
           }
         }
       },
+      "CourseExamsOverview": {
+        "type": "object",
+        "description": "When the course's linked exams are held and whether they can pass anyone automatically.",
+        "required": ["count", "any_has_pass_mark"],
+        "properties": {
+          "any_has_pass_mark": {
+            "type": "boolean",
+            "description": "Whether at least one exam completes the students who reach its pass mark; otherwise every\nexam is graded manually or has no pass mark, and the teacher adds the completions."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "last_ended_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The latest end of an exam that has ended."
+          },
+          "next_ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "next_starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The window of the exam that ends next among those not ended yet."
+          }
+        }
+      },
       "CourseInstance": {
         "type": "object",
         "required": [
@@ -23371,7 +23556,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
+        "description": "Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -23379,8 +23564,9 @@
           "course_id",
           "order_number",
           "completion_policy",
+          "exam_requirement",
           "certification_enabled",
-          "completions_can_be_registered_to_sisu"
+          "credit_registration_route"
         ],
         "properties": {
           "certification_enabled": {
@@ -23392,10 +23578,6 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
-          },
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean",
-            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],
@@ -23409,6 +23591,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -23416,6 +23601,13 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "exam_location_description": {
+            "type": ["string", "null"],
+            "description": "Where the exam is held, when `exam_requirement` is [`ExamRequirement::Elsewhere`]."
+          },
+          "exam_requirement": {
+            "$ref": "#/components/schemas/ExamRequirement"
           },
           "id": {
             "type": "string",
@@ -23524,6 +23716,86 @@
           }
         }
       },
+      "CourseModuleCompletionOverview": {
+        "type": "object",
+        "description": "One module's completion and credit settings with the facts that tell whether they work.",
+        "required": [
+          "course_module_id",
+          "order_number",
+          "completion_method",
+          "exam_requirement",
+          "credit_registration_route",
+          "certification_enabled",
+          "has_registration_link",
+          "has_completions",
+          "not_yet_registered_count"
+        ],
+        "properties": {
+          "certification_enabled": {
+            "type": "boolean"
+          },
+          "completion_method": {
+            "$ref": "#/components/schemas/CompletionMethod"
+          },
+          "course_code_allowed": {
+            "type": ["boolean", "null"],
+            "description": "`None` until Sisu has been asked about the course code."
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "credit_registration_pause_reason": {
+            "type": ["string", "null"]
+          },
+          "credit_registration_paused_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "exam_requirement": {
+            "$ref": "#/components/schemas/ExamRequirement"
+          },
+          "exercises_attempted_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "By requirements, the exercises attempted needed to pass; by an exam, to take the exam."
+          },
+          "has_completions": {
+            "type": "boolean"
+          },
+          "has_registration_link": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": ["string", "null"],
+            "description": "`None` for the default module."
+          },
+          "not_yet_registered_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Credit registrations neither in Sisu yet nor given up on."
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "points_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "By requirements, the points needed to pass; by an exam, to take the exam."
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "CourseModuleCompletionWithRegistrationInfo": {
         "type": "object",
         "required": [
@@ -23591,12 +23863,9 @@
           "course_module_id",
           "course_id",
           "credit_registration_has_enrolment_link",
-          "completions_can_be_registered_to_sisu"
+          "credit_registration_route"
         ],
         "properties": {
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean"
-          },
           "course_id": {
             "type": "string",
             "format": "uuid"
@@ -23631,6 +23900,9 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
+          },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
@@ -23648,11 +23920,11 @@
           "order_number",
           "exercise_count",
           "daily_submissions",
-          "completions_can_be_registered_to_sisu"
+          "credit_registration_route"
         ],
         "properties": {
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean"
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
           },
           "daily_submissions": {
             "type": "array",
@@ -25697,6 +25969,11 @@
           }
         }
       },
+      "CreditRegistrationRoute": {
+        "type": "string",
+        "description": "How a module's completions turn into credits.",
+        "enum": ["platform", "external", "certificate_only"]
+      },
       "CreditRegistrationSettings": {
         "type": "object",
         "description": "Deployment-wide switches the credit registration views adapt to.",
@@ -27126,11 +27403,13 @@
           "deadline",
           "chapter_image_path",
           "completion_policy",
+          "exam_requirement",
+          "exam_location_description",
           "certification_enabled",
           "uh_course_code",
           "ects_credits",
           "completion_registration_link_override",
-          "completions_can_be_registered_to_sisu",
+          "credit_registration_route",
           "description",
           "is_draft",
           "is_test_mode",
@@ -27324,6 +27603,11 @@
             "format": "uuid"
           }
         }
+      },
+      "ExamRequirement": {
+        "type": "string",
+        "description": "Whether passing a module requires an exam, and where it is held.",
+        "enum": ["none", "platform", "examinarium", "elsewhere"]
       },
       "Exercise": {
         "type": "object",
@@ -28772,6 +29056,32 @@
             "properties": {
               "type": {
                 "type": "string",
+                "enum": ["exam_requirement"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/ExamRequirement"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["credit_registration_route"]
+              },
+              "value": {
+                "$ref": "#/components/schemas/CreditRegistrationRoute"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
                 "enum": ["ai_policy"]
               },
               "value": {
@@ -29213,6 +29523,72 @@
           }
         }
       },
+      "LinkableExam": {
+        "type": "object",
+        "description": "An exam of the course's organization that the module editor offers to link to the course.",
+        "required": ["id", "name", "linked_course_names", "hidden_linked_course_count"],
+        "properties": {
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "hidden_linked_course_count": {
+            "type": "integer",
+            "description": "How many more courses the exam is linked to, whose names the user may not see.",
+            "minimum": 0
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "linked_course_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The other courses the exam is linked to that the user may see; linking it here keeps\nthose links."
+          },
+          "name": {
+            "type": "string"
+          },
+          "pass_mark": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "See [`LinkedExam::pass_mark`]."
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "LinkedExam": {
+        "type": "object",
+        "description": "An exam linked to the course, as the module editor lists it.",
+        "required": ["id", "name"],
+        "properties": {
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pass_mark": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The points that complete the course automatically; `None` when the teacher adds the\ncompletions."
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
       "LinkingCandidateSimilarity": {
         "type": "string",
         "description": "Something a listed person shares with the student's account, strongest first.",
@@ -29379,7 +29755,8 @@
           "id",
           "order_number",
           "completion_policy",
-          "completions_can_be_registered_to_sisu"
+          "exam_requirement",
+          "credit_registration_route"
         ],
         "properties": {
           "completion_policy": {
@@ -29388,12 +29765,18 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean"
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
           },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "exam_location_description": {
+            "type": ["string", "null"]
+          },
+          "exam_requirement": {
+            "$ref": "#/components/schemas/ExamRequirement"
           },
           "id": {
             "type": "string",
@@ -30085,8 +30468,7 @@
           "is_credit_registration_starting",
           "score_given",
           "attempted_exercises",
-          "automatic_completion",
-          "requires_exam"
+          "completion_method"
         ],
         "properties": {
           "attempted_exercises": {
@@ -30099,10 +30481,6 @@
             "format": "int32",
             "description": "Attempted exercises an automatic completion requires. `None` when the module is completed\nmanually or sets no attempt threshold."
           },
-          "automatic_completion": {
-            "type": "boolean",
-            "description": "False when a teacher grades the module, in which case neither threshold says anything about\ncompleting it."
-          },
           "completion": {
             "oneOf": [
               {
@@ -30113,6 +30491,10 @@
                 "type": "null"
               }
             ]
+          },
+          "completion_method": {
+            "$ref": "#/components/schemas/CompletionMethod",
+            "description": "The thresholds say something only for `by_requirements`, and for `by_exam`, where they\nqualify the student to take the exam rather than complete the module."
           },
           "course_module_id": {
             "type": "string",
@@ -30133,10 +30515,6 @@
           "order_number": {
             "type": "integer",
             "format": "int32"
-          },
-          "requires_exam": {
-            "type": "boolean",
-            "description": "When true, the thresholds qualify the student to sit an exam rather than complete the module."
           },
           "score_given": {
             "type": "number",
@@ -30661,7 +31039,8 @@
           "order_number",
           "chapters",
           "completion_policy",
-          "completions_can_be_registered_to_sisu"
+          "exam_requirement",
+          "credit_registration_route"
         ],
         "properties": {
           "chapters": {
@@ -30677,12 +31056,18 @@
           "completion_registration_link_override": {
             "type": ["string", "null"]
           },
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean"
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
           },
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "exam_location_description": {
+            "type": ["string", "null"]
+          },
+          "exam_requirement": {
+            "$ref": "#/components/schemas/ExamRequirement"
           },
           "name": {
             "type": "string"
@@ -34200,7 +34585,7 @@
           },
           {
             "type": "object",
-            "description": "The module's completion policy changes after students have completed it.",
+            "description": "How students pass the module, its exam or its credit registration (route, course code,\ncredits or registration link) changes after students have completed it.",
             "required": ["code"],
             "properties": {
               "code": {
@@ -35887,8 +36272,7 @@
           "course_module_name",
           "course_module_order_number",
           "score_given",
-          "automatic_completion",
-          "requires_exam"
+          "completion_method"
         ],
         "properties": {
           "attempted_exercises": {
@@ -35899,9 +36283,9 @@
             "type": ["integer", "null"],
             "format": "int32"
           },
-          "automatic_completion": {
-            "type": "boolean",
-            "description": "False when a teacher grades the module, in which case neither threshold applies."
+          "completion_method": {
+            "$ref": "#/components/schemas/CompletionMethod",
+            "description": "The thresholds apply only to `by_requirements` and `by_exam`; for `by_exam` they only qualify\nthe user to take the exam that completion also needs."
           },
           "course_module_id": {
             "type": "string",
@@ -35913,10 +36297,6 @@
           "course_module_order_number": {
             "type": "integer",
             "format": "int32"
-          },
-          "requires_exam": {
-            "type": "boolean",
-            "description": "When true, the thresholds only qualify the user to sit an exam that completion also needs."
           },
           "score_given": {
             "type": "number",

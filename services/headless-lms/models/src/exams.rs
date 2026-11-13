@@ -39,7 +39,19 @@ pub struct ExamIdentity {
     pub grade_manually: bool,
 }
 
+/// The points that complete a linked course automatically. A threshold of 0 is how teachers leave
+/// "Related courses can be completed automatically" off, so it and manual grading both mean `None`.
+fn automatic_pass_mark(grade_manually: bool, minimum_points_treshold: i32) -> Option<i32> {
+    (!grade_manually && minimum_points_treshold > 0).then_some(minimum_points_treshold)
+}
+
 impl Exam {
+    /// The points that complete the linked courses automatically; `None` when the teacher adds
+    /// the completions.
+    pub fn pass_mark(&self) -> Option<i32> {
+        automatic_pass_mark(self.grade_manually, self.minimum_points_treshold)
+    }
+
     /// Whether or not the exam has already started at the specified timestamp. If no start date for
     /// exam is defined, returns the provided default instead.
     pub fn started_at_or(&self, timestamp: DateTime<Utc>, default: bool) -> bool {
@@ -75,6 +87,13 @@ pub struct OrgExam {
     pub organization_id: Uuid,
     pub minimum_points_treshold: i32,
     pub grade_manually: bool,
+}
+
+impl OrgExam {
+    /// See [`Exam::pass_mark`].
+    pub fn pass_mark(&self) -> Option<i32> {
+        automatic_pass_mark(self.grade_manually, self.minimum_points_treshold)
+    }
 }
 
 /// Returns exam identity metadata for a non-deleted exam id.
@@ -210,6 +229,13 @@ pub struct ExamSummary {
     pub grade_manually: bool,
 }
 
+impl ExamSummary {
+    /// See [`Exam::pass_mark`].
+    pub fn pass_mark(&self) -> Option<i32> {
+        automatic_pass_mark(self.grade_manually, self.minimum_points_treshold)
+    }
+}
+
 pub async fn get_summaries_by_ids(
     conn: &mut PgConnection,
     ids: &[Uuid],
@@ -229,6 +255,36 @@ WHERE id = ANY($1)
   AND deleted_at IS NULL
         ",
         ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exams)
+}
+
+/// The exams linked to the course, earliest start first and those without a start before them.
+pub async fn get_summaries_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<ExamSummary>> {
+    let exams = sqlx::query_as!(
+        ExamSummary,
+        "
+SELECT e.id,
+  e.name,
+  e.starts_at,
+  e.ends_at,
+  e.time_minutes,
+  e.minimum_points_treshold,
+  e.grade_manually
+FROM exams e
+  JOIN course_exams ce ON ce.exam_id = e.id
+WHERE ce.course_id = $1
+  AND ce.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+ORDER BY e.starts_at NULLS FIRST,
+  e.name
+        ",
+        course_id,
     )
     .fetch_all(conn)
     .await?;
@@ -376,6 +432,7 @@ FROM exams
   JOIN courses ON courses.id = course_exams.course_id
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
+  AND course_exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
 ",
         organization

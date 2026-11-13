@@ -1,5 +1,8 @@
 //! `patch_course_settings`: course and module settings. Publishing switches stay read-only.
 
+use headless_lms_models::course_modules::{
+    CompletionMethod, CreditRegistrationRoute, ExamRequirement,
+};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -49,23 +52,6 @@ pub enum AiPolicy {
     Required,
 }
 
-impl AiPolicy {
-    /// Every policy's name as agents write it.
-    fn names() -> Vec<String> {
-        schemars::schema_for!(AiPolicy)
-            .get("enum")
-            .and_then(Value::as_array)
-            .map(|names| {
-                names
-                    .iter()
-                    .filter_map(Value::as_str)
-                    .map(str::to_string)
-                    .collect()
-            })
-            .unwrap_or_default()
-    }
-}
-
 /// A target audience of the course.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Audience {
@@ -73,45 +59,27 @@ pub struct Audience {
     pub name: String,
 }
 
-/// One module's settings. Its fields are `id`, `name` and [`EDITABLE_MODULE_FIELDS`].
+/// One module's settings. Its fields are `id`, `name` and [`EDITABLE_MODULE_FIELDS`]. How the
+/// fields must fit together is checked against the whole course when the call ends, with the same
+/// rules as the teacher's module editor.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct ModuleSettings {
     pub id: Uuid,
     /// Shown for orientation; renamed with the structure tool.
     pub name: Option<String>,
-    pub completion_policy: CompletionPolicy,
+    pub exam_requirement: ExamRequirement,
+    /// Where the exam is held when `exam_requirement` is `elsewhere`.
+    pub exam_location_description: Option<String>,
+    pub completion_method: CompletionMethod,
+    /// Exact counts; only `by_requirements` and `by_exam` have them.
+    pub points_threshold: Option<i32>,
+    pub exercises_attempted_threshold: Option<i32>,
+    pub credit_registration_route: CreditRegistrationRoute,
+    pub uh_course_code: Option<String>,
+    pub ects_credits: Option<f32>,
+    /// The link students register their completion with.
+    pub registration_link: Option<String>,
     pub certification_enabled: bool,
-}
-
-/// Module completion. The `treshold` spelling matches the stored field names.
-#[derive(Debug, Clone, PartialEq, Serialize)]
-pub struct CompletionPolicy {
-    pub policy: CompletionPolicyKind,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number_of_points_treshold: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number_of_exercises_attempted_treshold: Option<i32>,
-    pub requires_exam: bool,
-}
-
-/// Whether a module completes on its own when its thresholds are met.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "kebab-case")]
-pub enum CompletionPolicyKind {
-    Automatic,
-    Manual,
-}
-
-impl CompletionPolicy {
-    /// The policy of a module completed by hand, which has no thresholds.
-    pub fn manual() -> Self {
-        Self {
-            policy: CompletionPolicyKind::Manual,
-            number_of_points_treshold: None,
-            number_of_exercises_attempted_treshold: None,
-            requires_exam: false,
-        }
-    }
 }
 
 /// The new state after a successful call. Nothing is stored until the caller stages it.
@@ -140,13 +108,17 @@ pub(crate) const READ_ONLY_COURSE_FIELDS: [&str; 6] = [
     "closed_at",
 ];
 /// Module fields agents may set with this tool; the structure tool renames modules.
-pub(crate) const EDITABLE_MODULE_FIELDS: [&str; 2] = ["completion_policy", "certification_enabled"];
-/// The fields of a completion policy.
-pub(crate) const POLICY_FIELDS: [&str; 4] = [
-    "policy",
-    "number_of_points_treshold",
-    "number_of_exercises_attempted_treshold",
-    "requires_exam",
+pub(crate) const EDITABLE_MODULE_FIELDS: [&str; 10] = [
+    "exam_requirement",
+    "exam_location_description",
+    "completion_method",
+    "points_threshold",
+    "exercises_attempted_threshold",
+    "credit_registration_route",
+    "uh_course_code",
+    "ects_credits",
+    "registration_link",
+    "certification_enabled",
 ];
 
 /// Applies `ops` in order to `doc`.
@@ -175,7 +147,7 @@ fn apply_op(
     let segments = split_path(op.path()).ok_or_else(|| {
         EditError::new(
             EditErrorCode::InvalidPath,
-            "paths look like /course/name or /<module id>/completion_policy",
+            "paths look like /course/name or /<module id>/completion_method",
         )
     })?;
     if is_course_root(&segments[0], settings.course.id) {
@@ -295,12 +267,9 @@ fn course_op(
                 })?
         }
         "ai_policy" => {
-            course.ai_policy = serde_json::from_value(value.clone()).map_err(|_| {
-                EditError::new(
-                    EditErrorCode::InvalidValue,
-                    format!("ai_policy is one of {}", AiPolicy::names().join(", ")),
-                )
-            })?
+            let names = ai_policy_names();
+            let names: Vec<&str> = names.iter().map(String::as_str).collect();
+            course.ai_policy = enum_value(value, field, &names)?
         }
         _ => return Err(unknown_course_field(field)),
     }
@@ -320,118 +289,153 @@ fn unknown_course_field(path: &str) -> EditError {
 }
 
 fn module_op(module: &mut ModuleSettings, op: &Op, rest: &[String]) -> Result<(), EditError> {
-    match (rest.first().map(String::as_str), op) {
-        (Some("name"), _) => Err(EditError::new(
+    let [field] = rest else {
+        return Err(unknown_module_field(&rest.join("/")));
+    };
+    let field = field.as_str();
+    if field == "name" {
+        return Err(EditError::new(
             EditErrorCode::WrongTool,
             "module names are edited with patch_course_structure",
-        )),
-        (Some("certification_enabled"), Op::Replace { value, .. }) if rest.len() == 1 => {
-            module.certification_enabled = boolean(Some(value), "certification_enabled")?;
-            Ok(())
-        }
-        (Some("completion_policy"), Op::Replace { value, .. }) if rest.len() <= 2 => {
-            match rest.get(1) {
-                None => {
-                    module.completion_policy = parse_policy(value)?;
-                    Ok(())
-                }
-                Some(field) => set_policy_field(&mut module.completion_policy, field, Some(value)),
-            }
-        }
-        (Some("completion_policy"), Op::Remove { .. }) if rest.len() == 2 => {
-            set_policy_field(&mut module.completion_policy, &rest[1], None)
-        }
-        _ => Err(EditError::new(
-            EditErrorCode::InvalidPath,
-            "module settings are completion_policy (or one of its fields) and certification_enabled, set with replace",
-        )),
+        ));
     }
-}
-
-fn parse_policy(value: &Value) -> Result<CompletionPolicy, EditError> {
-    let object = value.as_object().ok_or_else(|| {
-        EditError::new(
-            EditErrorCode::InvalidValue,
-            "completion_policy is an object such as {\"policy\":\"manual\"}",
-        )
-    })?;
-    let mut policy = CompletionPolicy::manual();
-    set_policy_field(&mut policy, "policy", object.get("policy"))?;
-    for (field, value) in object.iter().filter(|(field, _)| *field != "policy") {
-        set_policy_field(&mut policy, field, Some(value))?;
+    if !EDITABLE_MODULE_FIELDS.contains(&field) {
+        return Err(unknown_module_field(field));
     }
-    Ok(policy)
-}
-
-/// Sets one policy field, or clears it with `None`, and checks the result. Owns the errors for
-/// unknown and misspelled field names.
-fn set_policy_field(
-    policy: &mut CompletionPolicy,
-    field: &str,
-    value: Option<&Value>,
-) -> Result<(), EditError> {
-    let threshold = |value: Option<&Value>| -> Result<Option<i32>, EditError> {
-        match value {
-            None | Some(Value::Null) => Ok(None),
-            Some(value) => whole_number(value).map(Some).ok_or_else(|| {
-                EditError::new(
-                    EditErrorCode::InvalidValue,
-                    format!("{field} is a whole number, 0 or more, or null"),
-                )
-            }),
+    let value = match op {
+        Op::Replace { value, .. } => value,
+        Op::Remove { .. } => &Value::Null,
+        _ => {
+            return Err(EditError::new(
+                EditErrorCode::InvalidOp,
+                "module settings are set with replace; remove sets a nullable one to null",
+            ));
         }
     };
     match field {
-        "policy" => {
-            policy.policy = match value.and_then(Value::as_str) {
-                Some("automatic") => CompletionPolicyKind::Automatic,
-                Some("manual") => {
-                    *policy = CompletionPolicy::manual();
-                    return Ok(());
-                }
-                _ => {
-                    return Err(EditError::new(
-                        EditErrorCode::InvalidValue,
-                        "policy is \"automatic\" or \"manual\"",
-                    ));
-                }
+        "exam_requirement" => {
+            module.exam_requirement = enum_value(value, field, &EXAM_REQUIREMENTS)?
+        }
+        "exam_location_description" => module.exam_location_description = text(value, field)?,
+        "completion_method" => {
+            module.completion_method = enum_value(value, field, &COMPLETION_METHODS)?;
+            if !has_thresholds(module.completion_method) {
+                module.points_threshold = None;
+                module.exercises_attempted_threshold = None;
             }
         }
-        "number_of_points_treshold" => policy.number_of_points_treshold = threshold(value)?,
-        "number_of_exercises_attempted_treshold" => {
-            policy.number_of_exercises_attempted_treshold = threshold(value)?
+        "points_threshold" | "exercises_attempted_threshold" => {
+            let threshold = match value {
+                Value::Null => None,
+                value => Some(whole_number(value).ok_or_else(|| {
+                    EditError::new(
+                        EditErrorCode::InvalidValue,
+                        format!("{field} is a whole number, 0 or more, or null"),
+                    )
+                })?),
+            };
+            if threshold.is_some() && !has_thresholds(module.completion_method) {
+                return Err(EditError::new(
+                    EditErrorCode::InvalidValue,
+                    "only by_requirements and by_exam have thresholds; set completion_method first",
+                ));
+            }
+            if field == "points_threshold" {
+                module.points_threshold = threshold;
+            } else {
+                module.exercises_attempted_threshold = threshold;
+            }
         }
-        "requires_exam" => policy.requires_exam = boolean(value, "requires_exam")?,
-        other if other.contains("threshold") => {
-            return Err(EditError::new(
-                EditErrorCode::UnknownField,
-                "the field names are spelled \"treshold\"",
-            )
-            .with_fix(other.replace("threshold", "treshold")));
+        "credit_registration_route" => {
+            module.credit_registration_route =
+                enum_value(value, field, &CREDIT_REGISTRATION_ROUTES)?
         }
-        other => {
-            return Err(EditError::new(
-                EditErrorCode::UnknownField,
-                format!("completion_policy has no \"{other}\""),
-            )
-            .with_fix(POLICY_FIELDS.join(", ")));
+        "uh_course_code" => module.uh_course_code = text(value, field)?,
+        "ects_credits" => {
+            module.ects_credits = match value {
+                Value::Null => None,
+                value => Some(
+                    value
+                        .as_f64()
+                        .filter(|credits| *credits > 0.0 && *credits <= f64::from(f32::MAX))
+                        .ok_or_else(|| {
+                            EditError::new(
+                                EditErrorCode::InvalidValue,
+                                "ects_credits is a positive number or null",
+                            )
+                        })? as f32,
+                ),
+            }
         }
-    }
-    validate_policy(policy)
-}
-
-fn validate_policy(policy: &CompletionPolicy) -> Result<(), EditError> {
-    let has_requirements = policy.number_of_points_treshold.is_some()
-        || policy.number_of_exercises_attempted_treshold.is_some()
-        || policy.requires_exam;
-    if policy.policy == CompletionPolicyKind::Manual && has_requirements {
-        return Err(EditError::new(
-            EditErrorCode::InvalidValue,
-            "a manual completion policy has no thresholds; set policy to \"automatic\" first",
-        ));
+        "registration_link" => module.registration_link = text(value, field)?,
+        "certification_enabled" => module.certification_enabled = boolean(Some(value), field)?,
+        _ => return Err(unknown_module_field(field)),
     }
     Ok(())
 }
+
+/// `path` names no module setting.
+fn unknown_module_field(path: &str) -> EditError {
+    EditError::new(
+        EditErrorCode::UnknownField,
+        format!("a module has no setting \"{path}\""),
+    )
+    .with_fix(format!("settings: {}", EDITABLE_MODULE_FIELDS.join(", ")))
+}
+
+/// Whether the method uses the points and exercises-attempted thresholds.
+fn has_thresholds(method: CompletionMethod) -> bool {
+    matches!(
+        method,
+        CompletionMethod::ByRequirements | CompletionMethod::ByExam
+    )
+}
+
+/// A string setting; a blank string is stored as null.
+fn text(value: &Value, field: &str) -> Result<Option<String>, EditError> {
+    match value {
+        Value::Null => Ok(None),
+        Value::String(s) if s.trim().is_empty() => Ok(None),
+        Value::String(s) => Ok(Some(s.trim().to_string())),
+        _ => Err(EditError::new(
+            EditErrorCode::InvalidValue,
+            format!("{field} is a string or null"),
+        )),
+    }
+}
+
+/// One of `names`, the serialized names of `T`'s variants.
+fn enum_value<T: for<'de> Deserialize<'de>>(
+    value: &Value,
+    field: &str,
+    names: &[&str],
+) -> Result<T, EditError> {
+    serde_json::from_value(value.clone()).map_err(|_| {
+        EditError::new(
+            EditErrorCode::InvalidValue,
+            format!("{field} is one of {}", names.join(", ")),
+        )
+    })
+}
+
+/// The names [`AiPolicy`] serializes to.
+fn ai_policy_names() -> Vec<String> {
+    schemars::schema_for!(AiPolicy)
+        .get("enum")
+        .and_then(Value::as_array)
+        .map(|names| {
+            names
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+const EXAM_REQUIREMENTS: [&str; 4] = ["none", "platform", "examinarium", "elsewhere"];
+const COMPLETION_METHODS: [&str; 4] = ["not_decided", "by_requirements", "by_exam", "teacher_adds"];
+const CREDIT_REGISTRATION_ROUTES: [&str; 3] = ["platform", "external", "certificate_only"];
 
 /// The value as a whole number from 0 to `i32::MAX`.
 fn whole_number(value: &Value) -> Option<i32> {
@@ -484,18 +488,29 @@ mod tests {
                 ModuleSettings {
                     id: id("m1"),
                     name: None,
-                    completion_policy: CompletionPolicy {
-                        policy: CompletionPolicyKind::Automatic,
-                        number_of_points_treshold: Some(60),
-                        number_of_exercises_attempted_treshold: None,
-                        requires_exam: false,
-                    },
+                    exam_requirement: ExamRequirement::None,
+                    exam_location_description: None,
+                    completion_method: CompletionMethod::ByRequirements,
+                    points_threshold: Some(60),
+                    exercises_attempted_threshold: None,
+                    credit_registration_route: CreditRegistrationRoute::Platform,
+                    uh_course_code: Some("TKT-101".into()),
+                    ects_credits: Some(5.0),
+                    registration_link: Some("https://example.com/register".into()),
                     certification_enabled: true,
                 },
                 ModuleSettings {
                     id: id("m2"),
                     name: Some("Advanced".into()),
-                    completion_policy: CompletionPolicy::manual(),
+                    exam_requirement: ExamRequirement::None,
+                    exam_location_description: None,
+                    completion_method: CompletionMethod::TeacherAdds,
+                    points_threshold: None,
+                    exercises_attempted_threshold: None,
+                    credit_registration_route: CreditRegistrationRoute::Platform,
+                    uh_course_code: None,
+                    ects_credits: None,
+                    registration_link: None,
                     certification_enabled: false,
                 },
             ],
@@ -555,33 +570,52 @@ mod tests {
     }
 
     #[test]
-    fn completion_policy_whole_and_one_threshold() {
+    fn completion_method_and_thresholds() {
         let result = run(json!([
-            {"op":"replace","path":format!("{}/completion_policy", p("m2")),"value":{"policy":"automatic","number_of_points_treshold":60,"number_of_exercises_attempted_treshold":null,"requires_exam":false}},
-            {"op":"replace","path":format!("{}/completion_policy/number_of_points_treshold", p("m2")),"value":50},
+            {"op":"replace","path":format!("{}/completion_method", p("m2")),"value":"by_exam"},
+            {"op":"replace","path":format!("{}/points_threshold", p("m2")),"value":50},
+            {"op":"replace","path":format!("{}/exam_requirement", p("m2")),"value":"platform"},
         ]))
         .unwrap();
-        let policy = &result.settings.modules[1].completion_policy;
-        assert_eq!(policy.policy, CompletionPolicyKind::Automatic);
-        assert_eq!(policy.number_of_points_treshold, Some(50));
+        let module = &result.settings.modules[1];
+        assert_eq!(module.completion_method, CompletionMethod::ByExam);
+        assert_eq!(module.points_threshold, Some(50));
+        assert_eq!(module.exam_requirement, ExamRequirement::Platform);
     }
 
     #[test]
-    fn partial_policy_defaults_and_manual_rules() {
-        let result = run(json!([{"op":"replace","path":format!("{}/completion_policy", p("m1")),"value":{"policy":"automatic"}}])).unwrap();
+    fn thresholds_belong_to_methods_that_have_them() {
+        let error =
+            run(json!([{"op":"replace","path":format!("{}/points_threshold", p("m2")),"value":5}]))
+                .unwrap_err();
+        assert!(error.message.contains("completion_method"));
+        let result = run(json!([{"op":"replace","path":format!("{}/completion_method", p("m1")),"value":"teacher_adds"}])).unwrap();
+        assert_eq!(result.settings.modules[0].points_threshold, None);
+    }
+
+    #[test]
+    fn unknown_names_list_the_choices() {
+        let error = run(json!([{"op":"replace","path":format!("{}/credit_registration_route", p("m1")),"value":"sisu"}])).unwrap_err();
         assert_eq!(
-            result.settings.modules[0]
-                .completion_policy
-                .number_of_points_treshold,
-            None
+            error.message,
+            "credit_registration_route is one of platform, external, certificate_only"
         );
-        let error = run(json!([{"op":"replace","path":format!("{}/completion_policy/number_of_points_treshold", p("m2")),"value":5}])).unwrap_err();
-        assert!(error.message.contains("automatic"));
-        let manual = run(json!([{"op":"replace","path":format!("{}/completion_policy/policy", p("m1")),"value":"manual"}])).unwrap();
+    }
+
+    #[test]
+    fn credit_fields() {
+        let result = run(json!([
+            {"op":"replace","path":format!("{}/uh_course_code", p("m2")),"value":" TKT-202 "},
+            {"op":"replace","path":format!("{}/ects_credits", p("m2")),"value":2.5},
+            {"op":"remove","path":format!("{}/registration_link", p("m1"))},
+        ]))
+        .unwrap();
         assert_eq!(
-            manual.settings.modules[0].completion_policy,
-            CompletionPolicy::manual()
+            result.settings.modules[1].uh_course_code.as_deref(),
+            Some("TKT-202")
         );
+        assert_eq!(result.settings.modules[1].ects_credits, Some(2.5));
+        assert_eq!(result.settings.modules[0].registration_link, None);
     }
 
     #[test]
@@ -608,9 +642,12 @@ mod tests {
     }
 
     #[test]
-    fn misspelling_and_wrong_tool_teach() {
-        let error = run(json!([{"op":"replace","path":format!("{}/completion_policy/number_of_points_threshold", p("m1")),"value":5}])).unwrap_err();
-        assert!(error.fix.unwrap().contains("treshold"));
+    fn unknown_fields_and_wrong_tool_teach() {
+        let error = run(
+            json!([{"op":"replace","path":format!("{}/completion_policy", p("m1")),"value":{}}]),
+        )
+        .unwrap_err();
+        assert!(error.fix.unwrap().contains("completion_method"));
         let error = run(json!([{"op":"replace","path":format!("{}/name", p("m2")),"value":"x"}]))
             .unwrap_err();
         assert_eq!(error.code, EditErrorCode::WrongTool);
@@ -622,18 +659,13 @@ mod tests {
     #[test]
     fn removing_a_threshold_clears_it_and_deeper_paths_are_rejected() {
         let result = run(json!([
-            {"op":"remove","path":format!("{}/completion_policy/number_of_points_treshold", p("m1"))},
+            {"op":"remove","path":format!("{}/points_threshold", p("m1"))},
         ]))
         .unwrap();
-        assert_eq!(
-            result.settings.modules[0]
-                .completion_policy
-                .number_of_points_treshold,
-            None
-        );
+        assert_eq!(result.settings.modules[0].points_threshold, None);
         assert!(
             run(json!([
-                {"op":"replace","path":format!("{}/completion_policy/policy/whatever", p("m1")),"value":"manual"},
+                {"op":"replace","path":format!("{}/completion_method/whatever", p("m1")),"value":"by_exam"},
             ]))
             .is_err()
         );

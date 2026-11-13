@@ -11,7 +11,7 @@ use crate::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
+    course_modules::{self, CompletionPolicy, CompletionRequirements, CourseModule},
     courses, exams,
     library::credit_registration::StudentFacingCreditRegistrationStatus,
     open_university_registration_links,
@@ -211,7 +211,7 @@ async fn user_is_eligible_for_automatic_completion(
     user_id: Uuid,
 ) -> ModelResult<bool> {
     match &course_module.completion_policy {
-        CompletionPolicy::Automatic(requirements) => {
+        CompletionPolicy::ByRequirements(requirements) | CompletionPolicy::ByExam(requirements) => {
             let eligible = user_passes_automatic_completion_exercise_tresholds(
                 conn,
                 user_id,
@@ -235,7 +235,7 @@ async fn user_is_eligible_for_automatic_completion(
                     );
                     return Ok(false);
                 }
-                if requirements.requires_exam {
+                if matches!(course_module.completion_policy, CompletionPolicy::ByExam(_)) {
                     info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course_based_on_points(
                         conn,
@@ -250,7 +250,7 @@ async fn user_is_eligible_for_automatic_completion(
                 Ok(false)
             }
         }
-        CompletionPolicy::Manual => Ok(false),
+        CompletionPolicy::NotDecided | CompletionPolicy::TeacherAdds => Ok(false),
     }
 }
 
@@ -259,8 +259,8 @@ async fn user_is_eligible_for_automatic_completion(
 /// The result of this process depends on the configuration for the exam. If the exam is not linked
 /// to any course, the user will always be able to take it by default. Otherwise the student
 /// progress in their current selected instances is compared against any of the linked courses, and
-/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses have
-/// automatic completion configuration, the exam is once again allowed to be taken by default.
+/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses'
+/// default modules have thresholds, the exam is once again allowed to be taken by default.
 #[instrument(skip(conn))]
 pub async fn user_can_take_exam(
     conn: &mut PgConnection,
@@ -278,7 +278,9 @@ pub async fn user_can_take_exam(
     let mut can_take_exam = true;
     for course_id in course_ids {
         let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
-        if let CompletionPolicy::Automatic(requirements) = &default_module.completion_policy {
+        if let Some(requirements) = default_module.completion_policy.requirements()
+            && requirements.has_any_threshold()
+        {
             if let Some(s) = settings.iter().find(|x| x.current_course_id == course_id) {
                 let eligible = user_passes_automatic_completion_exercise_tresholds(
                     conn,
@@ -312,15 +314,14 @@ pub async fn user_has_passed_exam_for_the_course_based_on_points(
     let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
-        // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
-        if exam.minimum_points_treshold == 0 || exam.grade_manually {
+        let Some(pass_mark) = exam.pass_mark() else {
             continue;
-        }
+        };
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
             if let Some(points) = points
-                && points >= exam.minimum_points_treshold as f32
+                && points >= pass_mark as f32
             {
                 return Ok(true);
             }
@@ -332,7 +333,7 @@ pub async fn user_has_passed_exam_for_the_course_based_on_points(
 async fn user_passes_automatic_completion_exercise_tresholds(
     conn: &mut PgConnection,
     user_id: Uuid,
-    requirements: &AutomaticCompletionRequirements,
+    requirements: &CompletionRequirements,
     course_id: Uuid,
 ) -> ModelResult<bool> {
     let user_metrics = user_exercise_states::get_single_module_metrics(
@@ -875,7 +876,7 @@ pub async fn get_user_completion_information(
         email: course_module_completion.email,
         registers_credits: course_modules::registers_credits(
             course_module.uh_course_code.as_deref(),
-            course_module.completions_can_be_registered_to_sisu,
+            course_module.credit_registration_route,
         ),
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
         status_before_registration,
@@ -971,7 +972,7 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .is_some_and(|x| x.prerequisite_modules_completed),
                 registers_credits: course_modules::registers_credits(
                     module.uh_course_code.as_deref(),
-                    module.completions_can_be_registered_to_sisu,
+                    module.credit_registration_route,
                 ),
                 register_credits_via_suotar: completion.is_some()
                     && registers_via_suotar_module_ids.contains(&module.id),
@@ -996,7 +997,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
 ) -> ModelResult<CompletionRegistrationLink> {
     if !course_modules::registers_credits(
         course_module.uh_course_code.as_deref(),
-        course_module.completions_can_be_registered_to_sisu,
+        course_module.credit_registration_route,
     ) {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
@@ -1303,7 +1304,7 @@ mod tests {
         use crate::{
             chapters::NewChapter,
             course_modules::{
-                self, AutomaticCompletionRequirements, CompletionPolicy, NewCourseModule,
+                self, CompletionPolicy, CompletionRequirements, ExamRequirement, NewCourseModule,
             },
             exercises::{self, ActivityProgress, GradingProgress},
             library::content_management,
@@ -1414,11 +1415,10 @@ mod tests {
                 .await
                 .unwrap();
             let automatic_completion_policy =
-                CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                CompletionPolicy::ByRequirements(CompletionRequirements {
                     course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
-                    requires_exam: false,
                 });
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
@@ -1506,24 +1506,27 @@ mod tests {
             let default_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let default_module = course_modules::update_automatic_completion_status(
+            let default_module = course_modules::update_completion_policy(
                 tx.as_mut(),
                 default_module.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();
-            let course_module = course_modules::update_automatic_completion_status(
+            let course_module = course_modules::update_completion_policy(
                 tx.as_mut(),
                 course_module.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();
-            let course_module_2 = course_modules::update_automatic_completion_status(
+            let course_module_2 = course_modules::update_completion_policy(
                 tx.as_mut(),
                 course_module_2.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();

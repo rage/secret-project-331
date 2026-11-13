@@ -189,18 +189,16 @@ test("The module editor configures a study registry module by its course code an
 }) => {
   await page.goto(`${ORIGIN}/manage/courses/${STATES_COURSE_ID}/modules`)
   const form = page.locator('form:has-text("Default module")')
-  await expect(form.getByText("no enrolment link")).toHaveCount(0)
+  await expect(form.getByText("Registers in Sisu")).toBeVisible()
   await form.getByRole("button", { name: "Edit" }).click()
 
-  await expect(
-    form.getByRole("textbox", { name: "University of Helsinki course code" }),
-  ).toHaveValue(CRS_STATES_101)
-  await expect(form.getByLabel("Completion registration link", { exact: true })).toHaveValue(
+  await expect(form.getByRole("textbox", { name: "Course code", exact: true })).toHaveValue(
+    CRS_STATES_101,
+  )
+  await expect(form.getByRole("textbox", { name: "Registration link", exact: true })).toHaveValue(
     seededEnrolmentLink(CRS_STATES_101),
   )
-  await expect(
-    form.getByText("Also the enrolment link for students without a valid enrolment in Sisu."),
-  ).toBeVisible()
+  await expect(form.getByText("No enrolment link is set")).toHaveCount(0)
   await expect(form.getByText(/product|realisation/i)).toHaveCount(0)
 })
 

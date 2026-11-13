@@ -91,9 +91,11 @@ const postJson = async <T>(request: APIRequestContext, url: string, data: unknow
 const suotarModuleSettings = (courseCode: string) => ({
   uh_course_code: courseCode,
   ects_credits: 5,
-  completion_policy: { policy: "manual" },
+  completion_policy: { method: "teacher_adds" },
+  exam_requirement: "none",
+  exam_location_description: null,
   completion_registration_link_override: `https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=${courseCode}`,
-  completions_can_be_registered_to_sisu: true,
+  credit_registration_route: "platform",
 })
 
 /** A Suotar course with `moduleCount` modules, each on a course code of its own. */

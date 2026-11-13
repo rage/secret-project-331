@@ -560,6 +560,21 @@ pub fn is_permitted_on_course(
         || check_organization_permission(user_roles, action, organization_id)
 }
 
+/// [`is_permitted`] on an exam whose organization the caller already knows, without querying the
+/// database.
+pub fn is_permitted_on_exam(
+    user_roles: &[Role],
+    action: Action,
+    exam_id: Uuid,
+    organization_id: Uuid,
+) -> bool {
+    has_global_permission(user_roles, action)
+        || user_roles
+            .iter()
+            .any(|role| role.is_role_for_exam(exam_id) && has_permission(role.role, action))
+        || check_organization_permission(user_roles, action, organization_id)
+}
+
 fn has_global_permission(roles: &[Role], action: Action) -> bool {
     roles
         .iter()

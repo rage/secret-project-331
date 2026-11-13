@@ -12,6 +12,7 @@ use crate::validator::BlockSchemas;
 pub enum GuideTopic {
     Editing,
     CourseStructure,
+    CourseSettings,
     PublishingAndRisk,
     PreviewsAndChecks,
     CitationsAndGlossary,
@@ -20,9 +21,10 @@ pub enum GuideTopic {
 }
 
 impl GuideTopic {
-    pub const ALL: [GuideTopic; 7] = [
+    pub const ALL: [GuideTopic; 8] = [
         GuideTopic::Editing,
         GuideTopic::CourseStructure,
+        GuideTopic::CourseSettings,
         GuideTopic::PublishingAndRisk,
         GuideTopic::PreviewsAndChecks,
         GuideTopic::CitationsAndGlossary,
@@ -34,6 +36,7 @@ impl GuideTopic {
         match self {
             GuideTopic::Editing => EDITING,
             GuideTopic::CourseStructure => COURSE_STRUCTURE,
+            GuideTopic::CourseSettings => COURSE_SETTINGS,
             GuideTopic::PublishingAndRisk => PUBLISHING_AND_RISK,
             GuideTopic::PreviewsAndChecks => PREVIEWS_AND_CHECKS,
             GuideTopic::CitationsAndGlossary => CITATIONS_AND_GLOSSARY,
@@ -62,7 +65,15 @@ patch_course_structure ops: replace fields (module name; chapter name, color, op
 - url_path is unique in the course after the call; paths can be swapped in one call. Changed paths get redirects automatically; removed pages get none.
 - A new page that translates a page of another language version of the course takes pair_with: <that page's id>; it joins that page's page_language_group_id at publish, so language switching links the two. The source page must be published, and the group can't already have a page in this course.
 - dry_run: true returns an outline of the changed chapters and pages (counts, then one line each: old -> new path, title, position) and the redirects; read it against your plan, as detail: true adds the full diff.
-- Pages with exercises stay inside chapters. Settings (completion, certificates) are edited with patch_course_settings.";
+- Pages with exercises stay inside chapters. Settings (completion, credits, certificates) are edited with patch_course_settings; see the course-settings topic.";
+
+const COURSE_SETTINGS: &str = "\
+get_course_settings shows each module's completion and credit settings; patch_course_settings sets one with replace /<module id>/<setting> (remove sets a nullable one to null). The settings of a module must fit together when the call ends, by the same rules as the teacher's module editor, so change related settings in one call.
+- exam_requirement: none, platform (an exam on this platform, linked to the course), examinarium, or elsewhere (then exam_location_description says where). The platform knows nothing about an exam outside it.
+- completion_method says how students pass. not_decided grants nothing; new modules start with it. by_requirements completes students automatically once they reach points_threshold and exercises_attempted_threshold (exact counts; an unset one isn't required), and only when no exam is required. by_exam needs exam_requirement platform: students pass when they reach the pass mark of any linked exam that has one, once that exam has ended, and the thresholds are then only the condition for taking the exam. teacher_adds: the teacher adds the completions; the only choice for an exam outside the platform, and for a platform exam graded manually or without a pass mark.
+- credit_registration_route: platform (this platform registers the completions in Sisu; registration_link is then required), certificate_only (no credits, a rare exception; not with an exam outside the platform), or external (the teacher registers the credits outside this platform, e.g. straight from Examinarium; only with an exam outside the platform). external is strongly discouraged: the platform then has no completions, so students get a worse experience, support can't help them, the MOOC Center loses sight of the course and the statistics that affect funding break. Recommend that the teacher adds the exam results here as completions instead.
+- uh_course_code and ects_credits are always required. certification_enabled turns certificates on.
+- Changing completion_method, exam_requirement, credit_registration_route, uh_course_code, ects_credits or registration_link after students have completed the module is risky.";
 
 const PUBLISHING_AND_RISK: &str = "\
 Every write stages into your open changeset for the course; later calls build on it, and reads show it unless state is published. list_changesets shows it, discard_changeset drops it, publish_changeset publishes it.
@@ -71,7 +82,7 @@ A change is risky only in live content (not draft, not test mode, not a hidden p
 - removing a visible page or an open chapter
 - moving a deadline earlier or adding one to an open chapter; moving an open chapter's opening time later
 - changing an exercise's own deadline so that the deadline that applies to it moves earlier, or it gets one, while its chapter is open
-- changing a completion policy or the module completion requirement after completions exist; turning chapter locking on or off
+- changing how students pass a module, its exam or its credit registration (route, course code, credits, registration link), or the module completion requirement, after completions exist; turning chapter locking on or off
 publish_changeset refuses changesets with risky changes; the teacher publishes those on the review page. Size alone is never risky; moving exercises is never risky, even when the move changes which chapter deadline applies. Publishing fails if a staged page or entity changed live meanwhile: drop just those with discard_changeset and entities, read their published state again and redo your edits to them.
 A write fails with staged_state_changed when a parallel call changed what it read; read again and repeat it.
 After publishing, get_history lists changes and revert_change undoes one write call.";
@@ -262,7 +273,7 @@ mod tests {
     #[test]
     fn index_blocks_and_topics() {
         let index = index(&schemas());
-        assert_eq!(index["topics"].as_array().unwrap().len(), 7);
+        assert_eq!(index["topics"].as_array().unwrap().len(), 8);
         assert_eq!(index["topics"][1], json!("course-structure"));
         let guide = blocks_guide(
             &schemas(),

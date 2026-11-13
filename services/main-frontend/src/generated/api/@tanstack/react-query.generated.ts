@@ -161,6 +161,7 @@ import {
   getCourseByJoinCode,
   getCourseChapters,
   getCourseChatbots,
+  getCourseCompletionOverview,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
   getCourseCompletionsHistoryByInstance,
@@ -199,6 +200,8 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseLinkableExams,
+  getCourseLinkedExams,
   getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
@@ -726,6 +729,8 @@ import type {
   GetCourseChaptersResponse,
   GetCourseChatbotsData,
   GetCourseChatbotsResponse,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponse,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponse,
   GetCourseCompletionsHistoryByInstanceData,
@@ -799,6 +804,10 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponse,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
@@ -4361,6 +4370,32 @@ export const setCourseChatbotAsNonDefaultMutation = (
   return mutationOptions
 }
 
+export const getCourseCompletionOverviewQueryKey = (
+  options: Options<GetCourseCompletionOverviewData>,
+) => createQueryKey("getCourseCompletionOverview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverviewOptions = (
+  options: Options<GetCourseCompletionOverviewData>,
+) =>
+  queryOptions<
+    GetCourseCompletionOverviewResponse,
+    DefaultError,
+    GetCourseCompletionOverviewResponse,
+    ReturnType<typeof getCourseCompletionOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCompletionOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCompletionOverviewQueryKey(options),
+  })
+
 export const getCourseInstancesQueryKey = (options: Options<GetCourseInstancesData>) =>
   createQueryKey("getCourseInstances", options)
 
@@ -4588,6 +4623,29 @@ export const getCourseDefaultPeerReviewOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseDefaultPeerReviewQueryKey(options),
+  })
+
+export const getCourseLinkedExamsQueryKey = (options: Options<GetCourseLinkedExamsData>) =>
+  createQueryKey("getCourseLinkedExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExamsOptions = (options: Options<GetCourseLinkedExamsData>) =>
+  queryOptions<
+    GetCourseLinkedExamsResponse,
+    DefaultError,
+    GetCourseLinkedExamsResponse,
+    ReturnType<typeof getCourseLinkedExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkedExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkedExamsQueryKey(options),
   })
 
 export const getCourseExercisesQueryKey = (options: Options<GetCourseExercisesData>) =>
@@ -5087,6 +5145,29 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
         throwOnError: true,
       }),
     queryKey: getCourseLanguageVersionsQueryKey(options),
+  })
+
+export const getCourseLinkableExamsQueryKey = (options: Options<GetCourseLinkableExamsData>) =>
+  createQueryKey("getCourseLinkableExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkableExamsData>) =>
+  queryOptions<
+    GetCourseLinkableExamsResponse,
+    DefaultError,
+    GetCourseLinkableExamsResponse,
+    ReturnType<typeof getCourseLinkableExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkableExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkableExamsQueryKey(options),
   })
 
 /**

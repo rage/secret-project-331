@@ -30,6 +30,8 @@ use crate::staging::{self, WriteMode, WriteRequest, WriteSource};
 use crate::state::McpState;
 use crate::tools::args::{PatchCourseArgs, PatchCourseStructureArgs, PatchPageContentArgs};
 use crate::tools::{RequestContext, ToolError, ToolHandler, ToolOutcome};
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_models::course_modules;
 use headless_lms_models::library::agent_changesets::course_state::{CourseState, CourseView};
 use headless_lms_models::library::content_management::ChapterFrontPage;
 use headless_lms_models::page_language_groups::{self, PairingRefusal};
@@ -50,6 +52,26 @@ fn pairing_refused(page_id: Uuid, message: String) -> ToolError {
         EditError::new(EditErrorCode::InvalidValue, format!("pair_with of new page {page_id}: {message}"))
             .with_fix("pair_with takes the id of the published page this page translates, in another language version of the course (list_courses language_versions, get_course_structure page ids)"),
     )
+}
+
+/// Holds the modules whose completion or credit settings the call changed to the rules of the
+/// teacher's module editor, so agents can't stage what teachers can't save.
+fn validate_module_settings(before: &CourseState, after: &CourseState) -> Result<(), ToolError> {
+    for module in &after.modules {
+        let previous = before.modules.iter().find(|m| m.id == module.id);
+        course_modules::validate_completion_settings_if_changed(previous, module).map_err(
+            |error| {
+                ToolError::Edit(
+                    EditError::new(EditErrorCode::InvalidValue, error.message().to_string())
+                        .with_fix(format!(
+                            "change the settings of module {} together",
+                            module.id
+                        )),
+                )
+            },
+        )?;
+    }
+    Ok(())
 }
 
 /// Puts each new page of `pairings` (new page id to the page it translates) into the page
@@ -490,6 +512,7 @@ impl ToolHandler<McpState> for PatchCourseSettings {
         )?;
         let mut after = view.staged.clone();
         snapshots::apply_settings(&mut after, &result.settings);
+        validate_module_settings(&view.staged, &after)?;
         let report = staging::commit(
             state,
             ctx,

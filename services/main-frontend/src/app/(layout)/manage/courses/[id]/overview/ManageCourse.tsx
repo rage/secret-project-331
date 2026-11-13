@@ -32,6 +32,7 @@ import {
   courseUserExerciseStatesCsvHref,
 } from "@/utils/exportDownloadUrls"
 
+import CompletionPanel from "./CompletionPanel"
 import CourseMetadata from "./CourseMetadata"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
@@ -223,6 +224,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           </Link>
         </div>
       )}
+      <CompletionPanel course={course} />
       <div
         className={css`
           color: ${baseTheme.colors.gray[500]};

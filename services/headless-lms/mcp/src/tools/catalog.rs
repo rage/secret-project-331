@@ -177,7 +177,7 @@ pub fn get_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<S>
     define(
         handler,
         "get_course_settings",
-        "Reads course settings (name, description, listing, chapter locking, AI policy, audiences, module completion requirement) and each module's completion policy and certificates. Publishing and closing switches are shown but read-only. default_peer_review is the course default peer review config (counts, threshold, strategy, questions; read-only) or null; get_exercise reads its instructions.",
+        "Reads course settings (name, description, listing, chapter locking, AI policy, audiences, module completion requirement) and each module's exam, completion method, credits and certificates. Publishing and closing switches are shown but read-only. default_peer_review is the course default peer review config (counts, threshold, strategy, questions; read-only) or null; get_exercise reads its instructions.",
         read("Read course settings"),
         McpScope::MaterialRead,
     )
@@ -269,7 +269,7 @@ pub fn patch_course_settings<S>(handler: impl ToolHandler<S> + 'static) -> Tool<
         handler,
         PatchTarget::CourseSettings.tool_name(),
         concat!(
-            "Edits settings: replace /course/<field> (name, description, is_unlisted, chapter_locking_enabled, ai_policy, base_module_completion_requires_n_submodule_completions), add to /course/audiences (value {\"name\"}), remove /<audience id>, replace /<module id>/completion_policy or one of its fields (note the spelling \"treshold\"), /<module id>/certification_enabled. ",
+            "Edits settings: replace /course/<field> (name, description, is_unlisted, chapter_locking_enabled, ai_policy, base_module_completion_requires_n_submodule_completions), add to /course/audiences (value {\"name\"}), remove /<audience id>, replace /<module id>/<setting> (exam_requirement, exam_location_description, completion_method, points_threshold, exercises_attempted_threshold, credit_registration_route, uh_course_code, ects_credits, registration_link, certification_enabled; guide topic course-settings explains them). ",
             "Draft, test-mode and closing switches are read-only for agents. Module names are edited with patch_course_structure.",
             staging_note!()
         ),

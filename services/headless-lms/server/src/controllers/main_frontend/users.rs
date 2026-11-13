@@ -370,11 +370,9 @@ pub struct MyStudiesCourseModule {
     /// Attempted exercises an automatic completion requires. `None` when the module is completed
     /// manually or sets no attempt threshold.
     pub attempted_exercises_required: Option<i32>,
-    /// False when a teacher grades the module, in which case neither threshold says anything about
-    /// completing it.
-    pub automatic_completion: bool,
-    /// When true, the thresholds qualify the student to sit an exam rather than complete the module.
-    pub requires_exam: bool,
+    /// The thresholds say something only for `by_requirements`, and for `by_exam`, where they
+    /// qualify the student to take the exam rather than complete the module.
+    pub completion_method: models::course_modules::CompletionMethod,
     /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
@@ -547,7 +545,7 @@ async fn get_my_studies(
                     uh_course_code: course_module.uh_course_code.clone(),
                     supports_credit_registration: models::course_modules::registers_credits(
                         course_module.uh_course_code.as_deref(),
-                        course_module.completions_can_be_registered_to_sisu,
+                        course_module.credit_registration_route,
                     ) && registration_completion
                         .is_none_or(|completion| completion.register_credits_via_suotar),
                     is_credit_registration_starting: registration_completion.is_some_and(
@@ -561,11 +559,12 @@ async fn get_my_studies(
                         .map_or(0, |progress| progress.attempted_exercises),
                     attempted_exercises_required: progress
                         .and_then(|progress| progress.attempted_exercises_required),
-                    // Defaults to automatic: a missing row must not make the profile claim a
-                    // teacher grades the module.
-                    automatic_completion: progress
-                        .is_none_or(|progress| progress.automatic_completion),
-                    requires_exam: progress.is_some_and(|progress| progress.requires_exam),
+                    // Every module has a progress row; should one be missing, the profile must not
+                    // claim a teacher grades the module.
+                    completion_method: progress.map_or(
+                        models::course_modules::CompletionMethod::ByRequirements,
+                        |progress| progress.completion_method,
+                    ),
                     completion: best_completion_by_module.remove(&course_module.id),
                 }
             })
@@ -573,7 +572,9 @@ async fn get_my_studies(
         modules.sort_by_key(|m| m.order_number);
 
         // Only worth the queries when a module's requirements hinge on an exam.
-        let exam_passed = if modules.iter().any(|module| module.requires_exam) {
+        let exam_passed = if modules.iter().any(|module| {
+            module.completion_method == models::course_modules::CompletionMethod::ByExam
+        }) {
             Some(
                 models::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
                     &mut conn,

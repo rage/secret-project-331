@@ -275,7 +275,13 @@ test("Stored Suotar bodies keep the student number they carried", async ({ page 
     await expect(calls.getByRole("button", { name: "Show more" })).toHaveCount(
       details.suotar_api_calls.length,
     )
-    await calls.getByRole("button", { name: "Show more" }).first().click()
+    // The newest call is the verification, whose items carry only attainment ids.
+    await calls
+      .getByRole("row")
+      .filter({ hasText: "import_attainments" })
+      .first()
+      .getByRole("button", { name: "Show more" })
+      .click()
     await expect(calls.getByText(ADMIN_LINKED_STUDENT_NUMBER).first()).toBeVisible()
     await page.getByRole("link", { name: "Show the whole call" }).first().click()
     await expect(

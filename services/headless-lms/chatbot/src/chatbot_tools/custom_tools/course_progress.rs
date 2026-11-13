@@ -8,6 +8,7 @@ use crate::{
     user_context::ChatbotTurnContext,
 };
 use headless_lms_models::chatbot_configurations::ToolCategory;
+use headless_lms_models::course_modules::CompletionMethod;
 use headless_lms_models::user_exercise_states::UserCourseProgress;
 use headless_lms_utils::cache::Cache;
 
@@ -157,8 +158,11 @@ fn push_exercises_scores_progress(
     module_progress: &UserCourseProgress,
     course_or_module: &str,
 ) -> String {
-    let automatic_completion = module_progress.automatic_completion;
-    let requires_exam = module_progress.requires_exam;
+    let automatic_completion = matches!(
+        module_progress.completion_method,
+        CompletionMethod::ByRequirements | CompletionMethod::ByExam
+    );
+    let requires_exam = module_progress.completion_method == CompletionMethod::ByExam;
     let attempted_exercises = module_progress.attempted_exercises;
     let total_exercises = module_progress.total_exercises;
     let attempted_exercises_required = module_progress.attempted_exercises_required;
@@ -206,10 +210,18 @@ fn push_exercises_scores_progress(
     if requires_exam {
         res += &format!(" To pass this {course_or_module}, it's required to complete an exam.");
     }
-    if !automatic_completion {
-        res += &format!(
-            " This {course_or_module} is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the {course_or_module} in the course material or contact the teacher."
-        );
+    match module_progress.completion_method {
+        CompletionMethod::NotDecided => {
+            res += &format!(
+                " Information about how this {course_or_module} is completed isn't available yet."
+            );
+        }
+        CompletionMethod::TeacherAdds => {
+            res += &format!(
+                " This {course_or_module} is graded by a teacher and can't be automatically passed by completing exercises. The user should look for information about completing the {course_or_module} in the course material or contact the teacher."
+            );
+        }
+        CompletionMethod::ByRequirements | CompletionMethod::ByExam => {}
     }
 
     if attempted_exercises_required.is_some() || score_required.is_some() {
@@ -303,8 +315,7 @@ mod tests {
             total_exercises: Some(11),
             attempted_exercises: Some(4),
             attempted_exercises_required: Some(10),
-            automatic_completion: true,
-            requires_exam: false,
+            completion_method: CompletionMethod::ByRequirements,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -330,8 +341,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 total_exercises: Some(6),
                 attempted_exercises: None,
                 attempted_exercises_required: Some(5),
-                automatic_completion: true,
-                requires_exam: false,
+                completion_method: CompletionMethod::ByRequirements,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -343,8 +353,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 total_exercises: Some(5),
                 attempted_exercises: Some(5),
                 attempted_exercises_required: Some(5),
-                automatic_completion: true,
-                requires_exam: false,
+                completion_method: CompletionMethod::ByRequirements,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -356,8 +365,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 total_exercises: Some(6),
                 attempted_exercises: Some(4),
                 attempted_exercises_required: Some(5),
-                automatic_completion: true,
-                requires_exam: false,
+                completion_method: CompletionMethod::ByRequirements,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -369,8 +377,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 total_exercises: Some(2),
                 attempted_exercises: Some(2),
                 attempted_exercises_required: None,
-                automatic_completion: true,
-                requires_exam: false,
+                completion_method: CompletionMethod::ByRequirements,
             },
         ];
 
@@ -416,8 +423,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(0),
             attempted_exercises: None,
             attempted_exercises_required: None,
-            automatic_completion: true,
-            requires_exam: false,
+            completion_method: CompletionMethod::ByRequirements,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -443,8 +449,7 @@ Instructions for describing the output: [instructions]Describe this information 
             attempted_exercises: None,
             attempted_exercises_required: Some(10),
             // cannot be completed automatically
-            automatic_completion: false,
-            requires_exam: false,
+            completion_method: CompletionMethod::TeacherAdds,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -469,8 +474,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(10),
             attempted_exercises: None,
             attempted_exercises_required: None,
-            automatic_completion: true,
-            requires_exam: false,
+            completion_method: CompletionMethod::ByRequirements,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -495,8 +499,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(10),
             attempted_exercises: None,
             attempted_exercises_required: Some(10),
-            automatic_completion: true,
-            requires_exam: false,
+            completion_method: CompletionMethod::ByRequirements,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -521,8 +524,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(10),
             attempted_exercises: None,
             attempted_exercises_required: Some(10),
-            automatic_completion: true,
-            requires_exam: true,
+            completion_method: CompletionMethod::ByExam,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -547,8 +549,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(10),
             attempted_exercises: Some(10),
             attempted_exercises_required: Some(10),
-            automatic_completion: true,
-            requires_exam: true,
+            completion_method: CompletionMethod::ByExam,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -573,8 +574,7 @@ Instructions for describing the output: [instructions]Describe this information 
             total_exercises: Some(10),
             attempted_exercises: Some(10),
             attempted_exercises_required: None,
-            automatic_completion: true,
-            requires_exam: true,
+            completion_method: CompletionMethod::ByExam,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();

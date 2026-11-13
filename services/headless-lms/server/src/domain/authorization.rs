@@ -7,8 +7,8 @@ pub use headless_lms_authorization::error::{AuthorizationError, AuthorizationErr
 pub use headless_lms_authorization::{
     Action, ActionOnResource, AuthorizationToken, Resource, authorize, authorize_access_to_chatbot,
     authorize_access_to_course_exercise, authorize_access_to_course_material,
-    authorize_with_fetched_list_of_roles, can_user_view_chapter, is_permitted,
-    is_user_global_admin, skip_authorize,
+    authorize_with_fetched_list_of_roles, can_user_view_chapter, fetch_user_roles, is_permitted,
+    is_permitted_on_course, is_permitted_on_exam, is_user_global_admin, skip_authorize,
 };
 
 /// A controller's response payload. Only [AuthorizedOk::authorized_ok] can build one, so

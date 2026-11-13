@@ -116,11 +116,13 @@ impl From<course_modules::CourseModule> for ModuleSnapshot {
             name: module.name,
             order_number: module.order_number,
             completion_policy: module.completion_policy,
+            exam_requirement: module.exam_requirement,
+            exam_location_description: module.exam_location_description,
             certification_enabled: module.certification_enabled,
             uh_course_code: module.uh_course_code,
             ects_credits: module.ects_credits,
             completion_registration_link_override: module.completion_registration_link_override,
-            completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
+            credit_registration_route: module.credit_registration_route,
         }
     }
 }

@@ -1,5 +1,6 @@
 // The i18next literal-string lint only runs on .tsx, so these presentational literals live here.
 
+import type { DateFormatter } from "@internationalized/date"
 import type { TFunction } from "i18next"
 
 import type { EmailSendStatus } from "@/generated/api/types.generated"
@@ -98,6 +99,19 @@ export const ADMIN_PAGE_SIZE_OPTIONS = [25, 50, 100]
 
 /** `useDateFormatter` options for a chart axis, where the year is in the heading and not the tick. */
 export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
+
+/** A start and end as one range, or whichever of them is known; `null` when neither is. */
+export const formatDateWindow = (
+  formatter: DateFormatter,
+  starts: string | null | undefined,
+  ends: string | null | undefined,
+): string | null => {
+  if (starts && ends) {
+    return formatter.formatRange(new Date(starts), new Date(ends))
+  }
+  const only = starts || ends
+  return only ? formatter.format(new Date(only)) : null
+}
 
 /** Where a student can check that credits actually arrived. */
 export const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"

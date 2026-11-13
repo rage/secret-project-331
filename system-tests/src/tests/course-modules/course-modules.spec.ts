@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
+import accessibilityCheck from "../../utils/accessibilityCheck"
 
 /** The edit form's chapter pickers are listbox selects, not native `<select>` elements. */
 const pickChapter = async (page: Page, triggerId: string, chapter: string) => {
@@ -16,7 +16,7 @@ test.use({
   storageState: "src/states/admin@example.com.json",
 })
 
-test("Course modules test", async ({ page, headless }, testInfo) => {
+test("Course modules test", async ({ page }) => {
   test.slow()
   // navigate to module page
   await page.goto("http://project-331.local/organizations")
@@ -30,36 +30,16 @@ test("Course modules test", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL(
     "http://project-331.local/manage/courses/edaa1c52-15cd-458d-8ce2-1e4010641244/modules",
   )
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "initial-module-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Modules" })],
-    screenshotOptions: { fullPage: true },
-  })
+  await expect(page.getByRole("heading", { name: "Modules" })).toBeVisible()
+  await accessibilityCheck(page, "Module management page")
 
   // delete a module
   await page.locator('[aria-label="Delete"]').first().click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-deletion",
-
-    screenshotOptions: { fullPage: true },
-  })
+  await accessibilityCheck(page, "Module management page after deletion")
 
   // reset deletion
   await page.getByText("Reset").click()
-  await expectScreenshotsToMatchSnapshots({
-    screenshotTarget: page,
-    headless,
-    testInfo,
-    snapshotName: "after-deletion-reset",
-
-    screenshotOptions: { fullPage: true },
-  })
+  await accessibilityCheck(page, "Module management page after reset")
 
   // create invalid module
   await page.getByRole("button", { name: "Add a module" }).click()

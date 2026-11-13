@@ -290,7 +290,7 @@ pub async fn is_out_of_tries_given(
 fn out_of_tries_error() -> ControllerError {
     bad_request_with_reason(
         BadRequestReason::OutOfTries,
-        "You've ran out of tries.".to_string(),
+        "You've run out of tries.".to_string(),
     )
 }
 

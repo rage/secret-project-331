@@ -18,7 +18,7 @@ use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
-use headless_lms_models::user_exercise_states::UserExerciseState;
+use headless_lms_models::user_exercise_states::{ReviewingStage, UserExerciseState};
 use headless_lms_utils::course_url::course_page_url;
 use headless_lms_utils::version::Version;
 use models::CourseOrExamId;
@@ -521,12 +521,18 @@ async fn exercise_progress(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &models::exercises::Exercise,
-    course_id: Uuid,
+    course: &models::courses::Course,
     state: Option<&UserExerciseState>,
 ) -> models::ModelResult<api::ExerciseProgress> {
+    let course_id = course.id;
+    let pending_teacher_review = pending_teacher_review(
+        course.chapter_locking_enabled && exercise.teacher_reviews_answer_after_locking,
+        state,
+    );
     let may_be_out_of_tries =
         !has_received_full_points(state.and_then(|s| s.score_given), exercise.score_maximum)
-            && !is_being_graded(state);
+            && !is_being_graded(state)
+            && pending_teacher_review.is_none();
     let (try_counts, is_out_of_tries) = match exercise
         .max_tries_per_slide
         .filter(|_| exercise.limit_number_of_tries)
@@ -566,7 +572,29 @@ async fn exercise_progress(
         state,
         is_out_of_tries,
         try_counts,
+        pending_teacher_review,
     ))
+}
+
+/// What the user's points wait for, if a teacher must review their answer before awarding any.
+/// `reviews_after_chapter_lock` is whether the course locks chapters and the exercise has a teacher
+/// review its answers once the chapter is locked, which withholds the automatic points from the
+/// first graded answer on.
+fn pending_teacher_review(
+    reviews_after_chapter_lock: bool,
+    state: Option<&UserExerciseState>,
+) -> Option<api::PendingTeacherReview> {
+    let state = state?;
+    match state.reviewing_stage {
+        ReviewingStage::WaitingForManualGrading => Some(api::PendingTeacherReview::AwaitsTeacher),
+        ReviewingStage::NotStarted
+            if reviews_after_chapter_lock
+                && state.activity_progress != ActivityProgress::Initialized =>
+        {
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        }
+        _ => None,
+    }
 }
 
 /// A try-limited exercise's per-slide limit and how much of it is left on the user's slide.
@@ -584,13 +612,14 @@ fn derive_exercise_progress(
     state: Option<&UserExerciseState>,
     is_out_of_tries: bool,
     try_counts: Option<TryCounts>,
+    pending_teacher_review: Option<api::PendingTeacherReview>,
 ) -> api::ExerciseProgress {
     let score_given = state.and_then(|s| s.score_given);
     let activity_progress = state.map(|s| s.activity_progress).unwrap_or_default();
     let attempted = activity_progress != ActivityProgress::Initialized;
     let standing = if has_received_full_points(score_given, score_maximum) {
         api::ExerciseStanding::Passed
-    } else if is_out_of_tries && !is_being_graded(state) {
+    } else if is_out_of_tries && !is_being_graded(state) && pending_teacher_review.is_none() {
         api::ExerciseStanding::OutOfTries
     } else if attempted {
         api::ExerciseStanding::Attempted
@@ -606,6 +635,8 @@ fn derive_exercise_progress(
         standing: Some(standing),
         max_tries: try_counts.map(|t| t.max),
         tries_left: try_counts.map(|t| t.left),
+        pending_teacher_review,
+        exercise_locked: state.is_some_and(|s| !s.reviewing_stage.accepts_submissions()),
     }
 }
 
@@ -701,7 +732,7 @@ async fn get_course_progress(
             &mut conn,
             user.id,
             &exercise,
-            course.id,
+            &course,
             state_by_exercise.get(&exercise.id).copied(),
         )
         .await?;
@@ -1023,7 +1054,7 @@ fn verify_task_is_client_capable(
     responses(
         (status = 200, description = "The stored files, in the order the parts were sent", body = api::UploadedFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
-        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`); chapter locking is not checked for `?for=snapshot`", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`); neither lock is checked for `?for=snapshot`", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course, or for `?for=snapshot` never was (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed (`deadline_passed`) or every slide is out of tries (`out_of_tries`) (neither checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -1186,7 +1217,7 @@ async fn store_client_uploads(
     responses(
         (status = 200, description = "The created submission, identified by both its task and slide submission ids", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
-        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`, see `ExerciseProgress.exercise_locked`)", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), its deadline has passed (`deadline_passed`), the slide is out of tries (`out_of_tries`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -1450,6 +1481,7 @@ async fn get_submission_grading(
         Some(course_id) => {
             let exercise =
                 models::exercises::get_by_id(&mut conn, slide_submission.exercise_id).await?;
+            let course = models::courses::get_course(&mut conn, course_id).await?;
             let state = models::user_exercise_states::get_user_exercise_state_if_exists(
                 &mut conn,
                 user.id,
@@ -1457,7 +1489,7 @@ async fn get_submission_grading(
                 CourseOrExamId::Course(course_id),
             )
             .await?;
-            Some(exercise_progress(&mut conn, user.id, &exercise, course_id, state.as_ref()).await?)
+            Some(exercise_progress(&mut conn, user.id, &exercise, &course, state.as_ref()).await?)
         }
         None => None,
     };
@@ -1875,7 +1907,6 @@ mod tests {
     use super::*;
 
     use chrono::Utc;
-    use headless_lms_models::user_exercise_states::ReviewingStage;
 
     fn state_with(
         score_given: Option<f32>,
@@ -1972,7 +2003,7 @@ mod tests {
 
     #[test]
     fn progress_without_state_is_zero_and_untouched() {
-        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None, None);
         assert_eq!(p.score_given, 0.0);
         assert_eq!(p.score_maximum, 5);
         assert!(!p.completed);
@@ -1982,7 +2013,7 @@ mod tests {
     #[test]
     fn progress_started_is_attempted_not_completed() {
         let state = state_with(Some(0.0), ActivityProgress::Started);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert!(p.attempted);
         assert!(!p.completed);
     }
@@ -1990,7 +2021,7 @@ mod tests {
     #[test]
     fn progress_completed_reports_points_and_flags() {
         let state = state_with(Some(5.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert_eq!(p.score_given, 5.0);
         assert!(p.completed);
         assert!(p.attempted);
@@ -1999,25 +2030,25 @@ mod tests {
     #[test]
     fn standing_passes_only_at_full_points() {
         let partial = state_with(Some(4.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&partial), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&partial), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
 
         let full = state_with(Some(4.99995), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
 
-        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
     }
 
     #[test]
     fn standing_is_out_of_tries_below_full_points_only() {
         let zero = state_with(Some(0.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&zero), true, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&zero), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
 
         let full = state_with(Some(5.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
     }
 
@@ -2025,32 +2056,73 @@ mod tests {
     fn standing_stays_attempted_while_the_last_try_is_graded() {
         let mut pending = state_with(Some(0.0), ActivityProgress::Completed);
         pending.grading_progress = GradingProgress::Pending;
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&pending), true, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&pending), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
 
         let mut failed = state_with(Some(0.0), ActivityProgress::Completed);
         failed.grading_progress = GradingProgress::Failed;
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
     }
 
     #[test]
     fn a_zero_point_exercise_passes_once_graded() {
-        let p = derive_exercise_progress(Uuid::nil(), 0, None, false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 0, None, false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
 
         let graded = state_with(Some(0.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 0, Some(&graded), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 0, Some(&graded), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
     }
 
     #[test]
     fn progress_initialized_state_is_not_attempted() {
         let state = state_with(None, ActivityProgress::Initialized);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert_eq!(p.score_given, 0.0);
         assert!(!p.attempted);
         assert!(!p.completed);
+    }
+
+    #[test]
+    fn an_answer_held_until_the_chapter_is_locked_awaits_the_lock() {
+        let held = state_with(None, ActivityProgress::Completed);
+        assert_eq!(
+            pending_teacher_review(true, Some(&held)),
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        );
+        assert_eq!(pending_teacher_review(false, Some(&held)), None);
+
+        let unanswered = state_with(None, ActivityProgress::Initialized);
+        assert_eq!(pending_teacher_review(true, Some(&unanswered)), None);
+        assert_eq!(pending_teacher_review(true, None), None);
+    }
+
+    #[test]
+    fn an_answer_in_manual_review_awaits_the_teacher_and_locks_the_exercise() {
+        let mut waiting = state_with(None, ActivityProgress::Completed);
+        waiting.reviewing_stage = ReviewingStage::WaitingForManualGrading;
+        let review = pending_teacher_review(false, Some(&waiting));
+        assert_eq!(review, Some(api::PendingTeacherReview::AwaitsTeacher));
+
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&waiting), true, None, review);
+        assert_eq!(p.score_given, 0.0);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
+        assert!(p.exercise_locked);
+    }
+
+    #[test]
+    fn a_reviewed_answer_awaits_nothing_but_stays_locked() {
+        let mut reviewed = state_with(Some(5.0), ActivityProgress::Completed);
+        reviewed.reviewing_stage = ReviewingStage::ReviewedAndLocked;
+        assert_eq!(pending_teacher_review(true, Some(&reviewed)), None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&reviewed), false, None, None);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+        assert!(p.exercise_locked);
+
+        let open = state_with(Some(5.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&open), false, None, None);
+        assert!(!p.exercise_locked);
     }
 
     #[test]
@@ -4687,6 +4759,218 @@ mod route_tests {
             .find(|p| p.exercise_id == fixture.exercise)
             .expect("the fixture exercise has progress");
         assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+    }
+
+    /// A stub-graded fixture in a course that locks chapters, with the exercise's chapter unlocked
+    /// for the user. The exercise keeps the default of a teacher reviewing its answers once the
+    /// chapter is locked. Returns the chapter's id.
+    async fn chapter_locking_fixture() -> (Fixture, Uuid) {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let url = start_exercise_service_stub(state);
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        let course = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course");
+        models::courses::update_course(
+            &mut conn,
+            &upload_tests::app_conf(),
+            fixture.course,
+            models::courses::CourseUpdate {
+                chapter_locking_enabled: true,
+                ..models::courses::CourseUpdate::from(&course)
+            },
+            fixture.user,
+            true,
+        )
+        .await
+        .expect("chapter locking");
+        let exercise = models::exercises::get_by_id(&mut conn, fixture.exercise)
+            .await
+            .expect("exercise");
+        assert!(exercise.teacher_reviews_answer_after_locking);
+        let chapter = exercise.chapter_id.expect("the exercise is in a chapter");
+        models::user_chapter_locking_statuses::set_chapter_status(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+            models::user_chapter_locking_statuses::ChapterLockingStatus::Unlocked,
+        )
+        .await
+        .expect("chapter status");
+        (fixture, chapter)
+    }
+
+    /// The fixture exercise's entry in the user's course progress.
+    async fn fixture_exercise_progress(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        fixture: &Fixture,
+    ) -> api::ExerciseProgress {
+        let progress: api::CourseProgress = get_json(
+            app,
+            &fixture.token,
+            format!("/courses/{}/progress", fixture.course),
+        )
+        .await;
+        progress
+            .exercises
+            .into_iter()
+            .find(|p| p.exercise_id == fixture.exercise)
+            .expect("the fixture exercise has progress")
+    }
+
+    /// The student completing and locking the chapter, as the course material's lock route does.
+    async fn lock_chapter_as_student(fixture: &Fixture, chapter: Uuid) {
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::chapters::move_chapter_exercises_to_manual_review(
+            &mut conn,
+            chapter,
+            fixture.user,
+            fixture.course,
+        )
+        .await
+        .expect("manual review");
+        models::user_chapter_locking_statuses::complete_and_lock_chapter(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+        )
+        .await
+        .expect("chapter lock");
+    }
+
+    /// Under chapter locking a passing answer earns no points until the chapter is locked and a
+    /// teacher reviews it, as the course material shows; the grading and the progress say what the
+    /// points wait for instead of reading as a failed answer.
+    #[actix_web::test]
+    async fn points_held_for_teacher_review_report_what_they_wait_for() {
+        let (fixture, chapter) = chapter_locking_fixture().await;
+        let ids = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let submitted: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let status: api::ExerciseTaskSubmissionStatus = get_json(
+            &app,
+            &fixture.token,
+            format!("/submissions/{}/grading", submitted.task_submission_id),
+        )
+        .await;
+        let api::ExerciseTaskSubmissionStatus::Grading {
+            score_given,
+            exercise_progress: Some(progress),
+            ..
+        } = status
+        else {
+            panic!("expected a grading with exercise progress, got {status:?}");
+        };
+        assert!(score_given.is_some_and(|score| score > 0.0));
+        assert_eq!(
+            progress.pending_teacher_review,
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        );
+        assert_eq!(progress.score_given, 0.0);
+        assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+        assert!(!progress.exercise_locked);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(
+            progress.pending_teacher_review,
+            Some(api::PendingTeacherReview::AwaitsTeacher)
+        );
+        assert_eq!(progress.score_given, 0.0);
+        assert!(progress.exercise_locked);
+    }
+
+    /// The client takes a submission exactly when the course material does: not once the student
+    /// has locked the chapter, not after a teacher merely unlocks the chapter again, and again once
+    /// the teacher resets the exercise.
+    #[actix_web::test]
+    async fn a_locked_exercise_refuses_submissions_until_a_teacher_resets_it() {
+        let (fixture, chapter) = chapter_locking_fixture().await;
+        let first = upload_two(&fixture).await;
+        // Uploaded while the exercise is open, so the refusals below come from the lock rather than
+        // from the upload gate.
+        let held_back = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let submit = |ids: Vec<Uuid>| {
+            submit_request(
+                fixture.exercise,
+                &fixture.token,
+                &file_submission(fixture.slide, fixture.task, ids),
+            )
+            .to_request()
+        };
+        let response = test::call_service(&app, submit(first)).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let response = test::call_service(&app, submit(held_back.clone())).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "chapter_completed_and_locked");
+
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::user_chapter_locking_statuses::unlock_chapter(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+        )
+        .await
+        .expect("teacher unlock");
+        let response = test::call_service(&app, submit(held_back)).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "exercise_locked");
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "exercise_locked");
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert!(progress.exercise_locked);
+
+        models::exercises::reset_exercises_for_selected_users(
+            &mut conn,
+            &[(fixture.user, vec![fixture.exercise])],
+            None,
+            fixture.course,
+            None,
+        )
+        .await
+        .expect("reset");
+        open_exercise(&fixture).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert!(!progress.exercise_locked);
+        let response = test::call_service(&app, submit(upload_two(&fixture).await)).await;
+        assert_eq!(response.status(), StatusCode::OK);
     }
 
     fn snapshot_request(

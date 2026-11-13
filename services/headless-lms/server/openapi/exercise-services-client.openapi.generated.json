@@ -505,7 +505,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`); chapter locking is not checked for `?for=snapshot`",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`); neither lock is checked for `?for=snapshot`",
             "content": {
               "application/json": {
                 "schema": {
@@ -815,7 +815,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`)",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`, see `ExerciseProgress.exercise_locked`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1433,10 +1433,25 @@
             "type": "string",
             "format": "uuid"
           },
+          "exercise_locked": {
+            "type": "boolean",
+            "description": "`true` once the exercise takes no more submissions from the user, whatever the chapter's\n`locking_status` says: their answer was locked for review, graded by a teacher, or locked\nunanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are\nrefused with 403 `exercise_locked`. Absent from a host that predates the field."
+          },
           "max_tries": {
             "type": ["integer", "null"],
             "format": "int32",
             "description": "How many graded submissions the exercise accepts per slide. Absent when tries are\nunlimited, and from a host that predates the field."
+          },
+          "pending_teacher_review": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PendingTeacherReview",
+                "description": "What the user's points wait for when a teacher must review their answer before awarding\nany; `score_given` stays `0.0` until then, as in the course material. Absent when no review\nis pending, and from a host that predates the field."
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "score_given": {
             "type": "number",
@@ -1693,7 +1708,7 @@
                   "score_given": {
                     "type": ["number", "null"],
                     "format": "float",
-                    "description": "Absent until grading has produced a value; a partial value while `grading_progress`\nis still pending."
+                    "description": "Absent until grading has produced a value; a partial value while `grading_progress`\nis still pending. What the grading gave this submission, which the exercise's awarded\npoints need not include while a teacher review is pending (see `exercise_progress`)."
                   }
                 }
               }
@@ -1745,6 +1760,11 @@
             "type": "string"
           }
         }
+      },
+      "PendingTeacherReview": {
+        "type": "string",
+        "description": "What a user's points on an exercise wait for when a teacher reviews answers before awarding\npoints.",
+        "enum": ["awaits_chapter_lock", "awaits_teacher"]
       },
       "SnapshotPurpose": {
         "type": "string",

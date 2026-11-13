@@ -249,7 +249,8 @@ pub enum ExerciseTaskSubmissionStatus {
     Grading {
         grading_progress: GradingProgress,
         /// Absent until grading has produced a value; a partial value while `grading_progress`
-        /// is still pending.
+        /// is still pending. What the grading gave this submission, which the exercise's awarded
+        /// points need not include while a teacher review is pending (see `exercise_progress`).
         score_given: Option<f32>,
         grading_started_at: Option<DateTime<Utc>>,
         grading_completed_at: Option<DateTime<Utc>>,
@@ -390,6 +391,35 @@ pub struct ExerciseProgress {
     /// unlimited, and from a host that predates the field.
     #[serde(default)]
     pub tries_left: Option<i32>,
+    /// What the user's points wait for when a teacher must review their answer before awarding
+    /// any; `score_given` stays `0.0` until then, as in the course material. Absent when no review
+    /// is pending, and from a host that predates the field.
+    #[serde(default)]
+    pub pending_teacher_review: Option<PendingTeacherReview>,
+    /// `true` once the exercise takes no more submissions from the user, whatever the chapter's
+    /// `locking_status` says: their answer was locked for review, graded by a teacher, or locked
+    /// unanswered with its chapter. Only a teacher resetting the exercise lifts it. Submits are
+    /// refused with 403 `exercise_locked`. Absent from a host that predates the field.
+    #[serde(default)]
+    pub exercise_locked: bool,
+}
+
+/// What a user's points on an exercise wait for when a teacher reviews answers before awarding
+/// points.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum PendingTeacherReview {
+    /// The answer is graded, but the course locks chapters and awards this exercise's points only
+    /// after the user completes and locks its chapter and a teacher reviews the answer. The user
+    /// can still submit until they lock the chapter.
+    AwaitsChapterLock,
+    /// The answer is waiting for a teacher's review, and the exercise is locked.
+    AwaitsTeacher,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// Where the user stands on an exercise, decided by the host so every client agrees.
@@ -398,12 +428,13 @@ pub struct ExerciseProgress {
 pub enum ExerciseStanding {
     /// No graded submission and no try used.
     NotAttempted,
-    /// Below full points with tries left, or still being graded.
+    /// Below full points with tries left, still being graded, or waiting for a teacher's review
+    /// (`pending_teacher_review`).
     Attempted,
     /// A grading awarded full points. An exercise worth 0 points passes on its first grading.
     Passed,
-    /// Below full points (0 included) and the try limit is used up on every slide, so the
-    /// score is final.
+    /// Below full points (0 included), the try limit is used up on every slide and no teacher
+    /// review is pending, so the score is final.
     OutOfTries,
 }
 
@@ -446,6 +477,8 @@ mod test {
                 standing: Some(ExerciseStanding::Passed),
                 max_tries: None,
                 tries_left: None,
+                pending_teacher_review: None,
+                exercise_locked: false,
             }),
         };
         assert_eq!(
@@ -467,6 +500,8 @@ mod test {
                         "standing": "Passed",
                         "max_tries": null,
                         "tries_left": null,
+                        "pending_teacher_review": null,
+                        "exercise_locked": false,
                     },
                 }
             }),
@@ -697,6 +732,8 @@ mod test {
                 standing: Some(ExerciseStanding::OutOfTries),
                 max_tries: Some(3),
                 tries_left: Some(0),
+                pending_teacher_review: None,
+                exercise_locked: false,
             }],
             closed_chapters: Vec::new(),
         })
@@ -759,7 +796,35 @@ mod test {
         );
     }
 
-    /// A newer client must still read a host that predates `standing`.
+    #[test]
+    fn a_pending_teacher_review_and_a_locked_exercise_are_on_the_wire() {
+        let value = serde_json::to_value(ExerciseProgress {
+            exercise_id: Uuid::nil(),
+            score_given: 0.0,
+            score_maximum: 1,
+            completed: true,
+            attempted: true,
+            standing: Some(ExerciseStanding::Attempted),
+            max_tries: None,
+            tries_left: None,
+            pending_teacher_review: Some(PendingTeacherReview::AwaitsTeacher),
+            exercise_locked: true,
+        })
+        .unwrap();
+        assert_eq!(value["pending_teacher_review"], json!("awaits_teacher"));
+        assert_eq!(value["exercise_locked"], json!(true));
+        assert_eq!(
+            serde_json::to_value(PendingTeacherReview::AwaitsChapterLock).unwrap(),
+            json!("awaits_chapter_lock")
+        );
+        assert_eq!(
+            serde_json::from_value::<PendingTeacherReview>(json!("some_future_review")).unwrap(),
+            PendingTeacherReview::Unrecognized
+        );
+    }
+
+    /// A newer client must still read a host that predates `standing`, the teacher review and the
+    /// exercise lock, and reads their absence as no review pending and an open exercise.
     #[test]
     fn progress_without_standing_still_parses() {
         let progress: ExerciseProgress = serde_json::from_value(json!({
@@ -771,6 +836,8 @@ mod test {
         }))
         .unwrap();
         assert_eq!(progress.standing, None);
+        assert_eq!(progress.pending_teacher_review, None);
+        assert!(!progress.exercise_locked);
     }
 
     #[test]

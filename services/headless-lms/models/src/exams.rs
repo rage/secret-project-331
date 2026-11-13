@@ -432,6 +432,7 @@ FROM exams
   JOIN courses ON courses.id = course_exams.course_id
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
+  AND course_exams.deleted_at IS NULL
   AND courses.deleted_at IS NULL
 ",
         organization

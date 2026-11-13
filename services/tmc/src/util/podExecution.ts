@@ -268,45 +268,75 @@ async function waitForPodRunning(
 }
 
 /**
- * Stream a submission archive into the pod and extract it into `/app/`.
- * Always closes the local file stream to avoid fd leaks on errors/timeouts.
+ * Where the submission is extracted and tested. Not `/app` itself: the Java image ships a Maven
+ * project there with root-owned `src/` and `pom.xml`, which the sandbox user cannot overwrite.
+ * `/tmc-run` tests its working directory but still writes its output to `/app/test_output.txt`.
  */
-async function copySubmissionToPod(
+const SUBMISSION_DIR = "/app/submission"
+const TEST_OUTPUT_PATH = "/app/test_output.txt"
+const MAX_CAPTURED_STDERR_BYTES = 4096
+
+/**
+ * Runs `command` in the sandbox container and throws, with the command's stderr, unless it
+ * exits successfully.
+ */
+async function execOrThrow(
+  kubeExec: k8s.Exec,
+  podName: string,
+  command: string[],
+  stdin: internal.Readable | null,
+): Promise<void> {
+  const out = captureStream(0)
+  const err = captureStream(MAX_CAPTURED_STDERR_BYTES)
+  const result = await execWithTimeout(
+    kubeExec,
+    podName,
+    CONTAINER_NAME,
+    command,
+    out.stream,
+    err.stream,
+    stdin,
+    DEFAULT_TASK_TIMEOUT_MS,
+  )
+  const name = command[0]
+  if (result.timedOut) {
+    throw new Error(`Running ${name} inside the container timed out`)
+  }
+  if (result.exitCode !== undefined && result.exitCode !== 0) {
+    const stderr = err.getBuffer().toString().trim()
+    throw new Error(
+      `${name} exited with code ${result.exitCode}${stderr === "" ? "" : `: ${stderr}`}`,
+    )
+  }
+}
+
+/**
+ * Stream a submission archive into the pod and extract it into a fresh directory the sandbox user
+ * owns. Always closes the local file stream to avoid fd leaks on errors/timeouts.
+ */
+export async function copySubmissionToPod(
   kubeExec: k8s.Exec,
   podName: string,
   submissionPath: string,
 ): Promise<void> {
   const submissionReadStream = createReadStream(submissionPath)
-  const out = captureStream(0)
-  const err = captureStream(0)
   try {
-    const tarResult = await execWithTimeout(
+    await execOrThrow(kubeExec, podName, ["mkdir", "-p", SUBMISSION_DIR], null)
+    await execOrThrow(
       kubeExec,
       podName,
-      CONTAINER_NAME,
       [
         "tar",
-        "--verbose",
         "--use-compress-program",
         "zstd",
         "--extract",
         "--file",
         "-",
         "--directory",
-        "/app/",
+        SUBMISSION_DIR,
       ],
-      out.stream,
-      err.stream,
       submissionReadStream,
-      DEFAULT_TASK_TIMEOUT_MS,
     )
-    if (tarResult.timedOut) {
-      throw new Error("Running tar inside the container timed out")
-    }
-    const exitCode = tarResult.exitCode
-    if (exitCode !== undefined && exitCode !== 0) {
-      throw new Error(`Tar exited with code ${exitCode}`)
-    }
   } finally {
     submissionReadStream.destroy()
   }
@@ -317,10 +347,11 @@ export type TmcRunOutcome =
   | { timedOut: false; output: string; parsed: unknown }
 
 /**
- * Run `/tmc-run`, then read `/app/test_output.txt` from the pod and parse it as JSON.
- * Returns a synthetic "GENERIC_ERROR" payload if the process fails or output is not valid JSON.
+ * Run `/tmc-run` on the extracted submission, then read its output from the pod and parse it as
+ * JSON. Returns a synthetic "GENERIC_ERROR" payload if the process fails or output is not valid
+ * JSON.
  */
-async function runTmcAndReadOutput(
+export async function runTmcAndReadOutput(
   kubeExec: k8s.Exec,
   podName: string,
   logger: Logger,
@@ -331,7 +362,8 @@ async function runTmcAndReadOutput(
     kubeExec,
     podName,
     CONTAINER_NAME,
-    ["/tmc-run"],
+    // exec has no working directory of its own, and `/tmc-run` tests `.`.
+    ["sh", "-c", 'cd "$1" && exec /tmc-run', "sh", SUBMISSION_DIR],
     out.stream,
     err.stream,
     null,
@@ -365,7 +397,7 @@ async function runTmcAndReadOutput(
       kubeExec,
       podName,
       CONTAINER_NAME,
-      ["cat", "/app/test_output.txt"],
+      ["cat", TEST_OUTPUT_PATH],
       testOutputWriteStream,
       catOut.stream,
       null,
@@ -375,7 +407,7 @@ async function runTmcAndReadOutput(
       throw new Error("Running cat inside the container timed out")
     }
     if (catResult.exitCode !== undefined && catResult.exitCode !== 0) {
-      throw new Error(`Cat /app/test_output.txt exited with code ${catResult.exitCode}`)
+      throw new Error(`Cat ${TEST_OUTPUT_PATH} exited with code ${catResult.exitCode}`)
     }
     await finished(testOutputWriteStream)
     testOutputWriteStream = null

@@ -60,9 +60,10 @@ const execute = async (
       clearTimeout(timeout)
       reject(error)
     })
-    cprocess.on("close", (_code) => {
-      // the process has finished
+    cprocess.on("close", (code) => {
       clearTimeout(timeout)
+      // A no-op when the output already settled the promise.
+      reject(new Error(`tmc-langs-cli exited with code ${String(code)} without a result`))
     })
 
     // stdout/err events

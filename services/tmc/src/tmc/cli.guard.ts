@@ -49,7 +49,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 typedObj["data"]["output-data"]["trace"].every((e: any) =>
                     typeof e === "string"
                 ) &&
-                typeof typedObj["data"]["output-data"]["http_status"] === "number" ||
+                (typeof typedObj["data"]["output-data"]["http_status"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["http_status"] === "number") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -145,18 +146,24 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["tmcproject-yml"]["force_update"].every((e: any) =>
                             typeof e === "string"
                         ) &&
-                        typeof e["tmcproject-yml"]["tests_timeout_ms"] === "number" &&
-                        typeof e["tmcproject-yml"]["fail_on_valgrind_error"] === "boolean" &&
-                        (e["tmcproject-yml"]["minimum_python_version"] !== null &&
-                            typeof e["tmcproject-yml"]["minimum_python_version"] === "object" ||
-                            typeof e["tmcproject-yml"]["minimum_python_version"] === "function") &&
-                        typeof e["tmcproject-yml"]["minimum_python_version"]["major"] === "number" &&
-                        (e["tmcproject-yml"]["minimum_python_version"]["minor"] === null ||
-                            typeof e["tmcproject-yml"]["minimum_python_version"]["minor"] === "number") &&
-                        (e["tmcproject-yml"]["minimum_python_version"]["patch"] === null ||
-                            typeof e["tmcproject-yml"]["minimum_python_version"]["patch"] === "number") &&
-                        typeof e["tmcproject-yml"]["sandbox_image"] === "string" &&
-                        typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "number")
+                        (typeof e["tmcproject-yml"]["tests_timeout_ms"] === "undefined" ||
+                            typeof e["tmcproject-yml"]["tests_timeout_ms"] === "number") &&
+                        (typeof e["tmcproject-yml"]["fail_on_valgrind_error"] === "undefined" ||
+                            e["tmcproject-yml"]["fail_on_valgrind_error"] === false ||
+                            e["tmcproject-yml"]["fail_on_valgrind_error"] === true) &&
+                        (typeof e["tmcproject-yml"]["minimum_python_version"] === "undefined" ||
+                            (e["tmcproject-yml"]["minimum_python_version"] !== null &&
+                                typeof e["tmcproject-yml"]["minimum_python_version"] === "object" ||
+                                typeof e["tmcproject-yml"]["minimum_python_version"] === "function") &&
+                            typeof e["tmcproject-yml"]["minimum_python_version"]["major"] === "number" &&
+                            (e["tmcproject-yml"]["minimum_python_version"]["minor"] === null ||
+                                typeof e["tmcproject-yml"]["minimum_python_version"]["minor"] === "number") &&
+                            (e["tmcproject-yml"]["minimum_python_version"]["patch"] === null ||
+                                typeof e["tmcproject-yml"]["minimum_python_version"]["patch"] === "number")) &&
+                        (typeof e["tmcproject-yml"]["sandbox_image"] === "undefined" ||
+                            typeof e["tmcproject-yml"]["sandbox_image"] === "string") &&
+                        (typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "undefined" ||
+                            typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "number"))
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -216,19 +223,20 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["exercise-id"] === "string" &&
                     typeof e["path"] === "string"
                 ) &&
-                Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
-                typedObj["data"]["output-data"]["failed"].every((e: any) =>
-                    Array.isArray(e) &&
-                    (e[0] !== null &&
-                        typeof e[0] === "object" ||
-                        typeof e[0] === "function") &&
-                    typeof e[0]["exercise-id"] === "string" &&
-                    typeof e[0]["path"] === "string" &&
-                    Array.isArray(e[1]) &&
-                    e[1].every((e: any) =>
-                        typeof e === "string"
-                    )
-                ) ||
+                (typeof typedObj["data"]["output-data"]["failed"] === "undefined" ||
+                    Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
+                    typedObj["data"]["output-data"]["failed"].every((e: any) =>
+                        Array.isArray(e) &&
+                        (e[0] !== null &&
+                            typeof e[0] === "object" ||
+                            typeof e[0] === "function") &&
+                        typeof e[0]["exercise-id"] === "string" &&
+                        typeof e[0]["path"] === "string" &&
+                        Array.isArray(e[1]) &&
+                        e[1].every((e: any) =>
+                            typeof e === "string"
+                        )
+                    )) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -989,21 +997,22 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["exercise-slug"] === "string" &&
                     typeof e["path"] === "string"
                 ) &&
-                Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
-                typedObj["data"]["output-data"]["failed"].every((e: any) =>
-                    Array.isArray(e) &&
-                    (e[0] !== null &&
-                        typeof e[0] === "object" ||
-                        typeof e[0] === "function") &&
-                    typeof e[0]["id"] === "number" &&
-                    typeof e[0]["course-slug"] === "string" &&
-                    typeof e[0]["exercise-slug"] === "string" &&
-                    typeof e[0]["path"] === "string" &&
-                    Array.isArray(e[1]) &&
-                    e[1].every((e: any) =>
-                        typeof e === "string"
-                    )
-                ) ||
+                (typeof typedObj["data"]["output-data"]["failed"] === "undefined" ||
+                    Array.isArray(typedObj["data"]["output-data"]["failed"]) &&
+                    typedObj["data"]["output-data"]["failed"].every((e: any) =>
+                        Array.isArray(e) &&
+                        (e[0] !== null &&
+                            typeof e[0] === "object" ||
+                            typeof e[0] === "function") &&
+                        typeof e[0]["id"] === "number" &&
+                        typeof e[0]["course-slug"] === "string" &&
+                        typeof e[0]["exercise-slug"] === "string" &&
+                        typeof e[0]["path"] === "string" &&
+                        Array.isArray(e[1]) &&
+                        e[1].every((e: any) =>
+                            typeof e === "string"
+                        )
+                    )) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&

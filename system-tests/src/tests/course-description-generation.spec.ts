@@ -53,7 +53,7 @@ test.describe("Course metadata generation", () => {
         page
           .locator("form")
           .filter({ hasText: "Edit module" })
-          .getByLabel("University of Helsinki course code"),
+          .getByRole("textbox", { name: "Course code", exact: true }),
       ).toHaveValue("TEST002")
       await page
         .locator("form")
@@ -64,7 +64,7 @@ test.describe("Course metadata generation", () => {
         page
           .locator("form")
           .filter({ hasText: "Default" })
-          .getByLabel("University of Helsinki course code"),
+          .getByRole("textbox", { name: "Course code", exact: true }),
       ).toHaveValue("")
     })
 
@@ -85,13 +85,18 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default" })
-        .getByLabel("University of Helsinki course code")
+        .getByRole("textbox", { name: "Course code", exact: true })
         .fill("TEST001")
       await page
         .locator("form")
         .filter({ hasText: "Default" })
-        .getByLabel("ECTS credits", { exact: true })
+        .getByRole("textbox", { name: "Credits (ECTS)", exact: true })
         .fill("5")
+      await page
+        .locator("form")
+        .filter({ hasText: "Default" })
+        .getByRole("textbox", { name: "Registration link", exact: true })
+        .fill("https://example.com/register")
       await page.keyboard.press("Tab")
       await page
         .locator("form")
@@ -272,7 +277,7 @@ test.describe("Course metadata generation", () => {
         page.getByText("Linux operating systems and web development experience are useful"),
       ).toHaveCount(0)
       await expect(page.getByText("this replaces")).toBeVisible()
-      await expect(page.getByText("test")).toBeVisible()
+      await expect(page.getByText("test", { exact: true })).toBeVisible()
     })
   })
 

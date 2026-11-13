@@ -81,6 +81,11 @@ pub enum ControllerErrorType {
     #[display("Forbidden")]
     Forbidden,
 
+    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
+    /// token that lacks a scope.
+    #[display("Forbidden")]
+    ForbiddenWithReason(ForbiddenReason),
+
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
@@ -111,6 +116,32 @@ impl UnauthorizedReason {
     }
 }
 
+/// Reasons a logged-in user may not answer an exercise, which a client can branch on.
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ForbiddenReason {
+    /// The exercise's chapter has not opened yet.
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    /// Chapter locking keeps the chapter closed until the previous ones are completed.
+    #[display("Chapter not unlocked yet")]
+    ChapterNotUnlockedYet,
+    /// The user has completed and locked the chapter.
+    #[display("Chapter completed and locked")]
+    ChapterCompletedAndLocked,
+}
+
+impl ForbiddenReason {
+    /// Returns the stable message key for this forbidden reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
+            Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
+        }
+    }
+}
+
 /// Builds a 422 whose `message_key` the client keys its error handling on.
 pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
     controller_err!(BadRequestWithReason(reason), message)
@@ -129,6 +160,12 @@ pub enum BadRequestReason {
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
+    /// The exercise's deadline, or its chapter's, has passed.
+    #[display("Deadline passed")]
+    DeadlinePassed,
+    /// The user has used every try the exercise allows.
+    #[display("Out of tries")]
+    OutOfTries,
     /// A submission named a file that was uploaded but has since been reaped.
     #[display("Upload expired")]
     UploadExpired,
@@ -159,6 +196,8 @@ impl BadRequestReason {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
             Self::ForeignKeyViolation => "foreign_key_violation",
             Self::NotEnrolled => "not_enrolled",
+            Self::DeadlinePassed => "deadline_passed",
+            Self::OutOfTries => "out_of_tries",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
@@ -564,6 +603,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -611,6 +651,7 @@ impl ControllerError {
                 ("unauthorized", reason.message_key())
             }
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::ForbiddenWithReason(reason) => ("forbidden", reason.message_key()),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
             ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
         }
@@ -1425,6 +1466,32 @@ mod tests {
 
         assert_eq!(value["type"], "validation_error");
         assert_eq!(value["message_key"], "not_enrolled");
+    }
+
+    #[test]
+    fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
+        for (reason, key) in [
+            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (
+                ForbiddenReason::ChapterNotUnlockedYet,
+                "chapter_not_unlocked_yet",
+            ),
+            (
+                ForbiddenReason::ChapterCompletedAndLocked,
+                "chapter_completed_and_locked",
+            ),
+        ] {
+            let response =
+                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+            let bytes = actix_web::body::to_bytes(response.into_body())
+                .now_or_never()
+                .expect("response should resolve immediately")
+                .expect("body bytes");
+            let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+            assert_eq!(value["type"], "forbidden");
+            assert_eq!(value["message_key"], key);
+        }
     }
 
     #[test]

@@ -65,6 +65,8 @@ pub struct ExerciseSlide {
     pub course_id: Uuid,
     pub exercise_name: String,
     pub exercise_order_number: i32,
+    /// The effective deadline: the exercise's own, else its chapter's. Submissions are refused
+    /// from this moment on.
     pub deadline: Option<DateTime<Utc>>,
     pub tasks: Vec<ExerciseTask>,
     /// The course material page the exercise is on, where the student can also see their latest
@@ -85,6 +87,29 @@ pub struct ExerciseChapter {
     pub name: String,
     /// The chapter's position in the course, from 1.
     pub chapter_number: i32,
+    /// The user's status in the course's chapter locking. Submissions to the chapter's exercises
+    /// are refused unless it is `unlocked`. Absent when the course does not lock chapters, and from
+    /// a host that predates the field.
+    #[serde(default)]
+    pub locking_status: Option<ChapterLockingStatus>,
+}
+
+/// Where the user is in a course's chapter locking, which opens chapters one at a time as the
+/// previous ones are completed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ChapterLockingStatus {
+    /// The chapter's exercises can be submitted to.
+    Unlocked,
+    /// The user has completed the chapter and locked it; its exercises take no more submissions.
+    CompletedAndLocked,
+    /// The previous chapters must be completed first.
+    NotUnlockedYet,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// One task of an exercise slide, as produced by a specific exercise service.
@@ -308,6 +333,24 @@ pub struct CourseProgress {
     /// The course these progress entries belong to; echoes the path id.
     pub course_id: Uuid,
     pub exercises: Vec<ExerciseProgress>,
+    /// The chapters that have not opened yet, with the user's progress on their exercises. Those
+    /// exercises are absent from `exercises` and from `courses/{id}/exercises` until the chapter
+    /// opens, so a client must not take their absence to mean they were removed. Absent from a
+    /// host that predates the field.
+    #[serde(default)]
+    pub closed_chapters: Vec<ClosedChapter>,
+}
+
+/// A chapter of the course that opens later.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct ClosedChapter {
+    pub id: Uuid,
+    pub name: String,
+    /// The chapter's position in the course, from 1.
+    pub chapter_number: i32,
+    pub opens_at: DateTime<Utc>,
+    pub exercises: Vec<ExerciseProgress>,
 }
 
 /// The current user's progress on a single exercise.
@@ -331,6 +374,14 @@ pub struct ExerciseProgress {
     /// Absent only from a host that predates the field.
     #[serde(default)]
     pub standing: Option<ExerciseStanding>,
+    /// How many graded submissions the exercise accepts per slide. Absent when tries are
+    /// unlimited, and from a host that predates the field.
+    #[serde(default)]
+    pub max_tries: Option<i32>,
+    /// How many of `max_tries` are left on the slide the user answers. Absent when tries are
+    /// unlimited, and from a host that predates the field.
+    #[serde(default)]
+    pub tries_left: Option<i32>,
 }
 
 /// Where the user stands on an exercise, decided by the host so every client agrees.
@@ -385,6 +436,8 @@ mod test {
                 completed: true,
                 attempted: true,
                 standing: Some(ExerciseStanding::Passed),
+                max_tries: None,
+                tries_left: None,
             }),
         };
         assert_eq!(
@@ -404,6 +457,8 @@ mod test {
                         "completed": true,
                         "attempted": true,
                         "standing": "Passed",
+                        "max_tries": null,
+                        "tries_left": null,
                     },
                 }
             }),
@@ -632,7 +687,10 @@ mod test {
                 completed: false,
                 attempted: true,
                 standing: Some(ExerciseStanding::OutOfTries),
+                max_tries: Some(3),
+                tries_left: Some(0),
             }],
+            closed_chapters: Vec::new(),
         })
         .unwrap();
         let obj = value.as_object().unwrap();
@@ -644,6 +702,53 @@ mod test {
         assert_eq!(ex["completed"], json!(false));
         assert_eq!(ex["attempted"], json!(true));
         assert_eq!(ex["standing"], json!("OutOfTries"));
+        assert_eq!(ex["max_tries"], json!(3));
+        assert_eq!(ex["tries_left"], json!(0));
+        assert_eq!(obj["closed_chapters"], json!([]));
+    }
+
+    /// A newer client must still read a host that predates the try counts and closed chapters,
+    /// and reads their absence as unlimited tries and no closed chapters.
+    #[test]
+    fn progress_without_tries_or_closed_chapters_still_parses() {
+        let progress: CourseProgress = serde_json::from_value(json!({
+            "course_id": Uuid::nil(),
+            "exercises": [{
+                "exercise_id": Uuid::nil(),
+                "score_given": 0.0,
+                "score_maximum": 1,
+                "completed": false,
+                "attempted": false,
+                "standing": "NotAttempted",
+            }],
+        }))
+        .unwrap();
+        assert_eq!(progress.exercises[0].max_tries, None);
+        assert_eq!(progress.exercises[0].tries_left, None);
+        assert!(progress.closed_chapters.is_empty());
+    }
+
+    #[test]
+    fn chapter_locking_status_wire_values() {
+        let chapter: ExerciseChapter = serde_json::from_value(json!({
+            "id": Uuid::nil(),
+            "name": "name",
+            "chapter_number": 1,
+            "locking_status": "not_unlocked_yet",
+        }))
+        .unwrap();
+        assert_eq!(
+            chapter.locking_status,
+            Some(ChapterLockingStatus::NotUnlockedYet)
+        );
+        assert_eq!(
+            serde_json::to_value(ChapterLockingStatus::CompletedAndLocked).unwrap(),
+            json!("completed_and_locked")
+        );
+        assert_eq!(
+            serde_json::from_value::<ChapterLockingStatus>(json!("some_future_status")).unwrap(),
+            ChapterLockingStatus::Unrecognized
+        );
     }
 
     /// A newer client must still read a host that predates `standing`.

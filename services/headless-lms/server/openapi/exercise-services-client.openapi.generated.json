@@ -258,7 +258,7 @@
     "/api/v0/exercise-services/client/courses/{id}/progress": {
       "get": {
         "tags": ["exercise-services-client"],
-        "summary": "* GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points, completed/attempted signals and standing. One round-trip; course totals are\n * derivable by summing the returned entries.",
+        "summary": "* GET /api/v0/exercise-services/client/courses/:id/progress\n *\n * Returns the current user's progress on every exercise of the course that lives in an\n * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum\n * points, completed/attempted signals, standing and tries. Exercises of chapters that have not\n * opened yet come separately, under their chapter. One round-trip; course totals are derivable\n * by summing the returned entries.",
         "operationId": "getClientCourseProgress",
         "parameters": [
           {
@@ -388,7 +388,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, or the exercise's chapter has not opened yet (message_key `chapter_not_open_yet`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -505,7 +505,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`); chapter locking is not checked for `?for=snapshot`",
             "content": {
               "application/json": {
                 "schema": {
@@ -525,7 +525,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries (not checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules",
+            "description": "The user is not enrolled to this exercise's course, or for `?for=snapshot` never was (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed (`deadline_passed`) or every slide is out of tries (`out_of_tries`) (neither checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules",
             "content": {
               "application/json": {
                 "schema": {
@@ -611,7 +611,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, or its chapter has not opened yet (`chapter_not_open_yet`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -631,7 +631,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
+            "description": "The user never enrolled on this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -815,7 +815,7 @@
             }
           },
           "403": {
-            "description": "The token lacks the `exercise-services` scope, or the user may not view this exercise",
+            "description": "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), or chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -835,7 +835,7 @@
             }
           },
           "422": {
-            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
+            "description": "The user is not enrolled to this exercise's course (message_key `not_enrolled`), its deadline has passed (`deadline_passed`), the slide is out of tries (`out_of_tries`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)",
             "content": {
               "application/json": {
                 "schema": {
@@ -1217,6 +1217,40 @@
           }
         }
       },
+      "ChapterLockingStatus": {
+        "type": "string",
+        "description": "Where the user is in a course's chapter locking, which opens chapters one at a time as the\nprevious ones are completed.",
+        "enum": ["unlocked", "completed_and_locked", "not_unlocked_yet"]
+      },
+      "ClosedChapter": {
+        "type": "object",
+        "description": "A chapter of the course that opens later.",
+        "required": ["id", "name", "chapter_number", "opens_at", "exercises"],
+        "properties": {
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The chapter's position in the course, from 1."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseProgress"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "opens_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "Course": {
         "type": "object",
         "description": "A course the current user can browse or is enrolled in.",
@@ -1255,6 +1289,13 @@
         "description": "The current user's progress across every exercise they can see in a course, returned\nby `courses/{id}/progress` in a single round-trip. Course-level totals are not sent\nseparately; the client derives them by summing over `exercises` (e.g. total awarded =\n`sum(score_given)`, total available = `sum(score_maximum)`).",
         "required": ["course_id", "exercises"],
         "properties": {
+          "closed_chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClosedChapter"
+            },
+            "description": "The chapters that have not opened yet, with the user's progress on their exercises. Those\nexercises are absent from `exercises` and from `courses/{id}/exercises` until the chapter\nopens, so a client must not take their absence to mean they were removed. Absent from a\nhost that predates the field."
+          },
           "course_id": {
             "type": "string",
             "format": "uuid",
@@ -1282,6 +1323,17 @@
             "type": "string",
             "format": "uuid"
           },
+          "locking_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ChapterLockingStatus",
+                "description": "The user's status in the course's chapter locking. Submissions to the chapter's exercises\nare refused unless it is `unlocked`. Absent when the course does not lock chapters, and from\na host that predates the field."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "name": {
             "type": "string"
           }
@@ -1304,6 +1356,11 @@
             "type": "string",
             "format": "uuid"
           },
+          "max_tries": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "How many graded submissions the exercise accepts per slide. Absent when tries are\nunlimited, and from a host that predates the field."
+          },
           "score_given": {
             "type": "number",
             "format": "float",
@@ -1324,6 +1381,11 @@
                 "type": "null"
               }
             ]
+          },
+          "tries_left": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "How many of `max_tries` are left on the slide the user answers. Absent when tries are\nunlimited, and from a host that predates the field."
           }
         }
       },
@@ -1357,7 +1419,8 @@
           },
           "deadline": {
             "type": ["string", "null"],
-            "format": "date-time"
+            "format": "date-time",
+            "description": "The effective deadline: the exercise's own, else its chapter's. Submissions are refused\nfrom this moment on."
           },
           "exercise_id": {
             "type": "string",

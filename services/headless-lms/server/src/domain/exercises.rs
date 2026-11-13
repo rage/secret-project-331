@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
+    domain::error::{BadRequestReason, ForbiddenReason, bad_request_with_reason},
     domain::exercise_services::answer_uploads,
     domain::models_requests::{self, JwtKey},
     prelude::*,
@@ -276,7 +277,10 @@ pub async fn is_out_of_tries(
 /// The rejection both try-limit checks report, kept in one place because the message reaches the
 /// student verbatim.
 fn out_of_tries_error() -> ControllerError {
-    controller_err!(BadRequest, "You've ran out of tries.".to_string())
+    bad_request_with_reason(
+        BadRequestReason::OutOfTries,
+        "You've ran out of tries.".to_string(),
+    )
 }
 
 /// The per-slide try limit, or `None` when the exercise does not limit tries.
@@ -304,11 +308,10 @@ async fn enforce_chapter_locking(
     )
     .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ChapterNotUnlockedYet),
             "Complete and lock the previous chapter to unlock exercises in this chapter."
-                .to_string(),
-            None,
+                .to_string()
         ));
     }
     if models::user_chapter_locking_statuses::is_chapter_exercises_locked(
@@ -316,10 +319,9 @@ async fn enforce_chapter_locking(
     )
     .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "The current chapter is locked, and you can no longer submit exercises.".to_string(),
-            None,
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ChapterCompletedAndLocked),
+            "The current chapter is locked, and you can no longer submit exercises.".to_string()
         ));
     }
     Ok(())
@@ -342,10 +344,9 @@ async fn enforce_deadline(
         .or_else(|| chapter.and_then(|c| c.deadline))
         && Utc::now() + Duration::seconds(1) >= deadline
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
+        return Err(bad_request_with_reason(
+            BadRequestReason::DeadlinePassed,
             "Exercise deadline passed.".to_string(),
-            None,
         ));
     }
 

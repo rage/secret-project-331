@@ -1,4 +1,5 @@
 use crate::{domain::models_requests, prelude::*};
+use headless_lms_models::ModelErrorType;
 use headless_lms_models::exercise_slide_submission_shares::{
     ExerciseSlideSubmissionShare, SharedSubmissionInfo,
 };
@@ -107,7 +108,7 @@ async fn get_shared_submission_info(
     auth_token.authorized_ok(web::Json(res))
 }
 
-/// The course material page the exercise is on, or `None` for an exam exercise.
+/// The course material page the exercise is on, or `None` for an exam exercise or a deleted course.
 async fn exercise_page_url(
     conn: &mut PgConnection,
     exercise: &models::exercises::Exercise,
@@ -116,7 +117,18 @@ async fn exercise_page_url(
     let Some(course_id) = exercise.course_id else {
         return Ok(None);
     };
-    let course = models::courses::get_course(conn, course_id).await?;
+    let course = match models::courses::get_course(conn, course_id).await {
+        Ok(course) => course,
+        Err(error)
+            if matches!(
+                error.error_type(),
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+            ) =>
+        {
+            return Ok(None);
+        }
+        Err(error) => return Err(error),
+    };
     let organization =
         models::organizations::get_organization(conn, course.organization_id).await?;
     let page = models::pages::get_page(conn, exercise.page_id).await?;
@@ -259,5 +271,20 @@ mod tests {
                 organization.slug, course.slug, page.url_path
             ))
         );
+    }
+
+    #[actix_web::test]
+    async fn a_deleted_course_has_no_page_url() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise);
+        let exercise = models::exercises::get_by_id(tx.as_mut(), exercise)
+            .await
+            .unwrap();
+        models::courses::delete_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let url = exercise_page_url(tx.as_mut(), &exercise, "http://project-331.local")
+            .await
+            .unwrap();
+        assert_eq!(url, None);
     }
 }

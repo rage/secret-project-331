@@ -39,12 +39,15 @@ jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
   }),
 }))
 
+const EXERCISE_PAGE_URL = "http://project-331.local/org/uh-cs/courses/intro/chapter-1/hello"
+
 function renderPage(isGraded: boolean) {
   mockSharedSubmission = {
     exercise: { name: "Hello world", score_maximum: 2 },
     tasks: [],
     created_at: "2026-11-12T10:00:00Z",
     is_graded: isGraded,
+    exercise_page_url: EXERCISE_PAGE_URL,
   } as unknown as SharedSubmissionInfo
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
@@ -59,8 +62,23 @@ describe("Shared submission page", () => {
     renderPage(false)
 
     expect(await screen.findByTestId("shared-submission-not-graded")).toBeInTheDocument()
-    expect(screen.getByText(/^Saved /)).toBeInTheDocument()
+    expect(screen.getByText(/^Saved \d/)).toBeInTheDocument()
+    expect(screen.getByText("Shared copy")).toBeInTheDocument()
+    expect(screen.getByText("Saved copy:")).toBeInTheDocument()
+    expect(screen.queryByText(/Shared submission/)).not.toBeInTheDocument()
     expect(screen.queryByTestId("submission-points")).not.toBeInTheDocument()
+  })
+
+  it("names the exercise once as the heading, linking to its material page", async () => {
+    renderPage(true)
+
+    const heading = await screen.findByRole("heading", { level: 1 })
+    expect(heading).toHaveTextContent("Hello world")
+    expect(screen.getByRole("link", { name: "Hello world" })).toHaveAttribute(
+      "href",
+      EXERCISE_PAGE_URL,
+    )
+    expect(screen.getAllByText("Shared submission")).toHaveLength(1)
   })
 
   it("shows points for a graded submission", async () => {

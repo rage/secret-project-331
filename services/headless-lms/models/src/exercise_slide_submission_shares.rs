@@ -23,6 +23,8 @@ pub struct SharedSubmissionInfo {
     pub created_at: DateTime<Utc>,
     /// `false` for a paste or backup snapshot, which is stored but never graded.
     pub is_graded: bool,
+    /// The course material page the exercise is on; `None` for an exam exercise.
+    pub exercise_page_url: Option<String>,
 }
 
 pub async fn insert(

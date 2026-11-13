@@ -6235,6 +6235,7 @@ export const zSetWeeklyDigestSubscriptionRequest = z.object({
 export const zSharedSubmissionInfo = z.object({
   created_at: z.iso.datetime(),
   exercise: zExercise,
+  exercise_page_url: z.string().nullish(),
   is_graded: z.boolean(),
   tasks: z.array(zCourseMaterialExerciseTask),
 })

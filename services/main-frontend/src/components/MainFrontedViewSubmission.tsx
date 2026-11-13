@@ -56,7 +56,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                   margin-bottom: 0.25rem;
                 `}
               >
-                {t("submission")}:
+                {t(isGraded ? "submission" : "saved-copy")}:
               </div>
               <div
                 className={css`

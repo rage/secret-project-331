@@ -7366,6 +7366,10 @@ export type SharedSubmissionInfo = {
   created_at: string
   exercise: Exercise
   /**
+   * The course material page the exercise is on; `None` for an exam exercise.
+   */
+  exercise_page_url?: string | null
+  /**
    * `false` for a paste or backup snapshot, which is stored but never graded.
    */
   is_graded: boolean

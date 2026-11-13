@@ -67,6 +67,8 @@ async fn get_shared_submission_info(
             // user id; see `strip_for_shared_view`.
             info.strip_for_shared_view();
             SharedSubmissionInfo {
+                exercise_page_url: exercise_page_url(&mut conn, &info.exercise, &app_conf.base_url)
+                    .await?,
                 exercise: info.exercise,
                 tasks: info.tasks,
                 created_at: info.exercise_slide_submission.created_at,
@@ -84,8 +86,11 @@ async fn get_shared_submission_info(
                 app_conf.as_ref(),
             )
             .await?;
+            let exercise = models::exercises::get_by_id(&mut conn, snapshot.exercise_id).await?;
             SharedSubmissionInfo {
-                exercise: models::exercises::get_by_id(&mut conn, snapshot.exercise_id).await?,
+                exercise_page_url: exercise_page_url(&mut conn, &exercise, &app_conf.base_url)
+                    .await?,
+                exercise,
                 tasks: vec![task],
                 created_at: snapshot.created_at,
                 is_graded: false,
@@ -100,6 +105,27 @@ async fn get_shared_submission_info(
     };
 
     auth_token.authorized_ok(web::Json(res))
+}
+
+/// The course material page the exercise is on, or `None` for an exam exercise.
+async fn exercise_page_url(
+    conn: &mut PgConnection,
+    exercise: &models::exercises::Exercise,
+    base_url: &str,
+) -> ModelResult<Option<String>> {
+    let Some(course_id) = exercise.course_id else {
+        return Ok(None);
+    };
+    let course = models::courses::get_course(conn, course_id).await?;
+    let organization =
+        models::organizations::get_organization(conn, course.organization_id).await?;
+    let page = models::pages::get_page(conn, exercise.page_id).await?;
+    Ok(headless_lms_utils::course_url::course_page_url(
+        base_url,
+        &organization.slug,
+        &course.slug,
+        &page.url_path,
+    ))
 }
 
 /**
@@ -203,4 +229,35 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{token}", web::get().to(get_shared_submission_info))
         .route("/{token}", web::delete().to(revoke_share));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+
+    #[actix_web::test]
+    async fn the_page_url_names_the_exercises_material_page() {
+        insert_data!(:tx, :user, org: org, course: course, instance: _instance, :course_module, :chapter, page: page, exercise: exercise);
+        let exercise = models::exercises::get_by_id(tx.as_mut(), exercise)
+            .await
+            .unwrap();
+        let organization = models::organizations::get_organization(tx.as_mut(), org)
+            .await
+            .unwrap();
+        let course = models::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let page = models::pages::get_page(tx.as_mut(), page).await.unwrap();
+        let url = exercise_page_url(tx.as_mut(), &exercise, "http://project-331.local")
+            .await
+            .unwrap();
+        assert_eq!(
+            url,
+            Some(format!(
+                "http://project-331.local/org/{}/courses/{}{}",
+                organization.slug, course.slug, page.url_path
+            ))
+        );
+    }
 }

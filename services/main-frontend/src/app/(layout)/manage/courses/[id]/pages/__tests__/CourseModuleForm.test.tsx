@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
 import type { LinkableExam, LinkedExam } from "@/generated/api/types.generated"
 
@@ -126,10 +126,13 @@ describe("CourseModuleForm", () => {
     renderForm(moduleWith({ exam_requirement: "platform", completion_method: "by_exam" }))
 
     fireEvent.click(screen.getByRole("button", { name: "link-an-exam" }))
-    fireEvent.click(await screen.findByRole("button", { name: /label-exam-to-link/ }))
-    fireEvent.click(screen.getByRole("option", { name: /Retake exam/ }))
+    // Role queries by name are slow over this form in jsdom, so the picker is found by its text.
+    fireEvent.click(await screen.findByText("placeholder-choose-exam"))
+    fireEvent.click(
+      within(screen.getByRole("listbox")).getByRole("option", { name: /Retake exam/ }),
+    )
     expect(screen.getByText("exam-also-used-in")).toBeInTheDocument()
-    fireEvent.click(screen.getByRole("button", { name: "button-link-exam" }))
+    fireEvent.click(screen.getByText("button-link-exam"))
 
     await waitFor(() =>
       expect(mockSetExamCourse).toHaveBeenCalledWith(

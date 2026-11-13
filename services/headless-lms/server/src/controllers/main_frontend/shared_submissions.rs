@@ -224,7 +224,7 @@ async fn revoke_shares_of_submission(
     let mut conn = pool.acquire().await?;
     // The `created_by` filter in the query is the authorization check.
     let auth_token = skip_authorize();
-    let revoked = models::exercise_slide_submission_shares::revoke_all_for_submission(
+    let revoked = models::exercise_slide_submission_shares::revoke_all_for_submission_or_snapshot(
         &mut conn,
         *submission_id,
         user.id,

@@ -12,12 +12,17 @@ use std::sync::LazyLock;
 /// not counted, since each one backs a link the user has handed out.
 pub const MAX_BACKUPS_PER_USER_AND_EXERCISE: i64 = 20;
 
-/// Pastes per user and exercise. Backups need no limit of their own: each one past the cap
-/// deletes the oldest, so their storage stays bounded.
+/// Pastes a user may store of one exercise per minute. Backups need no limit of their own: each
+/// one past [`MAX_BACKUPS_PER_USER_AND_EXERCISE`] deletes the oldest, so their storage stays
+/// bounded.
+const PASTES_PER_MINUTE: u64 = 3;
+/// Pastes a user may store of one exercise per hour.
+const PASTES_PER_HOUR: u64 = 20;
+
 static PASTE_LIMITS: LazyLock<EndpointLimiters> = LazyLock::new(|| {
     EndpointLimiters::from_config(&RateLimitConfig {
-        per_minute: Some(3),
-        per_hour: Some(20),
+        per_minute: Some(PASTES_PER_MINUTE),
+        per_hour: Some(PASTES_PER_HOUR),
         ..Default::default()
     })
 });

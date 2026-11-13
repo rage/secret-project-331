@@ -651,7 +651,7 @@
             }
           },
           "429": {
-            "description": "Too many pastes of this exercise by this user recently (at most 3 a minute and 20 an hour)",
+            "description": "Too many pastes of this exercise by this user recently",
             "content": {
               "application/json": {
                 "schema": {
@@ -936,7 +936,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "Exercise-slide-submission or paste snapshot id",
+            "description": "Exercise-slide-submission or snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -1165,7 +1165,7 @@
             }
           },
           "422": {
-            "description": "The id is a backup, which cannot be shared",
+            "description": "The id is a backup, which cannot be shared (message_key `backup_not_shareable`)",
             "content": {
               "application/json": {
                 "schema": {

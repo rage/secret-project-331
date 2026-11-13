@@ -175,6 +175,9 @@ pub enum BadRequestReason {
     /// A submission named the same uploaded file more than once.
     #[display("Duplicate upload")]
     DuplicateUpload,
+    /// Only a paste snapshot can be shared, not a backup.
+    #[display("Backup not shareable")]
+    BackupNotShareable,
     /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
     #[display("Tiers overlap")]
     ExternalCreditTargetTiersOverlap,
@@ -201,6 +204,7 @@ impl BadRequestReason {
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+            Self::BackupNotShareable => "backup_not_shareable",
             Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
             Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
             Self::ExternalCreditTargetMoocfiCourseFixed => {

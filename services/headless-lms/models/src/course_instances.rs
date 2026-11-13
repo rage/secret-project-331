@@ -569,6 +569,10 @@ pub async fn reset_progress_on_course_instance_for_user(
     course_id: Uuid,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
+    crate::exercise_slide_submission_shares::revoke_snapshot_shares_for_reset(
+        &mut tx, user_id, course_id, None,
+    )
+    .await?;
     sqlx::query!(
         "
 UPDATE exercise_slide_submissions

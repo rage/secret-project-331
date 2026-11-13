@@ -201,10 +201,10 @@ pub struct ExerciseSlideSubmission {
 #[serde(rename_all = "snake_case")]
 pub enum SnapshotPurpose {
     /// To share through `submissions/{id}/share`. Never deleted to make room for others, so
-    /// limited to 3 a minute and 20 an hour per user and exercise.
+    /// rate limited per user and exercise.
     Paste,
-    /// To keep the answer before discarding local changes. Only the newest 20 per user and
-    /// exercise are kept; storing another deletes the oldest.
+    /// To keep the answer before discarding local changes. Only the newest few per user and
+    /// exercise are kept, a number the host sets; storing another deletes the oldest.
     Backup,
 }
 

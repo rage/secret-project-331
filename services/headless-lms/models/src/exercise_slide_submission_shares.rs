@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{exercise_tasks::CourseMaterialExerciseTask, exercises::Exercise, prelude::*};
 
 /// A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
@@ -108,6 +110,38 @@ ORDER BY created_at DESC, id DESC
     Ok(rows)
 }
 
+/// Which of `submission_or_snapshot_ids` the user has a live share of.
+pub async fn shared_among(
+    conn: &mut PgConnection,
+    created_by: Uuid,
+    submission_or_snapshot_ids: &[Uuid],
+) -> ModelResult<HashSet<Uuid>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT exercise_slide_submission_id,
+  exercise_answer_snapshot_id
+FROM exercise_slide_submission_shares
+WHERE created_by = $1
+  AND (
+    exercise_slide_submission_id = ANY($2)
+    OR exercise_answer_snapshot_id = ANY($2)
+  )
+  AND deleted_at IS NULL
+        "#,
+        created_by,
+        submission_or_snapshot_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .filter_map(|row| {
+            row.exercise_slide_submission_id
+                .or(row.exercise_answer_snapshot_id)
+        })
+        .collect())
+}
+
 /// Withdraws a share, which [`get_by_id`] then stops resolving. Scoped to the creator, so the
 /// unguessable token is not itself authority to revoke — only to view.
 ///
@@ -132,7 +166,7 @@ RETURNING id
 
 /// Withdraws every live share of one submission or snapshot at once — the operation a user actually
 /// wants after sharing the same answer more than once.
-pub async fn revoke_all_for_submission(
+pub async fn revoke_all_for_submission_or_snapshot(
     conn: &mut PgConnection,
     submission_or_snapshot_id: Uuid,
     created_by: Uuid,
@@ -155,6 +189,40 @@ WHERE (
     .await?
     .rows_affected();
     Ok(revoked)
+}
+
+/// Withdraws the user's shares of their snapshots in the course, or of only `exercise_ids`, for a
+/// teacher's reset. The reset deletes the submissions, which ends their links; a snapshot's link
+/// must not outlive them.
+pub async fn revoke_snapshot_shares_for_reset(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    exercise_ids: Option<&[Uuid]>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE exercise_slide_submission_shares
+SET deleted_at = now()
+WHERE exercise_answer_snapshot_id IN (
+    SELECT id
+    FROM exercise_answer_snapshots
+    WHERE user_id = $1
+      AND course_id = $2
+      AND (
+        $3::uuid [] IS NULL
+        OR exercise_id = ANY($3)
+      )
+  )
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        course_id,
+        exercise_ids as Option<&[Uuid]>,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -265,7 +333,7 @@ mod test {
             .unwrap();
 
         assert_eq!(
-            revoke_all_for_submission(tx.as_mut(), submission_id, user_id)
+            revoke_all_for_submission_or_snapshot(tx.as_mut(), submission_id, user_id)
                 .await
                 .unwrap(),
             2
@@ -277,6 +345,53 @@ mod test {
             unrelated.id,
             "another submission's share must be untouched"
         );
+        tx.rollback().await;
+    }
+
+    /// A reset ends the links to the reset submissions, so it must end the links to snapshots too.
+    #[tokio::test]
+    async fn teacher_resets_revoke_snapshot_shares() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:task_id);
+        let share_snapshot = async |tx: &mut PgConnection| {
+            let snapshot = crate::exercise_answer_snapshots::insert(
+                tx,
+                crate::exercise_answer_snapshots::NewExerciseAnswerSnapshot {
+                    user_id,
+                    course_id,
+                    exercise_id,
+                    exercise_slide_id: slide_id,
+                    exercise_task_id: task_id,
+                    purpose: crate::exercise_answer_snapshots::SnapshotPurpose::Paste,
+                    data_json: None,
+                },
+                &[],
+            )
+            .await
+            .unwrap();
+            insert_for_snapshot(tx, snapshot.id, user_id).await.unwrap()
+        };
+
+        let share = share_snapshot(tx.as_mut()).await;
+        crate::exercises::reset_exercises_for_selected_users(
+            tx.as_mut(),
+            &[(user_id, vec![exercise_id])],
+            None,
+            course_id,
+            None,
+        )
+        .await
+        .unwrap();
+        assert!(get_by_id(tx.as_mut(), share.id).await.is_err());
+
+        let share = share_snapshot(tx.as_mut()).await;
+        crate::course_instances::reset_progress_on_course_instance_for_user(
+            tx.as_mut(),
+            user_id,
+            course_id,
+        )
+        .await
+        .unwrap();
+        assert!(get_by_id(tx.as_mut(), share.id).await.is_err());
         tx.rollback().await;
     }
 }

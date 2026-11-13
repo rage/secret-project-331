@@ -329,13 +329,21 @@ pub async fn get_shared_view_task(
 
 /// Moves a snapshot's creation time `age` into the past, which decides which backups
 /// [`delete_backups_beyond`] keeps.
+///
+/// Nothing in production backdates a snapshot; this exists for tests, and is not `#[cfg(test)]`
+/// because `bin/sqlx-prepare` caches only the library's queries.
 pub async fn backdate(
     conn: &mut PgConnection,
     snapshot_id: Uuid,
     age: chrono::Duration,
 ) -> ModelResult<()> {
     sqlx::query!(
-        "UPDATE exercise_answer_snapshots SET created_at = now() - $2::interval WHERE id = $1",
+        "
+UPDATE exercise_answer_snapshots
+SET created_at = now() - $2::interval
+WHERE id = $1
+  AND deleted_at IS NULL
+",
         snapshot_id,
         age as chrono::Duration
     )

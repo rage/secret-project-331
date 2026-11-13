@@ -511,9 +511,11 @@ WHERE exam_id = $1
     Ok(exercises)
 }
 
-/// Detaches the exercise from its course and puts it in the exam. [`insert`] creates only course
-/// exercises; this is how an exam exercise is made from one.
-pub async fn move_to_exam(
+/// Turns a course exercise into an exam exercise, since [`insert`] creates only course exercises.
+///
+/// Nothing in production moves an exercise into an exam; this exists for tests, and is not
+/// `#[cfg(test)]` because `bin/sqlx-prepare` caches only the library's queries.
+pub async fn move_to_exam_for_tests(
     conn: &mut PgConnection,
     exercise_id: Uuid,
     exam_id: Uuid,
@@ -1204,6 +1206,13 @@ pub async fn reset_exercises_for_selected_users(
     let mut successful_resets = Vec::new();
     let mut tx = conn.begin().await?;
     for (user_id, exercise_ids) in users_and_exercises {
+        crate::exercise_slide_submission_shares::revoke_snapshot_shares_for_reset(
+            &mut tx,
+            *user_id,
+            course_id,
+            Some(exercise_ids),
+        )
+        .await?;
         sqlx::query!(
             r#"
 UPDATE exercise_slide_submissions

@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::{
@@ -266,8 +267,18 @@ pub async fn is_out_of_tries(
             user_id,
         )
         .await?;
+    is_out_of_tries_given(conn, exercise.id, max_tries_per_slide, &submission_counts).await
+}
+
+/// [`is_out_of_tries`] for a caller that already holds the user's submission counts by slide id.
+pub async fn is_out_of_tries_given(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    max_tries_per_slide: i64,
+    submission_counts: &HashMap<Uuid, i64>,
+) -> models::ModelResult<bool> {
     let slides =
-        models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise.id).await?;
+        models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise_id).await?;
     Ok(!slides.is_empty()
         && slides
             .iter()

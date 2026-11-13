@@ -163,6 +163,31 @@ pub async fn insert_enrollment_and_set_as_current(
     Ok(enrollment)
 }
 
+/// Removes the user's enrollments on the course.
+///
+/// Nothing in production removes an enrollment; this exists for tests, and is not `#[cfg(test)]`
+/// because `bin/sqlx-prepare` caches only the library's queries.
+pub async fn delete_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instance_enrollments
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn get_by_user_and_course_instance_id(
     conn: &mut PgConnection,
     user_id: Uuid,

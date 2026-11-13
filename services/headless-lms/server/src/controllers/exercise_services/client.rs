@@ -532,6 +532,7 @@ async fn exercise_progress(
     let may_be_out_of_tries =
         !has_received_full_points(state.and_then(|s| s.score_given), exercise.score_maximum)
             && !is_being_graded(state)
+            && !is_in_peer_or_self_review(state)
             && pending_teacher_review.is_none();
     let (try_counts, is_out_of_tries) = match exercise
         .max_tries_per_slide
@@ -619,7 +620,11 @@ fn derive_exercise_progress(
     let attempted = activity_progress != ActivityProgress::Initialized;
     let standing = if has_received_full_points(score_given, score_maximum) {
         api::ExerciseStanding::Passed
-    } else if is_out_of_tries && !is_being_graded(state) && pending_teacher_review.is_none() {
+    } else if is_out_of_tries
+        && !is_being_graded(state)
+        && !is_in_peer_or_self_review(state)
+        && pending_teacher_review.is_none()
+    {
         api::ExerciseStanding::OutOfTries
     } else if attempted {
         api::ExerciseStanding::Attempted
@@ -644,6 +649,19 @@ fn derive_exercise_progress(
 /// last try is spent.
 fn is_being_graded(state: Option<&UserExerciseState>) -> bool {
     state.is_some_and(|s| !s.grading_progress.is_complete())
+}
+
+/// Peer and self review can still award points, so the score is not final even when the last try
+/// is spent.
+fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
+    state.is_some_and(|s| {
+        matches!(
+            s.reviewing_stage,
+            ReviewingStage::PeerReview
+                | ReviewingStage::SelfReview
+                | ReviewingStage::WaitingForPeerReviews
+        )
+    })
 }
 
 /// Full points as the course material judges them, tolerating float rounding. `None` (never
@@ -2063,6 +2081,24 @@ mod tests {
         failed.grading_progress = GradingProgress::Failed;
         let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
+    }
+
+    #[test]
+    fn standing_stays_attempted_while_peer_or_self_review_is_pending() {
+        for stage in [
+            ReviewingStage::PeerReview,
+            ReviewingStage::SelfReview,
+            ReviewingStage::WaitingForPeerReviews,
+        ] {
+            let mut reviewing = state_with(None, ActivityProgress::Completed);
+            reviewing.reviewing_stage = stage;
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&reviewing), true, None, None);
+            assert_eq!(
+                p.standing,
+                Some(api::ExerciseStanding::Attempted),
+                "{stage:?}"
+            );
+        }
     }
 
     #[test]

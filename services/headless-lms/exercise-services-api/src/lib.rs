@@ -428,13 +428,13 @@ pub enum PendingTeacherReview {
 pub enum ExerciseStanding {
     /// No graded submission and no try used.
     NotAttempted,
-    /// Below full points with tries left, still being graded, or waiting for a teacher's review
-    /// (`pending_teacher_review`).
+    /// Below full points with tries left, still being graded, in peer or self review, or waiting
+    /// for a teacher's review (`pending_teacher_review`).
     Attempted,
     /// A grading awarded full points. An exercise worth 0 points passes on its first grading.
     Passed,
-    /// Below full points (0 included), the try limit is used up on every slide and no teacher
-    /// review is pending, so the score is final.
+    /// Below full points (0 included), the try limit is used up on every slide and no review is
+    /// pending, so the score is final.
     OutOfTries,
 }
 

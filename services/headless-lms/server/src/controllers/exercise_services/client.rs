@@ -579,12 +579,13 @@ async fn exercise_progress(
 
 /// What the user's points wait for, if a teacher must review their answer before awarding any.
 /// `is_held_for_review_after_chapter_lock` withholds the automatic points from the first graded
-/// answer on.
+/// answer on. An answer that already has points awaits nothing, even in a teacher's review queue:
+/// points awarded before the course turned chapter locking on stay awarded.
 fn pending_teacher_review(
     is_held_for_review_after_chapter_lock: bool,
     state: Option<&UserExerciseState>,
 ) -> Option<api::PendingTeacherReview> {
-    let state = state?;
+    let state = state.filter(|s| s.score_given.is_none())?;
     match state.reviewing_stage {
         ReviewingStage::WaitingForManualGrading => Some(api::PendingTeacherReview::AwaitsTeacher),
         ReviewingStage::NotStarted
@@ -2144,6 +2145,46 @@ mod tests {
         assert_eq!(p.score_given, 0.0);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
         assert!(p.exercise_locked);
+    }
+
+    #[test]
+    fn points_awarded_before_chapter_locking_await_no_review() {
+        for stage in [
+            ReviewingStage::NotStarted,
+            ReviewingStage::WaitingForManualGrading,
+        ] {
+            let mut scored = state_with(Some(5.0), ActivityProgress::Completed);
+            scored.reviewing_stage = stage;
+            let review = pending_teacher_review(true, Some(&scored));
+            assert_eq!(review, None, "{stage:?}");
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&scored), false, None, review);
+            assert_eq!(p.score_given, 5.0);
+            assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+            assert_eq!(
+                p.exercise_locked,
+                stage == ReviewingStage::WaitingForManualGrading
+            );
+        }
+    }
+
+    #[test]
+    fn a_failed_answer_out_of_tries_before_chapter_locking_awaits_no_review() {
+        for stage in [
+            ReviewingStage::NotStarted,
+            ReviewingStage::WaitingForManualGrading,
+        ] {
+            let mut failed = state_with(Some(0.0), ActivityProgress::Completed);
+            failed.reviewing_stage = stage;
+            let review = pending_teacher_review(true, Some(&failed));
+            assert_eq!(review, None, "{stage:?}");
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None, review);
+            assert_eq!(p.score_given, 0.0);
+            assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
+            assert_eq!(
+                p.exercise_locked,
+                stage == ReviewingStage::WaitingForManualGrading
+            );
+        }
     }
 
     #[test]
@@ -4800,10 +4841,23 @@ mod route_tests {
     /// for the user. The exercise keeps the default of a teacher reviewing its answers once the
     /// chapter is locked. Returns the chapter's id.
     async fn chapter_locking_fixture() -> (Fixture, Uuid) {
+        let fixture = stub_graded_fixture().await;
+        let chapter = enable_chapter_locking(&fixture).await;
+        (fixture, chapter)
+    }
+
+    /// A fixture whose exercise service stub grades every answer it is sent full points.
+    async fn stub_graded_fixture() -> Fixture {
         let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
         let url = start_exercise_service_stub(state);
         let fixture = committed_fixture_with_service(true, Some(url)).await;
         open_exercise(&fixture).await;
+        fixture
+    }
+
+    /// Turns chapter locking on for the fixture's course and unlocks the exercise's chapter for the
+    /// user. Returns the chapter's id.
+    async fn enable_chapter_locking(fixture: &Fixture) -> Uuid {
         let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
@@ -4837,7 +4891,7 @@ mod route_tests {
         )
         .await
         .expect("chapter status");
-        (fixture, chapter)
+        chapter
     }
 
     /// The fixture exercise's entry in the user's course progress.
@@ -4933,6 +4987,40 @@ mod route_tests {
             Some(api::PendingTeacherReview::AwaitsTeacher)
         );
         assert_eq!(progress.score_given, 0.0);
+        assert!(progress.exercise_locked);
+    }
+
+    /// Turning chapter locking on leaves points already awarded in place, so the progress reports
+    /// them rather than a review they no longer wait for.
+    #[actix_web::test]
+    async fn points_awarded_before_chapter_locking_await_no_review() {
+        let fixture = stub_graded_fixture().await;
+        let ids = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let scored = fixture_exercise_progress(&app, &fixture).await;
+        assert!(scored.score_given > 0.0);
+
+        let chapter = enable_chapter_locking(&fixture).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(progress.pending_teacher_review, None);
+        assert_eq!(progress.score_given, scored.score_given);
+        assert_eq!(progress.standing, scored.standing);
+        assert!(!progress.exercise_locked);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(progress.pending_teacher_review, None);
+        assert_eq!(progress.score_given, scored.score_given);
+        assert_eq!(progress.standing, scored.standing);
         assert!(progress.exercise_locked);
     }
 

@@ -391,9 +391,9 @@ pub struct ExerciseProgress {
     /// unlimited, and from a host that predates the field.
     #[serde(default)]
     pub tries_left: Option<i32>,
-    /// What the user's points wait for when a teacher must review their answer before awarding
-    /// any; `score_given` stays `0.0` until then, as in the course material. Absent when no review
-    /// is pending, and from a host that predates the field.
+    /// What the user's points wait for while a teacher review holds them back; `score_given` is
+    /// `0.0` until then. Absent when no points are held back, including when the answer got its
+    /// points before the course turned chapter locking on, and from a host that predates the field.
     #[serde(default)]
     pub pending_teacher_review: Option<PendingTeacherReview>,
     /// `true` once the exercise takes no more submissions from the user, whatever the chapter's

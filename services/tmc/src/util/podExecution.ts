@@ -270,9 +270,9 @@ async function waitForPodRunning(
 /**
  * Where the submission is extracted and tested. Not `/app` itself: the Java image ships a Maven
  * project there with root-owned `src/` and `pom.xml`, which the sandbox user cannot overwrite.
- * `/tmc-run` tests its working directory but still writes its output to `/app/test_output.txt`.
  */
 const SUBMISSION_DIR = "/app/submission"
+/** `/tmc-run` writes here whatever directory it tests. */
 const TEST_OUTPUT_PATH = "/app/test_output.txt"
 const MAX_CAPTURED_STDERR_BYTES = 4096
 
@@ -362,7 +362,7 @@ export async function runTmcAndReadOutput(
     kubeExec,
     podName,
     CONTAINER_NAME,
-    // exec has no working directory of its own, and `/tmc-run` tests `.`.
+    // `/tmc-run` tests its working directory, which the exec API cannot set.
     ["sh", "-c", 'cd "$1" && exec /tmc-run', "sh", SUBMISSION_DIR],
     out.stream,
     err.stream,

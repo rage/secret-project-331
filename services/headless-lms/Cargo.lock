@@ -3300,6 +3300,7 @@ dependencies = [
  "flate2",
  "futures",
  "google-cloud-auth",
+ "google-cloud-gax",
  "google-cloud-storage",
  "headless-lms-base",
  "indexmap 2.14.2",

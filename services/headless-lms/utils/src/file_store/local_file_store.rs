@@ -59,8 +59,13 @@ impl FileStore for LocalFileStore {
 
     async fn delete(&self, path: &Path) -> UtilResult<()> {
         let full_path = self.base_path.join(path);
-        fs::remove_file(full_path).await?;
-        Ok(())
+        fs::remove_file(full_path).await.map_err(|err| {
+            if err.kind() == io::ErrorKind::NotFound {
+                util_err!(FileNotFound, err.to_string(), err)
+            } else {
+                err.into()
+            }
+        })
     }
 
     async fn get_direct_download_url(&self, path: &Path) -> UtilResult<String> {
@@ -162,6 +167,7 @@ mod tests {
 
     use super::LocalFileStore;
     use crate::file_store::FileStore;
+    use crate::prelude::{BackendError, UtilErrorType};
 
     #[tokio::test]
     async fn upload_download_delete_works() {
@@ -194,6 +200,23 @@ mod tests {
         // After deletion getting the file should fail
         let retrivied_file2 = local_file_store.download(path1).await;
         assert!(retrivied_file2.is_err());
+    }
+
+    #[tokio::test]
+    async fn deleting_a_missing_file_reports_file_not_found() {
+        unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
+        let dir = TempDir::new().expect("Failed to create a temp dir");
+        let local_file_store = LocalFileStore::new(
+            dir.path().to_path_buf(),
+            "http://localhost:3000".to_string(),
+        )
+        .expect("Could not create local file storage");
+
+        let err = local_file_store
+            .delete(Path::new("never-uploaded"))
+            .await
+            .expect_err("deleting a missing file must fail");
+        assert!(matches!(err.error_type(), UtilErrorType::FileNotFound));
     }
 
     #[tokio::test]

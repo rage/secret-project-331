@@ -208,7 +208,22 @@ impl headless_lms_utils::file_store::FileStore for TempFileStore {
     }
 
     async fn delete(&self, path: &std::path::Path) -> headless_lms_utils::prelude::UtilResult<()> {
-        Ok(tokio::fs::remove_file(self.0.path().join(path)).await?)
+        use headless_lms_base::error::backend_error::BackendError;
+        use headless_lms_utils::prelude::{UtilError, UtilErrorType};
+
+        tokio::fs::remove_file(self.0.path().join(path))
+            .await
+            .map_err(|err| {
+                if err.kind() == std::io::ErrorKind::NotFound {
+                    UtilError::new(
+                        UtilErrorType::FileNotFound,
+                        err.to_string(),
+                        Some(err.into()),
+                    )
+                } else {
+                    err.into()
+                }
+            })
     }
 
     fn get_cache_files_folder_path(

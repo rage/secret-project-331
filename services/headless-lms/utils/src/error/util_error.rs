@@ -24,6 +24,8 @@ pub enum UtilErrorType {
     TokioIo,
     SerdeJson,
     CloudStorage,
+    /// The file store has no object at the requested path.
+    FileNotFound,
     Other,
     Unavailable,
     DeserializationError,

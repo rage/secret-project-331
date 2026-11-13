@@ -29,7 +29,7 @@ const SharedSubmission: React.FC = () => {
   const title = t(
     getSharedSubmission.data?.is_graded === false ? "title-shared-copy" : "title-shared-submission",
   )
-  usePageTitle(title)
+  usePageTitle(getSharedSubmission.data ? title : null)
 
   return (
     <div

@@ -2,7 +2,7 @@ CREATE TYPE exercise_answer_snapshot_purpose AS ENUM ('paste', 'backup');
 COMMENT ON TYPE exercise_answer_snapshot_purpose IS 'Why a student stored an ungraded copy of an answer: to share it (paste) or to keep it before discarding local changes (backup).';
 
 CREATE TABLE exercise_answer_snapshots (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
@@ -35,7 +35,7 @@ COMMENT ON COLUMN exercise_answer_snapshots.purpose IS 'Why the snapshot was sto
 COMMENT ON COLUMN exercise_answer_snapshots.data_json IS 'The exercise service''s own JSON about the answer''s files, opaque to the host. Null when the files are the whole answer.';
 
 CREATE TABLE exercise_answer_snapshot_files (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
@@ -74,7 +74,7 @@ COMMENT ON COLUMN exercise_slide_submission_shares.exercise_slide_submission_id 
 COMMENT ON COLUMN exercise_slide_submission_shares.exercise_answer_snapshot_id IS 'The ungraded snapshot this share links to. Null when the share links to a submission instead.';
 
 CREATE TABLE exercise_repository_ssh_host_keys (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,

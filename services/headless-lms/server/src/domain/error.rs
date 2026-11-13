@@ -129,6 +129,9 @@ pub enum ForbiddenReason {
     /// The user has completed and locked the chapter.
     #[display("Chapter completed and locked")]
     ChapterCompletedAndLocked,
+    /// The user's exercise state takes no more answers, though the chapter may be open again.
+    #[display("Exercise locked")]
+    ExerciseLocked,
 }
 
 impl ForbiddenReason {
@@ -138,6 +141,7 @@ impl ForbiddenReason {
             Self::ChapterNotOpenYet => "chapter_not_open_yet",
             Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
             Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
+            Self::ExerciseLocked => "exercise_locked",
         }
     }
 }
@@ -1484,6 +1488,7 @@ mod tests {
                 ForbiddenReason::ChapterCompletedAndLocked,
                 "chapter_completed_and_locked",
             ),
+            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
         ] {
             let response =
                 controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();

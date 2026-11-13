@@ -714,7 +714,7 @@ async fn determine_can_post_submission(
 ) -> Result<bool, ModelError> {
     if let Some(user_exercise_state) = user_exercise_state {
         // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
-        if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
+        if !user_exercise_state.reviewing_stage.accepts_submissions() {
             return Ok(false);
         }
     }

@@ -365,7 +365,8 @@ async fn enforce_deadline(
 }
 
 /// Resolves the course instance or exam a submission would be recorded against, and rejects a
-/// submission the user may not make at all: not enrolled on the course, or past the exam's window.
+/// submission the user may not make at all: not enrolled on the course, past the exam's window, or
+/// to an exercise locked for the user.
 ///
 /// Does not check the try limit, which is per slide; see the two callers for that.
 async fn resolve_course_or_exam_id_for_submitting(
@@ -411,7 +412,32 @@ async fn resolve_course_or_exam_id_for_submitting(
         ))
     }?
     .data;
+    verify_exercise_accepts_submissions(conn, user_id, exercise.id, course_id_or_exam_id).await?;
     Ok(course_id_or_exam_id)
+}
+
+/// Rejects a user whose exercise state takes no more answers, the rule the course material's submit
+/// button follows. A teacher unlocking the chapter does not lift it; resetting the exercise does.
+async fn verify_exercise_accepts_submissions(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_or_exam_id: CourseOrExamId,
+) -> Result<(), ControllerError> {
+    let state = models::user_exercise_states::get_user_exercise_state_if_exists(
+        conn,
+        user_id,
+        exercise_id,
+        course_or_exam_id,
+    )
+    .await?;
+    if state.is_some_and(|s| !s.reviewing_stage.accepts_submissions()) {
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ExerciseLocked),
+            "This exercise is locked for you and takes no more submissions.".to_string()
+        ));
+    }
+    Ok(())
 }
 
 /// The gate a submit runs: everything [`resolve_course_or_exam_id_for_submitting`] rejects, plus the

@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { LangsError } from "@/tmc/langs"
 
-import { gradingFailureFeedback, handleGrade } from "./grade"
+import { gradingFailureFeedback, handleGrade, runScore } from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -185,5 +185,20 @@ describe("gradingFailureFeedback", () => {
     )
     expect(feedback).not.toContain("secret")
     expect(feedback).not.toContain("[object Object]")
+  })
+})
+
+describe("runScore", () => {
+  const passed = { status: "PASSED" as const, testResults: [{ successful: true, points: [] }] }
+
+  it("awards every point only when every test passed", () => {
+    expect(runScore(passed, 2)).toEqual({ score_given: 2, score_maximum: 2 })
+    expect(
+      runScore({ status: "TESTS_FAILED", testResults: [{ successful: false, points: [] }] }, 2),
+    ).toEqual({ score_given: 0, score_maximum: 2 })
+  })
+
+  it("scores a passing exercise without points, such as a no-tests one, as full points", () => {
+    expect(runScore(passed, 0)).toEqual({ score_given: 1, score_maximum: 1 })
   })
 })

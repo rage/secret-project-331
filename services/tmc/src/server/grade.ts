@@ -43,7 +43,7 @@ interface NormalizedTestResult {
   successful: boolean
   points: string[]
 }
-interface NormalizedRunResult {
+export interface NormalizedRunResult {
   status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
   testResults: NormalizedTestResult[]
 }
@@ -278,17 +278,26 @@ const gradeInPod = async (
     gradingProgress = "FullyGraded"
   }
 
-  const allPassed =
-    normalized.status === "PASSED" &&
-    normalized.testResults.length > 0 &&
-    normalized.testResults.every((tr) => tr.successful)
-  const score_given = allPassed ? points.length : 0
-
   return {
     grading_progress: gradingProgress,
-    score_given,
-    score_maximum: points.length,
+    ...runScore(normalized, points.length),
     feedback_text: feedbackText,
     feedback_json: outcome.parsed,
   }
+}
+
+/**
+ * All of the exercise's points when every test passed, else none. An exercise that declares no
+ * points, such as a no-tests one, is scored out of one point: the host awards nothing for 0 of 0.
+ */
+export function runScore(
+  run: NormalizedRunResult,
+  availablePointCount: number,
+): { score_given: number; score_maximum: number } {
+  const allPassed =
+    run.status === "PASSED" &&
+    run.testResults.length > 0 &&
+    run.testResults.every((tr) => tr.successful)
+  const scoreMaximum = Math.max(availablePointCount, 1)
+  return { score_given: allPassed ? scoreMaximum : 0, score_maximum: scoreMaximum }
 }

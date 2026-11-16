@@ -605,6 +605,36 @@
         }
       }
     },
+    "/api/v0/main-frontend/certificates/{certificate_verification_id}/details": {
+      "get": {
+        "tags": ["certificates"],
+        "summary": "GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`\n\nThe certificate's holder, course, module, completion date and printed grade as JSON.",
+        "operationId": "getCertificateDetailsByVerificationId",
+        "parameters": [
+          {
+            "name": "certificate_verification_id",
+            "in": "path",
+            "description": "Certificate verification id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertificateDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chapters": {
       "post": {
         "tags": ["chapters"],
@@ -20060,6 +20090,41 @@
           }
         }
       },
+      "CertificateDetails": {
+        "type": "object",
+        "description": "The text a certificate image shows, for readers who cannot see the image.",
+        "required": ["name_on_certificate", "course_name", "completion_date", "verification_id"],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_module_name": {
+            "type": ["string", "null"],
+            "description": "`None` for a course's default module."
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "grade": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CertificateGrade",
+                "description": "`None` unless the certificate configuration prints the grade."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name_on_certificate": {
+            "type": "string"
+          },
+          "verification_id": {
+            "type": "string"
+          }
+        }
+      },
       "CertificateGenerationRequest": {
         "type": "object",
         "required": ["certificate_configuration_id", "name_on_certificate"],
@@ -20073,6 +20138,19 @@
           },
           "name_on_certificate": {
             "type": "string"
+          }
+        }
+      },
+      "CertificateGrade": {
+        "type": "object",
+        "required": ["passed"],
+        "properties": {
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "passed": {
+            "type": "boolean"
           }
         }
       },

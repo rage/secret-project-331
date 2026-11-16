@@ -386,6 +386,7 @@ const CreateAccountForm: React.FC = () => {
 
             <ComboBox
               name="country"
+              autoComplete="country-name"
               control={control}
               label={t("enter-country-question")}
               items={countriesNames}

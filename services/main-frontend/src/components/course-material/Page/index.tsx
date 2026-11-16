@@ -227,7 +227,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
 
   if (glossary.isError) {
-    return <ErrorNotice error={glossary.error} />
+    return <ErrorNotice error={glossary.error} headingLevel={1} />
   }
   const glossaryState: GlossaryState = { terms: glossary.data ?? [] }
 
@@ -236,7 +236,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   }
 
   if (getPageAudioFiles.isError) {
-    return <ErrorNotice error={getPageAudioFiles.error} />
+    return <ErrorNotice error={getPageAudioFiles.error} headingLevel={1} />
   }
 
   if (getPageAudioFiles.isSuccess) {

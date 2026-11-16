@@ -1600,24 +1600,30 @@ export type CertificateConfigurationUpdate = {
   render_certificate_grade: boolean
 }
 
+/**
+ * The text a certificate image shows, for readers who cannot see the image.
+ */
 export type CertificateDetails = {
   completion_date: string
+  /**
+   * `None` for a course's default module.
+   */
   course_module_name?: string | null
   course_name: string
-  grade?: null | CertificateGrade
+  grade?: CertificateGrade | null
   name_on_certificate: string
   verification_id: string
-}
-
-export type CertificateGrade = {
-  grade?: number | null
-  passed: boolean
 }
 
 export type CertificateGenerationRequest = {
   certificate_configuration_id: string
   grade?: string | null
   name_on_certificate: string
+}
+
+export type CertificateGrade = {
+  grade?: number | null
+  passed: boolean
 }
 
 export type CertificateGridRow = {

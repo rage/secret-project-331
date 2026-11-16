@@ -410,6 +410,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
           <ComboBox
             name="country"
+            autoComplete="country-name"
             control={control}
             label={t("enter-country-question")}
             items={countriesOptions}

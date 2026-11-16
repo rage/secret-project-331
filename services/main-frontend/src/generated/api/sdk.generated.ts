@@ -1083,6 +1083,7 @@ import {
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
+  zGetCertificateDetailsByVerificationIdResponse,
   zGetChatbotConfigurationResponse,
   zGetChatbotEmbedConfResponse,
   zGetChatbotModelResponse,
@@ -1710,6 +1711,8 @@ export const getCertificateDetailsByVerificationId = <ThrowOnError extends boole
     ThrowOnError,
     "data"
   >({
+    responseValidator: async (data) =>
+      await zGetCertificateDetailsByVerificationIdResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/certificates/{certificate_verification_id}/details",
     ...options,

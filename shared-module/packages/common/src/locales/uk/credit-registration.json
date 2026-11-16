@@ -329,6 +329,7 @@
   "credit-registration-admin-course-enrolees-title": "Записи в Sisu",
   "credit-registration-admin-course-no-linking-emails": "Для цього курсу ще не надсилали листів для прив'язки.",
   "credit-registration-admin-course-not-found": "Цей курс не бере участі в реєстрації кредитів.",
+  "credit-registration-admin-course-page-link": "Сторінка курсу",
   "credit-registration-admin-course-pause-reason-description": "Поки ви не відновите цей модуль, у Sisu для нього нічого не надсилається. Студенти бачать «Призупинено».",
   "credit-registration-admin-course-pause-title": "Призупинити реєстрацію кредитів для {{module}}",
   "credit-registration-admin-course-resume-confirm": "Відновити реєстрацію кредитів для {{module}}?",

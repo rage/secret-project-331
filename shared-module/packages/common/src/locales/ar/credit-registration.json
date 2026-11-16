@@ -381,6 +381,7 @@
   "credit-registration-admin-course-enrolees-title": "الالتحاقات في Sisu",
   "credit-registration-admin-course-no-linking-emails": "لم تُرسل أي رسائل ربط لهذا المقرر.",
   "credit-registration-admin-course-not-found": "هذا المقرر غير مشمول بتسجيل الاعتمادات.",
+  "credit-registration-admin-course-page-link": "صفحة المقرر",
   "credit-registration-admin-course-pause-reason-description": "لن يُرسل شيء إلى Sisu لهذه الوحدة حتى تستأنفها. يرى الطلاب «متوقف مؤقتًا».",
   "credit-registration-admin-course-pause-title": "إيقاف تسجيل الاعتمادات مؤقتًا لـ {{module}}",
   "credit-registration-admin-course-resume-confirm": "استئناف تسجيل الاعتمادات لـ {{module}}؟",

@@ -277,6 +277,7 @@
   "credit-registration-admin-course-enrolees-title": "Anmälningar i Sisu",
   "credit-registration-admin-course-no-linking-emails": "Inga kopplingsmejl har skickats för den här kursen.",
   "credit-registration-admin-course-not-found": "Den här kursen omfattas inte av poängregistreringen.",
+  "credit-registration-admin-course-page-link": "Kursens sida",
   "credit-registration-admin-course-pause-reason-description": "Inget skickas till Sisu för den här modulen förrän du återupptar den. Studenterna ser \"Pausad\".",
   "credit-registration-admin-course-pause-title": "Pausa registreringen av studiepoäng för {{module}}",
   "credit-registration-admin-course-resume-confirm": "Återuppta registreringen av studiepoäng för {{module}}?",

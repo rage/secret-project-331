@@ -1,11 +1,17 @@
 "use client"
 
+import { useQueryClient } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { EmailAddress } from "@/components/credit-registration/EmailAddress"
-import type { AdminCourseEnrolee } from "@/generated/api/types.generated"
+import { getAccountLinkingCourseEnroleesQueryKey } from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  AdminCourseEnrolee,
+  AdminCourseEnrolees,
+  AdminResendAccountLinkingEmailResult,
+} from "@/generated/api/types.generated"
 import { creditRegistrationItemRoute, manageUserRoute } from "@/shared-module/common/utils/routes"
 import type { TableColumn } from "@/shared-module/components"
 import { Badge, Button, Dialog, Infobox, Link, Table, TextField } from "@/shared-module/components"
@@ -26,7 +32,7 @@ import { sentenceWithTimestamp, ZonedTimestamp } from "../ZonedTimestamp"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { useCourseEnrolees } from "./adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
-import { candidateFullName, candidateName } from "./linkingCandidate"
+import { candidateFullName, candidateName, withSendResult } from "./linkingCandidate"
 
 const LINKING_SINCE = "credit-registration-admin-course-enrolees-linking-since"
 
@@ -139,6 +145,7 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   courseName,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const queryClient = useQueryClient()
   const canSend = useIsAccountLinkingEnabled()
   const { control, watch, reset } = useForm<Fields>({ defaultValues: { filter: "" } })
   const filter = watch("filter")
@@ -152,6 +159,29 @@ const CourseEnroleesDialog: React.FC<Props> = ({
     const needle = filter.trim().toLocaleLowerCase()
     return people.filter((_, index) => searchTexts[index]?.includes(needle))
   }, [people, searchTexts, filter])
+
+  // Patches the cached list, as reloading it would ask Sisu again.
+  const recordSend = (studentNumber: string, result: AdminResendAccountLinkingEmailResult) => {
+    const sentAt = result.manual_send?.sent_at
+    queryClient.setQueryData<AdminCourseEnrolees>(
+      getAccountLinkingCourseEnroleesQueryKey({
+        path: { course_or_target_id: courseOrTargetId },
+      }),
+      (current) =>
+        current && {
+          ...current,
+          people: current.people.map((enrolee) =>
+            enrolee.person.student_number === studentNumber && sentAt
+              ? {
+                  ...enrolee,
+                  person: withSendResult(enrolee.person, studentNumber, result),
+                  linking_emails_sent_at: [sentAt, ...enrolee.linking_emails_sent_at],
+                }
+              : enrolee,
+          ),
+        },
+    )
+  }
 
   const closeDialog = () => {
     onClose()
@@ -258,6 +288,11 @@ const CourseEnroleesDialog: React.FC<Props> = ({
         studentNumber={sendTo ?? ""}
         courseOrTargetId={courseOrTargetId}
         courseName={courseName}
+        onSent={(result) => {
+          if (sendTo !== null) {
+            recordSend(sendTo, result)
+          }
+        }}
       />
     </Dialog>
   )

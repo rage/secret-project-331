@@ -277,6 +277,7 @@
   "credit-registration-admin-course-enrolees-title": "Påmeldinger i Sisu",
   "credit-registration-admin-course-no-linking-emails": "Ingen koblings-e-poster er sendt for dette emnet.",
   "credit-registration-admin-course-not-found": "Dette emnet er ikke med i studiepoengregistreringen.",
+  "credit-registration-admin-course-page-link": "Emnets side",
   "credit-registration-admin-course-pause-reason-description": "Ingenting sendes til Sisu for denne modulen før du gjenopptar den. Studentene ser «På pause».",
   "credit-registration-admin-course-pause-title": "Sett studiepoengregistreringen for {{module}} på pause",
   "credit-registration-admin-course-resume-confirm": "Gjenoppta studiepoengregistreringen for {{module}}?",

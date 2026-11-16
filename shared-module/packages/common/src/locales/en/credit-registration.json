@@ -277,6 +277,7 @@
   "credit-registration-admin-course-enrolees-title": "Sisu enrolments",
   "credit-registration-admin-course-no-linking-emails": "No linking emails have been sent for this course.",
   "credit-registration-admin-course-not-found": "This course does not take part in credit registration.",
+  "credit-registration-admin-course-page-link": "Course page",
   "credit-registration-admin-course-pause-reason-description": "Nothing is sent to Sisu for this module until you resume it. Students see \"Paused\".",
   "credit-registration-admin-course-pause-title": "Pause credit registration for {{module}}",
   "credit-registration-admin-course-resume-confirm": "Resume credit registration for {{module}}?",

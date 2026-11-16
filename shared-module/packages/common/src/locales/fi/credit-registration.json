@@ -277,6 +277,7 @@
   "credit-registration-admin-course-enrolees-title": "Sisu-ilmoittautumiset",
   "credit-registration-admin-course-no-linking-emails": "Tältä kurssilta ei ole lähetetty liitosviestejä.",
   "credit-registration-admin-course-not-found": "Tämä kurssi ei ole mukana opintopisteiden kirjauksessa.",
+  "credit-registration-admin-course-page-link": "Kurssin sivu",
   "credit-registration-admin-course-pause-reason-description": "Mitään ei lähetetä Sisuun tästä moduulista ennen kuin jatkat sitä. Opiskelijat näkevät tilan \"Pysäytetty\".",
   "credit-registration-admin-course-pause-title": "Pysäytä opintopisteiden kirjaus moduulille {{module}}",
   "credit-registration-admin-course-resume-confirm": "Jatketaanko opintopisteiden kirjausta moduulille {{module}}?",

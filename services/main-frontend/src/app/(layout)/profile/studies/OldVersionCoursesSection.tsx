@@ -1,20 +1,23 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { type UseQueryResult, useQuery } from "@tanstack/react-query"
+import { type UseQueryResult, useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BUTTON_SECONDARY } from "@/components/credit-registration/constants"
 import { headingCss, noteCss, sectionCss } from "@/components/credit-registration/styles"
-import { getMyOldVersionProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getMyOldVersionProgressOptions,
+  getMyOldVersionProgressQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MoocFiCourseProgress,
   MoocFiMaterialLink,
   OldVersionProgress,
   TmcMoocFiCourseProgress,
 } from "@/generated/api/types.generated"
-import { Badge, Button, Link, Meter, METER_KIND, Spinner, TONE } from "@/shared-module/components"
+import { Badge, Button, Link, Spinner, TONE } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
@@ -23,7 +26,8 @@ import {
   studiesCardCss,
   studiesCardHeaderCss,
 } from "./cardSurface"
-import { ModuleFigure } from "./StudiesCourseCard"
+import { sameLanguage } from "./language"
+import { FIGURE_WIDTH, ModuleDimension, ModuleFigure } from "./ModuleFigures"
 
 /** Each load asks both upstreams, which are slow and rate limited per user. */
 const STALE_TIME_MS = 10 * 60 * 1000
@@ -50,22 +54,16 @@ const courseTitleCss = css`
   line-height: 1.3;
 `
 
-/** Same width as a measured dimension on this platform's cards. */
 const figureCss = css`
-  max-width: 17rem;
+  max-width: ${FIGURE_WIDTH};
 `
 
-/**
- * The reader's language version of the material, else the first one. mooc.fi names languages like
- * `fi_FI`, so only the primary subtag is compared.
- */
+/** The reader's language version of the material, else the first one. */
 const materialLinkFor = (
   links: MoocFiMaterialLink[],
   readerLanguage: string | undefined,
-): MoocFiMaterialLink | null => {
-  const readerPrimary = readerLanguage?.split("-")[0]
-  return links.find((link) => link.language.split(/[_-]/)[0] === readerPrimary) ?? links[0] ?? null
-}
+): MoocFiMaterialLink | null =>
+  links.find((link) => sameLanguage(link.language, readerLanguage)) ?? links[0] ?? null
 
 /**
  * The student's courses on the old version of the platform. Fetched only when the student asks:
@@ -73,7 +71,11 @@ const materialLinkFor = (
  */
 const OldVersionCoursesSection: React.FC = () => {
   const { t } = useTranslation()
-  const [isRequested, setIsRequested] = useState(false)
+  const queryClient = useQueryClient()
+  // Coming back within the stale time shows the cards again without another press.
+  const [isRequested, setIsRequested] = useState(
+    () => queryClient.getQueryData(getMyOldVersionProgressQueryKey()) !== undefined,
+  )
   const query = useQuery({
     ...getMyOldVersionProgressOptions(),
     enabled: isRequested,
@@ -107,17 +109,16 @@ const OldVersionCourses: React.FC<{
   }
   // A failed request, the rate limit's 429 included, says as little as both upstreams failing.
   const progress = query.data
-  const unavailableCount = progress
-    ? [progress.mooc_fi_status, progress.tmc_mooc_fi_status].filter(
-        (status) => status === "unavailable",
-      ).length
-    : 2
+  const hasFailedUpstream =
+    !progress ||
+    progress.mooc_fi_status === "unavailable" ||
+    progress.tmc_mooc_fi_status === "unavailable"
   const hasCourses = progress && (progress.mooc_fi.length > 0 || progress.tmc_mooc_fi.length > 0)
 
   if (!hasCourses) {
     return (
       <p className={noteCss}>
-        {unavailableCount > 0
+        {hasFailedUpstream
           ? t("courses-on-old-version-unavailable")
           : t("courses-on-old-version-none")}
       </p>
@@ -125,7 +126,7 @@ const OldVersionCourses: React.FC<{
   }
   return (
     <>
-      {unavailableCount > 0 ? (
+      {hasFailedUpstream ? (
         <p className={noteCss}>{t("courses-on-old-version-partly-unavailable")}</p>
       ) : null}
       <div className={courseListCss}>
@@ -165,25 +166,26 @@ const MoocFiCourseCard: React.FC<{ course: MoocFiCourseProgress }> = ({ course }
   const { t, i18n } = useTranslation()
   const maxPoints = course.max_points ?? 0
   const points = course.points ?? null
-  let figure: React.ReactNode = null
-  if (points !== null && maxPoints > 0) {
-    figure = (
-      <Meter
-        className={figureCss}
-        kind={METER_KIND.PROGRESS}
-        label={t("label-points")}
-        value={points}
-        maxValue={maxPoints}
-        valueLabel={t("value-of-maximum", {
-          value: formatPoints(points, i18n.language),
-          maximum: formatPoints(maxPoints, i18n.language),
-        })}
-        tone={TONE.SUCCESS}
-      />
+  const figure =
+    points === null ? null : (
+      <div className={figureCss}>
+        <ModuleDimension
+          label={t("label-points")}
+          value={points}
+          maxValue={maxPoints}
+          valueLabel={
+            maxPoints > 0
+              ? t("value-of-maximum", {
+                  value: formatPoints(points, i18n.language),
+                  maximum: formatPoints(maxPoints, i18n.language),
+                })
+              : formatPoints(points, i18n.language)
+          }
+          threshold={null}
+          showBar={maxPoints > 0}
+        />
+      </div>
     )
-  } else if (points !== null) {
-    figure = <ModuleFigure label={t("label-points")} value={formatPoints(points, i18n.language)} />
-  }
   const materialLink = materialLinkFor(course.material_links, i18n.language)
   // The tmc.mooc.fi courses behind it are not listed; one of their pages still beats no link.
   const tmcUrl = course.tmc_mooc_fi_courses.find((tmcCourse) => tmcCourse.url)?.url ?? null

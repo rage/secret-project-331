@@ -104,7 +104,7 @@ struct Completion {
 struct Course {
     id: Uuid,
     name: String,
-    #[serde(default)]
+    /// mooc.fi does not publish its generated schema, so a null list is not ruled out.
     course_translations: Option<Vec<CourseTranslation>>,
 }
 
@@ -116,9 +116,9 @@ struct CourseTranslation {
 }
 
 impl Course {
-    fn material_links(&mut self) -> Vec<MoocfiMaterialLink> {
-        self.course_translations
-            .take()
+    fn into_progress(self, points: Option<f64>, max_points: Option<f64>) -> MoocfiCourseProgress {
+        let material_links = self
+            .course_translations
             .unwrap_or_default()
             .into_iter()
             .filter_map(|translation| {
@@ -128,7 +128,15 @@ impl Course {
                     course_name: translation.name,
                 })
             })
-            .collect()
+            .collect();
+        MoocfiCourseProgress {
+            course_id: self.id,
+            name: self.name,
+            completed: false,
+            points,
+            max_points,
+            material_links,
+        }
     }
 }
 
@@ -180,32 +188,18 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
 
     let mut courses: BTreeMap<Uuid, MoocfiCourseProgress> = BTreeMap::new();
     for progress in user.user_course_progresses {
-        let Some(mut course) = progress.course else {
+        let Some(course) = progress.course else {
             continue;
         };
         courses.insert(
             course.id,
-            MoocfiCourseProgress {
-                course_id: course.id,
-                material_links: course.material_links(),
-                name: course.name,
-                completed: false,
-                points: progress.n_points,
-                max_points: progress.max_points,
-            },
+            course.into_progress(progress.n_points, progress.max_points),
         );
     }
-    for mut course in user.completions.into_iter().filter_map(|c| c.course) {
+    for course in user.completions.into_iter().filter_map(|c| c.course) {
         courses
             .entry(course.id)
-            .or_insert_with(|| MoocfiCourseProgress {
-                course_id: course.id,
-                material_links: course.material_links(),
-                name: course.name,
-                completed: false,
-                points: None,
-                max_points: None,
-            })
+            .or_insert_with(|| course.into_progress(None, None))
             .completed = true;
     }
 

@@ -7,7 +7,9 @@ use std::time::Duration;
 use futures_util::future::OptionFuture;
 use headless_lms_utils::http::web_link;
 use headless_lms_utils::prelude::UtilResult;
-use headless_lms_utils::services::moocfi_graphql::{self, MoocfiCourseProgress};
+use headless_lms_utils::services::moocfi_graphql::{
+    self, MoocfiCourseProgress, MoocfiMaterialLink,
+};
 use headless_lms_utils::services::tmc::{TmcClient, TmcCourseProgress};
 use utoipa::ToSchema;
 
@@ -83,6 +85,16 @@ pub struct MoocFiMaterialLink {
     pub url: String,
 }
 
+impl From<MoocfiMaterialLink> for MoocFiMaterialLink {
+    fn from(link: MoocfiMaterialLink) -> Self {
+        Self {
+            language: link.language,
+            course_name: link.course_name,
+            url: link.url,
+        }
+    }
+}
+
 /// A course the user has submissions or awarded points on in tmc.mooc.fi.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct TmcMoocFiCourseProgress {
@@ -117,22 +129,12 @@ pub async fn get_progress_by_platform(
     user_id: Uuid,
     query_external_platforms: bool,
 ) -> models::ModelResult<ProgressByPlatform> {
-    // Released before the upstream requests so a slow platform does not hold a pool connection.
-    let (upstream_id, courses_mooc_fi) = {
+    let courses_mooc_fi = {
         let mut conn = pool.acquire().await?;
-        (
-            models::users::get_by_id(&mut conn, user_id)
-                .await?
-                .upstream_id,
-            get_courses_mooc_fi_progress(&mut conn, user_id).await?,
-        )
+        get_courses_mooc_fi_progress(&mut conn, user_id).await?
     };
-    let old_version = get_old_version_progress(
-        tmc_client,
-        user_id,
-        upstream_id.filter(|_| query_external_platforms),
-    )
-    .await;
+    let old_version =
+        get_old_version_progress(pool, tmc_client, user_id, query_external_platforms).await?;
     Ok(ProgressByPlatform {
         courses_mooc_fi,
         old_version,
@@ -140,13 +142,22 @@ pub async fn get_progress_by_platform(
 }
 
 /// The user's courses on the old version of the platform (the old mooc.fi and tmc.mooc.fi), each
-/// once. `upstream_id` is the user's tmc.mooc.fi id; `None` queries nothing. Holds no database
-/// connection, so a slow upstream costs only its own caller.
+/// once. With `query_external_platforms` false, or for an account with no tmc.mooc.fi id, asks
+/// neither upstream and reports both as not queried.
 pub async fn get_old_version_progress(
+    pool: &PgPool,
     tmc_client: &TmcClient,
     user_id: Uuid,
-    upstream_id: Option<i32>,
-) -> OldVersionProgress {
+    query_external_platforms: bool,
+) -> models::ModelResult<OldVersionProgress> {
+    // Released before the upstream requests so a slow platform does not hold a pool connection.
+    let upstream_id = {
+        let mut conn = pool.acquire().await?;
+        models::users::get_by_id(&mut conn, user_id)
+            .await?
+            .upstream_id
+            .filter(|_| query_external_platforms)
+    };
     let tmc_progress: OptionFuture<_> = upstream_id
         .map(|id| tmc_client.get_user_course_progress(id, UPSTREAM_TIMEOUT))
         .into();
@@ -164,12 +175,12 @@ pub async fn get_old_version_progress(
     let (tmc_mooc_fi_status, tmc_courses) = settle(tmc_progress, "tmc.mooc.fi", user_id);
     let (mooc_fi_status, moocfi_courses) = settle(moocfi_progress, "mooc.fi", user_id);
     let (mooc_fi, tmc_mooc_fi) = merge_external_progress(tmc_courses, moocfi_courses);
-    OldVersionProgress {
+    Ok(OldVersionProgress {
         mooc_fi_status,
         mooc_fi,
         tmc_mooc_fi_status,
         tmc_mooc_fi,
-    }
+    })
 }
 
 /// The platform's status and courses; `None` means it was not queried. A failure is logged here
@@ -261,15 +272,7 @@ fn merge_external_progress(
             completed: course.completed,
             points: course.points,
             max_points: course.max_points,
-            material_links: course
-                .material_links
-                .into_iter()
-                .map(|link| MoocFiMaterialLink {
-                    language: link.language,
-                    course_name: link.course_name,
-                    url: link.url,
-                })
-                .collect(),
+            material_links: course.material_links.into_iter().map(Into::into).collect(),
             tmc_mooc_fi_courses: Vec::new(),
         })
         .collect();

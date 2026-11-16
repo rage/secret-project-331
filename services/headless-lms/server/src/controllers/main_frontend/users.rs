@@ -756,19 +756,14 @@ async fn get_my_old_version_progress(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<OldVersionProgress>> {
     let token = skip_authorize();
-    let upstream_id = {
-        let mut conn = pool.acquire().await?;
-        models::users::get_by_id(&mut conn, user.id)
-            .await?
-            .upstream_id
-    };
     // Test mode never talks to the real platforms, matching account deletion.
     let res = progress_by_platform::get_old_version_progress(
+        &pool,
         &tmc_client,
         user.id,
-        upstream_id.filter(|_| !app_conf.test_mode),
+        !app_conf.test_mode,
     )
-    .await;
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

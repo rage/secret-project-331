@@ -22,16 +22,23 @@ query ($upstreamId: Int) {
       n_points
       max_points
       course {
-        id
-        name
+        ...CourseFields
       }
     }
     completions {
       course {
-        id
-        name
+        ...CourseFields
       }
     }
+  }
+}
+
+fragment CourseFields on Course {
+  id
+  name
+  course_translations {
+    language
+    link
   }
 }"#;
 
@@ -43,6 +50,16 @@ pub struct MoocfiCourseProgress {
     pub completed: bool,
     pub points: Option<f64>,
     pub max_points: Option<f64>,
+    /// Where the course's material is, per language version. Only http(s) links are kept.
+    pub material_links: Vec<MoocfiMaterialLink>,
+}
+
+/// A link to one language version of a course's material on the old version of the platform.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MoocfiMaterialLink {
+    /// As mooc.fi spells it, e.g. `fi_FI`.
+    pub language: String,
+    pub url: String,
 }
 
 #[derive(Deserialize)]
@@ -84,6 +101,32 @@ struct Completion {
 struct Course {
     id: Uuid,
     name: String,
+    #[serde(default)]
+    course_translations: Option<Vec<CourseTranslation>>,
+}
+
+#[derive(Deserialize)]
+struct CourseTranslation {
+    language: String,
+    link: Option<String>,
+}
+
+impl Course {
+    fn material_links(&mut self) -> Vec<MoocfiMaterialLink> {
+        self.course_translations
+            .take()
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|translation| {
+                let url = translation.link?.trim().to_string();
+                let is_web_link = url.starts_with("https://") || url.starts_with("http://");
+                is_web_link.then_some(MoocfiMaterialLink {
+                    language: translation.language,
+                    url,
+                })
+            })
+            .collect()
+    }
 }
 
 /// Every course the user behind `upstream_id` (their tmc.mooc.fi id) has progress or a completion
@@ -134,13 +177,14 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
 
     let mut courses: BTreeMap<Uuid, MoocfiCourseProgress> = BTreeMap::new();
     for progress in user.user_course_progresses {
-        let Some(course) = progress.course else {
+        let Some(mut course) = progress.course else {
             continue;
         };
         courses.insert(
             course.id,
             MoocfiCourseProgress {
                 course_id: course.id,
+                material_links: course.material_links(),
                 name: course.name,
                 completed: false,
                 points: progress.n_points,
@@ -148,11 +192,12 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
             },
         );
     }
-    for course in user.completions.into_iter().filter_map(|c| c.course) {
+    for mut course in user.completions.into_iter().filter_map(|c| c.course) {
         courses
             .entry(course.id)
             .or_insert_with(|| MoocfiCourseProgress {
                 course_id: course.id,
+                material_links: course.material_links(),
                 name: course.name,
                 completed: false,
                 points: None,
@@ -178,7 +223,11 @@ mod tests {
         let body = json!({
             "data": { "user": {
                 "user_course_progresses": [
-                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B" } },
+                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B", "course_translations": [
+                        { "language": "fi_FI", "link": " https://b.mooc.fi " },
+                        { "language": "en_US", "link": "javascript:alert(1)" },
+                        { "language": "sv_SE", "link": null }
+                    ] } },
                     { "n_points": null, "max_points": null, "course": null }
                 ],
                 "completions": [
@@ -200,6 +249,7 @@ mod tests {
                     completed: true,
                     points: None,
                     max_points: None,
+                    material_links: vec![],
                 },
                 MoocfiCourseProgress {
                     course_id: Uuid::parse_str(COURSE_B).unwrap(),
@@ -207,6 +257,10 @@ mod tests {
                     completed: true,
                     points: Some(12.5),
                     max_points: Some(20.0),
+                    material_links: vec![MoocfiMaterialLink {
+                        language: "fi_FI".to_string(),
+                        url: "https://b.mooc.fi".to_string(),
+                    }],
                 },
             ]
         );

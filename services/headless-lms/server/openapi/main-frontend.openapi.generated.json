@@ -16131,6 +16131,25 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/my-old-version-progress": {
+      "get": {
+        "tags": ["users"],
+        "summary": "GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the\nold version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.\n\nKept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be\nreached is reported in its status rather than failing the request.",
+        "operationId": "getMyOldVersionProgress",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's courses on the old version of the platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldVersionProgress"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/my-progress-by-platform": {
       "get": {
         "tags": ["users"],
@@ -30090,7 +30109,7 @@
       "MoocFiCourseProgress": {
         "type": "object",
         "description": "A course the user has progress or a completion on in the old mooc.fi.",
-        "required": ["course_id", "name", "completed", "tmc_mooc_fi_courses"],
+        "required": ["course_id", "name", "completed", "material_links", "tmc_mooc_fi_courses"],
         "properties": {
           "completed": {
             "type": "boolean"
@@ -30098,6 +30117,13 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "material_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiMaterialLink"
+            },
+            "description": "Links to the course's material, one per language version that has one."
           },
           "max_points": {
             "type": ["number", "null"],
@@ -30116,6 +30142,20 @@
               "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
             },
             "description": "tmc.mooc.fi courses that report their progress to this one."
+          }
+        }
+      },
+      "MoocFiMaterialLink": {
+        "type": "object",
+        "description": "A link to one language version of an old mooc.fi course's material.",
+        "required": ["language", "url"],
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "As mooc.fi spells it, e.g. `fi_FI`."
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -31500,6 +31540,31 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "OldVersionProgress": {
+        "type": "object",
+        "description": "The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi\ncourse that reports to an old mooc.fi course is listed under that mooc.fi course.",
+        "required": ["mooc_fi_status", "mooc_fi", "tmc_mooc_fi_status", "tmc_mooc_fi"],
+        "properties": {
+          "mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiCourseProgress"
+            }
+          },
+          "mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          },
+          "tmc_mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
+            }
+          },
+          "tmc_mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
           }
         }
       },
@@ -36243,6 +36308,10 @@
           "submissions": {
             "type": "integer",
             "format": "int32"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "description": "The course's page on tmc.mooc.fi, when it has one."
           }
         }
       },

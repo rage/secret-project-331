@@ -85,6 +85,8 @@ pub struct TmcCourseProgress {
     /// Number of distinct points awarded, not a score.
     pub awarded_points: i32,
     pub submissions: i32,
+    /// The course's page on tmc.mooc.fi. `None` for a course in no organization.
+    pub url: Option<String>,
 }
 
 #[derive(Deserialize)]

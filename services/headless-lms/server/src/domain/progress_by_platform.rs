@@ -1,5 +1,5 @@
-//! The courses a user would lose on each platform their account reaches, shown before account
-//! deletion.
+//! The courses a user has on each platform their account reaches: all of them before account
+//! deletion, and those on the old version of the platform on My studies.
 
 use std::collections::{BTreeSet, HashMap};
 use std::time::Duration;
@@ -20,6 +20,16 @@ const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ProgressByPlatform {
     pub courses_mooc_fi: Vec<CoursesMoocFiCourseProgress>,
+    pub mooc_fi_status: ExternalPlatformStatus,
+    pub mooc_fi: Vec<MoocFiCourseProgress>,
+    pub tmc_mooc_fi_status: ExternalPlatformStatus,
+    pub tmc_mooc_fi: Vec<TmcMoocFiCourseProgress>,
+}
+
+/// The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+/// course that reports to an old mooc.fi course is listed under that mooc.fi course.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct OldVersionProgress {
     pub mooc_fi_status: ExternalPlatformStatus,
     pub mooc_fi: Vec<MoocFiCourseProgress>,
     pub tmc_mooc_fi_status: ExternalPlatformStatus,
@@ -58,8 +68,18 @@ pub struct MoocFiCourseProgress {
     pub completed: bool,
     pub points: Option<f64>,
     pub max_points: Option<f64>,
+    /// Links to the course's material, one per language version that has one.
+    pub material_links: Vec<MoocFiMaterialLink>,
     /// tmc.mooc.fi courses that report their progress to this one.
     pub tmc_mooc_fi_courses: Vec<TmcMoocFiCourseProgress>,
+}
+
+/// A link to one language version of an old mooc.fi course's material.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MoocFiMaterialLink {
+    /// As mooc.fi spells it, e.g. `fi_FI`.
+    pub language: String,
+    pub url: String,
 }
 
 /// A course the user has submissions or awarded points on in tmc.mooc.fi.
@@ -69,6 +89,8 @@ pub struct TmcMoocFiCourseProgress {
     /// Number of points awarded, not a score.
     pub awarded_points: i32,
     pub submissions: i32,
+    /// The course's page on tmc.mooc.fi, when it has one.
+    pub url: Option<String>,
 }
 
 impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
@@ -80,6 +102,7 @@ impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
                 .unwrap_or(course.name),
             awarded_points: course.awarded_points,
             submissions: course.submissions,
+            url: course.url,
         }
     }
 }
@@ -96,15 +119,36 @@ pub async fn get_progress_by_platform(
     // Released before the upstream requests so a slow platform does not hold a pool connection.
     let (upstream_id, courses_mooc_fi) = {
         let mut conn = pool.acquire().await?;
-        let upstream_id = models::users::get_by_id(&mut conn, user_id)
-            .await?
-            .upstream_id;
         (
-            upstream_id,
+            models::users::get_by_id(&mut conn, user_id)
+                .await?
+                .upstream_id,
             get_courses_mooc_fi_progress(&mut conn, user_id).await?,
         )
     };
-    let upstream_id = upstream_id.filter(|_| query_external_platforms);
+    let old_version = get_old_version_progress(
+        tmc_client,
+        user_id,
+        upstream_id.filter(|_| query_external_platforms),
+    )
+    .await;
+    Ok(ProgressByPlatform {
+        courses_mooc_fi,
+        mooc_fi_status: old_version.mooc_fi_status,
+        mooc_fi: old_version.mooc_fi,
+        tmc_mooc_fi_status: old_version.tmc_mooc_fi_status,
+        tmc_mooc_fi: old_version.tmc_mooc_fi,
+    })
+}
+
+/// The user's courses on the old version of the platform (the old mooc.fi and tmc.mooc.fi), each
+/// once. `upstream_id` is the user's tmc.mooc.fi id; `None` queries nothing. Holds no database
+/// connection, so a slow upstream costs only its own caller.
+pub async fn get_old_version_progress(
+    tmc_client: &TmcClient,
+    user_id: Uuid,
+    upstream_id: Option<i32>,
+) -> OldVersionProgress {
     let tmc_progress: OptionFuture<_> = upstream_id
         .map(|id| tmc_client.get_user_course_progress(id, UPSTREAM_TIMEOUT))
         .into();
@@ -122,13 +166,12 @@ pub async fn get_progress_by_platform(
     let (tmc_mooc_fi_status, tmc_courses) = settle(tmc_progress, "tmc.mooc.fi", user_id);
     let (mooc_fi_status, moocfi_courses) = settle(moocfi_progress, "mooc.fi", user_id);
     let (mooc_fi, tmc_mooc_fi) = merge_external_progress(tmc_courses, moocfi_courses);
-    Ok(ProgressByPlatform {
-        courses_mooc_fi,
+    OldVersionProgress {
         mooc_fi_status,
         mooc_fi,
         tmc_mooc_fi_status,
         tmc_mooc_fi,
-    })
+    }
 }
 
 /// The platform's status and courses; `None` means it was not queried. A failure is logged here
@@ -220,6 +263,14 @@ fn merge_external_progress(
             completed: course.completed,
             points: course.points,
             max_points: course.max_points,
+            material_links: course
+                .material_links
+                .into_iter()
+                .map(|link| MoocFiMaterialLink {
+                    language: link.language,
+                    url: link.url,
+                })
+                .collect(),
             tmc_mooc_fi_courses: Vec::new(),
         })
         .collect();
@@ -259,6 +310,7 @@ mod tests {
             moocfi_id: moocfi_id.map(str::to_string),
             awarded_points: 3,
             submissions: 7,
+            url: None,
         }
     }
 
@@ -269,6 +321,7 @@ mod tests {
             completed: false,
             points: Some(1.0),
             max_points: Some(2.0),
+            material_links: Vec::new(),
         }
     }
 

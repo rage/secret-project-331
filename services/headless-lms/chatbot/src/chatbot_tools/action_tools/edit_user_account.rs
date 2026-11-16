@@ -335,7 +335,10 @@ impl ConfirmableActionTool for EditUserAccountTool {
             ),
         ];
 
-        let email_changed = arguments.new_email.is_some();
+        let email_changed = arguments
+            .new_email
+            .as_ref()
+            .is_some_and(|new_email| *new_email != arguments.current_email);
         let verify_requested = matches!(arguments.verification_change, VerificationChange::Verify);
         if email_changed && !verify_requested {
             notes.push("Changing the email clears the account's verification automatically, so unless verify was also requested the account is now unverified and will be asked to re-confirm the address.".to_string());

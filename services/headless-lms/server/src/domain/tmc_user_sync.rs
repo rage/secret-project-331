@@ -21,11 +21,12 @@ pub async fn copy_profile_to_tmc(
     let Some(upstream_id) = tmc_sync_target(upstream_id, app_conf) else {
         return Ok(());
     };
+    let sends_email = email.is_some();
     tmc_client
         .sync_user_profile(upstream_id, name, email)
         .await
         .map_err(|error| {
-            if error.is_tmc_refused_address() {
+            if sends_email && error.is_tmc_refused_address() {
                 controller_err!(
                     BadRequest,
                     "This email address cannot be used. It may belong to another account."

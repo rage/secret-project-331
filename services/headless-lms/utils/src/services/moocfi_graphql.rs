@@ -6,6 +6,7 @@ use std::time::Duration;
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use serde_json::json;
+use tracing::warn;
 use uuid::Uuid;
 
 use crate::http::{REQWEST_CLIENT, web_link};
@@ -62,7 +63,8 @@ pub struct MoocfiCourseProgress {
     pub max_points: Option<f64>,
     /// Where the course's material is, per language version that has a usable link.
     pub material_links: Vec<MoocfiMaterialLink>,
-    /// `None` for a course known only from a completion, which has no progress row.
+    /// `None` for a course known only from a completion, which has no progress row, and for every
+    /// course when mooc.fi failed to count exercises.
     pub exercise_progress: Option<MoocfiExerciseProgress>,
 }
 
@@ -240,6 +242,13 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
         }
     };
 
+    if !response.errors.is_empty() {
+        let messages: Vec<&str> = response.errors.iter().map(|e| e.message.as_str()).collect();
+        warn!(
+            "mooc.fi returned partial course progress: {}",
+            messages.join("; ")
+        );
+    }
     let exercise_counts: HashMap<Uuid, MoocfiExerciseProgress> = user
         .exercise_counts
         .unwrap_or_default()

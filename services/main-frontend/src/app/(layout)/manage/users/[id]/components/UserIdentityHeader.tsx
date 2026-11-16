@@ -26,6 +26,7 @@ import {
   CopyButton,
   DescriptionList,
   type DescriptionListItem,
+  Link,
   QueryResults,
 } from "@/shared-module/components"
 
@@ -39,8 +40,9 @@ export interface UserIdentityHeaderProps {
   studentNumber: StudentNumberState | null
 }
 
-// The student's TMC (mooc.fi) participant page; the account's upstream_id is the participant id.
-const TMC_PARTICIPANT_URL = "https://tmc.mooc.fi/participants/"
+// The account's upstream_id is both the tmc.mooc.fi participant id and the mooc.fi admin user id.
+const tmcParticipantUrl = (tmcId: number) => `https://tmc.mooc.fi/participants/${tmcId}`
+const moocfiAdminUserUrl = (tmcId: number) => `https://www.mooc.fi/admin/users/${tmcId}/summary`
 
 const headerCss = css`
   display: flex;
@@ -48,21 +50,6 @@ const headerCss = css`
   gap: var(--space-4);
   margin-bottom: var(--space-3);
   min-width: 0;
-`
-
-const tmcLinkCss = css`
-  display: inline-flex;
-  text-decoration: none;
-  border-radius: 999px;
-
-  &:hover {
-    filter: brightness(0.96);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
 `
 
 const bodyCss = css`
@@ -150,7 +137,8 @@ const StudentNumberValue: React.FC<{ state: StudentNumberState }> = ({ state }) 
 
 /**
  * Identity block: monogram, name, the email with its verification note, the student number the
- * credits go under, and the account chips (roles, TMC id).
+ * credits go under, the account chips (roles, TMC id), and links to the user on the old version of
+ * the platform.
  */
 const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userId,
@@ -225,14 +213,15 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
                       </Badge>
                     ))}
                     {tmcId !== null ? (
-                      <a
-                        className={tmcLinkCss}
-                        href={`${TMC_PARTICIPANT_URL}${tmcId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <>
                         <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
-                      </a>
+                        <Link href={tmcParticipantUrl(tmcId)} target="_blank" rel="noreferrer">
+                          {t("link-open-on-tmc-mooc-fi")}
+                        </Link>
+                        <Link href={moocfiAdminUserUrl(tmcId)} target="_blank" rel="noreferrer">
+                          {t("link-open-on-mooc-fi")}
+                        </Link>
+                      </>
                     ) : null}
                   </div>
                 )

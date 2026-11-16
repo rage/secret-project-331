@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -159,6 +159,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
   const [edited, setEdited] = useState(false)
   const [moduleList, setModuleList] = useState<ModuleList | null>(null)
   const [newModule, setNewModule] = useState<ModuleView | null>(null)
+  const addButtonRef = useRef<HTMLButtonElement>(null)
+  const focusAddButton = useRef(false)
+  // Closing the create card unmounts the focused control, so focus returns to the trigger.
+  useEffect(() => {
+    if (newModule === null && focusAddButton.current) {
+      focusAddButton.current = false
+      addButtonRef.current?.focus()
+    }
+  }, [newModule])
 
   const validateModuleList = useCallback(
     (modules: ModuleView[], chapters: ChapterView[]): string | null => {
@@ -549,11 +558,15 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
                 links={links}
                 canToggleCertificates={false}
                 onSubmitForm={handleSaveModule}
-                onCancel={() => setNewModule(null)}
+                onCancel={() => {
+                  focusAddButton.current = true
+                  setNewModule(null)
+                }}
               />
             ) : (
               <div>
                 <Button
+                  ref={addButtonRef}
                   variant="secondary"
                   size="medium"
                   type="button"

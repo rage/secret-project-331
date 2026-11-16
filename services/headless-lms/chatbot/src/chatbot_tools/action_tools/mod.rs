@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub mod reset_exercises;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::services::tmc::TmcClient;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
 use crate::chatbot_tools::tool_authorization::{ToolAuthorization, ToolRequirement};
@@ -80,10 +81,12 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     /// mutate on a mismatch, so a wrong or stale display can never mutate a row it doesn't
     /// describe. `authorization` both proves the confirming admin was checked against
     /// this call's own requirements and names them, so the mutation cannot run ahead of the
-    /// check and the audit row cannot credit anyone else.
+    /// check and the audit row cannot credit anyone else. A change TMC must mirror goes through
+    /// `tmc_client` last, so a TMC failure rolls the mutation back.
     fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         authorization: &ToolAuthorization<Self>,
     ) -> impl std::future::Future<Output = ChatbotResult<(ExecutedAction, Self::Facts)>> + Send

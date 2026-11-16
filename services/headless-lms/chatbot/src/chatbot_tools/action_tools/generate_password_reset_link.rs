@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::services::tmc::TmcClient;
 use indexmap::IndexMap;
 use serde_json::json;
 
@@ -126,6 +127,7 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
     async fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
+        _tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {

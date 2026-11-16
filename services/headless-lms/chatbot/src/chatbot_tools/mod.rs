@@ -620,6 +620,7 @@ macro_rules! chatbot_tool_registry {
         pub async fn execute_action_tool(
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
+            tmc_client: &headless_lms_utils::services::tmc::TmcClient,
             tool_call: &headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
             answer: &ClientToolAnswer,
             user_context: &ChatbotTurnContext,
@@ -671,6 +672,7 @@ macro_rules! chatbot_tool_registry {
                     let (executed, facts) = <$action_tool as ConfirmableActionTool>::execute(
                         &mut *conn,
                         app_config,
+                        tmc_client,
                         &parsed_arguments,
                         &authorization,
                     )

@@ -1,3 +1,4 @@
+use headless_lms_utils::services::tmc::TmcClient;
 use indexmap::IndexMap;
 
 use headless_lms_models::course_designer_plan_members;
@@ -95,6 +96,7 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
     async fn execute(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
+        _tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {

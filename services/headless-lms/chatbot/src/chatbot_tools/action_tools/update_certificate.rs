@@ -1,5 +1,6 @@
 use chrono::{NaiveDate, NaiveTime};
 use headless_lms_authorization::Action;
+use headless_lms_utils::services::tmc::TmcClient;
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -175,6 +176,7 @@ impl ConfirmableActionTool for UpdateCertificateTool {
     async fn execute(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
+        _tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {

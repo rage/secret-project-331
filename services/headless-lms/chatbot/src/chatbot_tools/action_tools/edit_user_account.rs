@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::{prelude::UtilErrorType, services::tmc::TmcClient};
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -182,7 +183,8 @@ impl ConfirmableActionTool for EditUserAccountTool {
 
     async fn execute(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
+        tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
@@ -255,6 +257,31 @@ impl ConfirmableActionTool for EditUserAccountTool {
         };
 
         let displayed_new_email = new_email_applied.as_deref().unwrap_or(&old_email);
+
+        // TMC signs the user in by this address. With ownership verification on, a new address
+        // waits there until it is verified, as it does for the user's own edits.
+        let email_reaches_tmc = matches!(arguments.verification_change, VerificationChange::Verify)
+            || (new_email_applied.is_some() && !app_config.enable_email_ownership_verification);
+        if email_reaches_tmc
+            && let Some(upstream_id) = user.upstream_id.filter(|_| !app_config.test_mode)
+        {
+            tmc_client
+                .sync_user_email(displayed_new_email.to_string(), upstream_id)
+                .await
+                .map_err(|e| {
+                    let reason = match e.error_type() {
+                        UtilErrorType::TmcHttpStatusError(400 | 422) => {
+                            "tmc.mooc.fi refused the address, possibly because another account there uses it"
+                        }
+                        _ => "tmc.mooc.fi could not be reached",
+                    };
+                    chatbot_err!(
+                        ToolUseError,
+                        format!("Nothing was changed: {reason}."),
+                        e
+                    )
+                })?;
+        }
         let mut summary = if let Some(new_email) = &new_email_applied {
             format!("Changed email {old_email} → {new_email}")
         } else {

@@ -4,6 +4,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_conversation_message_tool_calls::{
     self, ChatbotConversationMessageToolCall,
 };
+use headless_lms_utils::services::tmc::TmcClient;
 
 use super::abort::refused_call_output;
 use crate::chatbot_error::ChatbotResult;
@@ -36,9 +37,11 @@ pub(crate) struct AnsweredClientToolCall {
 /// Fails with [ChatbotErrorType::InvalidToolAnswer] when `conversation_id` has no such call, the
 /// call has already been answered, or the call is not one a client answers, all of which the
 /// client got wrong.
+#[allow(clippy::too_many_arguments)]
 pub(crate) async fn client_tool_output_for_answer(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
+    tmc_client: &TmcClient,
     conversation_id: Uuid,
     unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
@@ -59,7 +62,15 @@ pub(crate) async fn client_tool_output_for_answer(
         ));
     }
 
-    apply_client_tool_answer(conn, app_config, tool_call, answer, user_context).await
+    apply_client_tool_answer(
+        conn,
+        app_config,
+        tmc_client,
+        tool_call,
+        answer,
+        user_context,
+    )
+    .await
 }
 
 /// Why a call the client wants to answer is not among the conversation's unanswered ones: it
@@ -99,6 +110,7 @@ async fn missing_tool_call_error(
 async fn apply_client_tool_answer(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
+    tmc_client: &TmcClient,
     tool_call: &ChatbotConversationMessageToolCall,
     answer: &ClientToolAnswer,
     user_context: &ChatbotTurnContext,
@@ -124,8 +136,15 @@ async fn apply_client_tool_answer(
         chatbot_conversation_message_tool_calls::lock_unanswered_for_execution(conn, tool_call.id)
             .await?;
 
-        let outcome =
-            execute_action_tool(conn, app_config, tool_call, answer, user_context).await?;
+        let outcome = execute_action_tool(
+            conn,
+            app_config,
+            tmc_client,
+            tool_call,
+            answer,
+            user_context,
+        )
+        .await?;
         let ClientToolAnswer::Data { result } = answer;
         return Ok(AnsweredClientToolCall {
             output: outcome.output,
@@ -205,6 +224,7 @@ mod tests {
         let aborted = apply_client_tool_answer(
             tx.as_mut(),
             &app_config,
+            &TmcClient::mock_for_test(),
             &recorded_question(),
             &picked_the_second_choice(),
             &no_categories,
@@ -228,6 +248,7 @@ mod tests {
         let applied = apply_client_tool_answer(
             tx.as_mut(),
             &app_config,
+            &TmcClient::mock_for_test(),
             &recorded_question(),
             &picked_the_second_choice(),
             &learner,

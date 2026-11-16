@@ -330,7 +330,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           font-size: 20px;
           text-underline-offset: 4.6px;
           text-decoration-thickness: 1.6px;
-          a {
+          a:not([data-button-variant]) {
             color: #1072ea;
             &:hover {
               color: #096df1;

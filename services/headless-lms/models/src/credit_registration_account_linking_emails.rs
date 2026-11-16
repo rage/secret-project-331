@@ -183,8 +183,44 @@ WHERE e.sisu_person_id = ANY($1::text [])
     Ok(res)
 }
 
+/// How many linking mails one course or mooc.fi target has sent each of these people, replaced ones
+/// included.
+pub async fn count_mails_per_person_for_source(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    source_id: Uuid,
+) -> ModelResult<HashMap<String, i64>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  COUNT(*) AS "mail_count!"
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND (
+    course_id = $2
+    OR external_credit_target_id = $2
+  )
+  AND deleted_at IS NULL
+GROUP BY sisu_person_id
+        "#,
+        sisu_person_ids,
+        source_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res
+        .into_iter()
+        .map(|row| {
+            (
+                row.sisu_person_id.expose_secret().to_owned(),
+                row.mail_count,
+            )
+        })
+        .collect())
+}
+
 /// One linking mail to a person: when it was claimed and what became of its send.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 pub struct LinkingMailSend {
     pub claimed_at: DateTime<Utc>,
     /// `None` until the `link-emails` phase queues it.
@@ -200,66 +236,38 @@ pub async fn get_sends_per_person_for_source(
 ) -> ModelResult<HashMap<String, Vec<LinkingMailSend>>> {
     let rows = sqlx::query!(
         r#"
-SELECT e.sisu_person_id AS "sisu_person_id!",
-  e.sent_at AS claimed_at,
-  ed.sent AS "delivery_sent?",
-  ed.retryable AS "retryable?",
-  ed.retry_count AS "retry_count?",
-  ed.next_retry_at AS "next_retry_at?",
-  ed.first_failed_at AS "first_failed_at?",
-  ed.last_attempt_at AS "last_attempt_at?",
-  latest_error.error_code AS "error_code?",
-  latest_error.is_transient AS "is_transient?"
-FROM credit_registration_account_linking_emails e
-  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
-  AND ed.deleted_at IS NULL
-  LEFT JOIN LATERAL (
-    SELECT ede.error_code,
-      ede.is_transient
-    FROM email_delivery_errors ede
-    WHERE ede.email_delivery_id = ed.id
-      AND ede.deleted_at IS NULL
-    ORDER BY ede.attempt DESC,
-      ede.created_at DESC
-    LIMIT 1
-  ) latest_error ON TRUE
-WHERE e.sisu_person_id = ANY($1::text [])
+SELECT sisu_person_id AS "sisu_person_id!",
+  sent_at,
+  email_delivery_id
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
   AND (
-    e.course_id = $2
-    OR e.external_credit_target_id = $2
+    course_id = $2
+    OR external_credit_target_id = $2
   )
-  AND e.deleted_at IS NULL
-ORDER BY e.sent_at DESC
+  AND deleted_at IS NULL
+ORDER BY sent_at DESC
         "#,
         sisu_person_ids,
         source_id
     )
-    .fetch_all(conn)
+    .fetch_all(&mut *conn)
     .await?;
-    let now = Utc::now();
+    let delivery_ids: Vec<Uuid> = rows
+        .iter()
+        .filter_map(|row| row.email_delivery_id)
+        .collect();
+    let mut statuses = get_send_statuses(conn, &delivery_ids).await?;
     let mut sends: HashMap<String, Vec<LinkingMailSend>> = HashMap::new();
     for row in rows {
-        let send_status = row.delivery_sent.map(|sent| {
-            derive_email_send_status(
-                &EmailSendStatusFacts {
-                    sent,
-                    retryable: row.retryable.unwrap_or(false),
-                    retry_count: row.retry_count.unwrap_or(0),
-                    next_retry_at: row.next_retry_at,
-                    first_failed_at: row.first_failed_at,
-                    last_attempt_at: row.last_attempt_at,
-                    failure_code: row.error_code,
-                    failure_is_transient: row.is_transient,
-                },
-                now,
-            )
-        });
         sends
             .entry(row.sisu_person_id.expose_secret().to_owned())
             .or_default()
             .push(LinkingMailSend {
-                claimed_at: row.claimed_at,
-                send_status,
+                claimed_at: row.sent_at,
+                send_status: row
+                    .email_delivery_id
+                    .and_then(|delivery_id| statuses.remove(&delivery_id)),
             });
     }
     Ok(sends)
@@ -1305,7 +1313,8 @@ WITH page AS (
     )
     AND (
       $5::uuid IS NULL
-      OR COALESCE(e.course_id, e.external_credit_target_id) = $5
+      OR e.course_id = $5
+      OR e.external_credit_target_id = $5
     )
     AND (
       $1::text IS NULL

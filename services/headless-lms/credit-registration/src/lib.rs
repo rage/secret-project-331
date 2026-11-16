@@ -74,7 +74,7 @@ pub mod account_linking {
     pub use crate::use_cases::account_linking::{
         EnroleeListing, RateCapOverride, ResendAttempt, ResendOutcome,
     };
-    pub use crate::use_cases::enrolment_discovery::ListedEnrolee;
+    pub use crate::use_cases::enrolment_discovery::{ListedEnrolee, is_enrolled_before};
 }
 
 /// What the dashboard and the test controls read of the study registry, or reset: its circuit

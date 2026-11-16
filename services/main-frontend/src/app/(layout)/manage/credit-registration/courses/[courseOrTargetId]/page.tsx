@@ -28,6 +28,7 @@ import {
   DENSITY_COMPACT,
   QUIET_REFRESH,
   TABLE_STACK,
+  TITLE_ORDER,
 } from "@/components/credit-registration/constants"
 import {
   codeValueCss,
@@ -43,7 +44,6 @@ import {
   sectionHeaderCss,
   spacedRowCss,
 } from "@/components/credit-registration/styles"
-import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { AdminCreditUnitCourseCode } from "@/generated/api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
@@ -55,8 +55,6 @@ import {
 import { Button, Link, Pagination, QueryResult, Table } from "@/shared-module/components"
 
 const ROWS_PER_PAGE = 25
-/** Above the credit registration layout's tab title (20), which would otherwise win. */
-const TITLE_ORDER = 30
 
 /** The course's modules, or the mooc.fi target, each with its course code. */
 const CreditUnitList: React.FC<{ units: AdminCreditUnitCourseCode[] }> = ({ units }) => {
@@ -89,7 +87,7 @@ const RegistrationsSection: React.FC<{ courseOrTargetId: string }> = ({ courseOr
   const [limit, setLimit] = useState(ROWS_PER_PAGE)
   const registrationsQuery = useAdminCreditRegistrations(
     { course_id: courseOrTargetId, include_not_started: true, page, limit },
-    { paused: false },
+    { paused: true },
   )
   return (
     <section className={sectionCardCss}>
@@ -162,7 +160,6 @@ const RegistrationsSection: React.FC<{ courseOrTargetId: string }> = ({ courseOr
 
 const LinkingEmailsSection: React.FC<{ courseOrTargetId: string }> = ({ courseOrTargetId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const canResend = useIsAccountLinkingEnabled()
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(ROWS_PER_PAGE)
   const emailsQuery = useAccountLinkingEmails({
@@ -185,7 +182,6 @@ const LinkingEmailsSection: React.FC<{ courseOrTargetId: string }> = ({ courseOr
             <LinkingEmailsTable
               rows={loaded.data}
               showsCourse={false}
-              canResend={canResend}
               emptyState={t("credit-registration-admin-course-no-linking-emails")}
             />
             <Pagination
@@ -275,10 +271,9 @@ const CreditRegistrationCoursePage: React.FC = () => {
           </div>
         )}
       </QueryResult>
-      <SisuEnrolmentsSection
-        courseOrTargetId={courseOrTargetId}
-        courseName={courseName ?? courseOrTargetId}
-      />
+      {courseName !== null && (
+        <SisuEnrolmentsSection courseOrTargetId={courseOrTargetId} courseName={courseName} />
+      )}
       <RegistrationsSection courseOrTargetId={courseOrTargetId} />
       <LinkingEmailsSection courseOrTargetId={courseOrTargetId} />
     </div>

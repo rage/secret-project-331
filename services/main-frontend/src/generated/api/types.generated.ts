@@ -464,6 +464,10 @@ export type AdminCourseEnrolee = {
    */
   credit_registration_id?: string | null
   /**
+   * `None` when the study registry gave no enrolment time.
+   */
+  enrolled_at?: string | null
+  /**
    * Enrolled before account linking began, or at no known time. A linking email then goes to
    * them automatically only when their Sisu address is the email of an account with a
    * registerable completion on the course. Always false while account linking is off.
@@ -473,6 +477,8 @@ export type AdminCourseEnrolee = {
    * Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it.
    */
   enrolment_state?: string | null
+  first_names?: string | null
+  last_name?: string | null
   linked_user_email?: string | null
   /**
    * The account linked to them by Sisu person id or student number.
@@ -481,24 +487,16 @@ export type AdminCourseEnrolee = {
   /**
    * The linking emails this course or target sent them, newest first, replaced ones included.
    */
-  linking_emails: Array<AdminCourseEnroleeLinkingEmail>
+  linking_emails: Array<LinkingMailSend>
   /**
-   * Who Sisu lists, and the linking emails sent to them by hand. `similarities` is always empty.
-   */
-  person: AdminLinkingCandidate
-  /**
-   * Sisu's addresses for them in full; `person.email` is the one a linking email goes to.
+   * In full: support has to tell people apart and check where a linking email went.
    */
   primary_email?: string | null
   secondary_email?: string | null
-}
-
-/**
- * One linking email to a person on a course's enrolment lists.
- */
-export type AdminCourseEnroleeLinkingEmail = {
-  claimed_at: string
-  send_status?: EmailSendStatusReport | null
+  /**
+   * Echoed back to the resend endpoint to mail them.
+   */
+  student_number: string
 }
 
 /**
@@ -3724,6 +3722,10 @@ export type CreditRegistrationCourseStats = {
    */
   course_name: string
   /**
+   * The course, or the mooc.fi target, which is its own credit unit.
+   */
+  course_or_target_id: string
+  /**
    * The module's or target's id, which the Registrations list's `course_module_id` filter takes.
    */
   credit_unit_id: string
@@ -5613,6 +5615,14 @@ export type LinkingEmailStatus = {
  * Whether the link a linking mail carries can still be opened.
  */
 export type LinkingMailLinkState = "usable" | "used" | "lapsed"
+
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export type LinkingMailSend = {
+  claimed_at: string
+  send_status?: EmailSendStatusReport | null
+}
 
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>

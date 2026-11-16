@@ -3142,14 +3142,6 @@ export const zEmailSendStatusReport = z.object({
   sent_at: z.iso.datetime().nullish(),
 })
 
-/**
- * One linking email to a person on a course's enrolment lists.
- */
-export const zAdminCourseEnroleeLinkingEmail = z.object({
-  claimed_at: z.iso.datetime(),
-  send_status: zEmailSendStatusReport.nullish(),
-})
-
 export const zAdminLinkingEmail = z.object({
   claimed_at: z.iso.datetime(),
   course_id: z.uuid().nullish(),
@@ -4252,30 +4244,6 @@ export const zAdminLinkingCandidate = z.object({
   student_number: z.string(),
 })
 
-/**
- * A person on a course's or mooc.fi target's enrolment lists, linked or not.
- */
-export const zAdminCourseEnrolee = z.object({
-  credit_registration_id: z.uuid().nullish(),
-  enrolled_before_account_linking: z.boolean(),
-  enrolment_state: z.string().nullish(),
-  linked_user_email: z.string().nullish(),
-  linked_user_id: z.uuid().nullish(),
-  linking_emails: z.array(zAdminCourseEnroleeLinkingEmail),
-  person: zAdminLinkingCandidate,
-  primary_email: z.string().nullish(),
-  secondary_email: z.string().nullish(),
-})
-
-/**
- * Everyone on a course's or mooc.fi target's enrolment lists.
- */
-export const zAdminCourseEnrolees = z.object({
-  account_linking_since: z.iso.datetime().nullish(),
-  people: z.array(zAdminCourseEnrolee),
-  study_registry_unavailable: z.boolean(),
-})
-
 export const zAdminLinkingCandidates = z.object({
   account_linking_since: z.iso.datetime(),
   candidates: z.array(zAdminLinkingCandidate),
@@ -4343,6 +4311,41 @@ export const zAccountLinkingEmailRow = z.object({
   send_status: zEmailSendStatusReport.nullish(),
   sisu_full_name: z.string().nullish(),
   student_number: z.string(),
+})
+
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export const zLinkingMailSend = z.object({
+  claimed_at: z.iso.datetime(),
+  send_status: zEmailSendStatusReport.nullish(),
+})
+
+/**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export const zAdminCourseEnrolee = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  enrolled_at: z.iso.datetime().nullish(),
+  enrolled_before_account_linking: z.boolean(),
+  enrolment_state: z.string().nullish(),
+  first_names: z.string().nullish(),
+  last_name: z.string().nullish(),
+  linked_user_email: z.string().nullish(),
+  linked_user_id: z.uuid().nullish(),
+  linking_emails: z.array(zLinkingMailSend),
+  primary_email: z.string().nullish(),
+  secondary_email: z.string().nullish(),
+  student_number: z.string(),
+})
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export const zAdminCourseEnrolees = z.object({
+  account_linking_since: z.iso.datetime().nullish(),
+  people: z.array(zAdminCourseEnrolee),
+  study_registry_unavailable: z.boolean(),
 })
 
 export const zManualCompletionPreviewUser = z.object({
@@ -7715,6 +7718,7 @@ export const zCreditRegistrationCourseStats = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_unit_id: z.uuid(),
   ects_credits: z.number().nullish(),
   eligible_completion_count: z.coerce

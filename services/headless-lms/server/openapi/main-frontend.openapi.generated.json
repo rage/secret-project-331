@@ -17475,12 +17475,17 @@
       "AdminCourseEnrolee": {
         "type": "object",
         "description": "A person on a course's or mooc.fi target's enrolment lists, linked or not.",
-        "required": ["person", "enrolled_before_account_linking", "linking_emails"],
+        "required": ["student_number", "enrolled_before_account_linking", "linking_emails"],
         "properties": {
           "credit_registration_id": {
             "type": ["string", "null"],
             "format": "uuid",
             "description": "The linked account's newest registration on this course or target, preferring one under a\ncourse code whose roster lists them."
+          },
+          "enrolled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` when the study registry gave no enrolment time."
           },
           "enrolled_before_account_linking": {
             "type": "boolean",
@@ -17489,6 +17494,12 @@
           "enrolment_state": {
             "type": ["string", "null"],
             "description": "Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it."
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
           },
           "linked_user_email": {
             "type": ["string", "null"]
@@ -17501,42 +17512,20 @@
           "linking_emails": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AdminCourseEnroleeLinkingEmail"
+              "$ref": "#/components/schemas/LinkingMailSend"
             },
             "description": "The linking emails this course or target sent them, newest first, replaced ones included."
           },
-          "person": {
-            "$ref": "#/components/schemas/AdminLinkingCandidate",
-            "description": "Who Sisu lists, and the linking emails sent to them by hand. `similarities` is always empty."
-          },
           "primary_email": {
             "type": ["string", "null"],
-            "description": "Sisu's addresses for them in full; `person.email` is the one a linking email goes to."
+            "description": "In full: support has to tell people apart and check where a linking email went."
           },
           "secondary_email": {
             "type": ["string", "null"]
-          }
-        }
-      },
-      "AdminCourseEnroleeLinkingEmail": {
-        "type": "object",
-        "description": "One linking email to a person on a course's enrolment lists.",
-        "required": ["claimed_at"],
-        "properties": {
-          "claimed_at": {
-            "type": "string",
-            "format": "date-time"
           },
-          "send_status": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/EmailSendStatusReport",
-                "description": "`None` until queued."
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "student_number": {
+            "type": "string",
+            "description": "Echoed back to the resend endpoint to mail them."
           }
         }
       },
@@ -25279,6 +25268,7 @@
         "description": "One row of the Courses tab: a course module or a mooc.fi target.",
         "required": [
           "credit_unit_id",
+          "course_or_target_id",
           "course_name",
           "check",
           "eligible_completion_count",
@@ -25321,6 +25311,11 @@
           "course_name": {
             "type": "string",
             "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course, or the mooc.fi target, which is its own credit unit."
           },
           "credit_unit_id": {
             "type": "string",
@@ -29846,6 +29841,28 @@
         "type": "string",
         "description": "Whether the link a linking mail carries can still be opened.",
         "enum": ["usable", "used", "lapsed"]
+      },
+      "LinkingMailSend": {
+        "type": "object",
+        "description": "One linking mail to a person: when it was claimed and what became of its send.",
+        "required": ["claimed_at"],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "send_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until the `link-emails` phase queues it."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
       },
       "ManualCompletionPreview": {
         "type": "object",

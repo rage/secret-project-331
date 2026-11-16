@@ -225,9 +225,6 @@ const HeaderSection: React.FC<{
   )
 }
 
-const normalizedCourseCode = (code: string | null | undefined) =>
-  code?.trim().toLocaleUpperCase() || null
-
 const codeValue = (code: string | null) =>
   code ? <code className={codeValueCss}>{code}</code> : <AbsentValue />
 
@@ -239,8 +236,7 @@ const CourseCodeLine: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) 
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const current = row.current_uh_course_code?.trim() || null
   const submitted = row.uh_course_code?.trim() || null
-  const isDifferent =
-    submitted !== null && normalizedCourseCode(submitted) !== normalizedCourseCode(current)
+  const isDifferent = submitted !== null && submitted.toUpperCase() !== current?.toUpperCase()
   return (
     <span className={rowCss}>
       <span>

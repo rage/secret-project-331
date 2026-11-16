@@ -10,7 +10,7 @@
 mod listing;
 mod reconcile;
 
-pub use reconcile::ListedEnrolee;
+pub use reconcile::{ListedEnrolee, is_enrolled_before};
 pub(crate) use reconcile::{list_unlinked_enrolled_before, list_with_linked_accounts};
 
 use headless_lms_models::credit_registration_phase_state;

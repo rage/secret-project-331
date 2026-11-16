@@ -26,7 +26,6 @@ import {
   sectionCardHeaderCss,
   sectionCss,
 } from "@/components/credit-registration/styles"
-import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import type { LinkingEmailListStatus } from "@/generated/api/types.generated"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
@@ -95,7 +94,6 @@ const STATUS_FIELD: FilterFieldDescriptor<FilterFields> = {
 const LinkingEmailsPage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const statusLabelId = useId()
-  const canResend = useIsAccountLinkingEnabled()
 
   const { control, setValue, handleSubmit, param, applyParams, paginationInfo, query } =
     useFilteredAdminQuery<FilterFields, NonNullable<Parameters<typeof useAccountLinkingEmails>[0]>>(
@@ -185,7 +183,6 @@ const LinkingEmailsPage: React.FC = () => {
             <LinkingEmailsTable
               rows={page.data}
               showsCourse
-              canResend={canResend}
               emptyState={
                 <EmptyState
                   title={t("credit-registration-admin-no-matching-linking-emails")}

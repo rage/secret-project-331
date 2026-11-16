@@ -20,6 +20,7 @@ import {
   noteCss,
   stackedCellCss,
 } from "@/components/credit-registration/styles"
+import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import {
   sentenceWithTimestamp,
   ZonedTimestamp,
@@ -118,7 +119,6 @@ interface LinkingEmailsTableProps {
   emptyState: React.ReactNode
   /** Off on a page that is about one course already. */
   showsCourse: boolean
-  canResend: boolean
 }
 
 /** Linking emails with where each went, when, what became of its send and of its link. */
@@ -126,9 +126,9 @@ const LinkingEmailsTable: React.FC<LinkingEmailsTableProps> = ({
   rows,
   emptyState,
   showsCourse,
-  canResend,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const canResend = useIsAccountLinkingEnabled()
   const columns: TableColumn<AccountLinkingEmailRow>[] = [
     ...(showsCourse
       ? [

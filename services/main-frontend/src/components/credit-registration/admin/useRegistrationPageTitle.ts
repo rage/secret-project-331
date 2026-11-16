@@ -13,12 +13,10 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { usePageTitleChangeMarker } from "@/shared-module/common/hooks/usePageTitleChangeMarker"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 
-import { CREDIT_REGISTRATION_NS } from "../constants"
+import { CREDIT_REGISTRATION_NS, TITLE_ORDER } from "../constants"
 import { adminLedgerStateLabel } from "./adminCreditRegistrationCopy"
 
 const PART_SEPARATOR = " · "
-/** Above the credit registration layout's tab title (20), which would otherwise win. */
-const TITLE_ORDER = 30
 
 /** "Matti M.": enough to tell a row of tabs apart without spelling out the whole name. */
 const shortStudentName = (row: AdminCreditRegistrationRow): string | null => {

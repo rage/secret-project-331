@@ -513,9 +513,7 @@ const CoursesPage: React.FC = () => {
                           />
                           <span className={rowCss}>
                             <Link
-                              href={creditRegistrationCourseRoute(
-                                row.course_id ?? row.credit_unit_id,
-                              )}
+                              href={creditRegistrationCourseRoute(row.course_or_target_id)}
                               appearance={LINK_QUIET}
                             >
                               {t("credit-registration-admin-course-page-link")}

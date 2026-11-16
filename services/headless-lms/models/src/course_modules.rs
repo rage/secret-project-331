@@ -314,6 +314,11 @@ pub fn normalize_uh_course_code(uh_course_code: Option<String>) -> Option<String
         .filter(|code| !code.is_empty())
 }
 
+/// How course codes compare: trimmed and upper-cased, as `UPPER(TRIM(uh_course_code))` in SQL.
+pub fn course_code_match_key(uh_course_code: &str) -> String {
+    uh_course_code.trim().to_uppercase()
+}
+
 /// Whether an optional text setting, such as a course code or link, holds more than whitespace.
 pub fn is_non_blank(value: Option<&str>) -> bool {
     value.is_some_and(|value| !value.trim().is_empty())

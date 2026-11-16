@@ -8,7 +8,6 @@ use headless_lms_models::course_module_suotar_configurations::SuotarConfigCheck;
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_modules_with_course_code,
 };
-use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
@@ -25,7 +24,9 @@ use headless_lms_models::library::credit_registration::config_validation::{
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use utoipa::ToSchema;
 
-use crate::domain::credit_registration::linking_mail_resend::resolve_linking_mail_source;
+use crate::domain::credit_registration::linking_mail_resend::{
+    CourseOrTarget, get_course_or_target,
+};
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
 
@@ -59,6 +60,8 @@ pub struct CreditRegistrationCourseConfigCheck {
 pub struct CreditRegistrationCourseStats {
     /// The module's or target's id, which the Registrations list's `course_module_id` filter takes.
     pub credit_unit_id: Uuid,
+    /// The course, or the mooc.fi target, which is its own credit unit.
+    pub course_or_target_id: Uuid,
     /// `None` for a mooc.fi target, as is `course_module_id`.
     pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
@@ -198,10 +201,9 @@ pub async fn get_credit_registration_course_summary(
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
     let course_or_target_id = course_or_target_id.into_inner();
 
-    let summary = match resolve_linking_mail_source(&mut conn, course_or_target_id).await? {
-        LinkingMailSource::Course(course_id) => {
-            let course = models::courses::get_course(&mut conn, course_id).await?;
-            let credit_units = models::course_modules::get_by_course_id(&mut conn, course_id)
+    let summary = match get_course_or_target(&mut conn, course_or_target_id).await? {
+        CourseOrTarget::Course(course) => {
+            let credit_units = models::course_modules::get_by_course_id(&mut conn, course.id)
                 .await?
                 .into_iter()
                 .filter(|module| {
@@ -217,23 +219,20 @@ pub async fn get_credit_registration_course_summary(
                 })
                 .collect();
             AdminCreditRegistrationCourseSummary {
-                course_id: Some(course_id),
+                course_id: Some(course.id),
                 course_name: course.name,
                 credit_units,
             }
         }
-        LinkingMailSource::ExternalCreditTarget(target_id) => {
-            let target = external_credit_targets::get_by_id(&mut conn, target_id).await?;
-            AdminCreditRegistrationCourseSummary {
-                course_id: None,
-                course_name: format!("mooc.fi: {}", target.name),
-                credit_units: vec![AdminCreditUnitCourseCode {
-                    credit_unit_id: target.id,
-                    course_module_name: None,
-                    uh_course_code: Some(target.uh_course_code),
-                }],
-            }
-        }
+        CourseOrTarget::Target(target) => AdminCreditRegistrationCourseSummary {
+            course_id: None,
+            course_name: target.display_name(),
+            credit_units: vec![AdminCreditUnitCourseCode {
+                credit_unit_id: target.id,
+                course_module_name: None,
+                uh_course_code: Some(target.uh_course_code),
+            }],
+        },
     };
 
     token.authorized_ok(web::Json(summary))
@@ -500,6 +499,7 @@ fn to_course_stats(
     let totals = totals.unwrap_or_default();
     CreditRegistrationCourseStats {
         credit_unit_id: overview.course_module_id,
+        course_or_target_id: overview.course_id,
         course_id: Some(overview.course_id),
         course_name: overview.course_name,
         course_module_id: Some(overview.course_module_id),
@@ -537,8 +537,9 @@ fn target_course_stats(
     let totals = totals.unwrap_or_default();
     CreditRegistrationCourseStats {
         credit_unit_id: target.id,
+        course_or_target_id: target.id,
         course_id: None,
-        course_name: format!("mooc.fi: {}", target.name),
+        course_name: target.display_name(),
         course_module_id: None,
         course_module_name: None,
         uh_course_code: Some(target.uh_course_code.clone()),

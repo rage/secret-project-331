@@ -1,8 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EmailAddress } from "@/components/credit-registration/EmailAddress"
@@ -33,8 +32,9 @@ import { sentenceWithTimestamp, ZonedTimestamp } from "../ZonedTimestamp"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { useCourseEnrolees } from "./adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
-import { candidateFullName, candidateName, withSendResult } from "./linkingCandidate"
+import { candidateFullName, candidateName } from "./linkingCandidate"
 import LinkingEmailSendStatus from "./LinkingEmailSendStatus"
+import { useFilteredPeople } from "./useFilteredPeople"
 
 const LINKING_SINCE = "credit-registration-admin-course-enrolees-linking-since"
 
@@ -43,22 +43,17 @@ interface Props extends DialogOpenState {
   courseName: string
 }
 
-interface Fields {
-  filter: string
-}
+const NO_ENROLEES: AdminCourseEnrolee[] = []
 
 const searchText = (enrolee: AdminCourseEnrolee): string =>
   [
-    candidateFullName(enrolee.person),
+    candidateFullName(enrolee),
     enrolee.primary_email,
     enrolee.secondary_email,
-    enrolee.person.student_number,
+    enrolee.student_number,
     enrolee.linked_user_email,
-  ]
-    .join("\n")
-    .toLocaleLowerCase()
+  ].join("\n")
 
-/** One of Sisu's addresses for the person, labelled, or a note that Sisu has none. */
 const SisuAddress: React.FC<{ label: string; address: string | null | undefined }> = ({
   label,
   address,
@@ -80,8 +75,8 @@ const PersonCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
-      <span>{candidateName(t, enrolee.person)}</span>
-      <span className={codeValueCss}>{enrolee.person.student_number}</span>
+      <span>{candidateName(t, enrolee)}</span>
+      <span className={codeValueCss}>{enrolee.student_number}</span>
       <SisuAddress
         label={t("credit-registration-admin-sisu-primary-email")}
         address={enrolee.primary_email}
@@ -98,8 +93,8 @@ const EnrolmentCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) =
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <span className={stackedCellCss}>
-      {enrolee.person.enrolled_at ? (
-        <ZonedTimestamp at={enrolee.person.enrolled_at} />
+      {enrolee.enrolled_at ? (
+        <ZonedTimestamp at={enrolee.enrolled_at} />
       ) : (
         <span className={noteCss}>
           {t("credit-registration-admin-linking-candidate-enrolment-time-unknown")}
@@ -172,8 +167,6 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const canSend = useIsAccountLinkingEnabled()
-  const { control, watch, reset } = useForm<Fields>({ defaultValues: { filter: "" } })
-  const filter = watch("filter")
   const [sendTo, setSendTo] = useState<string | null>(null)
   const enroleesQuery = useCourseEnrolees(courseOrTargetId, isOpen)
   const enroleesQueryKey = getAccountLinkingCourseEnroleesQueryKey({
@@ -181,12 +174,8 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   })
 
   const enrolees = enroleesQuery.data
-  const people = useMemo(() => enrolees?.people ?? [], [enrolees])
-  const searchTexts = useMemo(() => people.map((enrolee) => searchText(enrolee)), [people])
-  const shownPeople = useMemo(() => {
-    const needle = filter.trim().toLocaleLowerCase()
-    return people.filter((_, index) => searchTexts[index]?.includes(needle))
-  }, [people, searchTexts, filter])
+  const people = enrolees?.people ?? NO_ENROLEES
+  const { control, shown: shownPeople, reset: resetFilter } = useFilteredPeople(people, searchText)
 
   // Patches the cached list, as reloading it would ask Sisu again.
   const recordSend = (studentNumber: string, result: AdminResendAccountLinkingEmailResult) => {
@@ -197,10 +186,9 @@ const CourseEnroleesDialog: React.FC<Props> = ({
         current && {
           ...current,
           people: current.people.map((enrolee) =>
-            enrolee.person.student_number === studentNumber && sentAt
+            enrolee.student_number === studentNumber && sentAt
               ? {
                   ...enrolee,
-                  person: withSendResult(enrolee.person, studentNumber, result),
                   linking_emails: [
                     { claimed_at: sentAt, send_status: null },
                     ...enrolee.linking_emails,
@@ -214,7 +202,7 @@ const CourseEnroleesDialog: React.FC<Props> = ({
 
   const closeDialog = () => {
     onClose()
-    reset({ filter: "" })
+    resetFilter()
     // The next open asks Sisu again, and must not show this list as current meanwhile.
     queryClient.removeQueries({ queryKey: enroleesQueryKey })
   }
@@ -251,7 +239,7 @@ const CourseEnroleesDialog: React.FC<Props> = ({
                 <Button
                   variant={BUTTON_SECONDARY}
                   size={BUTTON_SMALL}
-                  onClick={() => setSendTo(enrolee.person.student_number)}
+                  onClick={() => setSendTo(enrolee.student_number)}
                 >
                   {t("button-text-send-linking-email")}
                 </Button>
@@ -310,7 +298,7 @@ const CourseEnroleesDialog: React.FC<Props> = ({
               caption={t("credit-registration-admin-course-enrolees-title")}
               density={DENSITY_COMPACT}
               responsive={TABLE_STACK}
-              rowKey={(enrolee) => enrolee.person.student_number}
+              rowKey={(enrolee) => enrolee.student_number}
               rows={shownPeople}
               emptyState={t("credit-registration-admin-send-linking-email-no-match")}
               columns={columns}
@@ -318,18 +306,16 @@ const CourseEnroleesDialog: React.FC<Props> = ({
           </>
         )}
       </div>
-      <AdminResendLinkingEmailDialog
-        isOpen={sendTo !== null}
-        onClose={() => setSendTo(null)}
-        studentNumber={sendTo ?? ""}
-        courseOrTargetId={courseOrTargetId}
-        courseName={courseName}
-        onSent={(result) => {
-          if (sendTo !== null) {
-            recordSend(sendTo, result)
-          }
-        }}
-      />
+      {sendTo !== null && (
+        <AdminResendLinkingEmailDialog
+          isOpen
+          onClose={() => setSendTo(null)}
+          studentNumber={sendTo}
+          courseOrTargetId={courseOrTargetId}
+          courseName={courseName}
+          onSent={(result) => recordSend(sendTo, result)}
+        />
+      )}
     </Dialog>
   )
 }

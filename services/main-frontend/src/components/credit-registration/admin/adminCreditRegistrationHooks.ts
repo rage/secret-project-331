@@ -367,6 +367,7 @@ export const useCreditRegistrationCourseSummary = (courseOrTargetId: string) =>
     ...getCreditRegistrationCourseSummaryOptions({
       path: { course_or_target_id: courseOrTargetId },
     }),
+    staleTime: Infinity,
   })
 
 export const useCreditRegistrationCourseStats = () =>

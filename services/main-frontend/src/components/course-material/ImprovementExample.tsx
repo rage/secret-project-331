@@ -10,7 +10,12 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { parseSentenceDifference } from "@/utils/course-material/typingDemoSentenceUtils"
 
-type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing"
+type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing" | "done"
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  typeof window.matchMedia === "function" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
 interface AnimationState {
   phase: Phase
@@ -25,28 +30,15 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
   const containerRef = useRef<HTMLDivElement>(null)
   const wrongWordRef = useRef<HTMLSpanElement>(null)
 
-  const [state, setState] = useState<AnimationState>({
-    phase: "initial",
-    displayWord: incorrectPart,
+  // Under reduced motion the demo is never played, only its end state is shown.
+  const [state, setState] = useState<AnimationState>(() => ({
+    phase: prefersReducedMotion() ? "done" : "initial",
+    displayWord: prefersReducedMotion() ? correctPart : incorrectPart,
     mouseClicked: false,
     caretVisible: false,
     cursorStartPosition: { x: 0, y: 0 },
     cursorTargetPosition: { x: 0, y: 0 },
-  })
-
-  const resetAnimation = useCallback(() => {
-    if (containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect()
-      setState({
-        phase: "initial",
-        displayWord: incorrectPart,
-        mouseClicked: false,
-        caretVisible: false,
-        cursorStartPosition: { x: containerRect.width + 20, y: -20 },
-        cursorTargetPosition: { x: 0, y: 0 },
-      })
-    }
-  }, [incorrectPart])
+  }))
 
   const updateState = useCallback(
     (updates: Partial<AnimationState> | ((prev: AnimationState) => Partial<AnimationState>)) => {
@@ -164,13 +156,11 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
         }, 100)
         return () => clearInterval(interval)
       }
-      const timeout = setTimeout(() => {
-        resetAnimation()
-      }, 2000)
-      return () => clearTimeout(timeout)
+      // Plays once: stop on the corrected sentence instead of looping.
+      updateState({ phase: "done", caretVisible: false })
     }
     return undefined
-  }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
+  }, [state.phase, state.displayWord, correctPart, updateState])
 
   return {
     state,

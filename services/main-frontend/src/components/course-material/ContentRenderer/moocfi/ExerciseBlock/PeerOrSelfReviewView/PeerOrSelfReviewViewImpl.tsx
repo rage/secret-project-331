@@ -35,6 +35,7 @@ import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import { focusPeerReviewHeading, requestPeerReviewHeadingFocus } from "./peerReviewFocus"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
@@ -126,6 +127,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
+        requestPeerReviewHeadingFocus(exerciseId)
         // still old data because we have't refetched yet
         const givenEnoughReviews =
           (peerOrSelfReviewData?.peer_or_self_review_config.peer_reviews_to_give ??
@@ -158,6 +160,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         }
 
         setAnswers(new Map())
+        // After the refetched view has rendered; the heading may live in a different view by then.
+        setTimeout(() => focusPeerReviewHeading(exerciseId), 100)
       },
     },
   )
@@ -188,10 +192,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     },
     { notify: true, method: "POST" },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
+        requestPeerReviewHeadingFocus(exerciseId)
         setIsReportDialogOpen(false)
         setAnswers(new Map())
-        query.refetch()
+        await query.refetch()
+        setTimeout(() => focusPeerReviewHeading(exerciseId), 100)
       },
     },
   )
@@ -426,24 +432,29 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       >
         {t("submit-button")}
       </button>
-      <Button
-        className={css`
-          display: flex !important;
-          align-items: center;
-          gap: 6px;
-        `}
-        variant={"icon"}
-        size={"small"}
-        onClick={() => setIsReportDialogOpen(true)}
-      >
-        <ExclamationMessage /> {t("button-text-report")}
-      </Button>
+      {!selfReview && (
+        <>
+          <Button
+            className={css`
+              display: flex !important;
+              align-items: center;
+              gap: 6px;
+            `}
+            variant={"icon"}
+            size={"small"}
+            onClick={() => setIsReportDialogOpen(true)}
+          >
+            <ExclamationMessage /> {t("button-text-report")}
+          </Button>
 
-      <MarkAsSpamDialog
-        isOpen={isReportDialogOpen}
-        onClose={() => setIsReportDialogOpen(false)}
-        onSubmit={handleReportSubmit}
-      />
+          <MarkAsSpamDialog
+            isOpen={isReportDialogOpen}
+            onClose={() => setIsReportDialogOpen(false)}
+            onSubmit={handleReportSubmit}
+            onExitComplete={() => focusPeerReviewHeading(exerciseId)}
+          />
+        </>
+      )}
     </div>
   )
 }

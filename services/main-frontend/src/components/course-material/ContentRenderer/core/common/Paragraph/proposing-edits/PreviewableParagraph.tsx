@@ -20,12 +20,6 @@ interface PreviewableParagraphProps {
   editedContent: string | null
 }
 
-const handleSelectForEditing = () => {
-  // This function will be passed to the onClick handler
-  // It doesn't need to do anything special now, as the parent component
-  // will handle setting the selectedBlockId
-}
-
 const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
   id,
   content,
@@ -47,13 +41,6 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
 
   const actualEditedContent = hookEditedContent !== content ? hookEditedContent : propEditedContent
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault()
-      handleSelectForEditing()
-    }
-  }
-
   const diffChanges = React.useMemo(() => {
     if (content === actualEditedContent) {
       return []
@@ -64,11 +51,6 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
   return (
     <p
       className={`${getParagraphStyles(textColor, backgroundColor, fontSize, true, false, align)} ${getEditableHoverStyles(false)}`}
-      onClick={handleSelectForEditing}
-      onKeyDown={handleKeyDown}
-      // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/prefer-tag-over-role -- intentional interactive paragraph; <button> would change layout
-      role="button"
-      tabIndex={0}
     >
       {diffChanges.length > 0 ? <DiffFormatter changes={diffChanges} /> : content}
     </p>

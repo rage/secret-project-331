@@ -1,21 +1,25 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useSearchParams } from "next/navigation"
-import React, { useEffect, useMemo } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import {
   renderReadOnlyBlockingError,
   renderReadOnlyStaleError,
 } from "@/components/queryResultErrorRenderers"
-import { getCertificateByVerificationIdOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCertificateByVerificationIdOptions,
+  getCertificateDetailsByVerificationIdOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Link, QueryResult } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components"
+
+import CertificateImage from "./CertificateImage"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
@@ -49,48 +53,25 @@ const ModuleCertificateVerification: React.FC = () => {
     },
   })
 
+  // Optional: the image still shows when the text is unavailable (previews, debug).
+  const details = useQuery({
+    ...getCertificateDetailsByVerificationIdOptions({
+      path: {
+        certificate_verification_id: certificateVerificationId,
+      },
+    }),
+    enabled: !debug && testCourseModuleId === null,
+    retry: false,
+  })
+
   return (
     <QueryResult
       query={certificate}
       renderBlockingError={renderReadOnlyBlockingError}
       renderStaleError={renderReadOnlyStaleError}
     >
-      {(data) => <CertificateImage certificateBlob={data} />}
+      {(data) => <CertificateImage certificateBlob={data} details={details.data} />}
     </QueryResult>
-  )
-}
-
-const CertificateImage: React.FC<{ certificateBlob: Blob }> = ({ certificateBlob }) => {
-  const { t } = useTranslation()
-  const objectUrl = useMemo(() => URL.createObjectURL(certificateBlob), [certificateBlob])
-
-  useEffect(() => {
-    return () => {
-      URL.revokeObjectURL(objectUrl)
-    }
-  }, [objectUrl])
-
-  return (
-    <div>
-      <img
-        id="certificate-image"
-        alt={t("certificate-for-completing-a-course-module")}
-        src={objectUrl}
-        className={css`
-          border: 1px solid black;
-        `}
-      />
-      <Link
-        href={objectUrl}
-        // eslint-disable-next-line i18next/no-literal-string
-        download="certificate.png"
-        styledAsButton
-        variant="primary"
-        size="medium"
-      >
-        {t("save-as-png")}
-      </Link>
-    </div>
   )
 }
 

@@ -20,6 +20,11 @@ export function useFocusAfterRemoval(dependency: unknown) {
     pendingIndex.current = index === -1 ? 0 : index
   }
 
+  /** Drops a remembered item, e.g. when its removal failed and the list stays as it was. */
+  const forget = () => {
+    pendingIndex.current = null
+  }
+
   useEffect(() => {
     if (pendingIndex.current === null) {
       return
@@ -32,5 +37,5 @@ export function useFocusAfterRemoval(dependency: unknown) {
     target?.focus()
   }, [dependency])
 
-  return { containerRef, listHeadingRef, remember }
+  return { containerRef, listHeadingRef, remember, forget }
 }

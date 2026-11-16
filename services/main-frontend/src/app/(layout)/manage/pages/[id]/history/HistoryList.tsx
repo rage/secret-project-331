@@ -1,8 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import React, { useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,15 +14,6 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { Pagination, QueryResult } from "@/shared-module/components"
 
 import HistoryPage from "./HistoryPage"
-
-const visuallyHiddenCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-`
 
 interface Props {
   pageId: string
@@ -86,9 +77,9 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     <QueryResult query={getPageHistoryCount}>
       {(pageHistoryCount) => (
         <>
-          <div role="status" className={visuallyHiddenCss}>
-            {statusMessage}
-          </div>
+          <VisuallyHidden>
+            <div role="status">{statusMessage}</div>
+          </VisuallyHidden>
           <HistoryPage
             pageId={pageId}
             page={paginationInfo.page}

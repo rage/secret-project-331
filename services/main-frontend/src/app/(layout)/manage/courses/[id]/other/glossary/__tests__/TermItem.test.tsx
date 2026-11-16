@@ -7,6 +7,7 @@ import TermItem from "../TermItem"
 
 const mockConfirm = jest.fn()
 const mockDelete = jest.fn()
+const mockDeleteCallbacks: { onSuccess?: (() => void) | undefined } = {}
 
 jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
   deleteGlossaryTermMutation: () => ({}),
@@ -15,10 +16,19 @@ jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
 
 jest.mock("@/shared-module/common/hooks/useToastMutationOptions", () => ({
   __esModule: true,
-  default: (_options: unknown, notification: { method: string }) => ({
-    mutate: notification.method === "DELETE" ? mockDelete : jest.fn(),
-    isPending: false,
-  }),
+  default: (
+    _options: unknown,
+    notification: { method: string },
+    callbacks?: { onSuccess?: () => void },
+  ) => {
+    if (notification.method === "DELETE") {
+      mockDeleteCallbacks.onSuccess = callbacks?.onSuccess
+    }
+    return {
+      mutate: notification.method === "DELETE" ? mockDelete : jest.fn(),
+      isPending: false,
+    }
+  },
 }))
 
 jest.mock("@/shared-module/components", () => ({
@@ -97,7 +107,10 @@ describe("TermItem", () => {
       fireEvent.click(screen.getByRole("button", { name: "delete-term-named Algorithm" }))
       return Promise.resolve()
     })
-    expect(onBeforeDelete).toHaveBeenCalledWith("term-heading-t1")
     expect(mockDelete).toHaveBeenCalledWith({ path: { term_id: "t1" } })
+    // Focus bookkeeping waits for the delete to succeed.
+    expect(onBeforeDelete).not.toHaveBeenCalled()
+    act(() => mockDeleteCallbacks.onSuccess?.())
+    expect(onBeforeDelete).toHaveBeenCalledWith("term-heading-t1")
   })
 })

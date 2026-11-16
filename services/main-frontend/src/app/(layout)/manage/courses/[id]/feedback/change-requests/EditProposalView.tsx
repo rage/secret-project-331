@@ -17,6 +17,7 @@ import type {
 import { usePageInfo } from "@/hooks/usePageInfo"
 import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
@@ -333,7 +334,11 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           margin-bottom: 0.5rem;
         `}
       >
-        {`${t("title-change-request")}: ${proposal.page_title}, ${dateToString(created, false)}`}
+        {`${t("title-change-request")}: ${proposal.page_title}, `}
+        <HideTextInSystemTests
+          text={dateToString(created, false)}
+          testPlaceholder="1970-01-01 00:00:00"
+        />
       </h3>
       <MetadataList>
         {proposal.page_id && (

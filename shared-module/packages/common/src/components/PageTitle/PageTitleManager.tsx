@@ -53,9 +53,8 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
   // The marker stays out of `resolvedTitle`, so the announcement below never fires for it.
   const fullTitle = `${isMarked ? CHANGE_MARKER : ""}${formatPageTitle(resolvedTitle, siteName)}`
 
-  // Initial load: the browser announces the page; a short window lets its title settle silently.
-  // Navigation: the title often registers a commit or more after the pathname changes, so we wait
-  // for it (debounced) and announce the new title once. Later in-place changes announce at once.
+  // Initial load settles silently; a navigation announces its title once, debounced since it can
+  // register commits after the pathname changes. Later in-place changes announce at once.
   const previousPathnameRef = useRef<string | null>(null)
   const lastTitleRef = useRef<string | null>(null)
   const latestTitleRef = useRef<string | null>(null)

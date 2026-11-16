@@ -11,13 +11,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, ErrorNotice, QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {
@@ -115,12 +116,17 @@ const JoinCoursePage: React.FC = () => {
     <div>
       <QueryResult
         query={course}
-        renderBlockingError={() => (
-          <div>
-            <h1>{t("title-join-course")}</h1>
-            <p role="alert">{t("join-code-invalid")}</p>
-          </div>
-        )}
+        renderBlockingError={({ error, retry }) =>
+          // A server or network failure says nothing about the code, so it is shown as is.
+          isAppApiError(error) && (error.status === null || error.status >= 500) ? (
+            <ErrorNotice error={error} retry={retry} headingLevel={1} />
+          ) : (
+            <div>
+              <h1>{t("title-join-course")}</h1>
+              <p role="alert">{t("join-code-invalid")}</p>
+            </div>
+          )
+        }
       >
         {(courseData) => (
           <div>

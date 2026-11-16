@@ -1,20 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
-
-const visuallyHiddenClass = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`
 
 const THRESHOLDS_SECONDS = [10 * 60, 60]
 
@@ -44,6 +32,12 @@ const ExamStatusAnnouncer: React.FC<ExamStatusAnnouncerProps> = ({
     if (secondsLeft <= 0) {
       return
     }
+    // Re-arm thresholds the time is back above, e.g. once the clock skew estimate arrives.
+    THRESHOLDS_SECONDS.forEach((threshold) => {
+      if (secondsLeft > threshold) {
+        announced.current.delete(threshold)
+      }
+    })
     // Crossed thresholds are all marked so an earlier one never fires late.
     const crossed = THRESHOLDS_SECONDS.filter((threshold) => secondsLeft <= threshold)
     if (crossed.every((threshold) => announced.current.has(threshold))) {
@@ -54,9 +48,9 @@ const ExamStatusAnnouncer: React.FC<ExamStatusAnnouncerProps> = ({
   }, [secondsLeft, t])
 
   return (
-    <div role="status" className={visuallyHiddenClass}>
-      {message}
-    </div>
+    <VisuallyHidden>
+      <div role="status">{message}</div>
+    </VisuallyHidden>
   )
 }
 

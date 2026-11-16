@@ -41,7 +41,7 @@ interface TermItemProps {
   onEdit: () => void
   onCancel: () => void
   refetch: () => void
-  /** Called before a term is deleted, so the list can move focus once it is gone. */
+  /** Called once a delete succeeds, before the refetch, so the list can move focus once it is gone. */
   onBeforeDelete?: (headingId: string) => void
 }
 
@@ -111,7 +111,13 @@ const TermItem: React.FC<TermItemProps> = ({
       notify: true,
       method: "DELETE",
     },
-    { onSuccess: () => refetch() },
+    {
+      onSuccess: () => {
+        // Only a delete that succeeded moves focus; the heading is still in the list here.
+        onBeforeDelete?.(headingId)
+        refetch()
+      },
+    },
   )
 
   const onDelete = async () => {
@@ -127,7 +133,6 @@ const TermItem: React.FC<TermItemProps> = ({
     if (!confirmed) {
       return
     }
-    onBeforeDelete?.(headingId)
     deleteMutation.mutate({ path: { term_id: term.id } })
   }
 

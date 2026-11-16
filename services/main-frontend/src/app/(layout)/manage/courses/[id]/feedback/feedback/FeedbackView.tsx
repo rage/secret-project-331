@@ -15,6 +15,7 @@ import {
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
 import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
+import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
@@ -140,7 +141,11 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           margin-bottom: 0.5rem;
         `}
       >
-        {`${t("title-feedback")}: ${feedback.page_title}, ${dateToString(created, false)}`}
+        {`${t("title-feedback")}: ${feedback.page_title}, `}
+        <HideTextInSystemTests
+          text={dateToString(created, false)}
+          testPlaceholder="1970-01-01 00:00:00"
+        />
       </h3>
 
       <MetadataList>

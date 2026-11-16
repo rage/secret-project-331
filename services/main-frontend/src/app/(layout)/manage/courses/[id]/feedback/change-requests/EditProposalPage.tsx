@@ -47,7 +47,9 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
-  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getEditProposalList.data)
+  const { containerRef, listHeadingRef, remember, forget } = useFocusAfterRemoval(
+    getEditProposalList.data,
+  )
   const processProposalMutation = useToastMutationOptions(
     processProposalMutationOptions(),
     {
@@ -69,13 +71,18 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     blockProposals: BlockProposalInfo[],
   ) {
     remember(`change-request-heading-${pageProposalId}`)
-    await processProposalMutation.mutateAsync({
-      body: {
-        page_id: pageId,
-        page_proposal_id: pageProposalId,
-        block_proposals: blockProposals,
-      },
-    })
+    try {
+      await processProposalMutation.mutateAsync({
+        body: {
+          page_id: pageId,
+          page_proposal_id: pageProposalId,
+          block_proposals: blockProposals,
+        },
+      })
+    } catch (error) {
+      forget()
+      throw error
+    }
     await getEditProposalList.refetch()
     await onChange()
   }

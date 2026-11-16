@@ -2,6 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import React, { useEffect, useId, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
@@ -29,18 +30,6 @@ const blockerListStyles = css`
     margin: 0;
     padding: 0;
   }
-`
-
-const visuallyHiddenStyles = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
 `
 
 const blockerListEmphasizedStyles = css`
@@ -87,9 +76,9 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           </ul>
         </div>
       )}
-      <div role="status" className={visuallyHiddenStyles}>
-        {announcement}
-      </div>
+      <VisuallyHidden>
+        <div role="status">{announcement}</div>
+      </VisuallyHidden>
       <button
         className={buttonClassName}
         aria-disabled={blocked}

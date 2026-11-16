@@ -2,25 +2,13 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect, useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateDetails } from "@/generated/api/types.generated"
-import { dateToString } from "@/shared-module/common/utils/time"
 import { Link } from "@/shared-module/components"
 
 const DETAILS_ID = "certificate-details"
-
-const visuallyHiddenClass = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`
 
 export interface CertificateImageProps {
   certificateBlob: Blob
@@ -61,28 +49,31 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
         `}
       />
       {details && (
-        <dl id={DETAILS_ID} className={visuallyHiddenClass}>
-          <dt>{t("certificate-recipient")}</dt>
-          <dd>{details.name_on_certificate}</dd>
-          <dt>{t("certificate-course")}</dt>
-          <dd>{course}</dd>
-          <dt>{t("certificate-completion-date")}</dt>
-          <dd>{dateToString(details.completion_date, false).slice(0, 10)}</dd>
-          {details.grade && (
-            <>
-              <dt>{t("grade")}</dt>
-              <dd>
-                {details.grade.grade !== null && details.grade.grade !== undefined
-                  ? String(details.grade.grade)
-                  : details.grade.passed
-                    ? t("passed")
-                    : t("failed")}
-              </dd>
-            </>
-          )}
-          <dt>{t("certificate-verification-id")}</dt>
-          <dd>{details.verification_id}</dd>
-        </dl>
+        <VisuallyHidden>
+          <dl id={DETAILS_ID}>
+            <dt>{t("certificate-recipient")}</dt>
+            <dd>{details.name_on_certificate}</dd>
+            <dt>{t("certificate-course")}</dt>
+            <dd>{course}</dd>
+            <dt>{t("certificate-completion-date")}</dt>
+            {/* The UTC date, as printed on the image. */}
+            <dd>{details.completion_date.slice(0, 10)}</dd>
+            {details.grade && (
+              <>
+                <dt>{t("grade")}</dt>
+                <dd>
+                  {details.grade.grade !== null && details.grade.grade !== undefined
+                    ? String(details.grade.grade)
+                    : details.grade.passed
+                      ? t("passed")
+                      : t("failed")}
+                </dd>
+              </>
+            )}
+            <dt>{t("certificate-verification-id")}</dt>
+            <dd>{details.verification_id}</dd>
+          </dl>
+        </VisuallyHidden>
       )}
       <Link
         href={objectUrl}

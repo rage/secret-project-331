@@ -44,7 +44,14 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typedObj["data"]["output-data"]["kind"] === "not-found" ||
                     typedObj["data"]["output-data"]["kind"] === "server-error" ||
                     typedObj["data"]["output-data"]["kind"] === "insufficient-scope" ||
-                    typedObj["data"]["output-data"]["kind"] === "exercise-not-found") &&
+                    typedObj["data"]["output-data"]["kind"] === "exercise-not-found" ||
+                    typedObj["data"]["output-data"]["kind"] === "rate-limited" ||
+                    typedObj["data"]["output-data"]["kind"] === "deadline-passed" ||
+                    typedObj["data"]["output-data"]["kind"] === "out-of-tries" ||
+                    typedObj["data"]["output-data"]["kind"] === "chapter-not-open-yet" ||
+                    typedObj["data"]["output-data"]["kind"] === "chapter-not-unlocked-yet" ||
+                    typedObj["data"]["output-data"]["kind"] === "chapter-completed-and-locked" ||
+                    typedObj["data"]["output-data"]["kind"] === "exercise-locked") &&
                 Array.isArray(typedObj["data"]["output-data"]["trace"]) &&
                 typedObj["data"]["output-data"]["trace"].every((e: any) =>
                     typeof e === "string"
@@ -192,13 +199,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "updated-exercises" &&
-                Array.isArray(typedObj["data"]["output-data"]) &&
-                typedObj["data"]["output-data"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["id"] === "number"
+                typedObj["data"]["output-data-kind"] === "exercise-updates" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                Array.isArray(typedObj["data"]["output-data"]["updated"]) &&
+                typedObj["data"]["output-data"]["updated"].every((e: any) =>
+                    typeof e === "number"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["removed"]) &&
+                typedObj["data"]["output-data"]["removed"].every((e: any) =>
+                    typeof e === "number"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1024,13 +1035,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
-                typedObj["data"]["output-data-kind"] === "mooc-updated-exercises" &&
-                Array.isArray(typedObj["data"]["output-data"]) &&
-                typedObj["data"]["output-data"].every((e: any) =>
-                    (e !== null &&
-                        typeof e === "object" ||
-                        typeof e === "function") &&
-                    typeof e["id"] === "string"
+                typedObj["data"]["output-data-kind"] === "mooc-exercise-updates" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                Array.isArray(typedObj["data"]["output-data"]["updated"]) &&
+                typedObj["data"]["output-data"]["updated"].every((e: any) =>
+                    typeof e === "string"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["removed"]) &&
+                typedObj["data"]["output-data"]["removed"].every((e: any) =>
+                    typeof e === "string"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1047,6 +1062,14 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["exercise-id"] === "string" &&
                     typeof e["exercise-path"] === "string"
                 ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-current-user" &&
+                (typedObj["data"]["output-data"] !== null &&
+                    typeof typedObj["data"]["output-data"] === "object" ||
+                    typeof typedObj["data"]["output-data"] === "function") &&
+                typeof typedObj["data"]["output-data"]["id"] === "string" ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1152,7 +1175,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof e["chapter"] === "function") &&
                         typeof e["chapter"]["id"] === "string" &&
                         typeof e["chapter"]["name"] === "string" &&
-                        typeof e["chapter"]["chapter_number"] === "number")
+                        typeof e["chapter"]["chapter_number"] === "number" &&
+                        (e["chapter"]["locking_status"] === null ||
+                            e["chapter"]["locking_status"] === "Unlocked" ||
+                            e["chapter"]["locking_status"] === "CompletedAndLocked" ||
+                            e["chapter"]["locking_status"] === "NotUnlockedYet"))
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1214,7 +1241,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof typedObj["data"]["output-data"]["chapter"] === "function") &&
                     typeof typedObj["data"]["output-data"]["chapter"]["id"] === "string" &&
                     typeof typedObj["data"]["output-data"]["chapter"]["name"] === "string" &&
-                    typeof typedObj["data"]["output-data"]["chapter"]["chapter_number"] === "number") ||
+                    typeof typedObj["data"]["output-data"]["chapter"]["chapter_number"] === "number" &&
+                    (typedObj["data"]["output-data"]["chapter"]["locking_status"] === null ||
+                        typedObj["data"]["output-data"]["chapter"]["locking_status"] === "Unlocked" ||
+                        typedObj["data"]["output-data"]["chapter"]["locking_status"] === "CompletedAndLocked" ||
+                        typedObj["data"]["output-data"]["chapter"]["locking_status"] === "NotUnlockedYet")) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1267,7 +1298,48 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "NotAttempted" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "Attempted" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "Passed" ||
-                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "OutOfTries"))) ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "OutOfTries") &&
+                        (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["max_tries"] === null ||
+                            typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["max_tries"] === "number") &&
+                        (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["tries_left"] === null ||
+                            typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["tries_left"] === "number") &&
+                        (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === null ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "unrecognized" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "awaits_chapter_lock" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "awaits_teacher") &&
+                        typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["exercise_locked"] === "boolean") &&
+                    (typedObj["data"]["output-data"]["grading"]["test_results"] === null ||
+                        (typedObj["data"]["output-data"]["grading"]["test_results"] !== null &&
+                            typeof typedObj["data"]["output-data"]["grading"]["test_results"] === "object" ||
+                            typeof typedObj["data"]["output-data"]["grading"]["test_results"] === "function") &&
+                        (typedObj["data"]["output-data"]["grading"]["test_results"]["status"] === "PASSED" ||
+                            typedObj["data"]["output-data"]["grading"]["test_results"]["status"] === "TESTS_FAILED" ||
+                            typedObj["data"]["output-data"]["grading"]["test_results"]["status"] === "COMPILE_FAILED" ||
+                            typedObj["data"]["output-data"]["grading"]["test_results"]["status"] === "TESTRUN_INTERRUPTED" ||
+                            typedObj["data"]["output-data"]["grading"]["test_results"]["status"] === "GENERIC_ERROR") &&
+                        Array.isArray(typedObj["data"]["output-data"]["grading"]["test_results"]["test_results"]) &&
+                        typedObj["data"]["output-data"]["grading"]["test_results"]["test_results"].every((e: any) =>
+                            (e !== null &&
+                                typeof e === "object" ||
+                                typeof e === "function") &&
+                            typeof e["name"] === "string" &&
+                            typeof e["successful"] === "boolean" &&
+                            Array.isArray(e["points"]) &&
+                            e["points"].every((e: any) =>
+                                typeof e === "string"
+                            ) &&
+                            typeof e["message"] === "string" &&
+                            Array.isArray(e["exception"]) &&
+                            e["exception"].every((e: any) =>
+                                typeof e === "string"
+                            )
+                        ) &&
+                        (typedObj["data"]["output-data"]["grading"]["test_results"]["logs"] !== null &&
+                            typeof typedObj["data"]["output-data"]["grading"]["test_results"]["logs"] === "object" ||
+                            typeof typedObj["data"]["output-data"]["grading"]["test_results"]["logs"] === "function") &&
+                        Object.entries<any>(typedObj["data"]["output-data"]["grading"]["test_results"]["logs"])
+                            .every(([key, value]) => (typeof value === "string" &&
+                                typeof key === "string")))) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1287,7 +1359,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["grading_progress"] === "NotReady" ||
                         e["grading_progress"] === "PendingManual" ||
                         e["grading_progress"] === "Pending" ||
-                        e["grading_progress"] === "FullyGraded")
+                        e["grading_progress"] === "FullyGraded") &&
+                    (e["kind"] === "submission" ||
+                        e["kind"] === "paste" ||
+                        e["kind"] === "backup") &&
+                    typeof e["is_shared"] === "boolean"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1319,7 +1395,51 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["standing"] === "NotAttempted" ||
                         e["standing"] === "Attempted" ||
                         e["standing"] === "Passed" ||
-                        e["standing"] === "OutOfTries")
+                        e["standing"] === "OutOfTries") &&
+                    (e["max_tries"] === null ||
+                        typeof e["max_tries"] === "number") &&
+                    (e["tries_left"] === null ||
+                        typeof e["tries_left"] === "number") &&
+                    (e["pending_teacher_review"] === null ||
+                        e["pending_teacher_review"] === "unrecognized" ||
+                        e["pending_teacher_review"] === "awaits_chapter_lock" ||
+                        e["pending_teacher_review"] === "awaits_teacher") &&
+                    typeof e["exercise_locked"] === "boolean"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["closed_chapters"]) &&
+                typedObj["data"]["output-data"]["closed_chapters"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["name"] === "string" &&
+                    typeof e["chapter_number"] === "number" &&
+                    typeof e["opens_at"] === "string" &&
+                    Array.isArray(e["exercises"]) &&
+                    e["exercises"].every((e: any) =>
+                        (e !== null &&
+                            typeof e === "object" ||
+                            typeof e === "function") &&
+                        typeof e["exercise_id"] === "string" &&
+                        typeof e["score_given"] === "number" &&
+                        typeof e["score_maximum"] === "number" &&
+                        typeof e["completed"] === "boolean" &&
+                        typeof e["attempted"] === "boolean" &&
+                        (e["standing"] === null ||
+                            e["standing"] === "NotAttempted" ||
+                            e["standing"] === "Attempted" ||
+                            e["standing"] === "Passed" ||
+                            e["standing"] === "OutOfTries") &&
+                        (e["max_tries"] === null ||
+                            typeof e["max_tries"] === "number") &&
+                        (e["tries_left"] === null ||
+                            typeof e["tries_left"] === "number") &&
+                        (e["pending_teacher_review"] === null ||
+                            e["pending_teacher_review"] === "unrecognized" ||
+                            e["pending_teacher_review"] === "awaits_chapter_lock" ||
+                            e["pending_teacher_review"] === "awaits_teacher") &&
+                        typeof e["exercise_locked"] === "boolean"
+                    )
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1402,7 +1522,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof e["chapter"] === "function") &&
                         typeof e["chapter"]["id"] === "string" &&
                         typeof e["chapter"]["name"] === "string" &&
-                        typeof e["chapter"]["chapter_number"] === "number")
+                        typeof e["chapter"]["chapter_number"] === "number" &&
+                        (e["chapter"]["locking_status"] === null ||
+                            e["chapter"]["locking_status"] === "Unlocked" ||
+                            e["chapter"]["locking_status"] === "CompletedAndLocked" ||
+                            e["chapter"]["locking_status"] === "NotUnlockedYet"))
                 ) &&
                 (typedObj["data"]["output-data"]["progress"] !== null &&
                     typeof typedObj["data"]["output-data"]["progress"] === "object" ||
@@ -1422,7 +1546,51 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["standing"] === "NotAttempted" ||
                         e["standing"] === "Attempted" ||
                         e["standing"] === "Passed" ||
-                        e["standing"] === "OutOfTries")
+                        e["standing"] === "OutOfTries") &&
+                    (e["max_tries"] === null ||
+                        typeof e["max_tries"] === "number") &&
+                    (e["tries_left"] === null ||
+                        typeof e["tries_left"] === "number") &&
+                    (e["pending_teacher_review"] === null ||
+                        e["pending_teacher_review"] === "unrecognized" ||
+                        e["pending_teacher_review"] === "awaits_chapter_lock" ||
+                        e["pending_teacher_review"] === "awaits_teacher") &&
+                    typeof e["exercise_locked"] === "boolean"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["progress"]["closed_chapters"]) &&
+                typedObj["data"]["output-data"]["progress"]["closed_chapters"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["name"] === "string" &&
+                    typeof e["chapter_number"] === "number" &&
+                    typeof e["opens_at"] === "string" &&
+                    Array.isArray(e["exercises"]) &&
+                    e["exercises"].every((e: any) =>
+                        (e !== null &&
+                            typeof e === "object" ||
+                            typeof e === "function") &&
+                        typeof e["exercise_id"] === "string" &&
+                        typeof e["score_given"] === "number" &&
+                        typeof e["score_maximum"] === "number" &&
+                        typeof e["completed"] === "boolean" &&
+                        typeof e["attempted"] === "boolean" &&
+                        (e["standing"] === null ||
+                            e["standing"] === "NotAttempted" ||
+                            e["standing"] === "Attempted" ||
+                            e["standing"] === "Passed" ||
+                            e["standing"] === "OutOfTries") &&
+                        (e["max_tries"] === null ||
+                            typeof e["max_tries"] === "number") &&
+                        (e["tries_left"] === null ||
+                            typeof e["tries_left"] === "number") &&
+                        (e["pending_teacher_review"] === null ||
+                            e["pending_teacher_review"] === "unrecognized" ||
+                            e["pending_teacher_review"] === "awaits_chapter_lock" ||
+                            e["pending_teacher_review"] === "awaits_teacher") &&
+                        typeof e["exercise_locked"] === "boolean"
+                    )
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1571,6 +1739,8 @@ export function isRunResult(obj: unknown): obj is RunResult {
             typeof typedObj["logs"] === "function") &&
         Object.entries<any>(typedObj["logs"])
             .every(([key, value]) => (typeof value === "string" &&
-                typeof key === "string"))
+                typeof key === "string")) &&
+        (typeof typedObj["timedOutAfterMs"] === "undefined" ||
+            typeof typedObj["timedOutAfterMs"] === "number")
     )
 }

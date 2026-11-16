@@ -8243,6 +8243,9 @@ export const zUserIdsPayload = z.object({
   user_ids: z.array(z.uuid()),
 })
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export const zUserInfoPayload = z.object({
   country: z.string(),
   email: z.string(),

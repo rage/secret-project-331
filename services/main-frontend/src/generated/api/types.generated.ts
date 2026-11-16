@@ -8454,6 +8454,9 @@ export type UserIdsPayload = {
   user_ids: Array<string>
 }
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export type UserInfoPayload = {
   country: string
   email: string

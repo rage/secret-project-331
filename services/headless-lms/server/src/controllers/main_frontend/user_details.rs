@@ -4,7 +4,7 @@ use models::{
 };
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{controllers, prelude::*};
+use crate::{domain::user_info::UserInfoPayload, prelude::*};
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use std::net::IpAddr;
 
@@ -357,16 +357,6 @@ pub async fn get_user_country_by_ip(
     token.authorized_ok(country)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct UserInfoPayload {
-    pub email: String,
-    pub first_name: String,
-    pub last_name: String,
-    pub country: String,
-    pub email_communication_consent: bool,
-}
-
 /**
 POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 
@@ -392,52 +382,13 @@ pub async fn update_user_info(
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
-    let mut tx = pool.begin().await?;
+    let mut conn = pool.acquire().await?;
+    let updated =
+        domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
+            .await?;
 
-    let existing_user = models::user_details::get_user_details_by_user_id(&mut tx, user.id)
-        .await
-        .context("Failed to fetch existing user data")?;
-
-    let user = models::users::get_by_id(&mut tx, user.id)
-        .await
-        .context("Failed to fetch user")?;
-
-    let updated_user = models::user_details::update_user_info(
-        &mut tx,
-        user.id,
-        &payload.email,
-        &payload.first_name,
-        &payload.last_name,
-        &payload.country,
-        payload.email_communication_consent,
-    )
-    .await
-    .context("Failed to update database")?;
-
-    let email_changed = existing_user.email != payload.email;
-    let first_name_changed = existing_user.first_name != Some(payload.first_name.clone());
-    let last_name_changed = existing_user.last_name != Some(payload.last_name.clone());
-
-    if email_changed || first_name_changed || last_name_changed {
-        controllers::auth::update_user_information_to_tmc(
-            user.upstream_id,
-            payload.first_name.clone(),
-            payload.last_name.clone(),
-            (email_changed && !app_conf.enable_email_ownership_verification)
-                .then(|| payload.email.clone()),
-            &tmc_client,
-            &app_conf,
-        )
-        .await?;
-    } else {
-        info!("User info unchanged, skipping update to TMC.");
-    }
-
-    tx.commit().await?;
-
-    if email_changed {
+    if updated.email_changed {
         // After the commit: a rolled-back edit must not mail a code for an address the account lacks.
-        let mut conn = pool.acquire().await?;
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,
             app_conf.enable_email_ownership_verification,
@@ -447,7 +398,7 @@ pub async fn update_user_info(
     }
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(updated_user))
+    token.authorized_ok(web::Json(updated.user_details))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

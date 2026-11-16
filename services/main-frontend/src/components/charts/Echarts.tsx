@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import type { EChartsOption } from "echarts"
-import React from "react"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -15,9 +16,27 @@ const ReactECharts = dynamicImport<{
 export interface EchartsProps {
   options: EChartsOption
   height?: number
+  /** Chart name from its section heading; spoken before the generated ECharts summary. */
+  label?: string
 }
 
-const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, height = 300 }) => {
+const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({
+  options,
+  height = 300,
+  label,
+}) => {
+  const { t } = useTranslation()
+  const accessibleOptions = useMemo<EChartsOption>(() => {
+    const name = label ? t("chart-label", { title: label }) : undefined
+    return {
+      ...options,
+      aria: {
+        enabled: true,
+        ...(name ? { label: { general: { withTitle: name, withoutTitle: name } } } : {}),
+        ...(options.aria as object | undefined),
+      },
+    }
+  }, [options, label, t])
   return (
     <div
       className={css`
@@ -30,7 +49,7 @@ const Echarts: React.FC<React.PropsWithChildren<EchartsProps>> = ({ options, hei
       `}
     >
       {/* oxlint-disable-next-line react/forbid-component-props */}
-      <ReactECharts style={{ height }} option={options} />
+      <ReactECharts style={{ height }} option={accessibleOptions} />
     </div>
   )
 }

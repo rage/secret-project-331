@@ -7,6 +7,13 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
+const SECTION_HEADING_TAGS = {
+  // oxlint-disable-next-line i18next/no-literal-string
+  2: "h2",
+  // oxlint-disable-next-line i18next/no-literal-string
+  3: "h3",
+} as const
+
 export interface InformationItem {
   label: string
   value: React.ReactNode
@@ -27,6 +34,8 @@ export interface InformationCardProps {
   actionButtons?: React.ReactNode[]
   className?: string
   maxWidth?: number
+  /** Heading level of the section titles (default 3). */
+  sectionHeadingLevel?: 2 | 3
 }
 
 /**
@@ -57,10 +66,12 @@ const KeyValueCard: React.FC<InformationCardProps> = ({
   actionButtons,
   className,
   maxWidth = narrowContainerWidthRem,
+  sectionHeadingLevel = 3,
 }) => {
+  const SectionHeading = SECTION_HEADING_TAGS[sectionHeadingLevel]
   const renderSection = (section: InformationSection, sectionIndex: number) => (
     <div key={sectionIndex}>
-      <h3
+      <SectionHeading
         className={css`
           margin: 0 0 1rem 0;
           font-size: 1.1rem;
@@ -87,7 +98,7 @@ const KeyValueCard: React.FC<InformationCardProps> = ({
         `}
       >
         {section.title}
-      </h3>
+      </SectionHeading>
       <div
         className={css`
           display: grid;

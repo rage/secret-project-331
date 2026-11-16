@@ -6,6 +6,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
+import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -50,9 +51,13 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
     }),
   )
 
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(glossary.data)
+
   return (
-    <div className={pageCss}>
+    <div className={pageCss} ref={containerRef}>
       <h1
+        ref={listHeadingRef}
+        tabIndex={-1}
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
@@ -78,6 +83,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
                   }}
                   onCancel={() => setEditingTerm(null)}
                   refetch={glossary.refetch}
+                  onBeforeDelete={remember}
                 />
               ))}
           </ul>

@@ -2,6 +2,7 @@
 
 import { cx } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { staleTableCss, tableScrollCss } from "../studentsTableStyles"
 
@@ -15,8 +16,19 @@ import { staleTableCss, tableScrollCss } from "../studentsTableStyles"
 export const StaleTableWrapper: React.FC<{ isStale: boolean; children: React.ReactNode }> = ({
   isStale,
   children,
-}) => (
-  <div className={cx(tableScrollCss, isStale && staleTableCss)} data-students-horizontal-scroll>
-    {children}
-  </div>
-)
+}) => {
+  const { t } = useTranslation()
+  return (
+    <div
+      className={cx(tableScrollCss, isStale && staleTableCss)}
+      data-students-horizontal-scroll
+      role="region"
+      aria-label={t("label-students")}
+      // Scrollable region: keyboard users need to reach it to scroll sideways.
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+    >
+      {children}
+    </div>
+  )
+}

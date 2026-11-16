@@ -2,8 +2,10 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import {
   getCourseFeedbackCategoriesOptions,
   getCourseFeedbackCountOptions,
@@ -57,6 +59,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
       }),
     }),
   })
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getFeedbackList.data)
   const getFeedbackCategories = useQuery({
     ...getCourseFeedbackCategoriesOptions({
       path: {
@@ -94,7 +97,12 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
         }
         const pageCount = Math.ceil(items / paginationInfo.limit)
         return (
-          <div>
+          <div ref={containerRef}>
+            <VisuallyHidden>
+              <h2 ref={listHeadingRef} tabIndex={-1}>
+                {t("link-feedback")}
+              </h2>
+            </VisuallyHidden>
             <QueryResult query={getFeedbackCategories} emptyFallback={AllButton}>
               {(data) => {
                 const categories: ToggleInfo[] = data.map((c) => {
@@ -119,6 +127,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
                         feedback={f}
                         read={read}
                         setRead={async () => {
+                          remember(`feedback-heading-${f.id}`)
                           await getFeedbackList.refetch()
                           await getFeedbackCount.refetch()
                         }}

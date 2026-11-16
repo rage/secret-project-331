@@ -16,11 +16,13 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, Dialog, QueryResult } from "@/shared-module/components"
 
+import { useCourseInstancePageTitle } from "../useCourseInstancePageTitle"
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
   const { id: courseInstanceId } = useParams<{ id: string }>()
+  useCourseInstancePageTitle(courseInstanceId, t("title-email-templates"), t("default-instance"))
   const getCourseInstanceEmailTemplates = useQuery({
     ...getCourseInstanceEmailTemplatesOptions({
       path: {

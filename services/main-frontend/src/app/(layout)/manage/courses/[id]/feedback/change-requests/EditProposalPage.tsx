@@ -2,8 +2,10 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import {
   getCourseFeedbackCountQueryKey,
   getEditProposalsOptions,
@@ -45,6 +47,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getEditProposalList.data)
   const processProposalMutation = useToastMutationOptions(
     processProposalMutationOptions(),
     {
@@ -65,6 +68,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     pageProposalId: string,
     blockProposals: BlockProposalInfo[],
   ) {
+    remember(`change-request-heading-${pageProposalId}`)
     await processProposalMutation.mutateAsync({
       body: {
         page_id: pageId,
@@ -88,7 +92,12 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
         )
 
         return (
-          <>
+          <div ref={containerRef}>
+            <VisuallyHidden>
+              <h2 ref={listHeadingRef} tabIndex={-1}>
+                {t("link-change-requests")}
+              </h2>
+            </VisuallyHidden>
             <ul
               className={css`
                 list-style: none;
@@ -98,7 +107,11 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
               {editProposalList &&
                 editProposalList.map((p) => (
                   <li key={p.id}>
-                    <EditProposalView proposal={p} handleProposal={handleProposal} />
+                    <EditProposalView
+                      courseId={courseId}
+                      proposal={p}
+                      handleProposal={handleProposal}
+                    />
                   </li>
                 ))}
             </ul>
@@ -106,14 +119,14 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
             {proposalsForDeletedBlocks?.length !== 0 && (
               <>
                 {pending === true && (
-                  <h5
+                  <h2
                     className={css`
                       font-size: ${typography.h5};
                       font-weight: ${fontWeights.semibold};
                     `}
                   >
                     {t("change-request-for-deleted-block")}
-                  </h5>
+                  </h2>
                 )}
 
                 <ul
@@ -124,13 +137,17 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
                 >
                   {proposalsForDeletedBlocks?.map((p) => (
                     <li key={p.id}>
-                      <EditProposalView proposal={p} handleProposal={handleProposal} />
+                      <EditProposalView
+                        courseId={courseId}
+                        proposal={p}
+                        handleProposal={handleProposal}
+                      />
                     </li>
                   ))}
                 </ul>
               </>
             )}
-          </>
+          </div>
         )
       }}
     </QueryResult>

@@ -2,6 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { useEffect, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -234,10 +236,45 @@ export default function WorkspaceStageSection({
     }
   }
 
+  const taskListRef = useRef<HTMLUListElement | null>(null)
+  const pendingFocusIndexRef = useRef<number | null>(null)
+  const [statusMessage, setStatusMessage] = useState("")
+
+  // After a delete, focus the task now at the deleted one's position, else the new-task field.
+  useEffect(() => {
+    const index = pendingFocusIndexRef.current
+    if (index === null) {
+      return
+    }
+    pendingFocusIndexRef.current = null
+    const nextRow = taskListRef.current?.children[index]
+    const target = nextRow?.querySelector<HTMLElement>("input, button")
+    if (target) {
+      target.focus()
+    } else {
+      document.querySelector<HTMLElement>(`#stage-task-input-${CSS.escape(stage.id)}`)?.focus()
+    }
+  }, [stage.tasks, stage.id])
+
   const deleteMutation = useToastMutationOptions(
     deleteCourseDesignerStageTaskMutation(),
     { notify: true, method: "DELETE" },
-    { onSuccess: onInvalidate },
+    {
+      onSuccess: (_data, variables) => {
+        const deleted = stage.tasks.find((task) => task.id === variables.path.task_id)
+        pendingFocusIndexRef.current = Math.max(
+          0,
+          stage.tasks.findIndex((task) => task.id === variables.path.task_id),
+        )
+        setStatusMessage(
+          t("course-plans-task-deleted", {
+            task: deleted?.title ?? "",
+            defaultValue: "Task deleted: {{task}}",
+          }),
+        )
+        onInvalidate()
+      },
+    },
   )
 
   const handleAddTask = () => {
@@ -337,7 +374,10 @@ export default function WorkspaceStageSection({
           </Button>
         </form>
       )}
-      <ul className={taskListStyles}>
+      <VisuallyHidden>
+        <span role="status">{statusMessage}</span>
+      </VisuallyHidden>
+      <ul className={taskListStyles} ref={taskListRef}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>
         ) : (

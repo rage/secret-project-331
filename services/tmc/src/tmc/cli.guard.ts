@@ -1046,6 +1046,15 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 Array.isArray(typedObj["data"]["output-data"]["removed"]) &&
                 typedObj["data"]["output-data"]["removed"].every((e: any) =>
                     typeof e === "string"
+                ) &&
+                Array.isArray(typedObj["data"]["output-data"]["unchecked_courses"]) &&
+                typedObj["data"]["output-data"]["unchecked_courses"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["course_id"] === "string" &&
+                    (e["kind"] === "not-found" ||
+                        e["kind"] === "insufficient-scope")
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||

@@ -1,6 +1,6 @@
 //! Client for the old mooc.fi platform's GraphQL API, which holds per-user course progress.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::time::Duration;
 
 use secrecy::{ExposeSecret, SecretString};
@@ -21,12 +21,17 @@ query ($upstreamId: Int) {
     user_course_progresses {
       n_points
       max_points
+      course {
+        ...CourseFields
+      }
+    }
+    exercise_counts: user_course_progresses {
+      course {
+        id
+      }
       exercise_progress {
         exercise_count
         exercises_attempted_count
-      }
-      course {
-        ...CourseFields
       }
     }
     completions {
@@ -98,6 +103,9 @@ struct ResponseData {
 #[derive(Deserialize)]
 struct MoocfiUser {
     user_course_progresses: Vec<UserCourseProgress>,
+    /// Asked for apart from `user_course_progresses` because mooc.fi throws on `exercise_progress`
+    /// for a progress row without a course, which nulls the whole list it is in.
+    exercise_counts: Option<Vec<ExerciseCountRow>>,
     completions: Vec<Completion>,
 }
 
@@ -105,8 +113,18 @@ struct MoocfiUser {
 struct UserCourseProgress {
     n_points: Option<f64>,
     max_points: Option<f64>,
-    exercise_progress: Option<ExerciseProgress>,
     course: Option<Course>,
+}
+
+#[derive(Deserialize)]
+struct ExerciseCountRow {
+    course: Option<CourseId>,
+    exercise_progress: Option<ExerciseProgress>,
+}
+
+#[derive(Deserialize)]
+struct CourseId {
+    id: Uuid,
 }
 
 /// Both counts are nullable in mooc.fi's schema, though its resolver always sets them.
@@ -222,20 +240,24 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
         }
     };
 
+    let exercise_counts: HashMap<Uuid, MoocfiExerciseProgress> = user
+        .exercise_counts
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|row| Some((row.course?.id, row.exercise_progress?.counts()?)))
+        .collect();
     let mut courses: BTreeMap<Uuid, MoocfiCourseProgress> = BTreeMap::new();
     for progress in user.user_course_progresses {
         let Some(course) = progress.course else {
             continue;
         };
+        let course_exercise_counts = exercise_counts.get(&course.id).copied();
         courses.insert(
             course.id,
             course.into_progress(
                 progress.n_points,
                 progress.max_points,
-                progress
-                    .exercise_progress
-                    .as_ref()
-                    .and_then(ExerciseProgress::counts),
+                course_exercise_counts,
             ),
         );
     }
@@ -263,12 +285,15 @@ mod tests {
         let body = json!({
             "data": { "user": {
                 "user_course_progresses": [
-                    { "n_points": 12.5, "max_points": 20.0, "exercise_progress": { "exercise_count": 10, "exercises_attempted_count": 4 }, "course": { "id": COURSE_B, "name": "B", "course_translations": [
+                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B", "course_translations": [
                         { "language": "fi_FI", "name": "B fi", "link": " https://b.mooc.fi " },
                         { "language": "en_US", "name": "B en", "link": "javascript:alert(1)" },
                         { "language": "sv_SE", "name": "B sv", "link": null }
                     ] } },
-                    { "n_points": null, "max_points": null, "exercise_progress": { "exercise_count": 0, "exercises_attempted_count": 0 }, "course": null }
+                    { "n_points": null, "max_points": null, "course": null }
+                ],
+                "exercise_counts": [
+                    { "course": { "id": COURSE_B }, "exercise_progress": { "exercise_count": 10, "exercises_attempted_count": 4 } }
                 ],
                 "completions": [
                     { "course": { "id": COURSE_B, "name": "B" } },

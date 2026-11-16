@@ -15,12 +15,13 @@ import type {
   PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
+import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
-import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { manageUserRoute, pageRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 const ImportantText = styled.div`
@@ -29,6 +30,24 @@ const ImportantText = styled.div`
   padding: 0.5rem;
   margin: 0;
   font-family: ${primaryFont};
+`
+
+const MetadataList = styled.dl`
+  margin: 0;
+
+  dt {
+    display: inline;
+  }
+
+  dd {
+    display: inline;
+    margin: 0;
+  }
+
+  dd::after {
+    content: "";
+    display: block;
+  }
 `
 
 const ProposalExplanation = styled.p`
@@ -95,6 +114,7 @@ function resolveBlockProposalInfo(
 }
 
 export interface Props {
+  courseId: string
   proposal: PageProposal
   handleProposal: (
     pageId: string,
@@ -104,12 +124,17 @@ export interface Props {
 }
 
 const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
+  courseId,
   proposal,
   handleProposal,
 }) => {
   const { t } = useTranslation()
 
   const pageInfo = usePageInfo(proposal.page_id)
+  const senderQuery = useBulkUserDetails(courseId, proposal.user_id ? [proposal.user_id] : null)
+  const senderName = formatUserName(senderQuery.data?.[0])
+  const created = parseISO(proposal.created_at)
+  const headingId = `change-request-heading-${proposal.id}`
 
   const defaultFormValues = useMemo<ProposalFormFields>(() => {
     const decisions: Record<string, ProposalDecision | ""> = {}
@@ -289,6 +314,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             pageInfo.data,
             proposal.page_url_path,
           )}?highlight-blocks=${proposal.block_proposals.map((bp) => bp.block_id).join(",")}`}
+          aria-describedby={headingId}
           target="_blank"
           rel="noreferrer noopener"
           styledAsButton
@@ -298,39 +324,43 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           {t("open-page-in-new-tab")}
         </Link>
       )}
-      <h2
+      <h3
+        id={headingId}
+        data-item-heading=""
+        tabIndex={-1}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;
         `}
       >
-        {t("title-change-request")}
-      </h2>
-      {proposal.page_id && (
-        <div>
-          {t("label-page")} {proposal.page_title} <small>({proposal.page_url_path})</small>
-        </div>
-      )}
-      <div>
-        {t("label-sent-by")}{" "}
-        {proposal.user_id ? (
-          <Link href={manageUserRoute(proposal.user_id)}>
-            <HideTextInSystemTests
-              text={proposal.user_id}
-              testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            />
-          </Link>
-        ) : (
-          t("guest")
+        {`${t("title-change-request")}: ${proposal.page_title}, ${dateToString(created, false)}`}
+      </h3>
+      <MetadataList>
+        {proposal.page_id && (
+          <>
+            <dt>{t("label-page")} </dt>
+            <dd>
+              {proposal.page_title} <small>({proposal.page_url_path})</small>
+            </dd>
+          </>
         )}
-      </div>
-      <div>
-        <TimeComponent
-          boldLabel={false}
-          label={t("label-created")}
-          date={parseISO(proposal.created_at)}
-        />
-      </div>
+        {(!proposal.user_id || senderName) && (
+          <>
+            <dt>{t("label-sent-by")} </dt>
+            <dd>
+              {proposal.user_id ? (
+                <Link href={manageUserRoute(proposal.user_id)}>{senderName}</Link>
+              ) : (
+                t("guest")
+              )}
+            </dd>
+          </>
+        )}
+        <dt>{t("label-created")} </dt>
+        <dd>
+          <TimeComponent boldLabel={false} date={created} />
+        </dd>
+      </MetadataList>
       <ul
         className={css`
           list-style: none;

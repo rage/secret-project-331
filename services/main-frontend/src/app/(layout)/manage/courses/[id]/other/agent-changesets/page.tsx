@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { ChangesetStatusBadge } from "@/components/agent-changesets/ChangesetStatusBadge"
@@ -42,6 +43,9 @@ function AgentChangesetsPage() {
         gap: 1rem;
       `}
     >
+      <VisuallyHidden>
+        <h1>{t("agent-changesets-caption")}</h1>
+      </VisuallyHidden>
       <p>{t("agent-changesets-description")}</p>
       <QueryResult
         query={changesetsQuery}

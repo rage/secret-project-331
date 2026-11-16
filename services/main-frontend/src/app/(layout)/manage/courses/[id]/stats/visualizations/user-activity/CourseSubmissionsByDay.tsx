@@ -69,6 +69,7 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
               <NoDataMessage />
             ) : (
               <Echarts
+                label={t("stats-heading-daily-submissions")}
                 height={200 * Object.keys(processedData.eChartsData).length}
                 options={{
                   tooltip: {

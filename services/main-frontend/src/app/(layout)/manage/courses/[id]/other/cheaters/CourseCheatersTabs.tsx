@@ -6,6 +6,7 @@ import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import { LINK_QUIET } from "@/components/credit-registration/constants"
 import {
   getCourseFlaggedSuspectedCheatersCountQueryKey,
@@ -17,7 +18,7 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, typography } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { Button, Link, QueryResult, Table, useDialog } from "@/shared-module/components"
 
@@ -62,7 +63,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   // leaves it) and invalidate the flagged-count badge (course tabs) and overview review banner,
   // which are owned by other components. The destination tab is a separate route that refetches on
   // navigation, so it does not need explicit invalidation here.
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(suspectedCheaters.data)
   const handleActionSuccess = () => {
+    // The acted-on row is gone after the refetch; focus moves to the list heading.
+    remember("")
     suspectedCheaters.refetch()
     queryClient.invalidateQueries({
       queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
@@ -124,31 +128,36 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     }
   }
 
-  // Dismissing from the confirmed tab un-fails the student and restores their grade, so ask first.
-  // Dismissing a still-flagged student is harmless and fires directly.
+  // Dismissing from the confirmed tab un-fails the student and restores their grade; dismissing a
+  // flagged student drops the suspicion. Both ask first.
   const onDismissClick = async (userId: string) => {
-    if (status === "ConfirmedCheating") {
-      const confirmed = await confirm({
-        message: t("dismiss-from-confirmed-dialog-message"),
-        title: t("dismiss-suspicion"),
-      })
-      if (!confirmed) {
-        return
-      }
+    const confirmed = await confirm({
+      message:
+        status === "ConfirmedCheating"
+          ? t("dismiss-from-confirmed-dialog-message")
+          : t("dismiss-flagged-dialog-message", {
+              defaultValue: "The student will no longer be suspected of cheating.",
+            }),
+      title: t("dismiss-suspicion"),
+    })
+    if (confirmed) {
+      handleDismiss.mutate(userId)
     }
-    handleDismiss.mutate(userId)
   }
 
   return (
-    <>
-      <h5
+    <div ref={containerRef}>
+      <h2
+        ref={listHeadingRef}
+        tabIndex={-1}
         className={css`
+          font-size: ${typography.h6};
           font-weight: 500;
           margin-bottom: 0.8rem;
         `}
       >
         {listTitle}
-      </h5>
+      </h2>
       <QueryResult
         query={suspectedCheaters}
         emptyFallback={
@@ -258,7 +267,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           />
         )}
       </QueryResult>
-    </>
+    </div>
   )
 }
 

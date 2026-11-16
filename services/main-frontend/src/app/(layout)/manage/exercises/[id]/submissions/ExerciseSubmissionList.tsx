@@ -11,6 +11,9 @@ import { useBulkUserDetails } from "@/hooks/useUserDetails"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { EmptyState, Link, Table } from "@/shared-module/components"
 
+const submitterName = (user: UserDetail | undefined): string =>
+  [user?.first_name, user?.last_name].filter(Boolean).join(" ")
+
 interface Props {
   exerciseSubmissions: ExerciseSlideSubmission[]
   courseId: string
@@ -61,8 +64,15 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
           header: t("label-link"),
           align: ALIGN_CENTER,
           cell: (submission) => (
-            <Link href={`/submissions/${submission.id}`}>
+            <Link
+              href={`/submissions/${submission.id}`}
+              aria-label={t("view-submission-by", {
+                name: submitterName(userOf(submission)) || submission.user_id,
+                time: dateToString(submission.created_at),
+              })}
+            >
               <LinkIcon
+                aria-hidden
                 size={20}
                 className={css`
                   color: #868b93;

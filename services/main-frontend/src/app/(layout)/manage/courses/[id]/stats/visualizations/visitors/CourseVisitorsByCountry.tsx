@@ -109,6 +109,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
               <NoDataMessage />
             ) : (
               <Echarts
+                label={t("stats-heading-geographic-distribution")}
                 height={chartHeight}
                 options={{
                   yAxis: {

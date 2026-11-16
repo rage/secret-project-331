@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField } from "@/shared-module/components"
+import { Button, TextArea, TextField, useDialog } from "@/shared-module/components"
 
 const entryCss = css`
   display: grid;
@@ -41,15 +41,29 @@ interface TermItemProps {
   onEdit: () => void
   onCancel: () => void
   refetch: () => void
+  /** Called before a term is deleted, so the list can move focus once it is gone. */
+  onBeforeDelete?: (headingId: string) => void
 }
 
-const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, refetch }) => {
+const TermItem: React.FC<TermItemProps> = ({
+  term,
+  isEditing,
+  onEdit,
+  onCancel,
+  refetch,
+  onBeforeDelete,
+}) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
+  const headingId = `term-heading-${term.id}`
+  const editButtonRef = useRef<HTMLButtonElement | null>(null)
+  const wasEditing = useRef(false)
   const {
     control,
     handleSubmit,
     formState: { isValid },
     reset,
+    setFocus,
   } = useForm<UpdateTermForm>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -65,6 +79,17 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       updatedDefinition: term.definition,
     })
   }, [term, reset])
+
+  // Focus the first field when the form opens and the Edit button when it closes.
+  useEffect(() => {
+    if (isEditing) {
+      // oxlint-disable-next-line i18next/no-literal-string
+      setFocus("updatedTerm")
+    } else if (wasEditing.current) {
+      editButtonRef.current?.focus()
+    }
+    wasEditing.current = isEditing
+  }, [isEditing, setFocus])
 
   const updateMutation = useToastMutationOptions(
     updateGlossaryTermMutation(),
@@ -88,6 +113,23 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
     },
     { onSuccess: () => refetch() },
   )
+
+  const onDelete = async () => {
+    const confirmed = await confirm({
+      title: t("delete-term-named", { term: term.term, name: term.term }),
+      message: t("confirm-delete-term", {
+        term: term.term,
+        defaultValue: "Delete the term {{term}} from the glossary?",
+      }),
+      confirmLabel: t("button-text-delete"),
+      isDestructive: true,
+    })
+    if (!confirmed) {
+      return
+    }
+    onBeforeDelete?.(headingId)
+    deleteMutation.mutate({ path: { term_id: term.id } })
+  }
 
   const onUpdate = (data: UpdateTermForm) => {
     updateMutation.mutate({
@@ -140,23 +182,29 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
         </form>
       ) : (
         <div className={entryCss}>
-          <h2 className={termCss}>{term.term}</h2>
+          <h2 id={headingId} data-item-heading="" tabIndex={-1} className={termCss}>
+            {term.term}
+          </h2>
           <p>{term.definition}</p>
           <div className={actionsCss}>
-            <Button variant="primary" size="medium" onClick={onEdit}>
+            <Button
+              ref={editButtonRef}
+              variant="primary"
+              size="medium"
+              onClick={onEdit}
+              aria-label={t("edit-term-named", {
+                term: term.term,
+                defaultValue: "Edit term {{term}}",
+              })}
+            >
               {t("edit")}
             </Button>
             <Button
               variant="tertiary"
               size="medium"
-              onClick={() =>
-                deleteMutation.mutate({
-                  path: {
-                    term_id: term.id,
-                  },
-                })
-              }
+              onClick={onDelete}
               disabled={deleteMutation.isPending}
+              aria-label={t("delete-term-named", { term: term.term, name: term.term })}
             >
               {t("button-text-delete")}
             </Button>

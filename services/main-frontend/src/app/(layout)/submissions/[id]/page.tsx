@@ -137,6 +137,7 @@ const Submission: React.FC = () => {
             {userDetails.isLoading && <LoadingRegion />}
             {userDetails.isSuccess && (
               <KeyValueCard
+                sectionHeadingLevel={2}
                 sections={[
                   {
                     title: t("submission-details"),

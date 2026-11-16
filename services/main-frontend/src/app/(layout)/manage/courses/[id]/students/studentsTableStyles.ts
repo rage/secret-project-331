@@ -97,7 +97,7 @@ export const resizeHandleCss = css`
   /* Absolute offsets resolve against the padding box, so right: 0 would sit inside the cell's
      1px border -- the very line the handle is supposed to grab. */
   right: -1px;
-  width: 16px;
+  width: 24px;
   height: 100%;
   padding: 0;
   border: 0;
@@ -170,10 +170,16 @@ export const thStyle = css`
 export const sortableThCss = css`
   cursor: pointer;
   user-select: none;
+`
+
+// The header's sort control: looks like the plain header text, so the table is unchanged.
+export const sortButtonCss = css`
+  all: unset;
+  cursor: pointer;
 
   &:focus-visible {
     outline: 2px solid var(--color-green-700);
-    outline-offset: -2px;
+    outline-offset: 2px;
   }
 `
 

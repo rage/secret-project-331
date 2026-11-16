@@ -26,6 +26,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, LoadingRegion, useDialog, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+import { useCourseInstancePageTitle } from "../useCourseInstancePageTitle"
 import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
 import type { CertificateFields } from "./CertificateForm"
 import CertificateForm from "./CertificateForm"
@@ -41,6 +42,7 @@ const CertificationsPage: React.FC = () => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const { id: courseInstanceId } = useParams<{ id: string }>()
+  useCourseInstancePageTitle(courseInstanceId, t("certificates"), t("default-instance"))
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
   const getCourseInstance = useQuery({
@@ -162,9 +164,7 @@ const CertificationsPage: React.FC = () => {
 
   return (
     <>
-      <h1 className={pageTitleCss}>
-        {t("certificates")}: {courseInstanceId}
-      </h1>
+      <h1 className={pageTitleCss}>{t("certificates")}</h1>
       {defaultCertificateConfigurationsQuery.isError && (
         <ErrorNotice error={defaultCertificateConfigurationsQuery.error} />
       )}

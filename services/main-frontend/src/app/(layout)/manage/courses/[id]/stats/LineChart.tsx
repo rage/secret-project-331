@@ -214,7 +214,7 @@ const LineChart: React.FC<LineChartProps> = ({
         ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (
-          <Echarts options={chartOptions} height={DEFAULT_CHART_HEIGHT} />
+          <Echarts label={statHeading} options={chartOptions} height={DEFAULT_CHART_HEIGHT} />
         )}
       </div>
     </>

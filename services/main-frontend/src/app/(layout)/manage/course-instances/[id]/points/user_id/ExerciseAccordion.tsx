@@ -169,6 +169,8 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         <div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
+            aria-expanded={isExpanded}
+            aria-label={`${t("view-details")} (${exerciseStatus.exercise.name})`}
             className={css`
               width: 100%;
               padding: 1rem 1.5rem;
@@ -196,6 +198,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
           >
             <span>{t("view-details")}</span>
             <span
+              aria-hidden
               className={css`
                 display: inline-block;
                 transition: transform 0.2s ease;

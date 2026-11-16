@@ -105,7 +105,9 @@ export const ColumnResizeHandle: React.FC<ColumnResizeHandleProps> = ({
     <div
       {...interactionProps}
       role={SLIDER_ROLE}
-      tabIndex={0}
+      // Out of the tab order so N columns do not put N stops before the first row; screen reader
+      // users reach it from browse mode and then use the arrow keys.
+      tabIndex={-1}
       aria-label={label}
       aria-orientation={HORIZONTAL}
       aria-valuenow={Math.round(getWidth(columnId))}

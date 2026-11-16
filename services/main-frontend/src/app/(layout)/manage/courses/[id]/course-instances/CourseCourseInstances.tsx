@@ -129,6 +129,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-view-completions")} (${name})`}
                         >
                           {t("link-view-completions")}
                         </Link>
@@ -137,6 +138,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-view-points")} (${name})`}
                         >
                           {t("link-view-points")}
                         </Link>
@@ -148,6 +150,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-manage")} (${name})`}
                         >
                           {t("link-manage")}
                         </Link>
@@ -156,6 +159,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-manage-certificates")} (${name})`}
                         >
                           {t("link-manage-certificates")}
                         </Link>
@@ -164,6 +168,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-manage-emails")} (${name})`}
                         >
                           {t("link-manage-emails")}
                         </Link>
@@ -172,6 +177,7 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                           styledAsButton
                           variant="secondary"
                           size="medium"
+                          aria-label={`${t("link-manage-permissions")} (${name})`}
                         >
                           {t("link-manage-permissions")}
                         </Link>

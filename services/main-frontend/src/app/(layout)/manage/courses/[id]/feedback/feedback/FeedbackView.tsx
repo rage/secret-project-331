@@ -14,11 +14,12 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Disclosure, Link } from "@/shared-module/components"
 
 export interface FeedbackViewProps {
@@ -40,6 +41,24 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
+const MetadataList = styled.dl`
+  margin: 0 0 1rem 0;
+
+  dt {
+    display: inline;
+  }
+
+  dd {
+    display: inline;
+    margin: 0;
+  }
+
+  dd::after {
+    content: "";
+    display: block;
+  }
+`
+
 const CapitalizedFirstLetter = styled.span`
   display: inline-block;
   &::first-letter {
@@ -57,6 +76,9 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
+  const senderQuery = useBulkUserDetails(courseId, feedback.user_id ? [feedback.user_id] : null)
+  const senderName = formatUserName(senderQuery.data?.[0])
+  const created = parseISO(feedback.created_at)
 
   const markAsReadMutation = useToastMutationOptions(
     markFeedbackAsReadMutation(),
@@ -99,6 +121,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
             pageInfo.data,
             feedback.page_url_path,
           )}${feedback.blocks.length > 0 ? `?highlight-blocks=${feedback.blocks.map((b) => b.id).join(",")}` : ""}`}
+          aria-describedby={`feedback-heading-${feedback.id}`}
           target="_blank"
           rel="noreferrer noopener"
           styledAsButton
@@ -108,33 +131,38 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
           {t("open-page-in-new-tab")}
         </Link>
       )}
-      <h2
+      <h3
+        id={`feedback-heading-${feedback.id}`}
+        data-item-heading=""
+        tabIndex={-1}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;
         `}
       >
-        {t("title-feedback")}
-      </h2>
+        {`${t("title-feedback")}: ${feedback.page_title}, ${dateToString(created, false)}`}
+      </h3>
 
-      <TextInformationWrapper>
+      <MetadataList>
         {feedback.page_id && (
-          <div>
-            {t("label-page")} {feedback.page_title} <small>({feedback.page_url_path})</small>
-          </div>
+          <>
+            <dt>{t("label-page")} </dt>
+            <dd>
+              {feedback.page_title} <small>({feedback.page_url_path})</small>
+            </dd>
+          </>
         )}
-        <HideTextInSystemTests
-          text={t("sent-by", { user: feedback.user_id ?? t("guest") })}
-          testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-        />
-        <div>
-          <TimeComponent
-            boldLabel={false}
-            label={t("label-created")}
-            date={parseISO(feedback.created_at)}
-          />
-        </div>
-      </TextInformationWrapper>
+        {(!feedback.user_id || senderName) && (
+          <>
+            <dt>{t("label-sent-by")} </dt>
+            <dd>{feedback.user_id ? senderName : t("guest")}</dd>
+          </>
+        )}
+        <dt>{t("label-created")} </dt>
+        <dd>
+          <TimeComponent boldLabel={false} date={created} />
+        </dd>
+      </MetadataList>
       {feedback.feedback_category_name && (
         <TextInformationWrapper>
           {t("assigned-feedback-category")}

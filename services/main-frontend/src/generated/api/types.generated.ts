@@ -1600,6 +1600,20 @@ export type CertificateConfigurationUpdate = {
   render_certificate_grade: boolean
 }
 
+export type CertificateDetails = {
+  completion_date: string
+  course_module_name?: string | null
+  course_name: string
+  grade?: null | CertificateGrade
+  name_on_certificate: string
+  verification_id: string
+}
+
+export type CertificateGrade = {
+  grade?: number | null
+  passed: boolean
+}
+
 export type CertificateGenerationRequest = {
   certificate_configuration_id: string
   grade?: string | null
@@ -8830,6 +8844,28 @@ export type GetCertificateByVerificationIdResponses = {
    */
   200: unknown
 }
+
+export type GetCertificateDetailsByVerificationIdData = {
+  body?: never
+  path: {
+    /**
+     * Certificate verification id
+     */
+    certificate_verification_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/certificates/{certificate_verification_id}/details"
+}
+
+export type GetCertificateDetailsByVerificationIdResponses = {
+  /**
+   * Certificate details
+   */
+  200: CertificateDetails
+}
+
+export type GetCertificateDetailsByVerificationIdResponse =
+  GetCertificateDetailsByVerificationIdResponses[keyof GetCertificateDetailsByVerificationIdResponses]
 
 export type CreateChapterData = {
   body: NewChapter

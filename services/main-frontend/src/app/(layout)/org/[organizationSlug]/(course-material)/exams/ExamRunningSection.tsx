@@ -1,8 +1,8 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
-import React from "react"
+import { addMilliseconds, addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
@@ -11,8 +11,11 @@ import type { ExamData } from "@/generated/course-material-api/types.generated"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
-import ExamInfoHeader from "./ExamInfoHeader"
+import ExamInfoHeader, { EXAM_HEADING_ID } from "./ExamInfoHeader"
+import { consumeExamJustStarted } from "./examStartedFlag"
+import ExamStatusAnnouncer from "./ExamStatusAnnouncer"
 import ExamTimer from "./ExamTimer"
+import useClockSkew from "./useClockSkew"
 
 export interface ExamRunningSectionProps {
   examData: ExamData
@@ -35,6 +38,20 @@ export default function ExamRunningSection({
   showEndedInfo = false,
 }: ExamRunningSectionProps) {
   const { t } = useTranslation()
+  const skew = useClockSkew()
+  const [justStarted, setJustStarted] = useState(false)
+  const checkedStart = useRef(false)
+
+  useEffect(() => {
+    if (checkedStart.current) {
+      return
+    }
+    checkedStart.current = true
+    if (consumeExamJustStarted()) {
+      setJustStarted(true)
+      document.querySelector<HTMLElement>(`#${EXAM_HEADING_ID}`)?.focus()
+    }
+  }, [])
 
   if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
     return null
@@ -44,7 +61,7 @@ export default function ExamRunningSection({
   const endsAt = examData.ends_at
     ? min([addMinutes(startedAt, examData.time_minutes), parseISO(examData.ends_at)])
     : addMinutes(startedAt, examData.time_minutes)
-  const secondsLeft = differenceInSeconds(endsAt, now)
+  const secondsLeft = differenceInSeconds(endsAt, addMilliseconds(now, skew?.finalOffsetMs ?? 0))
 
   const warningMessageClass = css`
     background: linear-gradient(
@@ -83,6 +100,7 @@ export default function ExamRunningSection({
       <CenteredClockSkewWarning />
       <ExamTimeOverModal disabled={examData.ended} secondsLeft={secondsLeft} onClose={onRefresh} />
       <ExamInfoHeader examData={examData} />
+      <ExamStatusAnnouncer secondsLeft={secondsLeft} announceStarted={justStarted} />
       <ExamTimer startedAt={startedAt} endsAt={endsAt} secondsLeft={secondsLeft} />
       {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
         <div className={warningMessageClass}>

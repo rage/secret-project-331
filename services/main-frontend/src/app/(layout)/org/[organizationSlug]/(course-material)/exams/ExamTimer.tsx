@@ -55,6 +55,18 @@ const InfoBoxDarkGreenSmall = styled.div`
   font-weight: 700;
 `
 
+const visuallyHiddenClass = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+`
+
 export interface ExamTimerProps {
   endsAt: Date
   maxScore?: number
@@ -118,6 +130,7 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
         />
       </InfoBoxLightGreenMedium>
       <InfoBoxDarkGreenSmall>
+        <span className={visuallyHiddenClass}>{t("time-left")} </span>
         <HideTextInSystemTests
           text={formatTimeLeft(secondsLeft)}
           testPlaceholder={formatTimeLeft(135)}
@@ -130,7 +143,7 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
 export default ExamTimer
 
 /** Display as hours:minutes left, e.g. 1:03 or 120:59 */
-function formatTimeLeft(secondsLeft: number) {
+export function formatTimeLeft(secondsLeft: number) {
   if (secondsLeft <= 0) {
     return "0:00"
   }

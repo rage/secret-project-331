@@ -22,7 +22,8 @@ use models::{
     get_generated_certificate,
     update_generated_certificate,
     delete_certificate_configuration,
-    get_cerficate_by_verification_id
+    get_cerficate_by_verification_id,
+    get_certificate_details_by_verification_id
 ))]
 pub(crate) struct MainFrontendCertificatesApiDoc;
 
@@ -562,6 +563,106 @@ pub async fn get_cerficate_by_verification_id(
     )
 }
 
+/// The text a certificate image shows, for readers who cannot see the image.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+pub struct CertificateDetails {
+    pub name_on_certificate: String,
+    pub course_name: String,
+    /// `None` for a course's default module.
+    pub course_module_name: Option<String>,
+    pub completion_date: DateTime<Utc>,
+    /// `None` unless the certificate configuration prints the grade.
+    pub grade: Option<CertificateGrade>,
+    pub verification_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+pub struct CertificateGrade {
+    pub grade: Option<i32>,
+    pub passed: bool,
+}
+
+/**
+GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
+
+The certificate's holder, course, module, completion date and printed grade as JSON.
+*/
+#[utoipa::path(
+    get,
+    path = "/{certificate_verification_id}/details",
+    operation_id = "getCertificateDetailsByVerificationId",
+    tag = "certificates",
+    params(
+        ("certificate_verification_id" = String, Path, description = "Certificate verification id")
+    ),
+    responses(
+        (status = 200, description = "Certificate details", body = CertificateDetails)
+    )
+)]
+#[instrument(skip(pool))]
+pub async fn get_certificate_details_by_verification_id(
+    certificate_verification_id: web::Path<String>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<CertificateDetails>> {
+    let mut conn = pool.acquire().await?;
+    // everyone needs to be able to view the certificate in order to verify its validity
+    let token = skip_authorize();
+
+    let certificate = models::generated_certificates::get_by_verification_id(
+        &mut conn,
+        &certificate_verification_id,
+    )
+    .await?
+    .ok_or_else(|| controller_err!(NotFound, "Certificate not found.".to_string()))?;
+    let generated = models::generated_certificates::get_certificate_by_verification_id(
+        &mut conn,
+        &certificate_verification_id,
+    )
+    .await?;
+    let config = models::certificate_configurations::get_by_id(
+        &mut conn,
+        generated.certificate_configuration_id,
+    )
+    .await?;
+
+    let grade = if config.render_certificate_grade {
+        let requirements = models::certificate_configuration_to_requirements::get_all_requirements_for_certificate_configuration(
+            &mut conn,
+            generated.certificate_configuration_id,
+        )
+        .await?;
+        match requirements.course_module_ids.first() {
+            Some(course_module_id) => {
+                let completions =
+                    models::course_module_completions::get_all_by_user_id_and_course_module_id(
+                        &mut conn,
+                        certificate.user_id,
+                        *course_module_id,
+                    )
+                    .await?;
+                models::course_module_completions::select_best_completion(completions).map(
+                    |completion| CertificateGrade {
+                        grade: completion.grade,
+                        passed: completion.passed,
+                    },
+                )
+            }
+            None => None,
+        }
+    } else {
+        None
+    };
+
+    token.authorized_ok(web::Json(CertificateDetails {
+        name_on_certificate: certificate.name_on_certificate,
+        course_name: certificate.course_name,
+        course_module_name: certificate.course_module_name,
+        completion_date: certificate.created_at,
+        grade,
+        verification_id: certificate.verification_id,
+    }))
+}
+
 /// Requires Teach on every course whose modules the configuration covers, or global Teach for a
 /// configuration not tied to any module.
 async fn authorize_teaching_certificate_configuration(
@@ -737,6 +838,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::put().to(update_generated_certificate),
         )
         .route(
+            "/{certificate_verification_id}/details",
+            web::get().to(get_certificate_details_by_verification_id),
+        )
+        .route(
             "/{certificate_verification_id}",
             web::get().to(get_cerficate_by_verification_id),
         )
@@ -744,4 +849,33 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/configuration/{certificate_configuration_id}",
             web::delete().to(delete_certificate_configuration),
         );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn certificate_details_json_shape() {
+        let details = CertificateDetails {
+            name_on_certificate: "Example Learner".to_string(),
+            course_name: "Intro".to_string(),
+            course_module_name: None,
+            completion_date: DateTime::parse_from_rfc3339("2026-02-03T10:00:00Z")
+                .unwrap()
+                .with_timezone(&Utc),
+            grade: Some(CertificateGrade {
+                grade: Some(4),
+                passed: true,
+            }),
+            verification_id: "abc".to_string(),
+        };
+        let value = serde_json::to_value(&details).unwrap();
+        assert_eq!(value["name_on_certificate"], "Example Learner");
+        assert_eq!(value["course_name"], "Intro");
+        assert!(value["course_module_name"].is_null());
+        assert_eq!(value["completion_date"], "2026-02-03T10:00:00Z");
+        assert_eq!(value["grade"]["grade"], 4);
+        assert_eq!(value["verification_id"], "abc");
+    }
 }

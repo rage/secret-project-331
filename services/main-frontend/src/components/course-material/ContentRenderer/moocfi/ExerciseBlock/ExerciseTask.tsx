@@ -22,6 +22,7 @@ interface ExerciseTaskProps {
   postThisStateToIFrame: ExerciseIframeState | undefined
   setAnswer: (answer: CapturedExerciseTaskAnswer) => void
   exerciseNumber: number
+  exerciseName?: string | null | undefined
   isChapterLocked: boolean
 }
 
@@ -32,6 +33,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
   postThisStateToIFrame,
   setAnswer,
   exerciseNumber,
+  exerciseName,
   isChapterLocked,
 }) => {
   const { signedIn } = useContext(LoginStateContext)
@@ -78,6 +80,8 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
             }
 
             .instructions-title {
+              display: block;
+              margin: 0;
               font-size: 1.25rem !important;
               line-height: 140%;
               font-weight: 600;
@@ -85,7 +89,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           `}
         >
           {exerciseTask.order_number === 0 && (
-            <span className="instructions-title">{t("title-instructions")}</span>
+            <h3 className="instructions-title">{t("title-instructions")}</h3>
           )}
           <ContentRenderer
             data={currentExerciseTaskAssignment}
@@ -107,10 +111,15 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
               postThisStateToIFrame={postThisStateToIFrame}
               url={url}
               setAnswer={setAnswer}
-              title={t("exercise-task-content", {
-                "exercise-number": exerciseNumber + 1,
-                "task-number": exerciseTask.order_number + 1,
-              })}
+              title={
+                exerciseName
+                  ? // oxlint-disable-next-line i18next/no-literal-string
+                    `${exerciseName}${exerciseTask.order_number > 0 ? ` ${exerciseTask.order_number + 1}` : ""}`
+                  : t("exercise-task-content", {
+                      "exercise-number": exerciseNumber + 1,
+                      "task-number": exerciseTask.order_number + 1,
+                    })
+              }
             />
           ) : (
             t("dont-know-how-to-render-this-assignment")

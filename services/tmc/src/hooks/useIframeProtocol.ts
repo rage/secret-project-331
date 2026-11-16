@@ -269,10 +269,12 @@ export function useIframeProtocol() {
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)
       } else if (messageData.message === "set-language") {
+        const data = (messageData as { data?: unknown }).data
         const language =
           (messageData as { language?: string }).language ??
-          (messageData as { data?: { language?: string } }).data?.language
+          (typeof data === "string" ? data : (data as { language?: string } | undefined)?.language)
         if (typeof language === "string") {
+          document.documentElement.lang = language
           void changeLanguage(language)
         }
       } else {

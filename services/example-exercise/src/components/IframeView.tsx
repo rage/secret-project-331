@@ -102,6 +102,7 @@ const IframeView: React.FC = () => {
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
+      document.documentElement.lang = messageData.data
     } else if (isDialogResponseMessage(messageData) || isUploadResultMessage(messageData)) {
       // Answers to `useParentDialog` / `useFileUpload`, which listen on the same port.
     } else {

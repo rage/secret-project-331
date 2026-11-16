@@ -100,6 +100,13 @@ describe("MultipleChoice submission view accessibility", () => {
     expect(within(second!).queryByText("you-selected-this-option")).not.toBeInTheDocument()
   })
 
+  it("shows the selection as visible text, not hidden from sighted users", () => {
+    renderSubmission()
+    const marker = screen.getByText("you-selected-this-option")
+    expect(marker.tagName).toBe("DIV")
+    expect(marker.closest("[style*='clip']")).toBeNull()
+  })
+
   it("conveys correct/incorrect state as text, not only color (WCAG 1.4.1)", () => {
     renderSubmission()
     const [first, second] = screen.getAllByRole("listitem")

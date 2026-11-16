@@ -142,6 +142,7 @@ const IframeView: React.FC = () => {
       })
     } else if (isSetLanguageMessage(messageData)) {
       i18n.changeLanguage(messageData.data)
+      document.documentElement.lang = messageData.data
     } else {
       console.error("Frame received an unknown message from message port")
     }

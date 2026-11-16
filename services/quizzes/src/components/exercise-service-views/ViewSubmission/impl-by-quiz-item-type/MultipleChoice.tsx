@@ -1,6 +1,5 @@
 import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
-import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -179,7 +178,15 @@ const MultipleChoiceSubmission: React.FC<
                 >
                   <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
                   {answerSelectedThisOption && (
-                    <VisuallyHidden>{t("you-selected-this-option")}</VisuallyHidden>
+                    <div
+                      className={css`
+                        font-size: 0.875rem;
+                        font-weight: 600;
+                        color: #4c5868;
+                      `}
+                    >
+                      {t("you-selected-this-option")}
+                    </div>
                   )}
                 </div>
                 <div>

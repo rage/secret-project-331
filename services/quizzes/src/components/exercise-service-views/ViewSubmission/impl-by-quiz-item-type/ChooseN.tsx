@@ -101,16 +101,21 @@ const MultipleChoiceClickableFeedback: React.FC<
         }
       `}
     >
-      <h2
+      <div
         className={css`
           display: flex;
+          overflow-wrap: anywhere;
           ${QUIZ_TITLE_STYLE}
         `}
       >
         {public_quiz_item.title || public_quiz_item.body}
-      </h2>
+      </div>
 
-      <div>
+      <div
+        className={css`
+          min-width: 0;
+        `}
+      >
         <div
           className={css`
             display: flex;
@@ -168,6 +173,10 @@ const MultipleChoiceClickableFeedback: React.FC<
                     ${borderColor} 0 -2px 0 inset;
                   color: #2d3a4a;
                   ${userSelected && "font-weight: 600;"}
+                  box-sizing: border-box;
+                  max-width: 100%;
+                  margin-right: 0;
+                  overflow-wrap: anywhere;
                   cursor: default;
                   pointer-events: none;
                 `}
@@ -176,6 +185,8 @@ const MultipleChoiceClickableFeedback: React.FC<
                   className={css`
                     flex: 1;
                     text-align: center;
+                    min-width: 0;
+                    ${userSelected && "padding-right: 1.5rem;"}
                   `}
                 >
                   {o.title || o.body}
@@ -224,7 +235,9 @@ const MultipleChoiceClickableFeedback: React.FC<
           <div
             className={css`
               margin-top: 1rem;
-              padding: 1rem;
+              padding: 0.75rem;
+              box-sizing: border-box;
+              overflow-wrap: anywhere;
               background-color: #f9fafb;
               border: 1px solid #e5e7eb;
               border-radius: 0.375rem;
@@ -253,7 +266,7 @@ const MultipleChoiceClickableFeedback: React.FC<
               margin-top: 1rem;
             `}
           >
-            <h3
+            <div
               className={css`
                 font-family: ${primaryFont};
                 font-size: 1rem;
@@ -263,7 +276,7 @@ const MultipleChoiceClickableFeedback: React.FC<
               `}
             >
               {t("choose-n-feedback-heading")}
-            </h3>
+            </div>
             <div
               className={css`
                 display: flex;
@@ -285,6 +298,7 @@ const MultipleChoiceClickableFeedback: React.FC<
                     background: ${quizTheme.feedbackBackground};
                     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
                     box-sizing: border-box;
+                    overflow-wrap: anywhere;
                   `}
                 >
                   <strong>{optionText}:</strong>{" "}

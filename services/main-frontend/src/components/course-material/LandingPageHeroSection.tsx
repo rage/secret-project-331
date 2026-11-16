@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -28,6 +28,8 @@ interface TextBoxProps {
   backgroundImages: HeroBackgroundImages
 }
 
+const TITLE_CLASS = "hero-title"
+
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
@@ -50,7 +52,7 @@ const TextBox = styled.div<TextBoxProps>`
     ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
-  h1 {
+  .${TITLE_CLASS} {
     z-index: 20;
     margin-bottom: 0.8rem;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
@@ -109,7 +111,7 @@ export interface LandingPageHeroSectionProps {
   fontColor?: string
   backgroundRepeatX?: boolean
   variant?: string
-  // The exam page has its own h1, so the hero title is exposed as level 2.
+  // The exam page has its own h1, so the hero title is an h2 there.
   isExam?: boolean
 }
 
@@ -189,8 +191,8 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       <TextBox backgroundImages={backgroundImages} color={fontColor}>
         <ParsedText
           text={title}
-          tag="h1"
-          tagProps={{ className: flipClassName, ...(isExam && { "aria-level": 2 }) }}
+          tag={isExam ? "h2" : "h1"}
+          tagProps={{ className: cx(TITLE_CLASS, flipClassName) }}
           useWrapperElement={true}
         />
         <div className="hero-subtitle">{children}</div>

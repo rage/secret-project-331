@@ -6,7 +6,7 @@ import React, { useRef } from "react"
 
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -27,6 +27,8 @@ interface TextBoxProps {
 const CENTERED_MARGIN = "0 auto"
 const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
+
+const TITLE_CLASS = "hero-title"
 
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
@@ -55,7 +57,8 @@ const TextBox = styled.div<TextBoxProps>`
     ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
-  h1 {
+  .${TITLE_CLASS} {
+    font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     margin-bottom: 0.5rem;
@@ -98,7 +101,7 @@ export interface HeroSectionProps {
   partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
   backgroundSizeRem?: number
-  // The exam page has its own h1, so the hero title is exposed as level 2.
+  // The exam page has its own h1, so the hero title is an h2 there.
   isExam?: boolean
 }
 
@@ -201,10 +204,13 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         />
         <ParsedText
           text={title}
-          tag="h1"
+          tag={isExam ? "h2" : "h1"}
           tagProps={{
-            className: cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName),
-            ...(isExam && { "aria-level": 2 }),
+            className: cx(
+              TITLE_CLASS,
+              INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+              flipClassName,
+            ),
           }}
           options={{ glossary: false }}
           useWrapperElement={true}

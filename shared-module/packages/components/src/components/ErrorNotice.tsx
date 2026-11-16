@@ -2,7 +2,7 @@
 
 import { css, cx, keyframes } from "@emotion/css"
 import { ExclamationTriangle, InfoCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useMemo } from "react"
+import React, { createContext, useContext, useLayoutEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { ErrorSeverity, ErrorViewModel } from "../lib/errors/normalizeErrorForDisplay"
@@ -12,6 +12,17 @@ import { Button } from "./Button"
 import { CopyButton } from "./CopyButton"
 import { DescriptionList } from "./DescriptionList"
 import { Disclosure } from "./Disclosure"
+
+/**
+ * Lets the app register the document title for a page-level error (`headingLevel={1}`). Provided
+ * by the common package's `ErrorNoticeTitleProvider`, which owns the title; `null` outside it.
+ */
+export const ErrorNoticeTitleContext = createContext<((title: string | null) => void) | null>(null)
+
+/** Client errors the reader cannot fix by retrying the same request. */
+function isNonRetryableStatus(status: number | null): boolean {
+  return status !== null && status >= 400 && status < 500 && status !== 408 && status !== 429
+}
 
 /** How the notice reaches assistive technology. */
 export type ErrorNoticeAnnouncement = "assertive" | "polite" | "off"
@@ -406,6 +417,17 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
     [copy, view, details, blocks, t],
   )
 
+  const registerTitle = useContext(ErrorNoticeTitleContext)
+  const pageTitle = headingLevel === 1 ? copy.title : null
+  useLayoutEffect(() => {
+    if (registerTitle === null || pageTitle === null) {
+      return
+    }
+    registerTitle(pageTitle)
+    return () => registerTitle(null)
+  }, [registerTitle, pageTitle])
+
+  const showRetry = retry !== undefined && !isNonRetryableStatus(view.status)
   const severity = severityOverride ?? view.severity
   const SeverityIcon = SEVERITY_ICONS[severity]
   const HeadingTag = `h${headingLevel}` as "h1" | "h2" | "h3" | "h4"
@@ -455,7 +477,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           </dl>
         </div>
       ) : null}
-      {retry && (
+      {showRetry && (
         <Button
           className={css`
             justify-self: start;

@@ -127,4 +127,10 @@ describe("DebugModal", () => {
     // Not asserted here: the focus ring is a box-shadow from an emotion pseudo-class rule
     // (buttonStyles.ts's &:focus-visible), which jsdom's getComputedStyle doesn't resolve.
   })
+
+  test("the minimal trigger is at least 24x24 px", () => {
+    renderDebugModal(<DebugModal data={SAMPLE_DATA} variant="minimal" />)
+    const trigger = screen.getByRole("button", { name: "Data View" })
+    expect(trigger).toHaveStyle({ minWidth: "24px", minHeight: "24px" })
+  })
 })

@@ -45,6 +45,23 @@ describe("RadioGroup", () => {
     expect(tabIndexes()).toEqual([-1, 0, -1])
   })
 
+  test("the group description is wired to the group, not to every radio", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Plan" description="Pick one plan">
+          <Radio label="Monthly" value="monthly" />
+          <Radio label="Yearly" value="yearly" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByRole("radiogroup", { name: "Plan" })).toHaveAccessibleDescription(
+      "Pick one plan",
+    )
+    expect(screen.getByRole("radio", { name: "Monthly" })).not.toHaveAccessibleDescription()
+  })
+
   test("supports arrow key navigation", () => {
     const { getValues } = renderWithForm<{ r: string }>(
       (control) => (

@@ -96,4 +96,44 @@ describe("FeedbackDialog focus management (issue #54)", () => {
     expect(injectedCss).toContain(":focus-visible")
     expect(injectedCss.toLowerCase()).toContain("#1f6964")
   })
+
+  it("keeps the Add comment button enabled and focus on the field after adding a comment", async () => {
+    renderHarness()
+    fireEvent.click(screen.getByText("Open feedback"))
+    await screen.findByRole("dialog")
+
+    const add = screen.getByRole("button", { name: "add-comment" })
+    expect(add).toBeEnabled()
+    const textarea = screen.getByRole("textbox", { name: "add-comment" })
+    fireEvent.change(textarea, { target: { value: "hello" } })
+    fireEvent.click(add)
+
+    await waitFor(() => expect(document.activeElement).toBe(textarea))
+    expect(screen.getByRole("status")).toHaveTextContent("comment-added")
+  })
+
+  it("names the Delete buttons per comment", async () => {
+    renderHarness()
+    fireEvent.click(screen.getByText("Open feedback"))
+    await screen.findByRole("dialog")
+    const textarea = screen.getByRole("textbox", { name: "add-comment" })
+    for (const text of ["one", "two"]) {
+      fireEvent.change(textarea, { target: { value: text } })
+      fireEvent.click(screen.getByRole("button", { name: "add-comment" }))
+    }
+    // t is mocked to the key, so both buttons share the key; the count proves each has an explicit name
+    expect(screen.getAllByRole("button", { name: "delete-comment-n" })).toHaveLength(2)
+  })
+
+  it("closes on Escape and restores focus to the trigger", async () => {
+    renderHarness()
+    const trigger = screen.getByText("Open feedback")
+    trigger.focus()
+    fireEvent.click(trigger)
+    const dialog = await screen.findByRole("dialog")
+
+    fireEvent.keyDown(dialog, { key: "Escape" })
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
+  })
 })

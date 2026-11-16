@@ -1,8 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useAtom } from "jotai"
-import React, { useCallback, useEffect } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -13,7 +13,7 @@ import {
 } from "@/stores/course-material/materialFeedbackStore"
 import { getModifierKey } from "@/utils/course-material/platformDetection"
 
-import EditProposalDialog from "./EditProposalDialog"
+import EditProposalDialog, { FEEDBACK_BOTTOM_CLEARANCE_VAR } from "./EditProposalDialog"
 import FeedbackDialog from "./FeedbackDialog"
 import FeedbackTypeDialog from "./FeedbackTypeDialog"
 import SelectionListener, { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
@@ -21,17 +21,29 @@ import TextSelectionTooltip from "./TextSelectionTooltip"
 
 const FEEDBACK_BUTTON_INSET = "10px"
 
+const feedbackButtonHiddenCss = css`
+  visibility: hidden;
+`
+
 const feedbackButtonCss = css`
   position: fixed;
   bottom: ${FEEDBACK_BUTTON_INSET};
   right: ${FEEDBACK_BUTTON_INSET};
-  z-index: 1100;
+  z-index: var(--layer-sticky);
 `
 
 // Lets the end of the page be scrolled clear of the fixed button. Goes on <body> because what
 // sits under the button is the footer, not this component's subtree.
 const feedbackButtonClearanceCss = css`
   padding-bottom: calc(var(--control-height-md) + ${FEEDBACK_BUTTON_INSET} * 2);
+`
+
+// Keeps focused elements scrolled clear of the button, or of the edit panel which sets the variable.
+const feedbackScrollPaddingCss = css`
+  scroll-padding-bottom: var(
+    ${FEEDBACK_BOTTOM_CLEARANCE_VAR},
+    calc(var(--control-height-md) + ${FEEDBACK_BUTTON_INSET} * 2)
+  );
 `
 
 interface Props {
@@ -58,14 +70,25 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const previousTypeRef = useRef(type)
+
   const focusDialog = useCallback(() => {
     if (type === "proposed-edits") {
       const dialogElement = document.querySelector<HTMLElement>(`#${FEEDBACK_DIALOG_CONTENT_ID}`)
-      if (dialogElement) {
-        dialogElement.focus()
-      }
+      const target = dialogElement?.querySelector<HTMLElement>("h2") ?? dialogElement
+      target?.focus()
     }
   }, [type])
+
+  // The trigger stays mounted (hidden) while a dialog is open; focus goes back to it on close.
+  useEffect(() => {
+    const wasOpen = previousTypeRef.current !== null
+    previousTypeRef.current = type
+    if (wasOpen && type === null && !selection.text) {
+      triggerRef.current?.focus()
+    }
+  }, [type, selection.text])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -88,9 +111,12 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   // reflow the page behind it.
   useEffect(() => {
     const { body } = document
+    const html = document.documentElement
     body.classList.add(feedbackButtonClearanceCss)
+    html.classList.add(feedbackScrollPaddingCss)
     return () => {
       body.classList.remove(feedbackButtonClearanceCss)
+      html.classList.remove(feedbackScrollPaddingCss)
     }
   }, [])
 
@@ -98,13 +124,14 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
 
   return (
     <>
-      {showFeedbackButton && (
-        <div data-testid="give-feedback-button" className={feedbackButtonCss}>
-          <Button variant="primary" size="medium" onPress={handleGiveFeedbackClick}>
-            {t("give-feedback")}
-          </Button>
-        </div>
-      )}
+      <div
+        data-testid="give-feedback-button"
+        className={cx(feedbackButtonCss, !showFeedbackButton && feedbackButtonHiddenCss)}
+      >
+        <Button ref={triggerRef} variant="primary" size="medium" onPress={handleGiveFeedbackClick}>
+          {t("give-feedback")}
+        </Button>
+      </div>
 
       {type === "select-type" && <FeedbackTypeDialog />}
       {type === "written" && <FeedbackDialog courseId={courseId} pageId={pageId} />}

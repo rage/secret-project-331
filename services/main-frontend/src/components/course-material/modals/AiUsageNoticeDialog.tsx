@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
@@ -33,6 +33,17 @@ export interface AiUsageNoticeDialogProps {
    */
   courseMaterialAiInstructions: boolean | null | undefined
   onClose: () => void
+}
+
+// Lands focus at the start of the page content once the notice is gone.
+const focusPageStart = () => {
+  const target =
+    document.querySelector<HTMLElement>("main h1") ?? document.querySelector<HTMLElement>("main")
+  if (!target) {
+    return
+  }
+  target.tabIndex = -1
+  target.focus()
 }
 
 interface AiUsageNoticeFormFields {
@@ -105,12 +116,25 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // encouraged, so it is hidden for the permissive policies.
   const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
 
+  const acknowledgedRef = useRef(false)
+
+  // On unmount, after the dialog's own focus handling has been torn down.
+  useEffect(
+    () => () => {
+      if (acknowledgedRef.current) {
+        focusPageStart()
+      }
+    },
+    [],
+  )
+
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
       await acknowledgeAiUsageNotice({ path: { course_id: courseId } })
       await queryClient.invalidateQueries({
         queryKey: getAiUsageNoticeAcknowledgementQueryKey({ path: { course_id: courseId } }),
       })
+      acknowledgedRef.current = true
       onClose()
     },
     { notify: false },

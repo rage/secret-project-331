@@ -157,23 +157,25 @@ const Topbar: React.FC<TopbarProps> = ({
             <Brand />
 
             {/* Middle: primary navigation slot (visible on md+) */}
-            <nav
-              aria-label={t("aria-label-primary-navigation")}
-              className={css`
-                margin-inline-start: 8px;
-                min-width: 0;
-                flex: 1;
-                display: none;
-                gap: 8px;
-                align-items: center;
+            {React.Children.count(children) > 0 && (
+              <nav
+                aria-label={t("aria-label-primary-navigation")}
+                className={css`
+                  margin-inline-start: 8px;
+                  min-width: 0;
+                  flex: 1;
+                  display: none;
+                  gap: 8px;
+                  align-items: center;
 
-                ${respondToOrLarger.md} {
-                  display: flex;
-                }
-              `}
-            >
-              {children}
-            </nav>
+                  ${respondToOrLarger.md} {
+                    display: flex;
+                  }
+                `}
+              >
+                {children}
+              </nav>
+            )}
 
             {/* Right cluster: account THEN quick actions (hamburger is rightmost) */}
             <div

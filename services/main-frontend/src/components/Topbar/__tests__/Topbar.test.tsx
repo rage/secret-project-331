@@ -29,4 +29,16 @@ describe("Topbar", () => {
     render(<Topbar courseId="c" organizationSlug="o" />)
     expect(screen.queryAllByRole("separator", { hidden: false })).toHaveLength(0)
   })
+
+  it("renders the primary navigation only when it has children", () => {
+    const { unmount } = render(<Topbar courseId="c" organizationSlug="o" />)
+    expect(screen.queryByRole("navigation", { hidden: true })).toBeNull()
+    unmount()
+    render(
+      <Topbar courseId="c" organizationSlug="o">
+        <a href="/x">x</a>
+      </Topbar>,
+    )
+    expect(screen.getByRole("navigation", { hidden: true })).toBeInTheDocument()
+  })
 })

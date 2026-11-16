@@ -60,8 +60,8 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   })
   useEffect(() => {
     for (const issue of serverIssues ?? []) {
-      const field = Object.entries(ISSUE_PATH_TO_FIELD).find(([path]) => issue.path === path)?.[1]
-      if (field) {
+      if (issue.path !== undefined && Object.hasOwn(ISSUE_PATH_TO_FIELD, issue.path)) {
+        const field = ISSUE_PATH_TO_FIELD[issue.path as keyof typeof ISSUE_PATH_TO_FIELD]
         setError(field, { type: "server", message: issue.message })
       }
     }

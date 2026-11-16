@@ -182,10 +182,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     } else if (lastSubmenuIdRef.current) {
       const parentId = lastSubmenuIdRef.current
       lastSubmenuIdRef.current = null
-      dialog
-        // oxlint-disable-next-line i18next/no-literal-string
-        ?.querySelectorAll<HTMLElement>("[data-submenu-id]")
-        .forEach((el) => el.dataset.submenuId === parentId && el.focus())
+      dialog?.querySelector<HTMLElement>(`[data-submenu-id="${CSS.escape(parentId)}"]`)?.focus()
     }
   }, [currentSubmenuId])
 

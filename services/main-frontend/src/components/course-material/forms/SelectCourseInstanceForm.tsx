@@ -152,11 +152,10 @@ const SelectCourseInstanceForm: React.FC<
     if (courseInstanceId) {
       submitMutation.mutate({
         instanceId: courseInstanceId,
-        backgroundQuestionAnswers: getValues(ANSWERS_FIELD).map((answer) => {
+        // Answers are built from the questions in order, so they share indexes.
+        backgroundQuestionAnswers: getValues(ANSWERS_FIELD).map((answer, index) => {
           const isTextQuestion =
-            additionalQuestionsQuery.data?.background_questions.find(
-              (question) => question.id === answer.course_background_question_id,
-            )?.question_type === "Text"
+            additionalQuestionsQuery.data?.background_questions[index]?.question_type === "Text"
           return {
             course_background_question_id: answer.course_background_question_id,
             answer_value: isTextQuestion

@@ -7,12 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import { ALIGN_CENTER } from "@/components/credit-registration/constants"
 import type { ExerciseSlideSubmission, UserDetail } from "@/generated/api/types.generated"
-import { useBulkUserDetails } from "@/hooks/useUserDetails"
+import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { EmptyState, Link, Table } from "@/shared-module/components"
-
-const submitterName = (user: UserDetail | undefined): string =>
-  [user?.first_name, user?.last_name].filter(Boolean).join(" ")
 
 interface Props {
   exerciseSubmissions: ExerciseSlideSubmission[]
@@ -67,7 +64,7 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
             <Link
               href={`/submissions/${submission.id}`}
               aria-label={t("view-submission-by", {
-                name: submitterName(userOf(submission)) || submission.user_id,
+                name: formatUserName(userOf(submission)) || submission.user_id,
                 time: dateToString(submission.created_at),
               })}
             >

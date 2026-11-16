@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import type { CourseInstance, CourseInstanceForm } from "@/generated/api/types.generated"
 import type { CanonicalApiIssue } from "@/shared-module/common/errors/AppApiError"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import { DateTimeLocalField, TextField } from "@/shared-module/components"
 
 // Shared with NewCourseInstanceDialog.tsx, whose footer submit button targets this form by id.
@@ -19,8 +20,6 @@ interface FormProps {
   /** Issues from a rejected save; those naming a field are shown on that field. */
   serverIssues?: CanonicalApiIssue[]
 }
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const ISSUE_PATH_TO_FIELD = {
   name: "name",

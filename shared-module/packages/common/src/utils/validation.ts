@@ -1,3 +1,6 @@
+/** Loose shape check for an email address: something@domain.tld, no whitespace. */
+export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 const validURL = (text: string | null): boolean => {
   if (text === null) {
     return false

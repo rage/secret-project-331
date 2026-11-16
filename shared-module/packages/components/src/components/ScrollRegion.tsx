@@ -14,9 +14,9 @@ export interface ScrollRegionProps extends Omit<
   "role" | "tabIndex" | "aria-label" | "aria-labelledby"
 > {
   /** Region name while it overflows. Without a name it is only a tab stop, not a region. */
-  label?: string
-  labelledBy?: string
-  onOverflowChange?: (overflow: ScrollOverflow) => void
+  label?: string | undefined
+  labelledBy?: string | undefined
+  onOverflowChange?: ((overflow: ScrollOverflow) => void) | undefined
 }
 
 /** A horizontal scroll container that is a tab stop and a named region only while it overflows. */

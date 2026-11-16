@@ -23,6 +23,7 @@ export function getQuizValidityMessages(
   items: PublicSpecQuizItem[],
   t: {
     (key: QuizValidityMessageKey): string
+    // oxlint-disable-next-line typescript/unified-signatures -- i18next's t rejects an explicit undefined
     (key: QuizValidityMessageKey, options: Record<string, number>): string
   },
 ): string[] {

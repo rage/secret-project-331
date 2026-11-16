@@ -39,6 +39,8 @@ struct TeacherNewsletterContent<'a> {
 impl<'a> TeacherNewsletterContent<'a> {
     fn as_html(&self) -> String {
         let course_name = self.course_name;
+        let base_url = self.base_url;
+        let course_id = self.course_id;
         format!(
             r#"
         <h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{course_name}</h2>
@@ -54,19 +56,22 @@ impl<'a> TeacherNewsletterContent<'a> {
                 self.flagged_cheaters_count_total,
                 self.flagged_cheaters_count_period,
                 "Suspected cheaters",
-                "Students flagged by automatic detection as possible cheaters."
+                "Students flagged by automatic detection as possible cheaters.",
+                format!("{base_url}/manage/courses/{course_id}/other/cheaters/suspected")
             ),
             section_block_html(
                 self.unread_feedback_count_total,
                 self.unread_feedback_count_period,
                 "Feedback",
-                "Unread feedback from students."
+                "Unread feedback from students.",
+                format!("{base_url}/manage/courses/{course_id}/feedback/feedback/unread")
             ),
             section_block_html(
                 self.proposal_count_total,
                 self.proposal_count_period,
                 "Proposals",
                 "Proposals suggested by students regarding course material.",
+                format!("{base_url}/manage/courses/{course_id}/feedback/change-requests/pending")
             ),
             stats_block_html(self.returned_exercises_count, "Students returned exercises"),
             stats_block_html(self.completed_course_count, "Students completed course"),
@@ -75,25 +80,32 @@ impl<'a> TeacherNewsletterContent<'a> {
     }
 
     fn as_text(&self) -> String {
+        let course_name = self.course_name;
+
+        let base_url = self.base_url;
+        let course_id = self.course_id;
         format!(
-            "{}{}{}{}{}{}",
+            "{course_name}\n\n{}{}{}{}{}{}\n\n",
             section_block_text(
                 self.flagged_cheaters_count_total,
                 self.flagged_cheaters_count_period,
                 "Suspected cheaters",
-                "Students flagged by automatic detection as possible cheaters."
+                "Students flagged by automatic detection as possible cheaters.",
+                format!("{base_url}/manage/courses/{course_id}/other/cheaters/suspected")
             ),
             section_block_text(
                 self.unread_feedback_count_total,
                 self.unread_feedback_count_period,
                 "Feedback",
-                "Unread feedback from students."
+                "Unread feedback from students.",
+                format!("{base_url}/manage/courses/{course_id}/feedback/feedback/unread")
             ),
             section_block_text(
                 self.proposal_count_total,
                 self.proposal_count_period,
                 "Proposals",
-                "Proposals suggested by students regarding course material."
+                "Proposals suggested by students regarding course material.",
+                format!("{base_url}/manage/courses/{course_id}/feedback/change-requests/pending")
             ),
             stats_block_text(self.started_course_count, "Students started course"),
             stats_block_text(self.returned_exercises_count, "Students returned exercises"),

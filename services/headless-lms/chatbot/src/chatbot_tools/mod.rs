@@ -702,7 +702,7 @@ macro_rules! chatbot_tool_registry {
                     return Ok(ActionToolOutcome {
                         output: delimited_tool_output(&executed.output, instructions.as_deref()),
                         client_payload: executed.client_payload,
-                        tmc_email_sync: executed.tmc_email_sync,
+                        tmc_email_sync: <$action_tool as ConfirmableActionTool>::tmc_email_sync(&facts),
                     });
                 }
             )*

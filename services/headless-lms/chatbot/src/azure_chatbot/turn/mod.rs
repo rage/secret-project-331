@@ -125,7 +125,6 @@ enum TurnStart<'a> {
         chatbot_configuration_id: Uuid,
         tool_call_id: &'a str,
         answer: &'a ClientToolAnswer,
-        /// Applies a confirmed action tool's [`crate::chatbot_tools::action_tools::TmcEmailSync`].
         tmc_client: &'a TmcClient,
     },
 }

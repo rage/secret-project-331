@@ -39,14 +39,13 @@ pub struct ExecutedAction {
     /// Data for the confirming admin's browser only (e.g. the reset link). Sent as a stream
     /// event, never persisted, never shown to the model.
     pub client_payload: Option<serde_json::Value>,
-    /// An address TMC must hold before the action commits.
-    pub tmc_email_sync: Option<TmcEmailSync>,
     /// What the audit row records about the action's target and effect.
     pub audit: ActionAuditFields,
 }
 
 /// An address a confirmed action gave a user that TMC, where the same account signs in, must hold
 /// too.
+#[derive(Clone)]
 pub struct TmcEmailSync {
     pub email: String,
     /// The user's TMC id (`users.upstream_id`).
@@ -92,8 +91,8 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     type Arguments;
 
     /// Extra facts [Self::execute] gathers while performing the mutation, used only to decide
-    /// what [Self::output_description_instructions] should mention for this particular call. `()`
-    /// for a tool with nothing worth gating on.
+    /// what [Self::output_description_instructions] should mention for this particular call and
+    /// what [Self::tmc_email_sync] returns. `()` for a tool with nothing worth gating on.
     type Facts;
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments>;
@@ -135,6 +134,12 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
         facts: Option<&Self::Facts>,
         app_config: &ApplicationConfiguration,
     ) -> Option<String>;
+
+    /// The TMC write an executed call needs, which the answer path applies last before it
+    /// commits. Only a tool that changes an address TMC also holds overrides this.
+    fn tmc_email_sync(_facts: &Self::Facts) -> Option<TmcEmailSync> {
+        None
+    }
 }
 
 /// Unicode-aware case-insensitive equality for a model-supplied display field against its

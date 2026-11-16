@@ -1,10 +1,10 @@
 //! The profile form shared by the main frontend and the course material.
 
-use headless_lms_utils::services::tmc::TmcClient;
+use headless_lms_utils::services::tmc::{TmcClient, email_change_reaches_tmc_now};
 use models::user_details::UserDetail;
 use utoipa::ToSchema;
 
-use crate::{controllers, prelude::*};
+use crate::{domain::tmc_user_sync, prelude::*};
 
 /// The profile form as both frontends submit it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -26,9 +26,9 @@ pub struct UpdatedUserInfo {
 /// Saves the profile form and copies a changed name to TMC, where the same account signs in.
 ///
 /// A changed email reaches TMC here only when email ownership verification is off; otherwise
-/// [`crate::domain::email_ownership_verification::copy_email_to_tmc`] sends it once the user proves
-/// the address with a verification code. Commits only after TMC accepts, so a TMC failure leaves
-/// the profile as it was, and an address TMC refuses fails with `BadRequest`.
+/// [`crate::controllers::main_frontend::email_verification::verify_email_ownership`] sends it once
+/// the user proves the address with a verification code. Commits only after TMC accepts, so a TMC
+/// failure leaves the profile as it was, and an address TMC refuses fails with `BadRequest`.
 pub async fn update_user_info(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -41,9 +41,6 @@ pub async fn update_user_info(
     let existing = models::user_details::get_user_details_by_user_id(&mut tx, user_id)
         .await
         .context("Failed to fetch existing user data")?;
-    let user = models::users::get_by_id(&mut tx, user_id)
-        .await
-        .context("Failed to fetch user")?;
 
     let user_details = models::user_details::update_user_info(
         &mut tx,
@@ -61,17 +58,34 @@ pub async fn update_user_info(
     let name_changed = existing.first_name.as_deref() != Some(payload.first_name.as_str())
         || existing.last_name.as_deref() != Some(payload.last_name.as_str());
 
-    let email_reaches_tmc = email_changed && !app_conf.enable_email_ownership_verification;
+    let email_reaches_tmc = email_changed
+        && email_change_reaches_tmc_now(app_conf.enable_email_ownership_verification, false);
     if name_changed || email_reaches_tmc {
-        controllers::auth::update_user_information_to_tmc(
-            user.upstream_id,
-            payload.first_name.clone(),
-            payload.last_name.clone(),
-            email_reaches_tmc.then(|| payload.email.clone()),
-            tmc_client,
-            app_conf,
-        )
-        .await?;
+        let upstream_id = models::users::get_by_id(&mut tx, user_id)
+            .await
+            .context("Failed to fetch user")?
+            .upstream_id;
+        // Email last: a name write failing after it would leave TMC signing the user in by an
+        // address the platform rolled back.
+        if name_changed {
+            tmc_user_sync::copy_name_to_tmc(
+                upstream_id,
+                payload.first_name.clone(),
+                payload.last_name.clone(),
+                tmc_client,
+                app_conf,
+            )
+            .await?;
+        }
+        if email_reaches_tmc {
+            tmc_user_sync::copy_email_to_tmc(
+                upstream_id,
+                user_details.email.clone(),
+                tmc_client,
+                app_conf,
+            )
+            .await?;
+        }
     }
 
     tx.commit().await?;

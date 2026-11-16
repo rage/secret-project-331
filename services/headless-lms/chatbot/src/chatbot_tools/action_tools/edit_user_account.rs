@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::services::tmc::{email_change_reaches_tmc_now, tmc_sync_target};
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -44,6 +45,26 @@ struct RawArguments {
     current_email: String,
     new_email: String,
     mark_email_verified: String,
+}
+
+/// The TMC write a changed address needs, if any. An unchanged address is never sent: the
+/// platform's copy may be older than TMC's.
+fn tmc_email_sync(
+    new_email: Option<&str>,
+    upstream_id: Option<i32>,
+    is_marked_verified: bool,
+    app_config: &ApplicationConfiguration,
+) -> Option<TmcEmailSync> {
+    let new_email = new_email?;
+    let upstream_id = tmc_sync_target(upstream_id, app_config)?;
+    let reaches_tmc_now = email_change_reaches_tmc_now(
+        app_config.enable_email_ownership_verification,
+        is_marked_verified,
+    );
+    reaches_tmc_now.then(|| TmcEmailSync {
+        email: new_email.to_string(),
+        upstream_id,
+    })
 }
 
 impl ChatbotToolDeclaration for EditUserAccountTool {
@@ -108,7 +129,7 @@ impl ChatbotToolDeclaration for EditUserAccountTool {
 
 impl ConfirmableActionTool for EditUserAccountTool {
     type Arguments = EditUserAccountArguments;
-    type Facts = ();
+    type Facts = Option<TmcEmailSync>;
 
     fn call_requirements(
         arguments: &Self::Arguments,
@@ -257,20 +278,12 @@ impl ConfirmableActionTool for EditUserAccountTool {
 
         let displayed_new_email = new_email_applied.as_deref().unwrap_or(&old_email);
 
-        // TMC signs the user in by this address. With ownership verification on, a new address
-        // waits there until it is verified, as it does for the user's own edits. An unchanged
-        // address is never sent: the platform's copy may be older than TMC's.
-        let tmc_email_sync = new_email_applied
-            .as_ref()
-            .filter(|_| {
-                matches!(arguments.verification_change, VerificationChange::Verify)
-                    || !app_config.enable_email_ownership_verification
-            })
-            .zip(user.upstream_id.filter(|_| !app_config.test_mode))
-            .map(|(email, upstream_id)| TmcEmailSync {
-                email: email.clone(),
-                upstream_id,
-            });
+        let tmc_email_sync = tmc_email_sync(
+            new_email_applied.as_deref(),
+            user.upstream_id,
+            matches!(arguments.verification_change, VerificationChange::Verify),
+            app_config,
+        );
 
         let mut summary = if let Some(new_email) = &new_email_applied {
             format!("Changed email {old_email} → {new_email}")
@@ -294,15 +307,18 @@ impl ConfirmableActionTool for EditUserAccountTool {
             ExecutedAction {
                 output,
                 client_payload: None,
-                tmc_email_sync,
                 audit: ActionAuditFields {
                     target_user_id: Some(user.id),
                     course_id: None,
                     summary,
                 },
             },
-            (),
+            tmc_email_sync,
         ))
+    }
+
+    fn tmc_email_sync(facts: &Self::Facts) -> Option<TmcEmailSync> {
+        facts.clone()
     }
 
     fn output_description_instructions(

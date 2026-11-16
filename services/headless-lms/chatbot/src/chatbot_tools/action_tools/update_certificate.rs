@@ -248,7 +248,6 @@ impl ConfirmableActionTool for UpdateCertificateTool {
                     changes.join(" and ")
                 ),
                 client_payload: None,
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: Some(certificate.user_id),
                     course_id: Some(arguments.course_id),

@@ -185,7 +185,6 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
             ExecutedAction {
                 output: format!("Saved the new schedule. Reason: {}", arguments.reason),
                 client_payload: Some(serde_json::json!({ "plan_details": updated })),
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: None,
                     course_id: None,

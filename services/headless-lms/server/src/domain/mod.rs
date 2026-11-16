@@ -22,4 +22,5 @@ pub mod request_id;
 pub mod request_span_middleware;
 pub mod session_verification;
 pub mod system_health;
+pub mod tmc_user_sync;
 pub mod user_info;

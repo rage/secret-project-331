@@ -158,7 +158,6 @@ impl ConfirmableActionTool for ProposeAddTaskTool {
                         .unwrap_or_default()
                 ),
                 client_payload: Some(updated_plan_payload(conn, plan_id, user_id).await?),
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: assignee,
                     course_id: None,

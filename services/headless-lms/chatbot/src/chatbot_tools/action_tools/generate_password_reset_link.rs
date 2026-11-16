@@ -182,7 +182,6 @@ impl ConfirmableActionTool for GeneratePasswordResetLinkTool {
                     details.email
                 ),
                 client_payload: Some(json!({ "reset_link": reset_url })),
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: Some(user.id),
                     course_id: None,

@@ -278,7 +278,6 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                     arguments.task_title
                 ),
                 client_payload: Some(updated_plan_payload(conn, plan_id, user_id).await?),
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: assignee.flatten(),
                     course_id: None,

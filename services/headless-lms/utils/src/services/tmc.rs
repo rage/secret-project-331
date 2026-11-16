@@ -11,6 +11,24 @@ use uuid::Uuid;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 
+/// The TMC id to copy a user's details to, or `None` when there is none to copy to: the user has no
+/// TMC account, or the deployment runs in test mode, which has no TMC.
+pub fn tmc_sync_target(
+    upstream_id: Option<i32>,
+    app_conf: &ApplicationConfiguration,
+) -> Option<i32> {
+    upstream_id.filter(|_| !app_conf.test_mode)
+}
+
+/// Whether a changed address goes to TMC now. With email ownership verification on, an address the
+/// user has not proven waits until they verify it: TMC signs them in by it.
+pub fn email_change_reaches_tmc_now(
+    enable_email_ownership_verification: bool,
+    is_proven: bool,
+) -> bool {
+    is_proven || !enable_email_ownership_verification
+}
+
 #[derive(Debug, Clone)]
 pub struct TmcClient {
     client: Client,
@@ -406,56 +424,26 @@ impl TmcClient {
         }
     }
 
-    pub async fn update_user_information(
+    /// Sets the name of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
+    pub async fn update_user_name(
         &self,
         first_name: String,
         last_name: String,
-        email: Option<String>,
-        user_upstream_id: String,
+        user_upstream_id: i32,
     ) -> UtilResult<()> {
-        let mut user_obj = serde_json::Map::new();
-        let mut user_field_obj = serde_json::Map::new();
-
-        if let Some(email) = email {
-            user_obj.insert("email".to_string(), serde_json::Value::String(email));
-        }
-
-        user_field_obj.insert(
-            "first_name".to_string(),
-            serde_json::Value::String(first_name),
-        );
-        user_field_obj.insert(
-            "last_name".to_string(),
-            serde_json::Value::String(last_name),
-        );
-
-        let mut payload = serde_json::Map::new();
-
-        if !user_obj.is_empty() {
-            payload.insert("user".to_string(), serde_json::Value::Object(user_obj));
-        }
-
-        payload.insert(
-            "user_field".to_string(),
-            serde_json::Value::Object(user_field_obj),
-        );
-
-        let payload_value = serde_json::Value::Object(payload);
-
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
-
         self.request_with_headers(
             reqwest::Method::PUT,
             &url,
             TMCRequestAuth::UseAdminToken,
-            Some(payload_value),
+            Some(json!({ "user_field": { "first_name": first_name, "last_name": last_name } })),
         )
         .await
         .map(|_| ())
     }
 
     /// Sets the email of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
-    pub async fn update_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
+    async fn update_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
         self.request_with_headers(
             reqwest::Method::PUT,

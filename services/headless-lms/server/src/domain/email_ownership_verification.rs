@@ -9,11 +9,9 @@ use headless_lms_models::{
     email_templates::{self, EmailTemplateType},
     user_details, user_email_codes,
     user_email_codes::UserEmailCodePurpose,
-    users,
 };
-use headless_lms_utils::services::tmc::TmcClient;
 
-use crate::{controllers::auth::tmc_write_error, prelude::*};
+use crate::prelude::*;
 
 /// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
@@ -31,9 +29,6 @@ const PURPOSE: UserEmailCodePurpose = UserEmailCodePurpose::EmailOwnershipVerifi
 ///
 /// Skipped when the user's details changed after the code was mailed: the address may have changed
 /// since, and a code that went to the old one must not prove the new one.
-///
-/// Unlike [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], sends
-/// nothing to TMC: the platform's copy of the address may be older than TMC's.
 pub async fn record_code_as_mailbox_proof(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -51,33 +46,6 @@ pub async fn record_code_as_mailbox_proof(
     )
     .await?;
     Ok(())
-}
-
-/// Copies the account's current address to TMC, where the same account signs in. Called once the
-/// user proves an address they entered on the platform, last before the proof commits: TMC cannot
-/// be rolled back.
-///
-/// Fails with `BadRequest` when TMC refuses the address, e.g. because another account uses it.
-pub async fn copy_email_to_tmc(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    tmc_client: &TmcClient,
-    app_conf: &ApplicationConfiguration,
-) -> Result<(), ControllerError> {
-    let Some(upstream_id) = users::get_by_id(&mut *conn, user_id)
-        .await?
-        .upstream_id
-        .filter(|_| !app_conf.test_mode)
-    else {
-        return Ok(());
-    };
-    let email = user_details::get_user_details_by_user_id(conn, user_id)
-        .await?
-        .email;
-    tmc_client
-        .sync_user_email(email, upstream_id)
-        .await
-        .map_err(|error| tmc_write_error(error, "Failed to update the email on TMC"))
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]

@@ -278,7 +278,6 @@ impl ConfirmableActionTool for UpdateCheatingStatusTool {
                     arguments.user_email, arguments.course_name
                 ),
                 client_payload: None,
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: Some(arguments.user_id),
                     course_id: Some(arguments.course_id),

@@ -321,7 +321,6 @@ impl ConfirmableActionTool for ResetExercisesTool {
                     user_detail.email, course.name
                 ),
                 client_payload: None,
-                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: Some(user.id),
                     course_id: Some(course.id),

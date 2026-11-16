@@ -16,10 +16,10 @@ use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::{
     email_ownership_verification::{
-        self, MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
+        MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
     },
     rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
-    session_verification,
+    session_verification, tmc_user_sync,
 };
 use crate::prelude::*;
 
@@ -250,8 +250,10 @@ pub async fn verify_email_ownership(
             );
         }
         // An email change waits for this before reaching TMC.
-        email_ownership_verification::copy_email_to_tmc(&mut tx, user.id, &tmc_client, &app_conf)
-            .await?;
+        let email = user_details::get_user_details_by_user_id(&mut tx, user.id)
+            .await?
+            .email;
+        tmc_user_sync::copy_email_to_tmc(user.upstream_id(), email, &tmc_client, &app_conf).await?;
         VerifyEmailOwnershipResult::Verified
     } else {
         VerifyEmailOwnershipResult::Invalid

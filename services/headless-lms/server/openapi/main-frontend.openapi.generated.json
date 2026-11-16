@@ -8322,6 +8322,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`\n- Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and\nthe linking emails they have had.\n\nLists the rosters live. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getAccountLinkingCourseEnrolees",
+        "parameters": [
+          {
+            "name": "course_or_target_id",
+            "in": "path",
+            "description": "Course or mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The people on the enrolment lists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCourseEnrolees"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/emails": {
       "get": {
         "tags": ["credit-registration-admin"],
@@ -8366,6 +8397,16 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "course_or_target_id",
+            "in": "query",
+            "description": "Only mails sent for this course or mooc.fi target",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -17391,6 +17432,69 @@
           }
         }
       },
+      "AdminCourseEnrolee": {
+        "type": "object",
+        "description": "A person on a course's or mooc.fi target's enrolment lists, linked or not.",
+        "required": ["person", "enrolled_before_account_linking", "linking_emails_sent_at"],
+        "properties": {
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The linked account's newest registration on this course or target."
+          },
+          "enrolled_before_account_linking": {
+            "type": "boolean",
+            "description": "Enrolled before account linking began, or at no known time: no linking email goes to them\nautomatically. Always false while account linking is off."
+          },
+          "enrolment_state": {
+            "type": ["string", "null"],
+            "description": "Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it."
+          },
+          "linked_user_email": {
+            "type": ["string", "null"]
+          },
+          "linked_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The account linked to them by Sisu person id or student number."
+          },
+          "linking_emails_sent_at": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "When this course or target sent them a linking email, newest first, replaced ones included."
+          },
+          "person": {
+            "$ref": "#/components/schemas/AdminLinkingCandidate",
+            "description": "Who Sisu lists, and the linking emails sent to them by hand. `similarities` is always empty."
+          }
+        }
+      },
+      "AdminCourseEnrolees": {
+        "type": "object",
+        "description": "Everyone on a course's or mooc.fi target's enrolment lists.",
+        "required": ["study_registry_unavailable", "people"],
+        "properties": {
+          "account_linking_since": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` while account linking is off."
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCourseEnrolee"
+            },
+            "description": "Unlinked people first, then by last name and first names, ignoring case."
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer for some code, so `people` says nothing."
+          }
+        }
+      },
       "AdminCreditRegistrationAction": {
         "oneOf": [
           {
@@ -17800,6 +17904,10 @@
             "type": ["number", "null"],
             "format": "float"
           },
+          "current_uh_course_code": {
+            "type": ["string", "null"],
+            "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+          },
           "email": {
             "type": ["string", "null"],
             "description": "In full: masking it would leave support unable to answer the question they were asked."
@@ -17994,7 +18102,8 @@
             "$ref": "#/components/schemas/TimelineStep"
           },
           "uh_course_code": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "The code submitted, frozen with `student_number`."
           },
           "user_id": {
             "type": "string",
@@ -32115,6 +32224,10 @@
                   "type": ["number", "null"],
                   "format": "float"
                 },
+                "current_uh_course_code": {
+                  "type": ["string", "null"],
+                  "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+                },
                 "email": {
                   "type": ["string", "null"],
                   "description": "In full: masking it would leave support unable to answer the question they were asked."
@@ -32309,7 +32422,8 @@
                   "$ref": "#/components/schemas/TimelineStep"
                 },
                 "uh_course_code": {
-                  "type": ["string", "null"]
+                  "type": ["string", "null"],
+                  "description": "The code submitted, frozen with `student_number`."
                 },
                 "user_id": {
                   "type": "string",

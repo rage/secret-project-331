@@ -283,6 +283,8 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesResponses,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
@@ -1062,6 +1064,7 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCourseEnroleesResponse,
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
   zGetAccountLinkingUnlinkedEnroleesResponse,
@@ -5625,6 +5628,29 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
       await zGetAccountLinkingUnlinkedEnroleesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingCourseEnroleesData, ThrowOnError>,
+): RequestResult<GetAccountLinkingCourseEnroleesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetAccountLinkingCourseEnroleesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingCourseEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees",
     ...options,
   })
 

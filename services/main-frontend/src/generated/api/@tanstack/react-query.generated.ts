@@ -133,6 +133,7 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourseEnrolees,
   getAccountLinkingCourses,
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
@@ -676,6 +677,8 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesResponse,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
@@ -7142,6 +7145,36 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
         throwOnError: true,
       }),
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
+  })
+
+export const getAccountLinkingCourseEnroleesQueryKey = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) => createQueryKey("getAccountLinkingCourseEnrolees", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnroleesOptions = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingCourseEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingCourseEnroleesResponse,
+    ReturnType<typeof getAccountLinkingCourseEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourseEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCourseEnroleesQueryKey(options),
   })
 
 export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>

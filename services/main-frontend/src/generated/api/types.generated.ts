@@ -455,6 +455,56 @@ export type AdminBulkTransitionSkipCount = {
 }
 
 /**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export type AdminCourseEnrolee = {
+  /**
+   * The linked account's newest registration on this course or target.
+   */
+  credit_registration_id?: string | null
+  /**
+   * Enrolled before account linking began, or at no known time: no linking email goes to them
+   * automatically. Always false while account linking is off.
+   */
+  enrolled_before_account_linking: boolean
+  /**
+   * Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it.
+   */
+  enrolment_state?: string | null
+  linked_user_email?: string | null
+  /**
+   * The account linked to them by Sisu person id or student number.
+   */
+  linked_user_id?: string | null
+  /**
+   * When this course or target sent them a linking email, newest first, replaced ones included.
+   */
+  linking_emails_sent_at: Array<string>
+  /**
+   * Who Sisu lists, and the linking emails sent to them by hand. `similarities` is always empty.
+   */
+  person: AdminLinkingCandidate
+}
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export type AdminCourseEnrolees = {
+  /**
+   * `None` while account linking is off.
+   */
+  account_linking_since?: string | null
+  /**
+   * Unlinked people first, then by last name and first names, ignoring case.
+   */
+  people: Array<AdminCourseEnrolee>
+  /**
+   * The study registry gave no usable answer for some code, so `people` says nothing.
+   */
+  study_registry_unavailable: boolean
+}
+
+/**
  * What one hand action does to a row: either a state move, or something that leaves the state
  * alone. Kept apart because only the first is a transition, and only the first is refusable.
  */
@@ -603,6 +653,10 @@ export type AdminCreditRegistrationRow = {
   created_at: string
   credits?: number | null
   /**
+   * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+   */
+  current_uh_course_code?: string | null
+  /**
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
@@ -682,6 +736,9 @@ export type AdminCreditRegistrationRow = {
   superseded_by_id?: string | null
   terminal_at?: string | null
   timeline_step: TimelineStep
+  /**
+   * The code submitted, frozen with `student_number`.
+   */
   uh_course_code?: string | null
   user_id: string
   /**
@@ -6521,6 +6578,10 @@ export type PageAdminCreditRegistrationRow = {
     created_at: string
     credits?: number | null
     /**
+     * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+     */
+    current_uh_course_code?: string | null
+    /**
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
@@ -6600,6 +6661,9 @@ export type PageAdminCreditRegistrationRow = {
     superseded_by_id?: string | null
     terminal_at?: string | null
     timeline_step: TimelineStep
+    /**
+     * The code submitted, frozen with `student_number`.
+     */
     uh_course_code?: string | null
     user_id: string
     /**
@@ -13457,6 +13521,28 @@ export type GetAccountLinkingUnlinkedEnroleesResponses = {
 export type GetAccountLinkingUnlinkedEnroleesResponse =
   GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
 
+export type GetAccountLinkingCourseEnroleesData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees"
+}
+
+export type GetAccountLinkingCourseEnroleesResponses = {
+  /**
+   * The people on the enrolment lists
+   */
+  200: AdminCourseEnrolees
+}
+
+export type GetAccountLinkingCourseEnroleesResponse =
+  GetAccountLinkingCourseEnroleesResponses[keyof GetAccountLinkingCourseEnroleesResponses]
+
 export type ListAccountLinkingEmailsData = {
   body?: never
   path?: never
@@ -13477,6 +13563,10 @@ export type ListAccountLinkingEmailsData = {
      * Part of the recipient address, ignoring case
      */
     address?: string
+    /**
+     * Only mails sent for this course or mooc.fi target
+     */
+    course_or_target_id?: string
   }
   url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails"
 }

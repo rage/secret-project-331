@@ -217,6 +217,30 @@ pub(crate) async fn list_unlinked(
         .collect())
 }
 
+/// A person on a roster with the account linked to them, if any.
+#[derive(Debug, Clone)]
+pub struct ListedEnrolee {
+    pub person: RosterPerson,
+    pub linked_user_id: Option<Uuid>,
+}
+
+/// Everyone on a roster, each once with their latest enrolment and the account linked to them.
+pub(crate) async fn list_with_linked_accounts(
+    conn: &mut PgConnection,
+    people: &[RosterPerson],
+) -> CreditRegistrationResult<Vec<ListedEnrolee>> {
+    let distinct = distinct_people(people);
+    let linked_rows = load_linked_accounts(conn, &distinct).await?;
+    let linked = LinkedAccounts::new(&linked_rows);
+    Ok(distinct
+        .into_iter()
+        .map(|person| ListedEnrolee {
+            person: person.clone(),
+            linked_user_id: linked.linked_user_id(person),
+        })
+        .collect())
+}
+
 /// The accounts already linked to someone on the roster, by Sisu person id or student number.
 async fn load_linked_accounts(
     conn: &mut PgConnection,
@@ -262,6 +286,21 @@ impl<'a> LinkedAccounts<'a> {
                 .map(|row| row.student_number.expose_secret())
                 .collect(),
         }
+    }
+
+    /// The account linked to `person`, preferring a match by Sisu person id over one by student
+    /// number.
+    fn linked_user_id(&self, person: &RosterPerson) -> Option<Uuid> {
+        let by_person_id = self.rows.iter().find(|row| {
+            expose_option(&row.sisu_person_id) == Some(person.person_id.expose_secret())
+        });
+        by_person_id
+            .or_else(|| {
+                self.rows.iter().find(|row| {
+                    row.student_number.expose_secret() == person.student_number.expose_secret()
+                })
+            })
+            .map(|row| row.user_id)
     }
 
     /// Whether some account is linked to `person`, by Sisu person id or student number.

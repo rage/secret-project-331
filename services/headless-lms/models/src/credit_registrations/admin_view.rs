@@ -1,6 +1,6 @@
 //! The ledger as the admin explorer and the reconciliation detectors read it, across courses.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 
 use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
@@ -59,7 +59,11 @@ pub struct AdminCreditRegistration {
     /// Frozen on the row when it left `checking_enrolment`, so it is what we actually sent.
     pub student_number: Option<DbSecret>,
     pub sisu_person_id: Option<DbSecret>,
+    /// Frozen with `student_number`; `None` until then.
     pub uh_course_code: Option<String>,
+    /// The module's or mooc.fi target's code now, which a later edit can set apart from
+    /// `uh_course_code`.
+    pub current_uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
@@ -267,6 +271,7 @@ SELECT cr.id,
   cr.student_number,
   cr.sisu_person_id,
   cr.uh_course_code,
+  s.uh_course_code AS current_uh_course_code,
   cr.selected_enrolment_id,
   cr.grade_scale_id,
   cr.grade_id,
@@ -461,6 +466,36 @@ LIMIT $15 OFFSET $16
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// Each of these accounts' newest unsuperseded registration on one course or mooc.fi target, keyed
+/// by user id.
+pub async fn get_latest_ids_by_users_on_course_or_target(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    course_or_target_id: Uuid,
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let res = sqlx::query!(
+        r#"
+SELECT DISTINCT ON (user_id) user_id,
+  id
+FROM credit_registrations
+WHERE user_id = ANY($1::uuid [])
+  AND (
+    course_id = $2
+    OR external_credit_target_id = $2
+  )
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+ORDER BY user_id,
+  created_at DESC
+        "#,
+        user_ids,
+        course_or_target_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res.into_iter().map(|row| (row.user_id, row.id)).collect())
 }
 
 /// A page of the ledger for the admin explorer, cross-course.

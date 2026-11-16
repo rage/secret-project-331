@@ -219,6 +219,41 @@ GROUP BY sisu_person_id
         .collect())
 }
 
+/// When one course or mooc.fi target sent each of these people a linking mail, newest first,
+/// replaced ones included.
+pub async fn get_sent_times_per_person_for_source(
+    conn: &mut PgConnection,
+    sisu_person_ids: &[String],
+    source_id: Uuid,
+) -> ModelResult<HashMap<String, Vec<DateTime<Utc>>>> {
+    let res = sqlx::query!(
+        r#"
+SELECT sisu_person_id AS "sisu_person_id!",
+  sent_at
+FROM credit_registration_account_linking_emails
+WHERE sisu_person_id = ANY($1::text [])
+  AND (
+    course_id = $2
+    OR external_credit_target_id = $2
+  )
+  AND deleted_at IS NULL
+ORDER BY sent_at DESC
+        "#,
+        sisu_person_ids,
+        source_id
+    )
+    .fetch_all(conn)
+    .await?;
+    let mut sent_times: HashMap<String, Vec<DateTime<Utc>>> = HashMap::new();
+    for row in res {
+        sent_times
+            .entry(row.sisu_person_id.expose_secret().to_owned())
+            .or_default()
+            .push(row.sent_at);
+    }
+    Ok(sent_times)
+}
+
 /// Marks the rows these new slots would collide with in the dedup key as replaced, where their link
 /// can no longer be used, so the slots can be claimed. Rows holding their address are left alone.
 pub async fn replace_lapsed_slots(
@@ -1221,11 +1256,13 @@ pub struct LinkingEmailListRow {
 /// A page of linking emails on live courses, newest first, including ones a later mail replaced.
 ///
 /// `address` matches any part of the recipient address, ignoring case, and overrides `status`, so a
-/// search for a student finds their mail whatever became of it.
+/// search for a student finds their mail whatever became of it. `course_or_target_id` narrows to one
+/// course or mooc.fi target.
 pub async fn get_page(
     conn: &mut PgConnection,
     status: Option<LinkingEmailListStatus>,
     address: Option<&str>,
+    course_or_target_id: Option<Uuid>,
     limit: i64,
     offset: i64,
 ) -> ModelResult<Vec<LinkingEmailListRow>> {
@@ -1254,6 +1291,10 @@ WITH page AS (
     AND (
       $2::text IS NULL
       OR e.emailed_to ILIKE $2 ESCAPE '\'
+    )
+    AND (
+      $5::uuid IS NULL
+      OR COALESCE(e.course_id, e.external_credit_target_id) = $5
     )
     AND (
       $1::text IS NULL
@@ -1333,6 +1374,7 @@ ORDER BY page.sent_at DESC,
         address_pattern,
         limit,
         offset,
+        course_or_target_id,
     )
     .fetch_all(conn)
     .await?;

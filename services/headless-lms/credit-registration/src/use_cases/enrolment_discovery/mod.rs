@@ -10,7 +10,10 @@
 mod listing;
 mod reconcile;
 
-pub(crate) use reconcile::{list_unlinked, list_unlinked_enrolled_before};
+pub use reconcile::ListedEnrolee;
+pub(crate) use reconcile::{
+    list_unlinked, list_unlinked_enrolled_before, list_with_linked_accounts,
+};
 
 use headless_lms_models::credit_registration_phase_state;
 use headless_lms_models::credit_registration_roster_schedules::{

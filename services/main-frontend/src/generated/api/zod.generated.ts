@@ -4226,6 +4226,28 @@ export const zAdminLinkingCandidate = z.object({
   student_number: z.string(),
 })
 
+/**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export const zAdminCourseEnrolee = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  enrolled_before_account_linking: z.boolean(),
+  enrolment_state: z.string().nullish(),
+  linked_user_email: z.string().nullish(),
+  linked_user_id: z.uuid().nullish(),
+  linking_emails_sent_at: z.array(z.iso.datetime()),
+  person: zAdminLinkingCandidate,
+})
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export const zAdminCourseEnrolees = z.object({
+  account_linking_since: z.iso.datetime().nullish(),
+  people: z.array(zAdminCourseEnrolee),
+  study_registry_unavailable: z.boolean(),
+})
+
 export const zAdminLinkingCandidates = z.object({
   account_linking_since: z.iso.datetime(),
   candidates: z.array(zAdminLinkingCandidate),
@@ -8525,6 +8547,7 @@ export const zAdminCreditRegistrationRow = z.object({
   course_or_target_id: z.uuid(),
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
+  current_uh_course_code: z.string().nullish(),
   email: z.string().nullish(),
   engagement: zEngagement.nullish(),
   enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -8694,6 +8717,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       course_or_target_id: z.uuid(),
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
+      current_uh_course_code: z.string().nullish(),
       email: z.string().nullish(),
       engagement: zEngagement.nullish(),
       enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -10929,6 +10953,15 @@ export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
  */
 export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
+export const zGetAccountLinkingCourseEnroleesPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The people on the enrolment lists
+ */
+export const zGetAccountLinkingCourseEnroleesResponse = zAdminCourseEnrolees
+
 export const zListAccountLinkingEmailsQuery = z.object({
   page: z
     .int()
@@ -10942,6 +10975,7 @@ export const zListAccountLinkingEmailsQuery = z.object({
     .optional(),
   status: zLinkingEmailListStatus.optional(),
   address: z.string().optional(),
+  course_or_target_id: z.uuid().optional(),
 })
 
 /**

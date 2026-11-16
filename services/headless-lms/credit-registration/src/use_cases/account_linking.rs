@@ -22,7 +22,9 @@ use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, InteractiveStudyRegistry, StudentNumber};
-use crate::use_cases::enrolment_discovery::{list_unlinked, list_unlinked_enrolled_before};
+use crate::use_cases::enrolment_discovery::{
+    ListedEnrolee, list_unlinked, list_unlinked_enrolled_before, list_with_linked_accounts,
+};
 
 /// What one resend attempt came to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -217,6 +219,23 @@ pub(crate) async fn unlinked_on_course_rosters<R: InteractiveStudyRegistry>(
     }
     let mut conn = pool.acquire().await?;
     Ok(Some(list_unlinked(&mut conn, &people).await?))
+}
+
+/// [`crate::account_linking::list_enrolees`] through `registry`.
+pub(crate) async fn enrolees_of_source<R: InteractiveStudyRegistry>(
+    pool: &PgPool,
+    registry: &R,
+    source: LinkingMailSource,
+) -> CreditRegistrationResult<Option<Vec<ListedEnrolee>>> {
+    let mut people = Vec::new();
+    for code in source_course_codes(pool, source).await? {
+        let Some(listed) = registry.fetch_course_roster(&code).await else {
+            return Ok(None);
+        };
+        people.extend(listed);
+    }
+    let mut conn = pool.acquire().await?;
+    Ok(Some(list_with_linked_accounts(&mut conn, &people).await?))
 }
 
 /// [`crate::account_linking::list_unlinked_enrolled_before`] through `registry`.

@@ -2,8 +2,6 @@
 
 import styled from "@emotion/styled"
 import type { ReactNode } from "react"
-import { useRef } from "react"
-import { useLink } from "react-aria"
 
 const StyledAnchor = styled.a`
   text-decoration: none;
@@ -22,16 +20,44 @@ const StyledAnchor = styled.a`
 `
 
 interface TooltipNTriggerAnchorProps {
-  href: string
+  href?: string | undefined
   children: ReactNode
 }
 
-export const TooltipNTriggerAnchor: React.FC<TooltipNTriggerAnchorProps> = ({ href, children }) => {
-  const linkRef = useRef<HTMLAnchorElement>(null)
-  const { linkProps } = useLink({ href }, linkRef)
+// Opens the enclosing References <details>, then scrolls to and focuses the target item.
+const openAndFocusReference = (href: string) => {
+  const target = document.querySelector<HTMLElement>(`#${CSS.escape(href.replace(/^#/, ""))}`)
+  if (!target) {
+    return
+  }
+  const details = target.closest("details")
+  if (details) {
+    details.open = true
+  }
+  // oxlint-disable-next-line i18next/no-literal-string
+  target.scrollIntoView?.({ block: "center" })
+  target.focus()
+}
 
+export const TooltipNTriggerAnchor: React.FC<TooltipNTriggerAnchorProps> = ({ href, children }) => {
+  if (!href) {
+    // Unresolved citation: no target, so not a link; focusable so the tooltip is reachable.
+    return (
+      // oxlint-disable-next-line i18next/no-literal-string
+      <StyledAnchor as="span" tabIndex={0}>
+        {children}
+      </StyledAnchor>
+    )
+  }
   return (
-    <StyledAnchor {...linkProps} href={href} ref={linkRef} role="doc-noteref">
+    <StyledAnchor
+      href={href}
+      role="doc-noteref"
+      onClick={(e) => {
+        e.preventDefault()
+        openAndFocusReference(href)
+      }}
+    >
       {children}
     </StyledAnchor>
   )

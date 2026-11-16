@@ -73,6 +73,16 @@ const getButtonTypeFromClassName = (className: string | undefined) => {
   return PRIMARY
 }
 
+// The content wrapper's `a` colour rules out-specify the variant colours, so restore the variant
+// foreground for the resting, visited and active states (hover and focus already win).
+const variantForeground = (variant: string) => `
+  &&,
+  &&:visited,
+  &&:active {
+    color: var(--btn-${variant}-fg);
+  }
+`
+
 const ButtonsBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ButtonsAttributes & ExtraAttributes>>
 > = ({ data }) => {
@@ -103,17 +113,19 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
+    const variant = getButtonTypeFromClassName(className)
     return (
       <Link
         key={button.clientId}
         styledAsButton
-        variant={getButtonTypeFromClassName(className)}
+        variant={variant}
         size="medium"
         href={url ?? ""}
         isDisabled={!url}
         {...(linkTarget && { target: linkTarget })}
         rel={relForLinkTarget(rel, linkTarget)}
         className={css`
+          ${variantForeground(variant)}
           ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
           ${gradient && `background: ${colorMapper(gradient)} !important;`}
           ${

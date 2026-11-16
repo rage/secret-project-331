@@ -27,7 +27,7 @@ const VerseBlock: React.FC<
         white-space: pre-wrap;
       `}
     >
-      <div dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
+      <code dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
     </pre>
   )
 }

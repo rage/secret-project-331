@@ -141,7 +141,29 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
       timersRef.current.push(id)
     }
 
+    // A lazily loaded element (e.g. the LaTeX paragraph) fills in its HTML after the scans above,
+    // so keep watching for glossary spans appearing in the container.
+    let observer: MutationObserver | undefined
+    let frame = 0
+    if (initialContainer && typeof MutationObserver !== "undefined") {
+      observer = new MutationObserver(() => {
+        if (frame !== 0) {
+          return
+        }
+        frame = window.requestAnimationFrame(() => {
+          frame = 0
+          const next = scanGlossaryTargets(containerRef.current)
+          setGlossaryTargets((prev) => (sameTargets(prev, next) ? prev : next))
+        })
+      })
+      observer.observe(initialContainer, { childList: true, subtree: true })
+    }
+
     return () => {
+      observer?.disconnect()
+      if (frame !== 0) {
+        window.cancelAnimationFrame(frame)
+      }
       timersRef.current.forEach((t) => window.clearTimeout(t))
       timersRef.current = []
     }

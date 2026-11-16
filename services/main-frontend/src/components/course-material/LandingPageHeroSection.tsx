@@ -36,18 +36,18 @@ const TextBox = styled.div<TextBoxProps>`
   align-items: center;
   text-align: center;
   justify-content: center;
-  ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.mobile)}
+  ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.mobile, color)}
 
   ${respondToOrLarger.md} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.medium)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.medium, color)}
   }
 
   ${respondToOrLarger.lg} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.large)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.large, color)}
   }
 
   ${respondToOrLarger.xl} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.xlarge)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
   h1 {
@@ -109,6 +109,8 @@ export interface LandingPageHeroSectionProps {
   fontColor?: string
   backgroundRepeatX?: boolean
   variant?: string
+  // The exam page has its own h1, so the hero title is exposed as level 2.
+  isExam?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
@@ -123,6 +125,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   backgroundColor,
   backgroundRepeatX,
   fontColor,
+  isExam,
 }) => {
   const { t } = useTranslation()
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
@@ -187,7 +190,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
         <ParsedText
           text={title}
           tag="h1"
-          tagProps={{ className: flipClassName }}
+          tagProps={{ className: flipClassName, ...(isExam && { "aria-level": 2 }) }}
           useWrapperElement={true}
         />
         <div className="hero-subtitle">{children}</div>

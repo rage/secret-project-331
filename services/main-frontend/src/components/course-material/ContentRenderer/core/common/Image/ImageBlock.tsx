@@ -8,6 +8,7 @@ import Zoom from "react-medium-image-zoom"
 
 import type { ImageAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
@@ -68,6 +69,10 @@ const ImageBlock: React.FC<
     scale,
     focalPoint,
   } = data.attributes
+
+  // A decorative image without a caption gets no figure, role or title, so AT skips it entirely.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const Figure = caption || !isDecorative ? "figure" : "div"
 
   const isRounded = Boolean(className?.includes("is-style-rounded"))
 
@@ -132,7 +137,9 @@ const ImageBlock: React.FC<
     const image = (
       <img
         ref={imageRef}
-        title={title}
+        title={isDecorative ? undefined : title}
+        // oxlint-disable-next-line i18next/no-literal-string
+        {...(isDecorative && { role: "presentation" })}
         onLoad={handleImageLoad}
         className={css`
           width: ${imageWidthCss};
@@ -187,7 +194,7 @@ const ImageBlock: React.FC<
         }
       `}
     >
-      <figure
+      <Figure
         className={css`
           ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
           ${
@@ -213,6 +220,7 @@ const ImageBlock: React.FC<
                 caption-side: bottom;
                 text-align: center;
                 font-size: 0.8125rem;
+                color: ${baseTheme.colors.gray[500]};
                 margin-top: 0.5rem;
                 margin-bottom: 0.8125rem;
               `,
@@ -221,12 +229,12 @@ const ImageBlock: React.FC<
             wrapperRef={figcaptionRef}
           />
         ) : null}
-      </figure>
+      </Figure>
     </div>
   )
 
   // A linked image should navigate on click, so it must not be wrapped in the zoom interaction.
-  return disableInteractivity || hasLink ? (
+  return disableInteractivity || hasLink || isDecorative ? (
     imageContent
   ) : (
     <StyledZoomWrapper>

@@ -6,8 +6,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
-import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 import type { BlockRendererProps } from "../.."
 
@@ -42,6 +42,12 @@ const leftShadowStyles = css`
   left: 0;
   background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
 `
+
+// Valid span as a number, else undefined so the attribute is omitted (never "NaN").
+const spanOf = (value: string | undefined | null): number | undefined => {
+  const n = Number(value)
+  return value && Number.isInteger(n) && n > 0 ? n : undefined
+}
 
 const fetchAlignment = (align: string | undefined) => {
   if (align) {
@@ -115,9 +121,20 @@ const TableBlock: React.FC<
     return () => resizeObserver.disconnect()
   }, [updateScrollState])
 
+  // A scrollable region must be keyboard reachable; named by the caption when there is one.
+  const isScrollable = canScroll.left || canScroll.right
+  const captionText = caption ? richTextToPlainText(caption) : ""
+
   return (
     <div className={scrollWrapperStyles}>
-      <div ref={scrollRef} onScroll={updateScrollState} className={scrollContainerStyles}>
+      <div
+        ref={scrollRef}
+        onScroll={updateScrollState}
+        className={scrollContainerStyles}
+        {...(isScrollable && { tabIndex: 0 })}
+        // oxlint-disable-next-line i18next/no-literal-string
+        {...(isScrollable && captionText && { role: "region", "aria-label": captionText })}
+      >
         <table
           className={css`
             border-collapse: collapse;
@@ -158,8 +175,8 @@ const TableBlock: React.FC<
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
                           className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                          colSpan: spanOf(cell.colspan),
+                          rowSpan: spanOf(cell.rowspan),
                         }}
                         useWrapperElement={false}
                         // oxlint-disable-next-line i18next/no-literal-string
@@ -186,8 +203,8 @@ const TableBlock: React.FC<
                             { scope: cell.scope ?? "row" }
                           : {}),
                         className: fetchAlignment(cell.align),
-                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                        colSpan: spanOf(cell.colspan),
+                        rowSpan: spanOf(cell.rowspan),
                       }}
                       useWrapperElement={false}
                       // oxlint-disable-next-line i18next/no-literal-string
@@ -212,8 +229,8 @@ const TableBlock: React.FC<
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
                           className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                          colSpan: spanOf(cell.colspan),
+                          rowSpan: spanOf(cell.rowspan),
                         }}
                         useWrapperElement={false}
                         // oxlint-disable-next-line i18next/no-literal-string

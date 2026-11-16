@@ -8,9 +8,11 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 interface DynamicSvgProps {
   src: string // URL of the SVG
+  // Accessible name; the SVG's own inner text is hidden. Without it the SVG is decorative.
+  label?: string | undefined
 }
 
-const DynamicSvg: React.FC<DynamicSvgProps> = ({ src }) => {
+const DynamicSvg: React.FC<DynamicSvgProps> = ({ src, label }) => {
   const { t } = useTranslation()
   const [svgContent, setSvgContent] = useState<string | null>(null)
 
@@ -47,6 +49,8 @@ const DynamicSvg: React.FC<DynamicSvgProps> = ({ src }) => {
           height: 5rem;
         }
       `}
+      // oxlint-disable-next-line i18next/no-literal-string
+      {...(label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
       dangerouslySetInnerHTML={{ __html: svgContent }}
     />
   )

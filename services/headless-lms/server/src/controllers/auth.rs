@@ -1226,13 +1226,23 @@ POST `/api/v0/auth/verify-email` Verifies email verification code and completes 
         (status = 200, description = "Whether verification succeeded", body = bool)
     )
 )]
-#[instrument(skip(req, session, pool, ip_to_country_mapper, payload))]
+#[instrument(skip(
+    req,
+    session,
+    pool,
+    ip_to_country_mapper,
+    payload,
+    tmc_client,
+    app_conf
+))]
 pub async fn verify_email(
     req: HttpRequest,
     session: Session,
     pool: web::Data<PgPool>,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailRequest>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
@@ -1330,6 +1340,8 @@ pub async fn verify_email(
         &mut tx,
         user.id,
         UserEmailCodePurpose::StaffLogin,
+        &tmc_client,
+        &app_conf,
     )
     .await?;
     let cookie =
@@ -1533,7 +1545,7 @@ this browser and network for the signed-in user.
         (status = 200, description = "Outcome of submitting the code", body = SessionVerifyResult)
     )
 )]
-#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload, tmc_client))]
 pub async fn verify_session(
     req: HttpRequest,
     user: AuthUser,
@@ -1541,6 +1553,7 @@ pub async fn verify_session(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<SessionVerifyRequest>,
+    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
@@ -1574,6 +1587,8 @@ pub async fn verify_session(
                 &mut tx,
                 user.id,
                 UserEmailCodePurpose::NetworkVerification,
+                &tmc_client,
+                &app_conf,
             )
             .await?;
             let cookie = session_verification::record_verification(

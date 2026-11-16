@@ -9,12 +9,12 @@ test.use({
 test("User search works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/")
   await page.getByRole("link", { name: "Search users" }).click()
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).click()
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).fill("notexisting")
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).press("Enter")
+  await page.getByLabel("Email, name or user id", { exact: true }).click()
+  await page.getByLabel("Email, name or user id", { exact: true }).fill("notexisting")
+  await page.getByLabel("Email, name or user id", { exact: true }).press("Enter")
   await page.getByText("No users found").first().waitFor()
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).click()
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).fill("language.teacher")
+  await page.getByLabel("Email, name or user id", { exact: true }).click()
+  await page.getByLabel("Email, name or user id", { exact: true }).fill("language.teacher")
   await page.getByRole("button", { name: "Search" }).click()
   await page.getByText(/users? found$/).waitFor()
   await expectScreenshotsToMatchSnapshots({
@@ -24,7 +24,7 @@ test("User search works", async ({ page, headless }, testInfo) => {
     snapshotName: "search-results",
     beforeScreenshot: () => page.getByRole("progressbar").waitFor({ state: "hidden" }),
   })
-  await page.getByLabel("Email, name, user id or TMC id", { exact: true }).fill("user@example.com")
+  await page.getByLabel("Email, name or user id", { exact: true }).fill("user@example.com")
   await page.getByRole("button", { name: "Search" }).click()
   await page.getByRole("link", { name: /user_1@example\.com/ }).click()
   const courseCard = page

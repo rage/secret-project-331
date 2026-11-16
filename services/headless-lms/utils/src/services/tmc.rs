@@ -467,6 +467,20 @@ impl TmcClient {
         .map(|_| ())
     }
 
+    /// Makes TMC hold `email` for user `user_upstream_id`, writing only when TMC's address differs
+    /// (ignoring case and surrounding whitespace). TMC signs users in by this address, and answers
+    /// 400 or 422 to one it refuses, such as one another account already uses.
+    pub async fn sync_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
+        let tmc_email = self
+            .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&user_upstream_id)
+            .await?
+            .email;
+        if tmc_email.trim().eq_ignore_ascii_case(email.trim()) {
+            return Ok(());
+        }
+        self.update_user_email(email, user_upstream_id).await
+    }
+
     pub async fn post_new_user_to_tmc(
         &self,
         user_info: NewUserInfo,

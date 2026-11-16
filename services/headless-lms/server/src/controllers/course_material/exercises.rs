@@ -163,13 +163,11 @@ async fn authorize_exercise_access(
         }
         (None, Some(exam_id)) => {
             let user_id = user_id.ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::UnauthorizedWithReason(
-                        crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
-                    ),
-                    "User must be authenticated to view exam exercises".to_string(),
-                    None,
+                controller_err!(
+                    Unauthorized,
+                    "User must be authenticated to view exam exercises".to_string()
                 )
+                .with_message_key(MessageKey::AuthenticationRequiredForExamExercise)
             })?;
             super::exams::authorize_exam_content_access(conn, exam_id, user_id).await
         }

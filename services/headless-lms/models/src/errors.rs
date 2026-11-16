@@ -55,7 +55,6 @@ pub enum MessageKey {
     Unauthorized,
     Forbidden,
     OauthError,
-    SisuError,
     CourseSlugAlreadyTaken,
     ForeignKeyViolation {
         constraint: Option<String>,
@@ -75,11 +74,21 @@ pub enum MessageKey {
     UnknownUpload,
     /// A submission named the same uploaded file more than once.
     DuplicateUpload,
+    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
+    ExternalCreditTargetTiersOverlap,
+    /// The mooc.fi course already has a live target with this course code.
+    ExternalCreditTargetCourseCodeTaken,
+    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
+    ExternalCreditTargetMoocfiCourseFixed,
     /// A save named a version of the record that is no longer the latest.
     StaleVersion,
     ChapterNotOpenYet,
     AuthenticationRequiredForExamExercise,
     ResponseValidationError,
+    // Sisu errors
+    InvalidCourseCode,
+    GenericSisuError,
+    SisuResourceNotFound,
 }
 
 /// Inserts one error occurrence and upserts its variant in a single transaction.

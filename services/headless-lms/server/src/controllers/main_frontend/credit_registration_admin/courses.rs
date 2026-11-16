@@ -24,7 +24,6 @@ use headless_lms_models::library::credit_registration::config_validation::{
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use utoipa::ToSchema;
 
-use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
 
 use super::dashboard::{CreditRegistrationStepCount, sum_step_counts};
@@ -565,9 +564,12 @@ pub async fn admin_update_external_credit_target(
     if configuration.moocfi_course_id != before.moocfi_course_id
         && external_credit_targets::has_completions(&mut tx, id).await?
     {
-        return Err(bad_request_with_reason(
-            BadRequestReason::ExternalCreditTargetMoocfiCourseFixed,
-            "The mooc.fi course cannot change once the target has completions.".to_string(),
+        return Err(controller_err!(
+            BadRequest,
+            "The mooc.fi course cannot change once the target has completions.".to_string()
+        )
+        .with_message_key(
+            headless_lms_models::errors::MessageKey::ExternalCreditTargetMoocfiCourseFixed,
         ));
     }
     // mooc.fi has one cutoff per course, so a move takes the course's other targets along;

@@ -451,7 +451,7 @@ impl ControllerError {
             ControllerErrorType::Unauthorized => ("unauthorized", MessageKey::Unauthorized),
             ControllerErrorType::Forbidden => ("forbidden", MessageKey::Forbidden),
             ControllerErrorType::OAuthError(_) => ("oauth_error", MessageKey::OauthError),
-            ControllerErrorType::SisuError(_) => ("sisu_error", MessageKey::SisuError),
+            ControllerErrorType::SisuError(_) => ("sisu_error", MessageKey::GenericSisuError),
         }
     }
 
@@ -779,6 +779,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::GenericSisuError)
             }
             UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode) => {
                 Self::new_with_traces(
@@ -788,6 +789,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::InvalidCourseCode)
             }
             UtilErrorType::SisuClientError(SisuErrorVariant::SisuResourceNotFound) => {
                 Self::new_with_traces(
@@ -797,6 +799,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::SisuResourceNotFound)
             }
             _ => Self::new_with_traces(
                 ControllerErrorType::InternalServerError,

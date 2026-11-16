@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
-    self, LinkingEmailListRow, LinkingEmailListStatus, LinkingMailLinkState, LinkingMailSource,
-    StaleUnclaimedLinkingMails,
+    self, LinkingEmailListRow, LinkingEmailListStatus, LinkingMailLinkState, LinkingMailSend,
+    LinkingMailSource, StaleUnclaimedLinkingMails,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -17,7 +17,8 @@ use headless_lms_models::credit_registration_roster_schedules::{
     self, AccountLinkingCodeCounters, RosterSchedule, ScheduleSelection,
 };
 use headless_lms_models::credit_registrations::{
-    self, AttentionReason, AttentionStanding, CreditRegistrationErrorCode, WaitingPresser,
+    self, AttentionReason, AttentionStanding, CreditRegistrationErrorCode,
+    LatestRegistrationByCode, WaitingPresser,
 };
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::account_linking::{
@@ -40,13 +41,14 @@ use crate::domain::credit_registration::linking_candidates::{
     AccountIdentity, LinkingCandidateSimilarity, similarities, similarity_score,
 };
 use crate::domain::credit_registration::linking_mail_resend::{
-    ResendOutcome, ensure_resend_possible, resolve_linking_mail_source,
+    ResendOutcome, ensure_resend_possible, get_course_or_target, resolve_linking_mail_source,
 };
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::CreditRegistrationPhase;
 use headless_lms_credit_registration::account_linking::{
-    ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson, ResendAttempt,
+    EnroleeListing, ListedEnrolee, ManualActionContext, PersonLookupError, RateCapOverride,
+    RegistryPerson, ResendAttempt, is_enrolled_before, list_enrolees,
     list_unlinked_enrolled_before, list_unlinked_on_course_rosters, look_up_person,
     resend_linking_mail_for_target,
 };
@@ -70,6 +72,7 @@ const RESOLVE_CALLER: &str = "admin-resolve-person";
 const MANUAL_LINK_CALLER: &str = "admin-manual-link";
 const CANDIDATES_CALLER: &str = "admin-linking-candidates";
 const UNLINKED_ENROLEES_CALLER: &str = "admin-unlinked-enrolees";
+const ENROLEES_CALLER: &str = "admin-course-enrolees";
 
 /// The account-linking funnel. The `_last_run` steps sum each code's last enrolment list, a person
 /// counted once per code, and the `_in_window` ones come from the window: there is no single
@@ -260,6 +263,7 @@ pub struct ListAccountLinkingEmailsQuery {
     limit: Option<u32>,
     status: Option<LinkingEmailListStatus>,
     address: Option<String>,
+    course_or_target_id: Option<Uuid>,
 }
 
 /// A student whose registration waits for a student number.
@@ -456,6 +460,45 @@ pub struct AdminLinkingCandidates {
     pub study_registry_unavailable: bool,
     /// Most like the student's account first.
     pub candidates: Vec<AdminLinkingCandidate>,
+}
+
+/// A person on a course's or mooc.fi target's enrolment lists, linked or not.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCourseEnrolee {
+    /// Echoed back to the resend endpoint to mail them.
+    pub student_number: String,
+    pub first_names: Option<String>,
+    pub last_name: Option<String>,
+    /// `None` when the study registry gave no enrolment time.
+    pub enrolled_at: Option<DateTime<Utc>>,
+    /// Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it.
+    pub enrolment_state: Option<String>,
+    /// In full: support has to tell people apart and check where a linking email went.
+    pub primary_email: Option<String>,
+    pub secondary_email: Option<String>,
+    /// The account linked to them by Sisu person id or student number.
+    pub linked_user_id: Option<Uuid>,
+    pub linked_user_email: Option<String>,
+    /// The linked account's newest registration on this course or target, preferring one under a
+    /// course code whose roster lists them.
+    pub credit_registration_id: Option<Uuid>,
+    /// Enrolled before account linking began, or at no known time. A linking email then goes to
+    /// them automatically only when their Sisu address is the email of an account with a
+    /// registerable completion on the course. Always false while account linking is off.
+    pub enrolled_before_account_linking: bool,
+    /// The linking emails this course or target sent them, newest first, replaced ones included.
+    pub linking_emails: Vec<LinkingMailSend>,
+}
+
+/// Everyone on a course's or mooc.fi target's enrolment lists.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCourseEnrolees {
+    /// `None` while account linking is off.
+    pub account_linking_since: Option<DateTime<Utc>>,
+    /// The study registry gave no usable answer for some code, so `people` says nothing.
+    pub study_registry_unavailable: bool,
+    /// Unlinked people first, then by last name and first names, ignoring case.
+    pub people: Vec<AdminCourseEnrolee>,
 }
 
 /// A course support can send a linking email for by hand: one taking part in credit registration
@@ -680,6 +723,7 @@ pub async fn get_account_linking_stats(
         .collect();
     let recent_linking_emails = credit_registration_account_linking_emails::get_page(
         &mut conn,
+        None,
         None,
         None,
         RECENT_LINKING_EMAIL_LIMIT,
@@ -1281,6 +1325,177 @@ pub async fn get_account_linking_unlinked_enrolees(
 }
 
 /**
+GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+- Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+the linking emails they have had.
+
+Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+*/
+#[instrument(skip(pool, app_conf, suotar_client))]
+#[utoipa::path(
+    get,
+    path = "/account-linking/courses/{course_or_target_id}/enrolees",
+    operation_id = "getAccountLinkingCourseEnrolees",
+    tag = "credit-registration-admin",
+    params(("course_or_target_id" = Uuid, Path, description = "Course or mooc.fi target id")),
+    responses(
+        (status = 200, description = "The people on the enrolment lists", body = AdminCourseEnrolees),
+        (status = 400, description = "No active module or mooc.fi target with a course code"),
+        (status = 404, description = "No such course or mooc.fi target")
+    )
+)]
+pub async fn get_account_linking_course_enrolees(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_or_target_id: web::Path<Uuid>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    suotar_client: web::Data<headless_lms_utils::services::suotar::SuotarClient>,
+) -> ControllerResult<web::Json<AdminCourseEnrolees>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    let course_or_target_id = course_or_target_id.into_inner();
+    let source = get_course_or_target(&mut conn, course_or_target_id)
+        .await?
+        .source();
+    let since = app_conf.suotar_configuration.account_linking_since;
+
+    let ctx = ManualActionContext::new(&pool, &suotar_client, ENROLEES_CALLER);
+    // Released so the Suotar call does not pin a pool connection for its whole timeout.
+    drop(conn);
+    info!(actor = %user.id, course_or_target_id = %course_or_target_id, "Admin listing course enrolees");
+    let listing = list_enrolees(&ctx, source).await?;
+    let mut conn = pool.acquire().await?;
+
+    let (study_registry_unavailable, listed) = match listing {
+        EnroleeListing::NoCourseCodes => {
+            return Err(controller_err!(
+                BadRequest,
+                "This course has no active module with a course code, so it has no enrolment list."
+                    .to_string()
+            ));
+        }
+        EnroleeListing::StudyRegistryUnavailable => (true, Vec::new()),
+        EnroleeListing::Listed(listed) => (false, listed),
+    };
+    let person_ids: Vec<String> = listed
+        .iter()
+        .map(|enrolee| enrolee.person.person_id.expose_secret().to_owned())
+        .collect();
+    let mut sends = credit_registration_account_linking_emails::get_sends_per_person_for_source(
+        &mut conn,
+        &person_ids,
+        course_or_target_id,
+    )
+    .await?;
+    let linked_user_ids: Vec<Uuid> = listed
+        .iter()
+        .filter_map(|enrolee| enrolee.linked_user_id)
+        .collect();
+    let registrations = credit_registrations::get_latest_by_users_and_codes_on_course_or_target(
+        &mut conn,
+        &linked_user_ids,
+        course_or_target_id,
+    )
+    .await?;
+    let emails: HashMap<Uuid, String> =
+        models::user_details::get_user_details_by_user_ids(&mut conn, &linked_user_ids)
+            .await?
+            .into_iter()
+            .map(|details| (details.user_id, details.email))
+            .collect();
+
+    let mut registrations_by_user: HashMap<Uuid, Vec<LatestRegistrationByCode>> = HashMap::new();
+    for registration in registrations {
+        registrations_by_user
+            .entry(registration.user_id)
+            .or_default()
+            .push(registration);
+    }
+
+    let mut people: Vec<AdminCourseEnrolee> = listed
+        .into_iter()
+        .map(|enrolee| {
+            let registrations = enrolee
+                .linked_user_id
+                .and_then(|user_id| registrations_by_user.get(&user_id))
+                .map_or(&[][..], Vec::as_slice);
+            let linking_emails = sends
+                .remove(enrolee.person.person_id.expose_secret())
+                .unwrap_or_default();
+            to_course_enrolee(enrolee, registrations, linking_emails, &emails, since)
+        })
+        .collect();
+    people.sort_by(|a, b| {
+        let folded = |name: &Option<String>| name.as_ref().map(|name| name.to_lowercase());
+        a.linked_user_id
+            .is_some()
+            .cmp(&b.linked_user_id.is_some())
+            .then_with(|| {
+                folded(&a.last_name)
+                    .is_none()
+                    .cmp(&folded(&b.last_name).is_none())
+            })
+            .then_with(|| folded(&a.last_name).cmp(&folded(&b.last_name)))
+            .then_with(|| folded(&a.first_names).cmp(&folded(&b.first_names)))
+    });
+
+    token.authorized_ok(web::Json(AdminCourseEnrolees {
+        account_linking_since: since,
+        study_registry_unavailable,
+        people,
+    }))
+}
+
+/// Of one account's registrations, the newest under a code whose roster lists `enrolee`, or failing
+/// that the newest.
+fn registration_for(
+    enrolee: &ListedEnrolee,
+    registrations: &[LatestRegistrationByCode],
+) -> Option<Uuid> {
+    registrations
+        .iter()
+        .max_by_key(|registration| {
+            let is_listed_code = registration
+                .uh_course_code
+                .as_ref()
+                .is_some_and(|code| enrolee.course_codes.contains(code));
+            (is_listed_code, registration.created_at)
+        })
+        .map(|registration| registration.credit_registration_id)
+}
+
+fn to_course_enrolee(
+    enrolee: ListedEnrolee,
+    registrations: &[LatestRegistrationByCode],
+    linking_emails: Vec<LinkingMailSend>,
+    emails: &HashMap<Uuid, String>,
+    since: Option<DateTime<Utc>>,
+) -> AdminCourseEnrolee {
+    let credit_registration_id = registration_for(&enrolee, registrations);
+    let person = enrolee.person;
+    AdminCourseEnrolee {
+        student_number: person.student_number.expose_secret().to_owned(),
+        first_names: expose_option(&person.first_names).map(str::to_owned),
+        last_name: expose_option(&person.last_name).map(str::to_owned),
+        enrolled_at: person.enrolled_at(),
+        enrolled_before_account_linking: since
+            .is_some_and(|since| is_enrolled_before(&person, since)),
+        enrolment_state: person
+            .enrolment
+            .as_ref()
+            .and_then(|enrolment| enrolment.state.clone()),
+        primary_email: expose_option(&person.primary_email).map(str::to_owned),
+        secondary_email: expose_option(&person.secondary_email).map(str::to_owned),
+        linked_user_id: enrolee.linked_user_id,
+        linked_user_email: enrolee
+            .linked_user_id
+            .and_then(|user_id| emails.get(&user_id).cloned()),
+        credit_registration_id,
+        linking_emails,
+    }
+}
+
+/**
 POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
 student number up in the study registry without changing anything.
 
@@ -1869,7 +2084,8 @@ An `address` search covers every status, so a mail is found whatever became of i
         ("page" = Option<u32>, Query, description = "Page number, from 1"),
         ("limit" = Option<u32>, Query, description = "Rows per page"),
         ("status" = Option<LinkingEmailListStatus>, Query, description = "What became of the link or the send; ignored with `address`"),
-        ("address" = Option<String>, Query, description = "Part of the recipient address, ignoring case")
+        ("address" = Option<String>, Query, description = "Part of the recipient address, ignoring case"),
+        ("course_or_target_id" = Option<Uuid>, Query, description = "Only mails sent for this course or mooc.fi target")
     ),
     responses(
         (status = 200, description = "A page of linking emails", body = Page<AccountLinkingEmailRow>)
@@ -1893,6 +2109,7 @@ pub async fn list_account_linking_emails(
         &mut conn,
         query.status,
         address,
+        query.course_or_target_id,
         pagination.limit(),
         pagination.offset(),
     )
@@ -1970,6 +2187,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/account-linking/courses/{course_id}/unlinked-enrolees",
             web::get().to(get_account_linking_unlinked_enrolees),
+        )
+        .route(
+            "/account-linking/courses/{course_or_target_id}/enrolees",
+            web::get().to(get_account_linking_course_enrolees),
         )
         .route(
             "/registrations/{credit_registration_id}/linking-candidates",

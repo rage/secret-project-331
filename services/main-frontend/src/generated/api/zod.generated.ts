@@ -332,6 +332,24 @@ export const zAdminBulkTransitionPayload = z.object({
   reason: z.string(),
 })
 
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export const zAdminCreditUnitCourseCode = z.object({
+  course_module_name: z.string().nullish(),
+  credit_unit_id: z.uuid(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export const zAdminCreditRegistrationCourseSummary = z.object({
+  course_id: z.uuid().nullish(),
+  course_name: z.string(),
+  credit_units: z.array(zAdminCreditUnitCourseCode),
+})
+
 export const zAdminDeleteExternalCreditTargetPayload = z.object({
   reason: z.string(),
 })
@@ -4296,6 +4314,41 @@ export const zAccountLinkingEmailRow = z.object({
   student_number: z.string(),
 })
 
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export const zLinkingMailSend = z.object({
+  claimed_at: z.iso.datetime(),
+  send_status: zEmailSendStatusReport.nullish(),
+})
+
+/**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export const zAdminCourseEnrolee = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  enrolled_at: z.iso.datetime().nullish(),
+  enrolled_before_account_linking: z.boolean(),
+  enrolment_state: z.string().nullish(),
+  first_names: z.string().nullish(),
+  last_name: z.string().nullish(),
+  linked_user_email: z.string().nullish(),
+  linked_user_id: z.uuid().nullish(),
+  linking_emails: z.array(zLinkingMailSend),
+  primary_email: z.string().nullish(),
+  secondary_email: z.string().nullish(),
+  student_number: z.string(),
+})
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export const zAdminCourseEnrolees = z.object({
+  account_linking_since: z.iso.datetime().nullish(),
+  people: z.array(zAdminCourseEnrolee),
+  study_registry_unavailable: z.boolean(),
+})
+
 export const zManualCompletionPreviewUser = z.object({
   first_name: z.string().nullish(),
   grade: z
@@ -7678,6 +7731,7 @@ export const zCreditRegistrationCourseStats = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_unit_id: z.uuid(),
   ects_credits: z.number().nullish(),
   eligible_completion_count: z.coerce
@@ -8538,6 +8592,7 @@ export const zAdminCreditRegistrationRow = z.object({
   course_or_target_id: z.uuid(),
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
+  current_uh_course_code: z.string().nullish(),
   email: z.string().nullish(),
   engagement: zEngagement.nullish(),
   enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -8707,6 +8762,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       course_or_target_id: z.uuid(),
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
+      current_uh_course_code: z.string().nullish(),
       email: z.string().nullish(),
       engagement: zEngagement.nullish(),
       enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -10942,6 +10998,15 @@ export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
  */
 export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
+export const zGetAccountLinkingCourseEnroleesPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The people on the enrolment lists
+ */
+export const zGetAccountLinkingCourseEnroleesResponse = zAdminCourseEnrolees
+
 export const zListAccountLinkingEmailsQuery = z.object({
   page: z
     .int()
@@ -10955,6 +11020,7 @@ export const zListAccountLinkingEmailsQuery = z.object({
     .optional(),
   status: zLinkingEmailListStatus.optional(),
   address: z.string().optional(),
+  course_or_target_id: z.uuid().optional(),
 })
 
 /**
@@ -11091,6 +11157,15 @@ export const zAdminResumeCourseModuleCreditRegistrationBody = zAdminResumeCourse
 export const zAdminResumeCourseModuleCreditRegistrationPath = z.object({
   course_module_id: z.uuid(),
 })
+
+export const zGetCreditRegistrationCourseSummaryPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The course's name and course codes
+ */
+export const zGetCreditRegistrationCourseSummaryResponse = zAdminCreditRegistrationCourseSummary
 
 export const zGetCreditRegistrationEnrolmentChecksQuery = z.object({
   window_secs: z.coerce

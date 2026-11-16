@@ -133,6 +133,7 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourseEnrolees,
   getAccountLinkingCourses,
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
@@ -234,6 +235,7 @@ import {
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
+  getCreditRegistrationCourseSummary,
   getCreditRegistrationDetails,
   getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
@@ -676,6 +678,8 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesResponse,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
@@ -872,6 +876,8 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponse,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponse,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
   GetCreditRegistrationEarlierReasonsData,
@@ -7144,6 +7150,36 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const getAccountLinkingCourseEnroleesQueryKey = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) => createQueryKey("getAccountLinkingCourseEnrolees", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnroleesOptions = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingCourseEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingCourseEnroleesResponse,
+    ReturnType<typeof getAccountLinkingCourseEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourseEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCourseEnroleesQueryKey(options),
+  })
+
 export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
   createQueryKey("listAccountLinkingEmails", options)
 
@@ -7706,6 +7742,33 @@ export const adminResumeCourseModuleCreditRegistrationMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationCourseSummaryQueryKey = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) => createQueryKey("getCreditRegistrationCourseSummary", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummaryOptions = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationCourseSummaryResponse,
+    DefaultError,
+    GetCreditRegistrationCourseSummaryResponse,
+    ReturnType<typeof getCreditRegistrationCourseSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationCourseSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationCourseSummaryQueryKey(options),
+  })
 
 export const getCreditRegistrationEnrolmentChecksQueryKey = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,

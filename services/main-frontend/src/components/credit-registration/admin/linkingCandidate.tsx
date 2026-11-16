@@ -23,14 +23,18 @@ export const candidateListCss = css`
   overflow-y: auto;
 `
 
-/** First and last name joined; empty when there are neither. */
-export const candidateFullName = (candidate: {
+/** A person's names as Sisu gives them. */
+interface SisuNames {
   first_names?: string | null
   last_name?: string | null
-}): string => [candidate.first_names, candidate.last_name].filter(Boolean).join(" ")
+}
+
+/** First and last name joined; empty when there are neither. */
+export const candidateFullName = (candidate: SisuNames): string =>
+  [candidate.first_names, candidate.last_name].filter(Boolean).join(" ")
 
 /** A person on an enrolment list by name, or a placeholder when Sisu gave none. */
-export const candidateName = (t: CreditRegistrationTFunction, candidate: AdminLinkingCandidate) =>
+export const candidateName = (t: CreditRegistrationTFunction, candidate: SisuNames) =>
   candidateFullName(candidate) || t("credit-registration-admin-linking-candidate-no-name")
 
 /** Whether any listed person has had a linking email, so saying "not emailed" tells them apart. */

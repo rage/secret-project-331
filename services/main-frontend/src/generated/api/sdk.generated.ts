@@ -283,6 +283,9 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesErrors,
+  GetAccountLinkingCourseEnroleesResponses,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
@@ -487,6 +490,9 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponses,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponses,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryErrors,
+  GetCreditRegistrationCourseSummaryResponses,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
@@ -1062,6 +1068,7 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCourseEnroleesResponse,
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
   zGetAccountLinkingUnlinkedEnroleesResponse,
@@ -1157,6 +1164,7 @@ import {
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
+  zGetCreditRegistrationCourseSummaryResponse,
   zGetCreditRegistrationDetailsResponse,
   zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
@@ -5629,6 +5637,34 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
   })
 
 /**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingCourseEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingCourseEnroleesResponses,
+  GetAccountLinkingCourseEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingCourseEnroleesResponses,
+    GetAccountLinkingCourseEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingCourseEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees",
+    ...options,
+  })
+
+/**
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
  * linking email, newest first.
  *
@@ -6081,6 +6117,31 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationCourseSummaryData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationCourseSummaryResponses,
+  GetCreditRegistrationCourseSummaryErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationCourseSummaryResponses,
+    GetCreditRegistrationCourseSummaryErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationCourseSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary",
+    ...options,
   })
 
 /**

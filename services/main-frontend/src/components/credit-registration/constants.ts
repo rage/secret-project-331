@@ -14,6 +14,9 @@ export { TONE } from "@/shared-module/components"
  */
 export const CREDIT_REGISTRATION_NS = "credit-registration" as const
 
+/** `usePageTitle` order for a page under a tab: above the layout's tab title (20), which would win. */
+export const TITLE_ORDER = 30
+
 /** The `t` that namespace gives: helpers that build labels take this, not the service-wide one. */
 export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_NS>
 

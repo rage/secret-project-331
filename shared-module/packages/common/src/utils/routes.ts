@@ -380,6 +380,11 @@ export function creditRegistrationCoursesRoute() {
   return "/manage/credit-registration/courses"
 }
 
+/** One course's or mooc.fi target's registrations, linking emails and Sisu enrolments. */
+export function creditRegistrationCourseRoute(courseOrTargetId: string) {
+  return `/manage/credit-registration/courses/${courseOrTargetId}`
+}
+
 export function creditRegistrationLinkingRoute() {
   return "/manage/credit-registration/linking"
 }

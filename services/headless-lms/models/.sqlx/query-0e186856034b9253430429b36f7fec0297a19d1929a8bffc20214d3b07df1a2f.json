@@ -1,0 +1,60 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (cr.user_id, UPPER(TRIM(s.uh_course_code))) cr.user_id,\n  cr.id AS credit_registration_id,\n  cr.created_at,\n  UPPER(TRIM(s.uh_course_code)) AS uh_course_code\nFROM credit_registrations cr\n  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id\nWHERE cr.user_id = ANY($1::uuid [])\n  AND (\n    cr.course_id = $2\n    OR cr.external_credit_target_id = $2\n  )\n  AND cr.superseded_by_id IS NULL\n  AND cr.deleted_at IS NULL\nORDER BY cr.user_id,\n  UPPER(TRIM(s.uh_course_code)),\n  cr.created_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "credit_registration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "uh_course_code",
+        "type_info": "Text",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null
+    ]
+  },
+  "hash": "0e186856034b9253430429b36f7fec0297a19d1929a8bffc20214d3b07df1a2f"
+}

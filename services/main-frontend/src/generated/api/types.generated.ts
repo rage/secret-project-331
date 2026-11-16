@@ -455,6 +455,69 @@ export type AdminBulkTransitionSkipCount = {
 }
 
 /**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export type AdminCourseEnrolee = {
+  /**
+   * The linked account's newest registration on this course or target, preferring one under a
+   * course code whose roster lists them.
+   */
+  credit_registration_id?: string | null
+  /**
+   * `None` when the study registry gave no enrolment time.
+   */
+  enrolled_at?: string | null
+  /**
+   * Enrolled before account linking began, or at no known time. A linking email then goes to
+   * them automatically only when their Sisu address is the email of an account with a
+   * registerable completion on the course. Always false while account linking is off.
+   */
+  enrolled_before_account_linking: boolean
+  /**
+   * Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it.
+   */
+  enrolment_state?: string | null
+  first_names?: string | null
+  last_name?: string | null
+  linked_user_email?: string | null
+  /**
+   * The account linked to them by Sisu person id or student number.
+   */
+  linked_user_id?: string | null
+  /**
+   * The linking emails this course or target sent them, newest first, replaced ones included.
+   */
+  linking_emails: Array<LinkingMailSend>
+  /**
+   * In full: support has to tell people apart and check where a linking email went.
+   */
+  primary_email?: string | null
+  secondary_email?: string | null
+  /**
+   * Echoed back to the resend endpoint to mail them.
+   */
+  student_number: string
+}
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export type AdminCourseEnrolees = {
+  /**
+   * `None` while account linking is off.
+   */
+  account_linking_since?: string | null
+  /**
+   * Unlinked people first, then by last name and first names, ignoring case.
+   */
+  people: Array<AdminCourseEnrolee>
+  /**
+   * The study registry gave no usable answer for some code, so `people` says nothing.
+   */
+  study_registry_unavailable: boolean
+}
+
+/**
  * What one hand action does to a row: either a state move, or something that leaves the state
  * alone. Kept apart because only the first is a transition, and only the first is refusable.
  */
@@ -469,6 +532,24 @@ export type AdminCreditRegistrationAction =
   | {
       kind: "check_now"
     }
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export type AdminCreditRegistrationCourseSummary = {
+  /**
+   * `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
+  course_name: string
+  /**
+   * The course's modules that register credits, or the mooc.fi target alone.
+   */
+  credit_units: Array<AdminCreditUnitCourseCode>
+}
 
 export type AdminCreditRegistrationDetails = {
   /**
@@ -603,6 +684,10 @@ export type AdminCreditRegistrationRow = {
   created_at: string
   credits?: number | null
   /**
+   * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+   */
+  current_uh_course_code?: string | null
+  /**
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
@@ -682,6 +767,9 @@ export type AdminCreditRegistrationRow = {
   superseded_by_id?: string | null
   terminal_at?: string | null
   timeline_step: TimelineStep
+  /**
+   * The code submitted, frozen with `student_number`.
+   */
   uh_course_code?: string | null
   user_id: string
   /**
@@ -698,6 +786,18 @@ export type AdminCreditRegistrationRow = {
  * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
+
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export type AdminCreditUnitCourseCode = {
+  /**
+   * `None` for a mooc.fi target or a course's default module.
+   */
+  course_module_name?: string | null
+  credit_unit_id: string
+  uh_course_code?: string | null
+}
 
 export type AdminDeleteExternalCreditTargetPayload = {
   reason: string
@@ -3622,6 +3722,10 @@ export type CreditRegistrationCourseStats = {
    */
   course_name: string
   /**
+   * The course, or the mooc.fi target, which is its own credit unit.
+   */
+  course_or_target_id: string
+  /**
    * The module's or target's id, which the Registrations list's `course_module_id` filter takes.
    */
   credit_unit_id: string
@@ -5513,6 +5617,14 @@ export type LinkingEmailStatus = {
  */
 export type LinkingMailLinkState = "usable" | "used" | "lapsed"
 
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export type LinkingMailSend = {
+  claimed_at: string
+  send_status?: EmailSendStatusReport | null
+}
+
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
   first_time_completing_users: Array<ManualCompletionPreviewUser>
@@ -6522,6 +6634,10 @@ export type PageAdminCreditRegistrationRow = {
     created_at: string
     credits?: number | null
     /**
+     * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+     */
+    current_uh_course_code?: string | null
+    /**
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
@@ -6601,6 +6717,9 @@ export type PageAdminCreditRegistrationRow = {
     superseded_by_id?: string | null
     terminal_at?: string | null
     timeline_step: TimelineStep
+    /**
+     * The code submitted, frozen with `student_number`.
+     */
     uh_course_code?: string | null
     user_id: string
     /**
@@ -13476,6 +13595,39 @@ export type GetAccountLinkingUnlinkedEnroleesResponses = {
 export type GetAccountLinkingUnlinkedEnroleesResponse =
   GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
 
+export type GetAccountLinkingCourseEnroleesData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees"
+}
+
+export type GetAccountLinkingCourseEnroleesErrors = {
+  /**
+   * No active module or mooc.fi target with a course code
+   */
+  400: unknown
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
+export type GetAccountLinkingCourseEnroleesResponses = {
+  /**
+   * The people on the enrolment lists
+   */
+  200: AdminCourseEnrolees
+}
+
+export type GetAccountLinkingCourseEnroleesResponse =
+  GetAccountLinkingCourseEnroleesResponses[keyof GetAccountLinkingCourseEnroleesResponses]
+
 export type ListAccountLinkingEmailsData = {
   body?: never
   path?: never
@@ -13496,6 +13648,10 @@ export type ListAccountLinkingEmailsData = {
      * Part of the recipient address, ignoring case
      */
     address?: string
+    /**
+     * Only mails sent for this course or mooc.fi target
+     */
+    course_or_target_id?: string
   }
   url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails"
 }
@@ -13943,6 +14099,35 @@ export type AdminResumeCourseModuleCreditRegistrationResponses = {
    */
   200: unknown
 }
+
+export type GetCreditRegistrationCourseSummaryData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary"
+}
+
+export type GetCreditRegistrationCourseSummaryErrors = {
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
+export type GetCreditRegistrationCourseSummaryResponses = {
+  /**
+   * The course's name and course codes
+   */
+  200: AdminCreditRegistrationCourseSummary
+}
+
+export type GetCreditRegistrationCourseSummaryResponse =
+  GetCreditRegistrationCourseSummaryResponses[keyof GetCreditRegistrationCourseSummaryResponses]
 
 export type GetCreditRegistrationEnrolmentChecksData = {
   body?: never

@@ -1111,7 +1111,7 @@ async fn course_name_of_token(
         }
         Some(LinkingMailSource::ExternalCreditTarget(target_id)) => {
             let target = models::external_credit_targets::get_by_id(conn, target_id).await?;
-            format!("mooc.fi: {}", target.name)
+            target.display_name()
         }
         None => return Ok(None),
     };

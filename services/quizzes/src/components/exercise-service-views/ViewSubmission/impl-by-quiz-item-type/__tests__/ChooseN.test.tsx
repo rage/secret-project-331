@@ -69,6 +69,11 @@ const renderSubmission = (solution: ModelSolutionQuizItemChooseN | null = modelS
 
 // react-i18next is mocked in src/test/setup.ts, so t() returns the translation key.
 describe("ChooseN submission view accessibility", () => {
+  it("emits no headings", () => {
+    renderSubmission()
+    expect(screen.queryAllByRole("heading")).toHaveLength(0)
+  })
+
   it("labels a correctly selected option's icon as selected and correct (WCAG 1.1.1)", () => {
     renderSubmission()
     const apple = screen.getAllByText("Apple")[0]!.closest("div")

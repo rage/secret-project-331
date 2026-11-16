@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { useId } from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -46,6 +46,8 @@ const MultipleChoiceDropdownFeedback: React.FC<
   quiz_item_model_solution,
 }) => {
   const { t } = useTranslation()
+  const titleId = useId()
+  const bodyId = useId()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
   const correct =
@@ -80,7 +82,8 @@ const MultipleChoiceDropdownFeedback: React.FC<
             `}
           >
             {public_quiz_item.title ? (
-              <h2
+              <div
+                id={titleId}
                 className={css`
                   font-size: ${quizTheme.quizTitleFontSize} !important;
                   font-weight: 500;
@@ -90,7 +93,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
                 `}
               >
                 {public_quiz_item.title}
-              </h2>
+              </div>
             ) : null}
           </div>
           {public_quiz_item.body && (
@@ -100,13 +103,15 @@ const MultipleChoiceDropdownFeedback: React.FC<
               `}
             >
               {public_quiz_item.body ? (
-                <h3
+                <p
+                  id={bodyId}
                   className={css`
-                    font-size: 1.25rem !important;
+                    font-size: 1.25rem;
+                    margin: 0;
                   `}
                 >
                   {public_quiz_item.body}
-                </h3>
+                </p>
               ) : null}
             </div>
           )}
@@ -140,7 +145,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
             `}
           >
             <select
-              aria-label={t("answer")}
+              aria-label={public_quiz_item.title ? undefined : t("answer")}
+              aria-labelledby={public_quiz_item.title ? titleId : undefined}
+              aria-describedby={public_quiz_item.body ? bodyId : undefined}
               disabled
               className={css`
                 display: grid;

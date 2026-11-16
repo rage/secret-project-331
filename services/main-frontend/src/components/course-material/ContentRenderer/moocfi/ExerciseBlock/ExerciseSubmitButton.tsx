@@ -31,6 +31,18 @@ const blockerListStyles = css`
   }
 `
 
+const visuallyHiddenStyles = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+`
+
 const blockerListEmphasizedStyles = css`
   color: ${baseTheme.colors.red[700]};
   font-weight: 500;
@@ -47,6 +59,8 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
   const { t } = useTranslation()
   const hintId = useId()
   const [emphasizeReasons, setEmphasizeReasons] = useState(false)
+  // Spoken only after a blocked Submit; the visible list changes silently while answering.
+  const [announcement, setAnnouncement] = useState("")
 
   const hasBlockers = blockers.length > 0
   const blocked = isPending || hasBlockers
@@ -55,6 +69,7 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
   useEffect(() => {
     if (!hasBlockers) {
       setEmphasizeReasons(false)
+      setAnnouncement("")
     }
   }, [hasBlockers])
 
@@ -63,7 +78,6 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
       {hasBlockers && (
         <div
           id={hintId}
-          role="status"
           className={cx(blockerListStyles, emphasizeReasons && blockerListEmphasizedStyles)}
         >
           <ul>
@@ -73,6 +87,9 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           </ul>
         </div>
       )}
+      <div role="status" className={visuallyHiddenStyles}>
+        {announcement}
+      </div>
       <button
         className={buttonClassName}
         aria-disabled={blocked}
@@ -81,6 +98,7 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           if (blocked) {
             if (hasBlockers) {
               setEmphasizeReasons(true)
+              setAnnouncement(blockers.join(" "))
             }
             return
           }

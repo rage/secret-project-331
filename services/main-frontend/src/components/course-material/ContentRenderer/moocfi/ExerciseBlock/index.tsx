@@ -55,6 +55,7 @@ import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+import { getSubmissionScore } from "./submissionScore"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -247,7 +248,7 @@ const ExerciseBlock: React.FC<
           signedIn: Boolean(loginState.signedIn),
         })
         // Announce grading to screen readers and move focus to the exercise heading.
-        const scoreGiven = data.exercise_status?.score_given
+        const scoreGiven = getSubmissionScore(data)
         const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
         setSubmissionAnnouncement(
           scoreGiven !== null &&
@@ -312,6 +313,11 @@ const ExerciseBlock: React.FC<
     },
     {
       notify: false,
+    },
+    {
+      onSuccess: () => {
+        exerciseTitleRef.current?.focus({ preventScroll: true })
+      },
     },
   )
   const exerciseDeadline = useDateStringAsDateNullable(
@@ -664,6 +670,7 @@ const ExerciseBlock: React.FC<
                       )}
                       canPostSubmission={courseMaterialExercise.can_post_submission}
                       exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                      exerciseName={courseMaterialExercise.exercise.name}
                       isChapterLocked={Boolean(isChapterLocked)}
                     />
                   ))}

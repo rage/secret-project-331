@@ -1,4 +1,5 @@
 import type { UserAnswer } from "../../../../../types/quizTypes/answer"
+import type { PublicSpecQuizItem } from "../../../../../types/quizTypes/publicSpec"
 import { getQuizValidityMessages } from "../getValidityMessages"
 
 // The parent renders these strings verbatim, so the identity translator keeps assertions readable.
@@ -11,6 +12,13 @@ const timelineAnswer = (
   version: "5",
   itemAnswers: [{ type: "timeline", quizItemId: "t1", valid, timelineChoices: choices }],
 })
+
+const essay = (minWords: number | null, maxWords: number | null) =>
+  [
+    { type: "essay", id: "e1", order: 0, title: null, body: null, minWords, maxWords },
+  ] as unknown as PublicSpecQuizItem[]
+const tOpts = (key: string, options?: Record<string, number>) =>
+  options ? `${key} ${JSON.stringify(options)}` : key
 
 describe("getQuizValidityMessages", () => {
   it("returns no messages when every item is answered and valid", () => {
@@ -75,5 +83,18 @@ describe("getQuizValidityMessages", () => {
 
   it("returns no messages for a null state with no required items", () => {
     expect(getQuizValidityMessages(null, 0, t)).toEqual([])
+  })
+
+  it("explains essay word-count reasons", () => {
+    const state: UserAnswer = {
+      version: "5",
+      itemAnswers: [{ type: "essay", quizItemId: "e1", valid: false, textData: "one two" }],
+    }
+    expect(getQuizValidityMessages(state, 1, tOpts, essay(5, null))).toEqual([
+      'word-count-below-minimum {"count":2,"min":5}',
+    ])
+    expect(getQuizValidityMessages(state, 1, tOpts, essay(null, 1))).toEqual([
+      'word-count-above-maximum {"count":2,"max":1}',
+    ])
   })
 })

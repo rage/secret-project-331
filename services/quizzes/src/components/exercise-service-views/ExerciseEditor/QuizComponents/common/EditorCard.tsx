@@ -2,6 +2,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { ArrowDownCircle, ArrowUpCircle, Trash } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 
@@ -54,6 +55,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
   title,
   quizItemId,
 }) => {
+  const { t } = useTranslation()
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuiz>(
     (quiz) => {
       return quiz as PrivateSpecQuiz
@@ -70,6 +72,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
         <Button
           size="small"
           variant="icon"
+          aria-label={t("move-item-up")}
           onClick={() => {
             updateState((draft) => {
               if (!draft) {
@@ -123,6 +126,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
         >
           <ArrowUpCircle
             size={20}
+            aria-hidden="true"
             className={css`
               display: inline;
               border-radius: 50%;
@@ -138,6 +142,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
         <Button
           size="small"
           variant="icon"
+          aria-label={t("move-item-down")}
           onClick={() => {
             updateState((draft) => {
               if (!draft) {
@@ -189,6 +194,7 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
         >
           <ArrowDownCircle
             size={20}
+            aria-hidden="true"
             className={css`
               display: inline;
               border-radius: 50%;
@@ -215,8 +221,9 @@ const EditorCard: React.FC<React.PropsWithChildren<EditorCardProps>> = ({
           }}
           size="medium"
           variant="outlined"
+          aria-label={t("delete-item-named", { title })}
         >
-          <Trash size={18} />
+          <Trash size={18} aria-hidden="true" />
         </DeleteButton>
       </DeleteButtonContainer>
     </EditorWrapper>

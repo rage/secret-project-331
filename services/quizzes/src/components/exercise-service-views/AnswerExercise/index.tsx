@@ -50,8 +50,13 @@ const Exercise: React.FC<React.PropsWithChildren<ExerciseProps>> = ({
   // `current-state` message so it can tell the student why the submit button is greyed out.
   const getValidityMessages = useCallback(
     (newState: UserAnswer | null): string[] =>
-      getQuizValidityMessages(newState, publicSpec.items.length, (key) => t(key)),
-    [publicSpec.items.length, t],
+      getQuizValidityMessages(
+        newState,
+        publicSpec.items.length,
+        (key, options) => (options ? t(key, options) : t(key)),
+        publicSpec.items,
+      ),
+    [publicSpec.items, t],
   )
 
   return (

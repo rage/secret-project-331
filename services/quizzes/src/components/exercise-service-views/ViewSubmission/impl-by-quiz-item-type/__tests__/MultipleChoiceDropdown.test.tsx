@@ -91,4 +91,12 @@ describe("MultipleChoiceDropdown submission view accessibility", () => {
     expect(screen.getByText("your-answer-was-not-correct")).toBeInTheDocument()
     expect(screen.queryByText("your-answer-was-correct")).not.toBeInTheDocument()
   })
+
+  it("names the combobox by the question and has no headings", () => {
+    renderSubmission("o-mercury")
+    expect(
+      screen.getByRole("combobox", { name: "Which planet is closest to the sun?" }),
+    ).toBeDisabled()
+    expect(screen.queryAllByRole("heading")).toHaveLength(0)
+  })
 })

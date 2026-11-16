@@ -31,8 +31,15 @@ describe("ExerciseSubmitButton accessibility", () => {
 
   it("proactively shows the reasons the button is disabled, without a click", () => {
     renderButton({ blockers: ["Each option can be chosen only once."] })
+    expect(screen.getByText("Each option can be chosen only once.")).toBeVisible()
+  })
+
+  it("keeps the live region silent until a blocked Submit, then speaks the reasons", () => {
+    renderButton({ blockers: ["Please check your answer."] })
     const status = screen.getByRole("status")
-    expect(status).toHaveTextContent("Each option can be chosen only once.")
+    expect(status).toBeEmptyDOMElement()
+    fireEvent.click(screen.getByRole("button", { name: "submit-button" }))
+    expect(status).toHaveTextContent("Please check your answer.")
   })
 
   it("lists every blocking reason", () => {
@@ -40,9 +47,8 @@ describe("ExerciseSubmitButton accessibility", () => {
       blockers: ["Please answer all parts of the exercise.", "The deadline has passed."],
     })
     expect(screen.getAllByRole("listitem")).toHaveLength(2)
-    const status = screen.getByRole("status")
-    expect(status).toHaveTextContent("Please answer all parts of the exercise.")
-    expect(status).toHaveTextContent("The deadline has passed.")
+    expect(screen.getByText("Please answer all parts of the exercise.")).toBeVisible()
+    expect(screen.getByText("The deadline has passed.")).toBeVisible()
   })
 
   it("describes the button via aria-describedby so screen readers know why it is disabled", () => {

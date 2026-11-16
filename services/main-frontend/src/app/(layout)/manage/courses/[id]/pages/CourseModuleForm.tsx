@@ -34,6 +34,10 @@ import ModuleCompletionFields, { fieldRowCss } from "./ModuleCompletionFields"
 import type { CourseModuleFormFields, CourseModuleFormState } from "./moduleCompletionForm"
 import { formFieldsOf, formStateOf, lacksRequirement } from "./moduleCompletionForm"
 
+const FIRST_FIELD = "first-field"
+const EDIT_BUTTON = "edit-button"
+const FIRST_CONTROL_SELECTOR = "input:not([type=hidden]), select, button"
+
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
 
@@ -193,14 +197,14 @@ const CourseModuleForm: React.FC<Props> = ({
   const formRef = useRef<HTMLFormElement>(null)
   const editButtonRef = useRef<HTMLButtonElement>(null)
   // Where focus goes once `editing` has flipped and the new controls are rendered.
-  const pendingFocus = useRef<"first-field" | "edit-button" | null>(isCreate ? "first-field" : null)
+  const pendingFocus = useRef<typeof FIRST_FIELD | typeof EDIT_BUTTON | null>(
+    isCreate ? FIRST_FIELD : null,
+  )
   useEffect(() => {
     const target = pendingFocus.current
-    if (target === "first-field" && editing) {
-      formRef.current
-        ?.querySelector<HTMLElement>("input:not([type=hidden]), select, button")
-        ?.focus()
-    } else if (target === "edit-button" && !editing) {
+    if (target === FIRST_FIELD && editing) {
+      formRef.current?.querySelector<HTMLElement>(FIRST_CONTROL_SELECTOR)?.focus()
+    } else if (target === EDIT_BUTTON && !editing) {
       editButtonRef.current?.focus()
     } else {
       return
@@ -238,7 +242,7 @@ const CourseModuleForm: React.FC<Props> = ({
   )
 
   const onSubmitFormWrapper = (state: CourseModuleFormState): void => {
-    pendingFocus.current = "edit-button"
+    pendingFocus.current = EDIT_BUTTON
     setEditing(isCreate)
     onSubmitForm(module.id, formFieldsOf(state))
     onCancel?.()
@@ -307,7 +311,7 @@ const CourseModuleForm: React.FC<Props> = ({
                   defaultValue: "Edit module {{name}}",
                 })}
                 onClick={() => {
-                  pendingFocus.current = "first-field"
+                  pendingFocus.current = FIRST_FIELD
                   setEditing(true)
                 }}
               >
@@ -388,7 +392,7 @@ const CourseModuleForm: React.FC<Props> = ({
                 disabled={isSubmitting}
                 onClick={() => {
                   reset()
-                  pendingFocus.current = "edit-button"
+                  pendingFocus.current = EDIT_BUTTON
                   setEditing(false)
                   onCancel?.()
                 }}

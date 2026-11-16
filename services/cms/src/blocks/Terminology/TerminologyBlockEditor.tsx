@@ -72,7 +72,7 @@ const TerminologyBlockEditor: React.FC<
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            placeholder={t("welcome-message-for-course")}
+            placeholder={t("terminology-title-placeholder")}
           />
           <RegisteredInnerBlocks />
         </div>

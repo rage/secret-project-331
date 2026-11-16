@@ -1,7 +1,9 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   getPageHistoryCountOptions,
@@ -12,6 +14,15 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { Pagination, QueryResult } from "@/shared-module/components"
 
 import HistoryPage from "./HistoryPage"
+
+const visuallyHiddenCss = css`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`
 
 interface Props {
   pageId: string
@@ -26,7 +37,11 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   onRestore,
   onCompare,
 }) => {
+  const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
+  const [statusMessage, setStatusMessage] = useState("")
+  // Restoring from a later page swaps in a new row, so focus has to be handed to its Restore button.
+  const focusRestoreOnMount = useRef(false)
 
   const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(
     initialSelectedRevisionId,
@@ -58,7 +73,9 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     await onRestore(history)
     await getPageHistoryCount.refetch()
     changePage(1)
+    focusRestoreOnMount.current = paginationInfo.page !== 1
     setSelectedRevisionId(newHistoryId)
+    setStatusMessage(t("page-restored"))
   }
 
   function changePage(newPage: number) {
@@ -69,6 +86,9 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     <QueryResult query={getPageHistoryCount}>
       {(pageHistoryCount) => (
         <>
+          <div role="status" className={visuallyHiddenCss}>
+            {statusMessage}
+          </div>
           <HistoryPage
             pageId={pageId}
             page={paginationInfo.page}
@@ -76,6 +96,7 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
             selectedRevisionId={selectedRevisionId}
             onCompare={compare}
             onRestore={restore}
+            focusRestoreOnMount={focusRestoreOnMount}
           />
           <Pagination
             totalPages={pageHistoryCount}

@@ -434,7 +434,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
               <Trans
                 t={t}
                 i18nKey="exams-are-made-on-exams-page"
-                components={{ link: <TransLink href={links.examsPage} /> }}
+                components={{ anchor: <TransLink href={links.examsPage} /> }}
               />
             </span>
           )}
@@ -666,7 +666,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
                       <Trans
                         t={t}
                         i18nKey="examinarium-add-results"
-                        components={{ strong: <strong />, link: studentsTabLink }}
+                        components={{ strong: <strong />, anchor: studentsTabLink }}
                       />
                     </p>
                     {outsideRouteQuestion}
@@ -695,7 +695,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
                       <Trans
                         t={t}
                         i18nKey="outside-exam-add-results"
-                        components={{ strong: <strong />, link: studentsTabLink }}
+                        components={{ strong: <strong />, anchor: studentsTabLink }}
                       />
                     </p>
                     {outsideRouteQuestion}
@@ -753,7 +753,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
                       ? "pass-method-teacher-adds-no-pass-mark-description"
                       : "pass-method-teacher-adds-description"
                   }
-                  components={{ link: studentsTabLink }}
+                  components={{ anchor: studentsTabLink }}
                 />
               }
             />
@@ -800,7 +800,7 @@ const ModuleCompletionFields: React.FC<Props> = ({
                 <Trans
                   t={t}
                   i18nKey="certificate-not-set-up"
-                  components={{ link: <TransLink href={links.certificatesPage} /> }}
+                  components={{ anchor: <TransLink href={links.certificatesPage} /> }}
                 />
               </p>
             ))}

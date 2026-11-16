@@ -28,7 +28,8 @@ import CourseContext from "../../../contexts/CourseContext"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
-const IFRAME_EDITOR = "IFRAME EDITOR"
+const QUIZZES_SLUG = "quizzes"
+const EXAMPLE_EXERCISE_SLUG = "example-exercise"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
@@ -65,6 +66,13 @@ const ExerciseTaskIFrameEditor: React.FC<
       },
     }
   }, [privateSpec])
+
+  const title =
+    exerciseServiceSlug === QUIZZES_SLUG
+      ? t("quiz-editor")
+      : exerciseServiceSlug === EXAMPLE_EXERCISE_SLUG
+        ? t("example-exercise-editor")
+        : exerciseServiceSlug
 
   if (!url || url.trim() === "") {
     return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
@@ -159,7 +167,7 @@ const ExerciseTaskIFrameEditor: React.FC<
           sidebarPosition: "right",
         },
       })}
-      title={IFRAME_EDITOR}
+      title={title}
     />
   )
 }

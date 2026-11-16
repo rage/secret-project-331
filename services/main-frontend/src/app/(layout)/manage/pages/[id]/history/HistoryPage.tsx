@@ -17,6 +17,8 @@ interface Props {
   selectedRevisionId: string | null
   onCompare: (ph: PageHistory) => void
   onRestore: (ph: PageHistory) => void
+  /** When set, the selected revision's Restore button takes focus as it mounts, once. */
+  focusRestoreOnMount?: React.RefObject<boolean>
 }
 
 const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
@@ -26,8 +28,9 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   selectedRevisionId,
   onCompare,
   onRestore,
+  focusRestoreOnMount,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const getPageHistory = useQuery({
     ...getPageHistoryOptions({
       path: {
@@ -39,6 +42,8 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
+
+  const formatTime = (iso: string) => parseISO(iso).toLocaleString(i18n.language)
 
   return (
     <QueryResult
@@ -81,10 +86,26 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
                   )}
                 </div>
                 <div>
-                  <Button variant={"primary"} size={"medium"} onClick={() => onCompare(h)}>
+                  <Button
+                    variant={"primary"}
+                    size={"medium"}
+                    aria-label={t("compare-revision-named", { time: formatTime(h.created_at) })}
+                    onClick={() => onCompare(h)}
+                  >
                     {t("button-compare")}
                   </Button>{" "}
-                  <Button variant={"primary"} size={"medium"} onClick={() => onRestore(h)}>
+                  <Button
+                    ref={(el) => {
+                      if (el && focusRestoreOnMount?.current && selectedRevisionId === h.id) {
+                        focusRestoreOnMount.current = false
+                        el.focus()
+                      }
+                    }}
+                    variant={"primary"}
+                    size={"medium"}
+                    aria-label={t("restore-revision-named", { time: formatTime(h.created_at) })}
+                    onClick={() => onRestore(h)}
+                  >
                     {t("button-restore")}
                   </Button>
                 </div>

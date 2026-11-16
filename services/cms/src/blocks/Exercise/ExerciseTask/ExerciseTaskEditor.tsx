@@ -11,7 +11,6 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
-import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
@@ -37,6 +36,13 @@ const svgSquare = css`
   flex: 0 0 4rem;
   height: 4rem;
   justify-content: center;
+`
+
+const iconButton = css`
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 `
 
 const gray400WithHover = css`
@@ -163,14 +169,13 @@ const ExerciseTaskEditor: React.FC<
               {t("task")}
               {exerciseService && <ExerciseServiceBadges exerciseService={exerciseService} />}
             </div>
-            <div
-              className={cx(svgSquare, gray500WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, toggleEditor)}
+            <button
+              type="button"
+              data-exercise-task-edit=""
+              className={cx(svgSquare, iconButton, gray500WithHover)}
               onClick={toggleEditor}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={attributes.show_editor ? t("close") : t("edit")}
+              aria-label={t("edit-task")}
+              aria-expanded={attributes.show_editor}
             >
               {attributes.show_editor ? (
                 <XmarkCircle
@@ -189,15 +194,12 @@ const ExerciseTaskEditor: React.FC<
                   `}
                 />
               )}
-            </div>
-            <div
-              className={cx(svgSquare, gray400WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, handleDeleteTask)}
+            </button>
+            <button
+              type="button"
+              className={cx(svgSquare, iconButton, gray400WithHover)}
               onClick={handleDeleteTask}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={t("delete")}
+              aria-label={t("delete-task")}
             >
               <Trash
                 size={16}
@@ -206,7 +208,7 @@ const ExerciseTaskEditor: React.FC<
                   margin: 1.5rem;
                 `}
               />
-            </div>
+            </button>
           </div>
         </div>
         {attributes.show_editor ? (

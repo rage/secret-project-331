@@ -86,7 +86,7 @@ export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps, DisclosureVariant } from "./components/Disclosure"
 export { EmptyState } from "./components/EmptyState"
 export type { EmptyStateProps } from "./components/EmptyState"
-export { ErrorNotice } from "./components/ErrorNotice"
+export { ErrorNotice, ErrorNoticeTitleContext } from "./components/ErrorNotice"
 export type {
   ErrorNoticeAnnouncement,
   ErrorNoticeDensity,

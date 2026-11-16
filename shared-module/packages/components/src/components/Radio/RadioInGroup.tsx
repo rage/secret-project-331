@@ -153,8 +153,8 @@ export function RadioInGroup({
     inputRef,
   )
 
+  // The group's own description is wired to the radiogroup; react-aria's copy on every radio is dropped.
   const describedBy = joinAriaDescribedBy(
-    typeof inputProps["aria-describedby"] === "string" ? inputProps["aria-describedby"] : undefined,
     ariaDescribedBy,
     description ? descriptionId : undefined,
     errorMessage ? errorMessageId : undefined,

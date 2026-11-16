@@ -84,6 +84,8 @@ export type ComboBoxProps<
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   placeholder?: string
+  /** HTML autocomplete token for the input, e.g. `country-name`. */
+  autoComplete?: string
   "aria-label"?: string
   className?: string
   /** Lands on the text input; the listbox is reachable from its `aria-controls` while open. */
@@ -124,6 +126,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     onKeyDown,
     onKeyUp,
     placeholder,
+    autoComplete,
     "aria-label": ariaLabel,
     "data-testid": dataTestId,
   } = props
@@ -303,6 +306,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
             !isEditable && comboBoxInputReadonlyCss,
           )}
           data-testid={dataTestId}
+          {...omitUndefined({ autoComplete })}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}

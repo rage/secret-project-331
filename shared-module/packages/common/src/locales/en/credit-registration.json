@@ -1465,6 +1465,7 @@
   "credit-registration-you-told-us-you-enrolled-open-university": "You told us you enrolled at the Open University on {{date}}.",
   "credit-registration-you-told-us-you-enrolled-sisu": "You told us you enrolled through Sisu on {{date}}.",
   "duration-seconds": "{{seconds}} s",
+  "edit-module-named": "Edit module {{name}}",
   "grade-fail": "Fail",
   "grade-pass": "Pass",
   "heading-credit-registration-config-problem": "This module cannot register credits with its current settings.",

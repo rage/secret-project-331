@@ -119,6 +119,7 @@ void i18next.use(initReactI18next).init({
         "errorNotice.rawResponse": "Raw response",
         "errorNotice.requestId": "Request ID",
         "errorNotice.retryAfter": "Retry after",
+        "errorNotice.retry": "Retry",
         "errorNotice.seconds": "{{seconds}} s",
         "errorNotice.stackTrace": "Stack trace",
         "errorNotice.status": "Status",

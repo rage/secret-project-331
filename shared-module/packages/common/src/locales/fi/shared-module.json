@@ -173,6 +173,7 @@
   "please-sign-in-to-view-this-page": "Kirjaudu sisään nähdäksesi tämän sivun",
   "points": "Pistettä",
   "previous-page": "Edellinen sivu",
+  "previous-page-named": "Edellinen: {{title}}",
   "privacy": "Yksityisyys",
   "project-github": "Project Github",
   "queryResult.loading": "Ladataan",

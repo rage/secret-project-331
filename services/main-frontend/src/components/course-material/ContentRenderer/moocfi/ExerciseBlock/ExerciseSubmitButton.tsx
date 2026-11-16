@@ -1,8 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import React, { useEffect, useId, useState } from "react"
-import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
@@ -48,8 +48,6 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
   const { t } = useTranslation()
   const hintId = useId()
   const [emphasizeReasons, setEmphasizeReasons] = useState(false)
-  // Spoken only after a blocked Submit; the visible list changes silently while answering.
-  const [announcement, setAnnouncement] = useState("")
 
   const hasBlockers = blockers.length > 0
   const blocked = isPending || hasBlockers
@@ -58,7 +56,6 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
   useEffect(() => {
     if (!hasBlockers) {
       setEmphasizeReasons(false)
-      setAnnouncement("")
     }
   }, [hasBlockers])
 
@@ -76,9 +73,6 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           </ul>
         </div>
       )}
-      <VisuallyHidden>
-        <div role="status">{announcement}</div>
-      </VisuallyHidden>
       <button
         className={buttonClassName}
         aria-disabled={blocked}
@@ -87,7 +81,9 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           if (blocked) {
             if (hasBlockers) {
               setEmphasizeReasons(true)
-              setAnnouncement(blockers.join(" "))
+              // Spoken only after a blocked Submit; the visible list changes silently while answering.
+              // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+              announce(blockers.join(" "), "polite")
             }
             return
           }

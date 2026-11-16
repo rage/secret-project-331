@@ -13,9 +13,9 @@ import { focusProgrammatically } from "@/shared-module/components"
 
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
 import ExamInfoHeader, { EXAM_HEADING_ID } from "./ExamInfoHeader"
-import ExamStatusAnnouncer from "./ExamStatusAnnouncer"
 import ExamTimer from "./ExamTimer"
 import useClockSkew from "./useClockSkew"
+import useExamStatusAnnouncer from "./useExamStatusAnnouncer"
 
 export interface ExamRunningSectionProps {
   examData: ExamData
@@ -50,15 +50,23 @@ export default function ExamRunningSection({
     }
   }, [justStarted])
 
-  if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
+  const enrollment =
+    examData.enrollment_data.tag === "EnrolledAndStarted"
+      ? examData.enrollment_data.enrollment
+      : null
+  const startedAt = enrollment ? parseISO(enrollment.started_at) : null
+  const endsAt =
+    startedAt &&
+    (examData.ends_at
+      ? min([addMinutes(startedAt, examData.time_minutes), parseISO(examData.ends_at)])
+      : addMinutes(startedAt, examData.time_minutes))
+  const secondsLeft =
+    endsAt && differenceInSeconds(endsAt, addMilliseconds(now, skew?.finalOffsetMs ?? 0))
+  useExamStatusAnnouncer(secondsLeft, justStarted)
+
+  if (startedAt === null || endsAt === null || secondsLeft === null) {
     return null
   }
-  const { enrollment } = examData.enrollment_data
-  const startedAt = parseISO(enrollment.started_at)
-  const endsAt = examData.ends_at
-    ? min([addMinutes(startedAt, examData.time_minutes), parseISO(examData.ends_at)])
-    : addMinutes(startedAt, examData.time_minutes)
-  const secondsLeft = differenceInSeconds(endsAt, addMilliseconds(now, skew?.finalOffsetMs ?? 0))
 
   const warningMessageClass = css`
     background: linear-gradient(
@@ -97,7 +105,6 @@ export default function ExamRunningSection({
       <CenteredClockSkewWarning />
       <ExamTimeOverModal disabled={examData.ended} secondsLeft={secondsLeft} onClose={onRefresh} />
       <ExamInfoHeader examData={examData} />
-      <ExamStatusAnnouncer secondsLeft={secondsLeft} announceStarted={justStarted} />
       <ExamTimer startedAt={startedAt} endsAt={endsAt} secondsLeft={secondsLeft} />
       {secondsLeft < 10 * 60 && secondsLeft >= 0 && (
         <div className={warningMessageClass}>

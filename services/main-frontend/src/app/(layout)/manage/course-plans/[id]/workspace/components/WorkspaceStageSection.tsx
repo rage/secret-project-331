@@ -1,9 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
-import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -237,8 +236,6 @@ export default function WorkspaceStageSection({
     }
   }
 
-  const [statusMessage, setStatusMessage] = useState("")
-
   // After a delete, focus the task now at the deleted one's position, else the new-task field.
   const { containerRef: taskListRef, remember } = useFocusAfterRemoval<HTMLUListElement>(
     stage.tasks,
@@ -252,11 +249,13 @@ export default function WorkspaceStageSection({
       onSuccess: (_data, variables) => {
         const deleted = stage.tasks.find((task) => task.id === variables.path.task_id)
         remember(taskHeadingId(variables.path.task_id))
-        setStatusMessage(
+        announce(
           t("course-plans-task-deleted", {
             task: deleted?.title ?? "",
             defaultValue: "Task deleted: {{task}}",
           }),
+          // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+          "polite",
         )
         onInvalidate()
       },
@@ -360,9 +359,6 @@ export default function WorkspaceStageSection({
           </Button>
         </form>
       )}
-      <VisuallyHidden>
-        <span role="status">{statusMessage}</span>
-      </VisuallyHidden>
       <ul className={taskListStyles} ref={taskListRef}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>

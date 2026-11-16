@@ -1,9 +1,12 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import { announce } from "@react-aria/live-announcer"
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import ExerciseSubmitButton from "../ExerciseSubmitButton"
+
+jest.mock("@react-aria/live-announcer", () => ({ announce: jest.fn() }))
 
 // react-i18next is mocked in tests/setup-jest.js, so t() returns the translation key. Blockers are
 // already-localized strings produced by the exercise/host, so we pass literal strings here.
@@ -34,12 +37,12 @@ describe("ExerciseSubmitButton accessibility", () => {
     expect(screen.getByText("Each option can be chosen only once.")).toBeVisible()
   })
 
-  it("keeps the live region silent until a blocked Submit, then speaks the reasons", () => {
+  it("stays silent until a blocked Submit, then speaks the reasons", () => {
+    jest.mocked(announce).mockClear()
     renderButton({ blockers: ["Please check your answer."] })
-    const status = screen.getByRole("status")
-    expect(status).toBeEmptyDOMElement()
+    expect(announce).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole("button", { name: "submit-button" }))
-    expect(status).toHaveTextContent("Please check your answer.")
+    expect(announce).toHaveBeenCalledWith("Please check your answer.", "polite")
   })
 
   it("lists every blocking reason", () => {

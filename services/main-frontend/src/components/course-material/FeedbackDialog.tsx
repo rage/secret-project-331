@@ -1,10 +1,11 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import { useAtom } from "jotai"
 import React, { useId, useRef, useState } from "react"
-import { FocusScope, useDialog, useKeyboard, VisuallyHidden } from "react-aria"
+import { FocusScope, useDialog, useKeyboard } from "react-aria"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -47,7 +48,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   })
   const comment = useWatch({ control: commentFormControl, name: COMMENT_FIELD })
   const [error, setError] = useState<string | null>(null)
-  const [status, setStatus] = useState("")
   const commentFieldRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
@@ -101,7 +101,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
 
   function addComment() {
     setError("")
-    setStatus("")
     if (comment.length === 0) {
       setError(t("error-comment-cannot-be-empty"))
       commentFieldRef.current?.querySelector("textarea")?.focus()
@@ -132,9 +131,8 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
     setCommentValue(COMMENT_FIELD, "")
     setSelection("", undefined)
-    setStatus(t("comment-added"))
-    // Cleared so the same message is announced again for the next comment.
-    setTimeout(() => setStatus(""), 1500)
+    // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+    announce(t("comment-added"), "polite")
     commentFieldRef.current?.querySelector("textarea")?.focus()
   }
 
@@ -423,9 +421,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
               rows={3}
             />
           </div>
-          <VisuallyHidden>
-            <div role="status">{status}</div>
-          </VisuallyHidden>
 
           <div
             className={css`

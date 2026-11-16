@@ -1,10 +1,13 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import { announce } from "@react-aria/live-announcer"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import HistoryList from "../HistoryList"
+
+jest.mock("@react-aria/live-announcer", () => ({ announce: jest.fn() }))
 
 const revision = (id: string) => ({
   id,
@@ -55,7 +58,7 @@ describe("HistoryList", () => {
     expect(screen.getByRole("button", { name: "restore-revision-named" })).toBeInTheDocument()
   })
 
-  it("announces the restore in a status region and keeps focus on a Restore button", async () => {
+  it("announces the restore and keeps focus on a Restore button", async () => {
     render(
       <QueryClientProvider
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
@@ -73,7 +76,7 @@ describe("HistoryList", () => {
     restoreButton.focus()
     fireEvent.click(restoreButton)
 
-    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("page-restored"))
+    await waitFor(() => expect(announce).toHaveBeenCalledWith("page-restored", "polite"))
     await waitFor(() =>
       expect(document.activeElement).toBe(
         screen.getByRole("button", { name: "restore-revision-named" }),

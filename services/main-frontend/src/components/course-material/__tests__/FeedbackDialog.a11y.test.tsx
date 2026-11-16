@@ -1,6 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import { announce } from "@react-aria/live-announcer"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Provider as JotaiProvider, useSetAtom } from "jotai"
@@ -9,6 +10,8 @@ import React from "react"
 import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materialFeedbackStore"
 
 import FeedbackDialog from "../FeedbackDialog"
+
+jest.mock("@react-aria/live-announcer", () => ({ announce: jest.fn() }))
 
 // jsdom does not implement IntersectionObserver (used by the shared TextAreaField)
 class IntersectionObserverStub {
@@ -109,7 +112,7 @@ describe("FeedbackDialog focus management (issue #54)", () => {
     fireEvent.click(add)
 
     await waitFor(() => expect(document.activeElement).toBe(textarea))
-    expect(screen.getByRole("status")).toHaveTextContent("comment-added")
+    expect(announce).toHaveBeenCalledWith("comment-added", "polite")
   })
 
   it("names the Delete buttons per comment", async () => {

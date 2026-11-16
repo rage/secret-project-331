@@ -1,8 +1,8 @@
 "use client"
 
+import { announce } from "@react-aria/live-announcer"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
-import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -30,7 +30,6 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
-  const [statusMessage, setStatusMessage] = useState("")
   // Restoring swaps in a new row, so focus is handed to its Restore button.
   const [focusRevisionId, setFocusRevisionId] = useState<string | null>(null)
 
@@ -66,7 +65,8 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     changePage(1)
     setFocusRevisionId(newHistoryId)
     setSelectedRevisionId(newHistoryId)
-    setStatusMessage(t("page-restored"))
+    // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+    announce(t("page-restored"), "polite")
   }
 
   function changePage(newPage: number) {
@@ -78,9 +78,6 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     <QueryResult query={getPageHistoryCount}>
       {(pageHistoryCount) => (
         <>
-          <VisuallyHidden>
-            <div role="status">{statusMessage}</div>
-          </VisuallyHidden>
           <HistoryPage
             pageId={pageId}
             page={paginationInfo.page}

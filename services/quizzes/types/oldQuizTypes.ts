@@ -286,7 +286,7 @@ export interface OldNormalizedQuizItemOption {
    */
   messageAfterSubmissionWhenSelected: null | string
   /**
-   * When the user has either ran out of tries or they have gotten full points from the exercise, show
+   * When the user has either run out of tries or they have gotten full points from the exercise, show
    * this message on all options that don't have other feedback even if the option was not selected.
    *
    * Only implemented for row multiple choice at the moment.

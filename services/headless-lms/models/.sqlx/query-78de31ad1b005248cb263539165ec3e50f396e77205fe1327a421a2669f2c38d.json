@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_answer_snapshots\nSET created_at = now() - $2::interval\nWHERE id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Interval"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "78de31ad1b005248cb263539165ec3e50f396e77205fe1327a421a2669f2c38d"
+}

@@ -11,27 +11,30 @@ declares `supports_native_client` in its service info. The course/exercise queri
 capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::error::{BadRequestReason, bad_request_with_reason};
+use crate::domain::error::{BadRequestReason, ForbiddenReason, bad_request_with_reason};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
-use headless_lms_models::user_exercise_states::UserExerciseState;
+use headless_lms_models::user_exercise_states::{ReviewingStage, UserExerciseState};
 use headless_lms_utils::course_url::course_page_url;
 use headless_lms_utils::version::Version;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
+use models::exercise_answer_snapshots::{ExerciseAnswerSnapshot, SnapshotPurpose};
+use models::exercise_slide_submissions::UserExerciseSlideSubmissionWithGrading;
 use models::exercise_task_submissions::AnswerKind;
 use models::library::grading::{StudentExerciseSlideSubmission, StudentExerciseTaskSubmission};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::future::{Ready, ready};
-use utoipa::OpenApi;
+use utoipa::{IntoParams, OpenApi};
 
 #[derive(OpenApi)]
 #[openapi(
     paths(
+        get_current_user,
         get_courses,
         get_course,
         get_course_exercises,
@@ -39,6 +42,7 @@ use utoipa::OpenApi;
         get_exercise,
         upload_exercise_files,
         submit_exercise,
+        create_answer_snapshot,
         get_submission_grading,
         get_exercise_submissions,
         download_submission,
@@ -47,12 +51,17 @@ use utoipa::OpenApi;
     components(schemas(
         api::ExerciseSlideSubmission,
         api::ExerciseSlideSubmissionListItem,
+        api::SubmissionKind,
+        api::NewAnswerSnapshot,
+        api::AnswerSnapshotResult,
+        api::SnapshotPurpose,
         api::AnswerFile,
         api::AnswerKind,
         api::UploadedFiles,
         api::SubmissionFiles,
         api::CourseProgress,
         api::ExerciseProgress,
+        api::ClosedChapter,
         api::ExerciseStanding,
         api::PasteResult,
         crate::domain::error::ApiErrorResponse
@@ -134,26 +143,106 @@ fn client_tasks_from_slide(
         .collect()
 }
 
-/// The course's currently open chapters by id. Shared by the exercise list and progress views
-/// so their visibility rules cannot drift apart.
-async fn open_chapters(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-) -> ModelResult<HashMap<Uuid, DatabaseChapter>> {
-    Ok(models::chapters::get_course_chapters(conn, course_id)
-        .await?
-        .into_iter()
-        .filter(DatabaseChapter::has_opened)
-        .map(|c| (c.id, c))
-        .collect())
+/// A course's chapters, split by whether they have opened. Shared by the exercise list and
+/// progress views so their visibility rules cannot drift apart: only exercises of `open` chapters
+/// are served.
+struct CourseChapters {
+    open: HashMap<Uuid, DatabaseChapter>,
+    closed: Vec<DatabaseChapter>,
 }
 
-fn exercise_chapter(chapter: &DatabaseChapter) -> api::ExerciseChapter {
+/// The course's chapters, split into the ones that have opened and the ones that have not.
+async fn course_chapters(conn: &mut PgConnection, course_id: Uuid) -> ModelResult<CourseChapters> {
+    let (open, closed): (Vec<_>, Vec<_>) = models::chapters::get_course_chapters(conn, course_id)
+        .await?
+        .into_iter()
+        .partition(DatabaseChapter::has_opened);
+    Ok(CourseChapters {
+        open: open.into_iter().map(|c| (c.id, c)).collect(),
+        closed,
+    })
+}
+
+/// The user's chapter locking status by chapter id; empty when the course does not lock chapters.
+/// A newcomer's first chapters read as unlocked, as in the course material, without storing
+/// anything.
+async fn chapter_locking_statuses(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course: &models::courses::Course,
+) -> ModelResult<HashMap<Uuid, api::ChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(HashMap::new());
+    }
+    Ok(
+        models::user_chapter_locking_statuses::get_or_derive_all_for_course(
+            conn, user_id, course.id,
+        )
+        .await?
+        .into_iter()
+        .map(|(chapter_id, status)| (chapter_id, to_api_chapter_locking_status(status)))
+        .collect(),
+    )
+}
+
+/// The client API's form of a stored chapter locking status.
+fn to_api_chapter_locking_status(
+    status: models::user_chapter_locking_statuses::ChapterLockingStatus,
+) -> api::ChapterLockingStatus {
+    use models::user_chapter_locking_statuses::ChapterLockingStatus as Db;
+    match status {
+        Db::Unlocked => api::ChapterLockingStatus::Unlocked,
+        Db::CompletedAndLocked => api::ChapterLockingStatus::CompletedAndLocked,
+        Db::NotUnlockedYet => api::ChapterLockingStatus::NotUnlockedYet,
+    }
+}
+
+/// The chapter an exercise is in, with the user's locking status in it, as the client is told it.
+fn exercise_chapter(
+    chapter: &DatabaseChapter,
+    locking_statuses: &HashMap<Uuid, api::ChapterLockingStatus>,
+) -> api::ExerciseChapter {
     api::ExerciseChapter {
         id: chapter.id,
         name: chapter.name.clone(),
         chapter_number: chapter.chapter_number,
+        locking_status: locking_statuses.get(&chapter.id).copied(),
     }
+}
+
+/// The deadline submissions are refused from, as the submit gate applies it: the exercise's own
+/// deadline takes precedence over its chapter's.
+fn effective_deadline(
+    exercise: &models::exercises::Exercise,
+    chapter: Option<&DatabaseChapter>,
+) -> Option<DateTime<Utc>> {
+    exercise.deadline.or(chapter.and_then(|c| c.deadline))
+}
+
+/// Rejects a user to whom the course material or the exercise's chapter is not open. A chapter
+/// that has not opened yet gets its own `chapter_not_open_yet` key, so a client can tell it apart
+/// from a token that lacks the scope.
+async fn authorize_access_to_exercise_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    chapter_id: Option<Uuid>,
+) -> Result<(), ControllerError> {
+    authorize_access_to_course_material(conn, Some(user_id), course_id).await?;
+    if !crate::domain::authorization::can_user_view_chapter(
+        conn,
+        Some(user_id),
+        Some(course_id),
+        chapter_id,
+    )
+    .await?
+    {
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ChapterNotOpenYet),
+            "This exercise's chapter is not open yet.".to_string()
+        ));
+    }
+    Ok(())
 }
 
 /// Extractor guarding every client route: reads `X-Client-Version` and rejects obsolete
@@ -175,6 +264,37 @@ impl FromRequest for SupportedClient {
             check_client_version(client_version.as_deref(), MINIMUM_CLIENT_VERSION).map(|()| Self),
         )
     }
+}
+
+/**
+ * GET /api/v0/exercise-services/client/me
+ *
+ * Returns the user the bearer token acts for.
+ */
+#[utoipa::path(
+    get,
+    path = "/me",
+    operation_id = "getClientCurrentUser",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    responses(
+        (status = 200, description = "The user the token acts for", body = api::CurrentUser),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip_all)]
+async fn get_current_user(
+    user: UserFromOAuthToken,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<api::CurrentUser>> {
+    // Every token may name its own user.
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(api::CurrentUser { id: user.id }))
 }
 
 /**
@@ -329,9 +449,10 @@ async fn get_course_exercises(
 
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
     let mut slides = Vec::new();
-    let open_chapters = open_chapters(&mut conn, *course).await?;
+    let open_chapters = course_chapters(&mut conn, *course).await?.open;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
+    let locking_statuses = chapter_locking_statuses(&mut conn, user.id, &course).await?;
     let organization =
         models::organizations::get_organization(&mut conn, course.organization_id).await?;
     let page_url_paths: HashMap<Uuid, String> =
@@ -363,13 +484,17 @@ async fn get_course_exercises(
         // never reveals model solutions.
         let tasks = client_tasks_from_slide(slide.exercise_tasks, &capable_slugs, false);
         if !tasks.is_empty() {
+            let chapter = open_exercise
+                .chapter_id
+                .and_then(|id| open_chapters.get(&id));
+            let deadline = effective_deadline(&open_exercise, chapter);
             slides.push(api::ExerciseSlide {
                 slide_id: slide.id,
                 exercise_id: open_exercise.id,
                 course_id: course.id,
                 exercise_name: open_exercise.name,
                 exercise_order_number: open_exercise.order_number,
-                deadline: open_exercise.deadline,
+                deadline,
                 tasks,
                 page_url: page_url_paths
                     .get(&open_exercise.page_id)
@@ -381,10 +506,7 @@ async fn get_course_exercises(
                             url_path,
                         )
                     }),
-                chapter: open_exercise
-                    .chapter_id
-                    .and_then(|id| open_chapters.get(&id))
-                    .map(exercise_chapter),
+                chapter: chapter.map(|c| exercise_chapter(c, &locking_statuses)),
             });
         }
     }
@@ -393,47 +515,116 @@ async fn get_course_exercises(
 }
 
 /// The user's progress on an exercise of the given course, with `state` their exercise state
-/// (absent when they have never touched the exercise). Reads the try counts only when they can
-/// decide the standing.
+/// (absent when they have never touched the exercise). Reads the submission counts only for an
+/// exercise that limits tries.
 async fn exercise_progress(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise: &models::exercises::Exercise,
-    course_id: Uuid,
+    course: &models::courses::Course,
     state: Option<&UserExerciseState>,
 ) -> models::ModelResult<api::ExerciseProgress> {
-    let is_out_of_tries =
+    let course_id = course.id;
+    let pending_teacher_review = pending_teacher_review(
+        course.chapter_locking_enabled && exercise.teacher_reviews_answer_after_locking,
+        state,
+    );
+    let may_be_out_of_tries =
         !has_received_full_points(state.and_then(|s| s.score_given), exercise.score_maximum)
             && !is_being_graded(state)
-            && domain::exercises::is_out_of_tries(
+            && !is_in_peer_or_self_review(state)
+            && pending_teacher_review.is_none();
+    let (try_counts, is_out_of_tries) = match exercise
+        .max_tries_per_slide
+        .filter(|_| exercise.limit_number_of_tries)
+    {
+        Some(max) => {
+            let submission_counts = models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
                 conn,
-                user_id,
-                exercise,
+                exercise.id,
                 CourseOrExamId::Course(course_id),
+                user_id,
             )
             .await?;
+            // A user who has no slide selected has not submitted to any.
+            let used = state
+                .and_then(|s| s.selected_exercise_slide_id)
+                .and_then(|slide_id| submission_counts.get(&slide_id).copied())
+                .unwrap_or(0);
+            let try_counts = TryCounts {
+                max,
+                left: i32::try_from((i64::from(max) - used).max(0)).unwrap_or_default(),
+            };
+            let is_out_of_tries = may_be_out_of_tries
+                && domain::exercises::is_out_of_tries_given(
+                    conn,
+                    exercise.id,
+                    i64::from(max),
+                    &submission_counts,
+                )
+                .await?;
+            (Some(try_counts), is_out_of_tries)
+        }
+        None => (None, false),
+    };
     Ok(derive_exercise_progress(
         exercise.id,
         exercise.score_maximum,
         state,
         is_out_of_tries,
+        try_counts,
+        pending_teacher_review,
     ))
 }
 
+/// What the user's points wait for, if a teacher must review their answer before awarding any.
+/// `is_held_for_review_after_chapter_lock` withholds the automatic points from the first graded
+/// answer on. An answer that already has points awaits nothing, even in a teacher's review queue:
+/// points awarded before the course turned chapter locking on stay awarded.
+fn pending_teacher_review(
+    is_held_for_review_after_chapter_lock: bool,
+    state: Option<&UserExerciseState>,
+) -> Option<api::PendingTeacherReview> {
+    let state = state.filter(|s| s.score_given.is_none())?;
+    match state.reviewing_stage {
+        ReviewingStage::WaitingForManualGrading => Some(api::PendingTeacherReview::AwaitsTeacher),
+        ReviewingStage::NotStarted
+            if is_held_for_review_after_chapter_lock
+                && state.activity_progress != ActivityProgress::Initialized =>
+        {
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        }
+        _ => None,
+    }
+}
+
+/// A try-limited exercise's per-slide limit and how much of it is left on the user's slide.
+#[derive(Debug, Clone, Copy)]
+struct TryCounts {
+    max: i32,
+    left: i32,
+}
+
 /// Derives the client-facing per-exercise progress from an exercise's maximum score and the
-/// user's exercise state.
+/// user's exercise state. `try_counts` is `None` when tries are unlimited.
 fn derive_exercise_progress(
     exercise_id: Uuid,
     score_maximum: i32,
     state: Option<&UserExerciseState>,
     is_out_of_tries: bool,
+    try_counts: Option<TryCounts>,
+    pending_teacher_review: Option<api::PendingTeacherReview>,
 ) -> api::ExerciseProgress {
     let score_given = state.and_then(|s| s.score_given);
     let activity_progress = state.map(|s| s.activity_progress).unwrap_or_default();
     let attempted = activity_progress != ActivityProgress::Initialized;
     let standing = if has_received_full_points(score_given, score_maximum) {
         api::ExerciseStanding::Passed
-    } else if is_out_of_tries && !is_being_graded(state) {
+    } else if is_out_of_tries
+        && !is_being_graded(state)
+        && !is_in_peer_or_self_review(state)
+        && pending_teacher_review.is_none()
+    {
         api::ExerciseStanding::OutOfTries
     } else if attempted {
         api::ExerciseStanding::Attempted
@@ -447,6 +638,10 @@ fn derive_exercise_progress(
         completed: activity_progress == ActivityProgress::Completed,
         attempted,
         standing: Some(standing),
+        max_tries: try_counts.map(|t| t.max),
+        tries_left: try_counts.map(|t| t.left),
+        pending_teacher_review,
+        exercise_locked: state.is_some_and(|s| !s.reviewing_stage.accepts_submissions()),
     }
 }
 
@@ -454,6 +649,19 @@ fn derive_exercise_progress(
 /// last try is spent.
 fn is_being_graded(state: Option<&UserExerciseState>) -> bool {
     state.is_some_and(|s| !s.grading_progress.is_complete())
+}
+
+/// Peer and self review can still award points, so the score is not final even when the last try
+/// is spent.
+fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
+    state.is_some_and(|s| {
+        matches!(
+            s.reviewing_stage,
+            ReviewingStage::PeerReview
+                | ReviewingStage::SelfReview
+                | ReviewingStage::WaitingForPeerReviews
+        )
+    })
 }
 
 /// Full points as the course material judges them, tolerating float rounding. `None` (never
@@ -481,8 +689,9 @@ fn model_solution_should_be_revealed(
  *
  * Returns the current user's progress on every exercise of the course that lives in an
  * open chapter (the same visibility as `courses/:id/exercises`): its awarded and maximum
- * points, completed/attempted signals and standing. One round-trip; course totals are
- * derivable by summing the returned entries.
+ * points, completed/attempted signals, standing and tries. Exercises of chapters that have not
+ * opened yet come separately, under their chapter. One round-trip; course totals are derivable
+ * by summing the returned entries.
  */
 #[utoipa::path(
     get,
@@ -513,7 +722,7 @@ async fn get_course_progress(
     let token = authorize(&mut conn, Act::View, Some(user.id), Res::Course(*course)).await?;
 
     let course = models::courses::get_course(&mut conn, *course).await?;
-    let open_chapters = open_chapters(&mut conn, course.id).await?;
+    let chapters = course_chapters(&mut conn, course.id).await?;
 
     // One read for the whole course instead of a query per exercise.
     let states = models::user_exercise_states::get_all_for_user_and_course_or_exam(
@@ -528,30 +737,51 @@ async fn get_course_progress(
     }
 
     let mut exercises = Vec::new();
-    for exercise in models::exercises::get_exercises_by_course_id(&mut conn, course.id)
-        .await?
-        .iter()
-        .filter(|e| {
-            e.chapter_id
-                .map(|ci| open_chapters.contains_key(&ci))
-                .unwrap_or_default()
-        })
-    {
-        exercises.push(
-            exercise_progress(
-                &mut conn,
-                user.id,
-                exercise,
-                course.id,
-                state_by_exercise.get(&exercise.id).copied(),
-            )
-            .await?,
-        );
+    let mut closed_chapter_exercises: HashMap<Uuid, Vec<api::ExerciseProgress>> = HashMap::new();
+    for exercise in models::exercises::get_exercises_by_course_id(&mut conn, course.id).await? {
+        let Some(chapter_id) = exercise.chapter_id else {
+            continue;
+        };
+        let is_open = chapters.open.contains_key(&chapter_id);
+        if !is_open && !chapters.closed.iter().any(|c| c.id == chapter_id) {
+            continue;
+        }
+        let progress = exercise_progress(
+            &mut conn,
+            user.id,
+            &exercise,
+            &course,
+            state_by_exercise.get(&exercise.id).copied(),
+        )
+        .await?;
+        if is_open {
+            exercises.push(progress);
+        } else {
+            closed_chapter_exercises
+                .entry(chapter_id)
+                .or_default()
+                .push(progress);
+        }
     }
+    let mut closed_chapters: Vec<api::ClosedChapter> = chapters
+        .closed
+        .into_iter()
+        .filter_map(|chapter| {
+            Some(api::ClosedChapter {
+                exercises: closed_chapter_exercises.remove(&chapter.id)?,
+                opens_at: chapter.opens_at?,
+                id: chapter.id,
+                name: chapter.name,
+                chapter_number: chapter.chapter_number,
+            })
+        })
+        .collect();
+    closed_chapters.sort_by_key(|c| c.chapter_number);
 
     token.authorized_ok(web::Json(api::CourseProgress {
         course_id: course.id,
         exercises,
+        closed_chapters,
     }))
 }
 
@@ -573,7 +803,7 @@ async fn get_course_progress(
     responses(
         (status = 200, description = "An exercise slide for the user, carrying only the tasks whose exercise service can serve this client", body = api::ExerciseSlide),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
-        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, or the exercise's chapter has not opened yet (message_key `chapter_not_open_yet`)", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, it belongs to an exam (not served by this API), or no task of it can serve this client", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
@@ -606,14 +836,8 @@ async fn get_exercise(
         ));
     }
     if let Some(course_id) = exercise.course_id {
-        // The material and the chapter must be open to the user, as in the course material.
-        crate::domain::authorization::authorize_access_to_course_exercise(
-            &mut conn,
-            Some(user.id),
-            course_id,
-            exercise.chapter_id,
-        )
-        .await?;
+        authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
+            .await?;
     }
     let (exercise_slide, course_or_exam_id) = models::exercises::get_or_select_exercise_slide(
         &mut conn,
@@ -635,10 +859,7 @@ async fn get_exercise(
             ));
         }
         None => {
-            return Err(bad_request_with_reason(
-                BadRequestReason::NotEnrolled,
-                "User is not enrolled to this exercise's course".to_string(),
-            ));
+            return Err(not_enrolled_error());
         }
     };
 
@@ -690,13 +911,15 @@ async fn get_exercise(
         Some(chapter_id) => Some(models::chapters::get_chapter(&mut conn, chapter_id).await?),
         None => None,
     };
+    let locking_statuses = chapter_locking_statuses(&mut conn, user.id, &course).await?;
+    let deadline = effective_deadline(&exercise, chapter.as_ref());
     token.authorized_ok(web::Json(api::ExerciseSlide {
         slide_id: exercise_slide.id,
         exercise_id: exercise.id,
         course_id,
         exercise_name: exercise.name,
         exercise_order_number: exercise.order_number,
-        deadline: exercise.deadline,
+        deadline,
         tasks,
         page_url: course_page_url(
             &app_conf.base_url,
@@ -704,16 +927,40 @@ async fn get_exercise(
             &course.slug,
             &page.url_path,
         ),
-        chapter: chapter.as_ref().map(exercise_chapter),
+        chapter: chapter
+            .as_ref()
+            .map(|c| exercise_chapter(c, &locking_statuses)),
     }))
 }
 
-/// Rejects a user who is not enrolled on the exercise's course.
+/// Rejects a user without a live enrollment on the exercise's course, before a graded submission.
 ///
 /// The shared submit domain fn reports a not-enrolled user as 401 Unauthorized, but the editor
 /// client treats 401 as an invalid token and deletes the stored credentials, logging the student
 /// out on their first submit. 422 `not_enrolled` lets the client prompt for enrollment instead.
+/// The domain fn only checks course settings, which outlive a removed enrollment.
 async fn verify_enrolled(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> Result<(), ControllerError> {
+    verify_was_enrolled(conn, user_id, course_id).await?;
+    if models::course_instance_enrollments::get_by_user_id_and_course_ids(
+        conn,
+        user_id,
+        &[course_id],
+    )
+    .await?
+    .is_empty()
+    {
+        return Err(not_enrolled_error());
+    }
+    Ok(())
+}
+
+/// Rejects a user who never enrolled on the exercise's course. Unlike [verify_enrolled], passes a
+/// user whose enrollment was removed, who may still keep ungraded snapshots of their own work.
+async fn verify_was_enrolled(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -724,10 +971,15 @@ async fn verify_enrolled(
     {
         return Ok(());
     }
-    Err(bad_request_with_reason(
+    Err(not_enrolled_error())
+}
+
+/// The refusal both enrollment checks report, with the `not_enrolled` key clients branch on.
+fn not_enrolled_error() -> ControllerError {
+    bad_request_with_reason(
         BadRequestReason::NotEnrolled,
         "User is not enrolled to this exercise's course".to_string(),
-    ))
+    )
 }
 
 /// The URL path authorizes `exercise_id`; the slide/task ids come from the request body,
@@ -797,7 +1049,9 @@ fn verify_task_is_client_capable(
  *
  * Gated on the caller being able to answer the exercise at all, so stored objects cannot be
  * accumulated past a deadline or a closed exam. The per-slide try limit is only checked across the
- * whole exercise here, because this route is bound to an exercise rather than a slide.
+ * whole exercise here, because this route is bound to an exercise rather than a slide. Files for a
+ * snapshot (`?for=snapshot`) skip the deadline, try-limit and chapter-lock checks, as the
+ * snapshot route does.
  */
 #[utoipa::path(
     post,
@@ -807,6 +1061,7 @@ fn verify_task_is_client_capable(
     security(("bearer_auth" = [])),
     params(
         ("id" = Uuid, Path, description = "Exercise id"),
+        UploadQuery,
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     request_body(
@@ -817,17 +1072,19 @@ fn verify_task_is_client_capable(
     responses(
         (status = 200, description = "The stored files, in the order the parts were sent", body = api::UploadedFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
-        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`); neither lock is checked for `?for=snapshot`", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed or every slide is out of tries, or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course, or for `?for=snapshot` never was (message_key `not_enrolled`), the exercise can no longer be answered because its deadline has passed (`deadline_passed`) or every slide is out of tries (`out_of_tries`) (neither checked for `?for=snapshot`), or the multipart body violates the field-name, file-count or size rules", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
+#[allow(clippy::too_many_arguments)]
 #[instrument(skip(pool, file_store, payload, app_conf))]
 async fn upload_exercise_files(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     exercise_id: web::Path<Uuid>,
+    query: web::Query<UploadQuery>,
     payload: Multipart,
     user: UserFromOAuthToken,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -846,16 +1103,17 @@ async fn upload_exercise_files(
     let course_id = exercise
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
-    verify_enrolled(&mut conn, user.id, course_id).await?;
-    // The material and the chapter must be open to the user, as in the course material.
-    crate::domain::authorization::authorize_access_to_course_exercise(
-        &mut conn,
-        Some(user.id),
-        course_id,
-        exercise.chapter_id,
-    )
-    .await?;
-    domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
+    let is_for_snapshot = query.r#for == Some(UploadFor::Snapshot);
+    if is_for_snapshot {
+        verify_was_enrolled(&mut conn, user.id, course_id).await?;
+    } else {
+        verify_enrolled(&mut conn, user.id, course_id).await?;
+    }
+    authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
+        .await?;
+    if !is_for_snapshot {
+        domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
+    }
 
     let mut cleanup = file_uploading::UploadCleanup::new(file_store.clone());
     let stored = store_client_uploads(
@@ -895,6 +1153,22 @@ async fn upload_exercise_files(
         })
         .collect();
     token.authorized_ok(web::Json(api::UploadedFiles { data_files }))
+}
+
+/// What the uploaded files will be named in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, utoipa::ToSchema)]
+#[serde(rename_all = "snake_case")]
+enum UploadFor {
+    Submission,
+    Snapshot,
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+struct UploadQuery {
+    /// `snapshot` for files a `snapshots` request will name; absent means a submission's.
+    #[param(inline)]
+    r#for: Option<UploadFor>,
 }
 
 /// Stores the multipart parts and binds them to the exercise and user, so that a failure to
@@ -961,9 +1235,9 @@ async fn store_client_uploads(
     responses(
         (status = 200, description = "The created submission, identified by both its task and slide submission ids", body = api::ExerciseTaskSubmissionResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
-        (status = 403, description = "The token lacks the `exercise-services` scope, or the user may not view this exercise", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, its chapter has not opened yet (`chapter_not_open_yet`), chapter locking keeps it closed (`chapter_not_unlocked_yet`, `chapter_completed_and_locked`), or the exercise is locked for the user (`exercise_locked`, see `ExerciseProgress.exercise_locked`)", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
-        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`), its deadline has passed (`deadline_passed`), the slide is out of tries (`out_of_tries`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, a `file` answer names no files or a `json` one names files, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -993,14 +1267,8 @@ async fn submit_exercise(
         .course_id
         .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
     verify_enrolled(&mut conn, user.id, course_id).await?;
-    // The material and the chapter must be open to the user, as in the course material.
-    crate::domain::authorization::authorize_access_to_course_exercise(
-        &mut conn,
-        Some(user.id),
-        course_id,
-        exercise.chapter_id,
-    )
-    .await?;
+    authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
+        .await?;
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
@@ -1057,6 +1325,110 @@ async fn submit_exercise(
         task_submission_id: task_submission.submission.id,
         slide_submission_id: task_submission.submission.exercise_slide_submission_id,
     }))
+}
+
+/**
+ * POST /api/v0/exercise-services/client/exercises/:id/snapshots
+ *
+ * Stores an ungraded copy of an answer: a paste to share, or a backup kept before local changes are
+ * discarded. A snapshot uses no try, awards no points and is never graded, so it is accepted after
+ * the deadline and when out of tries. Its files come from this exercise's `files` endpoint,
+ * uploaded with `?for=snapshot`.
+ */
+#[utoipa::path(
+    post,
+    path = "/exercises/{id}/snapshots",
+    operation_id = "createClientAnswerSnapshot",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Exercise id"),
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    request_body(content = api::NewAnswerSnapshot, description = "Why the snapshot is stored, the slide and task it is for, and the files it consists of"),
+    responses(
+        (status = 200, description = "The stored snapshot's id", body = api::AnswerSnapshotResult),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope, the user may not view this exercise, or its chapter has not opened yet (`chapter_not_open_yet`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, the exercise belongs to an exam, or the referenced slide/task does not exist", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The user never enrolled on this exercise's course (message_key `not_enrolled`), the referenced slide/task belongs to another exercise, the task's exercise service cannot be served to this client, no files are named, or a named upload was reaped (`upload_expired`), was never uploaded for this exercise by this user (`unknown_upload`) or was named more than once (`duplicate_upload`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse),
+        (status = 429, description = "Too many pastes of this exercise by this user recently", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip(pool, snapshot))]
+async fn create_answer_snapshot(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    snapshot: web::Json<api::NewAnswerSnapshot>,
+    user: UserFromOAuthToken,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<api::AnswerSnapshotResult>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::View,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+
+    let snapshot = snapshot.into_inner();
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let Some(course_id) = exercise.course_id else {
+        return Err(controller_err!(
+            NotFound,
+            "This exercise belongs to an exam, which the client API does not serve".to_string()
+        ));
+    };
+    verify_was_enrolled(&mut conn, user.id, course_id).await?;
+    authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
+        .await?;
+    let exercise_slide =
+        models::exercise_slides::get_exercise_slide(&mut conn, snapshot.exercise_slide_id).await?;
+    let exercise_task =
+        models::exercise_tasks::get_exercise_task_by_id(&mut conn, snapshot.exercise_task_id)
+            .await?;
+    verify_slide_and_task_belong(
+        exercise.id,
+        exercise_slide.id,
+        exercise_slide.exercise_id,
+        exercise_task.id,
+        exercise_task.exercise_slide_id,
+    )?;
+    let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+    verify_task_is_client_capable(
+        exercise_task.id,
+        &exercise_task.exercise_type,
+        &capable_slugs,
+    )?;
+
+    let stored = domain::exercise_services::answer_snapshots::store_snapshot(
+        &mut conn,
+        domain::exercise_services::answer_snapshots::SnapshotAnswer {
+            user_id: user.id,
+            course_id,
+            exercise_id: exercise.id,
+            exercise_slide_id: exercise_slide.id,
+            exercise_task_id: exercise_task.id,
+            purpose: model_snapshot_purpose(snapshot.purpose),
+            data_json: snapshot.data_json,
+            file_upload_ids: snapshot.data_files,
+        },
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(api::AnswerSnapshotResult {
+        snapshot_id: stored.id,
+    }))
+}
+
+/// The client API's snapshot purpose as the models crate stores it.
+fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
+    match purpose {
+        api::SnapshotPurpose::Paste => SnapshotPurpose::Paste,
+        api::SnapshotPurpose::Backup => SnapshotPurpose::Backup,
+    }
 }
 
 /**
@@ -1127,6 +1499,7 @@ async fn get_submission_grading(
         Some(course_id) => {
             let exercise =
                 models::exercises::get_by_id(&mut conn, slide_submission.exercise_id).await?;
+            let course = models::courses::get_course(&mut conn, course_id).await?;
             let state = models::user_exercise_states::get_user_exercise_state_if_exists(
                 &mut conn,
                 user.id,
@@ -1134,7 +1507,7 @@ async fn get_submission_grading(
                 CourseOrExamId::Course(course_id),
             )
             .await?;
-            Some(exercise_progress(&mut conn, user.id, &exercise, course_id, state.as_ref()).await?)
+            Some(exercise_progress(&mut conn, user.id, &exercise, &course, state.as_ref()).await?)
         }
         None => None,
     };
@@ -1167,8 +1540,9 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
 /**
  * GET /api/v0/exercise-services/client/exercises/:id/submissions
  *
- * Returns the current user's past submissions to the given exercise, newest
- * first, each annotated with its grading score and progress if graded.
+ * Returns the current user's past submissions and snapshots of the given exercise, newest first,
+ * each annotated with what it is, its grading score and progress if graded, and whether it has a
+ * live share link.
  */
 #[utoipa::path(
     get,
@@ -1181,7 +1555,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The current user's submissions to the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
+        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
@@ -1220,26 +1594,72 @@ async fn get_exercise_submissions(
         )
         .await?;
 
-    let items = submissions
-        .into_iter()
-        .map(|submission| api::ExerciseSlideSubmissionListItem {
-            id: submission.id,
-            exercise_id: submission.exercise_id,
-            created_at: submission.created_at,
-            score_given: submission.score_given,
-            grading_progress: submission.grading_progress.map(map_grading_progress),
-        })
-        .collect();
+    let snapshots = models::exercise_answer_snapshots::get_by_user_and_exercise(
+        &mut conn,
+        user.id,
+        *exercise_id,
+    )
+    .await?;
 
-    token.authorized_ok(web::Json(items))
+    let listed_ids: Vec<Uuid> = submissions
+        .iter()
+        .map(|submission| submission.id)
+        .chain(snapshots.iter().map(|snapshot| snapshot.id))
+        .collect();
+    let shared_ids =
+        models::exercise_slide_submission_shares::shared_among(&mut conn, user.id, &listed_ids)
+            .await?;
+
+    token.authorized_ok(web::Json(submission_list_items(
+        submissions,
+        snapshots,
+        &shared_ids,
+    )))
+}
+
+/// Submissions and snapshots in one list, newest first.
+fn submission_list_items(
+    submissions: Vec<UserExerciseSlideSubmissionWithGrading>,
+    snapshots: Vec<ExerciseAnswerSnapshot>,
+    shared_ids: &HashSet<Uuid>,
+) -> Vec<api::ExerciseSlideSubmissionListItem> {
+    let submissions =
+        submissions
+            .into_iter()
+            .map(|submission| api::ExerciseSlideSubmissionListItem {
+                id: submission.id,
+                exercise_id: submission.exercise_id,
+                created_at: submission.created_at,
+                score_given: submission.score_given,
+                grading_progress: submission.grading_progress.map(map_grading_progress),
+                kind: api::SubmissionKind::Submission,
+                is_shared: shared_ids.contains(&submission.id),
+            });
+    let snapshots = snapshots
+        .into_iter()
+        .map(|snapshot| api::ExerciseSlideSubmissionListItem {
+            id: snapshot.id,
+            exercise_id: snapshot.exercise_id,
+            created_at: snapshot.created_at,
+            score_given: None,
+            grading_progress: None,
+            kind: match snapshot.purpose {
+                SnapshotPurpose::Paste => api::SubmissionKind::Paste,
+                SnapshotPurpose::Backup => api::SubmissionKind::Backup,
+            },
+            is_shared: shared_ids.contains(&snapshot.id),
+        });
+    let mut items: Vec<_> = submissions.chain(snapshots).collect();
+    items.sort_by(|a, b| b.created_at.cmp(&a.created_at).then(b.id.cmp(&a.id)));
+    items
 }
 
 /**
  * GET /api/v0/exercise-services/client/submissions/:id/download
  *
  * Resolves an exercise-slide submission (by the id returned from the submissions list, or by
- * a submit's `slide_submission_id`) to the files it was made from, so the client can restore
- * an old submission.
+ * a submit's `slide_submission_id`) or a snapshot (by its `snapshot_id`) to the files it was made
+ * from, so the client can restore it.
  */
 #[utoipa::path(
     get,
@@ -1248,11 +1668,11 @@ async fn get_exercise_submissions(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The files the submission was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
+        (status = 200, description = "The files the submission or snapshot was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot download another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -1269,6 +1689,22 @@ async fn download_submission(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::SubmissionFiles>> {
     let mut conn = pool.acquire().await?;
+    if let Some(snapshot) =
+        models::exercise_answer_snapshots::try_get_by_id(&mut conn, *submission_id).await?
+    {
+        verify_submission_owner(
+            snapshot.user_id,
+            user.id,
+            "Cannot download another user's submission".to_string(),
+        )?;
+        let token = skip_authorize();
+        let files = models::exercise_answer_snapshots::get_files(&mut conn, snapshot.id).await?;
+        return token.authorized_ok(web::Json(submission_files_response(
+            files,
+            file_store.as_ref(),
+            app_conf.as_ref(),
+        )?));
+    }
     let slide_submission =
         models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
     verify_submission_owner(
@@ -1312,17 +1748,51 @@ fn model_answer_kind(kind: api::AnswerKind) -> AnswerKind {
     }
 }
 
+/// One host-recorded file of a submission or snapshot.
+struct StoredAnswerFile {
+    file_upload_id: Uuid,
+    name: String,
+    mime: String,
+    size_bytes: Option<i64>,
+    order_number: i32,
+}
+
+impl From<models::exercise_task_submission_files::SubmissionFile> for StoredAnswerFile {
+    fn from(file: models::exercise_task_submission_files::SubmissionFile) -> Self {
+        Self {
+            file_upload_id: file.file_upload_id,
+            name: file.name,
+            mime: file.mime,
+            size_bytes: file.size_bytes,
+            order_number: file.order_number,
+        }
+    }
+}
+
+impl From<models::exercise_answer_snapshots::SnapshotFile> for StoredAnswerFile {
+    fn from(file: models::exercise_answer_snapshots::SnapshotFile) -> Self {
+        Self {
+            file_upload_id: file.file_upload_id,
+            name: file.name,
+            mime: file.mime,
+            size_bytes: file.size_bytes,
+            order_number: file.order_number,
+        }
+    }
+}
+
 /// Turns the host's own file records into the download response. Every tracked file is reachable,
 /// not just the first, so a multi-file submission is fully restorable.
 fn submission_files_response(
-    files: Vec<models::exercise_task_submission_files::SubmissionFile>,
+    files: Vec<impl Into<StoredAnswerFile>>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> UtilResult<api::SubmissionFiles> {
     Ok(api::SubmissionFiles {
         data_files: files
             .into_iter()
-            .map(|file| {
+            .map(Into::into)
+            .map(|file: StoredAnswerFile| {
                 Ok(api::AnswerFile {
                     id: file.file_upload_id,
                     name: file.name,
@@ -1339,8 +1809,8 @@ fn submission_files_response(
 /**
  * POST /api/v0/exercise-services/client/submissions/:id/share
  *
- * Mints a shareable link to an existing submission of the current user and returns
- * its URL.
+ * Mints a shareable link to an existing submission or paste of the current user and returns
+ * its URL. A paste is a share of a `paste` snapshot.
  */
 #[utoipa::path(
     post,
@@ -1349,14 +1819,15 @@ fn submission_files_response(
     tag = "exercise-services-client",
     security(("bearer_auth" = [])),
     params(
-        ("id" = Uuid, Path, description = "Exercise-slide-submission id"),
+        ("id" = Uuid, Path, description = "Exercise-slide-submission or paste snapshot id"),
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The shareable URL for the submission", body = api::PasteResult),
+        (status = 200, description = "The shareable URL for the submission or paste", body = api::PasteResult),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot share another user's submission", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
+        (status = 422, description = "The id is a backup, which cannot be shared (message_key `backup_not_shareable`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1369,21 +1840,43 @@ async fn share_submission(
     _client: SupportedClient,
 ) -> ControllerResult<web::Json<api::PasteResult>> {
     let mut conn = pool.acquire().await?;
-    let slide_submission =
-        models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
-    verify_submission_owner(
-        slide_submission.user_id,
-        user.id,
-        "Cannot share another user's submission".to_string(),
-    )?;
+    let share = if let Some(snapshot) =
+        models::exercise_answer_snapshots::try_get_by_id(&mut conn, *submission_id).await?
+    {
+        verify_submission_owner(
+            snapshot.user_id,
+            user.id,
+            "Cannot share another user's submission".to_string(),
+        )?;
+        // Backups are pruned past the cap, which would break their links, and are not rate limited.
+        if snapshot.purpose != SnapshotPurpose::Paste {
+            return Err(bad_request_with_reason(
+                BadRequestReason::BackupNotShareable,
+                "Only a paste can be shared, not a backup.".to_string(),
+            ));
+        }
+        domain::exercise_services::submission_sharing::share_snapshot(
+            &mut conn,
+            snapshot.id,
+            user.id,
+        )
+        .await?
+    } else {
+        let slide_submission =
+            models::exercise_slide_submissions::get_by_id(&mut conn, *submission_id).await?;
+        verify_submission_owner(
+            slide_submission.user_id,
+            user.id,
+            "Cannot share another user's submission".to_string(),
+        )?;
+        domain::exercise_services::submission_sharing::share_submission(
+            &mut conn,
+            *submission_id,
+            user.id,
+        )
+        .await?
+    };
     let token = skip_authorize();
-
-    let share = domain::exercise_services::submission_sharing::share_submission(
-        &mut conn,
-        *submission_id,
-        user.id,
-    )
-    .await?;
     let paste_url = format!(
         "{}/shared-submissions/{}",
         app_conf.base_url.trim_end_matches('/'),
@@ -1394,7 +1887,8 @@ async fn share_submission(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/courses", web::get().to(get_courses))
+    cfg.route("/me", web::get().to(get_current_user))
+        .route("/courses", web::get().to(get_courses))
         .route("/courses/{id}", web::get().to(get_course))
         .route(
             "/courses/{id}/exercises",
@@ -1407,6 +1901,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::post().to(upload_exercise_files),
         )
         .route("/exercises/{id}/submit", web::post().to(submit_exercise))
+        .route(
+            "/exercises/{id}/snapshots",
+            web::post().to(create_answer_snapshot),
+        )
         .route(
             "/exercises/{id}/submissions",
             web::get().to(get_exercise_submissions),
@@ -1427,7 +1925,6 @@ mod tests {
     use super::*;
 
     use chrono::Utc;
-    use headless_lms_models::user_exercise_states::ReviewingStage;
 
     fn state_with(
         score_given: Option<f32>,
@@ -1452,8 +1949,79 @@ mod tests {
     }
 
     #[test]
+    fn submission_list_items_mark_shared_submissions() {
+        let submission = |id| UserExerciseSlideSubmissionWithGrading {
+            id,
+            exercise_id: Uuid::nil(),
+            created_at: Utc::now(),
+            score_given: Some(0.0),
+            grading_progress: Some(GradingProgress::FullyGraded),
+        };
+        let pasted = Uuid::new_v4();
+        let submitted = Uuid::new_v4();
+
+        let items = submission_list_items(
+            vec![submission(pasted), submission(submitted)],
+            vec![],
+            &HashSet::from([pasted]),
+        );
+
+        let mut shared: Vec<_> = items.iter().map(|item| (item.id, item.is_shared)).collect();
+        shared.sort();
+        let mut expected = vec![(pasted, true), (submitted, false)];
+        expected.sort();
+        assert_eq!(shared, expected);
+    }
+
+    #[test]
+    fn submission_list_items_interleave_ungraded_snapshots_newest_first() {
+        let now = Utc::now();
+        let submission = UserExerciseSlideSubmissionWithGrading {
+            id: Uuid::new_v4(),
+            exercise_id: Uuid::nil(),
+            created_at: now - chrono::Duration::minutes(1),
+            score_given: Some(1.0),
+            grading_progress: Some(GradingProgress::FullyGraded),
+        };
+        let snapshot = |purpose, created_at| ExerciseAnswerSnapshot {
+            id: Uuid::new_v4(),
+            created_at,
+            updated_at: created_at,
+            deleted_at: None,
+            user_id: Uuid::nil(),
+            course_id: Uuid::nil(),
+            exercise_id: Uuid::nil(),
+            exercise_slide_id: Uuid::nil(),
+            exercise_task_id: Uuid::nil(),
+            purpose,
+            data_json: None,
+        };
+        let paste = snapshot(SnapshotPurpose::Paste, now);
+        let backup = snapshot(SnapshotPurpose::Backup, now - chrono::Duration::minutes(2));
+        let paste_id = paste.id;
+
+        let items = submission_list_items(
+            vec![submission],
+            vec![backup, paste],
+            &HashSet::from([paste_id]),
+        );
+
+        assert_eq!(
+            items
+                .iter()
+                .map(|item| (item.kind, item.is_shared, item.score_given))
+                .collect::<Vec<_>>(),
+            vec![
+                (api::SubmissionKind::Paste, true, None),
+                (api::SubmissionKind::Submission, false, Some(1.0)),
+                (api::SubmissionKind::Backup, false, None),
+            ]
+        );
+    }
+
+    #[test]
     fn progress_without_state_is_zero_and_untouched() {
-        let p = derive_exercise_progress(Uuid::nil(), 5, None, false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None, None);
         assert_eq!(p.score_given, 0.0);
         assert_eq!(p.score_maximum, 5);
         assert!(!p.completed);
@@ -1463,7 +2031,7 @@ mod tests {
     #[test]
     fn progress_started_is_attempted_not_completed() {
         let state = state_with(Some(0.0), ActivityProgress::Started);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert!(p.attempted);
         assert!(!p.completed);
     }
@@ -1471,7 +2039,7 @@ mod tests {
     #[test]
     fn progress_completed_reports_points_and_flags() {
         let state = state_with(Some(5.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert_eq!(p.score_given, 5.0);
         assert!(p.completed);
         assert!(p.attempted);
@@ -1480,25 +2048,25 @@ mod tests {
     #[test]
     fn standing_passes_only_at_full_points() {
         let partial = state_with(Some(4.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&partial), false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&partial), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
 
         let full = state_with(Some(4.99995), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
 
-        let p = derive_exercise_progress(Uuid::nil(), 5, None, false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, None, false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
     }
 
     #[test]
     fn standing_is_out_of_tries_below_full_points_only() {
         let zero = state_with(Some(0.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&zero), true);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&zero), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
 
         let full = state_with(Some(5.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&full), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
     }
 
@@ -1506,32 +2074,131 @@ mod tests {
     fn standing_stays_attempted_while_the_last_try_is_graded() {
         let mut pending = state_with(Some(0.0), ActivityProgress::Completed);
         pending.grading_progress = GradingProgress::Pending;
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&pending), true);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&pending), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
 
         let mut failed = state_with(Some(0.0), ActivityProgress::Completed);
         failed.grading_progress = GradingProgress::Failed;
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
     }
 
     #[test]
+    fn standing_stays_attempted_while_peer_or_self_review_is_pending() {
+        for stage in [
+            ReviewingStage::PeerReview,
+            ReviewingStage::SelfReview,
+            ReviewingStage::WaitingForPeerReviews,
+        ] {
+            let mut reviewing = state_with(None, ActivityProgress::Completed);
+            reviewing.reviewing_stage = stage;
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&reviewing), true, None, None);
+            assert_eq!(
+                p.standing,
+                Some(api::ExerciseStanding::Attempted),
+                "{stage:?}"
+            );
+        }
+    }
+
+    #[test]
     fn a_zero_point_exercise_passes_once_graded() {
-        let p = derive_exercise_progress(Uuid::nil(), 0, None, false);
+        let p = derive_exercise_progress(Uuid::nil(), 0, None, false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::NotAttempted));
 
         let graded = state_with(Some(0.0), ActivityProgress::Completed);
-        let p = derive_exercise_progress(Uuid::nil(), 0, Some(&graded), false);
+        let p = derive_exercise_progress(Uuid::nil(), 0, Some(&graded), false, None, None);
         assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
     }
 
     #[test]
     fn progress_initialized_state_is_not_attempted() {
         let state = state_with(None, ActivityProgress::Initialized);
-        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&state), false, None, None);
         assert_eq!(p.score_given, 0.0);
         assert!(!p.attempted);
         assert!(!p.completed);
+    }
+
+    #[test]
+    fn an_answer_held_until_the_chapter_is_locked_awaits_the_lock() {
+        let held = state_with(None, ActivityProgress::Completed);
+        assert_eq!(
+            pending_teacher_review(true, Some(&held)),
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        );
+        assert_eq!(pending_teacher_review(false, Some(&held)), None);
+
+        let unanswered = state_with(None, ActivityProgress::Initialized);
+        assert_eq!(pending_teacher_review(true, Some(&unanswered)), None);
+        assert_eq!(pending_teacher_review(true, None), None);
+    }
+
+    #[test]
+    fn an_answer_in_manual_review_awaits_the_teacher_and_locks_the_exercise() {
+        let mut waiting = state_with(None, ActivityProgress::Completed);
+        waiting.reviewing_stage = ReviewingStage::WaitingForManualGrading;
+        let review = pending_teacher_review(false, Some(&waiting));
+        assert_eq!(review, Some(api::PendingTeacherReview::AwaitsTeacher));
+
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&waiting), true, None, review);
+        assert_eq!(p.score_given, 0.0);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Attempted));
+        assert!(p.exercise_locked);
+    }
+
+    #[test]
+    fn points_awarded_before_chapter_locking_await_no_review() {
+        for stage in [
+            ReviewingStage::NotStarted,
+            ReviewingStage::WaitingForManualGrading,
+        ] {
+            let mut scored = state_with(Some(5.0), ActivityProgress::Completed);
+            scored.reviewing_stage = stage;
+            let review = pending_teacher_review(true, Some(&scored));
+            assert_eq!(review, None, "{stage:?}");
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&scored), false, None, review);
+            assert_eq!(p.score_given, 5.0);
+            assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+            assert_eq!(
+                p.exercise_locked,
+                stage == ReviewingStage::WaitingForManualGrading
+            );
+        }
+    }
+
+    #[test]
+    fn a_failed_answer_out_of_tries_before_chapter_locking_awaits_no_review() {
+        for stage in [
+            ReviewingStage::NotStarted,
+            ReviewingStage::WaitingForManualGrading,
+        ] {
+            let mut failed = state_with(Some(0.0), ActivityProgress::Completed);
+            failed.reviewing_stage = stage;
+            let review = pending_teacher_review(true, Some(&failed));
+            assert_eq!(review, None, "{stage:?}");
+            let p = derive_exercise_progress(Uuid::nil(), 5, Some(&failed), true, None, review);
+            assert_eq!(p.score_given, 0.0);
+            assert_eq!(p.standing, Some(api::ExerciseStanding::OutOfTries));
+            assert_eq!(
+                p.exercise_locked,
+                stage == ReviewingStage::WaitingForManualGrading
+            );
+        }
+    }
+
+    #[test]
+    fn a_reviewed_answer_awaits_nothing_but_stays_locked() {
+        let mut reviewed = state_with(Some(5.0), ActivityProgress::Completed);
+        reviewed.reviewing_stage = ReviewingStage::ReviewedAndLocked;
+        assert_eq!(pending_teacher_review(true, Some(&reviewed)), None);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&reviewed), false, None, None);
+        assert_eq!(p.standing, Some(api::ExerciseStanding::Passed));
+        assert!(p.exercise_locked);
+
+        let open = state_with(Some(5.0), ActivityProgress::Completed);
+        let p = derive_exercise_progress(Uuid::nil(), 5, Some(&open), false, None, None);
+        assert!(!p.exercise_locked);
     }
 
     #[test]
@@ -2315,8 +2982,9 @@ mod upload_tests {
     #[test]
     fn download_reports_an_empty_list_rather_than_failing() {
         let store = temp_file_store();
-        let response = submission_files_response(Vec::new(), &store, &app_conf())
-            .expect("the response is built");
+        let response =
+            submission_files_response(Vec::<StoredAnswerFile>::new(), &store, &app_conf())
+                .expect("the response is built");
         assert!(response.data_files.is_empty());
     }
 
@@ -2756,6 +3424,8 @@ mod route_tests {
 
         let response = test::call_service(&app, request).await;
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "deadline_passed");
     }
 
     async fn expire_deadline(exercise: Uuid) {
@@ -3713,6 +4383,304 @@ mod route_tests {
         assert_eq!(listed.ai_policy, api::CourseAiPolicy::FullUse);
     }
 
+    #[actix_web::test]
+    async fn me_names_the_tokens_user() {
+        let fixture = committed_fixture(true).await;
+        let app = client_api_app!();
+        let me: api::CurrentUser = get_json(&app, &fixture.token, "/me".to_string()).await;
+        assert_eq!(me.id, fixture.user);
+    }
+
+    async fn get_json<T: serde::de::DeserializeOwned>(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        token: &str,
+        uri: String,
+    ) -> T {
+        let request = test::TestRequest::get()
+            .uri(&uri)
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .to_request();
+        let response = test::call_service(app, request).await;
+        assert_eq!(response.status(), StatusCode::OK, "GET {uri}");
+        test::read_body_json(response).await
+    }
+
+    /// The deadline the single and list views serve for the fixture exercise, in whole seconds.
+    async fn served_deadlines(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        fixture: &Fixture,
+    ) -> (Option<i64>, Option<i64>) {
+        let single: api::ExerciseSlide = get_json(
+            app,
+            &fixture.token,
+            format!("/exercises/{}", fixture.exercise),
+        )
+        .await;
+        let listed: Vec<api::ExerciseSlide> = get_json(
+            app,
+            &fixture.token,
+            format!("/courses/{}/exercises", fixture.course),
+        )
+        .await;
+        let listed = listed
+            .into_iter()
+            .find(|slide| slide.exercise_id == fixture.exercise)
+            .expect("the fixture exercise is listed");
+        (
+            single.deadline.map(|d| d.timestamp()),
+            listed.deadline.map(|d| d.timestamp()),
+        )
+    }
+
+    /// The submit gate applies the chapter's deadline when the exercise has none, so the client
+    /// must be told it.
+    #[actix_web::test]
+    async fn both_exercise_views_serve_the_chapter_deadline_unless_the_exercise_has_its_own() {
+        let (fixture, _, chapter) = servable_exercise_fixture().await;
+        let chapter_deadline = Utc::now() + ChronoDuration::days(2);
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::chapters::update_chapter(
+            &mut conn,
+            chapter.id,
+            models::chapters::ChapterUpdate {
+                name: chapter.name.clone(),
+                color: chapter.color.clone(),
+                front_page_id: chapter.front_page_id,
+                deadline: Some(chapter_deadline),
+                opens_at: chapter.opens_at,
+                course_module_id: Some(chapter.course_module_id),
+            },
+            fixture.user,
+        )
+        .await
+        .expect("chapter deadline");
+        let app = client_api_app!();
+
+        let expected = Some(chapter_deadline.timestamp());
+        assert_eq!(served_deadlines(&app, &fixture).await, (expected, expected));
+
+        let exercise_deadline = Utc::now() + ChronoDuration::days(3);
+        models::exercises::set_deadline(&mut conn, fixture.exercise, Some(exercise_deadline))
+            .await
+            .expect("exercise deadline");
+        let expected = Some(exercise_deadline.timestamp());
+        assert_eq!(served_deadlines(&app, &fixture).await, (expected, expected));
+    }
+
+    /// A closed chapter's exercises leave the listing until it opens, but the progress names them
+    /// under the chapter, so a client never takes them for removed ones.
+    #[actix_web::test]
+    async fn exercises_of_a_closed_chapter_are_reported_closed_not_removed() {
+        let (fixture, _, chapter) = servable_exercise_fixture().await;
+        let opens_at = Utc::now() + ChronoDuration::days(2);
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::chapters::set_opens_at(&mut conn, chapter.id, opens_at)
+            .await
+            .expect("opens_at");
+        let app = client_api_app!();
+
+        let listed: Vec<api::ExerciseSlide> = get_json(
+            &app,
+            &fixture.token,
+            format!("/courses/{}/exercises", fixture.course),
+        )
+        .await;
+        assert!(listed.iter().all(|s| s.exercise_id != fixture.exercise));
+
+        let progress: api::CourseProgress = get_json(
+            &app,
+            &fixture.token,
+            format!("/courses/{}/progress", fixture.course),
+        )
+        .await;
+        assert!(
+            progress
+                .exercises
+                .iter()
+                .all(|p| p.exercise_id != fixture.exercise)
+        );
+        let closed = progress
+            .closed_chapters
+            .iter()
+            .find(|c| c.id == chapter.id)
+            .expect("the closed chapter is reported");
+        assert_eq!(closed.opens_at.timestamp(), opens_at.timestamp());
+        assert_eq!(closed.name, chapter.name);
+        assert!(
+            closed
+                .exercises
+                .iter()
+                .any(|p| p.exercise_id == fixture.exercise)
+        );
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/exercises/{}", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "chapter_not_open_yet");
+    }
+
+    /// A chapter the student has locked is marked in the listing, and refusing an answer to it
+    /// is told apart from a token that lacks the scope.
+    #[actix_web::test]
+    async fn a_locked_chapter_is_marked_and_refuses_answers_with_its_own_key() {
+        let (fixture, _, chapter) = servable_exercise_fixture().await;
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        let course = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course");
+        models::courses::update_course(
+            &mut conn,
+            &upload_tests::app_conf(),
+            fixture.course,
+            models::courses::CourseUpdate {
+                chapter_locking_enabled: true,
+                ..models::courses::CourseUpdate::from(&course)
+            },
+            fixture.user,
+            true,
+        )
+        .await
+        .expect("chapter locking");
+        models::user_chapter_locking_statuses::set_chapter_status(
+            &mut conn,
+            fixture.user,
+            chapter.id,
+            fixture.course,
+            models::user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked,
+        )
+        .await
+        .expect("chapter status");
+        let app = client_api_app!();
+
+        let single: api::ExerciseSlide = get_json(
+            &app,
+            &fixture.token,
+            format!("/exercises/{}", fixture.exercise),
+        )
+        .await;
+        let locked = Some(api::ChapterLockingStatus::CompletedAndLocked);
+        assert_eq!(single.chapter.and_then(|c| c.locking_status), locked);
+        let listed: Vec<api::ExerciseSlide> = get_json(
+            &app,
+            &fixture.token,
+            format!("/courses/{}/exercises", fixture.course),
+        )
+        .await;
+        let listed = listed
+            .into_iter()
+            .find(|slide| slide.exercise_id == fixture.exercise)
+            .expect("the fixture exercise is listed");
+        assert_eq!(listed.chapter.and_then(|c| c.locking_status), locked);
+
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "chapter_completed_and_locked");
+    }
+
+    #[actix_web::test]
+    async fn chapter_info_has_no_locking_status_when_the_course_does_not_lock_chapters() {
+        let (fixture, _, _) = servable_exercise_fixture().await;
+        let app = client_api_app!();
+        let single: api::ExerciseSlide = get_json(
+            &app,
+            &fixture.token,
+            format!("/exercises/{}", fixture.exercise),
+        )
+        .await;
+        assert_eq!(single.chapter.and_then(|c| c.locking_status), None);
+    }
+
+    /// Removing the enrollment keeps the course settings, which the shared submit path checks; the
+    /// client API must refuse graded answers on its own, while the student keeps their own work.
+    #[actix_web::test]
+    async fn a_user_whose_enrollment_was_removed_cannot_submit_but_keeps_their_work() {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let (fixture, ids) = fixture_with_stub(state).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids.clone()),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let submitted: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::course_instance_enrollments::delete_for_user_and_course(
+            &mut conn,
+            fixture.user,
+            fixture.course,
+        )
+        .await
+        .expect("enrollment removal");
+
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "not_enrolled");
+
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "not_enrolled");
+
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "backup")],
+        )
+        .uri(&format!(
+            "/exercises/{}/files?for=snapshot",
+            fixture.exercise
+        ))
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        download(&app, &fixture.token, submitted.slide_submission_id).await;
+    }
+
     /// Grading carries the exercise's own standing, so a client never has to infer it from the
     /// score.
     #[actix_web::test]
@@ -3753,6 +4721,7 @@ mod route_tests {
         // The stub grades one of the slide's two tasks: completed, but half points is no pass.
         assert_eq!(progress.score_given, 0.5);
         assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+        assert_eq!((progress.max_tries, progress.tries_left), (None, None));
     }
 
     /// A graded submission below full points that uses the last try is final, and both the grading
@@ -3786,6 +4755,7 @@ mod route_tests {
             .find(|p| p.exercise_id == fixture.exercise)
             .expect("the fixture exercise has progress");
         assert_eq!(before.standing, Some(api::ExerciseStanding::NotAttempted));
+        assert_eq!((before.max_tries, before.tries_left), (Some(1), Some(1)));
 
         let request = submit_request(
             fixture.exercise,
@@ -3824,6 +4794,7 @@ mod route_tests {
             .expect("the fixture exercise has progress");
         assert_eq!(after.standing, Some(api::ExerciseStanding::OutOfTries));
         assert_eq!(after.score_given, 0.0);
+        assert_eq!((after.max_tries, after.tries_left), (Some(1), Some(0)));
     }
 
     /// The last try is not final while its grading is pending: it may yet award full points.
@@ -3864,5 +4835,543 @@ mod route_tests {
             .find(|p| p.exercise_id == fixture.exercise)
             .expect("the fixture exercise has progress");
         assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+    }
+
+    /// A stub-graded fixture in a course that locks chapters, with the exercise's chapter unlocked
+    /// for the user. The exercise keeps the default of a teacher reviewing its answers once the
+    /// chapter is locked. Returns the chapter's id.
+    async fn chapter_locking_fixture() -> (Fixture, Uuid) {
+        let fixture = stub_graded_fixture().await;
+        let chapter = enable_chapter_locking(&fixture).await;
+        (fixture, chapter)
+    }
+
+    /// A fixture whose exercise service stub grades every answer it is sent full points.
+    async fn stub_graded_fixture() -> Fixture {
+        let state = Arc::new(StubState::new(StubGrading::Graded(stub_grading())));
+        let url = start_exercise_service_stub(state);
+        let fixture = committed_fixture_with_service(true, Some(url)).await;
+        open_exercise(&fixture).await;
+        fixture
+    }
+
+    /// Turns chapter locking on for the fixture's course and unlocks the exercise's chapter for the
+    /// user. Returns the chapter's id.
+    async fn enable_chapter_locking(fixture: &Fixture) -> Uuid {
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        let course = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course");
+        models::courses::update_course(
+            &mut conn,
+            &upload_tests::app_conf(),
+            fixture.course,
+            models::courses::CourseUpdate {
+                chapter_locking_enabled: true,
+                ..models::courses::CourseUpdate::from(&course)
+            },
+            fixture.user,
+            true,
+        )
+        .await
+        .expect("chapter locking");
+        let exercise = models::exercises::get_by_id(&mut conn, fixture.exercise)
+            .await
+            .expect("exercise");
+        assert!(exercise.teacher_reviews_answer_after_locking);
+        let chapter = exercise.chapter_id.expect("the exercise is in a chapter");
+        models::user_chapter_locking_statuses::set_chapter_status(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+            models::user_chapter_locking_statuses::ChapterLockingStatus::Unlocked,
+        )
+        .await
+        .expect("chapter status");
+        chapter
+    }
+
+    /// The fixture exercise's entry in the user's course progress.
+    async fn fixture_exercise_progress(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        fixture: &Fixture,
+    ) -> api::ExerciseProgress {
+        let progress: api::CourseProgress = get_json(
+            app,
+            &fixture.token,
+            format!("/courses/{}/progress", fixture.course),
+        )
+        .await;
+        progress
+            .exercises
+            .into_iter()
+            .find(|p| p.exercise_id == fixture.exercise)
+            .expect("the fixture exercise has progress")
+    }
+
+    /// The student completing and locking the chapter, as the course material's lock route does.
+    async fn lock_chapter_as_student(fixture: &Fixture, chapter: Uuid) {
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::chapters::move_chapter_exercises_to_manual_review(
+            &mut conn,
+            chapter,
+            fixture.user,
+            fixture.course,
+        )
+        .await
+        .expect("manual review");
+        models::user_chapter_locking_statuses::complete_and_lock_chapter(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+        )
+        .await
+        .expect("chapter lock");
+    }
+
+    /// Under chapter locking a passing answer earns no points until the chapter is locked and a
+    /// teacher reviews it, as the course material shows; the grading and the progress say what the
+    /// points wait for instead of reading as a failed answer.
+    #[actix_web::test]
+    async fn points_held_for_teacher_review_report_what_they_wait_for() {
+        let (fixture, chapter) = chapter_locking_fixture().await;
+        let ids = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let submitted: api::ExerciseTaskSubmissionResult = test::read_body_json(response).await;
+
+        let status: api::ExerciseTaskSubmissionStatus = get_json(
+            &app,
+            &fixture.token,
+            format!("/submissions/{}/grading", submitted.task_submission_id),
+        )
+        .await;
+        let api::ExerciseTaskSubmissionStatus::Grading {
+            score_given,
+            exercise_progress: Some(progress),
+            ..
+        } = status
+        else {
+            panic!("expected a grading with exercise progress, got {status:?}");
+        };
+        assert!(score_given.is_some_and(|score| score > 0.0));
+        assert_eq!(
+            progress.pending_teacher_review,
+            Some(api::PendingTeacherReview::AwaitsChapterLock)
+        );
+        assert_eq!(progress.score_given, 0.0);
+        assert_eq!(progress.standing, Some(api::ExerciseStanding::Attempted));
+        assert!(!progress.exercise_locked);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(
+            progress.pending_teacher_review,
+            Some(api::PendingTeacherReview::AwaitsTeacher)
+        );
+        assert_eq!(progress.score_given, 0.0);
+        assert!(progress.exercise_locked);
+    }
+
+    /// Turning chapter locking on leaves points already awarded in place, so the progress reports
+    /// them rather than a review they no longer wait for.
+    #[actix_web::test]
+    async fn points_awarded_before_chapter_locking_await_no_review() {
+        let fixture = stub_graded_fixture().await;
+        let ids = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let request = submit_request(
+            fixture.exercise,
+            &fixture.token,
+            &file_submission(fixture.slide, fixture.task, ids),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let scored = fixture_exercise_progress(&app, &fixture).await;
+        assert!(scored.score_given > 0.0);
+
+        let chapter = enable_chapter_locking(&fixture).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(progress.pending_teacher_review, None);
+        assert_eq!(progress.score_given, scored.score_given);
+        assert_eq!(progress.standing, scored.standing);
+        assert!(!progress.exercise_locked);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert_eq!(progress.pending_teacher_review, None);
+        assert_eq!(progress.score_given, scored.score_given);
+        assert_eq!(progress.standing, scored.standing);
+        assert!(progress.exercise_locked);
+    }
+
+    /// The client takes a submission exactly when the course material does: not once the student
+    /// has locked the chapter, not after a teacher merely unlocks the chapter again, and again once
+    /// the teacher resets the exercise.
+    #[actix_web::test]
+    async fn a_locked_exercise_refuses_submissions_until_a_teacher_resets_it() {
+        let (fixture, chapter) = chapter_locking_fixture().await;
+        let first = upload_two(&fixture).await;
+        // Uploaded while the exercise is open, so the refusals below come from the lock rather than
+        // from the upload gate.
+        let held_back = upload_two(&fixture).await;
+        let app = client_api_app!();
+        let submit = |ids: Vec<Uuid>| {
+            submit_request(
+                fixture.exercise,
+                &fixture.token,
+                &file_submission(fixture.slide, fixture.task, ids),
+            )
+            .to_request()
+        };
+        let response = test::call_service(&app, submit(first)).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        lock_chapter_as_student(&fixture, chapter).await;
+        let response = test::call_service(&app, submit(held_back.clone())).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "chapter_completed_and_locked");
+
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        models::user_chapter_locking_statuses::unlock_chapter(
+            &mut conn,
+            fixture.user,
+            chapter,
+            fixture.course,
+        )
+        .await
+        .expect("teacher unlock");
+        let response = test::call_service(&app, submit(held_back)).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "exercise_locked");
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "first")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "exercise_locked");
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert!(progress.exercise_locked);
+
+        models::exercises::reset_exercises_for_selected_users(
+            &mut conn,
+            &[(fixture.user, vec![fixture.exercise])],
+            None,
+            fixture.course,
+            None,
+        )
+        .await
+        .expect("reset");
+        open_exercise(&fixture).await;
+        let progress = fixture_exercise_progress(&app, &fixture).await;
+        assert!(!progress.exercise_locked);
+        let response = test::call_service(&app, submit(upload_two(&fixture).await)).await;
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    fn snapshot_request(
+        exercise: Uuid,
+        token: &str,
+        body: &api::NewAnswerSnapshot,
+    ) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/exercises/{exercise}/snapshots"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+            .set_json(body)
+    }
+
+    fn share_request(id: Uuid, token: &str) -> test::TestRequest {
+        test::TestRequest::post()
+            .uri(&format!("/submissions/{id}/share"))
+            .insert_header(("Authorization", format!("Bearer {token}")))
+    }
+
+    async fn list_submissions(
+        app: &impl actix_web::dev::Service<
+            actix_http::Request,
+            Response = actix_web::dev::ServiceResponse,
+            Error = actix_web::Error,
+        >,
+        fixture: &Fixture,
+    ) -> Vec<api::ExerciseSlideSubmissionListItem> {
+        let request = test::TestRequest::get()
+            .uri(&format!("/exercises/{}/submissions", fixture.exercise))
+            .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+            .to_request();
+        let response = test::call_service(app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        test::read_body_json(response).await
+    }
+
+    /// A snapshot is the student's own data and is never graded, so neither the deadline nor the
+    /// try limit stands in its way, and storing one must not use a try.
+    #[actix_web::test]
+    async fn a_paste_past_the_deadline_is_stored_listed_downloaded_and_shared_without_using_a_try()
+    {
+        let fixture = committed_fixture(true).await;
+        expire_deadline(fixture.exercise).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            fixture.exercise,
+            &fixture.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "pasted")],
+        )
+        .uri(&format!(
+            "/exercises/{}/files?for=snapshot",
+            fixture.exercise
+        ))
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+        let file_id = uploaded.data_files[0].id;
+
+        let request = snapshot_request(
+            fixture.exercise,
+            &fixture.token,
+            &paste_of(&fixture, file_id),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+        assert_eq!(
+            slide_submission_count(fixture.exercise, fixture.user).await,
+            0
+        );
+
+        let downloaded = download(&app, &fixture.token, snapshot.snapshot_id).await;
+        assert_eq!(downloaded["data_files"][0]["id"], file_id.to_string());
+
+        let request = share_request(snapshot.snapshot_id, &fixture.token).to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let listed = list_submissions(&app, &fixture).await;
+        assert_eq!(listed.len(), 1);
+        assert_eq!(listed[0].id, snapshot.snapshot_id);
+        assert_eq!(listed[0].kind, api::SubmissionKind::Paste);
+        assert!(listed[0].is_shared);
+        assert!(listed[0].score_given.is_none());
+    }
+
+    #[actix_web::test]
+    async fn another_users_snapshot_cannot_be_downloaded_or_shared() {
+        let owner = committed_fixture(true).await;
+        let other = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            owner.exercise,
+            &owner.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "mine")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+        let request = snapshot_request(
+            owner.exercise,
+            &owner.token,
+            &api::NewAnswerSnapshot {
+                purpose: api::SnapshotPurpose::Backup,
+                ..paste_of(&owner, uploaded.data_files[0].id)
+            },
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+
+        for request in [
+            test::TestRequest::get()
+                .uri(&format!("/submissions/{}/download", snapshot.snapshot_id))
+                .insert_header(("Authorization", format!("Bearer {}", other.token))),
+            share_request(snapshot.snapshot_id, &other.token),
+        ] {
+            let response = test::call_service(&app, request.to_request()).await;
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        }
+    }
+
+    #[actix_web::test]
+    async fn a_snapshot_naming_another_users_upload_is_reported_as_unknown() {
+        let owner = committed_fixture(true).await;
+        let thief = committed_fixture(true).await;
+        let app = client_api_app!();
+        let request = upload_request(
+            owner.exercise,
+            &owner.token,
+            &[(Uuid::new_v4(), "a.tar.zst", "mine")],
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        let uploaded: api::UploadedFiles = test::read_body_json(response).await;
+
+        let request = snapshot_request(
+            thief.exercise,
+            &thief.token,
+            &paste_of(&thief, uploaded.data_files[0].id),
+        )
+        .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "unknown_upload");
+    }
+
+    fn paste_of(fixture: &Fixture, file: Uuid) -> api::NewAnswerSnapshot {
+        api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Paste,
+            exercise_slide_id: fixture.slide,
+            exercise_task_id: fixture.task,
+            data_json: None,
+            data_files: vec![file],
+        }
+    }
+
+    #[actix_web::test]
+    async fn pastes_beyond_the_per_minute_limit_are_refused() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let mut responses = vec![];
+        for _ in 0..4 {
+            let request =
+                snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+                    .to_request();
+            responses.push(test::call_service(&app, request).await);
+        }
+        assert_eq!(
+            responses.iter().map(|r| r.status()).collect::<Vec<_>>(),
+            vec![
+                StatusCode::OK,
+                StatusCode::OK,
+                StatusCode::OK,
+                StatusCode::TOO_MANY_REQUESTS
+            ]
+        );
+        assert!(
+            responses[3]
+                .headers()
+                .contains_key(actix_web::http::header::RETRY_AFTER)
+        );
+
+        let backup = api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Backup,
+            ..paste_of(&fixture, file)
+        };
+        let request = snapshot_request(fixture.exercise, &fixture.token, &backup).to_request();
+        assert_eq!(
+            test::call_service(&app, request).await.status(),
+            StatusCode::OK,
+            "backups are bounded by their cap, not by the paste limit"
+        );
+    }
+
+    #[actix_web::test]
+    async fn refused_pastes_do_not_use_up_the_limit() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let unknown_upload = paste_of(&fixture, Uuid::new_v4());
+        for _ in 0..4 {
+            let request =
+                snapshot_request(fixture.exercise, &fixture.token, &unknown_upload).to_request();
+            assert_eq!(
+                test::call_service(&app, request).await.status(),
+                StatusCode::UNPROCESSABLE_ENTITY
+            );
+        }
+        let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+            .to_request();
+        assert_eq!(
+            test::call_service(&app, request).await.status(),
+            StatusCode::OK
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_backup_cannot_be_shared() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        let app = client_api_app!();
+        let backup = api::NewAnswerSnapshot {
+            purpose: api::SnapshotPurpose::Backup,
+            ..paste_of(&fixture, file)
+        };
+        let request = snapshot_request(fixture.exercise, &fixture.token, &backup).to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::OK);
+        let snapshot: api::AnswerSnapshotResult = test::read_body_json(response).await;
+
+        let request = share_request(snapshot.snapshot_id, &fixture.token).to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        assert_eq!(message_key(&body), "backup_not_shareable");
+    }
+
+    #[actix_web::test]
+    async fn an_exam_exercise_cannot_be_snapshotted() {
+        let fixture = committed_fixture(true).await;
+        let file = upload_two(&fixture).await[0];
+        {
+            let mut conn = PgConnection::connect(&dev_database_url())
+                .await
+                .expect("connection");
+            let organization_id = models::courses::get_course(&mut conn, fixture.course)
+                .await
+                .expect("course")
+                .organization_id;
+            let exam = models::exams::insert(
+                &mut conn,
+                models::PKeyPolicy::Generate,
+                &models::exams::NewExam {
+                    name: "Exam".to_string(),
+                    starts_at: Some(Utc::now() - ChronoDuration::hours(1)),
+                    ends_at: Some(Utc::now() + ChronoDuration::hours(1)),
+                    time_minutes: 60,
+                    organization_id,
+                    minimum_points_treshold: 0,
+                    grade_manually: false,
+                },
+            )
+            .await
+            .expect("exam");
+            models::exercises::move_to_exam_for_tests(&mut conn, fixture.exercise, exam)
+                .await
+                .expect("move the exercise into the exam");
+        }
+        let app = client_api_app!();
+        let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        assert_eq!(response.status(), StatusCode::NOT_FOUND);
     }
 }

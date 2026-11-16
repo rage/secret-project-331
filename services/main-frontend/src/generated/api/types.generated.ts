@@ -5012,15 +5012,16 @@ export type ExerciseSlideSubmissionInfo = {
 }
 
 /**
- * A shareable link to an existing exercise-slide submission. The `id` is the
- * unguessable token used in the shareable URL; a viewer resolves the token back
- * to the submission it points at.
+ * A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+ * of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+ * resolves the token back to what it points at.
  */
 export type ExerciseSlideSubmissionShare = {
   created_at: string
   created_by: string
   deleted_at?: string | null
-  exercise_slide_submission_id: string
+  exercise_answer_snapshot_id?: string | null
+  exercise_slide_submission_id?: string | null
   id: string
   updated_at: string
 }
@@ -7559,6 +7560,24 @@ export type SetGreatMoocVisionRequest = {
 
 export type SetWeeklyDigestSubscriptionRequest = {
   receives_weekly_digest: boolean
+}
+
+/**
+ * What a share-link holder is shown: the shared answer, without the model solution or anything
+ * that identifies the student.
+ */
+export type SharedSubmissionInfo = {
+  created_at: string
+  exercise: Exercise
+  /**
+   * The course material page the exercise is on; `None` for an exam exercise.
+   */
+  exercise_page_url?: string | null
+  /**
+   * `false` for a paste or backup snapshot, which is stored but never graded.
+   */
+  is_graded: boolean
+  tasks: Array<CourseMaterialExerciseTask>
 }
 
 export type SignedInAccount = "same" | "different" | "none"
@@ -17961,7 +17980,7 @@ export type RevokeSubmissionSharesOfSubmissionData = {
   body?: never
   path: {
     /**
-     * Exercise slide submission id
+     * Exercise slide submission or snapshot id
      */
     submission_id: string
   }
@@ -18015,9 +18034,9 @@ export type GetSharedSubmissionInfoData = {
 
 export type GetSharedSubmissionInfoResponses = {
   /**
-   * Data needed to render the shared submission
+   * Data needed to render the shared submission or snapshot
    */
-  200: ExerciseSlideSubmissionInfo
+  200: SharedSubmissionInfo
 }
 
 export type GetSharedSubmissionInfoResponse =

@@ -1,6 +1,8 @@
 use crate::{domain::models_requests, prelude::*};
-use headless_lms_models::exercise_slide_submission_shares::ExerciseSlideSubmissionShare;
-use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
+use headless_lms_models::ModelErrorType;
+use headless_lms_models::exercise_slide_submission_shares::{
+    ExerciseSlideSubmissionShare, SharedSubmissionInfo,
+};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -14,7 +16,7 @@ pub(crate) struct MainFrontendSharedSubmissionsApiDoc;
 
 /**
 GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
-render a shared submission.
+render a shared submission or ungraded snapshot.
 
 The `token` is the unguessable share id minted by the client share endpoint. Login is
 required, but holding the token is the only capability needed to view the submission —
@@ -29,7 +31,7 @@ no teacher or course role.
         ("token" = Uuid, Path, description = "Submission share token")
     ),
     responses(
-        (status = 200, description = "Data needed to render the shared submission", body = ExerciseSlideSubmissionInfo)
+        (status = 200, description = "Data needed to render the shared submission or snapshot", body = SharedSubmissionInfo)
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]
@@ -39,33 +41,103 @@ async fn get_shared_submission_info(
     _user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<ExerciseSlideSubmissionInfo>> {
+) -> ControllerResult<web::Json<SharedSubmissionInfo>> {
     let mut conn = pool.acquire().await?;
     // Possession of the share token is the capability; any logged-in user may view it.
     let auth_token = skip_authorize();
 
     let share = models::exercise_slide_submission_shares::get_by_id(&mut conn, *token).await?;
-    let submission = models::exercise_slide_submissions::get_by_id(
-        &mut conn,
+    let res = match (
         share.exercise_slide_submission_id,
-    )
-    .await?;
-    let mut res = models::exercise_slide_submissions::get_exercise_slide_submission_info(
-        &mut conn,
-        share.exercise_slide_submission_id,
-        submission.user_id,
-        models_requests::fetch_service_info,
-        true,
-        file_store.as_ref(),
-        app_conf.as_ref(),
-    )
-    .await?;
-
-    // A forwardable share link must never leak the model solution or the submitter's
-    // user id; see `strip_for_shared_view`.
-    res.strip_for_shared_view();
+        share.exercise_answer_snapshot_id,
+    ) {
+        (Some(submission_id), _) => {
+            let submission =
+                models::exercise_slide_submissions::get_by_id(&mut conn, submission_id).await?;
+            let mut info = models::exercise_slide_submissions::get_exercise_slide_submission_info(
+                &mut conn,
+                submission_id,
+                submission.user_id,
+                models_requests::fetch_service_info,
+                true,
+                file_store.as_ref(),
+                app_conf.as_ref(),
+            )
+            .await?;
+            // A forwardable share link must never leak the model solution or the submitter's
+            // user id; see `strip_for_shared_view`.
+            info.strip_for_shared_view();
+            SharedSubmissionInfo {
+                exercise_page_url: exercise_page_url(&mut conn, &info.exercise, &app_conf.base_url)
+                    .await?,
+                exercise: info.exercise,
+                tasks: info.tasks,
+                created_at: info.exercise_slide_submission.created_at,
+                is_graded: true,
+            }
+        }
+        (None, Some(snapshot_id)) => {
+            let snapshot =
+                models::exercise_answer_snapshots::get_by_id(&mut conn, snapshot_id).await?;
+            let task = models::exercise_answer_snapshots::get_shared_view_task(
+                &mut conn,
+                &snapshot,
+                models_requests::fetch_service_info,
+                file_store.as_ref(),
+                app_conf.as_ref(),
+            )
+            .await?;
+            let exercise = models::exercises::get_by_id(&mut conn, snapshot.exercise_id).await?;
+            SharedSubmissionInfo {
+                exercise_page_url: exercise_page_url(&mut conn, &exercise, &app_conf.base_url)
+                    .await?,
+                exercise,
+                tasks: vec![task],
+                created_at: snapshot.created_at,
+                is_graded: false,
+            }
+        }
+        (None, None) => {
+            return Err(controller_err!(
+                InternalServerError,
+                "The share links to nothing".to_string()
+            ));
+        }
+    };
 
     auth_token.authorized_ok(web::Json(res))
+}
+
+/// The course material page the exercise is on, or `None` for an exam exercise or a deleted course.
+async fn exercise_page_url(
+    conn: &mut PgConnection,
+    exercise: &models::exercises::Exercise,
+    base_url: &str,
+) -> ModelResult<Option<String>> {
+    let Some(course_id) = exercise.course_id else {
+        return Ok(None);
+    };
+    let course = match models::courses::get_course(conn, course_id).await {
+        Ok(course) => course,
+        Err(error)
+            if matches!(
+                error.error_type(),
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+            ) =>
+        {
+            return Ok(None);
+        }
+        Err(error) => return Err(error),
+    };
+    let organization =
+        models::organizations::get_organization(conn, course.organization_id).await?;
+    let page = models::pages::get_page(conn, exercise.page_id).await?;
+    Ok(headless_lms_utils::course_url::course_page_url(
+        base_url,
+        &organization.slug,
+        &course.slug,
+        &page.url_path,
+    ))
 }
 
 /**
@@ -129,7 +201,7 @@ async fn revoke_share(
 
 /**
 DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
-share the current user has minted for one submission.
+share the current user has minted for one submission or snapshot.
 */
 #[utoipa::path(
     delete,
@@ -137,7 +209,7 @@ share the current user has minted for one submission.
     operation_id = "revokeSubmissionSharesOfSubmission",
     tag = "shared_submissions",
     params(
-        ("submission_id" = Uuid, Path, description = "Exercise slide submission id")
+        ("submission_id" = Uuid, Path, description = "Exercise slide submission or snapshot id")
     ),
     responses(
         (status = 200, description = "How many shares were withdrawn", body = i64)
@@ -152,7 +224,7 @@ async fn revoke_shares_of_submission(
     let mut conn = pool.acquire().await?;
     // The `created_by` filter in the query is the authorization check.
     let auth_token = skip_authorize();
-    let revoked = models::exercise_slide_submission_shares::revoke_all_for_submission(
+    let revoked = models::exercise_slide_submission_shares::revoke_all_for_submission_or_snapshot(
         &mut conn,
         *submission_id,
         user.id,
@@ -169,4 +241,50 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{token}", web::get().to(get_shared_submission_info))
         .route("/{token}", web::delete().to(revoke_share));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_helper::*;
+
+    #[actix_web::test]
+    async fn the_page_url_names_the_exercises_material_page() {
+        insert_data!(:tx, :user, org: org, course: course, instance: _instance, :course_module, :chapter, page: page, exercise: exercise);
+        let exercise = models::exercises::get_by_id(tx.as_mut(), exercise)
+            .await
+            .unwrap();
+        let organization = models::organizations::get_organization(tx.as_mut(), org)
+            .await
+            .unwrap();
+        let course = models::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let page = models::pages::get_page(tx.as_mut(), page).await.unwrap();
+        let url = exercise_page_url(tx.as_mut(), &exercise, "http://project-331.local")
+            .await
+            .unwrap();
+        assert_eq!(
+            url,
+            Some(format!(
+                "http://project-331.local/org/{}/courses/{}{}",
+                organization.slug, course.slug, page.url_path
+            ))
+        );
+    }
+
+    #[actix_web::test]
+    async fn a_deleted_course_has_no_page_url() {
+        insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module, :chapter, :page, exercise: exercise);
+        let exercise = models::exercises::get_by_id(tx.as_mut(), exercise)
+            .await
+            .unwrap();
+        models::courses::delete_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let url = exercise_page_url(tx.as_mut(), &exercise, "http://project-331.local")
+            .await
+            .unwrap();
+        assert_eq!(url, None);
+    }
 }

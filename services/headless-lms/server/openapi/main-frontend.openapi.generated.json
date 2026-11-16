@@ -15216,13 +15216,13 @@
     "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}": {
       "delete": {
         "tags": ["shared_submissions"],
-        "summary": "DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every\nshare the current user has minted for one submission.",
+        "summary": "DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every\nshare the current user has minted for one submission or snapshot.",
         "operationId": "revokeSubmissionSharesOfSubmission",
         "parameters": [
           {
             "name": "submission_id",
             "in": "path",
-            "description": "Exercise slide submission id",
+            "description": "Exercise slide submission or snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -15248,7 +15248,7 @@
     "/api/v0/main-frontend/shared-submissions/{token}": {
       "get": {
         "tags": ["shared_submissions"],
-        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
         "operationId": "getSharedSubmissionInfo",
         "parameters": [
           {
@@ -15264,11 +15264,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Data needed to render the shared submission",
+            "description": "Data needed to render the shared submission or snapshot",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExerciseSlideSubmissionInfo"
+                  "$ref": "#/components/schemas/SharedSubmissionInfo"
                 }
               }
             }
@@ -28222,14 +28222,8 @@
       },
       "ExerciseSlideSubmissionShare": {
         "type": "object",
-        "description": "A shareable link to an existing exercise-slide submission. The `id` is the\nunguessable token used in the shareable URL; a viewer resolves the token back\nto the submission it points at.",
-        "required": [
-          "id",
-          "exercise_slide_submission_id",
-          "created_by",
-          "created_at",
-          "updated_at"
-        ],
+        "description": "A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one\nof the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer\nresolves the token back to what it points at.",
+        "required": ["id", "created_by", "created_at", "updated_at"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -28243,8 +28237,12 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "exercise_answer_snapshot_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "exercise_slide_submission_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "id": {
@@ -34937,6 +34935,34 @@
         "properties": {
           "receives_weekly_digest": {
             "type": "boolean"
+          }
+        }
+      },
+      "SharedSubmissionInfo": {
+        "type": "object",
+        "description": "What a share-link holder is shown: the shared answer, without the model solution or anything\nthat identifies the student.",
+        "required": ["exercise", "tasks", "created_at", "is_graded"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "exercise_page_url": {
+            "type": ["string", "null"],
+            "description": "The course material page the exercise is on; `None` for an exam exercise."
+          },
+          "is_graded": {
+            "type": "boolean",
+            "description": "`false` for a paste or backup snapshot, which is stored but never graded."
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialExerciseTask"
+            }
           }
         }
       },

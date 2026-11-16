@@ -110,6 +110,12 @@ isbot = "0.1.3"
 woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
 git2 = { version = "0.21.0", features = ["https", "ssh"] }
+# Raw libgit2 symbols git2 does not wrap: registering the socket stream clones connect through.
+libgit2-sys = "0.18.8"
+# C types for that FFI.
+libc = "0.2.191"
+# TCP keepalive on the sockets clones connect through.
+socket2 = "0.6.5"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 #  Binding for the zstd compression library.

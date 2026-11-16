@@ -15,12 +15,26 @@ import type {
 import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestions"
 import useCourse from "@/hooks/course-material/useCourse"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Checkbox, Radio, RadioGroup, ErrorNotice } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Radio,
+  RadioGroup,
+  ErrorNotice,
+  TextField,
+} from "@/shared-module/components"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
 const courseInstanceGroupCss = css`
   margin-bottom: 1.5rem;
+`
+
+const footnoteCss = css`
+  color: var(--field-description);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  margin: var(--space-3) 0 0;
 `
 
 const GreenText = styled.span`
@@ -67,6 +81,8 @@ interface SelectCourseInstanceFormProps {
 interface AdditionalQuestionAnswerFormValue {
   course_background_question_id: string
   answer_value: boolean
+  // Answer of a "Text" question; saved as-is instead of the "t"/"f" flag.
+  text_value: string
 }
 
 interface SelectCourseInstanceFormValues {
@@ -117,6 +133,7 @@ const SelectCourseInstanceForm: React.FC<
         return {
           course_background_question_id: question.id,
           answer_value: prevAnswer?.answer_value ?? savedAnswer?.answer_value === ANSWER_VALUE_TRUE,
+          text_value: prevAnswer?.text_value ?? savedAnswer?.answer_value ?? "",
         }
       })
     replaceAnswers(nextAnswers)
@@ -135,10 +152,20 @@ const SelectCourseInstanceForm: React.FC<
     if (courseInstanceId) {
       submitMutation.mutate({
         instanceId: courseInstanceId,
-        backgroundQuestionAnswers: getValues(ANSWERS_FIELD).map((answer) => ({
-          course_background_question_id: answer.course_background_question_id,
-          answer_value: answer.answer_value ? ANSWER_VALUE_TRUE : ANSWER_VALUE_FALSE,
-        })),
+        backgroundQuestionAnswers: getValues(ANSWERS_FIELD).map((answer) => {
+          const isTextQuestion =
+            additionalQuestionsQuery.data?.background_questions.find(
+              (question) => question.id === answer.course_background_question_id,
+            )?.question_type === "Text"
+          return {
+            course_background_question_id: answer.course_background_question_id,
+            answer_value: isTextQuestion
+              ? answer.text_value
+              : answer.answer_value
+                ? ANSWER_VALUE_TRUE
+                : ANSWER_VALUE_FALSE,
+          }
+        }),
       })
     }
     if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
@@ -159,44 +186,44 @@ const SelectCourseInstanceForm: React.FC<
 
   return (
     <div>
-      <RadioGroup
-        name="courseInstanceId"
-        control={control}
-        data-testid="select-course-instance-heading"
-        className={courseInstanceGroupCss}
-        isRequired
-        label={
-          <>
-            {t("title-select-course-instance")}
-            <GreenText>*</GreenText>
-          </>
-        }
-        description={
-          <>
-            <GreenText>*</GreenText> {t("select-course-instance-explanation")}
-          </>
-        }
-      >
-        {courseInstances.map((courseInstance) => (
-          <Radio
-            key={courseInstance.id}
-            {...(courseInstance.name === null
-              ? // oxlint-disable-next-line i18next/no-literal-string
-                { "data-testid": "default-course-instance-radiobutton" }
-              : undefined)}
-            label={courseInstance.name || t("default-course-instance-name")}
-            description={courseInstance.description}
-            value={courseInstance.id}
-          />
-        ))}
-      </RadioGroup>
+      <div className={courseInstanceGroupCss}>
+        <RadioGroup
+          name="courseInstanceId"
+          control={control}
+          data-testid="select-course-instance-heading"
+          isRequired
+          label={
+            <>
+              {t("title-select-course-instance")}
+              <GreenText aria-hidden="true">*</GreenText>
+            </>
+          }
+        >
+          {courseInstances.map((courseInstance) => (
+            <Radio
+              key={courseInstance.id}
+              {...(courseInstance.name === null
+                ? // oxlint-disable-next-line i18next/no-literal-string
+                  { "data-testid": "default-course-instance-radiobutton" }
+                : undefined)}
+              label={courseInstance.name || t("default-course-instance-name")}
+              description={courseInstance.description}
+              value={courseInstance.id}
+            />
+          ))}
+        </RadioGroup>
+        {/* Outside the group so it is not announced as the description of every radio. */}
+        <p className={footnoteCss}>
+          <GreenText aria-hidden="true">*</GreenText> {t("select-course-instance-explanation")}
+        </p>
+      </div>
       {courseInstanceId !== undefined && additionalQuestions && additionalQuestions.length > 0 && (
         <div
           className={css`
             margin-bottom: 1rem;
           `}
         >
-          <h2 className={additionalQuestionsHeadingCss}>{t("title-additional-questions")}</h2>
+          <h3 className={additionalQuestionsHeadingCss}>{t("title-additional-questions")}</h3>
           {additionalQuestions.map((additionalQuestion, index) => {
             const fieldId = answerFields[index]?.id ?? additionalQuestion.id
             if (additionalQuestion.question_type === "Checkbox") {
@@ -204,6 +231,17 @@ const SelectCourseInstanceForm: React.FC<
                 <AdditionalQuestionWrapper key={fieldId}>
                   <Checkbox
                     name={`${ANSWERS_FIELD}.${index}.answer_value`}
+                    control={control}
+                    label={additionalQuestion.question_text}
+                  />
+                </AdditionalQuestionWrapper>
+              )
+            }
+            if (additionalQuestion.question_type === "Text") {
+              return (
+                <AdditionalQuestionWrapper key={fieldId}>
+                  <TextField
+                    name={`${ANSWERS_FIELD}.${index}.text_value`}
                     control={control}
                     label={additionalQuestion.question_text}
                   />

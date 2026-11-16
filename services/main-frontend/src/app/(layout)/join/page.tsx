@@ -102,29 +102,44 @@ const JoinCoursePage: React.FC = () => {
   const handleReturn = () => {
     router.push("/")
   }
+  if (!joinCode) {
+    return (
+      <div>
+        <h1>{t("title-join-course")}</h1>
+        <p>{t("join-code-missing")}</p>
+      </div>
+    )
+  }
+
   return (
     <div>
-      {joinCode && (
-        <QueryResult query={course}>
-          {(courseData) => (
-            <div>
-              <h1>{courseData.name}</h1>
+      <QueryResult
+        query={course}
+        renderBlockingError={() => (
+          <div>
+            <h1>{t("title-join-course")}</h1>
+            <p role="alert">{t("join-code-invalid")}</p>
+          </div>
+        )}
+      >
+        {(courseData) => (
+          <div>
+            <h1>{courseData.name}</h1>
 
-              <div>{t("do-you-want-to-join-this-course")}?</div>
-              <Button
-                variant={"primary"}
-                size={"small"}
-                onClick={() => handleRedirectMutation.mutate(courseData.id)}
-              >
-                {t("yes")}
-              </Button>
-              <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
-                {t("button-text-cancel")}
-              </Button>
-            </div>
-          )}
-        </QueryResult>
-      )}
+            <div>{t("do-you-want-to-join-this-course")}?</div>
+            <Button
+              variant={"primary"}
+              size={"small"}
+              onClick={() => handleRedirectMutation.mutate(courseData.id)}
+            >
+              {t("yes")}
+            </Button>
+            <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
+              {t("button-text-cancel")}
+            </Button>
+          </div>
+        )}
+      </QueryResult>
     </div>
   )
 }

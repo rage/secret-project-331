@@ -360,6 +360,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                   setError(null)
                   setQuery(e.target.value)
                 }}
+                aria-label={t("button-label-search-for-pages")}
                 placeholder={t("search-field-placeholder")}
               />
             </HeaderBar>

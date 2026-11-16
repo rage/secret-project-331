@@ -210,6 +210,12 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             }
             // oxlint-disable-next-line i18next/no-literal-string
             firstChapterGrid.scrollIntoView({ behavior: "smooth" })
+            // Move focus to the grid heading so keyboard and screen reader users follow the scroll.
+            const heading = firstChapterGrid.querySelector<HTMLElement>("h2")
+            if (heading) {
+              heading.tabIndex = -1
+              heading.focus({ preventScroll: true })
+            }
           }}
         >
           {t("start-course")}

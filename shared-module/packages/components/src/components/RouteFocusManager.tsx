@@ -94,10 +94,6 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
     // Moves focus when it is nowhere useful. Returns true once the heading owns focus (or the
     // page / user took focus elsewhere), so the observer can stop.
     const update = (): boolean => {
-      const container = document.querySelector(targetSelector)
-      if (!(container instanceof HTMLElement)) {
-        return false
-      }
       const active = document.activeElement
       if (watched?.isConnected && active === watched) {
         return false
@@ -106,8 +102,8 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
       if (!focusIsLost && active !== watched) {
         return true
       }
-      focusTarget(container)
-      return managed !== container
+      focusTarget(initialContainer)
+      return managed !== initialContainer
     }
 
     if (!watched) {
@@ -116,13 +112,14 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
         return () => cleanupBlur?.()
       }
     }
-    // Late-arriving page content (the h1 or the swap of a clicked link) moves focus again.
+    // Late-arriving page content (the h1 or the swap of a clicked link) moves focus again. The
+    // container itself persists across navigations, so only its subtree is watched.
     const observer = new MutationObserver(() => {
       if (update()) {
         observer.disconnect()
       }
     })
-    observer.observe(document.body, { childList: true, subtree: true })
+    observer.observe(initialContainer, { childList: true, subtree: true })
     const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
     return () => {
       observer.disconnect()

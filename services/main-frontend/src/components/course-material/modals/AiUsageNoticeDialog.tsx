@@ -12,7 +12,14 @@ import type { CourseAiPolicy } from "@/generated/course-material-api/types.gener
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog, ErrorNotice, TransLink } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  focusMainHeading,
+  TransLink,
+} from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -33,17 +40,6 @@ export interface AiUsageNoticeDialogProps {
    */
   courseMaterialAiInstructions: boolean | null | undefined
   onClose: () => void
-}
-
-// Lands focus at the start of the page content once the notice is gone.
-const focusPageStart = () => {
-  const target =
-    document.querySelector<HTMLElement>("main h1") ?? document.querySelector<HTMLElement>("main")
-  if (!target) {
-    return
-  }
-  target.tabIndex = -1
-  target.focus()
 }
 
 interface AiUsageNoticeFormFields {
@@ -122,7 +118,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   useEffect(
     () => () => {
       if (acknowledgedRef.current) {
-        focusPageStart()
+        focusMainHeading()
       }
     },
     [],

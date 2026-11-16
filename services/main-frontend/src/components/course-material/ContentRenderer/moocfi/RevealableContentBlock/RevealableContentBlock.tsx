@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from "react"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import type { BlockRendererProps } from "../.."
@@ -24,8 +24,8 @@ const RevealableContentBlock: React.FC<
 
   // The button unmounts on reveal, so move focus to the revealed content.
   useEffect(() => {
-    if (open) {
-      revealedRef.current?.focus()
+    if (open && revealedRef.current) {
+      focusProgrammatically(revealedRef.current)
     }
   }, [open])
 
@@ -58,13 +58,7 @@ const RevealableContentBlock: React.FC<
             </Button>
           )}
           {open && (
-            <div
-              ref={revealedRef}
-              tabIndex={-1}
-              className={css`
-                outline: none;
-              `}
-            >
+            <div ref={revealedRef} tabIndex={-1}>
               {hiddenContent.map((content) => (
                 <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
               ))}

@@ -1,5 +1,7 @@
 import { useEffect } from "react"
 
+import { focusProgrammatically } from "@/shared-module/components"
+
 let pendingExerciseId: string | null = null
 
 export const getPeerReviewHeadingId = (exerciseId: string) =>
@@ -12,7 +14,7 @@ export const focusPeerReviewHeading = (exerciseId: string): boolean => {
   if (!heading) {
     return false
   }
-  heading.focus()
+  focusProgrammatically(heading)
   pendingExerciseId = null
   return true
 }
@@ -22,11 +24,11 @@ export const requestPeerReviewHeadingFocus = (exerciseId: string) => {
   pendingExerciseId = exerciseId
 }
 
-/** Focuses the heading on mount if a submit or report asked for it. */
-export const usePendingPeerReviewHeadingFocus = (exerciseId: string) => {
+/** Focuses the heading if a submit or report asked for it, on mount and when `trigger` changes. */
+export const usePendingPeerReviewHeadingFocus = (exerciseId: string, trigger = 0) => {
   useEffect(() => {
     if (pendingExerciseId === exerciseId) {
       focusPeerReviewHeading(exerciseId)
     }
-  }, [exerciseId])
+  }, [exerciseId, trigger])
 }

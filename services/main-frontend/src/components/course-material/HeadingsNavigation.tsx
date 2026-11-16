@@ -14,6 +14,7 @@ import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterF
 import useShouldHideStuffFromSystemTestScreenshots from "@/shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import { isElementFullyInViewport } from "@/shared-module/common/utils/dom"
+import { focusProgrammatically } from "@/shared-module/components"
 import { currentPageIdAtom, examDataAtom } from "@/state/course-material/selectors"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
@@ -297,10 +298,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
                             setActiveHeading(headingsNavigationIndex)
 
                             // Move focus to the heading so screen readers announce it.
-                            if (!element.hasAttribute("tabindex")) {
-                              element.setAttribute("tabindex", "-1")
-                            }
-                            element.focus({ preventScroll: true })
+                            focusProgrammatically(element, { preventScroll: true })
 
                             // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
                             const blockElement =

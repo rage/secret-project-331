@@ -24,6 +24,33 @@ void injectGlobal`
   }
 `
 
+/**
+ * Focuses an element from script: adds tabindex=-1 if it has none and hides the ring for this
+ * focus only. Returns a function that removes the blur listener.
+ */
+export const focusProgrammatically = (
+  target: HTMLElement,
+  options: FocusOptions = {},
+): (() => void) => {
+  if (!target.hasAttribute(TABINDEX_ATTRIBUTE)) {
+    target.setAttribute(TABINDEX_ATTRIBUTE, "-1")
+  }
+  target.setAttribute(MANAGED_FOCUS_ATTRIBUTE, "")
+  const clearManagedFocus = () => target.removeAttribute(MANAGED_FOCUS_ATTRIBUTE)
+  target.addEventListener("blur", clearManagedFocus, { once: true })
+  target.focus(options)
+  return () => target.removeEventListener("blur", clearManagedFocus)
+}
+
+/** Focuses the page's main heading, or `main` itself if it has none. */
+export const focusMainHeading = (options: FocusOptions = {}): void => {
+  const target =
+    document.querySelector<HTMLElement>("main h1") ?? document.querySelector<HTMLElement>("main")
+  if (target) {
+    focusProgrammatically(target, options)
+  }
+}
+
 export interface RouteFocusManagerProps {
   /** Current route path, e.g. from Next.js `usePathname()`. */
   pathname: string
@@ -81,15 +108,8 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
         return
       }
       cleanupBlur?.()
-      if (!target.hasAttribute(TABINDEX_ATTRIBUTE)) {
-        target.setAttribute(TABINDEX_ATTRIBUTE, "-1")
-      }
-      target.setAttribute(MANAGED_FOCUS_ATTRIBUTE, "")
-      const clearManagedFocus = () => target.removeAttribute(MANAGED_FOCUS_ATTRIBUTE)
-      target.addEventListener("blur", clearManagedFocus, { once: true })
-      cleanupBlur = () => target.removeEventListener("blur", clearManagedFocus)
       managed = target
-      target.focus({ preventScroll: true })
+      cleanupBlur = focusProgrammatically(target, { preventScroll: true })
     }
     // Moves focus when it is nowhere useful. Returns true once the heading owns focus (or the
     // page / user took focus elsewhere), so the observer can stop.

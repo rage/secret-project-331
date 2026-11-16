@@ -25,7 +25,14 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, Checkbox, ComboBox, TextField, ErrorNotice } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  ComboBox,
+  ErrorNotice,
+  focusProgrammatically,
+  TextField,
+} from "@/shared-module/components"
 
 interface CreateUserErrorResponse {
   message?: string
@@ -164,8 +171,8 @@ const CreateAccountForm: React.FC = () => {
   usePageTitle(confirmEmailPageVisible ? t("confirm-email-title") : t("title-sign-up"))
 
   useEffect(() => {
-    if (confirmEmailPageVisible) {
-      confirmHeadingRef.current?.focus()
+    if (confirmEmailPageVisible && confirmHeadingRef.current) {
+      focusProgrammatically(confirmHeadingRef.current)
     }
   }, [confirmEmailPageVisible])
 

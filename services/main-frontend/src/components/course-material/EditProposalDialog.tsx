@@ -11,7 +11,7 @@ import type { NewProposedBlockEdit } from "@/generated/course-material-api/types
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
@@ -42,8 +42,8 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   const isOpen = type === "proposed-edits"
 
   useEffect(() => {
-    if (isOpen) {
-      headingRef.current?.focus()
+    if (isOpen && headingRef.current) {
+      focusProgrammatically(headingRef.current)
     }
   }, [isOpen])
 
@@ -189,10 +189,6 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
         height: auto;
         min-height: 200px;
         overflow-y: auto;
-
-        &:focus {
-          outline: none;
-        }
 
         @media (max-height: 480px) {
           min-height: 0;

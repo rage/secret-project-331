@@ -38,10 +38,6 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: stri
           margin-bottom: 1rem;
 
           color: ${baseTheme.colors.gray[700]};
-
-          &:focus {
-            outline: none;
-          }
         `}
       >
         {t("title-waiting-for-peer-reviews")}

@@ -28,7 +28,11 @@ export { Radio } from "./components/Radio"
 export type { RadioNestedContentVariant, RadioProps } from "./components/Radio"
 export { RadioGroup, questionLegendCss, radioListRevealCss } from "./components/RadioGroup"
 export type { RadioGroupProps, RadioGroupVariant } from "./components/RadioGroup"
-export { default as RouteFocusManager } from "./components/RouteFocusManager"
+export {
+  default as RouteFocusManager,
+  focusMainHeading,
+  focusProgrammatically,
+} from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"

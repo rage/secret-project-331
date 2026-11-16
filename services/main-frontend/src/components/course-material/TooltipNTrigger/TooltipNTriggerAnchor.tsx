@@ -3,6 +3,8 @@
 import styled from "@emotion/styled"
 import type { ReactNode } from "react"
 
+import { focusProgrammatically } from "@/shared-module/components"
+
 const StyledAnchor = styled.a`
   text-decoration: none;
   line-height: normal;
@@ -36,7 +38,7 @@ const openAndFocusReference = (href: string) => {
   }
   // oxlint-disable-next-line i18next/no-literal-string
   target.scrollIntoView?.({ block: "center" })
-  target.focus()
+  focusProgrammatically(target)
 }
 
 export const TooltipNTriggerAnchor: React.FC<TooltipNTriggerAnchorProps> = ({ href, children }) => {

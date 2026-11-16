@@ -41,10 +41,6 @@ const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewVie
           margin-bottom: 1rem;
 
           color: ${baseTheme.colors.gray[700]};
-
-          &:focus {
-            outline: none;
-          }
         `}
       >
         {props.selfReview ? t("title-self-review") : t("title-peer-review")}

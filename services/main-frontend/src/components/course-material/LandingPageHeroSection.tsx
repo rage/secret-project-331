@@ -9,7 +9,7 @@ import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
@@ -213,8 +213,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             // Move focus to the grid heading so keyboard and screen reader users follow the scroll.
             const heading = firstChapterGrid.querySelector<HTMLElement>("h2")
             if (heading) {
-              heading.tabIndex = -1
-              heading.focus({ preventScroll: true })
+              focusProgrammatically(heading, { preventScroll: true })
             }
           }}
         >

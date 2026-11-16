@@ -7,6 +7,8 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { tableRowByCell } from "@/utils/tableRows"
 
+import { getExerciseTaskIframe } from "../utils/iframeLocators"
+
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext
   let teacherContext: BrowserContext
@@ -39,8 +41,7 @@ test.describe("test teacher changing grade behavior", () => {
       const studentChapterSelector = new ChapterSelector(studentPage)
       await studentChapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await studentPage
-        .locator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskIframe(studentPage, 1)
         .contentFrame()
         .getByRole("checkbox", { name: "a" })
         .click()

@@ -15,7 +15,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.goto("http://project-331.local/organizations")
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
 
   await page.evaluate(() => {

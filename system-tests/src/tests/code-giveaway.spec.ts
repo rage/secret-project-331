@@ -34,11 +34,7 @@ test("Code giveaways work", async ({ page }) => {
   await page.goBack()
   await selectTab(page, "Pages")
   await waitForSpinnersToDisappear(page)
-  await page
-    .getByRole("row", { name: "Giveaway / Edit page Dropdown" })
-    .getByRole("button")
-    .first()
-    .click()
+  await page.getByRole("link", { name: "Edit page Giveaway" }).click()
   await page.getByLabel("Add block").click()
   await page.getByPlaceholder("Search").fill("code")
   await page.getByRole("option", { name: "CodeGiveaway" }).click()

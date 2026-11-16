@@ -6,7 +6,10 @@ import {
   navigateToNextPageInMaterial,
   selectCourseInstanceIfPrompted,
 } from "@/utils/courseMaterialActions"
-import { scrollLocatorsParentIframeToViewIfNeeded } from "@/utils/iframeLocators"
+import {
+  scrollLocatorsParentIframeToViewIfNeeded,
+  getExerciseTaskIframe,
+} from "@/utils/iframeLocators"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
@@ -39,8 +42,7 @@ test("Can manually reset exercises", async () => {
   const studentChapterSelector = new ChapterSelector(student1Page)
   await studentChapterSelector.clickChapter(1)
   await student1Page.getByRole("link", { name: "1 Page One" }).click()
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskIframe(student1Page, 1)
     .contentFrame()
     .getByRole("checkbox", { name: "a" })
     .click()
@@ -58,14 +60,13 @@ test("Can manually reset exercises", async () => {
   // another's button, so scope each answer and the buttons that follow it to a single card.
   const exerciseCards = student1Page
     .getByRole("region")
-    .filter({ has: student1Page.locator('iframe[title="Exercise 1\\, task 1 content"]') })
+    .filter({ has: student1Page.getByTestId("message-channel-iframe") })
   // Until every iframe has mounted, first() can resolve to a different card on each action.
   await expect(exerciseCards).toHaveCount(3)
   const firstExercise = exerciseCards.first()
   const secondExercise = exerciseCards.nth(1)
 
-  await firstExercise
-    .locator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskIframe(firstExercise, 1)
     .contentFrame()
     .getByRole("checkbox", { name: "c" })
     .click()
@@ -75,14 +76,10 @@ test("Can manually reset exercises", async () => {
   await firstExercise.getByRole("button", { name: "Try again" }).waitFor({ state: "hidden" })
 
   await scrollLocatorsParentIframeToViewIfNeeded(
-    secondExercise
-      .locator('iframe[title="Exercise 1\\, task 1 content"]')
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" }),
+    getExerciseTaskIframe(secondExercise, 1).contentFrame().getByRole("checkbox", { name: "b" }),
   )
 
-  await secondExercise
-    .locator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskIframe(secondExercise, 1)
     .contentFrame()
     .getByRole("checkbox", { name: "b" })
     .click()
@@ -91,8 +88,7 @@ test("Can manually reset exercises", async () => {
 
   await navigateToNextPageInMaterial(student1Page)
 
-  await student1Page
-    .locator('iframe[title="Exercise 2\\, task 1 content"]')
+  await getExerciseTaskIframe(student1Page, 1)
     .contentFrame()
     .getByRole("textbox", { name: "write an essay" })
     .fill("a a a a a a a a a a a")
@@ -104,38 +100,32 @@ test("Can manually reset exercises", async () => {
     "http://project-331.local/org/uh-cs/courses/advanced-exercise-states/chapter-1/complicated-exercise",
   )
 
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskIframe(student1Page, 1)
     .contentFrame()
     .getByRole("checkbox", { name: "Correct", exact: true })
     .click()
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 2 content"]')
+  await getExerciseTaskIframe(student1Page, 2)
     .contentFrame()
     .getByRole("checkbox", { name: "Correct", exact: true })
     .click()
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 3 content"]')
+  await getExerciseTaskIframe(student1Page, 3)
     .contentFrame()
     .getByRole("checkbox", { name: "Incorrect", exact: true })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
   await waitForSpinnersToDisappear(student1Page)
   await navigateToNextPageInMaterial(student1Page)
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskIframe(student1Page, 1)
     .contentFrame()
     .getByRole("button", { name: "Correct" })
     .first()
     .click()
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 2 content"]')
+  await getExerciseTaskIframe(student1Page, 2)
     .contentFrame()
     .getByRole("button", { name: "Correct" })
     .first()
     .click()
-  await student1Page
-    .locator('iframe[title="Exercise 1\\, task 3 content"]')
+  await getExerciseTaskIframe(student1Page, 3)
     .contentFrame()
     .getByRole("button", { name: "Correct" })
     .nth(1)

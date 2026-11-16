@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { selectTab } from "@/utils/selectTab"
@@ -45,7 +46,8 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByRole("button", { name: "Edit" }).first().click()
     await page.getByText("Cancel").click()
 
-    await page.getByRole("button", { name: "Delete" }).first().click()
+    await page.getByRole("button", { name: "Delete term" }).first().click()
+    await respondToConfirmDialog(page, true)
     await page.getByText("Deleted").first().waitFor()
   })
 

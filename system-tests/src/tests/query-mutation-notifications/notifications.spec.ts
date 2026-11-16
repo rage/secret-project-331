@@ -20,7 +20,7 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
 
     await page.getByText("Add task").click()
@@ -49,7 +49,7 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
     await page.getByLabel("Title", { exact: true }).fill("New title")
 

@@ -57,6 +57,15 @@ export function getLocatorForNthExerciseServiceIframeElement(
 }
 
 /**
+ * Locates the nth task iframe of the exercises inside `scope` (the page or one exercise card).
+ * The iframe title is the exercise name, so match by position instead of title. Starts from 1.
+ * Use `getExerciseRegion` as the scope on pages with several exercises.
+ */
+export function getExerciseTaskIframe(scope: Page | Locator, task = 1): Locator {
+  return scope.getByTestId("message-channel-iframe").nth(task - 1)
+}
+
+/**
  * Waits until an exercise service iframe has stopped resizing.
  *
  * Exercise iframes measure their own content and report the height to the parent, which writes it to

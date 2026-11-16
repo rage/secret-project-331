@@ -87,7 +87,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     .filter({ hasText: "teacher@example.com" })
     .filter({ hasText: "Teacher Example" })
     .filter({ has: page.getByText("Admin", { exact: true }) })
-  await teacherRowWithAdminRole.locator('[aria-label="Edit role"]').click()
+  await teacherRowWithAdminRole.locator('[aria-label^="Edit role"]').click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -118,7 +118,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     .locator("tr")
     .filter({ hasText: "teacher@example.com" })
     .filter({ hasText: "Reviewer" })
-  await teacherRowToRemove.locator('[aria-label="Remove role"]').click()
+  await teacherRowToRemove.locator('[aria-label^="Remove role"]').click()
   await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({

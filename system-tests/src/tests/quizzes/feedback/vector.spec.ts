@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
+import { getExerciseTaskIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
 test.use({
@@ -19,19 +20,13 @@ test.describe("Quizzes vector feedback", () => {
 
     await selectCourseInstanceIfPrompted(page)
 
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("X", { exact: true })
-      .waitFor()
+    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).waitFor()
 
     // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
-      await page
-        .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-        .getByLabel("X", { exact: true })
-        .waitFor()
+      await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).waitFor()
     }
 
     await expectScreenshotsToMatchSnapshots({
@@ -42,18 +37,9 @@ test.describe("Quizzes vector feedback", () => {
       scrollToYCoordinate: 270,
     })
 
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("X", { exact: true })
-      .fill("a")
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Y", { exact: true })
-      .fill("4")
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Z", { exact: true })
-      .fill("5")
+    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).fill("a")
+    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("Y", { exact: true }).fill("4")
+    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("Z", { exact: true }).fill("5")
 
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,

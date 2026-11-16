@@ -34,7 +34,7 @@ test.beforeAll(async ({ browser }) => {
   const page = await browser.newPage({ storageState: ADMIN_STORAGE_STATE })
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.click(`div:text-is("Introduction to Course Material")`)
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.close()
 })

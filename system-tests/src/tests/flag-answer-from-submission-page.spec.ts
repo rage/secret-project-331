@@ -7,6 +7,8 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { tableRowByCell } from "@/utils/tableRows"
 
+import { getExerciseTaskIframe } from "../utils/iframeLocators"
+
 const STUDENT_2_EMAIL = "student2@example.com"
 const PLAGIARISM_FEEDBACK = "This answer is word for word another student's."
 const AI_FEEDBACK = "This exercise does not allow AI."
@@ -46,8 +48,7 @@ test.describe("flagging an answer from the submission page", () => {
       const chapterSelector = new ChapterSelector(studentPage)
       await chapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await studentPage
-        .locator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskIframe(studentPage, 1)
         .contentFrame()
         .getByRole("checkbox", { name: "b" })
         .click()
@@ -120,7 +121,7 @@ test.describe("flagging an answer from the submission page", () => {
 
     await test.step("teacher awards partial points with feedback instead", async () => {
       await teacherPage.getByRole("button", { name: "Grade" }).click()
-      const pointsField = teacherPage.getByRole("textbox", { name: "Points", exact: true })
+      const pointsField = teacherPage.getByRole("textbox", { name: "Adjust points", exact: true })
       await pointsField.fill("0.5")
       // The field only commits its value on blur, and the feedback box appears with the commit.
       await pointsField.blur()

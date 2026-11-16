@@ -85,7 +85,10 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Feedback 6" }).click()
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
-  await page.getByText(`Page: Page One`).waitFor()
+  await page
+    .getByRole("heading", { level: 3, name: /^Feedback: Page One/ })
+    .first()
+    .waitFor()
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
@@ -94,7 +97,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     testInfo,
     snapshotName: "feedback-unread",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).first(),
+      page.getByRole("heading", { level: 3, name: /^Feedback: Page One/ }).first(),
     ],
   })
 

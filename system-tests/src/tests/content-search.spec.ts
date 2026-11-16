@@ -16,7 +16,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await page.click(`div:text-is("Introduction to Course Material")`)
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 

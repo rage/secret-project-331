@@ -98,7 +98,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.click(`[aria-label="Page actions for New title"]`)
 
   await page.click(`a:has-text("History")`)
 
@@ -108,7 +108,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goBack()
   await page.getByText("Course pages for Introduction to history").waitFor()
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.click(`[aria-label="Page actions for New title"]`)
 
   await page.click(`a:has-text("History")`)
 

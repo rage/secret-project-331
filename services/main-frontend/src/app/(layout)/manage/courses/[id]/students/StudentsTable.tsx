@@ -65,23 +65,10 @@ const spacerCellStyle = (height: number): React.CSSProperties => ({
 })
 
 /** A header's label, wrapped in the sort button when the column can be sorted. */
-const renderHeaderLabel = (
-  content: React.ReactNode,
-  id: string,
-  isButton: boolean,
-  onSort: () => void,
-) =>
+// The button has no handler: its click bubbles to the th, which sorts.
+const renderHeaderLabel = (content: React.ReactNode, id: string, isButton: boolean) =>
   isButton ? (
-    <button
-      type="button"
-      id={id}
-      className={sortButtonCss}
-      onClick={(e) => {
-        // The th's own onClick sorts too; one toggle per activation.
-        e.stopPropagation()
-        onSort()
-      }}
-    >
+    <button type="button" id={id} className={sortButtonCss}>
       {content}
     </button>
   ) : (
@@ -696,7 +683,6 @@ export function StudentsTable<T extends object>({
                     </>,
                     `${tableId}-${header.id}-label`,
                     !floating && canSort,
-                    () => header.column.toggleSorting(),
                   )}
 
                   {colorHeaderUnderline &&

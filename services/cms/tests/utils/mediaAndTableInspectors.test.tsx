@@ -50,12 +50,8 @@ await jest.unstable_mockModule("@/utils/useCmsTranslation", () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: {}, ready: true }),
 }))
 
-const [{ default: withMediaAutoplayWarning }, { default: withTableRowHeaders }] = await Promise.all(
-  [
-    import("@/utils/Gutenberg/withMediaAutoplayWarning"),
-    import("@/utils/Gutenberg/withTableRowHeaders"),
-  ],
-)
+const { default: withAccessibilityInspectors } =
+  await import("@/utils/Gutenberg/withAccessibilityInspectors")
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
@@ -87,11 +83,11 @@ beforeEach(() => {
   delete editorState.isPreviewMode
 })
 
-describe("withMediaAutoplayWarning", () => {
+describe("withAccessibilityInspectors: media autoplay", () => {
   it.each(["core/audio", "core/video"])(
     "warns in the %s inspector when autoplay is on",
     async (name) => {
-      const { container, cleanup } = await render(withMediaAutoplayWarning, {
+      const { container, cleanup } = await render(withAccessibilityInspectors, {
         name,
         attributes: { autoplay: true },
       })
@@ -105,14 +101,14 @@ describe("withMediaAutoplayWarning", () => {
   )
 
   it("stays quiet when autoplay is off, in previews and for other blocks", async () => {
-    const off = await render(withMediaAutoplayWarning, {
+    const off = await render(withAccessibilityInspectors, {
       name: "core/video",
       attributes: { autoplay: false },
     })
     expect(off.container.textContent).not.toContain("warning-")
     await off.cleanup()
 
-    const other = await render(withMediaAutoplayWarning, {
+    const other = await render(withAccessibilityInspectors, {
       name: "core/paragraph",
       attributes: { autoplay: true },
     })
@@ -120,7 +116,7 @@ describe("withMediaAutoplayWarning", () => {
     await other.cleanup()
 
     editorState.isPreviewMode = true
-    const preview = await render(withMediaAutoplayWarning, {
+    const preview = await render(withAccessibilityInspectors, {
       name: "core/audio",
       attributes: { autoplay: true },
     })
@@ -129,7 +125,7 @@ describe("withMediaAutoplayWarning", () => {
   })
 })
 
-describe("withTableRowHeaders", () => {
+describe("withAccessibilityInspectors: table row headers", () => {
   const body = [
     {
       cells: [
@@ -141,7 +137,7 @@ describe("withTableRowHeaders", () => {
 
   it("toggles the first column into row headers through setAttributes", async () => {
     const setAttributes = jest.fn()
-    const { container, cleanup } = await render(withTableRowHeaders, {
+    const { container, cleanup } = await render(withAccessibilityInspectors, {
       name: "core/table",
       attributes: { body },
       setAttributes,
@@ -169,7 +165,7 @@ describe("withTableRowHeaders", () => {
   })
 
   it("shows the toggle on for a table whose first column is already row headers", async () => {
-    const { container, cleanup } = await render(withTableRowHeaders, {
+    const { container, cleanup } = await render(withAccessibilityInspectors, {
       name: "core/table",
       attributes: { body: [{ cells: [{ content: "A", tag: "th", scope: "row" }] }] },
       setAttributes: jest.fn(),
@@ -183,7 +179,7 @@ describe("withTableRowHeaders", () => {
   })
 
   it("does not run for other blocks", async () => {
-    const { container, cleanup } = await render(withTableRowHeaders, {
+    const { container, cleanup } = await render(withAccessibilityInspectors, {
       name: "core/paragraph",
       attributes: {},
       setAttributes: jest.fn(),

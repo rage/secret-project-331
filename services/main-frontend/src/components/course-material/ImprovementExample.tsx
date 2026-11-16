@@ -3,6 +3,7 @@
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { animated, useSpring } from "@react-spring/web"
+import { useReducedMotion } from "motion/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -11,11 +12,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { parseSentenceDifference } from "@/utils/course-material/typingDemoSentenceUtils"
 
 type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing" | "done"
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  typeof window.matchMedia === "function" &&
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
 interface AnimationState {
   phase: Phase
@@ -27,13 +23,14 @@ interface AnimationState {
 }
 
 const useImprovementAnimation = (incorrectPart: string, correctPart: string) => {
+  const reduceMotion = !!useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const wrongWordRef = useRef<HTMLSpanElement>(null)
 
   // Under reduced motion the demo is never played, only its end state is shown.
   const [state, setState] = useState<AnimationState>(() => ({
-    phase: prefersReducedMotion() ? "done" : "initial",
-    displayWord: prefersReducedMotion() ? correctPart : incorrectPart,
+    phase: reduceMotion ? "done" : "initial",
+    displayWord: reduceMotion ? correctPart : incorrectPart,
     mouseClicked: false,
     caretVisible: false,
     cursorStartPosition: { x: 0, y: 0 },

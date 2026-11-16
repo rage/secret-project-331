@@ -200,7 +200,8 @@ pub async fn get_active_user_id_by_email_case_insensitive(
     Ok(id)
 }
 
-/// Users whose id or email equals the search term, ignoring case and surrounding whitespace.
+/// Users whose id, email or TMC id (`users.upstream_id`) equals the search term, ignoring case and
+/// surrounding whitespace.
 ///
 /// At most one row per kind, and cheap enough to answer before [`search_for_user_details_fuzzy`].
 pub async fn search_for_user_details_exact(
@@ -210,7 +211,12 @@ pub async fn search_for_user_details_exact(
     let search = search.trim();
     let user_id = search.parse::<Uuid>().ok();
     let email = (user_id.is_none() && search.contains('@')).then_some(search);
-    if user_id.is_none() && email.is_none() {
+    let upstream_id = search
+        .bytes()
+        .all(|b| b.is_ascii_digit())
+        .then(|| search.parse::<i32>().ok())
+        .flatten();
+    if user_id.is_none() && email.is_none() && upstream_id.is_none() {
         return Ok(Vec::new());
     }
     let res = sqlx::query_as!(
@@ -229,9 +235,16 @@ SELECT user_id,
 FROM user_details
 WHERE user_id = $1
   OR lower(email) = lower($2)
+  OR user_id IN (
+    SELECT id
+    FROM users
+    WHERE upstream_id = $3
+      AND deleted_at IS NULL
+  )
 ",
         user_id,
         email,
+        upstream_id,
     )
     .fetch_all(conn)
     .await?;

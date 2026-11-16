@@ -2671,7 +2671,7 @@
   "search-users-exact-count-looking-for-similar_one": "{{count}} tarkka osuma, etsitään samankaltaisia käyttäjiä…",
   "search-users-exact-count-looking-for-similar_other": "{{count}} tarkkaa osumaa, etsitään samankaltaisia käyttäjiä…",
   "search-users-exact-failed": "Tarkan osuman haku epäonnistui.",
-  "search-users-field-label": "Sähköposti, nimi tai käyttäjätunniste",
+  "search-users-field-label": "Sähköposti, nimi, käyttäjätunniste tai TMC-tunniste",
   "search-users-group-exact": "Tarkka osuma",
   "search-users-group-similar": "Samankaltaiset käyttäjät",
   "search-users-live-region-many-results-found": "{{count}} tulosta löytyi",

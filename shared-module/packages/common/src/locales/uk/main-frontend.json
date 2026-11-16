@@ -2829,7 +2829,7 @@
   "search-users-exact-count-looking-for-similar_one": "{{count}} точний збіг, шукаємо схожих користувачів…",
   "search-users-exact-count-looking-for-similar_other": "{{count}} точного збігу, шукаємо схожих користувачів…",
   "search-users-exact-failed": "Не вдалося знайти точний збіг.",
-  "search-users-field-label": "Електронна пошта, ім'я або ідентифікатор користувача",
+  "search-users-field-label": "Електронна пошта, ім'я, ідентифікатор користувача або ідентифікатор TMC",
   "search-users-group-exact": "Точний збіг",
   "search-users-group-similar": "Схожі користувачі",
   "search-users-live-region-many-results-found": "Знайдено результатів: {{count}}",

@@ -83,9 +83,9 @@ test.describe("Students should be able to give extra peer reviews to receive pri
       const adminPage = await context6.newPage()
       await adminPage.goto("http://project-331.local/")
       await adminPage.getByRole("link", { name: "Search users" }).click()
-      await adminPage.getByLabel("Email, name or user id", { exact: true }).click()
+      await adminPage.getByLabel("Email, name, user id or TMC id", { exact: true }).click()
       await adminPage
-        .getByLabel("Email, name or user id", { exact: true })
+        .getByLabel("Email, name, user id or TMC id", { exact: true })
         .fill("student1@example.com")
       await adminPage.getByRole("button", { name: "Search" }).click()
       await adminPage.getByRole("link", { name: /student1@example\.com/ }).click()

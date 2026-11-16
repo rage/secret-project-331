@@ -13531,7 +13531,7 @@ export const getBulkUserDetailsMutation = (
 }
 
 /**
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExactMutation = (
   options?: Partial<Options<SearchUserDetailsExactData>>,

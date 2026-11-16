@@ -168,7 +168,7 @@ pub async fn get_user_details_by_courses(
 }
 
 /**
-POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
 */
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -178,7 +178,7 @@ POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id
     tag = "user-details",
     request_body = SearchRequest,
     responses(
-        (status = 200, description = "Users whose id or email equals the query", body = [UserDetail])
+        (status = 200, description = "Users whose id, email or TMC id equals the query", body = [UserDetail])
     )
 )]
 pub async fn search_users_exact(

@@ -2706,7 +2706,7 @@
   "search-users-exact-count-looking-for-similar_one": "{{count}} eksakt treff, leter etter lignende brukere…",
   "search-users-exact-count-looking-for-similar_other": "{{count}} eksakte treff, leter etter lignende brukere…",
   "search-users-exact-failed": "Søket etter et eksakt treff mislyktes.",
-  "search-users-field-label": "E-post, navn eller bruker-ID",
+  "search-users-field-label": "E-post, navn, bruker-ID eller TMC-ID",
   "search-users-group-exact": "Eksakt treff",
   "search-users-group-similar": "Lignende brukere",
   "search-users-live-region-many-results-found": "{{count}} resultater funnet",

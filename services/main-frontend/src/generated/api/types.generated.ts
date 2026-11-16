@@ -18522,7 +18522,7 @@ export type SearchUserDetailsExactData = {
 
 export type SearchUserDetailsExactResponses = {
   /**
-   * Users whose id or email equals the query
+   * Users whose id, email or TMC id equals the query
    */
   200: Array<UserDetail>
 }

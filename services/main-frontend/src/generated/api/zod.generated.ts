@@ -12996,7 +12996,7 @@ export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * Users whose id or email equals the query
+ * Users whose id, email or TMC id equals the query
  */
 export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 

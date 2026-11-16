@@ -424,49 +424,50 @@ impl TmcClient {
         }
     }
 
-    /// Sets the name of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
-    pub async fn update_user_name(
+    /// Makes TMC hold the given name and email for user `user_upstream_id` in one write, so TMC
+    /// applies both or neither; `None` leaves that field as it is. The email is written only when
+    /// TMC's differs (ignoring case and surrounding whitespace). TMC signs users in by the email,
+    /// and answers 400 or 422 to one it refuses, such as one another account already uses.
+    pub async fn sync_user_profile(
         &self,
-        first_name: String,
-        last_name: String,
         user_upstream_id: i32,
+        name: Option<(String, String)>,
+        email: Option<String>,
     ) -> UtilResult<()> {
-        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
-        self.request_with_headers(
-            reqwest::Method::PUT,
-            &url,
-            TMCRequestAuth::UseAdminToken,
-            Some(json!({ "user_field": { "first_name": first_name, "last_name": last_name } })),
-        )
-        .await
-        .map(|_| ())
-    }
-
-    /// Sets the email of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
-    async fn update_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
-        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
-        self.request_with_headers(
-            reqwest::Method::PUT,
-            &url,
-            TMCRequestAuth::UseAdminToken,
-            Some(json!({ "user": { "email": email } })),
-        )
-        .await
-        .map(|_| ())
-    }
-
-    /// Makes TMC hold `email` for user `user_upstream_id`, writing only when TMC's address differs
-    /// (ignoring case and surrounding whitespace). TMC signs users in by this address, and answers
-    /// 400 or 422 to one it refuses, such as one another account already uses.
-    pub async fn sync_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
-        let tmc_email = self
-            .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&user_upstream_id)
-            .await?
-            .email;
-        if tmc_email.trim().eq_ignore_ascii_case(email.trim()) {
+        let email = match email {
+            Some(email) => {
+                let tmc_email = self
+                    .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(
+                        &user_upstream_id,
+                    )
+                    .await?
+                    .email;
+                (!tmc_email.trim().eq_ignore_ascii_case(email.trim())).then_some(email)
+            }
+            None => None,
+        };
+        let mut payload = serde_json::Map::new();
+        if let Some((first_name, last_name)) = name {
+            payload.insert(
+                "user_field".to_string(),
+                json!({ "first_name": first_name, "last_name": last_name }),
+            );
+        }
+        if let Some(email) = email {
+            payload.insert("user".to_string(), json!({ "email": email }));
+        }
+        if payload.is_empty() {
             return Ok(());
         }
-        self.update_user_email(email, user_upstream_id).await
+        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
+        self.request_with_headers(
+            reqwest::Method::PUT,
+            &url,
+            TMCRequestAuth::UseAdminToken,
+            Some(serde_json::Value::Object(payload)),
+        )
+        .await
+        .map(|_| ())
     }
 
     pub async fn post_new_user_to_tmc(

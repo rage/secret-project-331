@@ -794,10 +794,10 @@ pub async fn claim_student_number_verification_token(
     if let Some((first_name, last_name)) = &new_name {
         models::user_details::update_user_name(&mut tx, user.id, first_name, last_name).await?;
         // Last before the commit: TMC cannot be rolled back, so nothing that may fail comes after it.
-        crate::domain::tmc_user_sync::copy_name_to_tmc(
+        crate::domain::tmc_user_sync::copy_profile_to_tmc(
             user.upstream_id(),
-            first_name.clone(),
-            last_name.clone(),
+            Some((first_name.clone(), last_name.clone())),
+            None,
             &tmc_client,
             &app_conf,
         )

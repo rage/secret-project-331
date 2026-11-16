@@ -38,7 +38,7 @@ pub async fn update_user_info(
 ) -> Result<UpdatedUserInfo, ControllerError> {
     let mut tx = conn.begin().await?;
 
-    let existing = models::user_details::get_user_details_by_user_id(&mut tx, user_id)
+    let existing = models::user_details::get_user_details_by_user_id_for_update(&mut tx, user_id)
         .await
         .context("Failed to fetch existing user data")?;
 
@@ -65,27 +65,14 @@ pub async fn update_user_info(
             .await
             .context("Failed to fetch user")?
             .upstream_id;
-        // Email last: a name write failing after it would leave TMC signing the user in by an
-        // address the platform rolled back.
-        if name_changed {
-            tmc_user_sync::copy_name_to_tmc(
-                upstream_id,
-                payload.first_name.clone(),
-                payload.last_name.clone(),
-                tmc_client,
-                app_conf,
-            )
-            .await?;
-        }
-        if email_reaches_tmc {
-            tmc_user_sync::copy_email_to_tmc(
-                upstream_id,
-                user_details.email.clone(),
-                tmc_client,
-                app_conf,
-            )
-            .await?;
-        }
+        tmc_user_sync::copy_profile_to_tmc(
+            upstream_id,
+            name_changed.then(|| (payload.first_name.clone(), payload.last_name.clone())),
+            email_reaches_tmc.then(|| user_details.email.clone()),
+            tmc_client,
+            app_conf,
+        )
+        .await?;
     }
 
     tx.commit().await?;

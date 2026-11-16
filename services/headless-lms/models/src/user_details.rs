@@ -116,6 +116,36 @@ WHERE user_id = $1 ",
     Ok(res)
 }
 
+/// [`get_user_details_by_user_id`] that also locks the row until the transaction ends, for a read
+/// that decides a later write.
+pub async fn get_user_details_by_user_id_for_update(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<UserDetail> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  country,
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
+FROM user_details
+WHERE user_id = $1
+FOR UPDATE
+",
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_users_details_by_user_id_map(
     conn: &mut PgConnection,
     users: &[User],

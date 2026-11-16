@@ -241,7 +241,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
         let old_email = details.email.clone();
         let mut new_email_applied: Option<String> = None;
 
-        if let Some(new_email) = &arguments.new_email {
+        if let Some(new_email) = arguments.new_email.as_ref().filter(|e| **e != old_email) {
             if let Some(other_user_id) =
                 user_details::get_active_user_id_by_email_case_insensitive(conn, new_email).await?
                 && other_user_id != user.id

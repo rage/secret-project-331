@@ -58,7 +58,7 @@ impl TmcEmailSync {
     /// the action back.
     pub async fn apply(self, tmc_client: &TmcClient) -> ChatbotResult<()> {
         tmc_client
-            .sync_user_email(self.email, self.upstream_id)
+            .sync_user_profile(self.upstream_id, None, Some(self.email))
             .await
             .map_err(|e| {
                 let reason = if e.is_tmc_refused_address() {

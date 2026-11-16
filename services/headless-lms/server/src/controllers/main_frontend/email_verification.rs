@@ -253,7 +253,14 @@ pub async fn verify_email_ownership(
         let email = user_details::get_user_details_by_user_id(&mut tx, user.id)
             .await?
             .email;
-        tmc_user_sync::copy_email_to_tmc(user.upstream_id(), email, &tmc_client, &app_conf).await?;
+        tmc_user_sync::copy_profile_to_tmc(
+            user.upstream_id(),
+            None,
+            Some(email),
+            &tmc_client,
+            &app_conf,
+        )
+        .await?;
         VerifyEmailOwnershipResult::Verified
     } else {
         VerifyEmailOwnershipResult::Invalid

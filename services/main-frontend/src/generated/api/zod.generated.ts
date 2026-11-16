@@ -4446,6 +4446,7 @@ export const zModule = z.object({
  * A link to one language version of an old mooc.fi course's material.
  */
 export const zMoocFiMaterialLink = z.object({
+  course_name: z.string(),
   language: z.string(),
   url: z.string(),
 })
@@ -7894,13 +7895,11 @@ export const zOldVersionProgress = z.object({
  * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
  * reports to an old mooc.fi course is listed under that mooc.fi course.
  */
-export const zProgressByPlatform = z.object({
-  courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
-  mooc_fi: z.array(zMoocFiCourseProgress),
-  mooc_fi_status: zExternalPlatformStatus,
-  tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
-  tmc_mooc_fi_status: zExternalPlatformStatus,
-})
+export const zProgressByPlatform = zOldVersionProgress.and(
+  z.object({
+    courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+  }),
+)
 
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the

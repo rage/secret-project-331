@@ -5,6 +5,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::time::Duration;
 
 use futures_util::future::OptionFuture;
+use headless_lms_utils::http::web_link;
 use headless_lms_utils::prelude::UtilResult;
 use headless_lms_utils::services::moocfi_graphql::{self, MoocfiCourseProgress};
 use headless_lms_utils::services::tmc::{TmcClient, TmcCourseProgress};
@@ -20,10 +21,8 @@ const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ProgressByPlatform {
     pub courses_mooc_fi: Vec<CoursesMoocFiCourseProgress>,
-    pub mooc_fi_status: ExternalPlatformStatus,
-    pub mooc_fi: Vec<MoocFiCourseProgress>,
-    pub tmc_mooc_fi_status: ExternalPlatformStatus,
-    pub tmc_mooc_fi: Vec<TmcMoocFiCourseProgress>,
+    #[serde(flatten)]
+    pub old_version: OldVersionProgress,
 }
 
 /// The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
@@ -79,6 +78,8 @@ pub struct MoocFiCourseProgress {
 pub struct MoocFiMaterialLink {
     /// As mooc.fi spells it, e.g. `fi_FI`.
     pub language: String,
+    /// The course's name in this language version.
+    pub course_name: String,
     pub url: String,
 }
 
@@ -102,7 +103,7 @@ impl From<TmcCourseProgress> for TmcMoocFiCourseProgress {
                 .unwrap_or(course.name),
             awarded_points: course.awarded_points,
             submissions: course.submissions,
-            url: course.url,
+            url: course.url.as_deref().and_then(web_link),
         }
     }
 }
@@ -134,10 +135,7 @@ pub async fn get_progress_by_platform(
     .await;
     Ok(ProgressByPlatform {
         courses_mooc_fi,
-        mooc_fi_status: old_version.mooc_fi_status,
-        mooc_fi: old_version.mooc_fi,
-        tmc_mooc_fi_status: old_version.tmc_mooc_fi_status,
-        tmc_mooc_fi: old_version.tmc_mooc_fi,
+        old_version,
     })
 }
 
@@ -268,6 +266,7 @@ fn merge_external_progress(
                 .into_iter()
                 .map(|link| MoocFiMaterialLink {
                     language: link.language,
+                    course_name: link.course_name,
                     url: link.url,
                 })
                 .collect(),

@@ -30148,8 +30148,12 @@
       "MoocFiMaterialLink": {
         "type": "object",
         "description": "A link to one language version of an old mooc.fi course's material.",
-        "required": ["language", "url"],
+        "required": ["language", "course_name", "url"],
         "properties": {
+          "course_name": {
+            "type": "string",
+            "description": "The course's name in this language version."
+          },
           "language": {
             "type": "string",
             "description": "As mooc.fi spells it, e.g. `fi_FI`."
@@ -33709,41 +33713,24 @@
         }
       },
       "ProgressByPlatform": {
-        "type": "object",
-        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course.",
-        "required": [
-          "courses_mooc_fi",
-          "mooc_fi_status",
-          "mooc_fi",
-          "tmc_mooc_fi_status",
-          "tmc_mooc_fi"
-        ],
-        "properties": {
-          "courses_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OldVersionProgress"
+          },
+          {
+            "type": "object",
+            "required": ["courses_mooc_fi"],
+            "properties": {
+              "courses_mooc_fi": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+                }
+              }
             }
-          },
-          "mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MoocFiCourseProgress"
-            }
-          },
-          "mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
-          },
-          "tmc_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
-            }
-          },
-          "tmc_mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
           }
-        }
+        ],
+        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course."
       },
       "ProposalStatus": {
         "type": "string",

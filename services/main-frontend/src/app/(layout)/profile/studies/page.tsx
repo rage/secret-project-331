@@ -167,8 +167,8 @@ const StudiesPage: React.FC = () => {
           )
         }}
       </QueryResult>
-      {/* Outside the QueryResult: slow upstreams must not hold up the study record above. */}
-      <OldVersionCoursesSection />
+      {/* Outside the QueryResult so it shows whether or not the student has courses here. */}
+      {myStudiesQuery.isSuccess ? <OldVersionCoursesSection /> : null}
       {(myStudiesQuery.data?.courses.length ?? 0) > 0 ? (
         <p className={noteCss}>
           <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>

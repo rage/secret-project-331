@@ -72,3 +72,11 @@ pub static REQWEST_STREAMING_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
         .build()
         .expect("Failed to build streaming Client")
 });
+
+/// `candidate` trimmed, when it is an absolute http(s) URL and so safe to render as a link an
+/// upstream gave us; `None` for anything else, such as a `javascript:` URL or a bare path.
+pub fn web_link(candidate: &str) -> Option<String> {
+    let candidate = candidate.trim();
+    let url = url::Url::parse(candidate).ok()?;
+    matches!(url.scheme(), "http" | "https").then(|| candidate.to_string())
+}

@@ -8,7 +8,7 @@ use serde::Deserialize;
 use serde_json::json;
 use uuid::Uuid;
 
-use crate::http::REQWEST_CLIENT;
+use crate::http::{REQWEST_CLIENT, web_link};
 use crate::prelude::*;
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
@@ -38,6 +38,7 @@ fragment CourseFields on Course {
   name
   course_translations {
     language
+    name
     link
   }
 }"#;
@@ -50,7 +51,7 @@ pub struct MoocfiCourseProgress {
     pub completed: bool,
     pub points: Option<f64>,
     pub max_points: Option<f64>,
-    /// Where the course's material is, per language version. Only http(s) links are kept.
+    /// Where the course's material is, per language version that has a usable link.
     pub material_links: Vec<MoocfiMaterialLink>,
 }
 
@@ -59,6 +60,8 @@ pub struct MoocfiCourseProgress {
 pub struct MoocfiMaterialLink {
     /// As mooc.fi spells it, e.g. `fi_FI`.
     pub language: String,
+    /// The course's name in this language version.
+    pub course_name: String,
     pub url: String,
 }
 
@@ -108,6 +111,7 @@ struct Course {
 #[derive(Deserialize)]
 struct CourseTranslation {
     language: String,
+    name: String,
     link: Option<String>,
 }
 
@@ -118,11 +122,10 @@ impl Course {
             .unwrap_or_default()
             .into_iter()
             .filter_map(|translation| {
-                let url = translation.link?.trim().to_string();
-                let is_web_link = url.starts_with("https://") || url.starts_with("http://");
-                is_web_link.then_some(MoocfiMaterialLink {
+                Some(MoocfiMaterialLink {
+                    url: web_link(translation.link.as_deref()?)?,
                     language: translation.language,
-                    url,
+                    course_name: translation.name,
                 })
             })
             .collect()
@@ -224,9 +227,9 @@ mod tests {
             "data": { "user": {
                 "user_course_progresses": [
                     { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B", "course_translations": [
-                        { "language": "fi_FI", "link": " https://b.mooc.fi " },
-                        { "language": "en_US", "link": "javascript:alert(1)" },
-                        { "language": "sv_SE", "link": null }
+                        { "language": "fi_FI", "name": "B fi", "link": " https://b.mooc.fi " },
+                        { "language": "en_US", "name": "B en", "link": "javascript:alert(1)" },
+                        { "language": "sv_SE", "name": "B sv", "link": null }
                     ] } },
                     { "n_points": null, "max_points": null, "course": null }
                 ],
@@ -259,6 +262,7 @@ mod tests {
                     max_points: Some(20.0),
                     material_links: vec![MoocfiMaterialLink {
                         language: "fi_FI".to_string(),
+                        course_name: "B fi".to_string(),
                         url: "https://b.mooc.fi".to_string(),
                     }],
                 },

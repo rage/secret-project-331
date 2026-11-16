@@ -1146,6 +1146,17 @@ pub async fn change_user_password(
     token.authorized_ok(session_verification::ok_with_renewed_cookie(renewed_cookie).json(res))
 }
 
+/// Per user, for the endpoints that ask the old version of the platform (tmc.mooc.fi and the old
+/// mooc.fi) on every request. Each endpoint keeps its own quota.
+fn old_version_upstream_rate_limit() -> RateLimit {
+    RateLimit::new(RateLimitConfig {
+        per_minute: Some(10),
+        per_hour: Some(60),
+        ..Default::default()
+    })
+    .keyed_by(RateLimitKey::User)
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -1154,30 +1165,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
     .route("/my-certificates", web::get().to(get_my_certificates))
-    // Each request calls tmc.mooc.fi and mooc.fi.
     .service(
         web::resource("/my-progress-by-platform")
-            .wrap(
-                RateLimit::new(RateLimitConfig {
-                    per_minute: Some(10),
-                    per_hour: Some(60),
-                    ..Default::default()
-                })
-                .keyed_by(RateLimitKey::User),
-            )
+            .wrap(old_version_upstream_rate_limit())
             .route(web::get().to(get_my_progress_by_platform)),
     )
-    // Each request calls tmc.mooc.fi and mooc.fi.
     .service(
         web::resource("/my-old-version-progress")
-            .wrap(
-                RateLimit::new(RateLimitConfig {
-                    per_minute: Some(10),
-                    per_hour: Some(60),
-                    ..Default::default()
-                })
-                .keyed_by(RateLimitKey::User),
-            )
+            .wrap(old_version_upstream_rate_limit())
             .route(web::get().to(get_my_old_version_progress)),
     )
     .route(

@@ -1,18 +1,20 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import { type UseQueryResult, useQuery } from "@tanstack/react-query"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { BUTTON_SECONDARY } from "@/components/credit-registration/constants"
 import { headingCss, noteCss, sectionCss } from "@/components/credit-registration/styles"
 import { getMyOldVersionProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MoocFiCourseProgress,
   MoocFiMaterialLink,
+  OldVersionProgress,
   TmcMoocFiCourseProgress,
 } from "@/generated/api/types.generated"
-import { Badge, Link, Meter, METER_KIND, Spinner, TONE } from "@/shared-module/components"
+import { Badge, Button, Link, Meter, METER_KIND, Spinner, TONE } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
@@ -54,56 +56,75 @@ const figureCss = css`
 `
 
 /**
- * The link to the reader's language version of the material, else the first one. mooc.fi names
- * languages like `fi_FI`, so only the primary subtag is compared.
+ * The reader's language version of the material, else the first one. mooc.fi names languages like
+ * `fi_FI`, so only the primary subtag is compared.
  */
 const materialLinkFor = (
   links: MoocFiMaterialLink[],
   readerLanguage: string | undefined,
-): string | null => {
+): MoocFiMaterialLink | null => {
   const readerPrimary = readerLanguage?.split("-")[0]
-  const matching = links.find((link) => link.language.split(/[_-]/)[0] === readerPrimary)
-  return (matching ?? links[0])?.url ?? null
+  return links.find((link) => link.language.split(/[_-]/)[0] === readerPrimary) ?? links[0] ?? null
 }
 
 /**
- * The student's courses on the old version of the platform, loaded on their own so the slow
- * upstreams never hold up the rest of the page. Renders nothing when the student has none there.
+ * The student's courses on the old version of the platform. Fetched only when the student asks:
+ * the upstreams are slow and rate limited, and most students have nothing there.
  */
 const OldVersionCoursesSection: React.FC = () => {
   const { t } = useTranslation()
+  const [isRequested, setIsRequested] = useState(false)
   const query = useQuery({
     ...getMyOldVersionProgressOptions(),
+    enabled: isRequested,
     staleTime: STALE_TIME_MS,
     refetchOnWindowFocus: false,
     retry: false,
   })
-  const heading = <h2 className={headingCss}>{t("heading-courses-on-old-version")}</h2>
-
-  if (query.isPending) {
-    return <Spinner label={t("loading-courses-on-old-version")} />
-  }
-
-  const progress = query.data
-  const statuses = progress ? [progress.mooc_fi_status, progress.tmc_mooc_fi_status] : []
-  const unavailableCount = statuses.filter((status) => status === "unavailable").length
-  const hasCourses = progress && (progress.mooc_fi.length > 0 || progress.tmc_mooc_fi.length > 0)
-
-  if (!progress || (!hasCourses && unavailableCount > 0)) {
-    return (
-      <section className={sectionCss} aria-label={t("heading-courses-on-old-version")}>
-        {heading}
-        <p className={noteCss}>{t("courses-on-old-version-unavailable")}</p>
-      </section>
-    )
-  }
-  if (!hasCourses) {
-    return null
-  }
 
   return (
     <section className={sectionCss} aria-label={t("heading-courses-on-old-version")}>
-      {heading}
+      <h2 className={headingCss}>{t("heading-courses-on-old-version")}</h2>
+      {isRequested ? (
+        <OldVersionCourses query={query} />
+      ) : (
+        <div>
+          <Button variant={BUTTON_SECONDARY} size="medium" onClick={() => setIsRequested(true)}>
+            {t("button-show-courses-on-old-version")}
+          </Button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+const OldVersionCourses: React.FC<{
+  query: UseQueryResult<OldVersionProgress>
+}> = ({ query }) => {
+  const { t } = useTranslation()
+  if (query.isPending) {
+    return <Spinner label={t("loading-courses-on-old-version")} delayMs={0} />
+  }
+  // A failed request, the rate limit's 429 included, says as little as both upstreams failing.
+  const progress = query.data
+  const unavailableCount = progress
+    ? [progress.mooc_fi_status, progress.tmc_mooc_fi_status].filter(
+        (status) => status === "unavailable",
+      ).length
+    : 2
+  const hasCourses = progress && (progress.mooc_fi.length > 0 || progress.tmc_mooc_fi.length > 0)
+
+  if (!hasCourses) {
+    return (
+      <p className={noteCss}>
+        {unavailableCount > 0
+          ? t("courses-on-old-version-unavailable")
+          : t("courses-on-old-version-none")}
+      </p>
+    )
+  }
+  return (
+    <>
       {unavailableCount > 0 ? (
         <p className={noteCss}>{t("courses-on-old-version-partly-unavailable")}</p>
       ) : null}
@@ -116,7 +137,7 @@ const OldVersionCoursesSection: React.FC = () => {
           <TmcCourseCard key={`${course.name}-${index}`} course={course} />
         ))}
       </div>
-    </section>
+    </>
   )
 }
 
@@ -163,10 +184,13 @@ const MoocFiCourseCard: React.FC<{ course: MoocFiCourseProgress }> = ({ course }
   } else if (points !== null) {
     figure = <ModuleFigure label={t("label-points")} value={formatPoints(points, i18n.language)} />
   }
+  const materialLink = materialLinkFor(course.material_links, i18n.language)
+  // The tmc.mooc.fi courses behind it are not listed; one of their pages still beats no link.
+  const tmcUrl = course.tmc_mooc_fi_courses.find((tmcCourse) => tmcCourse.url)?.url ?? null
   return (
     <CourseCard
-      name={course.name}
-      url={materialLinkFor(course.material_links, i18n.language)}
+      name={materialLink?.course_name || course.name}
+      url={materialLink?.url ?? tmcUrl}
       completed={course.completed}
     >
       {figure}

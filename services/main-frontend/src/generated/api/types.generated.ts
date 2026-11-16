@@ -5714,6 +5714,10 @@ export type MoocFiCourseProgress = {
  */
 export type MoocFiMaterialLink = {
   /**
+   * The course's name in this language version.
+   */
+  course_name: string
+  /**
    * As mooc.fi spells it, e.g. `fi_FI`.
    */
   language: string
@@ -7136,12 +7140,8 @@ export type PreviewReference = {
  * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
  * reports to an old mooc.fi course is listed under that mooc.fi course.
  */
-export type ProgressByPlatform = {
+export type ProgressByPlatform = OldVersionProgress & {
   courses_mooc_fi: Array<CoursesMoocFiCourseProgress>
-  mooc_fi: Array<MoocFiCourseProgress>
-  mooc_fi_status: ExternalPlatformStatus
-  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
-  tmc_mooc_fi_status: ExternalPlatformStatus
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"

@@ -1,3 +1,5 @@
+import { relativeLuminance } from "@/shared-module/common/utils/color"
+
 /** The background image that applies at each breakpoint, `undefined` where the hero has none. */
 export interface HeroBackgroundImages {
   mobile: string | undefined
@@ -44,33 +46,6 @@ const LIGHT_HALO = haloShadow("255, 255, 255")
 const DEFAULT_HERO_TEXT_COLOR = "#1a2333"
 // Luminance where black and white text have equal contrast.
 const LUMINANCE_THRESHOLD = 0.179
-
-const parseRgb = (color: string): [number, number, number] | undefined => {
-  const value = color.trim().toLowerCase()
-  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})(?:[0-9a-f]{2})?$/.exec(value)?.[1]
-  if (hex) {
-    const full = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex
-    return [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16)) as [number, number, number]
-  }
-  const rgb = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/.exec(value)
-  if (rgb) {
-    return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])]
-  }
-  return undefined
-}
-
-/** WCAG relative luminance of a hex or rgb() colour, `undefined` when it cannot be parsed. */
-export const relativeLuminance = (color: string): number | undefined => {
-  const rgb = parseRgb(color)
-  if (!rgb) {
-    return undefined
-  }
-  const [r, g, b] = rgb.map((channel) => {
-    const c = channel / 255
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-  }) as [number, number, number]
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
-}
 
 const NO_READABILITY_SHADOW = `
   text-shadow: none;

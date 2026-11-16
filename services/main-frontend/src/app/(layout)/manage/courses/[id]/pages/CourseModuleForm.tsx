@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { Trash } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -33,6 +33,10 @@ import type { ModuleCompletionLinks, ModuleTotals } from "./ModuleCompletionFiel
 import ModuleCompletionFields, { fieldRowCss } from "./ModuleCompletionFields"
 import type { CourseModuleFormFields, CourseModuleFormState } from "./moduleCompletionForm"
 import { formFieldsOf, formStateOf, lacksRequirement } from "./moduleCompletionForm"
+
+const FIRST_FIELD = "first-field"
+const EDIT_BUTTON = "edit-button"
+const FIRST_CONTROL_SELECTOR = "input:not([type=hidden]), select, button"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -190,6 +194,23 @@ const CourseModuleForm: React.FC<Props> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isCreate = mode === "create"
   const [editing, setEditing] = useState(isCreate)
+  const formRef = useRef<HTMLFormElement>(null)
+  const editButtonRef = useRef<HTMLButtonElement>(null)
+  // Where focus goes once `editing` has flipped and the new controls are rendered.
+  const pendingFocus = useRef<typeof FIRST_FIELD | typeof EDIT_BUTTON | null>(
+    isCreate ? FIRST_FIELD : null,
+  )
+  useEffect(() => {
+    const target = pendingFocus.current
+    if (target === FIRST_FIELD && editing) {
+      formRef.current?.querySelector<HTMLElement>(FIRST_CONTROL_SELECTOR)?.focus()
+    } else if (target === EDIT_BUTTON && !editing) {
+      editButtonRef.current?.focus()
+    } else {
+      return
+    }
+    pendingFocus.current = null
+  }, [editing])
   const form = useForm<CourseModuleFormState>({
     mode: VALIDATE_ON_CHANGE,
     defaultValues: makeDefaultValues(module, chapters),
@@ -221,6 +242,7 @@ const CourseModuleForm: React.FC<Props> = ({
   )
 
   const onSubmitFormWrapper = (state: CourseModuleFormState): void => {
+    pendingFocus.current = EDIT_BUTTON
     setEditing(isCreate)
     onSubmitForm(module.id, formFieldsOf(state))
     onCancel?.()
@@ -246,7 +268,11 @@ const CourseModuleForm: React.FC<Props> = ({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmitFormWrapper)}
+        className={cx(cardCss, formCss)}
+      >
         <div className={headerCss}>
           <div className={headerTitleCss}>
             {editing && nameIsEditable ? (
@@ -276,10 +302,18 @@ const CourseModuleForm: React.FC<Props> = ({
           {!editing && (
             <div className={actionsCss}>
               <Button
+                ref={editButtonRef}
                 variant="secondary"
                 size="small"
                 type="button"
-                onClick={() => setEditing(true)}
+                aria-label={t("edit-module-named", {
+                  name: module.name ?? t("default-module"),
+                  defaultValue: "Edit module {{name}}",
+                })}
+                onClick={() => {
+                  pendingFocus.current = FIRST_FIELD
+                  setEditing(true)
+                }}
               >
                 {t("edit")}
               </Button>
@@ -358,6 +392,7 @@ const CourseModuleForm: React.FC<Props> = ({
                 disabled={isSubmitting}
                 onClick={() => {
                   reset()
+                  pendingFocus.current = EDIT_BUTTON
                   setEditing(false)
                   onCancel?.()
                 }}

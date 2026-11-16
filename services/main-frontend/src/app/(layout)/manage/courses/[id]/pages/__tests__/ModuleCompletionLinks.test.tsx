@@ -57,7 +57,7 @@ describe("ModuleCompletionFields links", () => {
         />
       </QueryClientProvider>,
     )
-    fireEvent.click(screen.getByRole("button", { name: "edit" }))
+    fireEvent.click(screen.getByRole("button", { name: "edit-module-named" }))
 
     const link = screen.getAllByRole("link", { name: "Students tab" })[0]
     expect(link).toHaveAttribute("href", "/students")

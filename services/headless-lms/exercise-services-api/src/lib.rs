@@ -342,10 +342,11 @@ pub struct CourseProgress {
     /// The course these progress entries belong to; echoes the path id.
     pub course_id: Uuid,
     pub exercises: Vec<ExerciseProgress>,
-    /// The chapters that have not opened yet, with the user's progress on their exercises. Those
-    /// exercises are absent from `exercises` and from `courses/{id}/exercises` until the chapter
-    /// opens, so a client must not take their absence to mean they were removed. Absent from a
-    /// host that predates the field.
+    /// The chapters that have not opened yet, with the user's progress on the exercises that
+    /// `courses/{id}/exercises` will list once the chapter opens; a chapter with none is left out.
+    /// Those exercises are absent from `exercises` and from `courses/{id}/exercises` until the
+    /// chapter opens, so a client must not take their absence to mean they were removed. Absent
+    /// from a host that predates the field.
     #[serde(default)]
     pub closed_chapters: Vec<ClosedChapter>,
 }

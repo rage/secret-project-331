@@ -62,6 +62,8 @@ const ModuleCertificateVerification: React.FC = () => {
     }),
     enabled: !debug && testCourseModuleId === null,
     retry: false,
+    // A certificate's text does not change while the page is open.
+    staleTime: Infinity,
   })
 
   return (

@@ -1,6 +1,8 @@
 use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 
+mod blocks;
+use blocks::{section_block_html, section_block_text, stats_block_html, stats_block_text};
 use chrono::Utc;
 use dotenvy::dotenv;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -48,123 +50,55 @@ impl<'a> TeacherNewsletterContent<'a> {
                 <tr>{}{}{}</tr>
             </tbody>
         </table>"#,
-            self.section_block_html(
+            section_block_html(
                 self.flagged_cheaters_count_total,
                 self.flagged_cheaters_count_period,
                 "Suspected cheaters",
                 "Students flagged by automatic detection as possible cheaters."
             ),
-            self.section_block_html(
+            section_block_html(
                 self.unread_feedback_count_total,
                 self.unread_feedback_count_period,
                 "Feedback",
                 "Unread feedback from students."
             ),
-            self.section_block_html(
+            section_block_html(
                 self.proposal_count_total,
                 self.proposal_count_period,
                 "Proposals",
                 "Proposals suggested by students regarding course material.",
             ),
-            self.stats_block_html(self.returned_exercises_count, "Students returned exercises"),
-            self.stats_block_html(self.completed_course_count, "Students completed course"),
-            self.stats_block_html(self.started_course_count, "Students started course"),
+            stats_block_html(self.returned_exercises_count, "Students returned exercises"),
+            stats_block_html(self.completed_course_count, "Students completed course"),
+            stats_block_html(self.started_course_count, "Students started course"),
         )
     }
 
     fn as_text(&self) -> String {
         format!(
             "{}{}{}{}{}{}",
-            self.section_block_text(
+            section_block_text(
                 self.flagged_cheaters_count_total,
                 self.flagged_cheaters_count_period,
                 "Suspected cheaters",
                 "Students flagged by automatic detection as possible cheaters."
             ),
-            self.section_block_text(
+            section_block_text(
                 self.unread_feedback_count_total,
                 self.unread_feedback_count_period,
                 "Feedback",
                 "Unread feedback from students."
             ),
-            self.section_block_text(
+            section_block_text(
                 self.proposal_count_total,
                 self.proposal_count_period,
                 "Proposals",
                 "Proposals suggested by students regarding course material."
             ),
-            self.stats_block_text(self.started_course_count, "Students started course"),
-            self.stats_block_text(self.returned_exercises_count, "Students returned exercises"),
-            self.stats_block_text(self.completed_course_count, "Students completed course")
+            stats_block_text(self.started_course_count, "Students started course"),
+            stats_block_text(self.returned_exercises_count, "Students returned exercises"),
+            stats_block_text(self.completed_course_count, "Students completed course")
         )
-    }
-
-    fn section_block_html(
-        &self,
-        count_total: i64,
-        count_period: i64,
-        title: &str,
-        label: &str,
-    ) -> String {
-        let counts_new = if count_total - count_period == 0 {
-            count_period
-        } else {
-            count_total - count_period
-        };
-
-        format!(
-            r#"
-            <table style="border-collapse: separate; width: 100%; margin-bottom: 8px;">
-                <tbody>
-                    <tr>
-                        <td style="border: 3px solid #EBEDEE; padding-left: 16px; border-radius: 12px;">
-                            <h2 style="margin-top: 0; margin-bottom: 0; font-weight: 600;">{title}</h2>
-                            <p>{label}</p>
-                            <table style="margin-bottom: 5px;">
-                                <tbody>
-                                    <tr>
-                                        <td style="padding: 0; color: #1F6964; font-size: 32px; border: none; font-weight: bold;">{count_total}</td>
-                                        <td style="border: none; padding: 0; padding-left: 5px;">(+{counts_new} new)</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <span style="font-weight: 500;">Total</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            "#
-        )
-    }
-
-    fn section_block_text(
-        &self,
-        count_total: i64,
-        count_period: i64,
-        title: &str,
-        label: &str,
-    ) -> String {
-        let counts_new = if count_total - count_period == 0 {
-            count_period
-        } else {
-            count_total - count_period
-        };
-        format!("* {title}: {count_total} (+ {counts_new} new) — {label}\n")
-    }
-
-    fn stats_block_html(&self, count: i64, label: &str) -> String {
-        format!(
-            r#"
-        <td style="border: 3px solid #EBEDEE; border-radius: 12px;">
-            <p style="font-size: 32px; text-align: center; margin-top: 1rem; color: #1F6964; font-weight: bold;">{count}</p>
-            <p style="text-align: center; font-weight: 500;">{label}</p>
-        </td>
-        "#
-        )
-    }
-
-    fn stats_block_text(&self, count: i64, label: &str) -> String {
-        format!("* {label}: {count}\n")
     }
 }
 

@@ -4,7 +4,7 @@ import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { isPast } from "date-fns"
 import { useParams, useRouter } from "next/navigation"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewCourseInstanceForm, {
@@ -20,7 +20,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice, useToggleFocus } from "@/shared-module/components"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
 const editActionsCss = css`
@@ -79,19 +79,10 @@ const ManageCourseInstances: React.FC = () => {
     }),
   })
   const [editing, setEditing] = useState(false)
-  const editButtonRef = useRef<HTMLButtonElement | null>(null)
   const formRef = useRef<HTMLDivElement | null>(null)
-  const wasEditing = useRef(false)
-
-  // Focus the first field when the form opens and the Edit button when it closes.
-  useEffect(() => {
-    if (editing) {
-      formRef.current?.querySelector("input")?.focus()
-    } else if (wasEditing.current) {
-      editButtonRef.current?.focus()
-    }
-    wasEditing.current = editing
-  }, [editing])
+  const editButtonRef = useToggleFocus(editing, () =>
+    formRef.current?.querySelector("input")?.focus(),
+  )
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
       await editCourseInstance({

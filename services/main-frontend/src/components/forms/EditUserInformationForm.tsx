@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { Pencil } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -15,7 +15,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
+import { Button, Checkbox, ComboBox, TextField, useToggleFocus } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
 interface SelectUserInfoFormFields {
@@ -45,8 +45,6 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const { t: tCountries } = useTranslation("countries")
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
-  const editButtonRef = useRef<HTMLButtonElement>(null)
-  const restoreFocusRef = useRef(false)
 
   const { handleSubmit, control, reset, setFocus } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
@@ -60,15 +58,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     },
   })
 
-  useEffect(() => {
-    if (isEditing) {
-      // oxlint-disable-next-line i18next/no-literal-string
-      setFocus("email")
-    } else if (restoreFocusRef.current) {
-      restoreFocusRef.current = false
-      editButtonRef.current?.focus()
-    }
-  }, [isEditing, setFocus])
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editButtonRef = useToggleFocus(isEditing, () => setFocus("email"))
 
   const countriesOptions = useMemo(
     () =>
@@ -105,7 +96,6 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     },
     {
       onSuccess: async () => {
-        restoreFocusRef.current = true
         setIsEditing(false)
         await refetchUserDetailsForUser(queryClient)
         // Backend clears email_verified_at on an address change, so the card needs a refetch.
@@ -115,7 +105,6 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   )
 
   const handleCancel = () => {
-    restoreFocusRef.current = true
     reset({
       email,
       first_name: firstName,

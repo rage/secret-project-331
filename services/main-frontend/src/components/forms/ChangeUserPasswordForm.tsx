@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { changeUserPassword } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, TextField, useToggleFocus } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ChangePasswordFormFields {
@@ -22,8 +22,6 @@ class WrongCurrentPasswordError extends Error {}
 const ChangeUserPasswordForm: React.FC = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  const openButtonRef = useRef<HTMLButtonElement>(null)
-  const restoreFocusRef = useRef(false)
 
   const { handleSubmit, control, reset, watch, setError, setFocus } =
     useForm<ChangePasswordFormFields>({
@@ -37,15 +35,8 @@ const ChangeUserPasswordForm: React.FC = () => {
     })
   const newPassword = watch("new_password")
 
-  useEffect(() => {
-    if (isOpen) {
-      // oxlint-disable-next-line i18next/no-literal-string
-      setFocus("current_password")
-    } else if (restoreFocusRef.current) {
-      restoreFocusRef.current = false
-      openButtonRef.current?.focus()
-    }
-  }, [isOpen, setFocus])
+  // oxlint-disable-next-line i18next/no-literal-string
+  const openButtonRef = useToggleFocus(isOpen, () => setFocus("current_password"))
 
   const changePasswordMutation = useToastMutation<boolean, unknown, ChangePasswordFormFields>(
     async (data) => {
@@ -71,7 +62,6 @@ const ChangeUserPasswordForm: React.FC = () => {
     },
     {
       onSuccess: () => {
-        restoreFocusRef.current = true
         setIsOpen(false)
         reset()
       },
@@ -90,7 +80,6 @@ const ChangeUserPasswordForm: React.FC = () => {
   }
 
   const handleCancel = () => {
-    restoreFocusRef.current = true
     reset()
     setIsOpen(false)
   }

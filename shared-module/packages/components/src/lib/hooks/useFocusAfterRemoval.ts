@@ -25,7 +25,10 @@ export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
   const listHeadingRef = useRef<HTMLHeadingElement | null>(null)
   const pendingIndex = useRef<number | null>(null)
   const fallbackRef = useRef(fallback)
-  fallbackRef.current = fallback
+
+  useEffect(() => {
+    fallbackRef.current = fallback
+  })
 
   const remember = (itemHeadingId?: string) => {
     if (itemHeadingId === undefined) {

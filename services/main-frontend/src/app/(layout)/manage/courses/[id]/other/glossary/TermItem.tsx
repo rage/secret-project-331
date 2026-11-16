@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -17,6 +17,7 @@ import {
   TextArea,
   TextField,
   useDialog,
+  useToggleFocus,
 } from "@/shared-module/components"
 
 const entryCss = css`
@@ -62,8 +63,6 @@ const TermItem: React.FC<TermItemProps> = ({
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const headingId = `term-heading-${term.id}`
-  const editButtonRef = useRef<HTMLButtonElement | null>(null)
-  const wasEditing = useRef(false)
   const {
     control,
     handleSubmit,
@@ -86,16 +85,8 @@ const TermItem: React.FC<TermItemProps> = ({
     })
   }, [term, reset])
 
-  // Focus the first field when the form opens and the Edit button when it closes.
-  useEffect(() => {
-    if (isEditing) {
-      // oxlint-disable-next-line i18next/no-literal-string
-      setFocus("updatedTerm")
-    } else if (wasEditing.current) {
-      editButtonRef.current?.focus()
-    }
-    wasEditing.current = isEditing
-  }, [isEditing, setFocus])
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editButtonRef = useToggleFocus(isEditing, () => setFocus("updatedTerm"))
 
   const updateMutation = useToastMutationOptions(
     updateGlossaryTermMutation(),

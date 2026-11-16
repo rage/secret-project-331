@@ -144,15 +144,15 @@ describe("tokens.ts custom properties", () => {
   })
 })
 
-describe("focus ring", () => {
-  const luminance = (rgb: number[]) => {
-    const [r, g, b] = rgb.map((c) => {
-      const s = c / 255
-      return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
-    })
-    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
-  }
+const luminance = (rgb: number[]) => {
+  const [r, g, b] = rgb.map((c) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+}
 
+describe("focus ring", () => {
   test("color is opaque and has at least 3:1 contrast on white", () => {
     const value = rootDeclarations().getPropertyValue("--focus-ring-color")
     const match = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(value)

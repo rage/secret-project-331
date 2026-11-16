@@ -22,6 +22,15 @@ function Page({
   )
 }
 
+function Shell({ children, pathname }: { children?: React.ReactNode; pathname: string }) {
+  return (
+    <>
+      <RouteFocusManager pathname={pathname} />
+      <main id="maincontent">{children}</main>
+    </>
+  )
+}
+
 function App({ heading, children }: { heading?: string | null; children?: React.ReactNode }) {
   return (
     <>
@@ -168,20 +177,12 @@ describe("RouteFocusManager", () => {
   })
 
   test("a focused link inside main that unmounts hands focus to the h1 that arrives later", async () => {
-    function Shell({ children, pathname }: { children?: React.ReactNode; pathname: string }) {
-      return (
-        <>
-          <RouteFocusManager pathname={pathname} />
-          <main id="maincontent">{children}</main>
-        </>
-      )
-    }
     const { rerender } = render(
       <Shell pathname="/">
-        <a href="/course">Course card</a>
+        <button type="button">Course card</button>
       </Shell>,
     )
-    const link = document.querySelector("a")
+    const link = document.querySelector("button")
     link?.focus()
     expect(document.activeElement).toBe(link)
 
@@ -189,7 +190,7 @@ describe("RouteFocusManager", () => {
     mockState.pathname = "/course"
     rerender(
       <Shell pathname="/course">
-        <a href="/course">Course card</a>
+        <button type="button">Course card</button>
       </Shell>,
     )
     expect(document.activeElement).toBe(link)

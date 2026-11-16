@@ -55,6 +55,19 @@ function App({ children }: { children?: React.ReactNode }) {
   )
 }
 
+async function renderHomeSettled() {
+  const view = render(
+    <App>
+      <TitleSetter title="Home" />
+    </App>,
+  )
+  await act(async () => {
+    await jest.advanceTimersByTimeAsync(0)
+  })
+  mockAnnounce.mockClear()
+  return view
+}
+
 describe("usePageTitle + PageTitleManager", () => {
   beforeEach(() => {
     mockState.pathname = "/"
@@ -266,19 +279,6 @@ describe("usePageTitle + PageTitleManager", () => {
     afterEach(() => {
       jest.useRealTimers()
     })
-
-    async function renderHomeSettled() {
-      const view = render(
-        <App>
-          <TitleSetter title="Home" />
-        </App>,
-      )
-      await act(async () => {
-        await jest.advanceTimersByTimeAsync(0)
-      })
-      mockAnnounce.mockClear()
-      return view
-    }
 
     test("announces the new title once when pathname and title change together", async () => {
       const { rerender } = await renderHomeSettled()

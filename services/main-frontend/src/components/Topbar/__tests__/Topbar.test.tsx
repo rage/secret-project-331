@@ -9,7 +9,7 @@ jest.mock("next/navigation", () => ({
   usePathname: () => "/",
   useSearchParams: () => new URLSearchParams(),
 }))
-jest.mock("../Brand", () => ({ __esModule: true, default: () => <a href="/">brand</a> }))
+jest.mock("../Brand", () => ({ __esModule: true, default: () => <span>brand</span> }))
 jest.mock("../LanguageMenu", () => ({ __esModule: true, default: () => <button>lang</button> }))
 jest.mock("../SearchButton", () => ({ __esModule: true, default: () => <button>search</button> }))
 jest.mock("../UserMenu", () => ({ __esModule: true, default: () => <button>user</button> }))
@@ -36,7 +36,7 @@ describe("Topbar", () => {
     unmount()
     render(
       <Topbar courseId="c" organizationSlug="o">
-        <a href="/x">x</a>
+        <span>x</span>
       </Topbar>,
     )
     expect(screen.getByRole("navigation", { hidden: true })).toBeInTheDocument()

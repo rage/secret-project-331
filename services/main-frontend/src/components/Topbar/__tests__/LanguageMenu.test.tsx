@@ -4,6 +4,19 @@ import { fireEvent, render, screen } from "@testing-library/react"
 
 import LanguageMenu from "../LanguageMenu"
 
+const mockItem = (code: string, label: string, isSelected: boolean) => ({
+  id: `lang-${code}`,
+  code,
+  label,
+  nativeLabel: label,
+  localizedLabel: label,
+  englishLabel: label,
+  isSelected,
+  lang: code,
+  dir: "ltr",
+  onSelect: jest.fn(),
+})
+
 jest.mock("react-i18next", () => {
   // oxlint-disable-next-line unicorn/consistent-function-scoping -- must live inside the mock factory
   const t = (key: string) => key
@@ -11,21 +24,9 @@ jest.mock("react-i18next", () => {
 })
 
 jest.mock("../hooks/useLanguageMenuItems", () => {
-  const item = (code: string, label: string, isSelected: boolean) => ({
-    id: `lang-${code}`,
-    code,
-    label,
-    nativeLabel: label,
-    localizedLabel: label,
-    englishLabel: label,
-    isSelected,
-    lang: code,
-    dir: "ltr",
-    onSelect: jest.fn(),
-  })
   return {
     useLanguageMenuItems: () => ({
-      items: [item("en", "English", true), item("fi", "Suomi", false)],
+      items: [mockItem("en", "English", true), mockItem("fi", "Suomi", false)],
       currentLanguage: "en",
       shouldShow: true,
       areLanguagesOverridden: false,

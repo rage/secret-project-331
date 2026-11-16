@@ -67,6 +67,29 @@ describe("ButtonsBlock accessibility (issue #69)", () => {
   })
 })
 
+const luminance = (hex: string) => {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }) as [number, number, number]
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+const classCss = (element: Element) => {
+  const own = Array.from(element.classList).map((c) => `.${c}`)
+  return Array.from(document.styleSheets)
+    .flatMap((sheet) => Array.from(sheet.cssRules))
+    .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
+    .filter((rule) => own.some((c) => rule.selectorText.includes(c)))
+    .map((rule) => rule.cssText)
+    .join("\n")
+}
+
+const contrast = (a: string, b: string) => {
+  const [hi, lo] = [luminance(a), luminance(b)].toSorted((x, y) => y - x) as [number, number]
+  return (hi + 0.05) / (lo + 0.05)
+}
+
 describe("ButtonsBlock variant colours (B-032)", () => {
   const tokenSource = readFileSync(
     join(process.cwd(), "src/shared-module/components/styles/tokens.ts"),
@@ -79,27 +102,6 @@ describe("ButtonsBlock variant colours (B-032)", () => {
     const value = tokens.get(name) ?? ""
     const ref = /^var\((--[\w-]+)\)$/.exec(value)
     return ref?.[1] ? resolve(ref[1]) : value
-  }
-  const luminance = (hex: string) => {
-    const [r, g, b] = [1, 3, 5].map((i) => {
-      const c = parseInt(hex.slice(i, i + 2), 16) / 255
-      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-    }) as [number, number, number]
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b
-  }
-  const contrast = (a: string, b: string) => {
-    const [hi, lo] = [luminance(a), luminance(b)].toSorted((x, y) => y - x) as [number, number]
-    return (hi + 0.05) / (lo + 0.05)
-  }
-
-  const classCss = (element: Element) => {
-    const own = Array.from(element.classList).map((c) => `.${c}`)
-    return Array.from(document.styleSheets)
-      .flatMap((sheet) => Array.from(sheet.cssRules))
-      .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
-      .filter((rule) => own.some((c) => rule.selectorText.includes(c)))
-      .map((rule) => rule.cssText)
-      .join("\n")
   }
 
   const variants = [

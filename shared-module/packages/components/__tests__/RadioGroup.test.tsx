@@ -7,6 +7,9 @@ import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
 import { pressArrowDown, renderWithForm } from "./testUtils"
 
+const tabIndexes = () =>
+  screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).tabIndex)
+
 describe("RadioGroup", () => {
   test("supports single selection semantics", () => {
     const { getValues } = renderWithForm<{ r: string }>(
@@ -37,8 +40,6 @@ describe("RadioGroup", () => {
       { defaultValues: { r: "" } },
     )
 
-    const tabIndexes = () =>
-      screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).tabIndex)
     expect(tabIndexes()).toEqual([0, 0, 0])
 
     fireEvent.click(screen.getByRole("radio", { name: "Second" }))

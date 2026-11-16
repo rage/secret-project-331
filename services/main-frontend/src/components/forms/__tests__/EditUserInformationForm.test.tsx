@@ -4,7 +4,7 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
-import EditUserInformationForm from "../EditUserInformationForm"
+import { EditUserInformationForm } from "../EditUserInformationForm"
 
 jest.mock("@/generated/api/sdk.generated", () => ({ updateUserInfo: jest.fn() }))
 jest.mock("@/components/EmailVerificationSection", () => ({

@@ -1351,7 +1351,7 @@
       },
       "CourseProgress": {
         "type": "object",
-        "description": "The current user's progress across every exercise they can see in a course, returned\nby `courses/{id}/progress` in a single round-trip. Course-level totals are not sent\nseparately; the client derives them by summing over `exercises` (e.g. total awarded =\n`sum(score_given)`, total available = `sum(score_maximum)`).",
+        "description": "The current user's progress across the course exercises this client is served, returned\nby `courses/{id}/progress` in a single round-trip. Course-level totals are not sent\nseparately; the client derives them by summing over `exercises` (e.g. total awarded =\n`sum(score_given)`, total available = `sum(score_maximum)`).",
         "required": ["course_id", "exercises"],
         "properties": {
           "closed_chapters": {
@@ -1359,7 +1359,7 @@
             "items": {
               "$ref": "#/components/schemas/ClosedChapter"
             },
-            "description": "The chapters that have not opened yet, with the user's progress on their exercises. Those\nexercises are absent from `exercises` and from `courses/{id}/exercises` until the chapter\nopens, so a client must not take their absence to mean they were removed. Absent from a\nhost that predates the field."
+            "description": "The chapters that have not opened yet, with the user's progress on the exercises that\n`courses/{id}/exercises` will list once the chapter opens; a chapter with none is left out.\nThose exercises are absent from `exercises` and from `courses/{id}/exercises` until the\nchapter opens, so a client must not take their absence to mean they were removed. Absent\nfrom a host that predates the field."
           },
           "course_id": {
             "type": "string",
@@ -1370,7 +1370,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ExerciseProgress"
-            }
+            },
+            "description": "The user's progress on the open chapters' exercises that `courses/{id}/exercises` lists."
           }
         }
       },

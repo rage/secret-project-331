@@ -116,6 +116,12 @@ async fn native_client_capable_slugs(conn: &mut PgConnection) -> ModelResult<Vec
     Ok(slugs)
 }
 
+/// Whether a task of the given exercise service can be served to this client; the one rule
+/// behind which exercises the client API serves.
+fn is_client_capable(exercise_type: &str, capable_slugs: &[String]) -> bool {
+    capable_slugs.iter().any(|slug| slug == exercise_type)
+}
+
 /// Filters a slide's tasks down to the ones whose exercise service can serve this client and
 /// converts them to the client shape. Shared by the list and single-exercise views so their
 /// visibility rules cannot drift apart. Model solutions are stripped unless
@@ -127,7 +133,7 @@ fn client_tasks_from_slide(
 ) -> Vec<api::ExerciseTask> {
     tasks
         .into_iter()
-        .filter(|et| capable_slugs.contains(&et.exercise_service_slug))
+        .filter(|et| is_client_capable(&et.exercise_service_slug, capable_slugs))
         .map(|et| api::ExerciseTask {
             task_id: et.id,
             order_number: et.order_number,
@@ -141,6 +147,31 @@ fn client_tasks_from_slide(
             exercise_service_slug: et.exercise_service_slug,
         })
         .collect()
+}
+
+/// The given exercises that have a client-capable task on any of their slides. Unlike
+/// `client_tasks_from_slide`, this selects no slide for the user, so it also answers for
+/// exercises whose chapter has not opened.
+async fn client_capable_exercise_ids(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+    capable_slugs: &[String],
+) -> ModelResult<HashSet<Uuid>> {
+    let exercise_by_slide: HashMap<Uuid, Uuid> =
+        models::exercise_slides::get_exercise_slides_by_exercise_ids(conn, exercise_ids)
+            .await?
+            .into_iter()
+            .map(|slide| (slide.id, slide.exercise_id))
+            .collect();
+    let slide_ids: Vec<Uuid> = exercise_by_slide.keys().copied().collect();
+    Ok(
+        models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &slide_ids)
+            .await?
+            .into_iter()
+            .filter(|task| is_client_capable(&task.exercise_type, capable_slugs))
+            .filter_map(|task| exercise_by_slide.get(&task.exercise_slide_id).copied())
+            .collect(),
+    )
 }
 
 /// A course's chapters, split by whether they have opened. Shared by the exercise list and
@@ -736,16 +767,32 @@ async fn get_course_progress(
         state_by_exercise.insert(state.exercise_id, state);
     }
 
+    let course_exercises =
+        models::exercises::get_exercises_by_course_id(&mut conn, course.id).await?;
+    let closed_chapter_ids: HashSet<Uuid> = chapters.closed.iter().map(|c| c.id).collect();
+    let chaptered_exercise_ids: Vec<Uuid> = course_exercises
+        .iter()
+        .filter(|e| {
+            e.chapter_id.is_some_and(|id| {
+                chapters.open.contains_key(&id) || closed_chapter_ids.contains(&id)
+            })
+        })
+        .map(|e| e.id)
+        .collect();
+    let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+    let capable_exercise_ids =
+        client_capable_exercise_ids(&mut conn, &chaptered_exercise_ids, &capable_slugs).await?;
+
     let mut exercises = Vec::new();
     let mut closed_chapter_exercises: HashMap<Uuid, Vec<api::ExerciseProgress>> = HashMap::new();
-    for exercise in models::exercises::get_exercises_by_course_id(&mut conn, course.id).await? {
+    for exercise in course_exercises {
         let Some(chapter_id) = exercise.chapter_id else {
             continue;
         };
-        let is_open = chapters.open.contains_key(&chapter_id);
-        if !is_open && !chapters.closed.iter().any(|c| c.id == chapter_id) {
+        if !capable_exercise_ids.contains(&exercise.id) {
             continue;
         }
+        let is_open = chapters.open.contains_key(&chapter_id);
         let progress = exercise_progress(
             &mut conn,
             user.id,
@@ -1028,7 +1075,7 @@ fn verify_task_is_client_capable(
     exercise_type: &str,
     capable_slugs: &[String],
 ) -> Result<(), ControllerError> {
-    if capable_slugs.iter().any(|slug| slug == exercise_type) {
+    if is_client_capable(exercise_type, capable_slugs) {
         return Ok(());
     }
     Err(controller_err!(
@@ -4533,6 +4580,131 @@ mod route_tests {
         assert_eq!(response.status(), StatusCode::FORBIDDEN);
         let body: serde_json::Value = test::read_body_json(response).await;
         assert_eq!(message_key(&body), "chapter_not_open_yet");
+    }
+
+    /// A quiz exercise in the given chapter: its only task belongs to a service that cannot serve
+    /// this client.
+    async fn insert_quiz_exercise(
+        conn: &mut PgConnection,
+        course: Uuid,
+        page: Uuid,
+        chapter: Uuid,
+    ) -> Uuid {
+        let exercise = models::exercises::insert(
+            conn,
+            models::PKeyPolicy::Generate,
+            course,
+            "quiz",
+            page,
+            chapter,
+            1,
+        )
+        .await
+        .expect("exercise");
+        let slide =
+            models::exercise_slides::insert(conn, models::PKeyPolicy::Generate, exercise, 0)
+                .await
+                .expect("slide");
+        models::exercise_tasks::insert(
+            conn,
+            models::PKeyPolicy::Generate,
+            models::exercise_tasks::NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: "quizzes".to_string(),
+                assignment: vec![],
+                public_spec: Some(serde_json::Value::Null),
+                private_spec: Some(serde_json::Value::Null),
+                model_solution_spec: Some(serde_json::Value::Null),
+                order_number: 0,
+            },
+        )
+        .await
+        .expect("exercise task");
+        exercise
+    }
+
+    /// A chapter after `previous` in the same course module, with its front page.
+    async fn insert_next_chapter(
+        conn: &mut PgConnection,
+        fixture: &Fixture,
+        previous: &DatabaseChapter,
+        name: &str,
+    ) -> (DatabaseChapter, models::pages::Page) {
+        models::library::content_management::create_new_chapter(
+            conn,
+            models::PKeyPolicy::Generate,
+            &models::chapters::NewChapter {
+                name: name.to_string(),
+                color: None,
+                course_id: fixture.course,
+                chapter_number: previous.chapter_number + 1,
+                front_page_id: None,
+                deadline: None,
+                opens_at: None,
+                course_module_id: Some(previous.course_module_id),
+            },
+            fixture.user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .expect("chapter")
+    }
+
+    /// The progress names only the exercises the listing serves, now or once their chapter opens,
+    /// so the client's points total does not count quizzes or shrink when a chapter opens.
+    #[actix_web::test]
+    async fn progress_reports_only_client_capable_exercises() {
+        let (fixture, _, chapter) = servable_exercise_fixture().await;
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        let page = chapter.front_page_id.expect("chapter front page");
+        let closed_quiz = insert_quiz_exercise(&mut conn, fixture.course, page, chapter.id).await;
+        let (quiz_only_chapter, quiz_only_page) =
+            insert_next_chapter(&mut conn, &fixture, &chapter, "quizzes only").await;
+        insert_quiz_exercise(
+            &mut conn,
+            fixture.course,
+            quiz_only_page.id,
+            quiz_only_chapter.id,
+        )
+        .await;
+        let (open_chapter, open_page) =
+            insert_next_chapter(&mut conn, &fixture, &quiz_only_chapter, "open").await;
+        let open_quiz =
+            insert_quiz_exercise(&mut conn, fixture.course, open_page.id, open_chapter.id).await;
+        let opens_at = Utc::now() + ChronoDuration::days(2);
+        for closed in [chapter.id, quiz_only_chapter.id] {
+            models::chapters::set_opens_at(&mut conn, closed, opens_at)
+                .await
+                .expect("opens_at");
+        }
+        let app = client_api_app!();
+
+        let progress: api::CourseProgress = get_json(
+            &app,
+            &fixture.token,
+            format!("/courses/{}/progress", fixture.course),
+        )
+        .await;
+        assert!(
+            progress
+                .exercises
+                .iter()
+                .all(|p| p.exercise_id != open_quiz),
+            "open quiz {open_quiz} must not be reported"
+        );
+        let reported: Vec<(Uuid, Vec<Uuid>)> = progress
+            .closed_chapters
+            .iter()
+            .map(|c| (c.id, c.exercises.iter().map(|p| p.exercise_id).collect()))
+            .collect();
+        assert_eq!(
+            reported,
+            vec![(chapter.id, vec![fixture.exercise])],
+            "closed quiz {closed_quiz} must not be reported"
+        );
     }
 
     /// A chapter the student has locked is marked in the listing, and refusing an answer to it

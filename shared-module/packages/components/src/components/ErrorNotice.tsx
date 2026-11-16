@@ -36,7 +36,7 @@ export interface ErrorNoticeProps {
    */
   announce?: ErrorNoticeAnnouncement
   /** Heading rank of the title. Pick the one that fits the surrounding outline. */
-  headingLevel?: 2 | 3 | 4
+  headingLevel?: 1 | 2 | 3 | 4
   /** `compact` trims padding and type for a notice inside a small panel. */
   density?: ErrorNoticeDensity
   /** CSS length capping the notice, which then scrolls. */
@@ -408,7 +408,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
 
   const severity = severityOverride ?? view.severity
   const SeverityIcon = SEVERITY_ICONS[severity]
-  const HeadingTag = `h${headingLevel}` as "h2" | "h3" | "h4"
+  const HeadingTag = `h${headingLevel}` as "h1" | "h2" | "h3" | "h4"
   // Several backend payloads carry the same string as both title and message.
   const message = copy.message === copy.title ? null : copy.message
 

@@ -226,7 +226,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <p {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
         </p>
       ) : description ? (

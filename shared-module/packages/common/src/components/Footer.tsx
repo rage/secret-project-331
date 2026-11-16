@@ -37,7 +37,7 @@ const Container = styled.div`
     padding: 5rem 3rem;
   }
 
-  h1 {
+  h2 {
     margin-bottom: 0.8rem;
     line-height: 1;
     font-weight: 600;
@@ -178,7 +178,7 @@ const Footer: React.FC<React.PropsWithChildren<Props>> = ({ privacyLinks = null 
       `}
     >
       <Container>
-        <h1>{t("about")}</h1>
+        <h2>{t("about")}</h2>
         <Wrapper>
           <Text>
             <p>{t("about-mooc-center-description")}</p>

@@ -18,7 +18,7 @@ const NAVIGATION_STALE_WAIT_MS = 1000
 
 // Next's route announcer reads document.title before the leaf title registers, so it speaks the
 // previous page's title. PageTitleManager announces the settled title instead.
-injectGlobal`
+void injectGlobal`
   next-route-announcer {
     display: none;
   }

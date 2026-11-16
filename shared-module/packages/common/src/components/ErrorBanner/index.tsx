@@ -22,6 +22,8 @@ export interface BannerExtraProps {
   listMaxHeightVH?: number
   /** See `ErrorNotice`; defaults to an assertive announcement. */
   announce?: ErrorNoticeAnnouncement
+  /** Heading rank of the title; use 1 when the error replaces the whole page. */
+  headingLevel?: 1 | 2 | 3 | 4
   className?: string
 }
 
@@ -38,6 +40,7 @@ const ErrorBanner: React.FC<BannerProps> = ({
   maxHeightVH,
   listMaxHeightVH,
   announce,
+  headingLevel,
   className,
 }) => (
   <ErrorNotice
@@ -46,6 +49,7 @@ const ErrorBanner: React.FC<BannerProps> = ({
     {...omitUndefined({
       context: contextMessage,
       announce,
+      headingLevel,
       className,
       maxHeight: maxHeightVH === undefined ? undefined : `${maxHeightVH}vh`,
       detailsMaxHeight: listMaxHeightVH === undefined ? undefined : `${listMaxHeightVH}vh`,

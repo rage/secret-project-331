@@ -330,7 +330,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <p {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
         </p>
       ) : description ? (

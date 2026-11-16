@@ -157,16 +157,15 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
     .flatMap((item) => (item.status === "pending" ? [String(item.key)] : []))
     .join()
   const anyPendingItem = items.some((item) => item.status === "pending")
-  const [hasTimedOut, setHasTimedOut] = useState(false)
+  const [timedOutKey, setTimedOutKey] = useState<string | null>(null)
   useEffect(() => {
-    setHasTimedOut(false)
     if (!anyPendingItem) {
       return
     }
-    const timer = setTimeout(() => setHasTimedOut(true), PENDING_TIMEOUT_MS)
+    const timer = setTimeout(() => setTimedOutKey(pendingKeys), PENDING_TIMEOUT_MS)
     return () => clearTimeout(timer)
   }, [anyPendingItem, pendingKeys])
-  const anyPending = anyPendingItem && !hasError && !hasTimedOut
+  const anyPending = anyPendingItem && !hasError && timedOutKey !== pendingKeys
   const separator = direction === "rtl" ? SEPARATOR_RTL : SEPARATOR_LTR
 
   return (

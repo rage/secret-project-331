@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { joinAriaDescribedBy } from "@/shared-module/components/lib/utils/aria"
 
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
@@ -125,10 +126,11 @@ export const ScaleView: React.FC<ScaleViewProps> = ({
     onChange: (selectedOption: string) => onSelect?.(Number(selectedOption)),
     isDisabled: disabled,
   })
-  const describedBy =
-    [hasBody && bodyId, hasMinLabel && minLabelId, hasMaxLabel && maxLabelId]
-      .filter(Boolean)
-      .join(" ") || undefined
+  const describedBy = joinAriaDescribedBy(
+    hasBody ? bodyId : undefined,
+    hasMinLabel ? minLabelId : undefined,
+    hasMaxLabel ? maxLabelId : undefined,
+  )
   const { radioGroupProps, labelProps } = useRadioGroup(
     {
       ...(quizItem.title ? { label: quizItem.title } : { "aria-label": t("answer") }),

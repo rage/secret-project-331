@@ -1,12 +1,13 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
 
 import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { type ScrollOverflow, ScrollRegion } from "@/shared-module/components"
 import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 import type { BlockRendererProps } from "../.."
@@ -97,43 +98,16 @@ const TableBlock: React.FC<
 
   const captionRef = useRef<HTMLElement>(null)
 
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScroll, setCanScroll] = useState({ left: false, right: false })
-
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) {
-      return
-    }
-    const left = el.scrollLeft > 1
-    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
-    setCanScroll((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
-  }, [])
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) {
-      return
-    }
-    updateScrollState()
-    const resizeObserver = new ResizeObserver(updateScrollState)
-    resizeObserver.observe(el)
-    return () => resizeObserver.disconnect()
-  }, [updateScrollState])
-
-  // A scrollable region must be keyboard reachable; named by the caption when there is one.
-  const isScrollable = canScroll.left || canScroll.right
+  const [canScroll, setCanScroll] = useState<ScrollOverflow>({ start: false, end: false })
+  // Named by the caption when there is one.
   const captionText = caption ? richTextToPlainText(caption) : ""
 
   return (
     <div className={scrollWrapperStyles}>
-      <div
-        ref={scrollRef}
-        onScroll={updateScrollState}
+      <ScrollRegion
         className={scrollContainerStyles}
-        {...(isScrollable && { tabIndex: 0 })}
-        // oxlint-disable-next-line i18next/no-literal-string
-        {...(isScrollable && captionText && { role: "region", "aria-label": captionText })}
+        label={captionText || undefined}
+        onOverflowChange={setCanScroll}
       >
         <table
           className={css`
@@ -255,11 +229,11 @@ const TableBlock: React.FC<
             wrapperRef={captionRef}
           />
         </table>
-      </div>
-      {canScroll.left && <div aria-hidden className={cx(edgeShadowBaseStyles, leftShadowStyles)} />}
-      {canScroll.right && (
-        <div aria-hidden className={cx(edgeShadowBaseStyles, rightShadowStyles)} />
+      </ScrollRegion>
+      {canScroll.start && (
+        <div aria-hidden className={cx(edgeShadowBaseStyles, leftShadowStyles)} />
       )}
+      {canScroll.end && <div aria-hidden className={cx(edgeShadowBaseStyles, rightShadowStyles)} />}
     </div>
   )
 }

@@ -15,13 +15,11 @@ jest.mock("react-i18next", () => ({
   }),
 }))
 
+// motion/react caches the media query for the module's life, so the hook is mocked per test.
+let mockReduceMotion = false
+jest.mock("motion/react", () => ({ useReducedMotion: () => mockReduceMotion }))
 const setReducedMotion = (reduce: boolean) => {
-  window.matchMedia = ((query: string) => ({
-    matches: reduce && query.includes("prefers-reduced-motion"),
-    media: query,
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-  })) as unknown as typeof window.matchMedia
+  mockReduceMotion = reduce
 }
 
 // Each phase is scheduled by an effect after a render, so time has to pass in small acts.
@@ -36,8 +34,6 @@ const advance = (ms: number) => {
 describe("ImprovementExample (F-42)", () => {
   afterEach(() => {
     jest.useRealTimers()
-    // @ts-expect-error restore jsdom default, which has no matchMedia
-    delete window.matchMedia
   })
 
   it("under reduced motion shows the corrected sentence and schedules no timers", () => {

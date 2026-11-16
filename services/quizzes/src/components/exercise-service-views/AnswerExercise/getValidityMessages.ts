@@ -20,12 +20,15 @@ export type QuizValidityMessageKey =
  */
 export function getQuizValidityMessages(
   state: UserAnswer | null,
-  itemCount: number,
-  t: (key: QuizValidityMessageKey, options?: Record<string, number>) => string,
-  items: PublicSpecQuizItem[] = [],
+  items: PublicSpecQuizItem[],
+  t: {
+    (key: QuizValidityMessageKey): string
+    // oxlint-disable-next-line typescript/unified-signatures -- i18next's t rejects an explicit undefined
+    (key: QuizValidityMessageKey, options: Record<string, number>): string
+  },
 ): string[] {
   const messages: string[] = []
-  if ((state?.itemAnswers.length ?? 0) < itemCount) {
+  if ((state?.itemAnswers.length ?? 0) < items.length) {
     messages.push(t("answer-all-parts-of-the-exercise"))
   }
   for (const item of state?.itemAnswers ?? []) {
@@ -37,11 +40,12 @@ export function getQuizValidityMessages(
     if (item.type === "timeline" && chosenEventIds.length !== new Set(chosenEventIds).size) {
       messages.push(t("timeline-duplicate-answer-error"))
     } else if (item.type === "essay") {
-      const spec = items.find((i) => i.id === item.quizItemId)
+      const found = items.find((i) => i.id === item.quizItemId)
+      const spec = found?.type === "essay" ? found : undefined
       const words = wordCount(item.textData)
-      if (spec?.type === "essay" && spec.minWords && words < spec.minWords) {
+      if (spec?.minWords && words < spec.minWords) {
         messages.push(t("word-count-below-minimum", { count: words, min: spec.minWords }))
-      } else if (spec?.type === "essay" && spec.maxWords && words > spec.maxWords) {
+      } else if (spec?.maxWords && words > spec.maxWords) {
         messages.push(t("word-count-above-maximum", { count: words, max: spec.maxWords }))
       } else {
         messages.push(t("check-your-answer"))

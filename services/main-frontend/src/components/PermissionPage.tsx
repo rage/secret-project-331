@@ -24,8 +24,10 @@ import {
   removeRole as removeRoleFromApi,
 } from "@/generated/api/sdk.generated"
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -44,7 +46,6 @@ const iconButtonCss = css`
   margin-right: 8px;
 `
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -93,8 +94,7 @@ type rolesInTheForm = (typeof _allRoles)[number]
 // Check if two string unions are the same. If this fails, you have changed the UserRole type and need to update the options function above.
 assert<Equals<rolesInTheForm, UserRole>>()
 
-const userLabel = (ur: RoleUser) =>
-  (ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name) || ur.email
+const userLabel = (ur: RoleUser) => formatUserName(ur) || ur.email
 
 interface EditingRole {
   userId: string
@@ -249,7 +249,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   const columns: TableColumn<RoleUser>[] = [
     {
       header: t("text-field-label-name"),
-      cell: (ur) => (ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name),
+      cell: (ur) => formatUserName(ur),
       ...sortColumn(SORT_KEY_NAME),
     },
     { header: t("label-email"), cell: (ur) => ur.email, ...sortColumn(SORT_KEY_EMAIL) },

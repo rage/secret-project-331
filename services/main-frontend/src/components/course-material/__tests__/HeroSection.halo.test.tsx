@@ -4,7 +4,9 @@ import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/react"
 import React from "react"
 
-import { heroTextReadabilityCss, relativeLuminance } from "../heroBackgroundImages"
+import { relativeLuminance } from "@/shared-module/common/utils/color"
+
+import { heroTextReadabilityCss } from "../heroBackgroundImages"
 import HeroSection from "../HeroSection"
 import LandingPageHeroSection from "../LandingPageHeroSection"
 

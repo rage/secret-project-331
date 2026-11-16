@@ -15,7 +15,7 @@ import type {
   PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
+import { useUserName } from "@/hooks/useUserDetails"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
@@ -31,6 +31,7 @@ import {
   RadioGroup,
   TextArea,
 } from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -38,24 +39,6 @@ const ImportantText = styled.div`
   padding: 0.5rem;
   margin: 0;
   font-family: ${primaryFont};
-`
-
-const MetadataList = styled.dl`
-  margin: 0;
-
-  dt {
-    display: inline;
-  }
-
-  dd {
-    display: inline;
-    margin: 0;
-  }
-
-  dd::after {
-    content: "";
-    display: block;
-  }
 `
 
 const ProposalExplanation = styled.p`
@@ -139,8 +122,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
 
   const pageInfo = usePageInfo(proposal.page_id)
-  const senderQuery = useBulkUserDetails(courseId, proposal.user_id ? [proposal.user_id] : null)
-  const senderName = formatUserName(senderQuery.data?.[0])
+  const senderName = useUserName(courseId, proposal.user_id)
   const created = parseISO(proposal.created_at)
   const headingId = `change-request-heading-${proposal.id}`
 
@@ -346,7 +328,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           testPlaceholder="1970-01-01 00:00:00"
         />
       </h3>
-      <MetadataList>
+      <dl className={inlineMetadataListCss}>
         {proposal.page_id && (
           <>
             <dt>{t("label-page")} </dt>
@@ -371,7 +353,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
         <dd>
           <TimeComponent boldLabel={false} date={created} />
         </dd>
-      </MetadataList>
+      </dl>
       <ul
         className={css`
           list-style: none;

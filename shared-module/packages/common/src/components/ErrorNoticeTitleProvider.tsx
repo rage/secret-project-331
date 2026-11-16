@@ -11,10 +11,7 @@ import { usePageTitle } from "../hooks/usePageTitle"
 /** Above any page's own title, so a page-level error names the page while it is shown. */
 const ERROR_TITLE_ORDER = 1000
 
-/**
- * Wires page-level `ErrorNotice`s (`headingLevel={1}`) to the document title. Mount once, inside
- * the jotai `<Provider>` and around the page content.
- */
+/** Puts page-level `ErrorNotice`s in the document title; mount once inside the jotai Provider. */
 const ErrorNoticeTitleProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [title, setTitle] = useState<string | null>(null)
   // oxlint-disable-next-line i18next/no-literal-string -- registry key, not user copy

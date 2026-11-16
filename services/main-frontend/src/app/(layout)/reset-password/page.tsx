@@ -13,6 +13,7 @@ import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, TextField, ErrorNotice } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
@@ -109,7 +110,7 @@ const ResetPassword: React.FC = () => {
           rules={{
             required: t("required-field"),
             pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              value: EMAIL_PATTERN,
               message: t("enter-a-valid-email"),
             },
           }}

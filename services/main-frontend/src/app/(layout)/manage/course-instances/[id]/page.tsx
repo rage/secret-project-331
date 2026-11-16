@@ -21,6 +21,7 @@ import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, QueryResult, ErrorNotice, useToggleFocus } from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
 const editActionsCss = css`
@@ -40,22 +41,6 @@ const detailsCss = css`
     margin: var(--space-2) 0;
     border: none;
     border-top: 1px solid var(--color-clear-300);
-  }
-`
-
-/** Each term and its value stay on one line, like the plain text they replace. */
-const metadataCss = css`
-  margin: 0;
-
-  dt,
-  dd {
-    display: inline;
-    margin: 0;
-  }
-
-  dd::after {
-    content: "";
-    display: block;
   }
 `
 
@@ -215,7 +200,7 @@ const ManageCourseInstances: React.FC = () => {
             <div className={detailsCss}>
               <div>{data.description}</div>
               <hr />
-              <dl className={metadataCss}>
+              <dl className={inlineMetadataListCss}>
                 <dt>{t("teacher-in-charge-name")}:</dt> <dd>{data.teacher_in_charge_name}</dd>
                 <dt>{t("teacher-in-charge-email")}:</dt> <dd>{data.teacher_in_charge_email}</dd>
                 {supportEmail}

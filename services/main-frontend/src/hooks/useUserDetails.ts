@@ -152,4 +152,8 @@ export const useBulkUserDetails = (
   )
 }
 
+/** Display name of one user of the course; "" while loading, when unknown or without `userId`. */
+export const useUserName = (courseId: string, userId: string | null | undefined): string =>
+  formatUserName(useBulkUserDetails(courseId, userId ? [userId] : null).data?.[0])
+
 type UseUserDetailsResult = UserDetailsResult

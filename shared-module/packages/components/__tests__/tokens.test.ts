@@ -1,4 +1,6 @@
+import { contrastRatio } from "../../common/src/utils/color"
 import { atLeast, below, BREAKPOINT_PX } from "../src/styles/breakpoints"
+import "../src/styles/tokens"
 import {
   DURATION_MS,
   EASING,
@@ -6,7 +8,6 @@ import {
   LOOP_DURATION_MS,
   MIN_VISIBLE_MS,
 } from "../src/styles/motion"
-import "../src/styles/tokens"
 
 /** The `:root` declaration block that `tokensGlobal` injects, as a live `CSSStyleDeclaration`. */
 function rootDeclarations(): CSSStyleDeclaration {
@@ -144,20 +145,10 @@ describe("tokens.ts custom properties", () => {
   })
 })
 
-const luminance = (rgb: number[]) => {
-  const [r, g, b] = rgb.map((c) => {
-    const s = c / 255
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
-  })
-  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
-}
-
 describe("focus ring", () => {
   test("color is opaque and has at least 3:1 contrast on white", () => {
     const value = rootDeclarations().getPropertyValue("--focus-ring-color")
-    const match = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(value)
-    expect(match).not.toBeNull()
-    const ratio = 1.05 / (luminance(match!.slice(1).map(Number)) + 0.05)
-    expect(ratio).toBeGreaterThanOrEqual(3)
+    expect(value).toMatch(/^rgb\(\d+, \d+, \d+\)$/)
+    expect(contrastRatio(value, "#ffffff")).toBeGreaterThanOrEqual(3)
   })
 })

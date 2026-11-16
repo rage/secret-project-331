@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useBlockProps } from "@wordpress/block-editor"
-import React, { useContext, useRef } from "react"
+import React, { useContext, useEffect, useRef } from "react"
 
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { Button } from "@/shared-module/components"
@@ -36,8 +36,12 @@ const ExerciseSlideEditor: React.FC<
   const blockProps = useBlockProps()
 
   const containerRef = useRef<HTMLDivElement>(null)
+  const stopWatchingRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => () => stopWatchingRef.current?.(), [])
 
   const handleAddNewTask = () => {
+    stopWatchingRef.current?.()
     const container = containerRef.current
     const countEditButtons = () => container?.querySelectorAll(EDIT_TASK_SELECTOR).length ?? 0
     const before = countEditButtons()
@@ -50,11 +54,17 @@ const ExerciseSlideEditor: React.FC<
       const buttons = container.querySelectorAll<HTMLElement>(EDIT_TASK_SELECTOR)
       if (buttons.length > before) {
         buttons[buttons.length - 1]?.focus()
-        observer.disconnect()
+        stop()
       }
     })
+    const timer = window.setTimeout(() => stop(), OBSERVE_TIMEOUT_MS)
+    const stop = () => {
+      observer.disconnect()
+      window.clearTimeout(timer)
+      stopWatchingRef.current = null
+    }
+    stopWatchingRef.current = stop
     observer.observe(container, { childList: true, subtree: true })
-    window.setTimeout(() => observer.disconnect(), OBSERVE_TIMEOUT_MS)
   }
 
   return (

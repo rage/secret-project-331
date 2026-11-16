@@ -603,7 +603,7 @@ The certificate's holder, course, module, completion date and printed grade as J
 pub async fn get_certificate_details_by_verification_id(
     certificate_verification_id: web::Path<String>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<CertificateDetails>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     // everyone needs to be able to view the certificate in order to verify its validity
     let token = skip_authorize();
@@ -653,14 +653,19 @@ pub async fn get_certificate_details_by_verification_id(
         None
     };
 
-    token.authorized_ok(web::Json(CertificateDetails {
-        name_on_certificate: certificate.name_on_certificate,
-        course_name: certificate.course_name,
-        course_module_name: certificate.course_module_name,
-        completion_date: certificate.created_at,
-        grade,
-        verification_id: certificate.verification_id,
-    }))
+    // Public and rarely edited; a short cache spares repeat visits the lookups.
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .insert_header(("Cache-Control", "max-age=300"))
+            .json(CertificateDetails {
+                name_on_certificate: certificate.name_on_certificate,
+                course_name: certificate.course_name,
+                course_module_name: certificate.course_module_name,
+                completion_date: certificate.created_at,
+                grade,
+                verification_id: certificate.verification_id,
+            }),
+    )
 }
 
 /// Requires Teach on every course whose modules the configuration covers, or global Teach for a

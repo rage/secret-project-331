@@ -75,14 +75,13 @@ import {
 } from "../../utils/Gutenberg/editorHistory"
 import { normalizePasteEvent } from "../../utils/Gutenberg/paste/normalizePasteEvent"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withAccessibilityInspectors from "../../utils/Gutenberg/withAccessibilityInspectors"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
 import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
-import withMediaAutoplayWarning from "../../utils/Gutenberg/withMediaAutoplayWarning"
 import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
-import withTableRowHeaders from "../../utils/Gutenberg/withTableRowHeaders"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
 
 // oxlint-disable-next-line typescript/no-explicit-any
@@ -409,16 +408,9 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   }, [])
 
   useEffect(() => {
-    addFilter("editor.BlockEdit", "moocfi/cms/mediaAutoplayWarning", withMediaAutoplayWarning)
+    addFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors", withAccessibilityInspectors)
     return () => {
-      removeFilter("editor.BlockEdit", "moocfi/cms/mediaAutoplayWarning")
-    }
-  }, [])
-
-  useEffect(() => {
-    addFilter("editor.BlockEdit", "moocfi/cms/tableRowHeaders", withTableRowHeaders)
-    return () => {
-      removeFilter("editor.BlockEdit", "moocfi/cms/tableRowHeaders")
+      removeFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors")
     }
   }, [])
 

@@ -57,6 +57,7 @@ jest.mock("@/hooks/usePageInfo", () => ({ usePageInfo: () => ({ data: undefined 
 jest.mock("@/hooks/useUserDetails", () => ({
   useBulkUserDetails: () => ({ data: undefined }),
   formatUserName: () => "",
+  useUserName: () => "",
 }))
 jest.mock("@/hooks/useFeedbackCategoryToggleInfo", () => ({
   __esModule: true,

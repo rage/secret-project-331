@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
@@ -14,7 +14,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
+import { useUserName } from "@/hooks/useUserDetails"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -22,6 +22,7 @@ import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Disclosure, itemHeadingProps, Link } from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 export interface FeedbackViewProps {
   courseId: string
@@ -42,22 +43,8 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
-const MetadataList = styled.dl`
-  margin: 0 0 1rem 0;
-
-  dt {
-    display: inline;
-  }
-
-  dd {
-    display: inline;
-    margin: 0;
-  }
-
-  dd::after {
-    content: "";
-    display: block;
-  }
+const metadataSpacingCss = css`
+  margin-bottom: 1rem;
 `
 
 const CapitalizedFirstLetter = styled.span`
@@ -77,8 +64,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
-  const senderQuery = useBulkUserDetails(courseId, feedback.user_id ? [feedback.user_id] : null)
-  const senderName = formatUserName(senderQuery.data?.[0])
+  const senderName = useUserName(courseId, feedback.user_id)
   const created = parseISO(feedback.created_at)
 
   const markAsReadMutation = useToastMutationOptions(
@@ -147,7 +133,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         />
       </h3>
 
-      <MetadataList>
+      <dl className={cx(inlineMetadataListCss, metadataSpacingCss)}>
         {feedback.page_id && (
           <>
             <dt>{t("label-page")} </dt>
@@ -166,7 +152,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         <dd>
           <TimeComponent boldLabel={false} date={created} />
         </dd>
-      </MetadataList>
+      </dl>
       {feedback.feedback_category_name && (
         <TextInformationWrapper>
           {t("assigned-feedback-category")}

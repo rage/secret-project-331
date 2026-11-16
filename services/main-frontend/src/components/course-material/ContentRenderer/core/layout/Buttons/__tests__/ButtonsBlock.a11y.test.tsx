@@ -6,6 +6,8 @@ import { join } from "path"
 
 import { fireEvent, render, screen, within } from "@testing-library/react"
 
+import { contrastRatio as contrast } from "@/shared-module/common/utils/color"
+
 import ButtonsBlock from "../ButtonsBlock"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -67,29 +69,6 @@ describe("ButtonsBlock accessibility (issue #69)", () => {
   })
 })
 
-const luminance = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map((i) => {
-    const c = parseInt(hex.slice(i, i + 2), 16) / 255
-    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-  }) as [number, number, number]
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
-}
-
-const classCss = (element: Element) => {
-  const own = Array.from(element.classList).map((c) => `.${c}`)
-  return Array.from(document.styleSheets)
-    .flatMap((sheet) => Array.from(sheet.cssRules))
-    .filter((rule): rule is CSSStyleRule => rule instanceof CSSStyleRule)
-    .filter((rule) => own.some((c) => rule.selectorText.includes(c)))
-    .map((rule) => rule.cssText)
-    .join("\n")
-}
-
-const contrast = (a: string, b: string) => {
-  const [hi, lo] = [luminance(a), luminance(b)].toSorted((x, y) => y - x) as [number, number]
-  return (hi + 0.05) / (lo + 0.05)
-}
-
 describe("ButtonsBlock variant colours (B-032)", () => {
   const tokenSource = readFileSync(
     join(process.cwd(), "src/shared-module/components/styles/tokens.ts"),
@@ -110,15 +89,14 @@ describe("ButtonsBlock variant colours (B-032)", () => {
     ["tertiary", "is-style-material-tertiary-button"],
   ] as const
 
-  it.each(variants)("%s button text keeps the variant foreground, also visited", (variant, cls) => {
+  it.each(variants)("%s button is excluded from the content link colours", (variant, cls) => {
     render(<ButtonsBlock {...makeProps({ text: "Go", url: "/x", className: cls })} />)
-    const css = classCss(screen.getByRole("link", { name: "Go" }))
-
-    // Doubled class selector out-specifies the content wrapper's `a` and `a:visited` rules.
-    expect(css).toMatch(
-      new RegExp(`\\.(css-\\w+)\\.\\1[^{]*\\{[^}]*color: var\\(--btn-${variant}-fg\\)`),
+    expect(screen.getByRole("link", { name: "Go" })).toHaveAttribute("data-button-variant", variant)
+    const wrapperSource = readFileSync(
+      join(process.cwd(), "src/components/course-material/ContentRenderer/index.tsx"),
+      "utf8",
     )
-    expect(css).toMatch(/:visited/)
+    expect(wrapperSource).toContain("a:not([data-button-variant]) {")
   })
 
   it.each(variants)("%s foreground and hover pairs meet 4.5:1", (variant) => {

@@ -25,8 +25,8 @@ export const helpButtonCss = css`
   --btn-icon-fg-hover: var(--color-gray-600);
   --btn-icon-fg-pressed: var(--color-gray-700);
 
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   min-width: 0;
   padding: 0;
   font: 700 0.9375rem/1 ${secondaryFont};

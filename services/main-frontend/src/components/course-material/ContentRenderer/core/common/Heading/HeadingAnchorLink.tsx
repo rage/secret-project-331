@@ -34,7 +34,7 @@ const linkStyles = css`
   top: 0.5lh;
   right: 100%;
   transform: translateY(-50%);
-  padding: 4px;
+  padding: 6px;
   border-radius: 4px;
   color: ${baseTheme.colors.gray[500]};
   opacity: 0;

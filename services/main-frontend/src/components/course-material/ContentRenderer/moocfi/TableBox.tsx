@@ -52,7 +52,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           }
 
           th {
-            background-color: ${baseTheme.colors.green[500]};
+            background-color: ${baseTheme.colors.green[600]};
             align-items: center;
             margin-bottom: 5px;
             font-family: ${headingFont};

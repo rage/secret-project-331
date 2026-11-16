@@ -37,22 +37,22 @@ const TextBox = styled.div<TextBoxProps>`
   text-align: ${({ direction }) => direction};
   align-items: ${({ direction }) => direction};
   justify-content: center;
-  ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.mobile)}
+  ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.mobile, color)}
 
   ${respondToOrLarger.md} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.medium)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.medium, color)}
   }
 
   ${respondToOrLarger.lg} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.large)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.large, color)}
   }
 
   ${respondToOrLarger.xl} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.xlarge)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
   h1 {
@@ -98,6 +98,8 @@ export interface HeroSectionProps {
   partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
   backgroundSizeRem?: number
+  // The exam page has its own h1, so the hero title is exposed as level 2.
+  isExam?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -117,6 +119,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   backgroundRepeatX,
   backgroundSizeRem,
   alignBottom,
+  isExam,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
@@ -201,6 +204,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
           tag="h1"
           tagProps={{
             className: cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName),
+            ...(isExam && { "aria-level": 2 }),
           }}
           options={{ glossary: false }}
           useWrapperElement={true}

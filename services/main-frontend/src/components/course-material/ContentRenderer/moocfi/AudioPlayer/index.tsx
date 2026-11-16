@@ -45,6 +45,16 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
   )
   const { focusProps: closeFocusProps, isFocusVisible: isCloseFocusVisible } = useFocusRing()
 
+  // Return focus to the control that opened the player (the Listen button) on close.
+  useEffect(() => {
+    const opener = document.activeElement
+    return () => {
+      if (opener instanceof HTMLElement && opener !== document.body) {
+        opener.focus()
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (isVisible && dialogRef.current) {
       const firstFocusable = playPauseButtonRef.current || dialogRef.current
@@ -69,12 +79,19 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
         z-index: 99;
       `}
     >
+      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog */}
       <div
         ref={dialogRef}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role dialog; native <dialog> differs and ref is HTMLDivElement
         role="dialog"
         aria-label={t("audio-player-dialog-label")}
         tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") {
+            e.stopPropagation()
+            setIsVisible()
+          }
+        }}
         className={css`
           width: 100vw;
           background: #fff;

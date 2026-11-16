@@ -33,6 +33,14 @@ export const codeBlockStyles = css`
   border-radius: 4px;
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
+  /* atom-one-dark comment (2.3:1) and subst (4.4:1) fall short of 4.5:1 on #282c34. */
+  .hljs-comment,
+  .hljs-quote {
+    color: #9ca3af;
+  }
+  .hljs-subst {
+    color: #ef8890;
+  }
   .code-line {
     display: block;
   }

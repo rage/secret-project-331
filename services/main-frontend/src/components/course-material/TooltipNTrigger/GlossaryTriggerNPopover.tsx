@@ -10,7 +10,6 @@ import {
   Button as ReactAriaButton,
   Tooltip,
   TooltipTrigger,
-  VisuallyHidden,
 } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -133,9 +132,10 @@ export const GlossaryTriggerNPopover = ({
           >
             {children}
           </StyledButton>
-          <VisuallyHidden>
-            <span id={definitionInParenthesesId}>{t("press-to-view-definition")}</span>
-          </VisuallyHidden>
+          {/* Hidden elements still work as a description, and stay out of the text flow. */}
+          <span hidden id={definitionInParenthesesId}>
+            {t("press-to-view-definition")}
+          </span>
         </span>
 
         <Tooltip offset={8} placement="top">

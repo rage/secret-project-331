@@ -47,6 +47,7 @@ const LandingPageHeroSectionBlock: React.FC<
     <BreakFromCentered sidebar={false}>
       <LandingPageHeroSection
         title={props.data.attributes.title}
+        isExam={props.isExam}
         {...omitUndefined({ backgroundImage: props.data.attributes.backgroundImage })}
         {...omitUndefined({ backgroundColor: props.data.attributes.backgroundColor })}
         {...omitUndefined({ fontColor: props.data.attributes.fontColor })}

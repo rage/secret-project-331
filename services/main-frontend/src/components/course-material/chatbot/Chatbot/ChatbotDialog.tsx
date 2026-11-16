@@ -49,12 +49,14 @@ const ChatbotDialog: React.FC = () => {
 
   const { isOpen, setDialogOpen } = useChatbotContext()
 
+  const restoreFocusToButtonRef = useRef(false)
+
   const state = {
     isOpen,
     setOpen: (o: boolean) => {
       setDialogOpen?.(o)
       if (!o) {
-        buttonRef.current?.focus()
+        restoreFocusToButtonRef.current = true
       }
     },
     open: () => {
@@ -66,7 +68,7 @@ const ChatbotDialog: React.FC = () => {
     toggle: () => {
       setDialogOpen?.(!isOpen)
       if (isOpen) {
-        buttonRef.current?.focus()
+        restoreFocusToButtonRef.current = true
       }
     },
     // The dialog is anchored to the button, so OverlayTriggerState's cursor position goes unused.
@@ -99,7 +101,7 @@ const ChatbotDialog: React.FC = () => {
     popoverRef,
   )
 
-  const dialogRef = useRef(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
   // oxlint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
@@ -110,6 +112,16 @@ const ChatbotDialog: React.FC = () => {
       setShouldRender(true)
     }
   }, [state?.isOpen, setShouldRender])
+
+  // Focus the dialog once mounted; on close, wait until the trigger is visible again.
+  useEffect(() => {
+    if (shouldRender) {
+      dialogRef.current?.focus()
+    } else if (restoreFocusToButtonRef.current) {
+      restoreFocusToButtonRef.current = false
+      buttonRef.current?.focus()
+    }
+  }, [shouldRender])
 
   const handleAnimationEnd = () => {
     if (!state?.isOpen) {

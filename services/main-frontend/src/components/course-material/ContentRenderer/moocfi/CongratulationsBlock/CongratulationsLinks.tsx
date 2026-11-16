@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
@@ -33,20 +33,46 @@ const StyledLink = styled.a`
 `
 
 // One interactive element per CTA, not an anchor wrapping a button (WCAG 1.3.1, 2.5.3).
-const Cta: React.FC<{ href: string; label: string; enabled: boolean }> = ({
+// A disabled CTA explains itself with `hint`, linked through aria-describedby.
+const Cta: React.FC<{ href: string; label: string; enabled: boolean; hint?: string }> = ({
   href,
   label,
   enabled,
-}) =>
-  enabled ? (
-    <Link href={href} styledAsButton variant="secondary" size="large">
-      {label}
-    </Link>
-  ) : (
-    <Button variant="secondary" size="large" disabled>
-      {label}
-    </Button>
+  hint,
+}) => {
+  const hintId = useId()
+  if (enabled) {
+    return (
+      <Link href={href} styledAsButton variant="secondary" size="large">
+        {label}
+      </Link>
+    )
+  }
+  return (
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      `}
+    >
+      <Button
+        variant="secondary"
+        size="large"
+        disabled
+        {...(hint && { "aria-describedby": hintId })}
+      >
+        {label}
+      </Button>
+      {hint && (
+        <span id={hintId} className={css(`font-size: 16px; color: #04312e;`)}>
+          {hint}
+        </span>
+      )}
+    </div>
   )
+}
 
 export interface CongratulationsLinksProps {
   certificateConfigurationId: string | null | undefined
@@ -80,6 +106,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
           label={module.register_credits_via_suotar ? t("register-completion") : t("register")}
           enabled={Boolean(module.completed)}
+          hint={t("credit-registration-registers-on-module-completion")}
         />
       )}
       {module.certification_enabled && certificateConfigurationId && (

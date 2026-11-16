@@ -34,7 +34,7 @@ describe("StudentsTable header", () => {
     )
   })
 
-  it("keeps the resize sliders out of the tab order", () => {
+  it("keeps the resize sliders keyboard reachable", () => {
     render(
       <StudentsTable
         columns={columns}
@@ -43,8 +43,10 @@ describe("StudentsTable header", () => {
         onSortingChange={() => {}}
       />,
     )
-    for (const slider of screen.queryAllByRole("slider")) {
-      expect(slider.getAttribute("tabindex")).toBe("-1")
+    const sliders = screen.queryAllByRole("slider")
+    expect(sliders.length).toBeGreaterThan(0)
+    for (const slider of sliders) {
+      expect(slider.getAttribute("tabindex")).toBe("0")
     }
   })
 })

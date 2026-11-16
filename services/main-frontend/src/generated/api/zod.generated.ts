@@ -4443,6 +4443,14 @@ export const zModule = z.object({
 })
 
 /**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export const zMoocFiMaterialLink = z.object({
+  language: z.string(),
+  url: z.string(),
+})
+
+/**
  * Why a completion is or is not registered through courses.
  */
 export const zMoocfiCompletionStatus = z.enum([
@@ -7855,6 +7863,7 @@ export const zTmcMoocFiCourseProgress = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string().nullish(),
 })
 
 /**
@@ -7863,10 +7872,22 @@ export const zTmcMoocFiCourseProgress = z.object({
 export const zMoocFiCourseProgress = z.object({
   completed: z.boolean(),
   course_id: z.uuid(),
+  material_links: z.array(zMoocFiMaterialLink),
   max_points: z.number().nullish(),
   name: z.string(),
   points: z.number().nullish(),
   tmc_mooc_fi_courses: z.array(zTmcMoocFiCourseProgress),
+})
+
+/**
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zOldVersionProgress = z.object({
+  mooc_fi: z.array(zMoocFiCourseProgress),
+  mooc_fi_status: zExternalPlatformStatus,
+  tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
+  tmc_mooc_fi_status: zExternalPlatformStatus,
 })
 
 /**
@@ -13041,6 +13062,11 @@ export const zHideCourseFromMyCoursesPath = z.object({
 export const zUnhideCourseFromMyCoursesPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * The authenticated user's courses on the old version of the platform
+ */
+export const zGetMyOldVersionProgressResponse = zOldVersionProgress
 
 /**
  * The authenticated user's courses grouped by platform

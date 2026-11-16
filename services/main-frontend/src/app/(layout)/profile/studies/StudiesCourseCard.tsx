@@ -46,6 +46,7 @@ import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
+  studiesCardCompletedHeaderCss,
   studiesCardCss,
   studiesCardHeaderCss,
   studiesCardListCss,
@@ -61,12 +62,6 @@ export interface StudiesCourseCardProps {
   /** Newest credit registration per course module id; empty for a student with none. */
   registrationByCourseModuleId: ReadonlyMap<string, MyCreditRegistration>
 }
-
-/** A course with every module behind it says so in the band, not only in a line of small print. */
-const completedHeaderCss = css`
-  border-bottom-color: var(--color-green-200);
-  background: var(--color-green-100);
-`
 
 /** The band's small print, held legible against the completed tint. */
 const completedFactsCss = css`
@@ -263,7 +258,9 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
 
   return (
     <article className={studiesCardCss} data-testid="profile-course-card">
-      <header className={cx(studiesCardHeaderCss, courseIsComplete && completedHeaderCss)}>
+      <header
+        className={cx(studiesCardHeaderCss, courseIsComplete && studiesCardCompletedHeaderCss)}
+      >
         <div className={spacedRowCss}>
           <h3 className={courseTitleCss}>{course.course_name}</h3>
           <Link
@@ -597,7 +594,7 @@ const ModuleDimension: React.FC<{
   )
 
 /** A measured value with no threshold to judge it against: a `Meter`'s label row without the bar. */
-const ModuleFigure: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+export const ModuleFigure: React.FC<{ label: string; value: string }> = ({ label, value }) => (
   <div className={examRowCss}>
     <span>{label}</span>
     <span className={figureValueCss}>{value}</span>

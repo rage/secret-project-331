@@ -5696,6 +5696,10 @@ export type ModuleUpdates = {
 export type MoocFiCourseProgress = {
   completed: boolean
   course_id: string
+  /**
+   * Links to the course's material, one per language version that has one.
+   */
+  material_links: Array<MoocFiMaterialLink>
   max_points?: number | null
   name: string
   points?: number | null
@@ -5703,6 +5707,17 @@ export type MoocFiCourseProgress = {
    * tmc.mooc.fi courses that report their progress to this one.
    */
   tmc_mooc_fi_courses: Array<TmcMoocFiCourseProgress>
+}
+
+/**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export type MoocFiMaterialLink = {
+  /**
+   * As mooc.fi spells it, e.g. `fi_FI`.
+   */
+  language: string
+  url: string
 }
 
 /**
@@ -6353,6 +6368,17 @@ export type OAuthGrant = {
    */
   last_used_at?: string | null
   scopes: Array<string>
+}
+
+/**
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export type OldVersionProgress = {
+  mooc_fi: Array<MoocFiCourseProgress>
+  mooc_fi_status: ExternalPlatformStatus
+  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
+  tmc_mooc_fi_status: ExternalPlatformStatus
 }
 
 export type OrgExam = {
@@ -8173,6 +8199,10 @@ export type TmcMoocFiCourseProgress = {
   awarded_points: number
   name: string
   submissions: number
+  /**
+   * The course's page on tmc.mooc.fi, when it has one.
+   */
+  url?: string | null
 }
 
 /**
@@ -18737,6 +18767,23 @@ export type UnhideCourseFromMyCoursesResponses = {
    */
   200: unknown
 }
+
+export type GetMyOldVersionProgressData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-old-version-progress"
+}
+
+export type GetMyOldVersionProgressResponses = {
+  /**
+   * The authenticated user's courses on the old version of the platform
+   */
+  200: OldVersionProgress
+}
+
+export type GetMyOldVersionProgressResponse =
+  GetMyOldVersionProgressResponses[keyof GetMyOldVersionProgressResponses]
 
 export type GetMyProgressByPlatformData = {
   body?: never

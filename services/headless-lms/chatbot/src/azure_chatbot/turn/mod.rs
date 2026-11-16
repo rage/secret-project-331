@@ -125,7 +125,7 @@ enum TurnStart<'a> {
         chatbot_configuration_id: Uuid,
         tool_call_id: &'a str,
         answer: &'a ClientToolAnswer,
-        /// For a confirmed action tool whose change TMC must mirror.
+        /// Applies a confirmed action tool's [`crate::chatbot_tools::action_tools::TmcEmailSync`].
         tmc_client: &'a TmcClient,
     },
 }
@@ -177,13 +177,12 @@ async fn begin_turn(
             // One transaction for the answer path: a confirmed action tool's mutation, its audit
             // row (both inside `client_tool_output_for_answer`), and the recorded tool output
             // below commit or roll back together, so the transcript can never claim an effect the
-            // database does not have.
+            // database does not have. The TMC write goes last: it cannot be rolled back.
             let mut tx = conn.begin().await?;
 
             let answered = client_tool_output_for_answer(
                 &mut tx,
                 &app_config,
-                tmc_client,
                 conversation_id,
                 &unanswered,
                 tool_call_id,
@@ -202,6 +201,9 @@ async fn begin_turn(
             .await
             .map_err(rejected_tool_answer_error)?;
 
+            if let Some(tmc_email_sync) = answered.tmc_email_sync {
+                tmc_email_sync.apply(tmc_client).await?;
+            }
             tx.commit().await?;
 
             if !outcome.turn_can_resume {

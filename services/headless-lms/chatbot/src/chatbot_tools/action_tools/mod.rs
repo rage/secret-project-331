@@ -39,8 +39,37 @@ pub struct ExecutedAction {
     /// Data for the confirming admin's browser only (e.g. the reset link). Sent as a stream
     /// event, never persisted, never shown to the model.
     pub client_payload: Option<serde_json::Value>,
+    /// An address TMC must hold before the action commits.
+    pub tmc_email_sync: Option<TmcEmailSync>,
     /// What the audit row records about the action's target and effect.
     pub audit: ActionAuditFields,
+}
+
+/// An address a confirmed action gave a user that TMC, where the same account signs in, must hold
+/// too.
+pub struct TmcEmailSync {
+    pub email: String,
+    /// The user's TMC id (`users.upstream_id`).
+    pub upstream_id: i32,
+}
+
+impl TmcEmailSync {
+    /// Writes the address to TMC. Run last before the answer path commits, after the audit row and
+    /// the recorded answer: TMC cannot be rolled back, so a TMC failure must be the one that rolls
+    /// the action back.
+    pub async fn apply(self, tmc_client: &TmcClient) -> ChatbotResult<()> {
+        tmc_client
+            .sync_user_email(self.email, self.upstream_id)
+            .await
+            .map_err(|e| {
+                let reason = if e.is_tmc_refused_address() {
+                    "tmc.mooc.fi refused the address, possibly because another account there uses it"
+                } else {
+                    "tmc.mooc.fi could not be reached"
+                };
+                chatbot_err!(ToolUseError, format!("Nothing was changed: {reason}."), e)
+            })
+    }
 }
 
 /// What the audit row records about a confirmed action, beyond who ran it and what tool it was.
@@ -81,12 +110,10 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     /// mutate on a mismatch, so a wrong or stale display can never mutate a row it doesn't
     /// describe. `authorization` both proves the confirming admin was checked against
     /// this call's own requirements and names them, so the mutation cannot run ahead of the
-    /// check and the audit row cannot credit anyone else. A change TMC must mirror goes through
-    /// `tmc_client` last, so a TMC failure rolls the mutation back.
+    /// check and the audit row cannot credit anyone else.
     fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
-        tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         authorization: &ToolAuthorization<Self>,
     ) -> impl std::future::Future<Output = ChatbotResult<(ExecutedAction, Self::Facts)>> + Send

@@ -1115,17 +1115,36 @@ pub async fn update_user_information_to_tmc(
     let Some(upstream_id) = upstream_id.filter(|_| !app_conf.test_mode) else {
         return Ok(());
     };
+    let sends_email = email.is_some();
     tmc_client
         .update_user_information(first_name, last_name, email, upstream_id.to_string())
         .await
         .map_err(|e| {
             log::warn!("TMC user update failed: {:?}", e);
-            controller_err!(
-                InternalServerError,
-                "Failed to update user info to tmc".to_string(),
-                e
-            )
+            if sends_email {
+                tmc_write_error(e, "Failed to update user info to tmc")
+            } else {
+                controller_err!(
+                    InternalServerError,
+                    "Failed to update user info to tmc".to_string(),
+                    e
+                )
+            }
         })
+}
+
+/// A failed write to TMC as the user sees it: `BadRequest` when TMC refused the address, so the
+/// form can say so, otherwise an internal error carrying `failure`.
+pub(crate) fn tmc_write_error(error: UtilError, failure: &str) -> ControllerError {
+    if error.is_tmc_refused_address() {
+        controller_err!(
+            BadRequest,
+            "This email address cannot be used. It may belong to another account.".to_string(),
+            error
+        )
+    } else {
+        controller_err!(InternalServerError, failure.to_string(), error)
+    }
 }
 
 async fn handle_email_verification(
@@ -1226,23 +1245,13 @@ POST `/api/v0/auth/verify-email` Verifies email verification code and completes 
         (status = 200, description = "Whether verification succeeded", body = bool)
     )
 )]
-#[instrument(skip(
-    req,
-    session,
-    pool,
-    ip_to_country_mapper,
-    payload,
-    tmc_client,
-    app_conf
-))]
+#[instrument(skip(req, session, pool, ip_to_country_mapper, payload))]
 pub async fn verify_email(
     req: HttpRequest,
     session: Session,
     pool: web::Data<PgPool>,
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     payload: web::Json<VerifyEmailRequest>,
-    tmc_client: web::Data<TmcClient>,
-    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
@@ -1340,8 +1349,6 @@ pub async fn verify_email(
         &mut tx,
         user.id,
         UserEmailCodePurpose::StaffLogin,
-        &tmc_client,
-        &app_conf,
     )
     .await?;
     let cookie =
@@ -1545,7 +1552,7 @@ this browser and network for the signed-in user.
         (status = 200, description = "Outcome of submitting the code", body = SessionVerifyResult)
     )
 )]
-#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload, tmc_client))]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
 pub async fn verify_session(
     req: HttpRequest,
     user: AuthUser,
@@ -1553,7 +1560,6 @@ pub async fn verify_session(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<SessionVerifyRequest>,
-    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
@@ -1587,8 +1593,6 @@ pub async fn verify_session(
                 &mut tx,
                 user.id,
                 UserEmailCodePurpose::NetworkVerification,
-                &tmc_client,
-                &app_conf,
             )
             .await?;
             let cookie = session_verification::record_verification(

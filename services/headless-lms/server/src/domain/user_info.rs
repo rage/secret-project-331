@@ -26,9 +26,9 @@ pub struct UpdatedUserInfo {
 /// Saves the profile form and copies a changed name to TMC, where the same account signs in.
 ///
 /// A changed email reaches TMC here only when email ownership verification is off; otherwise
-/// [`crate::controllers::main_frontend::email_verification::verify_email_ownership`] sends it once
-/// the address is proven. Commits only after TMC accepts, so a TMC failure leaves the profile as it
-/// was.
+/// [`crate::domain::email_ownership_verification::copy_email_to_tmc`] sends it once the user proves
+/// the address with a verification code. Commits only after TMC accepts, so a TMC failure leaves
+/// the profile as it was, and an address TMC refuses fails with `BadRequest`.
 pub async fn update_user_info(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -61,13 +61,13 @@ pub async fn update_user_info(
     let name_changed = existing.first_name.as_deref() != Some(payload.first_name.as_str())
         || existing.last_name.as_deref() != Some(payload.last_name.as_str());
 
-    if email_changed || name_changed {
+    let email_reaches_tmc = email_changed && !app_conf.enable_email_ownership_verification;
+    if name_changed || email_reaches_tmc {
         controllers::auth::update_user_information_to_tmc(
             user.upstream_id,
             payload.first_name.clone(),
             payload.last_name.clone(),
-            (email_changed && !app_conf.enable_email_ownership_verification)
-                .then(|| payload.email.clone()),
+            email_reaches_tmc.then(|| payload.email.clone()),
             tmc_client,
             app_conf,
         )

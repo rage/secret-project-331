@@ -4,10 +4,10 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_conversation_message_tool_calls::{
     self, ChatbotConversationMessageToolCall,
 };
-use headless_lms_utils::services::tmc::TmcClient;
 
 use super::abort::refused_call_output;
 use crate::chatbot_error::ChatbotResult;
+use crate::chatbot_tools::action_tools::TmcEmailSync;
 use crate::chatbot_tools::{
     ClientToolAnswer, check_client_tool_call, client_tool_answer_output, execute_action_tool,
     tool_is_answered_by_client, tool_is_confirmable_action,
@@ -24,6 +24,8 @@ pub(crate) struct AnsweredClientToolCall {
     /// Data for the confirming admin's browser only, from a confirmed action tool's execution.
     /// Never persisted; carried out of band as an `ActionExecuted` stream event.
     pub(crate) execution_payload: Option<serde_json::Value>,
+    /// From a confirmed action tool; the caller applies it last before it commits.
+    pub(crate) tmc_email_sync: Option<TmcEmailSync>,
 }
 
 /// Turns a client's answer to a suspended call into the tool output that resumes the turn.
@@ -37,11 +39,9 @@ pub(crate) struct AnsweredClientToolCall {
 /// Fails with [ChatbotErrorType::InvalidToolAnswer] when `conversation_id` has no such call, the
 /// call has already been answered, or the call is not one a client answers, all of which the
 /// client got wrong.
-#[allow(clippy::too_many_arguments)]
 pub(crate) async fn client_tool_output_for_answer(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
-    tmc_client: &TmcClient,
     conversation_id: Uuid,
     unanswered: &[ChatbotConversationMessageToolCall],
     tool_call_id: &str,
@@ -62,15 +62,7 @@ pub(crate) async fn client_tool_output_for_answer(
         ));
     }
 
-    apply_client_tool_answer(
-        conn,
-        app_config,
-        tmc_client,
-        tool_call,
-        answer,
-        user_context,
-    )
-    .await
+    apply_client_tool_answer(conn, app_config, tool_call, answer, user_context).await
 }
 
 /// Why a call the client wants to answer is not among the conversation's unanswered ones: it
@@ -110,7 +102,6 @@ async fn missing_tool_call_error(
 async fn apply_client_tool_answer(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
-    tmc_client: &TmcClient,
     tool_call: &ChatbotConversationMessageToolCall,
     answer: &ClientToolAnswer,
     user_context: &ChatbotTurnContext,
@@ -127,6 +118,7 @@ async fn apply_client_tool_answer(
             output: refused_call_output(refusal, &tool_call.tool_name).to_string(),
             client_answer: None,
             execution_payload: None,
+            tmc_email_sync: None,
         });
     }
 
@@ -136,20 +128,14 @@ async fn apply_client_tool_answer(
         chatbot_conversation_message_tool_calls::lock_unanswered_for_execution(conn, tool_call.id)
             .await?;
 
-        let outcome = execute_action_tool(
-            conn,
-            app_config,
-            tmc_client,
-            tool_call,
-            answer,
-            user_context,
-        )
-        .await?;
+        let outcome =
+            execute_action_tool(conn, app_config, tool_call, answer, user_context).await?;
         let ClientToolAnswer::Data { result } = answer;
         return Ok(AnsweredClientToolCall {
             output: outcome.output,
             client_answer: Some(result.clone()),
             execution_payload: outcome.client_payload,
+            tmc_email_sync: outcome.tmc_email_sync,
         });
     }
 
@@ -160,6 +146,7 @@ async fn apply_client_tool_answer(
         output,
         client_answer: Some(result.clone()),
         execution_payload: None,
+        tmc_email_sync: None,
     })
 }
 
@@ -224,7 +211,6 @@ mod tests {
         let aborted = apply_client_tool_answer(
             tx.as_mut(),
             &app_config,
-            &TmcClient::mock_for_test(),
             &recorded_question(),
             &picked_the_second_choice(),
             &no_categories,
@@ -248,7 +234,6 @@ mod tests {
         let applied = apply_client_tool_answer(
             tx.as_mut(),
             &app_config,
-            &TmcClient::mock_for_test(),
             &recorded_question(),
             &picked_the_second_choice(),
             &learner,

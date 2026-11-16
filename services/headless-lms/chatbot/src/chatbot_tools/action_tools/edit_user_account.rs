@@ -1,5 +1,4 @@
 use headless_lms_authorization::Action;
-use headless_lms_utils::{prelude::UtilErrorType, services::tmc::TmcClient};
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -11,7 +10,8 @@ use crate::{
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{
-            ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, TmcEmailSync,
+            verify_display_field,
         },
         argument_parsing::parse_required_uuid,
         tool_authorization::{ToolAuthorization, ToolRequirement},
@@ -184,7 +184,6 @@ impl ConfirmableActionTool for EditUserAccountTool {
     async fn execute(
         conn: &mut PgConnection,
         app_config: &ApplicationConfiguration,
-        tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
@@ -259,29 +258,20 @@ impl ConfirmableActionTool for EditUserAccountTool {
         let displayed_new_email = new_email_applied.as_deref().unwrap_or(&old_email);
 
         // TMC signs the user in by this address. With ownership verification on, a new address
-        // waits there until it is verified, as it does for the user's own edits.
-        let email_reaches_tmc = matches!(arguments.verification_change, VerificationChange::Verify)
-            || (new_email_applied.is_some() && !app_config.enable_email_ownership_verification);
-        if email_reaches_tmc
-            && let Some(upstream_id) = user.upstream_id.filter(|_| !app_config.test_mode)
-        {
-            tmc_client
-                .sync_user_email(displayed_new_email.to_string(), upstream_id)
-                .await
-                .map_err(|e| {
-                    let reason = match e.error_type() {
-                        UtilErrorType::TmcHttpStatusError(400 | 422) => {
-                            "tmc.mooc.fi refused the address, possibly because another account there uses it"
-                        }
-                        _ => "tmc.mooc.fi could not be reached",
-                    };
-                    chatbot_err!(
-                        ToolUseError,
-                        format!("Nothing was changed: {reason}."),
-                        e
-                    )
-                })?;
-        }
+        // waits there until it is verified, as it does for the user's own edits. An unchanged
+        // address is never sent: the platform's copy may be older than TMC's.
+        let tmc_email_sync = new_email_applied
+            .as_ref()
+            .filter(|_| {
+                matches!(arguments.verification_change, VerificationChange::Verify)
+                    || !app_config.enable_email_ownership_verification
+            })
+            .zip(user.upstream_id.filter(|_| !app_config.test_mode))
+            .map(|(email, upstream_id)| TmcEmailSync {
+                email: email.clone(),
+                upstream_id,
+            });
+
         let mut summary = if let Some(new_email) = &new_email_applied {
             format!("Changed email {old_email} → {new_email}")
         } else {
@@ -304,6 +294,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
             ExecutedAction {
                 output,
                 client_payload: None,
+                tmc_email_sync,
                 audit: ActionAuditFields {
                     target_user_id: Some(user.id),
                     course_id: None,
@@ -332,6 +323,9 @@ impl ConfirmableActionTool for EditUserAccountTool {
         let verify_requested = matches!(arguments.verification_change, VerificationChange::Verify);
         if email_changed && !verify_requested {
             notes.push("Changing the email clears the account's verification automatically, so unless verify was also requested the account is now unverified and will be asked to re-confirm the address.".to_string());
+            if app_config.enable_email_ownership_verification {
+                notes.push("The new address reaches tmc.mooc.fi only once the user verifies it, so until then they keep signing in to tmc.mooc.fi with the old address.".to_string());
+            }
         }
         if verify_requested {
             notes.push("Marking the email verified this way records the admin's own assertion, not proof the user controls the address -- the weakest of the platform's verification methods, and the user page shows only the verified badge and its timestamp, not the method, so this distinction is invisible there and this reply is the only record of it.".to_string());

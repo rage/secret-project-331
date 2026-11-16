@@ -1,4 +1,3 @@
-use headless_lms_utils::services::tmc::TmcClient;
 use std::collections::{HashMap, HashSet};
 
 use indexmap::IndexMap;
@@ -169,7 +168,6 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
     async fn execute(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
-        _tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
@@ -280,6 +278,7 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                     arguments.task_title
                 ),
                 client_payload: Some(updated_plan_payload(conn, plan_id, user_id).await?),
+                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: assignee.flatten(),
                     course_id: None,

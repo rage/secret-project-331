@@ -1,5 +1,4 @@
 use chrono::NaiveDate;
-use headless_lms_utils::services::tmc::TmcClient;
 use indexmap::IndexMap;
 
 use headless_lms_models::course_designer_plan_members;
@@ -151,7 +150,6 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
     async fn execute(
         conn: &mut PgConnection,
         _app_config: &ApplicationConfiguration,
-        _tmc_client: &TmcClient,
         arguments: &Self::Arguments,
         authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
@@ -187,6 +185,7 @@ impl ConfirmableActionTool for ProposeScheduleAdjustmentTool {
             ExecutedAction {
                 output: format!("Saved the new schedule. Reason: {}", arguments.reason),
                 client_payload: Some(serde_json::json!({ "plan_details": updated })),
+                tmc_email_sync: None,
                 audit: ActionAuditFields {
                     target_user_id: None,
                     course_id: None,

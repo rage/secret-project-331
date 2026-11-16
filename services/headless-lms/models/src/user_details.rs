@@ -235,7 +235,7 @@ SELECT user_id,
 FROM user_details
 WHERE user_id = $1
   OR lower(email) = lower($2)
-  OR user_id IN (
+  OR user_id = (
     SELECT id
     FROM users
     WHERE upstream_id = $3
@@ -613,8 +613,6 @@ WHERE user_id = $1
 /// were waiting for it, unless the account already has a proof or its details changed since then.
 /// An admin's assertion is replaced, since it is not proof (see [`has_mailbox_proof`]).
 ///
-/// Returns whether it recorded the proof.
-///
 /// One conditional write, so an address change committing alongside cannot slip between the check
 /// and the write. Compare [`set_email_verified`], which records unconditionally.
 pub async fn set_email_verified_unless_changed_since(
@@ -622,7 +620,7 @@ pub async fn set_email_verified_unless_changed_since(
     user_id: Uuid,
     method: EmailVerificationMethod,
     code_created_at: DateTime<Utc>,
-) -> ModelResult<bool> {
+) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     let result = sqlx::query!(
         r#"
@@ -642,12 +640,11 @@ WHERE user_id = $1
     )
     .execute(&mut *tx)
     .await?;
-    let recorded = result.rows_affected() > 0;
-    if recorded {
+    if result.rows_affected() > 0 {
         crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
     }
     tx.commit().await?;
-    Ok(recorded)
+    Ok(())
 }
 
 /// Drops a proof of control, for an admin revoking a verification. Address changes do not need it;

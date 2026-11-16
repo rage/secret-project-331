@@ -11,9 +11,9 @@ use headless_lms_models::{
     user_email_codes::UserEmailCodePurpose,
     users,
 };
-use headless_lms_utils::{prelude::UtilErrorType, services::tmc::TmcClient};
+use headless_lms_utils::services::tmc::TmcClient;
 
-use crate::prelude::*;
+use crate::{controllers::auth::tmc_write_error, prelude::*};
 
 /// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
@@ -27,44 +27,35 @@ pub const MAX_CODE_ATTEMPTS: i32 = 5;
 const PURPOSE: UserEmailCodePurpose = UserEmailCodePurpose::EmailOwnershipVerification;
 
 /// Records that the user proved control of their address by typing the code for `purpose` just
-/// accepted, whatever the code was for, and copies the proven address to TMC. Keeps an earlier
-/// proof.
+/// accepted, whatever the code was for. Keeps an earlier proof.
 ///
 /// Skipped when the user's details changed after the code was mailed: the address may have changed
-/// since, and a code that went to the old one must not prove the new one. Also skipped, with a
-/// warning, when TMC refuses the address or cannot be reached: these codes sign the user in, which
-/// must not depend on TMC.
+/// since, and a code that went to the old one must not prove the new one.
+///
+/// Unlike [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], sends
+/// nothing to TMC: the platform's copy of the address may be older than TMC's.
 pub async fn record_code_as_mailbox_proof(
     conn: &mut PgConnection,
     user_id: Uuid,
     purpose: UserEmailCodePurpose,
-    tmc_client: &TmcClient,
-    app_conf: &ApplicationConfiguration,
-) -> Result<(), ControllerError> {
+) -> ModelResult<()> {
     let Some(code) = user_email_codes::get_latest_user_email_code(conn, user_id, purpose).await?
     else {
         return Ok(());
     };
-    let mut tx = conn.begin().await?;
-    let recorded = user_details::set_email_verified_unless_changed_since(
-        &mut tx,
+    user_details::set_email_verified_unless_changed_since(
+        conn,
         user_id,
         user_details::EmailVerificationMethod::EmailedCode,
         code.created_at,
     )
     .await?;
-    if recorded && let Err(error) = copy_email_to_tmc(&mut tx, user_id, tmc_client, app_conf).await
-    {
-        warn!("Left the address of user {user_id} unverified: {error:?}");
-        tx.rollback().await?;
-        return Ok(());
-    }
-    tx.commit().await?;
     Ok(())
 }
 
 /// Copies the account's current address to TMC, where the same account signs in. Called once the
-/// address is proven, last before the proof commits: TMC cannot be rolled back.
+/// user proves an address they entered on the platform, last before the proof commits: TMC cannot
+/// be rolled back.
 ///
 /// Fails with `BadRequest` when TMC refuses the address, e.g. because another account uses it.
 pub async fn copy_email_to_tmc(
@@ -86,18 +77,7 @@ pub async fn copy_email_to_tmc(
     tmc_client
         .sync_user_email(email, upstream_id)
         .await
-        .map_err(|error| match error.error_type() {
-            UtilErrorType::TmcHttpStatusError(400 | 422) => controller_err!(
-                BadRequest,
-                "This email address cannot be used. It may belong to another account.".to_string(),
-                error
-            ),
-            _ => controller_err!(
-                InternalServerError,
-                "Failed to update the email on TMC".to_string(),
-                error
-            ),
-        })
+        .map_err(|error| tmc_write_error(error, "Failed to update the email on TMC"))
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]

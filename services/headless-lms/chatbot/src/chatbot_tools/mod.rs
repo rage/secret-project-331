@@ -358,6 +358,8 @@ pub struct ActionToolOutcome {
     ///
     /// [ActionExecuted]: crate::azure_chatbot::events::ChatbotChatStreamEvent::ActionExecuted
     pub client_payload: Option<serde_json::Value>,
+    /// Applied by the caller last before it commits. `None` for a decline.
+    pub tmc_email_sync: Option<action_tools::TmcEmailSync>,
 }
 
 /// One page reference a tool call's output cites, ready to become a
@@ -620,7 +622,6 @@ macro_rules! chatbot_tool_registry {
         pub async fn execute_action_tool(
             conn: &mut PgConnection,
             app_config: &ApplicationConfiguration,
-            tmc_client: &headless_lms_utils::services::tmc::TmcClient,
             tool_call: &headless_lms_models::chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
             answer: &ClientToolAnswer,
             user_context: &ChatbotTurnContext,
@@ -652,6 +653,7 @@ macro_rules! chatbot_tool_registry {
                                 instructions.as_deref(),
                             ),
                             client_payload: None,
+                            tmc_email_sync: None,
                         });
                     }
 
@@ -672,7 +674,6 @@ macro_rules! chatbot_tool_registry {
                     let (executed, facts) = <$action_tool as ConfirmableActionTool>::execute(
                         &mut *conn,
                         app_config,
-                        tmc_client,
                         &parsed_arguments,
                         &authorization,
                     )
@@ -701,6 +702,7 @@ macro_rules! chatbot_tool_registry {
                     return Ok(ActionToolOutcome {
                         output: delimited_tool_output(&executed.output, instructions.as_deref()),
                         client_payload: executed.client_payload,
+                        tmc_email_sync: executed.tmc_email_sync,
                     });
                 }
             )*

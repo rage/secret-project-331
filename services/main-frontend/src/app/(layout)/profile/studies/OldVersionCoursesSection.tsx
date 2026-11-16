@@ -5,14 +5,14 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingCss, noteCss, sectionCss } from "@/components/credit-registration/styles"
+import { headingCss, sectionCss } from "@/components/credit-registration/styles"
 import { getMyOldVersionProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MoocFiCourseProgress,
   MoocFiMaterialLink,
   TmcMoocFiCourseProgress,
 } from "@/generated/api/types.generated"
-import { Badge, Link, TONE } from "@/shared-module/components"
+import { Badge, ErrorNotice, Infobox, Link, TONE } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
@@ -92,7 +92,7 @@ const OldVersionCoursesSection: React.FC = () => {
       {hasCourses ? (
         <>
           {hasFailedUpstream ? (
-            <p className={noteCss}>{t("courses-on-old-version-partly-unavailable")}</p>
+            <Infobox tone={TONE.WARNING}>{t("courses-on-old-version-partly-unavailable")}</Infobox>
           ) : null}
           <div className={courseListCss}>
             {progress.mooc_fi.map((course) => (
@@ -105,7 +105,13 @@ const OldVersionCoursesSection: React.FC = () => {
           </div>
         </>
       ) : (
-        <p className={noteCss}>{t("courses-on-old-version-unavailable")}</p>
+        <ErrorNotice
+          error={t("courses-on-old-version-unavailable")}
+          // Part of the section as it first renders, not news to interrupt with.
+          // oxlint-disable-next-line i18next/no-literal-string
+          announce="off"
+          headingLevel={3}
+        />
       )}
     </section>
   )

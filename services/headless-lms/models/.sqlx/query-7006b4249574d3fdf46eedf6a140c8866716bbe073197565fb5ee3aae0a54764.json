@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE user_id = $1\n  OR lower(email) = lower($2)\n  OR user_id IN (\n    SELECT id\n    FROM users\n    WHERE upstream_id = $3\n      AND deleted_at IS NULL\n  )\n",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  country,\n  email_communication_consent,\n  email_verified_at,\n  email_verified_method\nFROM user_details\nWHERE user_id = $1\n  OR lower(email) = lower($2)\n  OR user_id = (\n    SELECT id\n    FROM users\n    WHERE upstream_id = $3\n      AND deleted_at IS NULL\n  )\n",
   "describe": {
     "columns": [
       {
@@ -146,5 +146,5 @@
       true
     ]
   },
-  "hash": "9f06f3a45c8beb9b36e0507d8d88893a6972c4c17f2232e34c2058a400c0c6d0"
+  "hash": "7006b4249574d3fdf46eedf6a140c8866716bbe073197565fb5ee3aae0a54764"
 }

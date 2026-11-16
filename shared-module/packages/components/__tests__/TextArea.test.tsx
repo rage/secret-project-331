@@ -30,14 +30,15 @@ describe("TextArea - accessibility wiring", () => {
     expect(screen.getByRole("textbox")).toHaveAccessibleDescription("Tell us about yourself.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderStringField((control) => (
       <TextArea name="f" control={control} label="Bio" errorMessage="Too short." />
     ))
     const textarea = screen.getByRole("textbox")
     expect(textarea).toHaveAttribute("aria-invalid", "true")
     expect(textarea).toHaveAccessibleDescription("Too short.")
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short.")
+    expect(screen.getByText("Too short.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("errorMessage takes precedence over description", () => {
@@ -50,7 +51,8 @@ describe("TextArea - accessibility wiring", () => {
         errorMessage="Too short."
       />
     ))
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short.")
+    expect(screen.getByText("Too short.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
     expect(screen.queryByText("Help.")).not.toBeInTheDocument()
   })
 

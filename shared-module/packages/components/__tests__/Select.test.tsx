@@ -190,7 +190,11 @@ describe("Select", () => {
     ))
 
     expect(screen.getByRole("button", { name: /Disabled/ })).toBeDisabled()
-    expect(screen.getByRole("alert")).toHaveTextContent("Required")
+    const invalid = screen.getByRole("button", { name: /Invalid/ })
+    expect(invalid).toHaveAttribute("aria-invalid", "true")
+    expect(invalid).toHaveAccessibleDescription("Required")
+    expect(screen.getByText("Required")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("rejects duplicate option values", () => {

@@ -3,6 +3,7 @@
 import React from "react"
 import { mergeProps, useTextField } from "react-aria"
 
+import { FieldError } from "../primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -64,9 +65,9 @@ export const PromptTextField: React.FC<PromptTextFieldProps> = ({
         />
       </div>
       {isInvalid && (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(FIELD_SIZE, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(FIELD_SIZE, true)}>
           {errorMessage}
-        </p>
+        </FieldError>
       )}
     </div>
   )

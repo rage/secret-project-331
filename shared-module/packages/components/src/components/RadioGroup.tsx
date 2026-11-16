@@ -9,6 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   descriptionCss,
   errorCss,
@@ -338,9 +339,9 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         >
           {!isSegmented ? descriptionBlock : null}
           {resolvedRenderedError ? (
-            <div {...errorMessageProps} className={errorCss} role="alert">
+            <FieldError {...errorMessageProps} className={errorCss}>
               {resolvedRenderedError}
-            </div>
+            </FieldError>
           ) : null}
         </div>
       ) : null}

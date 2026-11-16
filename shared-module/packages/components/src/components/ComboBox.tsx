@@ -13,6 +13,7 @@ import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/co
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -334,9 +335,9 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

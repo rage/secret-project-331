@@ -15,6 +15,7 @@ import {
   resolveRenderedErrorMessage,
 } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -226,9 +227,9 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

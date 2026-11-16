@@ -466,7 +466,9 @@ describe("prompt", () => {
     fireEvent.change(input, { target: { value: "ab" } })
     domClick(partOfCurrentDialog(PROMPT_DIALOG_OK_BUTTON_TEST_ID))
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short")
+    expect(screen.getByText("Too short")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
+    expect(input).toHaveAccessibleDescription("Too short")
     expect(input).toBeInvalid()
     expect(results).toEqual([])
 

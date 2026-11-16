@@ -10,6 +10,7 @@ import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -238,9 +239,9 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

@@ -16,6 +16,7 @@ import { normalizeComboBoxItems } from "../lib/utils/combobox"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
 import { omitUndefined } from "../lib/utils/nullability"
 import { Chip } from "./Chip"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -338,6 +339,8 @@ export function MultiSelect<
             aria-describedby={describedBy}
             aria-expanded={overlayState.isOpen}
             aria-haspopup="listbox"
+            // oxlint-disable-next-line jsx-a11y/role-supports-aria-props -- marks the trigger invalid for AT
+            aria-invalid={isInvalid ? true : undefined}
             aria-labelledby={`${labelId} ${summaryId}`}
             className={triggerCss}
             disabled={isDisabled}
@@ -405,9 +408,9 @@ export function MultiSelect<
       </div>
 
       {resolvedError ? (
-        <p className={resolveMessageCss(fieldSize, true)} id={errorMessageId} role="alert">
+        <FieldError className={resolveMessageCss(fieldSize, true)} id={errorMessageId}>
           {resolvedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p className={resolveMessageCss(fieldSize, false)} id={descriptionId}>
           {description}

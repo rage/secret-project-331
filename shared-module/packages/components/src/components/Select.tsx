@@ -30,6 +30,7 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -292,6 +293,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     onKeyDown,
     onKeyUp,
+    "aria-invalid": hookIsInvalid ? true : undefined,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -397,9 +399,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

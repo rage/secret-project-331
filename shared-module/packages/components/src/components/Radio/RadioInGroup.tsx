@@ -20,6 +20,7 @@ import {
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
 import { CheckIcon } from "../primitives/CheckIcon"
+import { FieldError } from "../primitives/FieldError"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 import { radioListRevealCss } from "../RadioGroup"
 import { Reveal } from "../Reveal"
@@ -98,9 +99,9 @@ const RadioNotes: React.FC<{
       </span>
     ) : null}
     {errorMessage ? (
-      <span className={errorCss} id={errorMessageId} role="alert">
+      <FieldError inline className={errorCss} id={errorMessageId}>
         {errorMessage}
-      </span>
+      </FieldError>
     ) : null}
   </>
 )

@@ -1,5 +1,5 @@
-// VERSION=0.42.0
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.42.0/crates/tmc-langs-cli/bindings.d.ts
+// VERSION=0.42.1
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.42.1/crates/tmc-langs-cli/bindings.d.ts
 
 export type Locale = string
 
@@ -371,7 +371,16 @@ export type MoocExerciseUpdates = {
    * Exercises of a chapter that has not opened yet are absent from the course but not removed.
    */
   removed: Array<string>
+  /**
+   * Courses on disk that courses.mooc.fi refused to serve. `updated` and `removed` say nothing
+   * about their exercises.
+   */
+  unchecked_courses: Array<UncheckedMoocCourse>
 }
+
+export type UncheckedMoocCourse = { course_id: string; kind: CourseRefusalKind }
+
+export type CourseRefusalKind = "insufficient-scope" | "not-found"
 
 export type DownloadOrUpdateTmcCourseExercisesResult = {
   downloaded: Array<TmcExerciseDownload>

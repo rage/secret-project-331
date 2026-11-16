@@ -35,7 +35,11 @@ import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
-import { focusPeerReviewHeading, requestPeerReviewHeadingFocus } from "./peerReviewFocus"
+import {
+  focusPeerReviewHeading,
+  requestPeerReviewHeadingFocus,
+  usePendingPeerReviewHeadingFocus,
+} from "./peerReviewFocus"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
@@ -52,6 +56,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     new Map(),
   )
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [focusRequest, setFocusRequest] = useState(0)
+  usePendingPeerReviewHeadingFocus(exerciseId, focusRequest)
 
   const query = useQuery({
     ...fetchPeerOrSelfReviewDataByExerciseIdOptions({
@@ -160,8 +166,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         }
 
         setAnswers(new Map())
-        // After the refetched view has rendered; the heading may live in a different view by then.
-        setTimeout(() => focusPeerReviewHeading(exerciseId), 100)
+        // Focuses once the refetched view renders; a swapped-in view focuses on mount instead.
+        setFocusRequest((n) => n + 1)
       },
     },
   )
@@ -197,7 +203,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         setIsReportDialogOpen(false)
         setAnswers(new Map())
         await query.refetch()
-        setTimeout(() => focusPeerReviewHeading(exerciseId), 100)
+        setFocusRequest((n) => n + 1)
       },
     },
   )

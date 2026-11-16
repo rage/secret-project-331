@@ -6,7 +6,6 @@ import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import { LINK_QUIET } from "@/components/credit-registration/constants"
 import {
   getCourseFlaggedSuspectedCheatersCountQueryKey,
@@ -20,7 +19,14 @@ import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { Button, Link, QueryResult, Table, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  Link,
+  QueryResult,
+  Table,
+  useDialog,
+  useFocusAfterRemoval,
+} from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string
@@ -66,7 +72,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(suspectedCheaters.data)
   const handleActionSuccess = () => {
     // The acted-on row is gone after the refetch; focus moves to the list heading.
-    remember("")
+    remember()
     suspectedCheaters.refetch()
     queryClient.invalidateQueries({
       queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({

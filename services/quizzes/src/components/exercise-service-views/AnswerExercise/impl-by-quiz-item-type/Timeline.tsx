@@ -141,14 +141,15 @@ const Timeline: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
 > = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
-  // Id of the element to focus after the swap between select and Remove button.
+  // Id of the control to focus once the answer change has swapped the select and Remove button.
   const pendingFocusId = useRef<string | null>(null)
   useEffect(() => {
     if (pendingFocusId.current) {
-      document.querySelector<HTMLElement>(`[id="${pendingFocusId.current}"]`)?.focus()
+      // oxlint-disable-next-line unicorn/prefer-query-selector -- id embeds a raw UUID
+      document.getElementById(pendingFocusId.current)?.focus()
       pendingFocusId.current = null
     }
-  })
+  }, [quizItemAnswerState])
   const chosenEventIds = (quizItemAnswerState?.timelineChoices ?? []).map((tc) => tc.chosenEventId)
   const hasDuplicateAnswers = chosenEventIds.length !== new Set(chosenEventIds).size
   return (

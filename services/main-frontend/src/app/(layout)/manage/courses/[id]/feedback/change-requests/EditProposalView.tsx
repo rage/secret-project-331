@@ -23,7 +23,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { manageUserRoute, pageRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
+import {
+  Button,
+  itemHeadingProps,
+  Link,
+  Radio,
+  RadioGroup,
+  TextArea,
+} from "@/shared-module/components"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -327,8 +334,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
       )}
       <h3
         id={headingId}
-        data-item-heading=""
-        tabIndex={-1}
+        {...itemHeadingProps}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;

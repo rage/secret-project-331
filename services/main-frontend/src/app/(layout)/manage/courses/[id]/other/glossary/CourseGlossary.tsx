@@ -6,11 +6,10 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
-import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useFocusAfterRemoval } from "@/shared-module/components"
 
 import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"

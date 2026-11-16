@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -17,10 +17,10 @@ import {
 import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, TextField, useFocusAfterRemoval } from "@/shared-module/components"
 
 import { formatPlanDateRange } from "../../../coursePlanDates"
-import WorkspaceTaskRow, { type TaskChanges } from "./WorkspaceTaskRow"
+import WorkspaceTaskRow, { taskHeadingId, type TaskChanges } from "./WorkspaceTaskRow"
 
 const cardStyles = css`
   background: white;
@@ -180,6 +180,7 @@ export default function WorkspaceStageSection({
   const {
     control: newTaskControl,
     setValue: setNewTaskValue,
+    setFocus: setNewTaskFocus,
     watch: watchNewTask,
   } = useForm<{
     newTaskTitle: string
@@ -236,25 +237,13 @@ export default function WorkspaceStageSection({
     }
   }
 
-  const taskListRef = useRef<HTMLUListElement | null>(null)
-  const pendingFocusIndexRef = useRef<number | null>(null)
   const [statusMessage, setStatusMessage] = useState("")
 
   // After a delete, focus the task now at the deleted one's position, else the new-task field.
-  useEffect(() => {
-    const index = pendingFocusIndexRef.current
-    if (index === null) {
-      return
-    }
-    pendingFocusIndexRef.current = null
-    const nextRow = taskListRef.current?.children[index]
-    const target = nextRow?.querySelector<HTMLElement>("input, button")
-    if (target) {
-      target.focus()
-    } else {
-      document.querySelector<HTMLElement>(`#stage-task-input-${CSS.escape(stage.id)}`)?.focus()
-    }
-  }, [stage.tasks, stage.id])
+  const { containerRef: taskListRef, remember } = useFocusAfterRemoval<HTMLUListElement>(
+    stage.tasks,
+    () => setNewTaskFocus(NEW_TASK_FIELD_NAME),
+  )
 
   const deleteMutation = useToastMutationOptions(
     deleteCourseDesignerStageTaskMutation(),
@@ -262,10 +251,7 @@ export default function WorkspaceStageSection({
     {
       onSuccess: (_data, variables) => {
         const deleted = stage.tasks.find((task) => task.id === variables.path.task_id)
-        pendingFocusIndexRef.current = Math.max(
-          0,
-          stage.tasks.findIndex((task) => task.id === variables.path.task_id),
-        )
+        remember(taskHeadingId(variables.path.task_id))
         setStatusMessage(
           t("course-plans-task-deleted", {
             task: deleted?.title ?? "",

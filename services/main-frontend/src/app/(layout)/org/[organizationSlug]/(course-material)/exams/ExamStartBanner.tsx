@@ -9,8 +9,6 @@ import type { ExamEnrollmentData } from "@/generated/course-material-api/types.g
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, useDialog } from "@/shared-module/components"
 
-import { setExamJustStarted } from "./examStartedFlag"
-
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
   examHasStarted: boolean
@@ -34,13 +32,11 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
   const handleStart = async () => {
     if (await confirm(t("exam-start-confirmation", { count: timeMinutes }))) {
       setDisabled(true)
-      setExamJustStarted(true)
       try {
         await onStart()
         // oxlint-disable-next-line i18next/no-literal-string
         window.scrollTo({ top: 0, behavior: "smooth" })
       } catch {
-        setExamJustStarted(false)
         setDisabled(false)
       }
     }

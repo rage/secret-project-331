@@ -17,9 +17,11 @@ interface Props {
   selectedRevisionId: string | null
   onCompare: (ph: PageHistory) => void
   onRestore: (ph: PageHistory) => void
-  /** When set, the selected revision's Restore button takes focus as it mounts, once. */
-  focusRestoreOnMount?: React.RefObject<boolean>
+  /** This revision's Restore button takes focus once it is rendered. */
+  focusRevisionId?: string | null
 }
+
+const focusElement = (element: HTMLElement | null) => element?.focus()
 
 const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   pageId,
@@ -28,7 +30,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
   selectedRevisionId,
   onCompare,
   onRestore,
-  focusRestoreOnMount,
+  focusRevisionId = null,
 }) => {
   const { t, i18n } = useTranslation()
   const getPageHistory = useQuery({
@@ -95,12 +97,8 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
                     {t("button-compare")}
                   </Button>{" "}
                   <Button
-                    ref={(el) => {
-                      if (el && focusRestoreOnMount?.current && selectedRevisionId === h.id) {
-                        focusRestoreOnMount.current = false
-                        el.focus()
-                      }
-                    }}
+                    // A stable callback runs once, when the row mounts or becomes the target.
+                    ref={focusRevisionId === h.id ? focusElement : undefined}
                     variant={"primary"}
                     size={"medium"}
                     aria-label={t("restore-revision-named", { time: formatTime(h.created_at) })}

@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import {
   getCourseFeedbackCategoriesOptions,
   getCourseFeedbackCountOptions,
@@ -18,7 +17,13 @@ import type {
 import useFeedbackCategoryToggleInfo from "@/hooks/useFeedbackCategoryToggleInfo"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Pagination, QueryResult, ToggleGroup, type ToggleInfo } from "@/shared-module/components"
+import {
+  Pagination,
+  QueryResult,
+  ToggleGroup,
+  type ToggleInfo,
+  useFocusAfterRemoval,
+} from "@/shared-module/components"
 
 import FeedbackView from "./FeedbackView"
 

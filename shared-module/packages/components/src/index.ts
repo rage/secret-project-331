@@ -34,6 +34,7 @@ export {
   focusProgrammatically,
 } from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
+export { itemHeadingProps, useFocusAfterRemoval } from "./lib/hooks/useFocusAfterRemoval"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"
 export { Slider } from "./components/Slider"

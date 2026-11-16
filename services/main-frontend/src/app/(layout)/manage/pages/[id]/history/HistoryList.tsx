@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery } from "@tanstack/react-query"
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -31,8 +31,8 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
   const [statusMessage, setStatusMessage] = useState("")
-  // Restoring from a later page swaps in a new row, so focus has to be handed to its Restore button.
-  const focusRestoreOnMount = useRef(false)
+  // Restoring swaps in a new row, so focus is handed to its Restore button.
+  const [focusRevisionId, setFocusRevisionId] = useState<string | null>(null)
 
   const [selectedRevisionId, setSelectedRevisionId] = useState<string | null>(
     initialSelectedRevisionId,
@@ -64,12 +64,13 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
     await onRestore(history)
     await getPageHistoryCount.refetch()
     changePage(1)
-    focusRestoreOnMount.current = paginationInfo.page !== 1
+    setFocusRevisionId(newHistoryId)
     setSelectedRevisionId(newHistoryId)
     setStatusMessage(t("page-restored"))
   }
 
   function changePage(newPage: number) {
+    setFocusRevisionId(null)
     paginationInfo.setPage(newPage)
   }
 
@@ -87,12 +88,12 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
             selectedRevisionId={selectedRevisionId}
             onCompare={compare}
             onRestore={restore}
-            focusRestoreOnMount={focusRestoreOnMount}
+            focusRevisionId={focusRevisionId}
           />
           <Pagination
             totalPages={pageHistoryCount}
             page={paginationInfo.page}
-            onPageChange={paginationInfo.setPage}
+            onPageChange={changePage}
             itemsPerPage={1}
           />
         </>

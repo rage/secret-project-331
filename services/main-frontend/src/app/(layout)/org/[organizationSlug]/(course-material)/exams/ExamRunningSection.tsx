@@ -2,17 +2,17 @@
 
 import { css } from "@emotion/css"
 import { addMilliseconds, addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
 import Page from "@/components/course-material/Page"
 import type { ExamData } from "@/generated/course-material-api/types.generated"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { focusProgrammatically } from "@/shared-module/components"
 
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
 import ExamInfoHeader, { EXAM_HEADING_ID } from "./ExamInfoHeader"
-import { consumeExamJustStarted } from "./examStartedFlag"
 import ExamStatusAnnouncer from "./ExamStatusAnnouncer"
 import ExamTimer from "./ExamTimer"
 import useClockSkew from "./useClockSkew"
@@ -25,6 +25,8 @@ export interface ExamRunningSectionProps {
   renderFooterActions?: () => React.ReactNode
   renderAfterPage?: () => React.ReactNode
   showEndedInfo?: boolean
+  /** True for the first render after the student started the exam. */
+  justStarted?: boolean
 }
 
 /** Enrolled-and-started view: clock skew, timer, time-over modal, running-out banner, Page, and optional footer/after slots. */
@@ -36,22 +38,17 @@ export default function ExamRunningSection({
   renderFooterActions,
   renderAfterPage,
   showEndedInfo = false,
+  justStarted = false,
 }: ExamRunningSectionProps) {
   const { t } = useTranslation()
   const skew = useClockSkew()
-  const [justStarted, setJustStarted] = useState(false)
-  const checkedStart = useRef(false)
 
   useEffect(() => {
-    if (checkedStart.current) {
-      return
+    const heading = justStarted && document.querySelector<HTMLElement>(`#${EXAM_HEADING_ID}`)
+    if (heading) {
+      focusProgrammatically(heading)
     }
-    checkedStart.current = true
-    if (consumeExamJustStarted()) {
-      setJustStarted(true)
-      document.querySelector<HTMLElement>(`#${EXAM_HEADING_ID}`)?.focus()
-    }
-  }, [])
+  }, [justStarted])
 
   if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
     return null

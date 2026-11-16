@@ -11,7 +11,13 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField, useDialog } from "@/shared-module/components"
+import {
+  Button,
+  itemHeadingProps,
+  TextArea,
+  TextField,
+  useDialog,
+} from "@/shared-module/components"
 
 const entryCss = css`
   display: grid;
@@ -187,7 +193,7 @@ const TermItem: React.FC<TermItemProps> = ({
         </form>
       ) : (
         <div className={entryCss}>
-          <h2 id={headingId} data-item-heading="" tabIndex={-1} className={termCss}>
+          <h2 id={headingId} {...itemHeadingProps} className={termCss}>
             {term.term}
           </h2>
           <p>{term.definition}</p>

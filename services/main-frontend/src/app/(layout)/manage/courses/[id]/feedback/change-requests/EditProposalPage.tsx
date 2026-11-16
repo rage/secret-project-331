@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import { useFocusAfterRemoval } from "@/app/(layout)/manage/useFocusAfterRemoval"
 import {
   getCourseFeedbackCountQueryKey,
   getEditProposalsOptions,
@@ -14,7 +13,7 @@ import {
 import type { BlockProposalInfo } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useFocusAfterRemoval } from "@/shared-module/components"
 
 import EditProposalView from "./EditProposalView"
 
@@ -47,9 +46,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
-  const { containerRef, listHeadingRef, remember, forget } = useFocusAfterRemoval(
-    getEditProposalList.data,
-  )
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getEditProposalList.data)
   const processProposalMutation = useToastMutationOptions(
     processProposalMutationOptions(),
     {
@@ -70,19 +67,14 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     pageProposalId: string,
     blockProposals: BlockProposalInfo[],
   ) {
+    await processProposalMutation.mutateAsync({
+      body: {
+        page_id: pageId,
+        page_proposal_id: pageProposalId,
+        block_proposals: blockProposals,
+      },
+    })
     remember(`change-request-heading-${pageProposalId}`)
-    try {
-      await processProposalMutation.mutateAsync({
-        body: {
-          page_id: pageId,
-          page_proposal_id: pageProposalId,
-          block_proposals: blockProposals,
-        },
-      })
-    } catch (error) {
-      forget()
-      throw error
-    }
     await getEditProposalList.refetch()
     await onChange()
   }

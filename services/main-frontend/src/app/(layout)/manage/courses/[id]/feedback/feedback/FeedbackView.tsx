@@ -21,7 +21,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Button, Disclosure, Link } from "@/shared-module/components"
+import { Button, Disclosure, itemHeadingProps, Link } from "@/shared-module/components"
 
 export interface FeedbackViewProps {
   courseId: string
@@ -134,8 +134,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       )}
       <h3
         id={`feedback-heading-${feedback.id}`}
-        data-item-heading=""
-        tabIndex={-1}
+        {...itemHeadingProps}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;

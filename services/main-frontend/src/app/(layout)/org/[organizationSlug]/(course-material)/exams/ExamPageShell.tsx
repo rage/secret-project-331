@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { isPast } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai"
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
@@ -104,6 +104,15 @@ export default function ExamPageShell({
     }
   }, [courseMaterialState.examData, i18n])
 
+  const [justStarted, setJustStarted] = useState(false)
+  const isRunning = courseMaterialState.examData?.enrollment_data.tag === "EnrolledAndStarted"
+  // Stays set for one render of the running view, which then focuses and announces the start.
+  useEffect(() => {
+    if (justStarted && isRunning) {
+      setJustStarted(false)
+    }
+  }, [justStarted, isRunning])
+
   const examEnrollmentDataForBanner = useMemo((): ExamEnrollmentData | null => {
     const data = courseMaterialState.examData
     if (!data) {
@@ -145,7 +154,13 @@ export default function ExamPageShell({
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
-              await enrollMutation.mutateAsync()
+              setJustStarted(true)
+              try {
+                await enrollMutation.mutateAsync()
+              } catch (error) {
+                setJustStarted(false)
+                throw error
+              }
             }}
             examEnrollmentData={bannerEnrollmentData}
             examHasStarted={examHasStarted}
@@ -246,6 +261,7 @@ export default function ExamPageShell({
       }
       renderAfterPage={() => renderAfterPage?.({ examId, examData })}
       showEndedInfo={showEndedInfo}
+      justStarted={justStarted}
     />
   )
 }

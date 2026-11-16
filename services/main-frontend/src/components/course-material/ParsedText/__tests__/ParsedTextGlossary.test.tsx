@@ -31,4 +31,15 @@ describe("ParsedText glossary (F-06)", () => {
     expect(await screen.findByRole("button", { name: "mean" })).toBeInTheDocument()
     expect(container).toHaveTextContent("the arithmetic mean")
   })
+
+  it("does not watch for lazy content when there are no terms", () => {
+    const observe = jest.spyOn(MutationObserver.prototype, "observe")
+    render(
+      <GlossaryContext.Provider value={{ terms: [] }}>
+        <ParsedText text="plain text" tag="span" useWrapperElement={true} />
+      </GlossaryContext.Provider>,
+    )
+    expect(observe).not.toHaveBeenCalled()
+    observe.mockRestore()
+  })
 })

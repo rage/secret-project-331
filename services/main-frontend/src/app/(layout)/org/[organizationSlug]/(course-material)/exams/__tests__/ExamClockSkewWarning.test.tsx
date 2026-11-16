@@ -13,9 +13,16 @@ jest.mock("react-i18next", () => ({
   useTranslation: () => ({ t: mockTranslate, i18n: { language: "en" } }),
 }))
 
+let mockOffsetMs = -2 * 60 * 60 * 1000
 jest.mock("../useClockSkew", () => ({
   __esModule: true,
-  default: () => ({ finalOffsetMs: -2 * 60 * 60 * 1000, sampleCount: 7, bestRttMs: 10 }),
+  default: () => ({ finalOffsetMs: mockOffsetMs }),
+}))
+
+const mockUseTime = jest.fn(() => new Date())
+jest.mock("@/hooks/course-material/useTime", () => ({
+  __esModule: true,
+  default: () => mockUseTime(),
 }))
 
 describe("ExamClockSkewWarning", () => {
@@ -27,5 +34,13 @@ describe("ExamClockSkewWarning", () => {
     expect(screen.getByRole("heading", { level: 2 }).textContent).toContain(
       "exam-clock-warning-title-fast",
     )
+  })
+
+  it("subscribes to no clock without a significant skew", () => {
+    mockOffsetMs = 30_000
+    mockUseTime.mockClear()
+    const { container } = render(<ExamClockSkewWarning />)
+    expect(container).toBeEmptyDOMElement()
+    expect(mockUseTime).not.toHaveBeenCalled()
   })
 })

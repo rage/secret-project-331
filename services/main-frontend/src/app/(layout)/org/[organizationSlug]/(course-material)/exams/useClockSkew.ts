@@ -6,16 +6,16 @@ import { useEffect, useState } from "react"
 import { getCurrentTime } from "@/generated/api/sdk.generated"
 
 const SAMPLE_COUNT = 7
+// A failed measurement is not retried by every mount, only after this long.
+const FAILURE_COOLDOWN_MS = 60_000
 
-export interface ClockSkewSample {
+interface ClockSkewSample {
   offsetMs: number
   rttMs: number
 }
 
-export interface ClockSkewEstimate {
+interface ClockSkewEstimate {
   finalOffsetMs: number
-  sampleCount: number
-  bestRttMs: number
 }
 
 const sampleClockOffset = async (): Promise<ClockSkewSample | null> => {
@@ -49,14 +49,11 @@ const chooseEstimateFromSamples = (samples: ClockSkewSample[]): ClockSkewEstimat
 
   const bestSample = samples.reduce((best, sample) => (sample.rttMs < best.rttMs ? sample : best))
 
-  return {
-    finalOffsetMs: bestSample.offsetMs,
-    sampleCount: samples.length,
-    bestRttMs: bestSample.rttMs,
-  }
+  return { finalOffsetMs: bestSample.offsetMs }
 }
 
 let cachedEstimate: Promise<ClockSkewEstimate | null> | null = null
+let failedAt: number | null = null
 
 const runSampling = async (): Promise<ClockSkewEstimate | null> => {
   const samples: ClockSkewSample[] = []
@@ -73,9 +70,20 @@ const runSampling = async (): Promise<ClockSkewEstimate | null> => {
   return chooseEstimateFromSamples(samples)
 }
 
-/** Test helper: forget the measured skew. */
-export const resetClockSkewCache = () => {
-  cachedEstimate = null
+const measureOnce = (): Promise<ClockSkewEstimate | null> => {
+  if (
+    cachedEstimate === null ||
+    (failedAt !== null && Date.now() - failedAt >= FAILURE_COOLDOWN_MS)
+  ) {
+    failedAt = null
+    cachedEstimate = runSampling().then((result) => {
+      if (!result) {
+        failedAt = Date.now()
+      }
+      return result
+    })
+  }
+  return cachedEstimate
 }
 
 /** Measures the device clock against the server once per page load; null until known. */
@@ -84,13 +92,7 @@ export default function useClockSkew(): ClockSkewEstimate | null {
 
   useEffect(() => {
     let cancelled = false
-    cachedEstimate ??= runSampling().then((result) => {
-      if (!result) {
-        cachedEstimate = null
-      }
-      return result
-    })
-    void cachedEstimate.then((result) => {
+    void measureOnce().then((result) => {
       if (!cancelled) {
         setEstimate(result)
       }

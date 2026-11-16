@@ -12,47 +12,33 @@ import useClockSkew from "./useClockSkew"
 
 const MINUTE_MS = 60_000
 /* oxlint-disable i18next/no-literal-string */
-const getDateStringInTimezone = (ms: number, tz: string): string =>
-  new Intl.DateTimeFormat("en", {
-    timeZone: tz,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(ms))
-
-const formatDateTimeInTimezone = (
-  timestampMs: number,
-  timeZone: string,
-  language: string,
-): string => {
-  return new Intl.DateTimeFormat(language, {
-    timeZone,
-
-    year: "numeric",
-
-    month: "2-digit",
-
-    day: "2-digit",
-
-    hour: "2-digit",
-
-    minute: "2-digit",
-
-    second: "2-digit",
-  }).format(new Date(timestampMs))
-}
-
-const formatTimeInTimezone = (timestampMs: number, timeZone: string, language: string): string => {
-  return new Intl.DateTimeFormat(language, {
-    timeZone,
-
-    hour: "2-digit",
-
-    minute: "2-digit",
-
-    second: "2-digit",
-  }).format(new Date(timestampMs))
-}
+const useFormatters = (timeZone: string, language: string) =>
+  useMemo(
+    () => ({
+      date: new Intl.DateTimeFormat("en", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
+      dateTime: new Intl.DateTimeFormat(language, {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+      time: new Intl.DateTimeFormat(language, {
+        timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+    }),
+    [timeZone, language],
+  )
 /* oxlint-enable i18next/no-literal-string */
 
 const formatUtcOffset = (now: Date): string => {
@@ -135,95 +121,92 @@ const labelClass = (isSevere: boolean) => css`
   padding: 0.25rem 0.7rem;
 `
 
+const SIGNIFICANT_SKEW_MS = 2 * MINUTE_MS
+
 const ExamClockSkewWarning: React.FC = () => {
+  const estimate = useClockSkew()
+  // Without a significant skew there is nothing to show, so no clock is subscribed to.
+  if (!estimate || Math.abs(estimate.finalOffsetMs) < SIGNIFICANT_SKEW_MS) {
+    return null
+  }
+  return <ClockSkewWarningCard offsetMs={estimate.finalOffsetMs} />
+}
+
+const ClockSkewWarningCard: React.FC<{ offsetMs: number }> = ({ offsetMs }) => {
   const { t, i18n } = useTranslation()
   const now = useTime()
-  const estimate = useClockSkew()
+  const resolvedTimezone = useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, [])
+  const timezoneForFormatting = resolvedTimezone || "UTC"
+  const formatters = useFormatters(timezoneForFormatting, i18n.language)
 
-  const renderedWarning = useMemo(() => {
-    if (!estimate) {
-      return null
-    }
+  const absOffsetMs = Math.abs(offsetMs)
+  const isSevere = absOffsetMs >= 60 * MINUTE_MS
+  const showDetailedInformation = absOffsetMs > 15 * MINUTE_MS
+  const roundedDifferenceMinutes = Math.round(absOffsetMs / MINUTE_MS)
+  const hours = Math.floor(roundedDifferenceMinutes / 60)
+  const minutes = roundedDifferenceMinutes % 60
+  const difference =
+    hours > 0 && minutes > 0
+      ? t("exam-clock-warning-duration-hours-minutes", { hours, minutes })
+      : hours > 0
+        ? t("exam-clock-warning-duration-hours-only", { count: hours })
+        : t("exam-clock-warning-duration-minutes-only", { count: minutes })
+  const isFast = offsetMs < 0
 
-    const absOffsetMs = Math.abs(estimate.finalOffsetMs)
-    if (absOffsetMs < 2 * MINUTE_MS) {
-      return null
-    }
+  const displayedTimezone = resolvedTimezone || t("exam-clock-warning-timezone-unknown")
+  const timezoneOffset = formatUtcOffset(now)
 
-    const isSevere = absOffsetMs >= 60 * MINUTE_MS
-    const showDetailedInformation = absOffsetMs > 15 * MINUTE_MS
-    const roundedDifferenceMinutes = Math.round(absOffsetMs / MINUTE_MS)
-    const hours = Math.floor(roundedDifferenceMinutes / 60)
-    const minutes = roundedDifferenceMinutes % 60
-    const difference =
-      hours > 0 && minutes > 0
-        ? t("exam-clock-warning-duration-hours-minutes", { hours, minutes })
-        : hours > 0
-          ? t("exam-clock-warning-duration-hours-only", { count: hours })
-          : t("exam-clock-warning-duration-minutes-only", { count: minutes })
-    const isFast = estimate.finalOffsetMs < 0
+  const deviceNowMs = now.getTime()
+  const correctNowMs = addMilliseconds(now, offsetMs).getTime()
+  const datesMatch = formatters.date.format(correctNowMs) === formatters.date.format(deviceNowMs)
+  const timeFormatter = datesMatch ? formatters.time : formatters.dateTime
+  const correctTime = timeFormatter.format(correctNowMs)
+  const deviceTime = timeFormatter.format(deviceNowMs)
 
-    const resolvedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    const timezoneForFormatting = resolvedTimezone || "UTC"
-    const displayedTimezone = resolvedTimezone || t("exam-clock-warning-timezone-unknown")
-    const timezoneOffset = formatUtcOffset(now)
+  return (
+    <section className={severityStyles(isSevere)} data-testid="exam-clock-skew-warning">
+      <div className={cardContentClass}>
+        <div className={labelClass(isSevere)}>{t("exam-clock-warning-label")}</div>
+        <h2 className={headingClass}>
+          {t(isFast ? "exam-clock-warning-title-fast" : "exam-clock-warning-title-slow", {
+            difference,
+          })}
+        </h2>
+        <p className={bodyClass}>
+          {showDetailedInformation
+            ? t("exam-clock-warning-summary-detailed")
+            : t("exam-clock-warning-summary-mild")}
+        </p>
 
-    const deviceNowMs = now.getTime()
-    const correctNowMs = addMilliseconds(now, estimate.finalOffsetMs).getTime()
-    const datesMatch =
-      getDateStringInTimezone(correctNowMs, timezoneForFormatting) ===
-      getDateStringInTimezone(deviceNowMs, timezoneForFormatting)
-    const formatTime = datesMatch ? formatTimeInTimezone : formatDateTimeInTimezone
-    const correctTime = formatTime(correctNowMs, timezoneForFormatting, i18n.language)
-    const deviceTime = formatTime(deviceNowMs, timezoneForFormatting, i18n.language)
-
-    return (
-      <section className={severityStyles(isSevere)} data-testid="exam-clock-skew-warning">
-        <div className={cardContentClass}>
-          <div className={labelClass(isSevere)}>{t("exam-clock-warning-label")}</div>
-          <h2 className={headingClass}>
-            {t(isFast ? "exam-clock-warning-title-fast" : "exam-clock-warning-title-slow", {
-              difference,
-            })}
-          </h2>
-          <p className={bodyClass}>
-            {showDetailedInformation
-              ? t("exam-clock-warning-summary-detailed")
-              : t("exam-clock-warning-summary-mild")}
-          </p>
-
-          {showDetailedInformation ? (
-            <div className={detailsContainerClass}>
-              <div className={detailsClass}>
-                <p className={detailRowClass}>
-                  {t("exam-clock-warning-timezone", {
-                    timezone: displayedTimezone,
-                    offset: timezoneOffset,
-                  })}
-                </p>
-                <p className={detailRowClass}>
-                  {t("exam-clock-warning-correct-time", { time: correctTime })}
-                </p>
-                <p className={detailRowClass}>
-                  {t("exam-clock-warning-device-time", { time: deviceTime })}
-                </p>
-                <p className={`${detailRowClass} ${highlightedDetailRowClass(isSevere)}`}>
-                  {t(
-                    isFast
-                      ? "exam-clock-warning-difference-fast"
-                      : "exam-clock-warning-difference-slow",
-                    { difference },
-                  )}
-                </p>
-              </div>
+        {showDetailedInformation ? (
+          <div className={detailsContainerClass}>
+            <div className={detailsClass}>
+              <p className={detailRowClass}>
+                {t("exam-clock-warning-timezone", {
+                  timezone: displayedTimezone,
+                  offset: timezoneOffset,
+                })}
+              </p>
+              <p className={detailRowClass}>
+                {t("exam-clock-warning-correct-time", { time: correctTime })}
+              </p>
+              <p className={detailRowClass}>
+                {t("exam-clock-warning-device-time", { time: deviceTime })}
+              </p>
+              <p className={`${detailRowClass} ${highlightedDetailRowClass(isSevere)}`}>
+                {t(
+                  isFast
+                    ? "exam-clock-warning-difference-fast"
+                    : "exam-clock-warning-difference-slow",
+                  { difference },
+                )}
+              </p>
             </div>
-          ) : null}
-        </div>
-      </section>
-    )
-  }, [estimate, i18n.language, now, t])
-
-  return renderedWarning
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
 }
 
 export default ExamClockSkewWarning

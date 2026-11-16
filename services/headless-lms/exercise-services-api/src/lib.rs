@@ -332,7 +332,7 @@ pub struct SubmissionFiles {
     pub data_files: Vec<AnswerFile>,
 }
 
-/// The current user's progress across every exercise they can see in a course, returned
+/// The current user's progress across the course exercises this client is served, returned
 /// by `courses/{id}/progress` in a single round-trip. Course-level totals are not sent
 /// separately; the client derives them by summing over `exercises` (e.g. total awarded =
 /// `sum(score_given)`, total available = `sum(score_maximum)`).
@@ -341,6 +341,7 @@ pub struct SubmissionFiles {
 pub struct CourseProgress {
     /// The course these progress entries belong to; echoes the path id.
     pub course_id: Uuid,
+    /// The user's progress on the open chapters' exercises that `courses/{id}/exercises` lists.
     pub exercises: Vec<ExerciseProgress>,
     /// The chapters that have not opened yet, with the user's progress on the exercises that
     /// `courses/{id}/exercises` will list once the chapter opens; a chapter with none is left out.

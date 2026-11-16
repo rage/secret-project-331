@@ -150,8 +150,8 @@ fn client_tasks_from_slide(
 }
 
 /// The given exercises that have a client-capable task on any of their slides. Unlike
-/// `client_tasks_from_slide`, this selects no slide for the user, so it suits exercises they
-/// cannot open yet.
+/// `client_tasks_from_slide`, this selects no slide for the user, so it also answers for
+/// exercises whose chapter has not opened.
 async fn client_capable_exercise_ids(
     conn: &mut PgConnection,
     exercise_ids: &[Uuid],
@@ -770,17 +770,18 @@ async fn get_course_progress(
     let course_exercises =
         models::exercises::get_exercises_by_course_id(&mut conn, course.id).await?;
     let closed_chapter_ids: HashSet<Uuid> = chapters.closed.iter().map(|c| c.id).collect();
-    let closed_exercise_ids: Vec<Uuid> = course_exercises
+    let chaptered_exercise_ids: Vec<Uuid> = course_exercises
         .iter()
         .filter(|e| {
-            e.chapter_id
-                .is_some_and(|id| closed_chapter_ids.contains(&id))
+            e.chapter_id.is_some_and(|id| {
+                chapters.open.contains_key(&id) || closed_chapter_ids.contains(&id)
+            })
         })
         .map(|e| e.id)
         .collect();
     let capable_slugs = native_client_capable_slugs(&mut conn).await?;
-    let capable_closed_exercise_ids =
-        client_capable_exercise_ids(&mut conn, &closed_exercise_ids, &capable_slugs).await?;
+    let capable_exercise_ids =
+        client_capable_exercise_ids(&mut conn, &chaptered_exercise_ids, &capable_slugs).await?;
 
     let mut exercises = Vec::new();
     let mut closed_chapter_exercises: HashMap<Uuid, Vec<api::ExerciseProgress>> = HashMap::new();
@@ -788,10 +789,10 @@ async fn get_course_progress(
         let Some(chapter_id) = exercise.chapter_id else {
             continue;
         };
-        let is_open = chapters.open.contains_key(&chapter_id);
-        if !is_open && !capable_closed_exercise_ids.contains(&exercise.id) {
+        if !capable_exercise_ids.contains(&exercise.id) {
             continue;
         }
+        let is_open = chapters.open.contains_key(&chapter_id);
         let progress = exercise_progress(
             &mut conn,
             user.id,
@@ -4622,36 +4623,46 @@ mod route_tests {
         exercise
     }
 
-    /// A closed chapter names only the exercises the listing will serve once it opens, so the
-    /// client's points total does not shrink when it does.
+    /// A chapter after `previous` in the same course module, with its front page.
+    async fn insert_next_chapter(
+        conn: &mut PgConnection,
+        fixture: &Fixture,
+        previous: &DatabaseChapter,
+        name: &str,
+    ) -> (DatabaseChapter, models::pages::Page) {
+        models::library::content_management::create_new_chapter(
+            conn,
+            models::PKeyPolicy::Generate,
+            &models::chapters::NewChapter {
+                name: name.to_string(),
+                color: None,
+                course_id: fixture.course,
+                chapter_number: previous.chapter_number + 1,
+                front_page_id: None,
+                deadline: None,
+                opens_at: None,
+                course_module_id: Some(previous.course_module_id),
+            },
+            fixture.user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .expect("chapter")
+    }
+
+    /// The progress names only the exercises the listing serves, now or once their chapter opens,
+    /// so the client's points total does not count quizzes or shrink when a chapter opens.
     #[actix_web::test]
-    async fn closed_chapters_report_only_client_capable_exercises() {
+    async fn progress_reports_only_client_capable_exercises() {
         let (fixture, _, chapter) = servable_exercise_fixture().await;
         let mut conn = PgConnection::connect(&dev_database_url())
             .await
             .expect("connection");
         let page = chapter.front_page_id.expect("chapter front page");
-        let quiz = insert_quiz_exercise(&mut conn, fixture.course, page, chapter.id).await;
+        let closed_quiz = insert_quiz_exercise(&mut conn, fixture.course, page, chapter.id).await;
         let (quiz_only_chapter, quiz_only_page) =
-            models::library::content_management::create_new_chapter(
-                &mut conn,
-                models::PKeyPolicy::Generate,
-                &models::chapters::NewChapter {
-                    name: "quizzes only".to_string(),
-                    color: None,
-                    course_id: fixture.course,
-                    chapter_number: chapter.chapter_number + 1,
-                    front_page_id: None,
-                    deadline: None,
-                    opens_at: None,
-                    course_module_id: Some(chapter.course_module_id),
-                },
-                fixture.user,
-                |_, _, _| unimplemented!(),
-                |_| unimplemented!(),
-            )
-            .await
-            .expect("chapter");
+            insert_next_chapter(&mut conn, &fixture, &chapter, "quizzes only").await;
         insert_quiz_exercise(
             &mut conn,
             fixture.course,
@@ -4659,6 +4670,10 @@ mod route_tests {
             quiz_only_chapter.id,
         )
         .await;
+        let (open_chapter, open_page) =
+            insert_next_chapter(&mut conn, &fixture, &quiz_only_chapter, "open").await;
+        let open_quiz =
+            insert_quiz_exercise(&mut conn, fixture.course, open_page.id, open_chapter.id).await;
         let opens_at = Utc::now() + ChronoDuration::days(2);
         for closed in [chapter.id, quiz_only_chapter.id] {
             models::chapters::set_opens_at(&mut conn, closed, opens_at)
@@ -4673,6 +4688,13 @@ mod route_tests {
             format!("/courses/{}/progress", fixture.course),
         )
         .await;
+        assert!(
+            progress
+                .exercises
+                .iter()
+                .all(|p| p.exercise_id != open_quiz),
+            "open quiz {open_quiz} must not be reported"
+        );
         let reported: Vec<(Uuid, Vec<Uuid>)> = progress
             .closed_chapters
             .iter()
@@ -4681,7 +4703,7 @@ mod route_tests {
         assert_eq!(
             reported,
             vec![(chapter.id, vec![fixture.exercise])],
-            "quiz {quiz} must not be reported"
+            "closed quiz {closed_quiz} must not be reported"
         );
     }
 

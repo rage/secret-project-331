@@ -30118,6 +30118,17 @@
             "type": "string",
             "format": "uuid"
           },
+          "exercise_progress": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MoocFiExerciseProgress",
+                "description": "`None` for a course known only from a completion."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "material_links": {
             "type": "array",
             "items": {
@@ -30142,6 +30153,21 @@
               "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
             },
             "description": "tmc.mooc.fi courses that report their progress to this one."
+          }
+        }
+      },
+      "MoocFiExerciseProgress": {
+        "type": "object",
+        "description": "How many of an old mooc.fi course's exercises the user has attempted.",
+        "required": ["exercise_count", "attempted_count"],
+        "properties": {
+          "attempted_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

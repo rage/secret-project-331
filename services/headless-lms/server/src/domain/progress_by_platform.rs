@@ -8,7 +8,7 @@ use futures_util::future::OptionFuture;
 use headless_lms_utils::http::web_link;
 use headless_lms_utils::prelude::UtilResult;
 use headless_lms_utils::services::moocfi_graphql::{
-    self, MoocfiCourseProgress, MoocfiMaterialLink,
+    self, MoocfiCourseProgress, MoocfiExerciseProgress, MoocfiMaterialLink,
 };
 use headless_lms_utils::services::tmc::{TmcClient, TmcCourseProgress};
 use utoipa::ToSchema;
@@ -71,8 +71,26 @@ pub struct MoocFiCourseProgress {
     pub max_points: Option<f64>,
     /// Links to the course's material, one per language version that has one.
     pub material_links: Vec<MoocFiMaterialLink>,
+    /// `None` for a course known only from a completion.
+    pub exercise_progress: Option<MoocFiExerciseProgress>,
     /// tmc.mooc.fi courses that report their progress to this one.
     pub tmc_mooc_fi_courses: Vec<TmcMoocFiCourseProgress>,
+}
+
+/// How many of an old mooc.fi course's exercises the user has attempted.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+pub struct MoocFiExerciseProgress {
+    pub exercise_count: i32,
+    pub attempted_count: i32,
+}
+
+impl From<MoocfiExerciseProgress> for MoocFiExerciseProgress {
+    fn from(progress: MoocfiExerciseProgress) -> Self {
+        Self {
+            exercise_count: progress.exercise_count,
+            attempted_count: progress.attempted_count,
+        }
+    }
 }
 
 /// A link to one language version of an old mooc.fi course's material.
@@ -273,6 +291,7 @@ fn merge_external_progress(
             points: course.points,
             max_points: course.max_points,
             material_links: course.material_links.into_iter().map(Into::into).collect(),
+            exercise_progress: course.exercise_progress.map(Into::into),
             tmc_mooc_fi_courses: Vec::new(),
         })
         .collect();
@@ -324,6 +343,7 @@ mod tests {
             points: Some(1.0),
             max_points: Some(2.0),
             material_links: Vec::new(),
+            exercise_progress: None,
         }
     }
 

@@ -5696,6 +5696,7 @@ export type ModuleUpdates = {
 export type MoocFiCourseProgress = {
   completed: boolean
   course_id: string
+  exercise_progress?: MoocFiExerciseProgress | null
   /**
    * Links to the course's material, one per language version that has one.
    */
@@ -5707,6 +5708,14 @@ export type MoocFiCourseProgress = {
    * tmc.mooc.fi courses that report their progress to this one.
    */
   tmc_mooc_fi_courses: Array<TmcMoocFiCourseProgress>
+}
+
+/**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export type MoocFiExerciseProgress = {
+  attempted_count: number
+  exercise_count: number
 }
 
 /**

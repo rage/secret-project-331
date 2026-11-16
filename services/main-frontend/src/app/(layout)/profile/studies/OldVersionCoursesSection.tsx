@@ -1,23 +1,18 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { type UseQueryResult, useQuery, useQueryClient } from "@tanstack/react-query"
-import React, { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { BUTTON_SECONDARY } from "@/components/credit-registration/constants"
 import { headingCss, noteCss, sectionCss } from "@/components/credit-registration/styles"
-import {
-  getMyOldVersionProgressOptions,
-  getMyOldVersionProgressQueryKey,
-} from "@/generated/api/@tanstack/react-query.generated"
+import { getMyOldVersionProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MoocFiCourseProgress,
   MoocFiMaterialLink,
-  OldVersionProgress,
   TmcMoocFiCourseProgress,
 } from "@/generated/api/types.generated"
-import { Badge, Button, Link, Spinner, TONE } from "@/shared-module/components"
+import { Badge, Link, TONE } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
@@ -28,9 +23,6 @@ import {
 } from "./cardSurface"
 import { sameLanguage } from "./language"
 import { FIGURE_WIDTH, ModuleDimension, ModuleFigure } from "./ModuleFigures"
-
-/** Each load asks both upstreams, which are slow and rate limited per user. */
-const STALE_TIME_MS = 10 * 60 * 1000
 
 const courseListCss = css`
   display: grid;
@@ -54,7 +46,9 @@ const courseTitleCss = css`
   line-height: 1.3;
 `
 
-const figureCss = css`
+const figuresCss = css`
+  display: grid;
+  gap: var(--space-3-5);
   max-width: ${FIGURE_WIDTH};
 `
 
@@ -66,46 +60,20 @@ const materialLinkFor = (
   links.find((link) => sameLanguage(link.language, readerLanguage)) ?? links[0] ?? null
 
 /**
- * The student's courses on the old version of the platform. Fetched only when the student asks:
- * the upstreams are slow and rate limited, and most students have nothing there.
+ * The student's courses on the old version of the platform, on a query of its own so the slow
+ * upstreams never hold up the rest of the page. Shows nothing while loading or when there is
+ * nothing there, so most students never see it.
  */
 const OldVersionCoursesSection: React.FC = () => {
   const { t } = useTranslation()
-  const queryClient = useQueryClient()
-  // Coming back within the stale time shows the cards again without another press.
-  const [isRequested, setIsRequested] = useState(
-    () => queryClient.getQueryData(getMyOldVersionProgressQueryKey()) !== undefined,
-  )
+  // Each request asks both upstreams and counts against a per-user rate limit.
   const query = useQuery({
     ...getMyOldVersionProgressOptions(),
-    enabled: isRequested,
-    staleTime: STALE_TIME_MS,
     refetchOnWindowFocus: false,
     retry: false,
   })
-
-  return (
-    <section className={sectionCss} aria-label={t("heading-courses-on-old-version")}>
-      <h2 className={headingCss}>{t("heading-courses-on-old-version")}</h2>
-      {isRequested ? (
-        <OldVersionCourses query={query} />
-      ) : (
-        <div>
-          <Button variant={BUTTON_SECONDARY} size="medium" onClick={() => setIsRequested(true)}>
-            {t("button-show-courses-on-old-version")}
-          </Button>
-        </div>
-      )}
-    </section>
-  )
-}
-
-const OldVersionCourses: React.FC<{
-  query: UseQueryResult<OldVersionProgress>
-}> = ({ query }) => {
-  const { t } = useTranslation()
   if (query.isPending) {
-    return <Spinner label={t("loading-courses-on-old-version")} delayMs={0} />
+    return null
   }
   // A failed request, the rate limit's 429 included, says as little as both upstreams failing.
   const progress = query.data
@@ -114,31 +82,32 @@ const OldVersionCourses: React.FC<{
     progress.mooc_fi_status === "unavailable" ||
     progress.tmc_mooc_fi_status === "unavailable"
   const hasCourses = progress && (progress.mooc_fi.length > 0 || progress.tmc_mooc_fi.length > 0)
-
-  if (!hasCourses) {
-    return (
-      <p className={noteCss}>
-        {hasFailedUpstream
-          ? t("courses-on-old-version-unavailable")
-          : t("courses-on-old-version-none")}
-      </p>
-    )
+  if (!hasCourses && !hasFailedUpstream) {
+    return null
   }
+
   return (
-    <>
-      {hasFailedUpstream ? (
-        <p className={noteCss}>{t("courses-on-old-version-partly-unavailable")}</p>
-      ) : null}
-      <div className={courseListCss}>
-        {progress.mooc_fi.map((course) => (
-          <MoocFiCourseCard key={course.course_id} course={course} />
-        ))}
-        {progress.tmc_mooc_fi.map((course, index) => (
-          // tmc.mooc.fi courses carry no id here, and two can share a title.
-          <TmcCourseCard key={`${course.name}-${index}`} course={course} />
-        ))}
-      </div>
-    </>
+    <section className={sectionCss} aria-label={t("heading-courses-on-old-version")}>
+      <h2 className={headingCss}>{t("heading-courses-on-old-version")}</h2>
+      {hasCourses ? (
+        <>
+          {hasFailedUpstream ? (
+            <p className={noteCss}>{t("courses-on-old-version-partly-unavailable")}</p>
+          ) : null}
+          <div className={courseListCss}>
+            {progress.mooc_fi.map((course) => (
+              <MoocFiCourseCard key={course.course_id} course={course} />
+            ))}
+            {progress.tmc_mooc_fi.map((course, index) => (
+              // tmc.mooc.fi courses carry no id here, and two can share a title.
+              <TmcCourseCard key={`${course.name}-${index}`} course={course} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className={noteCss}>{t("courses-on-old-version-unavailable")}</p>
+      )}
+    </section>
   )
 }
 
@@ -166,26 +135,44 @@ const MoocFiCourseCard: React.FC<{ course: MoocFiCourseProgress }> = ({ course }
   const { t, i18n } = useTranslation()
   const maxPoints = course.max_points ?? 0
   const points = course.points ?? null
-  const figure =
-    points === null ? null : (
-      <div className={figureCss}>
-        <ModuleDimension
-          label={t("label-points")}
-          value={points}
-          maxValue={maxPoints}
-          valueLabel={
-            maxPoints > 0
-              ? t("value-of-maximum", {
-                  value: formatPoints(points, i18n.language),
-                  maximum: formatPoints(maxPoints, i18n.language),
-                })
-              : formatPoints(points, i18n.language)
-          }
-          threshold={null}
-          showBar={maxPoints > 0}
-        />
-      </div>
+  const exercises = course.exercise_progress
+  const figures: React.ReactNode[] = []
+  if (points !== null) {
+    figures.push(
+      <ModuleDimension
+        key="points"
+        label={t("label-points")}
+        value={points}
+        maxValue={maxPoints}
+        valueLabel={
+          maxPoints > 0
+            ? t("value-of-maximum", {
+                value: formatPoints(points, i18n.language),
+                maximum: formatPoints(maxPoints, i18n.language),
+              })
+            : formatPoints(points, i18n.language)
+        }
+        threshold={null}
+        showBar={maxPoints > 0}
+      />,
     )
+  }
+  if (exercises && exercises.exercise_count > 0) {
+    figures.push(
+      <ModuleDimension
+        key="exercises"
+        label={t("exercises-attempted")}
+        value={exercises.attempted_count}
+        maxValue={exercises.exercise_count}
+        valueLabel={t("value-of-maximum", {
+          value: exercises.attempted_count,
+          maximum: exercises.exercise_count,
+        })}
+        threshold={null}
+        showBar
+      />,
+    )
+  }
   const materialLink = materialLinkFor(course.material_links, i18n.language)
   // The tmc.mooc.fi courses behind it are not listed; one of their pages still beats no link.
   const tmcUrl = course.tmc_mooc_fi_courses.find((tmcCourse) => tmcCourse.url)?.url ?? null
@@ -195,7 +182,7 @@ const MoocFiCourseCard: React.FC<{ course: MoocFiCourseProgress }> = ({ course }
       url={materialLink?.url ?? tmcUrl}
       completed={course.completed}
     >
-      {figure}
+      {figures.length > 0 ? <div className={figuresCss}>{figures}</div> : null}
     </CourseCard>
   )
 }

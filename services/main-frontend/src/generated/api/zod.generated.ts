@@ -4443,6 +4443,20 @@ export const zModule = z.object({
 })
 
 /**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export const zMoocFiExerciseProgress = z.object({
+  attempted_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  exercise_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
  * A link to one language version of an old mooc.fi course's material.
  */
 export const zMoocFiMaterialLink = z.object({
@@ -7873,6 +7887,7 @@ export const zTmcMoocFiCourseProgress = z.object({
 export const zMoocFiCourseProgress = z.object({
   completed: z.boolean(),
   course_id: z.uuid(),
+  exercise_progress: zMoocFiExerciseProgress.nullish(),
   material_links: z.array(zMoocFiMaterialLink),
   max_points: z.number().nullish(),
   name: z.string(),

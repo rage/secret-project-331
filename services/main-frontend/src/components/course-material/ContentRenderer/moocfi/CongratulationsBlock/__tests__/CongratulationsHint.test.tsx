@@ -23,10 +23,11 @@ const module_: UserModuleCompletionStatus = {
 } as UserModuleCompletionStatus
 
 describe("disabled Register CTA (F-48)", () => {
-  it("explains why it is disabled", () => {
+  it("stays focusable and explains why it is disabled", () => {
     render(<CongratulationsLinks certificateConfigurationId={null} module={module_} />)
     const button = screen.getByRole("button", { name: "register" })
-    expect(button).toBeDisabled()
+    expect(button).not.toBeDisabled()
+    expect(button).toHaveAttribute("aria-disabled", "true")
     expect(button).toHaveAccessibleDescription("credit-registration-registers-on-module-completion")
   })
 })

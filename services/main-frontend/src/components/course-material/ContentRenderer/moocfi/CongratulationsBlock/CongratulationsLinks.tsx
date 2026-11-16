@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useId } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
@@ -33,14 +33,13 @@ const StyledLink = styled.a`
 `
 
 // One interactive element per CTA, not an anchor wrapping a button (WCAG 1.3.1, 2.5.3).
-// A disabled CTA explains itself with `hint`, linked through aria-describedby.
+// A disabled CTA with a `hint` stays focusable and is described by it.
 const Cta: React.FC<{ href: string; label: string; enabled: boolean; hint?: string }> = ({
   href,
   label,
   enabled,
   hint,
 }) => {
-  const hintId = useId()
   if (enabled) {
     return (
       <Link href={href} styledAsButton variant="secondary" size="large">
@@ -57,16 +56,12 @@ const Cta: React.FC<{ href: string; label: string; enabled: boolean; hint?: stri
         gap: 0.5rem;
       `}
     >
-      <Button
-        variant="secondary"
-        size="large"
-        disabled
-        {...(hint && { "aria-describedby": hintId })}
-      >
+      <Button variant="secondary" size="large" disabled={!hint} disabledReason={hint}>
         {label}
       </Button>
       {hint && (
-        <span id={hintId} className={css(`font-size: 16px; color: #04312e;`)}>
+        // The button carries the hint as its description.
+        <span aria-hidden="true" className={css(`font-size: 16px; color: #04312e;`)}>
           {hint}
         </span>
       )}
@@ -96,7 +91,8 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
   return (
     <CTAWrapper
       className={css`
-        button:disabled {
+        button:disabled,
+        button[aria-disabled="true"] {
           color: #91ac97 !important;
         }
       `}

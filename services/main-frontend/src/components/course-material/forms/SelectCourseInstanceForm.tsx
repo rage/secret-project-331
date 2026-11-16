@@ -30,13 +30,6 @@ const courseInstanceGroupCss = css`
   margin-bottom: 1.5rem;
 `
 
-const footnoteCss = css`
-  color: var(--field-description);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  margin: var(--space-3) 0 0;
-`
-
 const GreenText = styled.span`
   color: ${baseTheme.colors.green[700]};
 `
@@ -186,37 +179,37 @@ const SelectCourseInstanceForm: React.FC<
 
   return (
     <div>
-      <div className={courseInstanceGroupCss}>
-        <RadioGroup
-          name="courseInstanceId"
-          control={control}
-          data-testid="select-course-instance-heading"
-          isRequired
-          label={
-            <>
-              {t("title-select-course-instance")}
-              <GreenText aria-hidden="true">*</GreenText>
-            </>
-          }
-        >
-          {courseInstances.map((courseInstance) => (
-            <Radio
-              key={courseInstance.id}
-              {...(courseInstance.name === null
-                ? // oxlint-disable-next-line i18next/no-literal-string
-                  { "data-testid": "default-course-instance-radiobutton" }
-                : undefined)}
-              label={courseInstance.name || t("default-course-instance-name")}
-              description={courseInstance.description}
-              value={courseInstance.id}
-            />
-          ))}
-        </RadioGroup>
-        {/* Outside the group so it is not announced as the description of every radio. */}
-        <p className={footnoteCss}>
-          <GreenText aria-hidden="true">*</GreenText> {t("select-course-instance-explanation")}
-        </p>
-      </div>
+      <RadioGroup
+        name="courseInstanceId"
+        control={control}
+        data-testid="select-course-instance-heading"
+        className={courseInstanceGroupCss}
+        isRequired
+        label={
+          <>
+            {t("title-select-course-instance")}
+            <GreenText aria-hidden="true">*</GreenText>
+          </>
+        }
+        description={
+          <>
+            <GreenText aria-hidden="true">*</GreenText> {t("select-course-instance-explanation")}
+          </>
+        }
+      >
+        {courseInstances.map((courseInstance) => (
+          <Radio
+            key={courseInstance.id}
+            {...(courseInstance.name === null
+              ? // oxlint-disable-next-line i18next/no-literal-string
+                { "data-testid": "default-course-instance-radiobutton" }
+              : undefined)}
+            label={courseInstance.name || t("default-course-instance-name")}
+            description={courseInstance.description}
+            value={courseInstance.id}
+          />
+        ))}
+      </RadioGroup>
       {courseInstanceId !== undefined && additionalQuestions && additionalQuestions.length > 0 && (
         <div
           className={css`

@@ -76,21 +76,6 @@ class DialogBodyBoundary extends React.Component<DialogBodyBoundaryProps, { hasC
   }
 }
 
-/**
- * Moves initial focus to the dialog's decline button. Runs from the body, in the same commit as the
- * footer, so it lands before react-aria's `useDialog` falls back to focusing the container.
- */
-const FocusDeclineAction: React.FC = () => {
-  const markerRef = React.useRef<HTMLSpanElement>(null)
-  React.useEffect(() => {
-    const dialog = markerRef.current?.closest("[role='alertdialog'], [role='dialog']")
-    dialog
-      ?.querySelector<HTMLElement>(`[data-testid="${CONFIRM_DIALOG_NO_BUTTON_TEST_ID}"]`)
-      ?.focus()
-  }, [])
-  return <span ref={markerRef} hidden />
-}
-
 const bodyCss = css`
   display: flex;
   flex-direction: column;
@@ -240,10 +225,7 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
         </div>
       </FocusScope>
     ) : (
-      <div className={bodyCss}>
-        {header}
-        {kind === "confirm" && <FocusDeclineAction />}
-      </div>
+      <div className={bodyCss}>{header}</div>
     )
 
   // A confirm gets a short generic name and the message as its description, so the question is
@@ -336,6 +318,8 @@ function buildActions({
         label: confirmRequest.cancelLabel ?? t("dialog.decline"),
         variant: confirmRequest.emphasizesCancel === true ? "primary" : "secondary",
         "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+        // Initial focus goes to the safe choice.
+        autoFocus: true,
         onPress: () => {
           settle(false)
         },

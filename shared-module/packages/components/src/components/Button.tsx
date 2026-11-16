@@ -48,6 +48,7 @@ type OwnedButtonDomKeys =
   | "iconPosition"
   | "isLoading"
   | "loadingLabel"
+  | "autoFocus"
 
 export type ButtonDomProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, OwnedButtonDomKeys>
 
@@ -63,6 +64,8 @@ export type ButtonProps = PressHandlers & {
   name?: string
   value?: string | number | readonly string[]
   formAction?: string
+  /** Focuses the button on mount, before an enclosing dialog's own initial focus. */
+  autoFocus?: boolean
   /**
    * An alternative to onPress. onPress is preferred, as it works better for
    * non-mouse interactions, but using onClick is required when using our
@@ -106,6 +109,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "aria-labelledby": ariaLabelledByProp,
       "aria-label": ariaLabelProp,
       formAction,
+      autoFocus,
       onClick,
       onPointerDown,
       onPointerUp,
@@ -149,6 +153,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         "aria-label": userAriaLabel,
         "aria-describedby": describedBy,
         "aria-labelledby": labelledBy,
+        autoFocus,
       }),
     }
 

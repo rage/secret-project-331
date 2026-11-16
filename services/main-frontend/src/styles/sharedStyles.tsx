@@ -101,3 +101,19 @@ export const settingsCardCss = css`
     padding: 1.75rem;
   }
 `
+
+/** A `<dl>` whose term and value share one line, like the plain text it replaces. */
+export const inlineMetadataListCss = css`
+  margin: 0;
+
+  dt,
+  dd {
+    display: inline;
+    margin: 0;
+  }
+
+  dd::after {
+    content: "";
+    display: block;
+  }
+`

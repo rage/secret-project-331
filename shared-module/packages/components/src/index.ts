@@ -137,6 +137,8 @@ export { StatTile } from "./components/StatTile"
 export type { StatTileDeltaTone, StatTileProps, StatTileTone } from "./components/StatTile"
 export { StatTileList } from "./components/StatTileList"
 export type { StatTileListProps, StatTileListSize } from "./components/StatTileList"
+export { ScrollRegion } from "./components/ScrollRegion"
+export type { ScrollOverflow, ScrollRegionProps } from "./components/ScrollRegion"
 export { Table } from "./components/Table"
 export type {
   TableAlign,

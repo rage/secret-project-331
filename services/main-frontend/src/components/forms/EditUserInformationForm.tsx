@@ -18,6 +18,22 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
+const dtCss = css`
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: ${baseTheme.colors.gray[500]};
+  margin-bottom: 0.375rem;
+`
+
+const ddCss = css`
+  font-size: 0.9375rem;
+  color: ${baseTheme.colors.gray[700]};
+  font-weight: 500;
+  margin: 0;
+`
+
 interface SelectUserInfoFormFields {
   email: string
   first_name: string
@@ -186,105 +202,29 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               }
             `}
           >
-            <dt
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[500]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("email")}
-            </dt>
-            <dd
-              data-testid="personal-info-email-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-                margin: 0;
-              `}
-            >
+            <dt className={dtCss}>{t("email")}</dt>
+            <dd data-testid="personal-info-email-value" className={ddCss}>
               {email || "-"}
             </dd>
           </div>
 
           <div>
-            <dt
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[500]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("first-name")}
-            </dt>
-            <dd
-              data-testid="personal-info-first-name-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-                margin: 0;
-              `}
-            >
+            <dt className={dtCss}>{t("first-name")}</dt>
+            <dd data-testid="personal-info-first-name-value" className={ddCss}>
               {firstName || "-"}
             </dd>
           </div>
 
           <div>
-            <dt
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[500]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("last-name")}
-            </dt>
-            <dd
-              data-testid="personal-info-last-name-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-                margin: 0;
-              `}
-            >
+            <dt className={dtCss}>{t("last-name")}</dt>
+            <dd data-testid="personal-info-last-name-value" className={ddCss}>
               {lastName || "-"}
             </dd>
           </div>
 
           <div>
-            <dt
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[500]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("enter-country-question")}
-            </dt>
-            <dd
-              data-testid="personal-info-country-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-                margin: 0;
-              `}
-            >
+            <dt className={dtCss}>{t("enter-country-question")}</dt>
+            <dd data-testid="personal-info-country-value" className={ddCss}>
               {selectedCountryLabel || "-"}
             </dd>
           </div>
@@ -312,27 +252,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               margin: 0;
             `}
           >
-            <dt
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[500]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("status")}
-            </dt>
-            <dd
-              data-testid="personal-info-email-consent-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-                margin: 0;
-              `}
-            >
+            <dt className={dtCss}>{t("status")}</dt>
+            <dd data-testid="personal-info-email-consent-value" className={ddCss}>
               {emailCommunicationConsent ? t("yes") : t("no")}
             </dd>
           </dl>

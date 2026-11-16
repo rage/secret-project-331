@@ -14,7 +14,7 @@ test("Chart block renders for students", async ({ page, headless }, testInfo) =>
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 

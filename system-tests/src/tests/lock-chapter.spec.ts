@@ -134,7 +134,7 @@ test.describe("Chapter locking feature", () => {
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
       await teacherPage
-        .locator('iframe[title="VIEW SUBMISSION"]')
+        .locator('iframe[title^="Answer by"]')
         .contentFrame()
         .getByText("Correct answer", { exact: true })
         .waitFor()
@@ -295,7 +295,7 @@ test.describe("Chapter locking feature", () => {
       await teacherPage.getByRole("tab", { name: "Exercises" }).click()
       await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
       await teacherPage
-        .locator('iframe[title="VIEW SUBMISSION"]')
+        .locator('iframe[title^="Answer by"]')
         .contentFrame()
         .getByText("Correct answer", { exact: true })
         .waitFor()

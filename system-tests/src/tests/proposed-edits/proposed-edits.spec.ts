@@ -5,7 +5,10 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  getExerciseTaskIframe,
+} from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -42,7 +45,9 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "no-edits-yet",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Click on a paragraph to make it editable!")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Select a paragraph or its Edit button to make it editable!"),
+    ],
     skipMobile: true,
     scrollToYCoordinate: 920,
   })
@@ -139,10 +144,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   ])
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
-  await page1
-    .frameLocator(`[title="Exercise 1, task 1 content"]`)
-    .locator(`button:text-is("a")`)
-    .waitFor()
+  await getExerciseTaskIframe(page1, 1).contentFrame().locator(`button:text-is("a")`).waitFor()
 
   await page1.locator(`text=Like this!!!!!`).waitFor()
 })

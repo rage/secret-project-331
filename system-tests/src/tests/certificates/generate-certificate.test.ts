@@ -5,6 +5,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getExerciseTaskIframe } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -20,10 +21,7 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "1 Page One" }).click()
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("checkbox", { name: "b" })
-    .click()
+  await getExerciseTaskIframe(page, 1).contentFrame().getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Try again").waitFor()
   await page.getByRole("link", { name: "Certificates" }).click()

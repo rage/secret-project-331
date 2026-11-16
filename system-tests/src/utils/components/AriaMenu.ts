@@ -46,7 +46,11 @@ export class AriaMenu {
 
   public async clickItem(label: string) {
     await this.open()
-    await this.menu().getByRole("menuitem", { name: label }).click()
+    // Single-selection menus (the language menu) expose their items as menuitemradio.
+    await this.menu()
+      .getByRole("menuitem", { name: label })
+      .or(this.menu().getByRole("menuitemradio", { name: label }))
+      .click()
     await expect(this.menu()).toBeHidden()
   }
 }

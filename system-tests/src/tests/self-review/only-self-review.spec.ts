@@ -8,6 +8,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getExerciseTaskIframe } from "../../utils/iframeLocators"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext
@@ -70,13 +71,13 @@ test.describe("An exercise that has self review but no peer review works", () =>
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-multiple-choice-with-feedback",
       )
       await selectCourseInstanceIfPrompted(student1Page)
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskIframe(student1Page, 1)
+        .contentFrame()
         .getByRole("button", { name: "cargo" })
         .click()
       await student1Page.getByRole("button", { name: "Submit" }).click()
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskIframe(student1Page, 1)
+        .contentFrame()
         .getByText("Your answer was correct.")
         .waitFor()
       await student1Page.getByRole("button", { name: "Start self review" }).click()

@@ -16,7 +16,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByText("User Experience").click()
   await expect(page).toHaveURL(

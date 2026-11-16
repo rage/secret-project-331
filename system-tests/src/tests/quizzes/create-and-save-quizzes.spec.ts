@@ -71,7 +71,7 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")
 
     // The test will add a task later on
-    await page.getByLabel("Delete").click()
+    await page.getByLabel("Delete task").click()
   })
 }
 
@@ -85,9 +85,9 @@ const addNewQuiz = async (page: Page) => {
       await page.waitForTimeout(100)
       // Sometimes the add task button doesn't respond due to lag
       // oxlint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
+    } while ((await page.locator('[aria-label="Edit task"]').count()) === 0 && steps < 10)
 
-    await page.locator('[aria-label="Edit"]').nth(0).click()
+    await page.locator('[aria-label="Edit task"]').nth(0).click()
     await page.getByText("Quizzes").click()
   })
 }
@@ -347,7 +347,7 @@ const createTimeline = async (frame: Locator) => {
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 3")
     await frame.getByRole("button", { name: "Add", exact: true }).click()
-    await frame.getByLabel("Delete").nth(1).click()
+    await frame.getByLabel("Delete row").nth(1).click()
   })
 }
 

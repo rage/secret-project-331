@@ -123,7 +123,7 @@ export const tokensGlobal = injectGlobal`
     --focus-ring-width: 2px;
     --focus-ring-offset: 2px;
     --focus-ring-offset-color: transparent;
-    --focus-ring-color: rgba(31, 105, 100, 0.6);
+    --focus-ring-color: rgb(31, 105, 100);
 
     /* disabled */
     --btn-disabled-opacity: 0.55;

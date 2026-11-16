@@ -298,6 +298,8 @@ describe("ComboBox", () => {
     const input = screen.getByRole("combobox", { name: "Framework" })
     expect(input).toHaveAttribute("aria-describedby")
     expect(input).toHaveAttribute("aria-invalid", "true")
+    expect(input).toHaveAccessibleDescription(/Required/)
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("data-testid lands on the combobox input", () => {

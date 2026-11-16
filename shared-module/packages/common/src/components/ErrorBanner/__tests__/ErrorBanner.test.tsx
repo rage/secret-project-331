@@ -84,4 +84,13 @@ describe("ErrorBanner", () => {
 
     expect(container.firstElementChild).toHaveStyle({ maxHeight: "50vh" })
   })
+
+  test("renders the title as an h1 when asked to, h2 otherwise", () => {
+    const { unmount } = renderBanner(<ErrorBanner error={new Error("Boom")} headingLevel={1} />)
+    expect(screen.getByRole("heading", { level: 1, name: "Boom" })).toBeInTheDocument()
+    unmount()
+
+    renderBanner(<ErrorBanner error={new Error("Boom")} />)
+    expect(screen.getByRole("heading", { level: 2, name: "Boom" })).toBeInTheDocument()
+  })
 })

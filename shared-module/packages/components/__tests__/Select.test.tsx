@@ -1,8 +1,9 @@
 "use client"
 
-import { act, fireEvent, screen, within } from "@testing-library/react"
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
+import { Dialog } from "../src/components/Dialog"
 import { Select } from "../src/components/Select"
 import { renderWithForm } from "./testUtils"
 
@@ -325,5 +326,31 @@ describe("Select", () => {
     const listBox = screen.getByRole("listbox")
     expect(listBox.id).not.toBe(trigger.id)
     expect(trigger).toHaveAttribute("aria-controls", listBox.id)
+  })
+
+  test("inside a modal Dialog, Enter opens the list on the selected option and Enter chooses it", async () => {
+    const user = userEvent.setup()
+    const { getValues } = renderWithForm<{ s: string }>(
+      (control) => (
+        <Dialog open onClose={jest.fn()} title="Settings">
+          <Select name="s" control={control} label="Language" options={languageOptions} />
+        </Dialog>
+      ),
+      { defaultValues: { s: "en" } },
+    )
+
+    const trigger = screen.getByRole("button", { name: /Language/ })
+    act(() => trigger.focus())
+    await user.keyboard("{Enter}")
+
+    const english = await screen.findByRole("option", { name: "English" })
+    await waitFor(() => expect(document.activeElement).toBe(english))
+
+    await user.keyboard("{ArrowUp}")
+    expect(document.activeElement).toBe(screen.getByRole("option", { name: "Finnish" }))
+
+    await user.keyboard("{Enter}")
+    expect(getValues().s).toBe("fi")
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
   })
 })

@@ -1,5 +1,6 @@
 "use client"
 
+import { injectGlobal } from "@emotion/css"
 import { announce } from "@react-aria/live-announcer"
 import { useAtomValue } from "jotai"
 import { usePathname } from "next/navigation"
@@ -9,6 +10,19 @@ import { pageTitleChangeMarkerAtom, resolvedPageTitleAtom } from "../../hooks/pa
 import { DEFAULT_SITE_NAME, formatPageTitle } from "../../utils/pageTitle"
 
 const CHANGE_MARKER = "● "
+
+/** Quiet period after the last title change on a new route before it is announced. */
+const NAVIGATION_SETTLE_MS = 250
+/** Wait when the title still equals the previous route's, in case the real one is yet to arrive. */
+const NAVIGATION_STALE_WAIT_MS = 1000
+
+// Next's route announcer reads document.title before the leaf title registers, so it speaks the
+// previous page's title. PageTitleManager announces the settled title instead.
+void injectGlobal`
+  next-route-announcer {
+    display: none;
+  }
+`
 
 interface PageTitleManagerProps {
   /** Site/brand suffix. Defaults to {@link DEFAULT_SITE_NAME}. */
@@ -26,17 +40,11 @@ interface PageTitleManagerProps {
  * the document title — no other code should write `document.title`. Registration is client-side:
  * `usePageTitle` writes the registry in a layout effect, which does not run during SSR, so the
  * server-rendered initial HTML always contains the bare site name and the resolved page title is
- * applied after hydration. Because React applies the element during the commit's mutation phase,
- * the title still lands before any passive effect runs, including Next's built-in route announcer
- * (see below).
+ * applied after hydration.
  *
- * Accessibility:
- * - Synchronous (navigation-time) title changes are announced by Next.js's built-in App Router
- *   route announcer, which reads `document.title` (already updated in the commit) on tree change.
- *   We deliberately do NOT announce these ourselves, to avoid double announcements.
- * - Async/data-derived titles (resolved on the same route after navigation) would be missed by
- *   the built-in announcer (it is keyed on the router tree), so we announce those politely via
- *   react-aria's `announce()`.
+ * Accessibility: Next.js's built-in route announcer is hidden. This component announces the new
+ * title politely via react-aria's `announce()` once per navigation (after it settles) and for
+ * later in-place changes (e.g. a fetched course name). Nothing is announced on the initial load.
  */
 const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_SITE_NAME }) => {
   const resolvedTitle = useAtomValue(resolvedPageTitleAtom)
@@ -45,56 +53,87 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
   // The marker stays out of `resolvedTitle`, so the announcement below never fires for it.
   const fullTitle = `${isMarked ? CHANGE_MARKER : ""}${formatPageTitle(resolvedTitle, siteName)}`
 
-  // Announce an async (data-derived) title change politely. The browser announces the initial
-  // page load, and Next's built-in route announcer covers navigation-time title changes. To
-  // avoid double-announcing, we open a short window after the initial load and after each
-  // navigation during which the new route's (synchronous) title settles in without being
-  // announced; titles that change later, in place (e.g. a fetched course name), are announced.
+  // Initial load: the browser announces the page; a short window lets its title settle silently.
+  // Navigation: the title often registers a commit or more after the pathname changes, so we wait
+  // for it (debounced) and announce the new title once. Later in-place changes announce at once.
   const previousPathnameRef = useRef<string | null>(null)
   const lastTitleRef = useRef<string | null>(null)
+  const latestTitleRef = useRef<string | null>(null)
   const hasMountedRef = useRef(false)
-  const isSettlingNavigationRef = useRef(false)
-  const settleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isSettlingInitialLoadRef = useRef(false)
+  const pendingNavigationRef = useRef(false)
+  const titleAtNavigationRef = useRef<string | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  latestTitleRef.current = resolvedTitle
+
   useEffect(() => {
     if (typeof document === "undefined") {
       return
     }
+    const clearTimer = () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
+    }
     const isInitialRun = !hasMountedRef.current
     const navigated = !isInitialRun && previousPathnameRef.current !== pathname
     const titleChanged = resolvedTitle !== lastTitleRef.current
+    const titleBeforeThisRun = lastTitleRef.current
 
     hasMountedRef.current = true
     previousPathnameRef.current = pathname
-    // Record the latest *real* title. Never overwrite a known title with `null`: a transient
-    // null (e.g. a refetch) followed by the same title must not look like a change and re-announce.
+    // Never overwrite a known title with `null`: a transient null (e.g. a refetch) followed by
+    // the same title must not look like a change and re-announce.
     if (resolvedTitle !== null) {
       lastTitleRef.current = resolvedTitle
     }
 
-    if (isInitialRun || navigated) {
-      // Open/extend the settle window; the title arriving with this navigation is announced by
-      // the browser / Next's built-in announcer, not by us.
-      isSettlingNavigationRef.current = true
-      if (settleTimerRef.current !== null) {
-        clearTimeout(settleTimerRef.current)
-      }
-      settleTimerRef.current = setTimeout(() => {
-        isSettlingNavigationRef.current = false
-        settleTimerRef.current = null
+    if (isInitialRun) {
+      isSettlingInitialLoadRef.current = true
+      clearTimer()
+      timerRef.current = setTimeout(() => {
+        isSettlingInitialLoadRef.current = false
+        timerRef.current = null
       }, 0)
       return
     }
-    if (isSettlingNavigationRef.current || !titleChanged || !resolvedTitle) {
+    if (isSettlingInitialLoadRef.current) {
       return
     }
-    // oxlint-disable-next-line i18next/no-literal-string -- ARIA assertiveness level, not user copy
-    announce(resolvedTitle, "polite")
-  }, [resolvedTitle, pathname])
+
+    if (navigated) {
+      pendingNavigationRef.current = true
+      titleAtNavigationRef.current = titleBeforeThisRun
+    } else if (!pendingNavigationRef.current) {
+      if (titleChanged && resolvedTitle) {
+        // oxlint-disable-next-line i18next/no-literal-string -- ARIA assertiveness level, not user copy
+        announce(resolvedTitle, "polite")
+      }
+      return
+    } else if (!titleChanged) {
+      return
+    }
+
+    // A title equal to the previous route's may be stale, so give its replacement longer to arrive.
+    const isStale = resolvedTitle === null || resolvedTitle === titleAtNavigationRef.current
+    clearTimer()
+    timerRef.current = setTimeout(
+      () => {
+        timerRef.current = null
+        pendingNavigationRef.current = false
+        const title = latestTitleRef.current ?? formatPageTitle(null, siteName)
+        // oxlint-disable-next-line i18next/no-literal-string -- ARIA assertiveness level, not user copy
+        announce(title, "polite")
+      },
+      isStale ? NAVIGATION_STALE_WAIT_MS : NAVIGATION_SETTLE_MS,
+    )
+  }, [resolvedTitle, pathname, siteName])
 
   useEffect(() => {
     return () => {
-      if (settleTimerRef.current !== null) {
-        clearTimeout(settleTimerRef.current)
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current)
       }
     }
   }, [])

@@ -237,7 +237,11 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
   }))
 
   const state = useRadioGroupState({
-    ...(field.value === null || field.value === undefined ? {} : { value: String(field.value) }),
+    // '' means no selection; a non-null selectedValue would give every radio tabIndex -1.
+    value:
+      field.value === null || field.value === undefined || field.value === ""
+        ? null
+        : String(field.value),
     onChange: (v) => {
       field.onChange(v)
     },

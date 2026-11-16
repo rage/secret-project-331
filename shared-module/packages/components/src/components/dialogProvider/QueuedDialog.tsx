@@ -76,6 +76,21 @@ class DialogBodyBoundary extends React.Component<DialogBodyBoundaryProps, { hasC
   }
 }
 
+/**
+ * Moves initial focus to the dialog's decline button. Runs from the body, in the same commit as the
+ * footer, so it lands before react-aria's `useDialog` falls back to focusing the container.
+ */
+const FocusDeclineAction: React.FC = () => {
+  const markerRef = React.useRef<HTMLSpanElement>(null)
+  React.useEffect(() => {
+    const dialog = markerRef.current?.closest("[role='alertdialog'], [role='dialog']")
+    dialog
+      ?.querySelector<HTMLElement>(`[data-testid="${CONFIRM_DIALOG_NO_BUTTON_TEST_ID}"]`)
+      ?.focus()
+  }, [])
+  return <span ref={markerRef} hidden />
+}
+
 const bodyCss = css`
   display: flex;
   flex-direction: column;
@@ -225,13 +240,23 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
         </div>
       </FocusScope>
     ) : (
-      <div className={bodyCss}>{header}</div>
+      <div className={bodyCss}>
+        {header}
+        {kind === "confirm" && <FocusDeclineAction />}
+      </div>
     )
 
+  // A confirm gets a short generic name and the message as its description, so the question is
+  // read once as content instead of being the name.
   const labelling: DialogLabelling =
     title !== undefined
       ? { title }
-      : { "aria-label": typeof message === "string" ? message : fallbackDialogLabel(kind, t) }
+      : {
+          "aria-label":
+            typeof message === "string" && kind !== "confirm"
+              ? message
+              : fallbackDialogLabel(kind, t),
+        }
 
   const actions = buildActions({
     kind,
@@ -261,9 +286,9 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
       // `alertdialog` is what makes a screen reader announce it on open. A node body is a surface to
       // work through, which some assistive technology would otherwise read out whole.
       role={kind !== "prompt" && typeof message === "string" ? "alertdialog" : "dialog"}
-      // Without a title or a separate description, the content is just the message again — the
-      // same text as the `aria-label` fallback below, so a description would only repeat the name.
-      hasDescription={title !== undefined || description !== undefined}
+      // Without a title or a separate description, a non-confirm's content is just the message
+      // again — the same text as its `aria-label`, so a description would only repeat the name.
+      hasDescription={title !== undefined || description !== undefined || kind === "confirm"}
       showCloseButton={false}
       isDismissable={false}
       exit={visuallyOpen ? (hasSuccessor ? EXIT_HANDOFF : EXIT_FADE) : frozenExitRef.current}

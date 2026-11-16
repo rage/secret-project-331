@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx, keyframes } from "@emotion/css"
-import React, { useId } from "react"
+import React, { useEffect, useId, useState } from "react"
 import {
   useBreadcrumbItem,
   useBreadcrumbs,
@@ -32,9 +32,14 @@ export interface BreadcrumbsProps {
   label?: string
   /** Renders the last item as a heading instead of a span. */
   currentAs?: "span" | "h1" | "h2" | "h3"
+  /** The page failed to load: pending items stop counting as busy at once. */
+  hasError?: boolean
   className?: string
   "data-testid"?: string | undefined
 }
+
+/** A crumb still pending after this long is treated as failed, so the nav is not busy forever. */
+const PENDING_TIMEOUT_MS = 8000
 
 const SEPARATOR_LTR = "›"
 const SEPARATOR_RTL = "‹"
@@ -138,6 +143,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
   label,
   currentAs = "span",
+  hasError = false,
   className,
   "data-testid": dataTestId,
 }) => {
@@ -146,7 +152,17 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   const { navProps } = useBreadcrumbs({ "aria-label": label ?? t("breadcrumbs.label") })
   const loadingDescId = useId()
 
-  const anyPending = items.some((item) => item.status === "pending")
+  const anyPendingItem = items.some((item) => item.status === "pending")
+  const [hasTimedOut, setHasTimedOut] = useState(false)
+  useEffect(() => {
+    if (!anyPendingItem) {
+      setHasTimedOut(false)
+      return
+    }
+    const timer = setTimeout(() => setHasTimedOut(true), PENDING_TIMEOUT_MS)
+    return () => clearTimeout(timer)
+  }, [anyPendingItem])
+  const anyPending = anyPendingItem && !hasError && !hasTimedOut
   const separator = direction === "rtl" ? SEPARATOR_RTL : SEPARATOR_LTR
 
   return (

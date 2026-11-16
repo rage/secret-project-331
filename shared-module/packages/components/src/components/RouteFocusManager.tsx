@@ -7,6 +7,9 @@ const DEFAULT_TARGET_SELECTOR = "#maincontent"
 
 const HEADING_SELECTOR = "h1"
 
+/** How long after a navigation late content may still pull focus to the heading. */
+const OBSERVE_MS = 3000
+
 const TABINDEX_ATTRIBUTE = "tabindex"
 
 // Marks exactly the element this component focused: Chrome still matches :focus-visible on a
@@ -57,25 +60,75 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
       // Fragment navigation: the fragment target owns focus/scroll.
       return
     }
-    const container = document.querySelector(targetSelector)
-    if (!(container instanceof HTMLElement)) {
+    const initialContainer = document.querySelector(targetSelector)
+    if (!(initialContainer instanceof HTMLElement)) {
       return
     }
-    const activeElement = document.activeElement
-    if (activeElement instanceof HTMLElement && container.contains(activeElement)) {
-      // The new page already placed focus inside the main content; don't steal it.
-      return
+    const initialActive = document.activeElement
+    // Focus the new page already placed inside main is kept. A clicked link inside main is still
+    // focused here, but unmounts as the page swaps, so we wait for that instead of keeping it.
+    const watched =
+      initialActive instanceof HTMLElement && initialContainer.contains(initialActive)
+        ? initialActive
+        : null
+
+    let managed: HTMLElement | null = null
+    let cleanupBlur: (() => void) | null = null
+    const focusTarget = (container: HTMLElement) => {
+      const heading = container.querySelector(HEADING_SELECTOR)
+      const target = heading instanceof HTMLElement ? heading : container
+      if (target === managed) {
+        return
+      }
+      cleanupBlur?.()
+      if (!target.hasAttribute(TABINDEX_ATTRIBUTE)) {
+        target.setAttribute(TABINDEX_ATTRIBUTE, "-1")
+      }
+      target.setAttribute(MANAGED_FOCUS_ATTRIBUTE, "")
+      const clearManagedFocus = () => target.removeAttribute(MANAGED_FOCUS_ATTRIBUTE)
+      target.addEventListener("blur", clearManagedFocus, { once: true })
+      cleanupBlur = () => target.removeEventListener("blur", clearManagedFocus)
+      managed = target
+      target.focus({ preventScroll: true })
     }
-    const heading = container.querySelector(HEADING_SELECTOR)
-    const target = heading instanceof HTMLElement ? heading : container
-    if (!target.hasAttribute(TABINDEX_ATTRIBUTE)) {
-      target.setAttribute(TABINDEX_ATTRIBUTE, "-1")
+    // Moves focus when it is nowhere useful. Returns true once the heading owns focus (or the
+    // page / user took focus elsewhere), so the observer can stop.
+    const update = (): boolean => {
+      const container = document.querySelector(targetSelector)
+      if (!(container instanceof HTMLElement)) {
+        return false
+      }
+      const active = document.activeElement
+      if (watched?.isConnected && active === watched) {
+        return false
+      }
+      const focusIsLost = !active || active === document.body || active === managed
+      if (!focusIsLost && active !== watched) {
+        return true
+      }
+      focusTarget(container)
+      return managed !== container
     }
-    target.setAttribute(MANAGED_FOCUS_ATTRIBUTE, "")
-    const clearManagedFocus = () => target.removeAttribute(MANAGED_FOCUS_ATTRIBUTE)
-    target.addEventListener("blur", clearManagedFocus, { once: true })
-    target.focus({ preventScroll: true })
-    return () => target.removeEventListener("blur", clearManagedFocus)
+
+    if (!watched) {
+      focusTarget(initialContainer)
+      if (managed !== initialContainer) {
+        return () => cleanupBlur?.()
+      }
+    }
+    // Late-arriving page content (the h1 or the swap of a clicked link) moves focus again.
+    const observer = new MutationObserver(() => {
+      if (update()) {
+        observer.disconnect()
+      }
+    })
+    observer.observe(document.body, { childList: true, subtree: true })
+    const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
+    return () => {
+      observer.disconnect()
+      window.clearTimeout(timeout)
+      cleanupBlur?.()
+    }
   }, [pathname, targetSelector])
 
   return null

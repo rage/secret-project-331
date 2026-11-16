@@ -4,6 +4,8 @@ import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
+
 import CreateAccountForm from "../page"
 
 jest.mock("next/navigation", () => ({
@@ -60,7 +62,7 @@ describe("Create account form accessibility", () => {
       expect(screen.getByLabelText(label)).toHaveAttribute("aria-required", "true")
     }
     // The requirement is stated in visible text instead of unexplained asterisks.
-    expect(screen.getByText("all-fields-are-required")).toBeVisible()
+    expect(screen.getByText("all-text-fields-required")).toBeVisible()
   })
 
   it("names the fieldset after the main heading", () => {
@@ -156,5 +158,29 @@ describe("Create account form accessibility", () => {
     const link = container.querySelector(".signin-link a")
     expect(link).not.toBeNull()
     expect(link).toHaveTextContent("sign-in-if-you-have-an-account")
+  })
+
+  it("moves focus to the confirm-email heading after signing up", async () => {
+    ;(postAuthSignup as jest.Mock).mockResolvedValue({ type: "success" })
+    renderPage()
+    await act(async () => {})
+    fireEvent.change(screen.getByLabelText("first-name"), { target: { value: "Ada" } })
+    fireEvent.change(screen.getByLabelText("last-name"), { target: { value: "Lovelace" } })
+    fireEvent.change(screen.getByLabelText("email"), { target: { value: "ada@example.com" } })
+    fireEvent.change(screen.getByLabelText("password"), { target: { value: "password123" } })
+    fireEvent.change(screen.getByLabelText("confirm-password"), {
+      target: { value: "password123" },
+    })
+    const combobox = screen.getByRole("combobox")
+    fireEvent.keyDown(combobox, { key: "ArrowDown" })
+    fireEvent.click(await screen.findByRole("option", { name: "fi" }))
+    fireEvent.click(screen.getByRole("button", { name: "create-an-account" }))
+
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: "message-please-confirm-your-email-address",
+      hidden: true,
+    })
+    await waitFor(() => expect(heading).toHaveFocus())
   })
 })

@@ -5,7 +5,7 @@ import { useDialog } from "@react-aria/dialog"
 import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -171,6 +171,23 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     state,
     onClose,
   ])
+
+  const lastSubmenuIdRef = useRef<string | null>(null)
+  const currentSubmenuId = currentSubmenu?.id ?? null
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (currentSubmenuId) {
+      lastSubmenuIdRef.current = currentSubmenuId
+      dialog?.querySelector<HTMLElement>("[data-submenu-back]")?.focus()
+    } else if (lastSubmenuIdRef.current) {
+      const parentId = lastSubmenuIdRef.current
+      lastSubmenuIdRef.current = null
+      dialog
+        // oxlint-disable-next-line i18next/no-literal-string
+        ?.querySelectorAll<HTMLElement>("[data-submenu-id]")
+        .forEach((el) => el.dataset.submenuId === parentId && el.focus())
+    }
+  }, [currentSubmenuId])
 
   // Determine which items to display (main menu or submenu)
   const itemsToDisplay = currentSubmenu ? currentSubmenu.submenuItems || [] : mainMenuItems

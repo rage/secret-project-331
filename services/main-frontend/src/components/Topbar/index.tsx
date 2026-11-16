@@ -5,9 +5,9 @@ import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import type { ReactElement } from "react"
 import React, { useContext } from "react"
-import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import SkipLink from "@/shared-module/common/components/SkipLink"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -137,6 +137,7 @@ const Topbar: React.FC<TopbarProps> = ({
           z-index: 100;
         `}
       >
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div
           className={css`
             margin: 0 auto;
@@ -199,9 +200,8 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableSearch && enableLanguageMenu && (
-                <Separator
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  orientation="vertical"
+                <span
+                  aria-hidden="true"
                   className={css`
                     height: 24px;
                     background: #e5e7eb;
@@ -224,9 +224,8 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
-                <Separator
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  orientation="vertical"
+                <span
+                  aria-hidden="true"
                   className={css`
                     height: 24px;
                     background: #e5e7eb;
@@ -244,9 +243,8 @@ const Topbar: React.FC<TopbarProps> = ({
                   {enableUserMenu && <UserMenu menuOptions={userMenuOptions} />}
 
                   {enableUserMenu && enableQuickActions && (
-                    <Separator
-                      // oxlint-disable-next-line i18next/no-literal-string
-                      orientation="vertical"
+                    <span
+                      aria-hidden="true"
                       className={css`
                         height: 24px;
                         background: #e5e7eb;

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import { Pencil } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -45,8 +45,10 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const { t: tCountries } = useTranslation("countries")
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
+  const editButtonRef = useRef<HTMLButtonElement>(null)
+  const restoreFocusRef = useRef(false)
 
-  const { handleSubmit, control, reset } = useForm<SelectUserInfoFormFields>({
+  const { handleSubmit, control, reset, setFocus } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
@@ -57,6 +59,16 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       emailCommunicationConsent: emailCommunicationConsent,
     },
   })
+
+  useEffect(() => {
+    if (isEditing) {
+      // oxlint-disable-next-line i18next/no-literal-string
+      setFocus("email")
+    } else if (restoreFocusRef.current) {
+      restoreFocusRef.current = false
+      editButtonRef.current?.focus()
+    }
+  }, [isEditing, setFocus])
 
   const countriesOptions = useMemo(
     () =>
@@ -93,6 +105,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     },
     {
       onSuccess: async () => {
+        restoreFocusRef.current = true
         setIsEditing(false)
         await refetchUserDetailsForUser(queryClient)
         // Backend clears email_verified_at on an address change, so the card needs a refetch.
@@ -102,6 +115,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   )
 
   const handleCancel = () => {
+    restoreFocusRef.current = true
     reset({
       email,
       first_name: firstName,
@@ -132,7 +146,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             border-bottom: 1px solid ${baseTheme.colors.gray[100]};
           `}
         >
-          <h3
+          <h2
             className={css`
               font-size: 1.0625rem;
               font-weight: 600;
@@ -141,8 +155,9 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             `}
           >
             {t("user-settings-personal-info")}
-          </h3>
+          </h2>
           <Button
+            ref={editButtonRef}
             data-testid="edit-profile-button"
             variant="tertiary"
             size="small"
@@ -153,10 +168,11 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           </Button>
         </div>
 
-        <div
+        <dl
           className={css`
             display: grid;
             gap: 1.25rem;
+            margin: 0;
             ${respondToOrLarger.md} {
               grid-template-columns: repeat(2, 1fr);
               gap: 1.25rem 2rem;
@@ -170,105 +186,109 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               }
             `}
           >
-            <div
+            <dt
               className={css`
                 font-size: 0.75rem;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
               {t("email")}
-            </div>
-            <div
+            </dt>
+            <dd
               data-testid="personal-info-email-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
                 font-weight: 500;
+                margin: 0;
               `}
             >
               {email || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
+            <dt
               className={css`
                 font-size: 0.75rem;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
               {t("first-name")}
-            </div>
-            <div
+            </dt>
+            <dd
               data-testid="personal-info-first-name-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
                 font-weight: 500;
+                margin: 0;
               `}
             >
               {firstName || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
+            <dt
               className={css`
                 font-size: 0.75rem;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
               {t("last-name")}
-            </div>
-            <div
+            </dt>
+            <dd
               data-testid="personal-info-last-name-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
                 font-weight: 500;
+                margin: 0;
               `}
             >
               {lastName || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
+            <dt
               className={css`
                 font-size: 0.75rem;
                 font-weight: 500;
                 text-transform: uppercase;
                 letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 margin-bottom: 0.375rem;
               `}
             >
               {t("enter-country-question")}
-            </div>
-            <div
+            </dt>
+            <dd
               data-testid="personal-info-country-value"
               className={css`
                 font-size: 0.9375rem;
                 color: ${baseTheme.colors.gray[700]};
                 font-weight: 500;
+                margin: 0;
               `}
             >
               {selectedCountryLabel || "-"}
-            </div>
+            </dd>
           </div>
-        </div>
+        </dl>
 
         <div
           className={css`
@@ -287,28 +307,35 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           >
             {t("email-communication-consent-checkbox-text")}
           </p>
-          <div
+          <dl
             className={css`
-              font-size: 0.75rem;
-              font-weight: 500;
-              text-transform: uppercase;
-              letter-spacing: 0.03em;
-              color: ${baseTheme.colors.gray[400]};
-              margin-bottom: 0.375rem;
+              margin: 0;
             `}
           >
-            {t("status")}
-          </div>
-          <div
-            data-testid="personal-info-email-consent-value"
-            className={css`
-              font-size: 0.9375rem;
-              color: ${baseTheme.colors.gray[700]};
-              font-weight: 500;
-            `}
-          >
-            {emailCommunicationConsent ? t("yes") : t("no")}
-          </div>
+            <dt
+              className={css`
+                font-size: 0.75rem;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.03em;
+                color: ${baseTheme.colors.gray[500]};
+                margin-bottom: 0.375rem;
+              `}
+            >
+              {t("status")}
+            </dt>
+            <dd
+              data-testid="personal-info-email-consent-value"
+              className={css`
+                font-size: 0.9375rem;
+                color: ${baseTheme.colors.gray[700]};
+                font-weight: 500;
+                margin: 0;
+              `}
+            >
+              {emailCommunicationConsent ? t("yes") : t("no")}
+            </dd>
+          </dl>
         </div>
       </div>
     )
@@ -316,7 +343,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   return (
     <div className={settingsCardCss}>
-      <h3
+      <h2
         className={css`
           font-size: 1.0625rem;
           font-weight: 600;
@@ -330,8 +357,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
         `}
       >
         {t("user-settings-personal-info")}
-      </h3>
-      <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
+      </h2>
+      <form noValidate onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
         <div
           className={css`
             display: grid;
@@ -346,6 +373,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="email"
             control={control}
             label={t("email")}
+            type="email"
+            autoComplete="email"
             placeholder={t("email")}
             isRequired
             rules={{
@@ -363,6 +392,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="first_name"
             control={control}
             label={t("first-name")}
+            autoComplete="given-name"
             placeholder={t("enter-first-name")}
             isRequired
             rules={{ required: t("required-field") }}
@@ -372,6 +402,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="last_name"
             control={control}
             label={t("last-name")}
+            autoComplete="family-name"
             placeholder={t("enter-last-name")}
             isRequired
             rules={{ required: t("required-field") }}

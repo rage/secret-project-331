@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { render } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { CredentialsForm } from "../CredentialsForm"
 
@@ -37,5 +37,17 @@ describe("CredentialsForm error live region", () => {
     // The live region element must not be re-created when the error appears.
     expect(liveRegionAfter).toBe(liveRegionBefore)
     expect(liveRegionAfter).toHaveTextContent("incorrect-email-or-password")
+  })
+})
+
+describe("CredentialsForm submit button", () => {
+  it("stays enabled on an empty form and shows the errors on submit", async () => {
+    render(<CredentialsForm onSubmit={noop} error={false} isSubmitting={false} />)
+    const button = screen.getByRole("button", { name: "login" })
+    expect(button).toBeEnabled()
+    fireEvent.click(button)
+    await waitFor(() =>
+      expect(screen.getByLabelText("label-email")).toHaveAttribute("aria-invalid", "true"),
+    )
   })
 })

@@ -163,6 +163,7 @@ const LanguageMenuWithHook: React.FC<
   }
 
   const activeNative = items.find((item) => item.isSelected)?.nativeLabel || ""
+  const selectedKeys = items.filter((item) => item.isSelected).map((item) => item.id)
   const triggerLabel = areLanguagesOverridden
     ? t("change-course-language")
     : t("change-user-interface-language")
@@ -213,6 +214,9 @@ const LanguageMenuWithHook: React.FC<
         <Menu
           data-testid="topbar-language-menu-popover"
           aria-label="Language selection"
+          selectionMode="single"
+          selectedKeys={selectedKeys}
+          disallowEmptySelection
           className={css`
             display: grid;
             gap: 4px;
@@ -224,9 +228,9 @@ const LanguageMenuWithHook: React.FC<
             return (
               <MenuItem
                 key={item.id}
+                id={item.id}
                 onAction={item.onSelect}
                 className={`${itemRow} ${item.isSelected ? selectedItem : ""}`}
-                aria-current={item.isSelected ? "true" : undefined}
                 lang={item.lang}
                 dir={item.dir}
               >
@@ -240,6 +244,7 @@ const LanguageMenuWithHook: React.FC<
                   </span>
                   <span
                     className={`${secondaryLine} ${item.isSelected ? selectedSubtext : ""}`}
+                    aria-hidden={subtitle === item.nativeLabel ? true : undefined}
                     lang={item.isSelected ? "en" : currentLanguage}
                     dir={item.isSelected ? getDir("en") : getDir(currentLanguage)}
                   >

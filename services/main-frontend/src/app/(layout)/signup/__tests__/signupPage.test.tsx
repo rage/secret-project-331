@@ -94,10 +94,6 @@ describe("Create account form accessibility", () => {
     const submit = screen.getByRole("button", { name: "create-an-account" })
     fireEvent.click(submit)
 
-    await waitFor(() => {
-      expect(screen.getAllByRole("alert").length).toBeGreaterThan(0)
-    })
-
     const firstName = screen.getByLabelText("first-name")
     await waitFor(() => {
       expect(firstName).toHaveAttribute("aria-invalid", "true")

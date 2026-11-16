@@ -183,75 +183,86 @@ WHERE e.sisu_person_id = ANY($1::text [])
     Ok(res)
 }
 
-/// How many linking mails one course or mooc.fi target has sent each of these people, replaced ones
-/// included.
-pub async fn count_mails_per_person_for_source(
-    conn: &mut PgConnection,
-    sisu_person_ids: &[String],
-    source_id: Uuid,
-) -> ModelResult<HashMap<String, i64>> {
-    let res = sqlx::query!(
-        r#"
-SELECT sisu_person_id AS "sisu_person_id!",
-  COUNT(*) AS "mail_count!"
-FROM credit_registration_account_linking_emails
-WHERE sisu_person_id = ANY($1::text [])
-  AND (
-    course_id = $2
-    OR external_credit_target_id = $2
-  )
-  AND deleted_at IS NULL
-GROUP BY sisu_person_id
-        "#,
-        sisu_person_ids,
-        source_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res
-        .into_iter()
-        .map(|row| {
-            (
-                row.sisu_person_id.expose_secret().to_owned(),
-                row.mail_count,
-            )
-        })
-        .collect())
+/// One linking mail to a person: when it was claimed and what became of its send.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LinkingMailSend {
+    pub claimed_at: DateTime<Utc>,
+    /// `None` until the `link-emails` phase queues it.
+    pub send_status: Option<EmailSendStatusReport>,
 }
 
-/// When one course or mooc.fi target sent each of these people a linking mail, newest first,
-/// replaced ones included.
-pub async fn get_sent_times_per_person_for_source(
+/// The linking mails one course or mooc.fi target has sent each of these people, keyed by Sisu
+/// person id, newest first, replaced ones included.
+pub async fn get_sends_per_person_for_source(
     conn: &mut PgConnection,
     sisu_person_ids: &[String],
     source_id: Uuid,
-) -> ModelResult<HashMap<String, Vec<DateTime<Utc>>>> {
-    let res = sqlx::query!(
+) -> ModelResult<HashMap<String, Vec<LinkingMailSend>>> {
+    let rows = sqlx::query!(
         r#"
-SELECT sisu_person_id AS "sisu_person_id!",
-  sent_at
-FROM credit_registration_account_linking_emails
-WHERE sisu_person_id = ANY($1::text [])
+SELECT e.sisu_person_id AS "sisu_person_id!",
+  e.sent_at AS claimed_at,
+  ed.sent AS "delivery_sent?",
+  ed.retryable AS "retryable?",
+  ed.retry_count AS "retry_count?",
+  ed.next_retry_at AS "next_retry_at?",
+  ed.first_failed_at AS "first_failed_at?",
+  ed.last_attempt_at AS "last_attempt_at?",
+  latest_error.error_code AS "error_code?",
+  latest_error.is_transient AS "is_transient?"
+FROM credit_registration_account_linking_emails e
+  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id
+  AND ed.deleted_at IS NULL
+  LEFT JOIN LATERAL (
+    SELECT ede.error_code,
+      ede.is_transient
+    FROM email_delivery_errors ede
+    WHERE ede.email_delivery_id = ed.id
+      AND ede.deleted_at IS NULL
+    ORDER BY ede.attempt DESC,
+      ede.created_at DESC
+    LIMIT 1
+  ) latest_error ON TRUE
+WHERE e.sisu_person_id = ANY($1::text [])
   AND (
-    course_id = $2
-    OR external_credit_target_id = $2
+    e.course_id = $2
+    OR e.external_credit_target_id = $2
   )
-  AND deleted_at IS NULL
-ORDER BY sent_at DESC
+  AND e.deleted_at IS NULL
+ORDER BY e.sent_at DESC
         "#,
         sisu_person_ids,
         source_id
     )
     .fetch_all(conn)
     .await?;
-    let mut sent_times: HashMap<String, Vec<DateTime<Utc>>> = HashMap::new();
-    for row in res {
-        sent_times
+    let now = Utc::now();
+    let mut sends: HashMap<String, Vec<LinkingMailSend>> = HashMap::new();
+    for row in rows {
+        let send_status = row.delivery_sent.map(|sent| {
+            derive_email_send_status(
+                &EmailSendStatusFacts {
+                    sent,
+                    retryable: row.retryable.unwrap_or(false),
+                    retry_count: row.retry_count.unwrap_or(0),
+                    next_retry_at: row.next_retry_at,
+                    first_failed_at: row.first_failed_at,
+                    last_attempt_at: row.last_attempt_at,
+                    failure_code: row.error_code,
+                    failure_is_transient: row.is_transient,
+                },
+                now,
+            )
+        });
+        sends
             .entry(row.sisu_person_id.expose_secret().to_owned())
             .or_default()
-            .push(row.sent_at);
+            .push(LinkingMailSend {
+                claimed_at: row.claimed_at,
+                send_status,
+            });
     }
-    Ok(sent_times)
+    Ok(sends)
 }
 
 /// Marks the rows these new slots would collide with in the dedup key as replaced, where their link

@@ -8,6 +8,7 @@ use headless_lms_models::course_module_suotar_configurations::SuotarConfigCheck;
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_modules_with_course_code,
 };
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
@@ -24,6 +25,7 @@ use headless_lms_models::library::credit_registration::config_validation::{
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use utoipa::ToSchema;
 
+use crate::domain::credit_registration::linking_mail_resend::resolve_linking_mail_source;
 use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
 
@@ -149,6 +151,92 @@ pub struct AdminExternalCreditTargetPayload {
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminDeleteExternalCreditTargetPayload {
     pub reason: String,
+}
+
+/// One module that registers credits, or a mooc.fi target, with its course code.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCreditUnitCourseCode {
+    pub credit_unit_id: Uuid,
+    /// `None` for a mooc.fi target or a course's default module.
+    pub course_module_name: Option<String>,
+    pub uh_course_code: Option<String>,
+}
+
+/// A course's or mooc.fi target's name and course codes.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCreditRegistrationCourseSummary {
+    /// `None` for a mooc.fi target.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
+    pub course_name: String,
+    /// The course's modules that register credits, or the mooc.fi target alone.
+    pub credit_units: Vec<AdminCreditUnitCourseCode>,
+}
+
+/**
+GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+course's or mooc.fi target's name and course codes.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/courses/{course_or_target_id}/summary",
+    operation_id = "getCreditRegistrationCourseSummary",
+    tag = "credit-registration-admin",
+    params(("course_or_target_id" = Uuid, Path, description = "Course or mooc.fi target id")),
+    responses(
+        (status = 200, description = "The course's name and course codes", body = AdminCreditRegistrationCourseSummary),
+        (status = 404, description = "No such course or mooc.fi target")
+    )
+)]
+pub async fn get_credit_registration_course_summary(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    course_or_target_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<AdminCreditRegistrationCourseSummary>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    let course_or_target_id = course_or_target_id.into_inner();
+
+    let summary = match resolve_linking_mail_source(&mut conn, course_or_target_id).await? {
+        LinkingMailSource::Course(course_id) => {
+            let course = models::courses::get_course(&mut conn, course_id).await?;
+            let credit_units = models::course_modules::get_by_course_id(&mut conn, course_id)
+                .await?
+                .into_iter()
+                .filter(|module| {
+                    models::course_modules::registers_credits(
+                        module.uh_course_code.as_deref(),
+                        module.credit_registration_route,
+                    )
+                })
+                .map(|module| AdminCreditUnitCourseCode {
+                    credit_unit_id: module.id,
+                    course_module_name: module.name,
+                    uh_course_code: module.uh_course_code,
+                })
+                .collect();
+            AdminCreditRegistrationCourseSummary {
+                course_id: Some(course_id),
+                course_name: course.name,
+                credit_units,
+            }
+        }
+        LinkingMailSource::ExternalCreditTarget(target_id) => {
+            let target = external_credit_targets::get_by_id(&mut conn, target_id).await?;
+            AdminCreditRegistrationCourseSummary {
+                course_id: None,
+                course_name: format!("mooc.fi: {}", target.name),
+                credit_units: vec![AdminCreditUnitCourseCode {
+                    credit_unit_id: target.id,
+                    course_module_name: None,
+                    uh_course_code: Some(target.uh_course_code),
+                }],
+            }
+        }
+    };
+
+    token.authorized_ok(web::Json(summary))
 }
 
 /**
@@ -936,6 +1024,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/courses",
         web::get().to(get_credit_registration_stats_by_course),
+    )
+    .route(
+        "/courses/{course_or_target_id}/summary",
+        web::get().to(get_credit_registration_course_summary),
     )
     .route(
         "/courses/{course_module_id}/pause",

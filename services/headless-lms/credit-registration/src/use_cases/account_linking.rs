@@ -23,7 +23,7 @@ use uuid::Uuid;
 use crate::error::CreditRegistrationResult;
 use crate::registry::{CourseCode, InteractiveStudyRegistry, StudentNumber};
 use crate::use_cases::enrolment_discovery::{
-    ListedEnrolee, list_unlinked, list_unlinked_enrolled_before, list_with_linked_accounts,
+    ListedEnrolee, list_unlinked_enrolled_before, list_with_linked_accounts,
 };
 
 /// What one resend attempt came to.
@@ -204,21 +204,34 @@ async fn source_course_codes(
     }
 }
 
+/// What listing a course's or mooc.fi target's rosters came to.
+pub enum EnroleeListing {
+    /// No active module or target with a course code, so there is no roster to ask for.
+    NoCourseCodes,
+    /// The study registry gave no usable answer for some code.
+    StudyRegistryUnavailable,
+    Listed(Vec<ListedEnrolee>),
+}
+
 /// [`crate::account_linking::list_unlinked_on_course_rosters`] through `registry`.
 pub(crate) async fn unlinked_on_course_rosters<R: InteractiveStudyRegistry>(
     pool: &PgPool,
     registry: &R,
     course_id: Uuid,
 ) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
-    let mut people = Vec::new();
-    for code in active_course_codes(pool, course_id).await? {
-        let Some(listed) = registry.fetch_course_roster(&code).await else {
-            return Ok(None);
-        };
-        people.extend(listed);
-    }
-    let mut conn = pool.acquire().await?;
-    Ok(Some(list_unlinked(&mut conn, &people).await?))
+    Ok(
+        match enrolees_of_source(pool, registry, LinkingMailSource::Course(course_id)).await? {
+            EnroleeListing::NoCourseCodes => Some(Vec::new()),
+            EnroleeListing::StudyRegistryUnavailable => None,
+            EnroleeListing::Listed(enrolees) => Some(
+                enrolees
+                    .into_iter()
+                    .filter(|enrolee| enrolee.linked_user_id.is_none())
+                    .map(|enrolee| enrolee.person)
+                    .collect(),
+            ),
+        },
+    )
 }
 
 /// [`crate::account_linking::list_enrolees`] through `registry`.
@@ -226,16 +239,22 @@ pub(crate) async fn enrolees_of_source<R: InteractiveStudyRegistry>(
     pool: &PgPool,
     registry: &R,
     source: LinkingMailSource,
-) -> CreditRegistrationResult<Option<Vec<ListedEnrolee>>> {
-    let mut people = Vec::new();
-    for code in source_course_codes(pool, source).await? {
+) -> CreditRegistrationResult<EnroleeListing> {
+    let codes = source_course_codes(pool, source).await?;
+    if codes.is_empty() {
+        return Ok(EnroleeListing::NoCourseCodes);
+    }
+    let mut rosters = Vec::new();
+    for code in codes {
         let Some(listed) = registry.fetch_course_roster(&code).await else {
-            return Ok(None);
+            return Ok(EnroleeListing::StudyRegistryUnavailable);
         };
-        people.extend(listed);
+        rosters.push((code.as_str().to_owned(), listed));
     }
     let mut conn = pool.acquire().await?;
-    Ok(Some(list_with_linked_accounts(&mut conn, &people).await?))
+    Ok(EnroleeListing::Listed(
+        list_with_linked_accounts(&mut conn, &rosters).await?,
+    ))
 }
 
 /// [`crate::account_linking::list_unlinked_enrolled_before`] through `registry`.

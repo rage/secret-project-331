@@ -12,6 +12,7 @@ import type {
   AdminCourseEnrolees,
   AdminResendAccountLinkingEmailResult,
 } from "@/generated/api/types.generated"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { creditRegistrationItemRoute, manageUserRoute } from "@/shared-module/common/utils/routes"
 import type { TableColumn } from "@/shared-module/components"
 import { Badge, Button, Dialog, Infobox, Link, Table, TextField } from "@/shared-module/components"
@@ -33,6 +34,7 @@ import type { DialogOpenState } from "./AdminActionDialog"
 import { useCourseEnrolees } from "./adminCreditRegistrationHooks"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import { candidateFullName, candidateName, withSendResult } from "./linkingCandidate"
+import LinkingEmailSendStatus from "./LinkingEmailSendStatus"
 
 const LINKING_SINCE = "credit-registration-admin-course-enrolees-linking-since"
 
@@ -48,12 +50,31 @@ interface Fields {
 const searchText = (enrolee: AdminCourseEnrolee): string =>
   [
     candidateFullName(enrolee.person),
-    enrolee.person.email,
+    enrolee.primary_email,
+    enrolee.secondary_email,
     enrolee.person.student_number,
     enrolee.linked_user_email,
   ]
     .join("\n")
     .toLocaleLowerCase()
+
+/** One of Sisu's addresses for the person, labelled, or a note that Sisu has none. */
+const SisuAddress: React.FC<{ label: string; address: string | null | undefined }> = ({
+  label,
+  address,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <span className={noteCss}>
+      {label}:{" "}
+      {address ? (
+        <EmailAddress address={address} />
+      ) : (
+        t("credit-registration-admin-sisu-email-none")
+      )}
+    </span>
+  )
+}
 
 const PersonCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -61,13 +82,14 @@ const PersonCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) => {
     <span className={stackedCellCss}>
       <span>{candidateName(t, enrolee.person)}</span>
       <span className={codeValueCss}>{enrolee.person.student_number}</span>
-      {enrolee.person.email ? (
-        <EmailAddress address={enrolee.person.email} />
-      ) : (
-        <span className={noteCss}>
-          {t("credit-registration-admin-linking-candidate-no-address")}
-        </span>
-      )}
+      <SisuAddress
+        label={t("credit-registration-admin-sisu-primary-email")}
+        address={enrolee.primary_email}
+      />
+      <SisuAddress
+        label={t("credit-registration-admin-sisu-secondary-email")}
+        address={enrolee.secondary_email}
+      />
     </span>
   )
 }
@@ -122,13 +144,16 @@ const AccountCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) => 
 
 const LinkingEmailsCell: React.FC<{ enrolee: AdminCourseEnrolee }> = ({ enrolee }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  if (enrolee.linking_emails_sent_at.length === 0) {
+  if (enrolee.linking_emails.length === 0) {
     return <span className={noteCss}>{t("credit-registration-admin-no-linking-emails-sent")}</span>
   }
   return (
     <span className={stackedCellCss}>
-      {enrolee.linking_emails_sent_at.map((sentAt) => (
-        <ZonedTimestamp key={sentAt} at={sentAt} />
+      {enrolee.linking_emails.map((email) => (
+        <span key={email.claimed_at} className={stackedCellCss}>
+          <ZonedTimestamp at={email.claimed_at} />
+          <LinkingEmailSendStatus report={email.send_status} />
+        </span>
       ))}
     </span>
   )
@@ -151,6 +176,9 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   const filter = watch("filter")
   const [sendTo, setSendTo] = useState<string | null>(null)
   const enroleesQuery = useCourseEnrolees(courseOrTargetId, isOpen)
+  const enroleesQueryKey = getAccountLinkingCourseEnroleesQueryKey({
+    path: { course_or_target_id: courseOrTargetId },
+  })
 
   const enrolees = enroleesQuery.data
   const people = useMemo(() => enrolees?.people ?? [], [enrolees])
@@ -164,9 +192,7 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   const recordSend = (studentNumber: string, result: AdminResendAccountLinkingEmailResult) => {
     const sentAt = result.manual_send?.sent_at
     queryClient.setQueryData<AdminCourseEnrolees>(
-      getAccountLinkingCourseEnroleesQueryKey({
-        path: { course_or_target_id: courseOrTargetId },
-      }),
+      enroleesQueryKey,
       (current) =>
         current && {
           ...current,
@@ -175,7 +201,10 @@ const CourseEnroleesDialog: React.FC<Props> = ({
               ? {
                   ...enrolee,
                   person: withSendResult(enrolee.person, studentNumber, result),
-                  linking_emails_sent_at: [sentAt, ...enrolee.linking_emails_sent_at],
+                  linking_emails: [
+                    { claimed_at: sentAt, send_status: null },
+                    ...enrolee.linking_emails,
+                  ],
                 }
               : enrolee,
           ),
@@ -186,6 +215,8 @@ const CourseEnroleesDialog: React.FC<Props> = ({
   const closeDialog = () => {
     onClose()
     reset({ filter: "" })
+    // The next open asks Sisu again, and must not show this list as current meanwhile.
+    queryClient.removeQueries({ queryKey: enroleesQueryKey })
   }
 
   const columns: TableColumn<AdminCourseEnrolee>[] = [
@@ -246,11 +277,16 @@ const CourseEnroleesDialog: React.FC<Props> = ({
             {sentenceWithTimestamp(t, LINKING_SINCE, enrolees.account_linking_since)}
           </p>
         )}
-        {enroleesQuery.isError && (
-          <Infobox tone={TONE.DANGER}>
-            {t("credit-registration-admin-send-linking-email-enrolees-failed")}
-          </Infobox>
-        )}
+        {enroleesQuery.isError &&
+          (isAppApiError(enroleesQuery.error) && enroleesQuery.error.status === 400 ? (
+            <p className={proseCss}>
+              {t("credit-registration-admin-course-enrolees-no-course-codes")}
+            </p>
+          ) : (
+            <Infobox tone={TONE.DANGER}>
+              {t("credit-registration-admin-send-linking-email-enrolees-failed")}
+            </Infobox>
+          ))}
         {enroleesQuery.isPending && (
           <p className={noteCss}>{t("credit-registration-admin-linking-candidates-loading")}</p>
         )}

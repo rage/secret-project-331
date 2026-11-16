@@ -18,6 +18,7 @@ import {
   getCreditRegistrationPipelineHistoryOptions,
   getCreditRegistrationReconciliationOptions,
   getCreditRegistrationReconciliationQueryKey,
+  getCreditRegistrationCourseSummaryOptions,
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
   getSuotarHealthOptions,
@@ -358,6 +359,14 @@ export const useCreditRegistrationEnrolmentChecks = (windowSecs: number) =>
   useQuery({
     ...getCreditRegistrationEnrolmentChecksOptions({ query: { window_secs: windowSecs } }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
+
+/** One course's or mooc.fi target's name and course codes, loaded once: they change only on edits. */
+export const useCreditRegistrationCourseSummary = (courseOrTargetId: string) =>
+  useQuery({
+    ...getCreditRegistrationCourseSummaryOptions({
+      path: { course_or_target_id: courseOrTargetId },
+    }),
   })
 
 export const useCreditRegistrationCourseStats = () =>

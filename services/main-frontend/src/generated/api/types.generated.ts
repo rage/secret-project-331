@@ -459,12 +459,14 @@ export type AdminBulkTransitionSkipCount = {
  */
 export type AdminCourseEnrolee = {
   /**
-   * The linked account's newest registration on this course or target.
+   * The linked account's newest registration on this course or target, preferring one under a
+   * course code whose roster lists them.
    */
   credit_registration_id?: string | null
   /**
-   * Enrolled before account linking began, or at no known time: no linking email goes to them
-   * automatically. Always false while account linking is off.
+   * Enrolled before account linking began, or at no known time. A linking email then goes to
+   * them automatically only when their Sisu address is the email of an account with a
+   * registerable completion on the course. Always false while account linking is off.
    */
   enrolled_before_account_linking: boolean
   /**
@@ -477,13 +479,26 @@ export type AdminCourseEnrolee = {
    */
   linked_user_id?: string | null
   /**
-   * When this course or target sent them a linking email, newest first, replaced ones included.
+   * The linking emails this course or target sent them, newest first, replaced ones included.
    */
-  linking_emails_sent_at: Array<string>
+  linking_emails: Array<AdminCourseEnroleeLinkingEmail>
   /**
    * Who Sisu lists, and the linking emails sent to them by hand. `similarities` is always empty.
    */
   person: AdminLinkingCandidate
+  /**
+   * Sisu's addresses for them in full; `person.email` is the one a linking email goes to.
+   */
+  primary_email?: string | null
+  secondary_email?: string | null
+}
+
+/**
+ * One linking email to a person on a course's enrolment lists.
+ */
+export type AdminCourseEnroleeLinkingEmail = {
+  claimed_at: string
+  send_status?: EmailSendStatusReport | null
 }
 
 /**
@@ -519,6 +534,24 @@ export type AdminCreditRegistrationAction =
   | {
       kind: "check_now"
     }
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export type AdminCreditRegistrationCourseSummary = {
+  /**
+   * `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
+  course_name: string
+  /**
+   * The course's modules that register credits, or the mooc.fi target alone.
+   */
+  credit_units: Array<AdminCreditUnitCourseCode>
+}
 
 export type AdminCreditRegistrationDetails = {
   /**
@@ -755,6 +788,18 @@ export type AdminCreditRegistrationRow = {
  * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
+
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export type AdminCreditUnitCourseCode = {
+  /**
+   * `None` for a mooc.fi target or a course's default module.
+   */
+  course_module_name?: string | null
+  credit_unit_id: string
+  uh_course_code?: string | null
+}
 
 export type AdminDeleteExternalCreditTargetPayload = {
   reason: string
@@ -13533,6 +13578,17 @@ export type GetAccountLinkingCourseEnroleesData = {
   url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees"
 }
 
+export type GetAccountLinkingCourseEnroleesErrors = {
+  /**
+   * No active module or mooc.fi target with a course code
+   */
+  400: unknown
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
 export type GetAccountLinkingCourseEnroleesResponses = {
   /**
    * The people on the enrolment lists
@@ -14014,6 +14070,35 @@ export type AdminResumeCourseModuleCreditRegistrationResponses = {
    */
   200: unknown
 }
+
+export type GetCreditRegistrationCourseSummaryData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary"
+}
+
+export type GetCreditRegistrationCourseSummaryErrors = {
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
+export type GetCreditRegistrationCourseSummaryResponses = {
+  /**
+   * The course's name and course codes
+   */
+  200: AdminCreditRegistrationCourseSummary
+}
+
+export type GetCreditRegistrationCourseSummaryResponse =
+  GetCreditRegistrationCourseSummaryResponses[keyof GetCreditRegistrationCourseSummaryResponses]
 
 export type GetCreditRegistrationEnrolmentChecksData = {
   body?: never

@@ -1,6 +1,6 @@
 //! The ledger as the admin explorer and the reconciliation detectors read it, across courses.
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use super::registration::{CreditRegistration, is_waiting_for_enrolment};
 use super::state::{CreditRegistrationErrorCode, CreditRegistrationState, ResubmissionFacts};
@@ -468,34 +468,49 @@ LIMIT $15 OFFSET $16
     Ok(res)
 }
 
-/// Each of these accounts' newest unsuperseded registration on one course or mooc.fi target, keyed
-/// by user id.
-pub async fn get_latest_ids_by_users_on_course_or_target(
+/// An account's newest unsuperseded registration under one course code.
+#[derive(Debug, Clone)]
+pub struct LatestRegistrationByCode {
+    pub user_id: Uuid,
+    pub credit_registration_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    /// The module's or mooc.fi target's code now, trimmed and upper-cased.
+    pub uh_course_code: Option<String>,
+}
+
+/// Each of these accounts' newest unsuperseded registration per course code on one course or
+/// mooc.fi target.
+pub async fn get_latest_by_users_and_codes_on_course_or_target(
     conn: &mut PgConnection,
     user_ids: &[Uuid],
     course_or_target_id: Uuid,
-) -> ModelResult<HashMap<Uuid, Uuid>> {
-    let res = sqlx::query!(
+) -> ModelResult<Vec<LatestRegistrationByCode>> {
+    let res = sqlx::query_as!(
+        LatestRegistrationByCode,
         r#"
-SELECT DISTINCT ON (user_id) user_id,
-  id
-FROM credit_registrations
-WHERE user_id = ANY($1::uuid [])
+SELECT DISTINCT ON (cr.user_id, UPPER(TRIM(s.uh_course_code))) cr.user_id,
+  cr.id AS credit_registration_id,
+  cr.created_at,
+  UPPER(TRIM(s.uh_course_code)) AS uh_course_code
+FROM credit_registrations cr
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+WHERE cr.user_id = ANY($1::uuid [])
   AND (
-    course_id = $2
-    OR external_credit_target_id = $2
+    cr.course_id = $2
+    OR cr.external_credit_target_id = $2
   )
-  AND superseded_by_id IS NULL
-  AND deleted_at IS NULL
-ORDER BY user_id,
-  created_at DESC
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+ORDER BY cr.user_id,
+  UPPER(TRIM(s.uh_course_code)),
+  cr.created_at DESC
         "#,
         user_ids,
         course_or_target_id
     )
     .fetch_all(conn)
     .await?;
-    Ok(res.into_iter().map(|row| (row.user_id, row.id)).collect())
+    Ok(res)
 }
 
 /// A page of the ledger for the admin explorer, cross-course.

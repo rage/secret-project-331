@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations;
 use headless_lms_models::credit_registration_account_linking_emails::{
-    self, LinkingEmailListRow, LinkingEmailListStatus, LinkingMailLinkState, LinkingMailSource,
-    StaleUnclaimedLinkingMails,
+    self, LinkingEmailListRow, LinkingEmailListStatus, LinkingMailLinkState, LinkingMailSend,
+    LinkingMailSource, StaleUnclaimedLinkingMails,
 };
 use headless_lms_models::credit_registration_admin_actions::{
     self, CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
@@ -17,7 +17,8 @@ use headless_lms_models::credit_registration_roster_schedules::{
     self, AccountLinkingCodeCounters, RosterSchedule, ScheduleSelection,
 };
 use headless_lms_models::credit_registrations::{
-    self, AttentionReason, AttentionStanding, CreditRegistrationErrorCode, WaitingPresser,
+    self, AttentionReason, AttentionStanding, CreditRegistrationErrorCode,
+    LatestRegistrationByCode, WaitingPresser,
 };
 use headless_lms_models::email_deliveries::{EmailSendStatus, EmailSendStatusReport};
 use headless_lms_models::library::credit_registration::account_linking::{
@@ -46,9 +47,9 @@ use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_credit_registration::CreditRegistrationPhase;
 use headless_lms_credit_registration::account_linking::{
-    ListedEnrolee, ManualActionContext, PersonLookupError, RateCapOverride, RegistryPerson,
-    ResendAttempt, list_enrolees, list_unlinked_enrolled_before, list_unlinked_on_course_rosters,
-    look_up_person, resend_linking_mail_for_target,
+    EnroleeListing, ListedEnrolee, ManualActionContext, PersonLookupError, RateCapOverride,
+    RegistryPerson, ResendAttempt, list_enrolees, list_unlinked_enrolled_before,
+    list_unlinked_on_course_rosters, look_up_person, resend_linking_mail_for_target,
 };
 
 use super::dashboard::{CreditRegistrationPhaseStatus, to_phase_status};
@@ -470,13 +471,26 @@ pub struct AdminCourseEnrolee {
     /// The account linked to them by Sisu person id or student number.
     pub linked_user_id: Option<Uuid>,
     pub linked_user_email: Option<String>,
-    /// The linked account's newest registration on this course or target.
+    /// The linked account's newest registration on this course or target, preferring one under a
+    /// course code whose roster lists them.
     pub credit_registration_id: Option<Uuid>,
-    /// Enrolled before account linking began, or at no known time: no linking email goes to them
-    /// automatically. Always false while account linking is off.
+    /// Sisu's addresses for them in full; `person.email` is the one a linking email goes to.
+    pub primary_email: Option<String>,
+    pub secondary_email: Option<String>,
+    /// Enrolled before account linking began, or at no known time. A linking email then goes to
+    /// them automatically only when their Sisu address is the email of an account with a
+    /// registerable completion on the course. Always false while account linking is off.
     pub enrolled_before_account_linking: bool,
-    /// When this course or target sent them a linking email, newest first, replaced ones included.
-    pub linking_emails_sent_at: Vec<DateTime<Utc>>,
+    /// The linking emails this course or target sent them, newest first, replaced ones included.
+    pub linking_emails: Vec<AdminCourseEnroleeLinkingEmail>,
+}
+
+/// One linking email to a person on a course's enrolment lists.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct AdminCourseEnroleeLinkingEmail {
+    pub claimed_at: DateTime<Utc>,
+    /// `None` until queued.
+    pub send_status: Option<EmailSendStatusReport>,
 }
 
 /// Everyone on a course's or mooc.fi target's enrolment lists.
@@ -1328,7 +1342,9 @@ Lists the rosters live. Stores nothing beyond the call log row every study regis
     tag = "credit-registration-admin",
     params(("course_or_target_id" = Uuid, Path, description = "Course or mooc.fi target id")),
     responses(
-        (status = 200, description = "The people on the enrolment lists", body = AdminCourseEnrolees)
+        (status = 200, description = "The people on the enrolment lists", body = AdminCourseEnrolees),
+        (status = 400, description = "No active module or mooc.fi target with a course code"),
+        (status = 404, description = "No such course or mooc.fi target")
     )
 )]
 pub async fn get_account_linking_course_enrolees(
@@ -1341,39 +1357,37 @@ pub async fn get_account_linking_course_enrolees(
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
     let course_or_target_id = course_or_target_id.into_inner();
-    let source = resolve_linking_mail_source(&mut conn, course_or_target_id).await?;
+    let source = resolve_existing_source(&mut conn, course_or_target_id).await?;
     let since = app_conf.suotar_configuration.account_linking_since;
 
     let ctx = ManualActionContext::new(&pool, &suotar_client, ENROLEES_CALLER);
     // Released so the Suotar call does not pin a pool connection for its whole timeout.
     drop(conn);
     info!(actor = %user.id, course_or_target_id = %course_or_target_id, "Admin listing course enrolees");
-    let listed = list_enrolees(&ctx, source).await?;
+    let listing = list_enrolees(&ctx, source).await?;
     let mut conn = pool.acquire().await?;
 
-    let study_registry_unavailable = listed.is_none();
-    let listed = listed.unwrap_or_default();
+    let (study_registry_unavailable, listed) = match listing {
+        EnroleeListing::NoCourseCodes => {
+            return Err(controller_err!(
+                BadRequest,
+                "This course has no active module with a course code, so it has no enrolment list."
+                    .to_string()
+            ));
+        }
+        EnroleeListing::StudyRegistryUnavailable => (true, Vec::new()),
+        EnroleeListing::Listed(listed) => (false, listed),
+    };
     let people: Vec<RosterPerson> = listed
         .iter()
         .map(|enrolee| enrolee.person.clone())
         .collect();
     let history = linking_email_history(&mut conn, &people, course_or_target_id).await?;
-    let person_ids: Vec<String> = people
-        .iter()
-        .map(|person| person.person_id.expose_secret().to_owned())
-        .collect();
-    let sent_times =
-        credit_registration_account_linking_emails::get_sent_times_per_person_for_source(
-            &mut conn,
-            &person_ids,
-            course_or_target_id,
-        )
-        .await?;
     let linked_user_ids: Vec<Uuid> = listed
         .iter()
         .filter_map(|enrolee| enrolee.linked_user_id)
         .collect();
-    let registration_ids = credit_registrations::get_latest_ids_by_users_on_course_or_target(
+    let registrations = credit_registrations::get_latest_by_users_and_codes_on_course_or_target(
         &mut conn,
         &linked_user_ids,
         course_or_target_id,
@@ -1388,16 +1402,7 @@ pub async fn get_account_linking_course_enrolees(
 
     let mut people: Vec<AdminCourseEnrolee> = listed
         .iter()
-        .map(|enrolee| {
-            to_course_enrolee(
-                enrolee,
-                &history,
-                &sent_times,
-                &registration_ids,
-                &emails,
-                since,
-            )
-        })
+        .map(|enrolee| to_course_enrolee(enrolee, &history, &registrations, &emails, since))
         .collect();
     people.sort_by(|a, b| {
         a.linked_user_id
@@ -1413,11 +1418,58 @@ pub async fn get_account_linking_course_enrolees(
     }))
 }
 
+/// [`resolve_linking_mail_source`], refusing with not found an id that is neither a mooc.fi target
+/// nor a course.
+async fn resolve_existing_source(
+    conn: &mut PgConnection,
+    course_or_target_id: Uuid,
+) -> Result<LinkingMailSource, ControllerError> {
+    let source = resolve_linking_mail_source(conn, course_or_target_id).await?;
+    if let LinkingMailSource::Course(course_id) = source {
+        models::courses::get_course(conn, course_id).await?;
+    }
+    Ok(source)
+}
+
+/// The linked account's newest registration under a code whose roster lists `enrolee`, or failing
+/// that its newest on the course.
+fn registration_for(
+    enrolee: &ListedEnrolee,
+    registrations: &[LatestRegistrationByCode],
+) -> Option<Uuid> {
+    let user_id = enrolee.linked_user_id?;
+    let listed_codes: HashSet<String> = enrolee
+        .course_codes
+        .iter()
+        .map(|code| code.trim().to_uppercase())
+        .collect();
+    let of_user = registrations
+        .iter()
+        .filter(|registration| registration.user_id == user_id);
+    let newest = |candidates: Vec<&LatestRegistrationByCode>| {
+        candidates
+            .into_iter()
+            .max_by_key(|registration| registration.created_at)
+            .map(|registration| registration.credit_registration_id)
+    };
+    newest(
+        of_user
+            .clone()
+            .filter(|registration| {
+                registration
+                    .uh_course_code
+                    .as_ref()
+                    .is_some_and(|code| listed_codes.contains(code))
+            })
+            .collect(),
+    )
+    .or_else(|| newest(of_user.collect()))
+}
+
 fn to_course_enrolee(
     enrolee: &ListedEnrolee,
     history: &LinkingEmailHistory,
-    sent_times: &HashMap<String, Vec<DateTime<Utc>>>,
-    registration_ids: &HashMap<Uuid, Uuid>,
+    registrations: &[LatestRegistrationByCode],
     emails: &HashMap<Uuid, String>,
     since: Option<DateTime<Utc>>,
 ) -> AdminCourseEnrolee {
@@ -1433,14 +1485,23 @@ fn to_course_enrolee(
         linked_user_email: enrolee
             .linked_user_id
             .and_then(|user_id| emails.get(&user_id).cloned()),
-        credit_registration_id: enrolee
-            .linked_user_id
-            .and_then(|user_id| registration_ids.get(&user_id).copied()),
+        credit_registration_id: registration_for(enrolee, registrations),
+        primary_email: expose_option(&person.primary_email).map(str::to_owned),
+        secondary_email: expose_option(&person.secondary_email).map(str::to_owned),
         enrolled_before_account_linking: since
             .is_some_and(|since| enrolled_at.is_none_or(|enrolled_at| enrolled_at < since)),
-        linking_emails_sent_at: sent_times
+        linking_emails: history
+            .sends
             .get(person.person_id.expose_secret())
-            .cloned()
+            .map(|sends| {
+                sends
+                    .iter()
+                    .map(|send| AdminCourseEnroleeLinkingEmail {
+                        claimed_at: send.claimed_at,
+                        send_status: send.send_status.clone(),
+                    })
+                    .collect()
+            })
             .unwrap_or_default(),
     }
 }
@@ -1772,8 +1833,8 @@ fn typed_student_number(raw: &SecretString) -> Result<SecretString, ControllerEr
 
 /// The linking emails listed people have had for one course.
 struct LinkingEmailHistory {
-    /// By Sisu person id, replaced ones included.
-    mail_counts: HashMap<String, i64>,
+    /// By Sisu person id, newest first, replaced ones included.
+    sends: HashMap<String, Vec<LinkingMailSend>>,
     /// By student number, newest first.
     manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>>,
 }
@@ -1787,13 +1848,12 @@ async fn linking_email_history(
         .iter()
         .map(|person| person.person_id.expose_secret().to_owned())
         .collect();
-    let mail_counts =
-        credit_registration_account_linking_emails::count_mails_per_person_for_source(
-            conn,
-            &person_ids,
-            source_id,
-        )
-        .await?;
+    let sends = credit_registration_account_linking_emails::get_sends_per_person_for_source(
+        conn,
+        &person_ids,
+        source_id,
+    )
+    .await?;
     let mut manual_sends: HashMap<String, Vec<AdminManualLinkingEmailSend>> = HashMap::new();
     for send in
         credit_registration_admin_actions::get_manual_linking_email_sends(conn, &[source_id])
@@ -1807,7 +1867,7 @@ async fn linking_email_history(
         }
     }
     Ok(LinkingEmailHistory {
-        mail_counts,
+        sends,
         manual_sends,
     })
 }
@@ -1830,10 +1890,9 @@ fn to_linking_candidate(
         email: mail_address(person).map(|address| address.expose_secret().to_owned()),
         enrolled_at: person.enrolled_at(),
         linking_emails_for_course: history
-            .mail_counts
+            .sends
             .get(person.person_id.expose_secret())
-            .copied()
-            .unwrap_or(0),
+            .map_or(0, |sends| i64::try_from(sends.len()).unwrap_or(i64::MAX)),
         manual_sends: history
             .manual_sends
             .get(person.student_number.expose_secret())

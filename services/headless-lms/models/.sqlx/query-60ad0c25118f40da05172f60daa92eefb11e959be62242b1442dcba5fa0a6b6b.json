@@ -1,0 +1,137 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.sisu_person_id AS \"sisu_person_id!\",\n  e.sent_at AS claimed_at,\n  ed.sent AS \"delivery_sent?\",\n  ed.retryable AS \"retryable?\",\n  ed.retry_count AS \"retry_count?\",\n  ed.next_retry_at AS \"next_retry_at?\",\n  ed.first_failed_at AS \"first_failed_at?\",\n  ed.last_attempt_at AS \"last_attempt_at?\",\n  latest_error.error_code AS \"error_code?\",\n  latest_error.is_transient AS \"is_transient?\"\nFROM credit_registration_account_linking_emails e\n  LEFT JOIN email_deliveries ed ON ed.id = e.email_delivery_id\n  AND ed.deleted_at IS NULL\n  LEFT JOIN LATERAL (\n    SELECT ede.error_code,\n      ede.is_transient\n    FROM email_delivery_errors ede\n    WHERE ede.email_delivery_id = ed.id\n      AND ede.deleted_at IS NULL\n    ORDER BY ede.attempt DESC,\n      ede.created_at DESC\n    LIMIT 1\n  ) latest_error ON TRUE\nWHERE e.sisu_person_id = ANY($1::text [])\n  AND (\n    e.course_id = $2\n    OR e.external_credit_target_id = $2\n  )\n  AND e.deleted_at IS NULL\nORDER BY e.sent_at DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sisu_person_id!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sisu_person_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "claimed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "delivery_sent?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "sent"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "retryable?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retryable"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "retry_count?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "retry_count"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "next_retry_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "next_retry_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "first_failed_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "first_failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "last_attempt_at?",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "email_deliveries",
+            "name": "last_attempt_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "error_code?",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "error_code"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "is_transient?",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "email_delivery_errors",
+            "name": "is_transient"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "60ad0c25118f40da05172f60daa92eefb11e959be62242b1442dcba5fa0a6b6b"
+}

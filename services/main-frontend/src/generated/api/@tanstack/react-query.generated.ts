@@ -235,6 +235,7 @@ import {
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
+  getCreditRegistrationCourseSummary,
   getCreditRegistrationDetails,
   getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
@@ -875,6 +876,8 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponse,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponse,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
   GetCreditRegistrationEarlierReasonsData,
@@ -7739,6 +7742,33 @@ export const adminResumeCourseModuleCreditRegistrationMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationCourseSummaryQueryKey = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) => createQueryKey("getCreditRegistrationCourseSummary", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummaryOptions = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationCourseSummaryResponse,
+    DefaultError,
+    GetCreditRegistrationCourseSummaryResponse,
+    ReturnType<typeof getCreditRegistrationCourseSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationCourseSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationCourseSummaryQueryKey(options),
+  })
 
 export const getCreditRegistrationEnrolmentChecksQueryKey = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,

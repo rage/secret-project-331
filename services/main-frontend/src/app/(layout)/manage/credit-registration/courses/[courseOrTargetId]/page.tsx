@@ -9,7 +9,7 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import {
   useAccountLinkingEmails,
   useAdminCreditRegistrations,
-  useCreditRegistrationCourseStats,
+  useCreditRegistrationCourseSummary,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
 import CourseEnroleesDialog from "@/components/credit-registration/admin/CourseEnroleesDialog"
 import LinkingEmailsTable from "@/components/credit-registration/admin/LinkingEmailsTable"
@@ -45,7 +45,7 @@ import {
 } from "@/components/credit-registration/styles"
 import { useIsAccountLinkingEnabled } from "@/components/credit-registration/useIsAccountLinkingEnabled"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
-import type { CreditRegistrationCourseStats } from "@/generated/api/types.generated"
+import type { AdminCreditUnitCourseCode } from "@/generated/api/types.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   creditRegistrationCoursesRoute,
@@ -58,13 +58,12 @@ const ROWS_PER_PAGE = 25
 /** Above the credit registration layout's tab title (20), which would otherwise win. */
 const TITLE_ORDER = 30
 
-/** A mooc.fi target is its own credit unit. */
-const courseOrTargetIdOf = (unit: CreditRegistrationCourseStats) =>
-  unit.course_id ?? unit.credit_unit_id
-
 /** The course's modules, or the mooc.fi target, each with its course code. */
-const CreditUnitList: React.FC<{ units: CreditRegistrationCourseStats[] }> = ({ units }) => {
+const CreditUnitList: React.FC<{ units: AdminCreditUnitCourseCode[] }> = ({ units }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  if (units.length === 0) {
+    return <p className={noteCss}>{t("credit-registration-admin-course-no-credit-units")}</p>
+  }
   return (
     <ul className={cx(noteCss, proseCss)}>
       {units.map((unit) => (
@@ -236,17 +235,9 @@ const SisuEnrolmentsSection: React.FC<{ courseOrTargetId: string; courseName: st
 const CreditRegistrationCoursePage: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { courseOrTargetId } = useParams<{ courseOrTargetId: string }>()
-  const statsQuery = useCreditRegistrationCourseStats()
-
-  const units = useMemo(
-    () =>
-      statsQuery.data?.credit_units.filter(
-        (unit) => courseOrTargetIdOf(unit) === courseOrTargetId,
-      ) ?? [],
-    [statsQuery.data, courseOrTargetId],
-  )
-  const courseName = units[0]?.course_name ?? null
-  const courseId = units[0]?.course_id ?? null
+  const summaryQuery = useCreditRegistrationCourseSummary(courseOrTargetId)
+  const summary = summaryQuery.data
+  const courseName = summary?.course_name ?? null
 
   usePageTitle(courseName && `${courseName} · ${t("credit-registration-tab-courses")}`, {
     order: TITLE_ORDER,
@@ -258,28 +249,29 @@ const CreditRegistrationCoursePage: React.FC = () => {
         label: t("credit-registration-tab-courses"),
         href: creditRegistrationCoursesRoute(),
       },
-      courseName !== null
-        ? { isLoading: false as const, label: courseName }
-        : { isLoading: true as const },
+      summaryQuery.isPending
+        ? { isLoading: true as const }
+        : {
+            isLoading: false as const,
+            label: courseName ?? t("credit-registration-admin-breadcrumb-course"),
+          },
     ],
-    [t, courseName],
+    [t, courseName, summaryQuery.isPending],
   )
   useRegisterBreadcrumbs({ key: "credit-registration-course", order: 40, crumbs })
 
   return (
     <div className={sectionCardsCss}>
-      <QueryResult query={statsQuery} refreshIndicator={QUIET_REFRESH}>
-        {() => (
+      <QueryResult query={summaryQuery}>
+        {(loaded) => (
           <div className={sectionHeaderCss}>
-            <h1 className={pageTitleCss}>
-              {courseName ?? t("credit-registration-admin-course-not-found")}
-            </h1>
-            {courseId && (
-              <Link href={manageCourseRoute(courseId)} prefetch={false}>
+            <h1 className={pageTitleCss}>{loaded.course_name}</h1>
+            {loaded.course_id && (
+              <Link href={manageCourseRoute(loaded.course_id)} prefetch={false}>
                 {t("credit-registration-admin-open-course-management")}
               </Link>
             )}
-            <CreditUnitList units={units} />
+            <CreditUnitList units={loaded.credit_units} />
           </div>
         )}
       </QueryResult>

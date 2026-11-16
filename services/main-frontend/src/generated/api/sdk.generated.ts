@@ -284,6 +284,7 @@ import type {
   GenerateCertificateData,
   GenerateCertificateResponses,
   GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesErrors,
   GetAccountLinkingCourseEnroleesResponses,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponses,
@@ -489,6 +490,9 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponses,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponses,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryErrors,
+  GetCreditRegistrationCourseSummaryResponses,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
@@ -1160,6 +1164,7 @@ import {
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
+  zGetCreditRegistrationCourseSummaryResponse,
   zGetCreditRegistrationDetailsResponse,
   zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
@@ -5640,10 +5645,15 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
  */
 export const getAccountLinkingCourseEnrolees = <ThrowOnError extends boolean = true>(
   options: Options<GetAccountLinkingCourseEnroleesData, ThrowOnError>,
-): RequestResult<GetAccountLinkingCourseEnroleesResponses, unknown, ThrowOnError, "data"> =>
+): RequestResult<
+  GetAccountLinkingCourseEnroleesResponses,
+  GetAccountLinkingCourseEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).get<
     GetAccountLinkingCourseEnroleesResponses,
-    unknown,
+    GetAccountLinkingCourseEnroleesErrors,
     ThrowOnError,
     "data"
   >({
@@ -6107,6 +6117,31 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationCourseSummaryData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationCourseSummaryResponses,
+  GetCreditRegistrationCourseSummaryErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationCourseSummaryResponses,
+    GetCreditRegistrationCourseSummaryErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationCourseSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary",
+    ...options,
   })
 
 /**

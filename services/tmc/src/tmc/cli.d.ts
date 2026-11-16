@@ -1,5 +1,5 @@
-// VERSION=0.41.1
-// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.41.1/crates/tmc-langs-cli/bindings.d.ts
+// VERSION=0.42.0
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.42.0/crates/tmc-langs-cli/bindings.d.ts
 
 export type Locale = string
 
@@ -31,7 +31,7 @@ export type DataKind =
   | { "output-data-kind": "refresh-result"; "output-data": RefreshData }
   | { "output-data-kind": "test-result"; "output-data": RunResult }
   | { "output-data-kind": "exercise-desc"; "output-data": ExerciseDesc }
-  | { "output-data-kind": "updated-exercises"; "output-data": Array<UpdatedExercise> }
+  | { "output-data-kind": "exercise-updates"; "output-data": ExerciseUpdates }
   | {
       "output-data-kind": "mooc-exercise-download"
       "output-data": DownloadOrUpdateMoocCourseExercisesResult
@@ -64,8 +64,9 @@ export type DataKind =
       "output-data": DownloadOrUpdateTmcCourseExercisesResult
     }
   | { "output-data-kind": "tmc-config"; "output-data": TmcConfig }
-  | { "output-data-kind": "mooc-updated-exercises"; "output-data": Array<MoocUpdatedExercise> }
+  | { "output-data-kind": "mooc-exercise-updates"; "output-data": MoocExerciseUpdates }
   | { "output-data-kind": "local-mooc-exercises"; "output-data": Array<LocalMoocExercise> }
+  | { "output-data-kind": "mooc-current-user"; "output-data": MoocCurrentUser }
   | { "output-data-kind": "mooc-course"; "output-data": MoocCourse }
   | { "output-data-kind": "mooc-courses"; "output-data": Array<MoocCourse> }
   | { "output-data-kind": "mooc-exercise-slides"; "output-data": Array<TmcExerciseSlide> }
@@ -97,6 +98,13 @@ export type Kind =
   | "server-error"
   | "insufficient-scope"
   | "exercise-not-found"
+  | "rate-limited"
+  | "deadline-passed"
+  | "out-of-tries"
+  | "chapter-not-open-yet"
+  | "chapter-not-unlocked-yet"
+  | "chapter-completed-and-locked"
+  | "exercise-locked"
 
 export type OutputData = {
   status: Status
@@ -287,6 +295,13 @@ export type RunResult = {
    * The key may be an arbitrary string identifying the type of log.
    */
   logs: Record<string, string>
+  /**
+   * Set when the tests were stopped for running longer than this many milliseconds: the
+   * exercise's `tests_timeout_ms`, else 60000. The status is then `TESTS_FAILED`, with one
+   * failing test named "Timeout test" whose message says so; an infinite loop is the usual
+   * cause.
+   */
+  timedOutAfterMs?: number
 }
 
 export type RunStatus =
@@ -335,9 +350,28 @@ export type TestDesc = {
   points: Array<string>
 }
 
-export type UpdatedExercise = { id: number }
+export type ExerciseUpdates = {
+  /**
+   * Exercises whose server version differs from the local copy.
+   */
+  updated: Array<number>
+  /**
+   * Exercises the server no longer has. Their local copies are left in place and are never updated.
+   */
+  removed: Array<number>
+}
 
-export type MoocUpdatedExercise = { id: string }
+export type MoocExerciseUpdates = {
+  /**
+   * Exercises whose server version differs from the local copy.
+   */
+  updated: Array<string>
+  /**
+   * Exercises their course no longer has. Their local copies are left in place and are never updated.
+   * Exercises of a chapter that has not opened yet are absent from the course but not removed.
+   */
+  removed: Array<string>
+}
 
 export type DownloadOrUpdateTmcCourseExercisesResult = {
   downloaded: Array<TmcExerciseDownload>
@@ -694,6 +728,8 @@ export type ConfigValue = unknown | null | string
 
 export type TmcConfig = { projects_dir: string }
 
+export type MoocCurrentUser = { id: string }
+
 export type MoocCourse = {
   id: string
   slug: string
@@ -724,6 +760,10 @@ export type TmcExerciseSlide = {
   course_id: string
   exercise_name: string
   exercise_order_number: number
+  /**
+   * The effective deadline: the exercise's own, else its chapter's. Submissions are refused
+   * from this moment on.
+   */
   deadline: string | null
   tasks: Array<TmcExerciseTask>
   /**
@@ -744,7 +784,14 @@ export type ExerciseChapter = {
    * The chapter's position in the course, from 1.
    */
   chapter_number: number
+  /**
+   * The user's status in the course's chapter locking; submissions are refused unless it is
+   * `Unlocked`. `None` when the course does not lock chapters, or the host does not report it.
+   */
+  locking_status: ChapterLockingStatus | null
 }
+
+export type ChapterLockingStatus = "Unlocked" | "CompletedAndLocked" | "NotUnlockedYet"
 
 export type TmcExerciseTask = {
   task_id: string
@@ -816,21 +863,96 @@ export type Grading = {
    * report it.
    */
   exercise_progress: ExerciseProgress | null
+  /**
+   * The test run the grading was based on. `None` until grading has produced one, or when the
+   * exercise service reported something else.
+   */
+  test_results: GradingTestRun | null
 }
 
 export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
+
+export type GradingTestRun = {
+  status: GradingTestRunStatus
+  /**
+   * Empty when the tests did not run, e.g. on a compile failure.
+   */
+  test_results: Array<GradingTestResult>
+  /**
+   * The run's output keyed by log type (e.g. `stdout`, `stderr`). Empty unless `status` is
+   * `COMPILE_FAILED` or `GENERIC_ERROR`, where it holds the compiler or error output.
+   */
+  logs: Record<string, string>
+}
+
+export type GradingTestRunStatus =
+  | "PASSED"
+  | "TESTS_FAILED"
+  | "COMPILE_FAILED"
+  | "TESTRUN_INTERRUPTED"
+  | "GENERIC_ERROR"
+
+export type GradingTestResult = {
+  name: string
+  successful: boolean
+  /**
+   * The points the test earned; empty when it failed.
+   */
+  points: Array<string>
+  message: string
+  /**
+   * Stack trace lines of a failure.
+   */
+  exception: Array<string>
+}
 
 export type ExerciseSlideSubmissionListItem = {
   id: string
   exercise_id: string
   created_at: string
+  /**
+   * Always `None` for a snapshot.
+   */
   score_given: number | null
+  /**
+   * Always `None` for a snapshot.
+   */
   grading_progress: GradingProgress | null
+  /**
+   * `submission` from a host that predates the field, which lists only submissions.
+   */
+  kind: SubmissionKind
+  /**
+   * Whether the entry has a live share link, whatever its kind. `false` from a host that
+   * predates the field.
+   */
+  is_shared: boolean
 }
+
+export type SubmissionKind = "submission" | "paste" | "backup"
 
 export type PasteResult = { paste_url: string }
 
-export type CourseProgress = { course_id: string; exercises: Array<ExerciseProgress> }
+export type CourseProgress = {
+  course_id: string
+  exercises: Array<ExerciseProgress>
+  /**
+   * Chapters that have not opened yet. Their exercises are missing from `exercises` and
+   * from the course's exercise list until then; they are closed, not removed.
+   */
+  closed_chapters: Array<ClosedChapter>
+}
+
+export type ClosedChapter = {
+  id: string
+  name: string
+  /**
+   * The chapter's position in the course, from 1.
+   */
+  chapter_number: number
+  opens_at: string
+  exercises: Array<ExerciseProgress>
+}
 
 export type ExerciseProgress = {
   exercise_id: string
@@ -855,9 +977,30 @@ export type ExerciseProgress = {
    * `None` from a host that predates the field.
    */
   standing: ExerciseStanding | null
+  /**
+   * How many graded submissions the exercise accepts per slide; `None` when unlimited.
+   */
+  max_tries: number | null
+  /**
+   * How many of `max_tries` are left on the slide the user answers; `None` when unlimited.
+   */
+  tries_left: number | null
+  /**
+   * What the user's points wait for when a teacher must review their answer first. While set,
+   * `score_given` is `0.0` and `standing` is `Attempted`, even after a fully passing grading.
+   */
+  pending_teacher_review: PendingTeacherReview | null
+  /**
+   * `true` once the exercise takes no more submissions from the user, whatever its chapter's
+   * locking status says. A submit fails with the `chapter-completed-and-locked` error kind
+   * while the chapter is locked for the user, and with `exercise-locked` otherwise.
+   */
+  exercise_locked: boolean
 }
 
 export type ExerciseStanding = "NotAttempted" | "Attempted" | "Passed" | "OutOfTries"
+
+export type PendingTeacherReview = "awaits_chapter_lock" | "awaits_teacher" | "unrecognized"
 
 export type MoocClientUpdateData = {
   "client-update-data-kind": "exercise-download"

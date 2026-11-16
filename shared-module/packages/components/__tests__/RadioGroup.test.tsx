@@ -25,6 +25,26 @@ describe("RadioGroup", () => {
     expect(getValues().r).toBe("dark")
   })
 
+  test("empty-string value keeps the group tabbable, then only the checked radio is", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Reason">
+          <Radio label="First" value="a" />
+          <Radio label="Second" value="b" />
+          <Radio label="Third" value="c" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    const tabIndexes = () =>
+      screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).tabIndex)
+    expect(tabIndexes()).toEqual([0, 0, 0])
+
+    fireEvent.click(screen.getByRole("radio", { name: "Second" }))
+    expect(tabIndexes()).toEqual([-1, 0, -1])
+  })
+
   test("supports arrow key navigation", () => {
     const { getValues } = renderWithForm<{ r: string }>(
       (control) => (

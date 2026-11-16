@@ -259,30 +259,109 @@ describe("usePageTitle + PageTitleManager", () => {
     expect(mockAnnounce).toHaveBeenCalledWith("Course X", "polite")
   })
 
-  test("does not announce a navigation-time title change (Next's built-in announcer owns it)", async () => {
-    const { rerender } = render(
-      <App>
-        <TitleSetter title="Home" />
-      </App>,
-    )
-    // Close the initial-mount settle window FIRST, so the suppression asserted below is caused by
-    // the navigation-detection branch and not by a still-open initial window.
-    await act(async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, 0)
-      })
+  describe("navigation announcements", () => {
+    beforeEach(() => {
+      jest.useFakeTimers()
     })
-    mockAnnounce.mockClear()
+    afterEach(() => {
+      jest.useRealTimers()
+    })
 
-    // Navigation: both the pathname and the title change in the same step.
-    mockState.pathname = "/about"
-    rerender(
-      <App>
-        <TitleSetter title="About" />
-      </App>,
-    )
-    expect(document.title).toBe("About - Test Site")
-    expect(mockAnnounce).not.toHaveBeenCalled()
+    async function renderHomeSettled() {
+      const view = render(
+        <App>
+          <TitleSetter title="Home" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(0)
+      })
+      mockAnnounce.mockClear()
+      return view
+    }
+
+    test("announces the new title once when pathname and title change together", async () => {
+      const { rerender } = await renderHomeSettled()
+
+      mockState.pathname = "/about"
+      rerender(
+        <App>
+          <TitleSetter title="About" />
+        </App>,
+      )
+      expect(mockAnnounce).not.toHaveBeenCalled()
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(2000)
+      })
+      expect(mockAnnounce).toHaveBeenCalledTimes(1)
+      expect(mockAnnounce).toHaveBeenCalledWith("About", "polite")
+    })
+
+    test("a title that registers after the pathname change is announced, never the old one", async () => {
+      const { rerender } = await renderHomeSettled()
+
+      mockState.pathname = "/course/x"
+      rerender(
+        <App>
+          <TitleSetter title="Home" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(100)
+      })
+      expect(mockAnnounce).not.toHaveBeenCalled()
+
+      rerender(
+        <App>
+          <TitleSetter title="Course X" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(2000)
+      })
+      expect(mockAnnounce).toHaveBeenCalledTimes(1)
+      expect(mockAnnounce).toHaveBeenCalledWith("Course X", "polite")
+    })
+
+    test("a baseline title replaced by the leaf title is announced once, as the leaf title", async () => {
+      const { rerender } = await renderHomeSettled()
+
+      mockState.pathname = "/course/x/page"
+      rerender(
+        <App>
+          <TitleSetter title="Course X" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(100)
+      })
+      rerender(
+        <App>
+          <TitleSetter title="Course X - Page" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(2000)
+      })
+      expect(mockAnnounce).toHaveBeenCalledTimes(1)
+      expect(mockAnnounce).toHaveBeenCalledWith("Course X - Page", "polite")
+    })
+
+    test("a route that keeps the same title is still announced once", async () => {
+      const { rerender } = await renderHomeSettled()
+
+      mockState.pathname = "/other"
+      rerender(
+        <App>
+          <TitleSetter title="Home" />
+        </App>,
+      )
+      await act(async () => {
+        await jest.advanceTimersByTimeAsync(2000)
+      })
+      expect(mockAnnounce).toHaveBeenCalledTimes(1)
+      expect(mockAnnounce).toHaveBeenCalledWith("Home", "polite")
+    })
   })
 
   test("does not re-announce when the title blips to null and back (e.g. a refetch)", async () => {

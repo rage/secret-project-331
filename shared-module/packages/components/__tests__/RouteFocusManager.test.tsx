@@ -1,6 +1,6 @@
 "use client"
 
-import { render } from "@testing-library/react"
+import { act, render } from "@testing-library/react"
 import React from "react"
 
 import RouteFocusManager from "../src/components/RouteFocusManager"
@@ -165,5 +165,50 @@ describe("RouteFocusManager", () => {
     mockState.pathname = "/custom"
     rerender(<CustomApp />)
     expect(document.activeElement).toBe(document.querySelector("#custom-root h1"))
+  })
+
+  test("a focused link inside main that unmounts hands focus to the h1 that arrives later", async () => {
+    function Shell({ children, pathname }: { children?: React.ReactNode; pathname: string }) {
+      return (
+        <>
+          <RouteFocusManager pathname={pathname} />
+          <main id="maincontent">{children}</main>
+        </>
+      )
+    }
+    const { rerender } = render(
+      <Shell pathname="/">
+        <a href="/course">Course card</a>
+      </Shell>,
+    )
+    const link = document.querySelector("a")
+    link?.focus()
+    expect(document.activeElement).toBe(link)
+
+    // Route changes while the old page (and the focused link) is still mounted.
+    mockState.pathname = "/course"
+    rerender(
+      <Shell pathname="/course">
+        <a href="/course">Course card</a>
+      </Shell>,
+    )
+    expect(document.activeElement).toBe(link)
+
+    await act(async () => {
+      rerender(<Shell pathname="/course" />)
+      await Promise.resolve()
+    })
+    const main = document.querySelector("#maincontent")
+    expect(document.activeElement).toBe(main)
+
+    await act(async () => {
+      rerender(
+        <Shell pathname="/course">
+          <h1>Course</h1>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("h1"))
   })
 })

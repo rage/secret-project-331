@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+  getAccountLinkingCourseEnroleesOptions,
   getAccountLinkingCoursesOptions,
   getAccountLinkingStatsOptions,
   getAccountLinkingUnlinkedEnroleesOptions,
@@ -159,6 +160,21 @@ export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean)
   useQuery({
     ...getAccountLinkingUnlinkedEnroleesOptions({ path: { course_id: courseId ?? "" } }),
     enabled: isEnabled && courseId !== null,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  })
+
+/**
+ * Fetches everyone on the course's or mooc.fi target's enrolment lists live from Sisu while the
+ * dialog is open; nothing is cached past it.
+ */
+export const useCourseEnrolees = (courseOrTargetId: string, isEnabled: boolean) =>
+  useQuery({
+    ...getAccountLinkingCourseEnroleesOptions({
+      path: { course_or_target_id: courseOrTargetId },
+    }),
+    enabled: isEnabled,
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: false,

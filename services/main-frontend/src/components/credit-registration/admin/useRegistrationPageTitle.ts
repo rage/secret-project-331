@@ -71,7 +71,7 @@ export function useRegistrationPageTitle(
     ? joinTitleSegments(
         [
           shortStudentName(row) ?? t("credit-registration-admin-title-registration"),
-          row.uh_course_code,
+          row.current_uh_course_code ?? row.uh_course_code,
           adminLedgerStateLabel(t, row.state, row.pending_reason),
         ],
         PART_SEPARATOR,

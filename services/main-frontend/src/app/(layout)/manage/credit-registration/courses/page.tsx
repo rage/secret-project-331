@@ -68,6 +68,7 @@ import {
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats, TimelineStep } from "@/generated/api/types.generated"
+import { creditRegistrationCourseRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
   Button,
@@ -502,7 +503,9 @@ const CoursesPage: React.FC = () => {
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <Link
-                            href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
+                            href={creditRegistrationCourseRoute(
+                              row.course_id ?? row.credit_unit_id,
+                            )}
                             appearance={LINK_QUIET}
                             className={breakAnywhereCss}
                           >

@@ -80,6 +80,7 @@ import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isRecord } from "@/shared-module/common/utils/objects"
 import {
+  creditRegistrationCourseRoute,
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
   manageCourseRoute,
@@ -200,8 +201,11 @@ const HeaderSection: React.FC<{
         {row.course_module_name ? (
           <span className={breakAnywhereCss}>{row.course_module_name}</span>
         ) : null}
-        {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
       </span>
+      <CourseCodeLine row={row} />
+      <Link href={creditRegistrationCourseRoute(row.course_or_target_id)} prefetch={false}>
+        {t("credit-registration-admin-open-course-page")}
+      </Link>
       <span className={idRowCss}>
         <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
         <CopyButton
@@ -218,6 +222,39 @@ const HeaderSection: React.FC<{
         )}
       </span>
     </div>
+  )
+}
+
+const normalizedCourseCode = (code: string | null | undefined) =>
+  code?.trim().toLocaleUpperCase() || null
+
+const codeValue = (code: string | null) =>
+  code ? <code className={codeValueCss}>{code}</code> : <AbsentValue />
+
+/**
+ * The course code now, and the one sent to Sisu as well when a later edit set them apart: support
+ * looks the course up in Sisu by it.
+ */
+const CourseCodeLine: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const current = row.current_uh_course_code?.trim() || null
+  const submitted = row.uh_course_code?.trim() || null
+  const isDifferent =
+    submitted !== null && normalizedCourseCode(submitted) !== normalizedCourseCode(current)
+  return (
+    <span className={rowCss}>
+      <span>
+        {isDifferent
+          ? t("credit-registration-admin-current-course-code-label")
+          : t("credit-registration-admin-course-code-label")}{" "}
+        {codeValue(current)}
+      </span>
+      {isDifferent && (
+        <span>
+          {t("credit-registration-admin-submitted-course-code-label")} {codeValue(submitted)}
+        </span>
+      )}
+    </span>
   )
 }
 

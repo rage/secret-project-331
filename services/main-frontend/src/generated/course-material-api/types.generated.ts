@@ -354,6 +354,11 @@ export type CodeGiveawayStatus =
     }
 
 /**
+ * How students get a module's completion; [`CompletionPolicy`] is the same with its thresholds.
+ */
+export type CompletionMethod = "not_decided" | "by_requirements" | "by_exam" | "teacher_adds"
+
+/**
  * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
  * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
  */
@@ -1354,16 +1359,13 @@ export type UserCourseProgress = {
   attempted_exercises?: number | null
   attempted_exercises_required?: number | null
   /**
-   * False when a teacher grades the module, in which case neither threshold applies.
+   * The thresholds apply only to `by_requirements` and `by_exam`; for `by_exam` they only qualify
+   * the user to take the exam that completion also needs.
    */
-  automatic_completion: boolean
+  completion_method: CompletionMethod
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
-  /**
-   * When true, the thresholds only qualify the user to sit an exam that completion also needs.
-   */
-  requires_exam: boolean
   score_given: number
   score_maximum?: number | null
   score_required?: number | null

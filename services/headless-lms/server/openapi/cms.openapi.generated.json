@@ -1328,28 +1328,6 @@
         "type": "string",
         "enum": ["open", "published", "discarded", "expired"]
       },
-      "AutomaticCompletionRequirements": {
-        "type": "object",
-        "required": ["course_module_id", "requires_exam"],
-        "properties": {
-          "course_module_id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "Course module associated with these requirements."
-          },
-          "number_of_exercises_attempted_treshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "number_of_points_treshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "requires_exam": {
-            "type": "boolean"
-          }
-        }
-      },
       "BlockSchema": {
         "type": "object",
         "description": "One block type's registration: its attributes, where it may be nested and an example.",
@@ -2014,33 +1992,85 @@
       "CompletionPolicy": {
         "oneOf": [
           {
+            "type": "object",
+            "required": ["method"],
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": ["not_decided"]
+              }
+            }
+          },
+          {
             "allOf": [
               {
-                "$ref": "#/components/schemas/AutomaticCompletionRequirements"
+                "$ref": "#/components/schemas/CompletionRequirements",
+                "description": "Completed automatically once the student reaches the thresholds."
               },
               {
                 "type": "object",
-                "required": ["policy"],
+                "required": ["method"],
                 "properties": {
-                  "policy": {
+                  "method": {
                     "type": "string",
-                    "enum": ["automatic"]
+                    "enum": ["by_requirements"]
                   }
                 }
               }
-            ]
+            ],
+            "description": "Completed automatically once the student reaches the thresholds."
+          },
+          {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CompletionRequirements",
+                "description": "Completed when the student reaches the pass mark of an ended exam linked to the course; the\nthresholds are the condition for taking the exam."
+              },
+              {
+                "type": "object",
+                "required": ["method"],
+                "properties": {
+                  "method": {
+                    "type": "string",
+                    "enum": ["by_exam"]
+                  }
+                }
+              }
+            ],
+            "description": "Completed when the student reaches the pass mark of an ended exam linked to the course; the\nthresholds are the condition for taking the exam."
           },
           {
             "type": "object",
-            "required": ["policy"],
+            "required": ["method"],
             "properties": {
-              "policy": {
+              "method": {
                 "type": "string",
-                "enum": ["manual"]
+                "enum": ["teacher_adds"]
               }
             }
           }
-        ]
+        ],
+        "description": "How students get a module's completion, with the thresholds the method uses."
+      },
+      "CompletionRequirements": {
+        "type": "object",
+        "description": "Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.",
+        "required": ["course_module_id"],
+        "properties": {
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Course module associated with these requirements."
+          },
+          "number_of_exercises_attempted_treshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "number_of_points_treshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
       },
       "ContentManagementPage": {
         "type": "object",
@@ -2300,7 +2330,7 @@
       },
       "CourseModule": {
         "type": "object",
-        "description": "Like [CourseModulesSchema], but the automatic-completion columns are collapsed into\n`completion_policy`.",
+        "description": "Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into\n`completion_policy`.",
         "required": [
           "id",
           "created_at",
@@ -2308,8 +2338,9 @@
           "course_id",
           "order_number",
           "completion_policy",
+          "exam_requirement",
           "certification_enabled",
-          "completions_can_be_registered_to_sisu"
+          "credit_registration_route"
         ],
         "properties": {
           "certification_enabled": {
@@ -2321,10 +2352,6 @@
           "completion_registration_link_override": {
             "type": ["string", "null"],
             "description": "If set, use this link rather than the default one when registering course completions."
-          },
-          "completions_can_be_registered_to_sisu": {
-            "type": "boolean",
-            "description": "Off, the module's completions are never registered, course code or not; see [`registers_credits`]."
           },
           "copied_from": {
             "type": ["string", "null"],
@@ -2338,6 +2365,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "credit_registration_route": {
+            "$ref": "#/components/schemas/CreditRegistrationRoute"
+          },
           "deleted_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -2345,6 +2375,13 @@
           "ects_credits": {
             "type": ["number", "null"],
             "format": "float"
+          },
+          "exam_location_description": {
+            "type": ["string", "null"],
+            "description": "Where the exam is held, when `exam_requirement` is [`ExamRequirement::Elsewhere`]."
+          },
+          "exam_requirement": {
+            "$ref": "#/components/schemas/ExamRequirement"
           },
           "id": {
             "type": "string",
@@ -2365,6 +2402,11 @@
             "format": "date-time"
           }
         }
+      },
+      "CreditRegistrationRoute": {
+        "type": "string",
+        "description": "How a module's completions turn into credits.",
+        "enum": ["platform", "external", "certificate_only"]
       },
       "DatabaseChapter": {
         "type": "object",
@@ -2558,6 +2600,11 @@
         "properties": {
           "instructions": {}
         }
+      },
+      "ExamRequirement": {
+        "type": "string",
+        "description": "Whether passing a module requires an exam, and where it is held.",
+        "enum": ["none", "platform", "examinarium", "elsewhere"]
       },
       "ExerciseContext": {
         "type": "string",

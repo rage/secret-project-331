@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { isEqual, omit } from "lodash"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,10 +25,7 @@ import ManualLinkingEmailSendLines from "@/components/credit-registration/admin/
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
 import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
-import {
-  CallStatusCell,
-  SuotarEndpointCell,
-} from "@/components/credit-registration/admin/suotarCallColumns"
+import { CallStatusCell } from "@/components/credit-registration/admin/suotarCallColumns"
 import {
   buildTimeline,
   eventSentence,
@@ -65,7 +63,6 @@ import {
 } from "@/components/credit-registration/styles"
 import {
   formatZonedTimestamp,
-  ZonedTimeRange,
   ZonedTimestamp,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -81,6 +78,7 @@ import type {
 import { formatUserName } from "@/hooks/useUserDetails"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { isRecord } from "@/shared-module/common/utils/objects"
 import {
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
@@ -539,7 +537,7 @@ const MoocfiCompletionSection: React.FC<{ completion: AdminMoocfiCompletion }> =
   )
 }
 
-/** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
+/** Suotar's codes and endpoint names are single words; breaking one mid-word makes it unreadable. */
 const unbrokenCodeCss = css`
   white-space: nowrap;
   overflow-wrap: normal;
@@ -547,55 +545,63 @@ const unbrokenCodeCss = css`
 
 type Event = AdminCreditRegistrationEvent
 
-/** Consecutive calls that went the same way, newest first, shown as one row. */
-interface CallGroup {
-  calls: [AdminSuotarApiCall, ...AdminSuotarApiCall[]]
+interface CallRow {
+  call: AdminSuotarApiCall
   event: Event | undefined
+  /** Suotar answered this registration's item exactly as it did in the call before. */
+  isSameAsPrevious: boolean
 }
 
-const callGroupKey = (call: AdminSuotarApiCall, event: Event | undefined): string =>
-  JSON.stringify([
-    call.endpoint,
-    call.succeeded,
-    call.http_status ?? null,
-    call.request_level_error_code ?? null,
-    event?.suotar_code ?? null,
-    event?.suotar_answer ?? null,
-    event?.from_state ?? null,
-    event?.to_state ?? null,
-  ])
+const REQUEST_ITEM_ID = "requestItemId"
 
-const groupCalls = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallGroup[] => {
-  const groups: (CallGroup & { key: string })[] = []
-  for (const call of calls) {
+/** The item's answer without its `requestItemId`, which is fresh on every call. */
+const comparableItemResponse = (event: Event | undefined): unknown => {
+  const response = isRecord(event?.details) ? event.details.response : undefined
+  return isRecord(response) ? omit(response, REQUEST_ITEM_ID) : response
+}
+
+/** `calls` is newest first, so the call before each one is the next in the list. */
+const toCallRows = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallRow[] =>
+  calls.map((call, index) => {
     const event = eventByCall.get(call.id)
-    const key = callGroupKey(call, event)
-    const last = groups.at(-1)
-    if (last && last.key === key) {
-      last.calls.push(call)
-    } else {
-      groups.push({ key, calls: [call], event })
+    const previous = calls.at(index + 1)
+    const response = comparableItemResponse(event)
+    const previousResponse = previous
+      ? comparableItemResponse(eventByCall.get(previous.id))
+      : undefined
+    return {
+      call,
+      event,
+      isSameAsPrevious:
+        previous?.endpoint === call.endpoint &&
+        response !== undefined &&
+        isEqual(response, previousResponse),
     }
-  }
-  return groups
-}
+  })
 
 /** What Suotar said about this registration, in plain words over its own code. */
 const CallAnswer: React.FC<{
-  group: CallGroup
+  row: CallRow
   context: TimelineContext
-}> = ({ group, context }) => {
+}> = ({ row, context }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const [newest] = group.calls
-  const { event } = group
-  if (!event) {
-    return <CallStatusCell call={newest} />
-  }
+  const { call, event, isSameAsPrevious } = row
   return (
     <span className={cx(sectionHeaderCss)}>
-      <span>{eventSentence(t, event, context)}</span>
-      {event.suotar_code && (
-        <code className={cx(noteCss, codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+      {event ? (
+        <>
+          <span>{eventSentence(t, event, context)}</span>
+          {event.suotar_code && (
+            <code className={cx(noteCss, codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+          )}
+        </>
+      ) : (
+        <CallStatusCell call={call} />
+      )}
+      {isSameAsPrevious && (
+        <span className={noteCss}>
+          {t("credit-registration-admin-same-answer-as-previous-call")}
+        </span>
       )}
     </span>
   )
@@ -608,7 +614,7 @@ const ApiCallSection: React.FC<{
 }> = ({ calls, events, context }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
-  const groups = useMemo(() => {
+  const rows = useMemo(() => {
     const eventByCall = new Map(
       events.flatMap((event) =>
         event.kind === "suotar_response" && event.suotar_api_call_id
@@ -616,7 +622,7 @@ const ApiCallSection: React.FC<{
           : [],
       ),
     )
-    return groupCalls(calls, eventByCall)
+    return toCallRows(calls, eventByCall)
   }, [calls, events])
   if (calls.length === 0) {
     return (
@@ -641,51 +647,35 @@ const ApiCallSection: React.FC<{
         labelledBy={headingId}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
-        rowKey={(group) => group.calls[0].id}
-        rows={groups}
-        expandableRow={(group) => (
-          <RegistrationCallItem
-            suotarApiCallId={group.calls[0].id}
-            exchange={group.event?.details}
-          />
+        rowKey={(row) => row.call.id}
+        rows={rows}
+        expandableRow={(row) => (
+          <RegistrationCallItem suotarApiCallId={row.call.id} exchange={row.event?.details} />
         )}
         columns={[
           {
             header: t("label-time"),
             minWidth: "10rem",
-            cell: (group) => {
-              const [newest] = group.calls
-              const oldest = group.calls.at(-1) ?? newest
-              return group.calls.length === 1 ? (
-                <ZonedTimestamp at={newest.started_at} />
-              ) : (
-                <span className={sectionHeaderCss}>
-                  <span>
-                    {t("credit-registration-admin-calls-repeated", { count: group.calls.length })}
-                  </span>
-                  <span className={noteCss}>
-                    <ZonedTimeRange from={oldest.started_at} to={newest.started_at} />
-                  </span>
-                </span>
-              )
-            },
+            cell: (row) => <ZonedTimestamp at={row.call.started_at} />,
           },
           {
             header: t("credit-registration-admin-column-what"),
             minWidth: "10rem",
-            cell: (group) => <SuotarEndpointCell endpoint={group.calls[0].endpoint} />,
+            cell: (row) => (
+              <code className={cx(codeValueCss, unbrokenCodeCss)}>{row.call.endpoint}</code>
+            ),
           },
           {
             header: t("credit-registration-admin-column-answer"),
             grow: true,
             minWidth: "12rem",
-            cell: (group) => <CallAnswer group={group} context={context} />,
+            cell: (row) => <CallAnswer row={row} context={context} />,
           },
           {
             header: t("credit-registration-admin-column-duration-ms"),
             align: ALIGN_END,
             nowrap: true,
-            cell: (group) => group.calls[0].duration_ms ?? <AbsentValue />,
+            cell: (row) => row.call.duration_ms ?? <AbsentValue />,
           },
         ]}
       />

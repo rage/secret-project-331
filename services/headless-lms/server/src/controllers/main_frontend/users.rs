@@ -1,3 +1,5 @@
+use crate::domain::progress_by_platform::{self, ProgressByPlatform};
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
@@ -28,6 +30,7 @@ use utoipa::{OpenApi, ToSchema};
     unhide_course_from_my_courses,
     get_my_studies,
     get_my_certificates,
+    get_my_progress_by_platform,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -367,11 +370,9 @@ pub struct MyStudiesCourseModule {
     /// Attempted exercises an automatic completion requires. `None` when the module is completed
     /// manually or sets no attempt threshold.
     pub attempted_exercises_required: Option<i32>,
-    /// False when a teacher grades the module, in which case neither threshold says anything about
-    /// completing it.
-    pub automatic_completion: bool,
-    /// When true, the thresholds qualify the student to sit an exam rather than complete the module.
-    pub requires_exam: bool,
+    /// The thresholds say something only for `by_requirements`, and for `by_exam`, where they
+    /// qualify the student to take the exam rather than complete the module.
+    pub completion_method: models::course_modules::CompletionMethod,
     /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
@@ -544,7 +545,7 @@ async fn get_my_studies(
                     uh_course_code: course_module.uh_course_code.clone(),
                     supports_credit_registration: models::course_modules::registers_credits(
                         course_module.uh_course_code.as_deref(),
-                        course_module.completions_can_be_registered_to_sisu,
+                        course_module.credit_registration_route,
                     ) && registration_completion
                         .is_none_or(|completion| completion.register_credits_via_suotar),
                     is_credit_registration_starting: registration_completion.is_some_and(
@@ -558,11 +559,12 @@ async fn get_my_studies(
                         .map_or(0, |progress| progress.attempted_exercises),
                     attempted_exercises_required: progress
                         .and_then(|progress| progress.attempted_exercises_required),
-                    // Defaults to automatic: a missing row must not make the profile claim a
-                    // teacher grades the module.
-                    automatic_completion: progress
-                        .is_none_or(|progress| progress.automatic_completion),
-                    requires_exam: progress.is_some_and(|progress| progress.requires_exam),
+                    // Every module has a progress row; should one be missing, the profile must not
+                    // claim a teacher grades the module.
+                    completion_method: progress.map_or(
+                        models::course_modules::CompletionMethod::ByRequirements,
+                        |progress| progress.completion_method,
+                    ),
                     completion: best_completion_by_module.remove(&course_module.id),
                 }
             })
@@ -570,7 +572,9 @@ async fn get_my_studies(
         modules.sort_by_key(|m| m.order_number);
 
         // Only worth the queries when a module's requirements hinge on an exam.
-        let exam_passed = if modules.iter().any(|module| module.requires_exam) {
+        let exam_passed = if modules.iter().any(|module| {
+            module.completion_method == models::course_modules::CompletionMethod::ByExam
+        }) {
             Some(
                 models::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
                     &mut conn,
@@ -688,6 +692,41 @@ async fn get_my_certificates(
     let token = skip_authorize();
 
     let res = models::generated_certificates::get_all_by_user_id(&mut conn, user.id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+
+A platform that cannot be reached is reported in its status rather than failing the request.
+*/
+#[instrument(skip(pool, tmc_client, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/my-progress-by-platform",
+    operation_id = "getMyProgressByPlatform",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's courses grouped by platform", body = ProgressByPlatform)
+    )
+)]
+async fn get_my_progress_by_platform(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<ProgressByPlatform>> {
+    let token = skip_authorize();
+    // Test mode never talks to the real platforms, matching account deletion.
+    let res = progress_by_platform::get_progress_by_platform(
+        &pool,
+        &tmc_client,
+        user.id,
+        !app_conf.test_mode,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -1073,6 +1112,19 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
     .route("/my-certificates", web::get().to(get_my_certificates))
+    // Each request calls tmc.mooc.fi and mooc.fi.
+    .service(
+        web::resource("/my-progress-by-platform")
+            .wrap(
+                RateLimit::new(RateLimitConfig {
+                    per_minute: Some(10),
+                    per_hour: Some(60),
+                    ..Default::default()
+                })
+                .keyed_by(RateLimitKey::User),
+            )
+            .route(web::get().to(get_my_progress_by_platform)),
+    )
     .route(
         "/my-courses/{course_id}/hide",
         web::post().to(hide_course_from_my_courses),

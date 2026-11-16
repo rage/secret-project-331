@@ -22,28 +22,36 @@ import {
 } from "@/shared-module/components"
 import "@/shared-module/common/init/registerAuthApiClients"
 
+import AccountDeletionProgressStep from "./AccountDeletionProgressStep"
 import VerifyPasswordForm, { type VerifyPasswordFormHandle } from "./VerifyPasswordForm"
 
+const PROGRESS_STEP = "progress"
 const PASSWORD_STEP = "password"
 const VERIFY_CODE_STEP = "verifyCode"
 
-type Step = typeof PASSWORD_STEP | typeof VERIFY_CODE_STEP
+type Step = typeof PROGRESS_STEP | typeof PASSWORD_STEP | typeof VERIFY_CODE_STEP
 
-const DeleteUserAccountForm: React.FC = () => {
+interface DeleteUserAccountFormProps {
+  isDialogOpen: boolean
+  onDialogOpenChange: (isOpen: boolean) => void
+}
+
+const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
+  isDialogOpen,
+  onDialogOpenChange,
+}) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const [step, setStep] = useState<Step>(PASSWORD_STEP)
+  const [step, setStep] = useState<Step>(PROGRESS_STEP)
   const [password, setPassword] = useState("")
+  const [isProgressLossAcknowledged, setIsProgressLossAcknowledged] = useState(false)
 
   const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
-  const [openDialog, setOpenDialog] = useState(false)
   const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
-  const closeDialog = () => setOpenDialog(false)
-
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) =>
       await postAuthSendEmailCode({
@@ -121,23 +129,42 @@ const DeleteUserAccountForm: React.FC = () => {
     }
   }
 
+  // Every opening starts over, so the user cannot skip the progress step by reopening.
+  const closeDialog = () => {
+    onDialogOpenChange(false)
+    setStep(PROGRESS_STEP)
+    setIsProgressLossAcknowledged(false)
+    setPassword("")
+    setIncorrectPassword(false)
+    setCodeErrorMessage(null)
+    sendEmailCodeMutation.reset()
+    deleteAccountMutation.reset()
+  }
+
   const cancelAction: DialogAction = {
     label: t("button-text-cancel"),
     variant: "tertiary",
     onPress: closeDialog,
   }
-  const actions: readonly [DialogAction, ...DialogAction[]] =
-    step === PASSWORD_STEP
-      ? [
-          cancelAction,
-          {
+  const primaryAction: DialogAction | null =
+    step === PROGRESS_STEP
+      ? {
+          label: t("continue"),
+          variant: "danger",
+          disabled: !isProgressLossAcknowledged,
+          onPress: () => setStep(PASSWORD_STEP),
+        }
+      : step === PASSWORD_STEP
+        ? {
             label: t("confirm"),
             variant: "danger",
             disabled: sendEmailCodeMutation.isPending,
             onPress: () => verifyPasswordFormRef.current?.submit(),
-          },
-        ]
-      : [cancelAction]
+          }
+        : null
+  const actions: readonly [DialogAction, ...DialogAction[]] = primaryAction
+    ? [cancelAction, primaryAction]
+    : [cancelAction]
 
   return (
     <>
@@ -145,20 +172,24 @@ const DeleteUserAccountForm: React.FC = () => {
         data-testid="delete-account-button"
         variant="danger"
         size="small"
-        onClick={() => setOpenDialog(true)}
+        onClick={() => onDialogOpenChange(true)}
       >
         {t("title-delete-account")}
       </Button>
 
       <Dialog
-        open={openDialog}
-        size="small"
+        open={isDialogOpen}
+        size={step === PROGRESS_STEP ? "normal" : "small"}
         title={t("title-delete-account")}
         onClose={closeDialog}
         actions={actions}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
           <ErrorNotice error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+        )}
+
+        {step === PROGRESS_STEP && (
+          <AccountDeletionProgressStep onAcknowledgedChange={setIsProgressLossAcknowledged} />
         )}
 
         {step === PASSWORD_STEP && (

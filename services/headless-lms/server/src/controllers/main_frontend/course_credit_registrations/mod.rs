@@ -310,7 +310,7 @@ pub async fn get_course_credit_registration_module_configs(
 }
 
 /// One count group's stage, the same classification the group's own rows carry.
-fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationStatus {
+pub(crate) fn stage_of(group: &CourseModuleStateCount) -> StudentFacingCreditRegistrationStatus {
     StudentFacingCreditRegistrationStatus::of(
         group.state,
         PendingPreconditions {
@@ -364,7 +364,7 @@ pub async fn get_course_credit_registration_summary(
             .filter(|config| {
                 models::course_modules::registers_credits(
                     config.uh_course_code.as_deref(),
-                    config.completions_can_be_registered_to_sisu,
+                    config.credit_registration_route,
                 )
             })
             .collect();

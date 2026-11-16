@@ -338,6 +338,8 @@ import type {
   GetCourseChaptersResponses,
   GetCourseChatbotsData,
   GetCourseChatbotsResponses,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponses,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponses,
   GetCourseCompletionsHistoryByInstanceData,
@@ -416,6 +418,10 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponses,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponses,
   GetCourseMetadataData,
   GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
@@ -581,6 +587,8 @@ import type {
   GetMyExternalCompletionEnrolmentRouteResponses,
   GetMyMoocfiCreditRegistrationsData,
   GetMyMoocfiCreditRegistrationsResponses,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -1080,6 +1088,7 @@ import {
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
   zGetCourseChatbotsResponse,
+  zGetCourseCompletionOverviewResponse,
   zGetCourseCompletionsHistoryAllLanguageVersionsResponse,
   zGetCourseCompletionsHistoryByInstanceResponse,
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
@@ -1114,6 +1123,8 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseLinkableExamsResponse,
+  zGetCourseLinkedExamsResponse,
   zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
@@ -1194,6 +1205,7 @@ import {
   zGetMyEnrolmentRouteResponse,
   zGetMyExternalCompletionEnrolmentRouteResponse,
   zGetMyMoocfiCreditRegistrationsResponse,
+  zGetMyProgressByPlatformResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -3560,6 +3572,24 @@ export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = true
   })
 
 /**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverview = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCompletionOverviewData, ThrowOnError>,
+): RequestResult<GetCourseCompletionOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCompletionOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCompletionOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/completion-overview",
+    ...options,
+  })
+
+/**
  * GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseInstances = <ThrowOnError extends boolean = true>(
@@ -3739,6 +3769,19 @@ export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/default-peer-review",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkedExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkedExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/exams",
     ...options,
   })
 
@@ -4058,6 +4101,19 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkableExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkableExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams",
+    ...options,
+  })
 
 /**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
@@ -6540,7 +6596,7 @@ export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
  * registry call log, newest first.
  *
  * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
- * the bodies are scrubbed, so there is no student number in them to search.
+ * a sampled body may not hold the student's item.
  */
 export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
   options?: Options<ListSuotarApiCallsData, ThrowOnError>,
@@ -10268,6 +10324,22 @@ export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatform = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyProgressByPlatformData, ThrowOnError>,
+): RequestResult<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyProgressByPlatformResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-progress-by-platform",
     ...options,
   })
 

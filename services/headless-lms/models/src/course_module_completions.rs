@@ -854,7 +854,7 @@ WHERE course_module_id IN (
     SELECT id
     FROM course_modules
     WHERE id = ANY($1)
-      AND completions_can_be_registered_to_sisu
+      AND credit_registration_route = 'platform'
   )
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE

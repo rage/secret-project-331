@@ -174,6 +174,8 @@ export class PermissionsTab {
 
   public async initiateAccountDeletion(): Promise<void> {
     await this.page.getByTestId("delete-account-button").click()
+    await this.page.getByRole("checkbox", { name: /I understand/ }).check()
+    await this.page.getByRole("button", { name: "Continue" }).click()
   }
 
   public async confirmAccountDeletionWithPassword(password: string): Promise<void> {

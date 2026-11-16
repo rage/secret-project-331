@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { useNumberFieldState } from "@react-stately/numberfield"
-import React, { useRef } from "react"
+import React, { useId, useRef } from "react"
 import { mergeProps, useButton, useFocusWithin, useLocale, useNumberField } from "react-aria"
 import type { AriaNumberFieldProps } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
@@ -17,6 +17,7 @@ import {
   resolveRenderedErrorMessage,
 } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { atLeast } from "../styles/breakpoints"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -81,6 +82,34 @@ const stepperChevronDownCss = css`
   transform: rotate(45deg);
 `
 
+const suffixRowCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+`
+
+const DEFAULT_INPUT_WIDTH_WITH_SUFFIX = "7rem"
+
+const narrowControlCss = (width: string) => css`
+  flex: 0 0 auto;
+  width: ${width};
+  max-width: 100%;
+`
+
+const unitCss = css`
+  color: var(--color-gray-700);
+`
+
+const helperActionCss = css`
+  flex-basis: 100%;
+
+  ${atLeast("sm")} {
+    flex-basis: auto;
+    margin-inline-start: var(--space-3);
+  }
+`
+
 /**
  * Numeric input with stepper buttons, floating label, description, and error display.
  * Uses react-hook-form; pass `name` and `control`. Form value is `number | null` (empty commits
@@ -114,6 +143,15 @@ export type NumberFieldProps<T extends FieldValues, N extends Path<T> = Path<T>>
   formatOptions?: Intl.NumberFormatOptions
   isWheelDisabled?: boolean
   placeholder?: string
+  /**
+   * Text after the input naming what the number counts, e.g. "points". Also read out as part of
+   * the input's description. Narrows the input to `inputWidth`.
+   */
+  unit?: React.ReactNode
+  /** A small action after the unit, e.g. a link button opening a calculator. Narrows the input. */
+  helperAction?: React.ReactNode
+  /** CSS width of the input when `unit` or `helperAction` is set; defaults to 7rem. */
+  inputWidth?: string
   className?: string
   "data-testid"?: string | undefined
 }
@@ -141,9 +179,15 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
     formatOptions,
     isWheelDisabled,
     placeholder,
+    unit,
+    helperAction,
+    inputWidth = DEFAULT_INPUT_WIDTH_WITH_SUFFIX,
     className,
     "data-testid": dataTestId,
   } = props
+
+  const unitId = useId()
+  const hasSuffix = Boolean(unit) || Boolean(helperAction)
 
   const { t } = useTranslation("shared-module")
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -250,53 +294,69 @@ export function NumberField<T extends FieldValues, N extends Path<T> = Path<T>>(
   )
 
   const resolvedAriaDescribedBy = joinAriaDescribedBy(
-    undefined,
+    unit ? unitId : undefined,
     mergedInputProps["aria-describedby"],
+  )
+
+  const fieldControl = (
+    <div
+      {...mergeProps(groupProps, focusWithinProps)}
+      ref={groupRef}
+      className={fieldControlCss}
+      data-field-control="true"
+      data-has-icon-start={iconStart ? "true" : undefined}
+      data-has-icon-end="true"
+      data-focused={floatingState.isFocused ? "true" : "false"}
+      data-filled={floatingState.hasValue ? "true" : "false"}
+      data-floated={floatingState.isFloated && !isVisuallyHiddenLabel(label) ? "true" : "false"}
+      data-invalid={hookIsInvalid ? "true" : "false"}
+    >
+      <input
+        {...mergedInputProps}
+        ref={composeRefs(inputRef, field.ref)}
+        className={resolveInputCss(fieldSize)}
+        aria-describedby={resolvedAriaDescribedBy}
+        data-testid={dataTestId}
+      />
+      <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
+        {label}
+      </label>
+      {iconStart ? (
+        <span className={iconSlotStartCss} aria-hidden="true">
+          {iconStart}
+        </span>
+      ) : null}
+      <div className={stepperCss}>
+        <button {...incrementProps} ref={incrementRef} type="button" className={stepperButtonCss}>
+          <span className={cx(stepperChevronCss, stepperChevronUpCss)} aria-hidden="true" />
+        </button>
+        <button
+          {...decrementProps}
+          ref={decrementRef}
+          type="button"
+          className={cx(stepperButtonCss, stepperDecrementCss)}
+        >
+          <span className={cx(stepperChevronCss, stepperChevronDownCss)} aria-hidden="true" />
+        </button>
+      </div>
+    </div>
   )
 
   return (
     <div className={cx(fieldRootCss, className)}>
-      <div
-        {...mergeProps(groupProps, focusWithinProps)}
-        ref={groupRef}
-        className={fieldControlCss}
-        data-field-control="true"
-        data-has-icon-start={iconStart ? "true" : undefined}
-        data-has-icon-end="true"
-        data-focused={floatingState.isFocused ? "true" : "false"}
-        data-filled={floatingState.hasValue ? "true" : "false"}
-        data-floated={floatingState.isFloated && !isVisuallyHiddenLabel(label) ? "true" : "false"}
-        data-invalid={hookIsInvalid ? "true" : "false"}
-      >
-        <input
-          {...mergedInputProps}
-          ref={composeRefs(inputRef, field.ref)}
-          className={resolveInputCss(fieldSize)}
-          aria-describedby={resolvedAriaDescribedBy}
-          data-testid={dataTestId}
-        />
-        <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
-          {label}
-        </label>
-        {iconStart ? (
-          <span className={iconSlotStartCss} aria-hidden="true">
-            {iconStart}
-          </span>
-        ) : null}
-        <div className={stepperCss}>
-          <button {...incrementProps} ref={incrementRef} type="button" className={stepperButtonCss}>
-            <span className={cx(stepperChevronCss, stepperChevronUpCss)} aria-hidden="true" />
-          </button>
-          <button
-            {...decrementProps}
-            ref={decrementRef}
-            type="button"
-            className={cx(stepperButtonCss, stepperDecrementCss)}
-          >
-            <span className={cx(stepperChevronCss, stepperChevronDownCss)} aria-hidden="true" />
-          </button>
+      {hasSuffix ? (
+        <div className={suffixRowCss}>
+          <div className={narrowControlCss(inputWidth)}>{fieldControl}</div>
+          {unit ? (
+            <span id={unitId} className={unitCss}>
+              {unit}
+            </span>
+          ) : null}
+          {helperAction ? <span className={helperActionCss}>{helperAction}</span> : null}
         </div>
-      </div>
+      ) : (
+        fieldControl
+      )}
 
       {resolvedRenderedError ? (
         <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>

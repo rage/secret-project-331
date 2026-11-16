@@ -922,8 +922,6 @@ pub enum DeleteUserAccountResult {
 /// How a failed TMC delete should be treated. The upstream status is what separates a retry that
 /// may work from one that never will.
 enum TmcDeletionFailure {
-    /// TMC has no such account, so the local deletion is still the right thing to do.
-    AlreadyGone,
     Transient,
     Rejected,
 }
@@ -932,9 +930,6 @@ fn classify_tmc_deletion_failure(error: &UtilError) -> TmcDeletionFailure {
     match error.error_type() {
         // The request never completed, so TMC provably did not act on it.
         UtilErrorType::TmcHttpError => TmcDeletionFailure::Transient,
-        // The deletion contract reports an unknown user in the body, but deployments predating it
-        // answer a bare 404.
-        UtilErrorType::TmcHttpStatusError(404) => TmcDeletionFailure::AlreadyGone,
         UtilErrorType::TmcHttpStatusError(429) => TmcDeletionFailure::Transient,
         UtilErrorType::TmcHttpStatusError(status) if *status >= 500 => {
             TmcDeletionFailure::Transient
@@ -1062,12 +1057,6 @@ pub async fn delete_user_account(
                 );
             }
             Err(error) => match classify_tmc_deletion_failure(&error) {
-                TmcDeletionFailure::AlreadyGone => {
-                    info!(
-                        "TMC has no account {upstream_id} for user {}; deleting locally anyway: {error}",
-                        auth_user.id
-                    );
-                }
                 TmcDeletionFailure::Transient => {
                     warn!(
                         "TMC was unavailable while deleting the account of user {}: {error}",
@@ -1758,4 +1747,39 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             )
             .to(verify_session),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn classify(error_type: UtilErrorType) -> TmcDeletionFailure {
+        classify_tmc_deletion_failure(&UtilError::new(error_type, "test".to_string(), None))
+    }
+
+    // Every failure stops the local deletion; a user TMC no longer has arrives as `Ok` instead.
+    #[test]
+    fn tmc_deletion_failures_keep_the_local_account() {
+        for error_type in [
+            UtilErrorType::TmcHttpError,
+            UtilErrorType::TmcHttpStatusError(429),
+            UtilErrorType::TmcHttpStatusError(500),
+            UtilErrorType::TmcHttpStatusError(503),
+        ] {
+            assert!(matches!(
+                classify(error_type),
+                TmcDeletionFailure::Transient
+            ));
+        }
+        for error_type in [
+            UtilErrorType::TmcHttpStatusError(401),
+            UtilErrorType::TmcHttpStatusError(403),
+            UtilErrorType::TmcHttpStatusError(404),
+            UtilErrorType::TmcHttpStatusError(422),
+            UtilErrorType::TmcErrorResponse,
+            UtilErrorType::DeserializationError,
+        ] {
+            assert!(matches!(classify(error_type), TmcDeletionFailure::Rejected));
+        }
+    }
 }

@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
-    courses::Course, prelude::*, user_course_settings::UserCourseSettings,
+    course_modules::CreditRegistrationRoute, courses::Course, prelude::*,
+    user_course_settings::UserCourseSettings,
 };
 use utoipa::ToSchema;
 
@@ -54,7 +55,7 @@ pub struct CourseModuleInfo {
     pub ects_credits: Option<f32>,
     /// The module's course code in the university's registry, e.g. `BSCS1001`.
     pub uh_course_code: Option<String>,
-    pub completions_can_be_registered_to_sisu: bool,
+    pub credit_registration_route: CreditRegistrationRoute,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -419,7 +420,7 @@ ORDER BY c.course_module_id, "day!"
                     .unwrap_or_default(),
                 ects_credits: m.ects_credits,
                 uh_course_code: m.uh_course_code.clone(),
-                completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
+                credit_registration_route: m.credit_registration_route,
             })
             .collect();
         let course_module_completions = all_course_module_completions

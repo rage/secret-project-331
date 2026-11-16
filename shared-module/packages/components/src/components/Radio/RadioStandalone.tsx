@@ -7,6 +7,7 @@ import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
 import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import {
+  checkableBadgeCss,
   checkableContentCss,
   checkableInputCss,
   checkableLabelCss,
@@ -38,6 +39,7 @@ const standaloneRowCss = css`
 export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
   const {
     label,
+    badge,
     description,
     errorMessage,
     fieldSize,
@@ -50,6 +52,9 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
     "aria-describedby": ariaDescribedBy,
     onChange,
     required,
+    nestedContent: _nestedContent,
+    nestedContentVariant: _nestedContentVariant,
+    isHidden: _isHidden,
     ...rest
   } = props
 
@@ -113,7 +118,10 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
         )}
       </span>
       <span className={checkableContentCss}>
-        <span className={checkableLabelCss}>{label}</span>
+        <span className={checkableLabelCss}>
+          {label}
+          {badge ? <span className={checkableBadgeCss}>{badge}</span> : null}
+        </span>
         {description ? (
           <span className={descriptionCss} id={descriptionId}>
             {description}

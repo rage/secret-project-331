@@ -2,7 +2,7 @@
 //!
 //! The pure half decides what each move does to a row (`outcomes`), how long to wait and what may
 //! be retried (`backoff`, `classification`), what gets registered (`payload`, `grade_mapping`,
-//! `enrolment_selection`), and what of an exchange may be kept (`scrub`). The rest are database steps
+//! `enrolment_selection`), and what personal data is removed from what is kept (`scrub`). The rest are database steps
 //! the phases run, such as `materialize`, `preconditions`, `enrolment_checks` and `account_linking`.
 //! Every state change goes through `credit_registrations::transition`.
 

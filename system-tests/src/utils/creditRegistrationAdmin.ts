@@ -348,20 +348,6 @@ export const creditRegistrationReconciliation = (
 ): Promise<AdminReconciliation> =>
   getJson<AdminReconciliation>(request, `${CREDIT_REGISTRATION_ADMIN_API}/reconciliation`)
 
-export interface SuotarApiCallRow {
-  id: string
-  endpoint: string
-  succeeded: boolean
-  request_item_count: number
-  credit_registration_ids: string[]
-}
-
-export interface SuotarApiCallsPage {
-  data: SuotarApiCallRow[]
-  total_count: number
-  worker_names: string[]
-}
-
 export interface SuotarApiCallDetails {
   request_body_sample: unknown
   response_body_sample: unknown
@@ -374,16 +360,6 @@ export interface SuotarApiCallDetails {
   }[]
   events: { credit_registration_id: string }[]
 }
-
-/** The call log. `credit_registration_id` is the search key that replaces free-text on the bodies. */
-export const listSuotarApiCalls = (
-  request: APIRequestContext,
-  filter: { credit_registration_id?: string; succeeded?: boolean; limit?: number } = {},
-): Promise<SuotarApiCallsPage> =>
-  getJson<SuotarApiCallsPage>(
-    request,
-    `${CREDIT_REGISTRATION_ADMIN_API}/suotar-api-calls${queryString({ ...filter })}`,
-  )
 
 export const suotarApiCall = (
   request: APIRequestContext,

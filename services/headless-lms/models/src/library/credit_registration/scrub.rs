@@ -1,5 +1,5 @@
-//! Removing personal data from what the credit registration pipeline keeps of its Suotar
-//! exchanges: the call log's bodies, the ledger's event details and error messages.
+//! Removing personal data from what the credit registration pipeline keeps: its error messages as
+//! they are written, and the ledger's event details once they outlive the call log.
 
 use serde_json::{Value, json};
 
@@ -105,20 +105,6 @@ fn normalize_key(key: &str) -> String {
         .filter(|c| c.is_ascii_alphanumeric())
         .flat_map(|c| c.to_lowercase())
         .collect()
-}
-
-/// Both sides of a Suotar exchange, scrubbed on construction so there is no way to build an
-/// unscrubbed `details`. The request is kept because the ledger row no longer reflects it after a
-/// retry.
-pub fn suotar_exchange_details(request: Option<&Value>, response: Option<&Value>) -> Value {
-    let mut details = serde_json::Map::new();
-    if let Some(request) = request {
-        details.insert("request".to_string(), scrub_suotar_body(request));
-    }
-    if let Some(response) = response {
-        details.insert("response".to_string(), scrub_suotar_body(response));
-    }
-    Value::Object(details)
 }
 
 #[cfg(test)]
@@ -327,23 +313,5 @@ mod tests {
         });
         let once = scrub_suotar_body(&body);
         assert_eq!(scrub_suotar_body(&once), once);
-    }
-
-    #[test]
-    fn exchange_details_scrub_both_sides_and_omit_missing_ones() {
-        let details = suotar_exchange_details(
-            Some(&json!({ "studentNumber": "012345678" })),
-            Some(&json!({ "code": "sent", "fullName": "Aada Virtanen" })),
-        );
-        assert_eq!(
-            details,
-            json!({
-                "request": { "studentNumber": REDACTED },
-                "response": { "code": "sent", "fullName": REDACTED },
-            })
-        );
-
-        let request_only = suotar_exchange_details(Some(&json!({ "code": "x" })), None);
-        assert_eq!(request_only, json!({ "request": { "code": "x" } }));
     }
 }

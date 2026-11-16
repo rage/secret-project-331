@@ -62,6 +62,14 @@ export const checkableLabelCss = css`
   overflow-wrap: anywhere;
 `
 
+/** A badge trailing a checkable's label text, wrapping under it when the row runs out of room. */
+export const checkableBadgeCss = css`
+  display: inline-block;
+  margin-inline-start: var(--space-3);
+  font-weight: 400;
+  vertical-align: 1px;
+`
+
 export const switchTrackCss = css`
   display: inline-flex;
   align-items: center;

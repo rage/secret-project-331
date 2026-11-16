@@ -72,6 +72,26 @@ pub enum TmcAccountDeletion {
     AlreadyDeleted,
 }
 
+/// A course the user has submissions or awarded points on, as tmc-server's
+/// `GET /api/v8/users/{id}/course_progress` reports it.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct TmcCourseProgress {
+    /// The course's slug-like identifier; `title` is the human-readable name when set.
+    pub name: String,
+    pub title: Option<String>,
+    /// The old mooc.fi course this TMC course reports its progress to. Free text on the TMC side,
+    /// so not guaranteed to be a UUID.
+    pub moocfi_id: Option<String>,
+    /// Number of distinct points awarded, not a score.
+    pub awarded_points: i32,
+    pub submissions: i32,
+}
+
+#[derive(Deserialize)]
+struct TmcCourseProgressResponse {
+    courses: Vec<TmcCourseProgress>,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TMCUser {
     pub id: i32, // upstream_id
@@ -182,6 +202,54 @@ fn parse_tmc_error_response(error_text: &str, status: Option<reqwest::StatusCode
     }
 }
 
+/// The error for a non-2xx TMC response, logged without the URL's query string.
+fn status_error(url: &str, status: reqwest::StatusCode, error_text: &str) -> UtilError {
+    if let Ok(parsed) = reqwest::Url::parse(url) {
+        let redacted = format!(
+            "{}{}",
+            parsed.origin().unicode_serialization(),
+            parsed.path()
+        );
+        tracing::warn!("Request to {} failed with status {}", redacted, status);
+    } else {
+        tracing::warn!("Request failed with status {}", status);
+    }
+    tracing::debug!("Response body: {}", error_text);
+
+    let error_message = parse_tmc_error_response(error_text, Some(status));
+
+    // A statusful failure, unlike a send failure, which stays `TmcHttpError`.
+    util_err!(TmcHttpStatusError(status.as_u16()), error_message)
+}
+
+async fn error_body(res: reqwest::Response) -> String {
+    res.text()
+        .await
+        .unwrap_or_else(|e| format!("(Failed to read error body: {e})"))
+}
+
+/// Whether a 404 body is the `{"errors": [...]}` TMC's API v8 renders for a missing record, as
+/// opposed to the 404 of a route this TMC deployment does not have.
+fn is_tmc_record_not_found(error_text: &str) -> bool {
+    serde_json::from_str::<serde_json::Value>(error_text)
+        .is_ok_and(|body| body.get("errors").is_some_and(serde_json::Value::is_array))
+}
+
+/// The outcome of a non-2xx answer to an account deletion. Deployments predating the deletion
+/// contract answer a missing user with a 404, but only one carrying TMC's own error body means the
+/// user is gone; any other 404 says nothing about the account.
+fn unsuccessful_account_deletion(
+    url: &str,
+    status: reqwest::StatusCode,
+    error_text: &str,
+) -> UtilResult<TmcAccountDeletion> {
+    if status == reqwest::StatusCode::NOT_FOUND && is_tmc_record_not_found(error_text) {
+        Ok(TmcAccountDeletion::AlreadyDeleted)
+    } else {
+        Err(status_error(url, status, error_text))
+    }
+}
+
 impl TmcClient {
     fn check_if_tmc_error_response(response_text: &str) -> Option<UtilError> {
         if let Ok(error_json) = serde_json::from_str::<serde_json::Value>(response_text)
@@ -269,8 +337,8 @@ impl TmcClient {
             .await
     }
 
-    /// `timeout` overrides the shared client's default for this one request.
-    async fn request_with_headers_and_timeout(
+    /// Like [`Self::request_with_headers_and_timeout`], but hands back non-2xx responses as is.
+    async fn send_request(
         &self,
         method: reqwest::Method,
         url: &str,
@@ -306,42 +374,33 @@ impl TmcClient {
             builder = builder.timeout(timeout);
         }
 
-        let res = builder.send().await.map_err(|e| {
+        builder.send().await.map_err(|e| {
             UtilError::new(
                 UtilErrorType::TmcHttpError,
                 "Failed to send HTTP request".to_string(),
                 Some(e.into()),
             )
-        })?;
+        })
+    }
 
+    /// `timeout` overrides the shared client's default for this one request.
+    async fn request_with_headers_and_timeout(
+        &self,
+        method: reqwest::Method,
+        url: &str,
+        tmc_request_auth: TMCRequestAuth,
+        body: Option<serde_json::Value>,
+        timeout: Option<Duration>,
+    ) -> UtilResult<reqwest::Response> {
+        let res = self
+            .send_request(method, url, tmc_request_auth, body, timeout)
+            .await?;
         if res.status().is_success() {
             Ok(res)
         } else {
             let status = res.status();
-            let error_text = res
-                .text()
-                .await
-                .unwrap_or_else(|e| format!("(Failed to read error body: {e})"));
-
-            if let Ok(parsed) = reqwest::Url::parse(url) {
-                let redacted = format!(
-                    "{}{}",
-                    parsed.origin().unicode_serialization(),
-                    parsed.path()
-                );
-                tracing::warn!("Request to {} failed with status {}", redacted, status);
-            } else {
-                tracing::warn!("Request failed with status {}", status);
-            }
-            tracing::debug!("Response body: {}", error_text);
-
-            let error_message = parse_tmc_error_response(&error_text, Some(status));
-
-            // A statusful failure, unlike the send failure above, which stays `TmcHttpError`.
-            Err(util_err!(
-                TmcHttpStatusError(status.as_u16()),
-                error_message
-            ))
+            let error_text = error_body(res).await;
+            Err(status_error(url, status, &error_text))
         }
     }
 
@@ -499,9 +558,8 @@ impl TmcClient {
     /// Deletes the upstream tmc.mooc.fi account behind `user_upstream_id`.
     ///
     /// Every failure is an error carrying TMC's HTTP status, which is what separates a retryable
-    /// outage from a rejection the caller must not retry. An unknown user can arrive either way:
-    /// as [`TmcAccountDeletion::AlreadyDeleted`], or, from deployments predating the deletion
-    /// contract, as a [`UtilErrorType::TmcHttpStatusError`] carrying 404.
+    /// outage from a rejection the caller must not retry. A user TMC does not know comes back as
+    /// [`TmcAccountDeletion::AlreadyDeleted`], never as an error.
     pub async fn delete_user_from_tmc(
         &self,
         user_upstream_id: String,
@@ -509,7 +567,7 @@ impl TmcClient {
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
 
         let res = self
-            .request_with_headers_and_timeout(
+            .send_request(
                 reqwest::Method::DELETE,
                 &url,
                 TMCRequestAuth::UseAdminToken,
@@ -517,6 +575,10 @@ impl TmcClient {
                 Some(DELETE_ACCOUNT_TIMEOUT),
             )
             .await?;
+        let status = res.status();
+        if !status.is_success() {
+            return unsuccessful_account_deletion(&url, status, &error_body(res).await);
+        }
 
         let body: TmcDeleteAccountResponse = self
             .deserialize_response_with_tmc_error_check(res, "delete response from TMC")
@@ -534,6 +596,36 @@ impl TmcClient {
         } else {
             Ok(TmcAccountDeletion::Deleted)
         }
+    }
+
+    /// Every course the user has progress on in tmc.mooc.fi. A user TMC does not know has none.
+    pub async fn get_user_course_progress(
+        &self,
+        user_upstream_id: i32,
+        timeout: Duration,
+    ) -> UtilResult<Vec<TmcCourseProgress>> {
+        let url = format!("{}/{}/course_progress", TMC_API_URL, user_upstream_id);
+        let res = self
+            .send_request(
+                reqwest::Method::GET,
+                &url,
+                TMCRequestAuth::UseAdminToken,
+                None,
+                Some(timeout),
+            )
+            .await?;
+        let status = res.status();
+        if !status.is_success() {
+            let error_text = error_body(res).await;
+            if status == reqwest::StatusCode::NOT_FOUND && is_tmc_record_not_found(&error_text) {
+                return Ok(Vec::new());
+            }
+            return Err(status_error(&url, status, &error_text));
+        }
+        let body: TmcCourseProgressResponse = self
+            .deserialize_response_with_tmc_error_check(res, "course progress from TMC")
+            .await?;
+        Ok(body.courses)
     }
 
     pub async fn get_user_from_tmc_mooc_fi_by_tmc_access_token(
@@ -618,5 +710,48 @@ impl TmcClient {
 
     pub fn get_admin_access_token(&self) -> &SecretString {
         &self.admin_access_token
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn only_tmc_error_bodies_count_as_record_not_found() {
+        assert!(is_tmc_record_not_found(
+            r#"{"errors":["Couldn't find User with 'id'=1"]}"#
+        ));
+        assert!(!is_tmc_record_not_found(
+            r#"{"status":404,"error":"Not Found"}"#
+        ));
+        assert!(!is_tmc_record_not_found("<!DOCTYPE html><html>404</html>"));
+        assert!(!is_tmc_record_not_found(""));
+    }
+
+    #[test]
+    fn only_a_tmc_error_body_404_means_the_account_is_already_deleted() {
+        let url = "https://tmc.example/api/v8/users/1";
+        let not_found = reqwest::StatusCode::NOT_FOUND;
+        assert_eq!(
+            unsuccessful_account_deletion(
+                url,
+                not_found,
+                r#"{"errors":["Couldn't find User with 'id'=1"]}"#
+            )
+            .unwrap(),
+            TmcAccountDeletion::AlreadyDeleted
+        );
+        for body in [
+            r#"{"status":404,"error":"Not Found"}"#,
+            "<!DOCTYPE html><html>404</html>",
+            "",
+        ] {
+            let error = unsuccessful_account_deletion(url, not_found, body).unwrap_err();
+            assert!(matches!(
+                error.error_type(),
+                UtilErrorType::TmcHttpStatusError(404)
+            ));
+        }
     }
 }

@@ -520,8 +520,8 @@ export type AdminCreditRegistrationEvent = {
    */
   credit_registration_id: string
   /**
-   * The `{request, response}` pair, scrubbed at write time: names, student numbers and email
-   * addresses read `[redacted]` while their keys survive. The values we sent are on the row.
+   * The `{request, response}` pair for this row's item. Once older than the call log's 90-day
+   * window, names, student numbers and email addresses in it read `[redacted]`.
    */
   details?: unknown
   error_code?: CreditRegistrationErrorCode | null
@@ -1356,16 +1356,6 @@ export type AttentionStanding =
   | "dismissed"
   | "explained_by_problem"
 
-export type AutomaticCompletionRequirements = {
-  /**
-   * Course module associated with these requirements.
-   */
-  course_module_id: string
-  number_of_exercises_attempted_treshold?: number | null
-  number_of_points_treshold?: number | null
-  requires_exam: boolean
-}
-
 /**
  * A generic result representing an average metric over a time period.
  * The average value (e.g. average time in seconds) may be absent if no data is available.
@@ -2095,16 +2085,42 @@ export type CompletionGridRow = {
   user_id: string
 }
 
+/**
+ * How students get a module's completion; [`CompletionPolicy`] is the same with its thresholds.
+ */
+export type CompletionMethod = "not_decided" | "by_requirements" | "by_exam" | "teacher_adds"
+
+/**
+ * How students get a module's completion, with the thresholds the method uses.
+ */
 export type CompletionPolicy =
-  | (AutomaticCompletionRequirements & {
-      policy: "automatic"
+  | {
+      method: "not_decided"
+    }
+  | (CompletionRequirements & {
+      method: "by_requirements"
+    })
+  | (CompletionRequirements & {
+      method: "by_exam"
     })
   | {
-      policy: "manual"
+      method: "teacher_adds"
     }
 
 export type CompletionRegistrationLink = {
   url: string
+}
+
+/**
+ * Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.
+ */
+export type CompletionRequirements = {
+  /**
+   * Course module associated with these requirements.
+   */
+  course_module_id: string
+  number_of_exercises_attempted_treshold?: number | null
+  number_of_points_treshold?: number | null
 }
 
 export type ConsentData = {
@@ -2346,6 +2362,25 @@ export type CourseChatbotOption = {
   course_id: string
   course_name: string
   id: string
+}
+
+/**
+ * How students complete a course and get its credits, for the course Overview tab.
+ */
+export type CourseCompletionOverview = {
+  /**
+   * Whether the user can view the course's credit registrations; without it every module's
+   * `not_yet_registered_count` is 0 and `credit_registration_pause_reason` is `None`.
+   */
+  can_view_registrations: boolean
+  /**
+   * The exams linked to the course, which every module passed by an exam on this platform uses.
+   */
+  exams: CourseExamsOverview
+  /**
+   * In module order.
+   */
+  modules: Array<CourseModuleCompletionOverview>
 }
 
 export type CourseCompletionStats = {
@@ -2740,6 +2775,27 @@ export type CourseExam = {
   name: string
 }
 
+/**
+ * When the course's linked exams are held and whether they can pass anyone automatically.
+ */
+export type CourseExamsOverview = {
+  /**
+   * Whether at least one exam completes the students who reach its pass mark; otherwise every
+   * exam is graded manually or has no pass mark, and the teacher adds the completions.
+   */
+  any_has_pass_mark: boolean
+  count: number
+  /**
+   * The latest end of an exam that has ended.
+   */
+  last_ended_at?: string | null
+  next_ends_at?: string | null
+  /**
+   * The window of the exam that ends next among those not ended yet.
+   */
+  next_starts_at?: string | null
+}
+
 export type CourseInstance = {
   course_id: string
   created_at: string
@@ -2810,7 +2866,7 @@ export type CourseMetadataUpdate = {
 }
 
 /**
- * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
+ * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
  * `completion_policy`.
  */
 export type CourseModule = {
@@ -2820,15 +2876,17 @@ export type CourseModule = {
    * If set, use this link rather than the default one when registering course completions.
    */
   completion_registration_link_override?: string | null
-  /**
-   * Off, the module's completions are never registered, course code or not; see [`registers_credits`].
-   */
-  completions_can_be_registered_to_sisu: boolean
   copied_from?: string | null
   course_id: string
   created_at: string
+  credit_registration_route: CreditRegistrationRoute
   deleted_at?: string | null
   ects_credits?: number | null
+  /**
+   * Where the exam is held, when `exam_requirement` is [`ExamRequirement::Elsewhere`].
+   */
+  exam_location_description?: string | null
+  exam_requirement: ExamRequirement
   id: string
   name?: string | null
   order_number: number
@@ -2858,6 +2916,44 @@ export type CourseModuleCompletion = {
   register_credits_via_suotar: boolean
   updated_at: string
   user_id: string
+}
+
+/**
+ * One module's completion and credit settings with the facts that tell whether they work.
+ */
+export type CourseModuleCompletionOverview = {
+  certification_enabled: boolean
+  completion_method: CompletionMethod
+  /**
+   * `None` until Sisu has been asked about the course code.
+   */
+  course_code_allowed?: boolean | null
+  course_module_id: string
+  credit_registration_pause_reason?: string | null
+  credit_registration_paused_at?: string | null
+  credit_registration_route: CreditRegistrationRoute
+  ects_credits?: number | null
+  exam_requirement: ExamRequirement
+  /**
+   * By requirements, the exercises attempted needed to pass; by an exam, to take the exam.
+   */
+  exercises_attempted_threshold?: number | null
+  has_completions: boolean
+  has_registration_link: boolean
+  /**
+   * `None` for the default module.
+   */
+  name?: string | null
+  /**
+   * Credit registrations neither in Sisu yet nor given up on.
+   */
+  not_yet_registered_count: number
+  order_number: number
+  /**
+   * By requirements, the points needed to pass; by an exam, to take the exam.
+   */
+  points_threshold?: number | null
+  uh_course_code?: string | null
 }
 
 export type CourseModuleCompletionWithRegistrationInfo = {
@@ -2906,7 +3002,6 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  * here because a module with no configuration row is a valid, unconfigured module.
  */
 export type CourseModuleCreditRegistrationConfig = {
-  completions_can_be_registered_to_sisu: boolean
   course_id: string
   course_module_id: string
   credit_registration_config_check_message?: string | null
@@ -2923,6 +3018,7 @@ export type CourseModuleCreditRegistrationConfig = {
   credit_registration_pause_reason?: string | null
   credit_registration_paused_at?: string | null
   credit_registration_paused_by_user_id?: string | null
+  credit_registration_route: CreditRegistrationRoute
   ects_credits?: number | null
   uh_course_code?: string | null
 }
@@ -2932,7 +3028,7 @@ export type CourseModuleCreditRegistrationConfig = {
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export type CourseModuleInfo = {
-  completions_can_be_registered_to_sisu: boolean
+  credit_registration_route: CreditRegistrationRoute
   /**
    * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
    */
@@ -3054,6 +3150,24 @@ export type CourseUpdate = {
   is_test_mode: boolean
   is_unlisted: boolean
   name: string
+}
+
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
+export type CoursesMoocFiCourseProgress = {
+  /**
+   * Modules with a passed completion.
+   */
+  completed_modules: number
+  course_id: string
+  /**
+   * `None` when the course has no exercises.
+   */
+  max_points?: number | null
+  name: string
+  points: number
+  total_modules: number
 }
 
 export type CreateChatbotRequest = {
@@ -3948,6 +4062,11 @@ export type CreditRegistrationReconciliation = {
 }
 
 /**
+ * How a module's completions turn into credits.
+ */
+export type CreditRegistrationRoute = "platform" | "external" | "certificate_only"
+
+/**
  * Deployment-wide switches the credit registration views adapt to.
  */
 export type CreditRegistrationSettings = {
@@ -4589,11 +4708,13 @@ export type EntityField =
   | "deadline"
   | "chapter_image_path"
   | "completion_policy"
+  | "exam_requirement"
+  | "exam_location_description"
   | "certification_enabled"
   | "uh_course_code"
   | "ects_credits"
   | "completion_registration_link_override"
-  | "completions_can_be_registered_to_sisu"
+  | "credit_registration_route"
   | "description"
   | "is_draft"
   | "is_test_mode"
@@ -4678,6 +4799,11 @@ export type ExamEnrollment = {
   updated_at: string
   user_id: string
 }
+
+/**
+ * Whether passing a module requires an exam, and where it is held.
+ */
+export type ExamRequirement = "none" | "platform" | "examinarium" | "elsewhere"
 
 export type Exercise = {
   chapter_id?: string | null
@@ -5056,6 +5182,11 @@ export type ExternalCreditTarget = {
  */
 export type ExternalGrading = "pass_fail" | "numeric"
 
+/**
+ * How querying an external platform for the user's courses went.
+ */
+export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
+
 export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
@@ -5142,6 +5273,14 @@ export type FieldValue =
   | {
       type: "completion_policy"
       value: CompletionPolicy
+    }
+  | {
+      type: "exam_requirement"
+      value: ExamRequirement
+    }
+  | {
+      type: "credit_registration_route"
+      value: CreditRegistrationRoute
     }
   | {
       type: "ai_policy"
@@ -5305,6 +5444,44 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
+ * An exam of the course's organization that the module editor offers to link to the course.
+ */
+export type LinkableExam = {
+  ends_at?: string | null
+  /**
+   * How many more courses the exam is linked to, whose names the user may not see.
+   */
+  hidden_linked_course_count: number
+  id: string
+  /**
+   * The other courses the exam is linked to that the user may see; linking it here keeps
+   * those links.
+   */
+  linked_course_names: Array<string>
+  name: string
+  /**
+   * See [`LinkedExam::pass_mark`].
+   */
+  pass_mark?: number | null
+  starts_at?: string | null
+}
+
+/**
+ * An exam linked to the course, as the module editor lists it.
+ */
+export type LinkedExam = {
+  ends_at?: string | null
+  id: string
+  name: string
+  /**
+   * The points that complete the course automatically; `None` when the teacher adds the
+   * completions.
+   */
+  pass_mark?: number | null
+  starts_at?: string | null
+}
+
+/**
  * Something a listed person shares with the student's account, strongest first.
  */
 export type LinkingCandidateSimilarity = "email" | "email_username" | "last_name" | "first_name"
@@ -5377,8 +5554,10 @@ export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  completions_can_be_registered_to_sisu: boolean
+  credit_registration_route: CreditRegistrationRoute
   ects_credits?: number | null
+  exam_location_description?: string | null
+  exam_requirement: ExamRequirement
   id: string
   name?: string | null
   order_number: number
@@ -5396,6 +5575,21 @@ export type ModuleUpdates = {
   modified_modules: Array<ModifiedModule>
   moved_chapters: Array<[string, string]>
   new_modules: Array<NewModule>
+}
+
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
+export type MoocFiCourseProgress = {
+  completed: boolean
+  course_id: string
+  max_points?: number | null
+  name: string
+  points?: number | null
+  /**
+   * tmc.mooc.fi courses that report their progress to this one.
+   */
+  tmc_mooc_fi_courses: Array<TmcMoocFiCourseProgress>
 }
 
 /**
@@ -5709,12 +5903,12 @@ export type MyStudiesCourseModule = {
    * manually or sets no attempt threshold.
    */
   attempted_exercises_required?: number | null
-  /**
-   * False when a teacher grades the module, in which case neither threshold says anything about
-   * completing it.
-   */
-  automatic_completion: boolean
   completion?: MyStudiesCompletion | null
+  /**
+   * The thresholds say something only for `by_requirements`, and for `by_exam`, where they
+   * qualify the student to take the exam rather than complete the module.
+   */
+  completion_method: CompletionMethod
   course_module_id: string
   ects_credits?: number | null
   /**
@@ -5727,10 +5921,6 @@ export type MyStudiesCourseModule = {
    */
   name?: string | null
   order_number: number
-  /**
-   * When true, the thresholds qualify the student to sit an exam rather than complete the module.
-   */
-  requires_exam: boolean
   /**
    * Exercise points the student has in the module, rounded to two decimals. Not ECTS credits.
    */
@@ -5952,8 +6142,10 @@ export type NewModule = {
   chapters: Array<string>
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
-  completions_can_be_registered_to_sisu: boolean
+  credit_registration_route: CreditRegistrationRoute
   ects_credits?: number | null
+  exam_location_description?: string | null
+  exam_requirement: ExamRequirement
   name: string
   order_number: number
   uh_course_code?: string | null
@@ -6794,6 +6986,18 @@ export type PreviewReference = {
   reference: string
 }
 
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export type ProgressByPlatform = {
+  courses_mooc_fi: Array<CoursesMoocFiCourseProgress>
+  mooc_fi: Array<MoocFiCourseProgress>
+  mooc_fi_status: ExternalPlatformStatus
+  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
+  tmc_mooc_fi_status: ExternalPlatformStatus
+}
+
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
 /**
@@ -7521,7 +7725,7 @@ export type SuotarApiCallDetails = {
   events: Array<SuotarApiCallEvent>
   ledger_references: Array<SuotarApiCallLedgerReference>
   /**
-   * Scrubbed and truncated when it was written; never un-scrubbed for display.
+   * Sampled when it was written.
    */
   request_body_sample?: unknown
   response_body_sample?: unknown
@@ -7534,7 +7738,7 @@ export type SuotarApiCallEvent = {
   created_at: string
   credit_registration_id: string
   /**
-   * The `{request, response}` pair for this one item, scrubbed at write time.
+   * The `{request, response}` pair for this one item.
    */
   details?: unknown
   error_code?: CreditRegistrationErrorCode | null
@@ -7822,6 +8026,18 @@ export type TimelineStep =
   | "no_longer_registrable"
 
 /**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
+export type TmcMoocFiCourseProgress = {
+  /**
+   * Number of points awarded, not a score.
+   */
+  awarded_points: number
+  name: string
+  submissions: number
+}
+
+/**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
  * chatbot crate's per-tool `ToolPermission` check: a category answers "does this chatbot offer
  * this kind of tool", not "may this caller use it".
@@ -7975,16 +8191,13 @@ export type UserCourseProgress = {
   attempted_exercises?: number | null
   attempted_exercises_required?: number | null
   /**
-   * False when a teacher grades the module, in which case neither threshold applies.
+   * The thresholds apply only to `by_requirements` and `by_exam`; for `by_exam` they only qualify
+   * the user to take the exam that completion also needs.
    */
-  automatic_completion: boolean
+  completion_method: CompletionMethod
   course_module_id: string
   course_module_name: string
   course_module_order_number: number
-  /**
-   * When true, the thresholds only qualify the user to sit an exam that completion also needs.
-   */
-  requires_exam: boolean
   score_given: number
   score_maximum?: number | null
   score_required?: number | null
@@ -10702,6 +10915,28 @@ export type SetCourseChatbotAsNonDefaultResponses = {
 export type SetCourseChatbotAsNonDefaultResponse =
   SetCourseChatbotAsNonDefaultResponses[keyof SetCourseChatbotAsNonDefaultResponses]
 
+export type GetCourseCompletionOverviewData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/completion-overview"
+}
+
+export type GetCourseCompletionOverviewResponses = {
+  /**
+   * How students complete the course and get its credits
+   */
+  200: CourseCompletionOverview
+}
+
+export type GetCourseCompletionOverviewResponse =
+  GetCourseCompletionOverviewResponses[keyof GetCourseCompletionOverviewResponses]
+
 export type GetCourseInstancesData = {
   body?: never
   path: {
@@ -10881,6 +11116,28 @@ export type GetCourseDefaultPeerReviewResponses = {
    */
   200: unknown
 }
+
+export type GetCourseLinkedExamsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/exams"
+}
+
+export type GetCourseLinkedExamsResponses = {
+  /**
+   * Exams linked to the course
+   */
+  200: Array<LinkedExam>
+}
+
+export type GetCourseLinkedExamsResponse =
+  GetCourseLinkedExamsResponses[keyof GetCourseLinkedExamsResponses]
 
 export type GetCourseExercisesData = {
   body?: never
@@ -11318,6 +11575,28 @@ export type GetCourseLanguageVersionsResponses = {
 
 export type GetCourseLanguageVersionsResponse =
   GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
+
+export type GetCourseLinkableExamsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams"
+}
+
+export type GetCourseLinkableExamsResponses = {
+  /**
+   * Exams the user can link to the course
+   */
+  200: Array<LinkableExam>
+}
+
+export type GetCourseLinkableExamsResponse =
+  GetCourseLinkableExamsResponses[keyof GetCourseLinkableExamsResponses]
 
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>
@@ -18254,6 +18533,23 @@ export type UnhideCourseFromMyCoursesResponses = {
    */
   200: unknown
 }
+
+export type GetMyProgressByPlatformData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-progress-by-platform"
+}
+
+export type GetMyProgressByPlatformResponses = {
+  /**
+   * The authenticated user's courses grouped by platform
+   */
+  200: ProgressByPlatform
+}
+
+export type GetMyProgressByPlatformResponse =
+  GetMyProgressByPlatformResponses[keyof GetMyProgressByPlatformResponses]
 
 export type GetMyStudiesData = {
   body?: never

@@ -89,8 +89,8 @@ pub fn get_newsletter_period() -> (String, String) {
 async fn create_newsletter_items(
     conn: &mut PgConnection,
     courses: Vec<Course>,
-    period_start: &String,
-    period_end: &String,
+    period_start: &str,
+    period_end: &str,
     base_url: String,
 ) -> anyhow::Result<()> {
     for course in courses {

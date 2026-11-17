@@ -70,18 +70,23 @@ const headingOrSelf = (container: HTMLElement): HTMLElement => {
 }
 
 /**
- * Focuses `container`'s h1 (or the container) and, for a while, moves focus again if late content
- * replaces that heading while focus is still lost. `watched` is a focused element expected to
+ * Focuses the container's h1 (or the container) and, for a while, moves focus again if late content
+ * replaces that heading while focus is still lost. The container is looked up again on every
+ * change, since the page swap may replace it. `watched` is a focused element expected to
  * unmount (a clicked link) that keeps focus until it does. Returns a function that stops it.
  */
 const settleFocusOnHeading = (
-  container: HTMLElement,
+  getContainer: () => HTMLElement | null,
   watched: HTMLElement | null,
   options: FocusOptions,
 ): (() => void) => {
   let managed: HTMLElement | null = null
   let cleanupBlur: (() => void) | null = null
   const focusTarget = () => {
+    const container = getContainer()
+    if (!container) {
+      return
+    }
     const target = headingOrSelf(container)
     if (target === managed) {
       return
@@ -107,14 +112,14 @@ const settleFocusOnHeading = (
   if (!watched) {
     focusTarget()
   }
-  // The container persists across navigations, so only its subtree is watched. It keeps watching
-  // after the heading has focus: the heading itself may be replaced a moment later.
+  // Watches the whole body, as the container itself may be replaced. It keeps watching after the
+  // heading has focus: the heading itself may be replaced a moment later.
   const observer = new MutationObserver(() => {
     if (update()) {
       observer.disconnect()
     }
   })
-  observer.observe(container, { childList: true, subtree: true })
+  observer.observe(document.body, { childList: true, subtree: true })
   const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
   return () => {
     observer.disconnect()
@@ -123,15 +128,16 @@ const settleFocusOnHeading = (
   }
 }
 
+const getMainElement = () => document.querySelector<HTMLElement>("main")
+
 /**
  * Focuses the page's main heading, else its first other heading, or `main` itself if it has none, and keeps it there if the
  * heading is replaced while the page settles (a refetch after a dialog closes).
  */
 export const focusMainHeading = (options: FocusOptions = {}): void => {
   runWhenNoModalOpen(() => {
-    const main = document.querySelector<HTMLElement>("main")
-    if (main) {
-      settleFocusOnHeading(main, null, options)
+    if (getMainElement()) {
+      settleFocusOnHeading(getMainElement, null, options)
     }
   })
 }
@@ -172,8 +178,12 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
       // Fragment navigation: the fragment target owns focus/scroll.
       return
     }
-    const initialContainer = document.querySelector(targetSelector)
-    if (!(initialContainer instanceof HTMLElement)) {
+    const getContainer = () => {
+      const container = document.querySelector(targetSelector)
+      return container instanceof HTMLElement ? container : null
+    }
+    const initialContainer = getContainer()
+    if (!initialContainer) {
       return
     }
     const initialActive = document.activeElement
@@ -184,7 +194,7 @@ const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
         ? initialActive
         : null
 
-    return settleFocusOnHeading(initialContainer, watched, { preventScroll: true })
+    return settleFocusOnHeading(getContainer, watched, { preventScroll: true })
   }, [pathname, targetSelector])
 
   return null

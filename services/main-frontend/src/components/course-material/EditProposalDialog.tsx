@@ -167,10 +167,16 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- region landmark from useLandmark
     <div
       ref={dialogRef}
       {...landmarkProps}
       tabIndex={-1}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !e.defaultPrevented) {
+          handleClose()
+        }
+      }}
       className={css`
         position: fixed;
         max-width: 500px;

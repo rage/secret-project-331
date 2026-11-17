@@ -40,6 +40,16 @@ function App({ heading, children }: { heading?: string | null; children?: React.
   )
 }
 
+function Swap({ swapped, children }: { swapped: boolean; children?: React.ReactNode }) {
+  return swapped ? (
+    <div>
+      <main id="maincontent">{children}</main>
+    </div>
+  ) : (
+    <main id="maincontent">{children}</main>
+  )
+}
+
 describe("RouteFocusManager", () => {
   beforeEach(() => {
     mockState.pathname = "/"
@@ -285,5 +295,42 @@ describe("RouteFocusManager", () => {
       await Promise.resolve()
     })
     expect(document.activeElement).toBe(document.querySelector("h1"))
+  })
+
+  test("finds a heading that arrives in a replaced main element", async () => {
+    const { rerender } = render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <Swap swapped={false} />
+      </>,
+    )
+    mockState.pathname = "/chapter"
+    rerender(
+      <>
+        <RouteFocusManager pathname="/chapter" />
+        <Swap swapped={false} />
+      </>,
+    )
+    await act(async () => {
+      rerender(
+        <>
+          <RouteFocusManager pathname="/chapter" />
+          <Swap swapped />
+        </>,
+      )
+      await Promise.resolve()
+    })
+    await act(async () => {
+      rerender(
+        <>
+          <RouteFocusManager pathname="/chapter" />
+          <Swap swapped>
+            <h3 id="late">Late</h3>
+          </Swap>
+        </>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("#late"))
   })
 })

@@ -5,6 +5,7 @@
   "add-accepted-answer": "Lisää hyväksytty vastaus",
   "add-example-string": "Lisää uusi esimerkki",
   "add-feedback-message": "Lisää palauteviesti",
+  "add-feedback-message-named": "Lisää palauteviesti vaihtoehdolle {{title}}",
   "add-new-event": "Lisää uusi tapahtuma",
   "add-new-quiz-item": "Lisää uusi Quiz-esine",
   "add-new-quiz-title-text": "Lisää uusi {{capitalizedType}}",

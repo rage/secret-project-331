@@ -278,6 +278,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
                 <FeedbackMessagesEditor
                   value={option.feedbackMessages}
                   visibilityOptions={optionFeedbackVisibilityOptions}
+                  optionTitle={title}
                   onChange={(feedbackMessages) => onChange({ feedbackMessages })}
                 />
               </MessageDialogTextFieldContainer>

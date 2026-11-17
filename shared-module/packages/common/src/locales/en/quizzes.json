@@ -5,6 +5,7 @@
   "add-accepted-answer": "Add accepted answer",
   "add-example-string": "Add example string",
   "add-feedback-message": "Add feedback message",
+  "add-feedback-message-named": "Add feedback message for option {{title}}",
   "add-new-event": "Add new event",
   "add-new-quiz-item": "Add new quiz item",
   "add-new-quiz-title-text": "Add new {{capitalizedType}}",

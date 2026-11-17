@@ -51,6 +51,16 @@ describe("MultipleChoiceOption", () => {
     ).toBeInTheDocument()
   })
 
+  it("names the add feedback message button with the option title", () => {
+    render(<MultipleChoiceOption option={option} onChange={vi.fn()} onDelete={vi.fn()} />)
+    fireEvent.click(screen.getByRole("button", { name: "edit-option-named Helsinki" }))
+    fireEvent.click(screen.getByRole("button", { name: "option-feedback-named Helsinki" }))
+
+    expect(
+      screen.getByRole("button", { name: "add-feedback-message-named Helsinki" }),
+    ).toBeInTheDocument()
+  })
+
   it("numbers the feedback message remove buttons", () => {
     render(
       <FeedbackMessagesEditor

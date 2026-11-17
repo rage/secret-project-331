@@ -219,7 +219,12 @@ const SubmissionFeedback: React.FC<{
         )}
       </span>
 
-      <span>
+      <span
+        className={css`
+          min-width: 0;
+          overflow-wrap: anywhere;
+        `}
+      >
         {showScore ? (
           <>
             {mapScoreToFeedback(userScore as number)}{" "}

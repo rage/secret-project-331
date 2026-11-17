@@ -90,6 +90,18 @@ describe("FeedbackHandler (F-07, B-001, B-012)", () => {
     expect(document.activeElement).toBe(trigger)
   })
 
+  it("closes the improve panel with Escape and returns focus to the trigger", async () => {
+    renderHandler()
+    const trigger = await openType()
+    fireEvent.click(screen.getByRole("button", { name: "improve-material" }))
+    const region = await screen.findByRole("region", { name: "improve-content-dialog" })
+
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" })
+    await waitFor(() => expect(region).not.toBeInTheDocument())
+    await settleFocus()
+    expect(document.activeElement).toBe(trigger)
+  })
+
   it("focuses the improve panel heading when Improve material is chosen", async () => {
     renderHandler()
     await openType()

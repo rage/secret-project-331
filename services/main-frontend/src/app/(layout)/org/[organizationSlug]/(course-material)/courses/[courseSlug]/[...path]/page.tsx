@@ -185,7 +185,7 @@ const PagePage: React.FC = () => {
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
-    return <ErrorNotice error={courseMaterialState.error} />
+    return <ErrorNotice error={courseMaterialState.error} headingLevel={1} />
   }
 
   if (courseMaterialState.status === "loading") {

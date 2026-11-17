@@ -66,6 +66,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
   }, [prefix, savedPage?.url_path])
   const {
     control,
+    reset,
     watch,
     setValue,
     getValues,
@@ -146,6 +147,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     await createPageMutation.mutateAsync({
       body: newPage,
     })
+    reset({ title: "", path: "" })
   }
 
   return (

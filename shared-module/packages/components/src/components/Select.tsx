@@ -19,6 +19,7 @@ import {
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
@@ -189,6 +190,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     isDisabled,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -238,6 +240,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       value: selectedKey,
       isDisabled,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,

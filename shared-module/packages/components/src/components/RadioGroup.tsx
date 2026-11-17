@@ -8,6 +8,7 @@ import { mergeProps, useRadioGroup } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { omitUndefined } from "../lib/utils/nullability"
 import { FieldError } from "./primitives/FieldError"
 import {
@@ -250,6 +251,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
   })
 
@@ -270,6 +272,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       ...omitUndefined({ "aria-label": ariaLabel }),
     },

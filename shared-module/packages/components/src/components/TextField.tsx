@@ -7,7 +7,7 @@ import type { AriaTextFieldProps } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { ARIA_VALIDATION, joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import {
   isVisuallyHiddenLabel,
@@ -133,6 +133,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
     }),
   }
 

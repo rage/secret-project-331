@@ -9,6 +9,7 @@ import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
@@ -191,6 +192,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -222,6 +224,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,

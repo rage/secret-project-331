@@ -277,4 +277,13 @@ describe("TextField - data-testid", () => {
     ))
     expect(screen.getByTestId("email-field")).toBe(screen.getByRole("textbox", { name: "Email" }))
   })
+
+  test("isRequired is aria-required, not native required (no browser validation bubble)", () => {
+    renderStringField((control) => (
+      <TextField name="f" control={control} label="Email" isRequired />
+    ))
+    const input = screen.getByRole("textbox")
+    expect(input).toHaveAttribute("aria-required", "true")
+    expect(input).not.toHaveAttribute("required")
+  })
 })

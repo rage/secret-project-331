@@ -265,6 +265,7 @@ const CourseModuleForm: React.FC<Props> = ({
                 control={control}
                 label={isCreate ? t("name-of-module") : t("edit-module")}
                 rules={{ required: t("required-field") }}
+                isRequired
               />
             ) : (
               <span className={headingCss}>

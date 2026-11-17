@@ -78,6 +78,7 @@ describe("PermissionPage", () => {
     })
     await waitFor(() => expect(input.getAttribute("aria-invalid")).toBe("true"))
     expect(screen.getByText("enter-a-valid-email")).toBeTruthy()
+    expect(document.activeElement).toBe(input)
     expect(mockAdd).not.toHaveBeenCalled()
   })
 })

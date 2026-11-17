@@ -49,4 +49,19 @@ describe("StudentsTable header", () => {
       expect(slider.getAttribute("tabindex")).toBe("0")
     }
   })
+
+  it("names a header with spaces in its id by its label only", () => {
+    render(
+      <StudentsTable
+        columns={[{ id: "Describing data", header: "Describing data", enableSorting: true }]}
+        data={[{ email: "a@example.com" }]}
+        sorting={[]}
+        onSortingChange={() => {}}
+      />,
+    )
+    const header = screen.getByRole("columnheader", { name: /Describing data/ })
+    const labelledBy = header.getAttribute("aria-labelledby") ?? ""
+    expect(labelledBy).not.toMatch(/\s/)
+    expect(document.querySelector(`[id="${labelledBy}"]`)).not.toBeNull()
+  })
 })

@@ -24,9 +24,6 @@ import { Button, QueryResult, ErrorNotice, useToggleFocus } from "@/shared-modul
 import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
-// Stable, so the form's server-issue effect does not rerun on every render.
-const NO_SERVER_ISSUES: never[] = []
-
 const editActionsCss = css`
   display: flex;
   flex-wrap: wrap;
@@ -143,9 +140,7 @@ const ManageCourseInstances: React.FC = () => {
                 <div ref={formRef}>
                   <NewCourseInstanceForm
                     initialData={data}
-                    serverIssues={
-                      isAppApiError(mutation.error) ? mutation.error.issues : NO_SERVER_ISSUES
-                    }
+                    serverIssues={isAppApiError(mutation.error) ? mutation.error.issues : undefined}
                     onSubmit={(formData) => {
                       mutation.mutate(formData, { onSuccess: () => setEditing(false) })
                     }}

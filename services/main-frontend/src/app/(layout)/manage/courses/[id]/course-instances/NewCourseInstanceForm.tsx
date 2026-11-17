@@ -18,7 +18,7 @@ interface FormProps {
   initialData: CourseInstance | null
   onSubmit: (form: CourseInstanceForm) => void
   /** Issues from a rejected save; those naming a field are shown on that field. */
-  serverIssues?: CanonicalApiIssue[]
+  serverIssues?: CanonicalApiIssue[] | undefined
 }
 
 const ISSUE_PATH_TO_FIELD = {

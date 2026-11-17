@@ -48,7 +48,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
       await frame.getByText("Which one is the Rust package manager?").waitFor()
     }
 
-    await frame.getByText("rustup").click()
+    await frame.getByText("rustup", { exact: true }).first().click()
 
     await page.getByRole("button", { name: "Submit" }).click()
 
@@ -77,14 +77,17 @@ test.describe("Quizzes multiple-choice feedback", () => {
       headless,
       testInfo,
       snapshotName: "multiple-choice-feedback-correct-answer",
-      waitForTheseToBeVisibleAndStable: [frame.locator(`text=Your answer was `)],
+      waitForTheseToBeVisibleAndStable: [
+        frame.locator(`text=Your answer was `),
+        frame.getByRole("group", { name: "Answer summary" }),
+      ],
     })
 
     await page.getByText("Try again").click()
 
     await frame.getByText("Which one is the Rust package manager?").waitFor()
 
-    await frame.getByText("rustup").click()
+    await frame.getByText("rustup", { exact: true }).first().click()
 
     await page.getByRole("button", { name: "Submit" }).click()
 
@@ -96,6 +99,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
       snapshotName: "multiple-choice-feedback-incorrect-answer-after-correct",
       waitForTheseToBeVisibleAndStable: [
         frame.locator(`text=Rustup is the installer program for Rust.`),
+        frame.getByRole("group", { name: "Answer summary" }),
       ],
     })
   })

@@ -42,7 +42,7 @@ const CertificationsPage: React.FC = () => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const { id: courseInstanceId } = useParams<{ id: string }>()
-  useCourseInstancePageTitle(courseInstanceId, t("certificates"), t("default-instance"))
+  useCourseInstancePageTitle(courseInstanceId, t("certificates"))
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
   const getCourseInstance = useQuery({

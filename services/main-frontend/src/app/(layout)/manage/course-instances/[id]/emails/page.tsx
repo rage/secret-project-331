@@ -22,7 +22,7 @@ import NewEmailTemplateForm from "./NewEmailTemplateForm"
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
   const { id: courseInstanceId } = useParams<{ id: string }>()
-  useCourseInstancePageTitle(courseInstanceId, t("title-email-templates"), t("default-instance"))
+  useCourseInstancePageTitle(courseInstanceId, t("title-email-templates"))
   const getCourseInstanceEmailTemplates = useQuery({
     ...getCourseInstanceEmailTemplatesOptions({
       path: {

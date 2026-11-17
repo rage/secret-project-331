@@ -43,12 +43,15 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection, setSelection] = useAtom(selectionAtom)
   const [comments, setComments] = useState<Comment[]>([])
-  const { control: commentFormControl, setValue: setCommentValue } = useForm<{ comment: string }>({
+  const {
+    control: commentFormControl,
+    setValue: setCommentValue,
+    setFocus,
+  } = useForm<{ comment: string }>({
     defaultValues: { [COMMENT_FIELD]: "" },
   })
   const comment = useWatch({ control: commentFormControl, name: COMMENT_FIELD })
   const [error, setError] = useState<string | null>(null)
-  const commentFieldRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const { dialogProps } = useDialog({ "aria-labelledby": titleId }, dialogRef)
@@ -103,7 +106,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setError("")
     if (comment.length === 0) {
       setError(t("error-comment-cannot-be-empty"))
-      commentFieldRef.current?.querySelector("textarea")?.focus()
+      setFocus(COMMENT_FIELD)
       return
     }
     if (charactersLeft <= 0) {
@@ -131,7 +134,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
     setCommentValue(COMMENT_FIELD, "")
     setSelection("", undefined)
-    commentFieldRef.current?.querySelector("textarea")?.focus()
+    setFocus(COMMENT_FIELD)
     announceAfterFocus(t("comment-added"))
   }
 
@@ -411,15 +414,13 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
             </div>
           )}
 
-          <div ref={commentFieldRef}>
-            <TextArea
-              name={COMMENT_FIELD}
-              control={commentFormControl}
-              label={t("add-comment")}
-              autoResize
-              rows={3}
-            />
-          </div>
+          <TextArea
+            name={COMMENT_FIELD}
+            control={commentFormControl}
+            label={t("add-comment")}
+            autoResize
+            rows={3}
+          />
 
           <div
             className={css`

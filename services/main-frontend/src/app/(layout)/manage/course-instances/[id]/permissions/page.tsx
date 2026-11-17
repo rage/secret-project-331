@@ -19,7 +19,7 @@ import { useCourseInstancePageTitle } from "../useCourseInstancePageTitle"
 const CourseInstancePermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  useCourseInstancePageTitle(id, t("link-permissions"), t("default-instance"))
+  useCourseInstancePageTitle(id, t("link-permissions"))
 
   const courseInstance = useQuery({
     ...getCourseInstanceOptions({

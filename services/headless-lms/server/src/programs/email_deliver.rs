@@ -214,7 +214,7 @@ pub async fn send_message(
     let rendered = match email.template_type {
         Some(EmailTemplateType::TeacherNewsletter) => {
             let teacher_newsletter_email_content =
-                build_teacher_newsletter_email_content(&mut conn, email.user_id).await?;
+                build_teacher_newsletter(&mut conn, email.user_id).await?;
             email_processor::render_newsletter(
                 EmailRenderInput {
                     layout_html: layout.html,
@@ -431,7 +431,7 @@ fn placeholder_bag_replacements(
         .collect()
 }
 
-async fn build_teacher_newsletter_email_content(
+async fn build_teacher_newsletter(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
 ) -> Result<TeacherNewsletterContent> {

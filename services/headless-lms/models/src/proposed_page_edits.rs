@@ -370,23 +370,11 @@ pub async fn get_proposal_count_for_course_custom_time_period(
     end_date: &str,
 ) -> ModelResult<ProposalCount> {
     let start_dt = DateTime::parse_from_rfc3339(&(start_date.to_owned() + "T00:00:00Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid start_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
         .with_timezone(&Utc);
 
     let end_dt = DateTime::parse_from_rfc3339(&(end_date.to_owned() + "T23:59:59Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid end_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid end date: {}", e)))?
         .with_timezone(&Utc);
 
     let res = sqlx::query!(

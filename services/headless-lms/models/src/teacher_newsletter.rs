@@ -47,23 +47,11 @@ pub async fn create_newsletter_item(
     text: String,
 ) -> ModelResult<()> {
     let from = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid start_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
         .with_timezone(&Utc);
 
     let to = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid end_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid end date: {}", e)))?
         .with_timezone(&Utc);
 
     sqlx::query!(
@@ -95,23 +83,11 @@ pub async fn get_newsletter_items(
     period_end: &str,
 ) -> ModelResult<Vec<TeacherNewsletterItems>> {
     let start_dt = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid start_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
         .with_timezone(&Utc);
 
     let end_dt = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| {
-            ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Invalid end_date: {}", e),
-                None,
-            )
-        })?
+        .map_err(|e| model_err!(InvalidRequest, format!("Invalid end date: {}", e)))?
         .with_timezone(&Utc);
 
     let res = sqlx::query_as!(

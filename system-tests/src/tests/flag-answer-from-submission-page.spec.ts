@@ -7,7 +7,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { tableRowByCell } from "@/utils/tableRows"
 
-import { getExerciseTaskIframe } from "../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 
 const STUDENT_2_EMAIL = "student2@example.com"
 const PLAGIARISM_FEEDBACK = "This answer is word for word another student's."
@@ -48,10 +48,7 @@ test.describe("flagging an answer from the submission page", () => {
       const chapterSelector = new ChapterSelector(studentPage)
       await chapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await getExerciseTaskIframe(studentPage, 1)
-        .contentFrame()
-        .getByRole("checkbox", { name: "b" })
-        .click()
+      await getExerciseTaskFrame(studentPage, 1).getByRole("checkbox", { name: "b" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Good job!").waitFor()
       await expect(studentPage.getByTestId("exercise-points")).toContainText("1/1")

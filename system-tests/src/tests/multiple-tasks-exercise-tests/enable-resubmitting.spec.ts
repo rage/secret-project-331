@@ -8,7 +8,7 @@ import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import {
   scrollLocatorsParentIframeToViewIfNeeded,
-  getExerciseTaskIframe,
+  getExerciseTaskFrame,
 } from "../../utils/iframeLocators"
 
 test.use({
@@ -30,41 +30,27 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.locator(`text=Third question.`).waitFor()
 
   await scrollLocatorsParentIframeToViewIfNeeded(
-    getExerciseTaskIframe(page, 1).contentFrame().getByRole("button", { name: "Incorrect" }),
+    getExerciseTaskFrame(page, 1).getByRole("button", { name: "Incorrect" }),
   )
-  await getExerciseTaskIframe(page, 1)
-    .contentFrame()
-    .getByRole("button", { name: "Correct" })
-    .first()
-    .click()
-  await getExerciseTaskIframe(page, 2)
-    .contentFrame()
-    .getByRole("button", { name: "Correct" })
-    .first()
-    .click()
+  await getExerciseTaskFrame(page, 1).getByRole("button", { name: "Correct" }).first().click()
+  await getExerciseTaskFrame(page, 2).getByRole("button", { name: "Correct" }).first().click()
   await scrollLocatorsParentIframeToViewIfNeeded(
-    getExerciseTaskIframe(page, 3).contentFrame().getByRole("button", { name: "Incorrect" }),
+    getExerciseTaskFrame(page, 3).getByRole("button", { name: "Incorrect" }),
   )
-  await getExerciseTaskIframe(page, 3)
-    .contentFrame()
-    .getByRole("button", { name: "Incorrect" })
-    .click()
+  await getExerciseTaskFrame(page, 3).getByRole("button", { name: "Incorrect" }).click()
 
   await page.getByRole("button", { name: "Submit" }).click()
   await waitForSpinnersToDisappear(page)
   await page.getByText("Try again").waitFor()
-  await getExerciseTaskIframe(page, 1)
-    .contentFrame()
+  await getExerciseTaskFrame(page, 1)
     .getByText("Correct", { exact: true })
     .first()
     .waitFor({ state: "attached" })
-  await getExerciseTaskIframe(page, 2)
-    .contentFrame()
+  await getExerciseTaskFrame(page, 2)
     .getByText("Correct", { exact: true })
     .first()
     .waitFor({ state: "attached" })
-  await getExerciseTaskIframe(page, 3)
-    .contentFrame()
+  await getExerciseTaskFrame(page, 3)
     .getByText("Correct", { exact: true })
     .first()
     .waitFor({ state: "attached" })
@@ -79,13 +65,9 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await waitForLocatorToBeStable(tryAgainButton)
   await tryAgainButton.click()
   await scrollLocatorsParentIframeToViewIfNeeded(
-    getExerciseTaskIframe(page, 3).contentFrame().getByRole("button", { name: "Correct" }).nth(2),
+    getExerciseTaskFrame(page, 3).getByRole("button", { name: "Correct" }).nth(2),
   )
-  await getExerciseTaskIframe(page, 3)
-    .contentFrame()
-    .getByRole("button", { name: "Correct" })
-    .nth(2)
-    .click()
+  await getExerciseTaskFrame(page, 3).getByRole("button", { name: "Correct" }).nth(2).click()
 
   await page.locator(`text=First question.`).waitFor()
   await page.locator(`text=Second question.`).waitFor()

@@ -7,7 +7,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import { getExerciseTaskIframe } from "../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -31,7 +31,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   const page1 = await page1Promise
   await selectCourseInstanceIfPrompted(page1)
   await page1.getByText("Everything is a big topic.").click()
-  await getExerciseTaskIframe(page1, 1).contentFrame().getByRole("checkbox", { name: "b" }).click()
+  await getExerciseTaskFrame(page1, 1).getByRole("checkbox", { name: "b" }).click()
   await page1.getByRole("button", { name: "Submit" }).click()
   await page1.getByText("Good job!").click()
   // A normal user cannot preview chapters that are not open yet
@@ -58,7 +58,7 @@ test("Material viewers can preview chapters that are not open yet by directly vi
   )
   await selectCourseInstanceIfPrompted(page)
   await page.getByText("Everything is a big topic.").click()
-  await getExerciseTaskIframe(page, 1).contentFrame().getByRole("checkbox", { name: "b" }).click()
+  await getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Good job!").click()
   await context.close()

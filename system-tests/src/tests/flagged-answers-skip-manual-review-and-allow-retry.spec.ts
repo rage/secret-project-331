@@ -2,7 +2,7 @@ import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import { getExerciseTaskIframe } from "@/utils/iframeLocators"
+import { getExerciseTaskFrame } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -39,8 +39,7 @@ test("Reset flagged answers without manual review", async () => {
     await student1Page.goto(COURSE_URL)
     await selectCourseInstanceIfPrompted(student1Page)
 
-    await getExerciseTaskIframe(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "3" })
       .click()
 
@@ -57,8 +56,7 @@ test("Reset flagged answers without manual review", async () => {
     await student2Page.goto(COURSE_URL)
     await selectCourseInstanceIfPrompted(student2Page)
 
-    await getExerciseTaskIframe(getExerciseRegion(student2Page, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(student2Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
 
@@ -85,8 +83,7 @@ test("Reset flagged answers without manual review", async () => {
       ),
     ).toBeVisible()
 
-    await getExerciseTaskIframe(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
 

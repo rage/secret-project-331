@@ -3,7 +3,7 @@ import { test } from "@playwright/test"
 import { NO_H1 } from "@/utils/accessibilityCheck"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
-import { getExerciseTaskIframe } from "../../../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
 test.use({
@@ -22,13 +22,13 @@ test.describe("Quizzes vector feedback", () => {
 
     await selectCourseInstanceIfPrompted(page)
 
-    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).waitFor()
+    await getExerciseTaskFrame(page, 1).getByLabel("X", { exact: true }).waitFor()
 
     // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
-      await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).waitFor()
+      await getExerciseTaskFrame(page, 1).getByLabel("X", { exact: true }).waitFor()
     }
 
     await expectScreenshotsToMatchSnapshots({
@@ -40,9 +40,9 @@ test.describe("Quizzes vector feedback", () => {
       scrollToYCoordinate: 270,
     })
 
-    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("X", { exact: true }).fill("a")
-    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("Y", { exact: true }).fill("4")
-    await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("Z", { exact: true }).fill("5")
+    await getExerciseTaskFrame(page, 1).getByLabel("X", { exact: true }).fill("a")
+    await getExerciseTaskFrame(page, 1).getByLabel("Y", { exact: true }).fill("4")
+    await getExerciseTaskFrame(page, 1).getByLabel("Z", { exact: true }).fill("5")
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [NO_H1],

@@ -5,7 +5,7 @@ import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
 import { Checkbox } from "@/utils/components/Checkbox"
 import {
   waitForExerciseServiceIframeToBeStable,
-  getExerciseTaskIframe,
+  getExerciseTaskFrame,
 } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -104,15 +104,13 @@ test.describe("Peer review followed by self review works", () => {
       )
       await selectCourseInstanceIfPrompted(student1Page)
       await student1Page.getByText("After you submit this").waitFor()
-      await getExerciseTaskIframe(student1Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await getExerciseTaskIframe(student1Page, 1).contentFrame().getByLabel("1998").selectOption({
+      await getExerciseTaskFrame(student1Page, 1).getByLabel("1998").selectOption({
         label: "Finland joins the Economic and Monetary Union of the European Union",
       })
-      await getExerciseTaskIframe(student1Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student1Page.getByRole("button", { name: "Submit" }).click()
@@ -125,15 +123,13 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student2Page)
-      await getExerciseTaskIframe(student2Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await getExerciseTaskIframe(student2Page, 1).contentFrame().getByLabel("1998").selectOption({
+      await getExerciseTaskFrame(student2Page, 1).getByLabel("1998").selectOption({
         label: "Finland joins the Economic and Monetary Union of the European Union",
       })
-      await getExerciseTaskIframe(student2Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student2Page.getByRole("button", { name: "Submit" }).click()
@@ -158,22 +154,17 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student3Page)
-      await getExerciseTaskIframe(student3Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await getExerciseTaskIframe(student3Page, 1).contentFrame().getByLabel("1998").selectOption({
+      await getExerciseTaskFrame(student3Page, 1).getByLabel("1998").selectOption({
         label: "Finland joins the Economic and Monetary Union of the European Union",
       })
-      await getExerciseTaskIframe(student3Page, 1)
-        .contentFrame()
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student3Page.getByRole("button", { name: "Submit" }).click()
-      await getExerciseTaskIframe(student3Page, 1)
-        .contentFrame()
-        .getByText("Your answer was correct.")
-        .waitFor()
+      await getExerciseTaskFrame(student3Page, 1).getByText("Your answer was correct.").waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
       await refreshUntilPeerReviewCandidate(student3Page, "0 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()

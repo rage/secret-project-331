@@ -2,7 +2,7 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import { getExerciseTaskIframe } from "@/utils/iframeLocators"
+import { getExerciseTaskFrame } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
@@ -48,8 +48,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await getExerciseTaskIframe(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "3" })
       .click()
     await student1Page
@@ -64,8 +63,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student2Page)
-    await getExerciseTaskIframe(getExerciseRegion(student2Page, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(student2Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
     await student2Page
@@ -80,8 +78,7 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(teacherPage)
-    await getExerciseTaskIframe(getExerciseRegion(teacherPage, EXERCISE_NAME), 1)
-      .contentFrame()
+    await getExerciseTaskFrame(getExerciseRegion(teacherPage, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
     await teacherPage
@@ -162,10 +159,7 @@ test("Automatic reject and reset submission", async () => {
     )
     await selectCourseInstanceIfPrompted(student1Page)
     const exerciseRegion = getExerciseRegion(student1Page, EXERCISE_NAME)
-    await getExerciseTaskIframe(exerciseRegion, 1)
-      .contentFrame()
-      .getByRole("checkbox", { name: "3" })
-      .click()
+    await getExerciseTaskFrame(exerciseRegion, 1).getByRole("checkbox", { name: "3" }).click()
     await exerciseRegion.getByRole("button", { name: "Submit" }).click()
     await expect(exerciseRegion.getByText("Start peer review")).toBeVisible()
     // Student2 still has reviews preserved

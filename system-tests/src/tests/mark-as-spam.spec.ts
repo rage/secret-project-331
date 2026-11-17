@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
-import { getExerciseTaskIframe } from "../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -50,10 +50,7 @@ test("Mark answer as spam in peer review", async () => {
     )
     await selectCourseInstanceIfPrompted(student1Page, "Default instance")
 
-    await getExerciseTaskIframe(student1Page, 1)
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" })
-      .click()
+    await getExerciseTaskFrame(student1Page, 1).getByRole("checkbox", { name: "b" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
   })
 
@@ -63,10 +60,7 @@ test("Mark answer as spam in peer review", async () => {
     )
     await selectCourseInstanceIfPrompted(student2Page, "Default instance")
 
-    await getExerciseTaskIframe(student2Page, 1)
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" })
-      .click()
+    await getExerciseTaskFrame(student2Page, 1).getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
 
     await student2Page.getByRole("button", { name: "Start peer review" }).click()

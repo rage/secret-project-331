@@ -7,7 +7,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { tableRowByCell } from "@/utils/tableRows"
 
-import { getExerciseTaskIframe } from "../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext
@@ -41,10 +41,7 @@ test.describe("test teacher changing grade behavior", () => {
       const studentChapterSelector = new ChapterSelector(studentPage)
       await studentChapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await getExerciseTaskIframe(studentPage, 1)
-        .contentFrame()
-        .getByRole("checkbox", { name: "a" })
-        .click()
+      await getExerciseTaskFrame(studentPage, 1).getByRole("checkbox", { name: "a" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Your answer was not correct").waitFor()
     })

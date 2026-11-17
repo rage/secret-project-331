@@ -8,7 +8,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import {
   getLocatorForNthExerciseServiceIframe,
-  getExerciseTaskIframe,
+  getExerciseTaskFrame,
 } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
@@ -152,7 +152,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   ])
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
-  await getExerciseTaskIframe(page1, 1).contentFrame().locator(`button:text-is("a")`).waitFor()
+  await getExerciseTaskFrame(page1, 1).locator(`button:text-is("a")`).waitFor()
 
   await page1.locator(`text=Like this!!!!!`).waitFor()
 })

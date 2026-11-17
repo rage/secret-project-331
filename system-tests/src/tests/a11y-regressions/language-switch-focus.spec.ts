@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test"
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { Topbar } from "../../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { activeElementAfterRouteFocus } from "../../utils/routeFocus"
 
 test.use({ storageState: "src/states/user@example.com.json" })
 
@@ -15,13 +16,7 @@ test("Switching the course language does not leave focus on main or body", async
 
   await new Topbar(page).languageMenu.clickItem("Suomi")
   await expect(page).toHaveURL(/vaihda-kurssin-kieli\/chapter-1\/page-2/)
-  // oxlint-disable-next-line playwright/no-wait-for-timeout
-  await page.waitForTimeout(3500)
-  const active = await page.evaluate(() => ({
-    tag: document.activeElement?.tagName,
-    mainIsFocused: document.activeElement === document.querySelector("main"),
-    text: document.activeElement?.textContent?.slice(0, 40),
-  }))
+  const active = await activeElementAfterRouteFocus(page)
   expect(active.tag).not.toBe("BODY")
   expect(active.mainIsFocused).toBe(false)
 })

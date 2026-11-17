@@ -7,7 +7,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 import { ChapterSelector } from "../utils/components/ChapterSelector"
 import { Topbar } from "../utils/components/Topbar"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import { getExerciseTaskIframe } from "../utils/iframeLocators"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
@@ -20,7 +20,7 @@ test("Resetting teacher's own progress resets points", async ({ page }) => {
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "2 Page 2" }).click()
-  await getExerciseTaskIframe(page, 1).contentFrame().getByRole("checkbox", { name: "b" }).click()
+  await getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).first().click()
   await page.getByText("Good job!").waitFor()
   // await page.getByText("Points:1/1").waitFor()
@@ -56,10 +56,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
     const studentChapterSelector = new ChapterSelector(studentPage)
     await studentChapterSelector.clickChapter(1)
     await studentPage.getByRole("link", { name: "2 Page 2" }).click()
-    await getExerciseTaskIframe(studentPage, 1)
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" })
-      .click()
+    await getExerciseTaskFrame(studentPage, 1).getByRole("checkbox", { name: "b" }).click()
     await studentPage.getByRole("button", { name: "Submit" }).first().click()
     await studentPage.getByText("Good job!").waitFor()
     await studentPage.getByText("1/1").waitFor()

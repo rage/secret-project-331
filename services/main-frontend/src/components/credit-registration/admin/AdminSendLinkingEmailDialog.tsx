@@ -1,7 +1,7 @@
 "use client"
 
 import { useQueryClient } from "@tanstack/react-query"
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -38,20 +38,22 @@ import {
   withSendResult,
 } from "./linkingCandidate"
 import ManualLinkingEmailSendLines from "./ManualLinkingEmailSendLines"
+import { useFilteredPeople } from "./useFilteredPeople"
 
 interface Fields {
   course_id: string | null
-  filter: string
   student_number: string
 }
 
-const DEFAULT_FIELDS: Fields = { course_id: null, filter: "", student_number: "" }
+const DEFAULT_FIELDS: Fields = { course_id: null, student_number: "" }
+
+const NO_PEOPLE: AdminLinkingCandidate[] = []
 
 const courseLabel = (course: AdminLinkingCourse) =>
   `${course.course_name} (${course.course_codes.join(", ")})`
 
 const searchText = (person: AdminLinkingCandidate): string =>
-  [candidateFullName(person), person.email, person.student_number].join("\n").toLocaleLowerCase()
+  [candidateFullName(person), person.email, person.student_number].join("\n")
 
 /**
  * Lets an admin send a linking email by hand to anyone on a course's enrolment lists who has no
@@ -65,21 +67,22 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
     defaultValues: DEFAULT_FIELDS,
   })
   const courseId = watch("course_id")
-  const filter = watch("filter")
   const coursesQuery = useAccountLinkingCourses(isOpen)
   const enroleesQuery = useUnlinkedEnrolees(courseId, isOpen)
 
+  const enrolees = enroleesQuery.data
+  const people = enrolees?.people ?? NO_PEOPLE
+  const {
+    control: filterControl,
+    shown: shownPeople,
+    reset: resetFilter,
+  } = useFilteredPeople(people, searchText)
+
   useEffect(() => {
     reset({ ...DEFAULT_FIELDS, course_id: courseId })
-  }, [courseId, reset])
+    resetFilter()
+  }, [courseId, reset, resetFilter])
 
-  const enrolees = enroleesQuery.data
-  const people = useMemo(() => enrolees?.people ?? [], [enrolees])
-  const searchTexts = useMemo(() => people.map((person) => searchText(person)), [people])
-  const shownPeople = useMemo(() => {
-    const needle = filter.trim().toLocaleLowerCase()
-    return people.filter((_, index) => searchTexts[index]?.includes(needle))
-  }, [people, searchTexts, filter])
   const studentNumber = watch("student_number")
   const picked = shownPeople.find((person) => person.student_number === studentNumber)
   const isNotEmailedShown = showsNotEmailed(people)
@@ -113,6 +116,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
   const closeDialog = () => {
     onClose()
     reset(DEFAULT_FIELDS)
+    resetFilter()
     if (result) {
       setResult(null)
       void Promise.all([
@@ -192,7 +196,7 @@ const AdminSendLinkingEmailDialog: React.FC<DialogOpenState> = ({ isOpen, onClos
             </p>
             <TextField
               name="filter"
-              control={control}
+              control={filterControl}
               label={t("credit-registration-admin-send-linking-email-filter-label")}
               description={t("credit-registration-admin-send-linking-email-filter-description")}
             />

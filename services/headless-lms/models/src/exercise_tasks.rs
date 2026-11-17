@@ -239,9 +239,10 @@ pub async fn get_course_material_exercise_tasks(
                     None,
                 )
             })?;
-        let mut exercise_iframe_url =
-            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
-        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
+        let exercise_iframe_url = exercise_services::get_exercise_iframe_url(
+            exercise_service,
+            &service_info.user_interface_iframe_path,
+        )?;
 
         material_tasks.push(CourseMaterialExerciseTask {
             id: exercise_task.id,

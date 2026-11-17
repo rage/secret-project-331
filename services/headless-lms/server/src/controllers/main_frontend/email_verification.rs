@@ -19,7 +19,7 @@ use crate::domain::{
         MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
     },
     rate_limit_middleware_builder::{RateLimit, RateLimitConfig},
-    session_verification,
+    session_verification, tmc_user_sync,
 };
 use crate::prelude::*;
 
@@ -249,42 +249,18 @@ pub async fn verify_email_ownership(
                 .await?,
             );
         }
-        // An email change waits for this before reaching TMC, where the address signs in. Last
-        // before the commit: TMC cannot be rolled back.
-        if let Some(upstream_id) = user.upstream_id().filter(|_| !app_conf.test_mode) {
-            let email = user_details::get_user_details_by_user_id(&mut tx, user.id)
-                .await?
-                .email;
-            let tmc_email = tmc_client
-                .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(&upstream_id)
-                .await
-                .map_err(|error| {
-                    controller_err!(
-                        InternalServerError,
-                        "Failed to read the email on TMC".to_string(),
-                        error
-                    )
-                })?
-                .email;
-            if !tmc_email.trim().eq_ignore_ascii_case(email.trim()) {
-                tmc_client
-                    .update_user_email(email, upstream_id)
-                    .await
-                    .map_err(|error| match error.error_type() {
-                        UtilErrorType::TmcHttpStatusError(400 | 422) => controller_err!(
-                            BadRequest,
-                            "This email address cannot be used. It may belong to another account."
-                                .to_string(),
-                            error
-                        ),
-                        _ => controller_err!(
-                            InternalServerError,
-                            "Failed to update the email on TMC".to_string(),
-                            error
-                        ),
-                    })?;
-            }
-        }
+        // An email change waits for this before reaching TMC.
+        let email = user_details::get_user_details_by_user_id(&mut tx, user.id)
+            .await?
+            .email;
+        tmc_user_sync::copy_profile_to_tmc(
+            user.upstream_id(),
+            None,
+            Some(email),
+            &tmc_client,
+            &app_conf,
+        )
+        .await?;
         VerifyEmailOwnershipResult::Verified
     } else {
         VerifyEmailOwnershipResult::Invalid

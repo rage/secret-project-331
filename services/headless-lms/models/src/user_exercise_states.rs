@@ -53,6 +53,14 @@ pub enum ReviewingStage {
     NotAnsweredAndLocked,
 }
 
+impl ReviewingStage {
+    /// Whether the user may still submit answers to the exercise. Every stage past `NotStarted`
+    /// locks the exercise until a teacher resets it, whatever the chapter's locking status.
+    pub fn accepts_submissions(self) -> bool {
+        self == Self::NotStarted
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserExerciseState {
     pub id: Uuid,

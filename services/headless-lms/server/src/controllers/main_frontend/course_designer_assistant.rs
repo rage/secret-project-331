@@ -13,7 +13,7 @@ use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
 use headless_lms_models::course_designer_plans::CourseDesignerPlan;
-use headless_lms_utils::cache::Cache;
+use headless_lms_utils::{cache::Cache, services::tmc::TmcClient};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::controllers::course_material::chatbot::{
@@ -293,13 +293,14 @@ streams the resumed turn, as the course material chatbot's `tool-response` does.
         )
     )
 )]
-#[instrument(skip(pool, cache, app_conf, payload))]
+#[instrument(skip(pool, cache, app_conf, payload, tmc_client))]
 async fn post_tool_response(
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
     cache: web::Data<Cache>,
     user: AuthUser,
     app_conf: web::Data<ApplicationConfiguration>,
+    tmc_client: web::Data<TmcClient>,
     payload: web::Json<ChatbotToolResponse>,
 ) -> ControllerResult<HttpResponse> {
     let (plan_id, conversation_id) = path.into_inner();
@@ -316,6 +317,7 @@ async fn post_tool_response(
     let response_stream = answer_tool_call_and_resume_stream(
         pool.get_ref().clone(),
         &app_conf,
+        &tmc_client,
         cache.get_ref().clone(),
         conversation.chatbot_configuration_id,
         conversation_id,

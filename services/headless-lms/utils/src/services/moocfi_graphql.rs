@@ -1,14 +1,15 @@
 //! Client for the old mooc.fi platform's GraphQL API, which holds per-user course progress.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::time::Duration;
 
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use serde_json::json;
+use tracing::warn;
 use uuid::Uuid;
 
-use crate::http::REQWEST_CLIENT;
+use crate::http::{REQWEST_CLIENT, web_link};
 use crate::prelude::*;
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
@@ -22,16 +23,33 @@ query ($upstreamId: Int) {
       n_points
       max_points
       course {
+        ...CourseFields
+      }
+    }
+    exercise_counts: user_course_progresses {
+      course {
         id
-        name
+      }
+      exercise_progress {
+        exercise_count
+        exercises_attempted_count
       }
     }
     completions {
       course {
-        id
-        name
+        ...CourseFields
       }
     }
+  }
+}
+
+fragment CourseFields on Course {
+  id
+  name
+  course_translations {
+    language
+    name
+    link
   }
 }"#;
 
@@ -43,6 +61,28 @@ pub struct MoocfiCourseProgress {
     pub completed: bool,
     pub points: Option<f64>,
     pub max_points: Option<f64>,
+    /// Where the course's material is, per language version that has a usable link.
+    pub material_links: Vec<MoocfiMaterialLink>,
+    /// `None` for a course known only from a completion, which has no progress row, and for every
+    /// course when mooc.fi failed to count exercises.
+    pub exercise_progress: Option<MoocfiExerciseProgress>,
+}
+
+/// How many of a course's exercises the user has attempted on the old version of the platform.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct MoocfiExerciseProgress {
+    pub exercise_count: i32,
+    pub attempted_count: i32,
+}
+
+/// A link to one language version of a course's material on the old version of the platform.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MoocfiMaterialLink {
+    /// As mooc.fi spells it, e.g. `fi_FI`.
+    pub language: String,
+    /// The course's name in this language version.
+    pub course_name: String,
+    pub url: String,
 }
 
 #[derive(Deserialize)]
@@ -65,6 +105,9 @@ struct ResponseData {
 #[derive(Deserialize)]
 struct MoocfiUser {
     user_course_progresses: Vec<UserCourseProgress>,
+    /// Asked for apart from `user_course_progresses` because mooc.fi throws on `exercise_progress`
+    /// for a progress row without a course, which nulls the whole list it is in.
+    exercise_counts: Option<Vec<ExerciseCountRow>>,
     completions: Vec<Completion>,
 }
 
@@ -76,6 +119,33 @@ struct UserCourseProgress {
 }
 
 #[derive(Deserialize)]
+struct ExerciseCountRow {
+    course: Option<CourseId>,
+    exercise_progress: Option<ExerciseProgress>,
+}
+
+#[derive(Deserialize)]
+struct CourseId {
+    id: Uuid,
+}
+
+/// Both counts are nullable in mooc.fi's schema, though its resolver always sets them.
+#[derive(Deserialize)]
+struct ExerciseProgress {
+    exercise_count: Option<i32>,
+    exercises_attempted_count: Option<i32>,
+}
+
+impl ExerciseProgress {
+    fn counts(&self) -> Option<MoocfiExerciseProgress> {
+        Some(MoocfiExerciseProgress {
+            exercise_count: self.exercise_count?,
+            attempted_count: self.exercises_attempted_count?,
+        })
+    }
+}
+
+#[derive(Deserialize)]
 struct Completion {
     course: Option<Course>,
 }
@@ -84,6 +154,46 @@ struct Completion {
 struct Course {
     id: Uuid,
     name: String,
+    /// mooc.fi does not publish its generated schema, so a null list is not ruled out.
+    course_translations: Option<Vec<CourseTranslation>>,
+}
+
+#[derive(Deserialize)]
+struct CourseTranslation {
+    language: String,
+    name: String,
+    link: Option<String>,
+}
+
+impl Course {
+    fn into_progress(
+        self,
+        points: Option<f64>,
+        max_points: Option<f64>,
+        exercise_progress: Option<MoocfiExerciseProgress>,
+    ) -> MoocfiCourseProgress {
+        let material_links = self
+            .course_translations
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|translation| {
+                Some(MoocfiMaterialLink {
+                    url: web_link(translation.link.as_deref()?)?,
+                    language: translation.language,
+                    course_name: translation.name,
+                })
+            })
+            .collect();
+        MoocfiCourseProgress {
+            course_id: self.id,
+            name: self.name,
+            completed: false,
+            points,
+            max_points,
+            material_links,
+            exercise_progress,
+        }
+    }
 }
 
 /// Every course the user behind `upstream_id` (their tmc.mooc.fi id) has progress or a completion
@@ -132,32 +242,38 @@ fn parse_user_course_progress(body: &str) -> UtilResult<Vec<MoocfiCourseProgress
         }
     };
 
+    if !response.errors.is_empty() {
+        let messages: Vec<&str> = response.errors.iter().map(|e| e.message.as_str()).collect();
+        warn!(
+            "mooc.fi returned partial course progress: {}",
+            messages.join("; ")
+        );
+    }
+    let exercise_counts: HashMap<Uuid, MoocfiExerciseProgress> = user
+        .exercise_counts
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|row| Some((row.course?.id, row.exercise_progress?.counts()?)))
+        .collect();
     let mut courses: BTreeMap<Uuid, MoocfiCourseProgress> = BTreeMap::new();
     for progress in user.user_course_progresses {
         let Some(course) = progress.course else {
             continue;
         };
+        let course_exercise_counts = exercise_counts.get(&course.id).copied();
         courses.insert(
             course.id,
-            MoocfiCourseProgress {
-                course_id: course.id,
-                name: course.name,
-                completed: false,
-                points: progress.n_points,
-                max_points: progress.max_points,
-            },
+            course.into_progress(
+                progress.n_points,
+                progress.max_points,
+                course_exercise_counts,
+            ),
         );
     }
     for course in user.completions.into_iter().filter_map(|c| c.course) {
         courses
             .entry(course.id)
-            .or_insert_with(|| MoocfiCourseProgress {
-                course_id: course.id,
-                name: course.name,
-                completed: false,
-                points: None,
-                max_points: None,
-            })
+            .or_insert_with(|| course.into_progress(None, None, None))
             .completed = true;
     }
 
@@ -178,8 +294,15 @@ mod tests {
         let body = json!({
             "data": { "user": {
                 "user_course_progresses": [
-                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B" } },
+                    { "n_points": 12.5, "max_points": 20.0, "course": { "id": COURSE_B, "name": "B", "course_translations": [
+                        { "language": "fi_FI", "name": "B fi", "link": " https://b.mooc.fi " },
+                        { "language": "en_US", "name": "B en", "link": "javascript:alert(1)" },
+                        { "language": "sv_SE", "name": "B sv", "link": null }
+                    ] } },
                     { "n_points": null, "max_points": null, "course": null }
+                ],
+                "exercise_counts": [
+                    { "course": { "id": COURSE_B }, "exercise_progress": { "exercise_count": 10, "exercises_attempted_count": 4 } }
                 ],
                 "completions": [
                     { "course": { "id": COURSE_B, "name": "B" } },
@@ -200,6 +323,8 @@ mod tests {
                     completed: true,
                     points: None,
                     max_points: None,
+                    material_links: vec![],
+                    exercise_progress: None,
                 },
                 MoocfiCourseProgress {
                     course_id: Uuid::parse_str(COURSE_B).unwrap(),
@@ -207,6 +332,15 @@ mod tests {
                     completed: true,
                     points: Some(12.5),
                     max_points: Some(20.0),
+                    material_links: vec![MoocfiMaterialLink {
+                        language: "fi_FI".to_string(),
+                        course_name: "B fi".to_string(),
+                        url: "https://b.mooc.fi".to_string(),
+                    }],
+                    exercise_progress: Some(MoocfiExerciseProgress {
+                        exercise_count: 10,
+                        attempted_count: 4,
+                    }),
                 },
             ]
         );

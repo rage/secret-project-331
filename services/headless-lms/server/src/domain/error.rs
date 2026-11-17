@@ -54,9 +54,9 @@ pub enum ControllerErrorType {
     #[display("Not found")]
     NotFound,
 
-    /// HTTP status code 429.
+    /// HTTP status code 429, with how long until a retry can succeed for `Retry-After`.
     #[display("Too many requests")]
-    TooManyRequests,
+    TooManyRequests(Option<std::time::Duration>),
 
     /// HTTP status code 401. Needs to log in.
     #[display("Unauthorized")]
@@ -65,6 +65,11 @@ pub enum ControllerErrorType {
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
+
+    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
+    /// token that lacks a scope.
+    #[display("Forbidden")]
+    ForbiddenWithReason(ForbiddenReason),
 
     /// Varied response based on error
     #[display("OAuthError")]
@@ -395,7 +400,14 @@ impl error::ResponseError for ControllerError {
             errors,
         };
 
-        HttpResponseBuilder::new(status)
+        let mut response = HttpResponseBuilder::new(status);
+        if let ControllerErrorType::TooManyRequests(Some(retry_after)) = self.error_type {
+            response.append_header((
+                actix_web::http::header::RETRY_AFTER,
+                retry_after.as_secs().max(1),
+            ));
+        }
+        response
             .append_header(ContentType::json())
             .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
                 error!("Error while serialising error response: {e}");
@@ -409,9 +421,10 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
-            ControllerErrorType::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
+            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -446,7 +459,7 @@ impl ControllerError {
             ControllerErrorType::UpgradeRequired => ("obsolete_client", MessageKey::ObsoleteClient),
             ControllerErrorType::NotFound => ("not_found", MessageKey::NotFound),
             // Matches the rate limit middleware's response.
-            ControllerErrorType::TooManyRequests => ("rate_limit", MessageKey::RateLimited),
+            ControllerErrorType::TooManyRequests(_) => ("rate_limit", MessageKey::RateLimited),
             ControllerErrorType::Unauthorized => ("unauthorized", MessageKey::Unauthorized),
             ControllerErrorType::Forbidden => ("forbidden", MessageKey::Forbidden),
             ControllerErrorType::OAuthError(_) => ("oauth_error", MessageKey::OauthError),
@@ -1283,6 +1296,33 @@ mod tests {
 
         assert_eq!(value["type"], "validation_error");
         assert_eq!(value["message_key"], "not_enrolled");
+    }
+
+    #[test]
+    fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
+        for (reason, key) in [
+            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (
+                ForbiddenReason::ChapterNotUnlockedYet,
+                "chapter_not_unlocked_yet",
+            ),
+            (
+                ForbiddenReason::ChapterCompletedAndLocked,
+                "chapter_completed_and_locked",
+            ),
+            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
+        ] {
+            let response =
+                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+            let bytes = actix_web::body::to_bytes(response.into_body())
+                .now_or_never()
+                .expect("response should resolve immediately")
+                .expect("body bytes");
+            let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+            assert_eq!(value["type"], "forbidden");
+            assert_eq!(value["message_key"], key);
+        }
     }
 
     #[test]

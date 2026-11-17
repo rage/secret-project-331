@@ -315,38 +315,52 @@
         nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_26 ];
         clusterShellPathPriorityPackages =
           nodeShellPathPriorityPackages ++ projectCliPackages ++ [ pkgs.minikube ];
+        rustShellPathPriorityPackages =
+          nodeShellPathPriorityPackages
+          ++ [
+            rustToolchain
+            pkgs.sqlx-cli
+          ]
+          ++ lib.optional pkgs.stdenv.isLinux pkgs.mold;
+
+        # If you add or rename an attr or shellHook export in rustBuildEnv or the shells
+        # below, also update the matching env-var list in
+        # .github/actions/setup-nix-env/action.yml — it forwards a fixed set of names into
+        # CI steps, not the whole environment.
+        rustBuildEnv = {
+          # tikv-jemalloc-sys configure uses -O0 -Werror; glibc fortify warns
+          # without optimization, so disable only fortify/fortify3 from Nix defaults.
+          hardeningDisable = [
+            "fortify"
+            "fortify3"
+          ];
+          OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+          LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
+          # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
+          # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
+          # toolchain stops that shim from swapping in a rustc that cannot load the proc
+          # macros built here.
+          RUSTUP_TOOLCHAIN = "${rustToolchain}";
+        };
+        rustBuildShellHook = ''
+          export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+          if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
+            export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+          fi
+        '';
       in
       {
         devShells.default = pkgs.mkShell (
-          {
+          rustBuildEnv
+          // {
             packages = pathPriorityPackages ++ shellSupportPackages;
-            # tikv-jemalloc-sys configure uses -O0 -Werror; glibc fortify warns
-            # without optimization, so disable only fortify/fortify3 from Nix defaults.
-            hardeningDisable = [
-              "fortify"
-              "fortify3"
-            ];
-
-            # If you add or rename an attr or shellHook export here, also update the
-            # matching env-var list in .github/actions/setup-nix-env/action.yml — it
-            # forwards a fixed set of names into CI steps, not the whole environment.
-            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
-            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
-            LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
-            # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
-            # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
-            # toolchain stops that shim from swapping in a rustc that cannot load the proc
-            # macros built here.
-            RUSTUP_TOOLCHAIN = "${rustToolchain}";
             TILT_DISABLE_ANALYTICS = "1";
 
             shellHook = ''
               export PATH="${pathPriorityBinPath}:$PATH"
-              export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-
-              if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
-                export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
-              fi
+              ${rustBuildShellHook}
 
               # Base images are amd64-only, so on arm64 hosts (Apple Silicon) build for
               # linux/amd64 under emulation — else skaffold fails with "no match for platform".
@@ -356,6 +370,29 @@
                   arm64 | aarch64) export SKAFFOLD_PLATFORM="linux/amd64" ;;
                 esac
               fi
+            '';
+          }
+        );
+
+        # For the headless-lms CI jobs: builds and tests the Rust workspace natively and runs
+        # pnpm for the OpenAPI formatting, without the default shell's cluster tools and Chromium.
+        devShells.rust = pkgs.mkShell (
+          rustBuildEnv
+          // {
+            packages = rustShellPathPriorityPackages ++ [
+              pkgs.cmake
+              pkgs.gcc
+              pkgs.gnumake
+              pkgs.libclang
+              pkgs.openssl
+              pkgs.pkg-config
+              pnpm
+              pkgs.zlib
+              pkgs.zstd
+            ];
+            shellHook = ''
+              export PATH="${lib.makeBinPath rustShellPathPriorityPackages}:$PATH"
+              ${rustBuildShellHook}
             '';
           }
         );

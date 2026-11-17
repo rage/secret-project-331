@@ -68,6 +68,7 @@ import {
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type { CreditRegistrationCourseStats, TimelineStep } from "@/generated/api/types.generated"
+import { creditRegistrationCourseRoute } from "@/shared-module/common/utils/routes"
 import {
   Badge,
   Button,
@@ -501,13 +502,7 @@ const CoursesPage: React.FC = () => {
                       minWidth: "13rem",
                       cell: (row) => (
                         <span className={stackedCellCss}>
-                          <Link
-                            href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
-                            appearance={LINK_QUIET}
-                            className={breakAnywhereCss}
-                          >
-                            {row.course_name}
-                          </Link>
+                          <span className={breakAnywhereCss}>{row.course_name}</span>
                           <InlineParts
                             className={cx(noteCss, codeValueCss)}
                             parts={moduleSubtitleParts(
@@ -516,6 +511,20 @@ const CoursesPage: React.FC = () => {
                               tiersLabel(t, row),
                             )}
                           />
+                          <span className={rowCss}>
+                            <Link
+                              href={creditRegistrationCourseRoute(row.course_or_target_id)}
+                              appearance={LINK_QUIET}
+                            >
+                              {t("credit-registration-admin-course-page-link")}
+                            </Link>
+                            <Link
+                              href={registrationsListHref({ courseModuleId: row.credit_unit_id })}
+                              appearance={LINK_QUIET}
+                            >
+                              {t("credit-registration-tab-registrations")}
+                            </Link>
+                          </span>
                         </span>
                       ),
                     },

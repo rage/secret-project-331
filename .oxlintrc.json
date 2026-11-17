@@ -796,7 +796,8 @@
     {
       "files": ["services/tmc/src/tmc/cli.d.ts"],
       "rules": {
-        "typescript/array-type": "off"
+        "typescript/array-type": "off",
+        "typescript/consistent-type-definitions": "off"
       },
       "plugins": ["typescript"]
     },

@@ -455,6 +455,69 @@ export type AdminBulkTransitionSkipCount = {
 }
 
 /**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export type AdminCourseEnrolee = {
+  /**
+   * The linked account's newest registration on this course or target, preferring one under a
+   * course code whose roster lists them.
+   */
+  credit_registration_id?: string | null
+  /**
+   * `None` when the study registry gave no enrolment time.
+   */
+  enrolled_at?: string | null
+  /**
+   * Enrolled before account linking began, or at no known time. A linking email then goes to
+   * them automatically only when their Sisu address is the email of an account with a
+   * registerable completion on the course. Always false while account linking is off.
+   */
+  enrolled_before_account_linking: boolean
+  /**
+   * Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it.
+   */
+  enrolment_state?: string | null
+  first_names?: string | null
+  last_name?: string | null
+  linked_user_email?: string | null
+  /**
+   * The account linked to them by Sisu person id or student number.
+   */
+  linked_user_id?: string | null
+  /**
+   * The linking emails this course or target sent them, newest first, replaced ones included.
+   */
+  linking_emails: Array<LinkingMailSend>
+  /**
+   * In full: support has to tell people apart and check where a linking email went.
+   */
+  primary_email?: string | null
+  secondary_email?: string | null
+  /**
+   * Echoed back to the resend endpoint to mail them.
+   */
+  student_number: string
+}
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export type AdminCourseEnrolees = {
+  /**
+   * `None` while account linking is off.
+   */
+  account_linking_since?: string | null
+  /**
+   * Unlinked people first, then by last name and first names, ignoring case.
+   */
+  people: Array<AdminCourseEnrolee>
+  /**
+   * The study registry gave no usable answer for some code, so `people` says nothing.
+   */
+  study_registry_unavailable: boolean
+}
+
+/**
  * What one hand action does to a row: either a state move, or something that leaves the state
  * alone. Kept apart because only the first is a transition, and only the first is refusable.
  */
@@ -469,6 +532,24 @@ export type AdminCreditRegistrationAction =
   | {
       kind: "check_now"
     }
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export type AdminCreditRegistrationCourseSummary = {
+  /**
+   * `None` for a mooc.fi target.
+   */
+  course_id?: string | null
+  /**
+   * The course's name, or "mooc.fi: " and the target's name.
+   */
+  course_name: string
+  /**
+   * The course's modules that register credits, or the mooc.fi target alone.
+   */
+  credit_units: Array<AdminCreditUnitCourseCode>
+}
 
 export type AdminCreditRegistrationDetails = {
   /**
@@ -603,6 +684,10 @@ export type AdminCreditRegistrationRow = {
   created_at: string
   credits?: number | null
   /**
+   * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+   */
+  current_uh_course_code?: string | null
+  /**
    * In full: masking it would leave support unable to answer the question they were asked.
    */
   email?: string | null
@@ -682,6 +767,9 @@ export type AdminCreditRegistrationRow = {
   superseded_by_id?: string | null
   terminal_at?: string | null
   timeline_step: TimelineStep
+  /**
+   * The code submitted, frozen with `student_number`.
+   */
   uh_course_code?: string | null
   user_id: string
   /**
@@ -698,6 +786,18 @@ export type AdminCreditRegistrationRow = {
  * The states an admin may move a row to; everything else is the pipeline's to decide.
  */
 export type AdminCreditRegistrationStateMove = "ready_to_submit" | "cancelled"
+
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export type AdminCreditUnitCourseCode = {
+  /**
+   * `None` for a mooc.fi target or a course's default module.
+   */
+  course_module_name?: string | null
+  credit_unit_id: string
+  uh_course_code?: string | null
+}
 
 export type AdminDeleteExternalCreditTargetPayload = {
   reason: string
@@ -3622,6 +3722,10 @@ export type CreditRegistrationCourseStats = {
    */
   course_name: string
   /**
+   * The course, or the mooc.fi target, which is its own credit unit.
+   */
+  course_or_target_id: string
+  /**
    * The module's or target's id, which the Registrations list's `course_module_id` filter takes.
    */
   credit_unit_id: string
@@ -5012,15 +5116,16 @@ export type ExerciseSlideSubmissionInfo = {
 }
 
 /**
- * A shareable link to an existing exercise-slide submission. The `id` is the
- * unguessable token used in the shareable URL; a viewer resolves the token back
- * to the submission it points at.
+ * A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+ * of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+ * resolves the token back to what it points at.
  */
 export type ExerciseSlideSubmissionShare = {
   created_at: string
   created_by: string
   deleted_at?: string | null
-  exercise_slide_submission_id: string
+  exercise_answer_snapshot_id?: string | null
+  exercise_slide_submission_id?: string | null
   id: string
   updated_at: string
 }
@@ -5512,6 +5617,14 @@ export type LinkingEmailStatus = {
  */
 export type LinkingMailLinkState = "usable" | "used" | "lapsed"
 
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export type LinkingMailSend = {
+  claimed_at: string
+  send_status?: EmailSendStatusReport | null
+}
+
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
   first_time_completing_users: Array<ManualCompletionPreviewUser>
@@ -5583,6 +5696,11 @@ export type ModuleUpdates = {
 export type MoocFiCourseProgress = {
   completed: boolean
   course_id: string
+  exercise_progress?: MoocFiExerciseProgress | null
+  /**
+   * Links to the course's material, one per language version that has one.
+   */
+  material_links: Array<MoocFiMaterialLink>
   max_points?: number | null
   name: string
   points?: number | null
@@ -5590,6 +5708,29 @@ export type MoocFiCourseProgress = {
    * tmc.mooc.fi courses that report their progress to this one.
    */
   tmc_mooc_fi_courses: Array<TmcMoocFiCourseProgress>
+}
+
+/**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export type MoocFiExerciseProgress = {
+  attempted_count: number
+  exercise_count: number
+}
+
+/**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export type MoocFiMaterialLink = {
+  /**
+   * The course's name in this language version.
+   */
+  course_name: string
+  /**
+   * As mooc.fi spells it, e.g. `fi_FI`.
+   */
+  language: string
+  url: string
 }
 
 /**
@@ -6242,6 +6383,17 @@ export type OAuthGrant = {
   scopes: Array<string>
 }
 
+/**
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export type OldVersionProgress = {
+  mooc_fi: Array<MoocFiCourseProgress>
+  mooc_fi_status: ExternalPlatformStatus
+  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
+  tmc_mooc_fi_status: ExternalPlatformStatus
+}
+
 export type OrgExam = {
   created_at: string
   deleted_at?: string | null
@@ -6521,6 +6673,10 @@ export type PageAdminCreditRegistrationRow = {
     created_at: string
     credits?: number | null
     /**
+     * The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+     */
+    current_uh_course_code?: string | null
+    /**
      * In full: masking it would leave support unable to answer the question they were asked.
      */
     email?: string | null
@@ -6600,6 +6756,9 @@ export type PageAdminCreditRegistrationRow = {
     superseded_by_id?: string | null
     terminal_at?: string | null
     timeline_step: TimelineStep
+    /**
+     * The code submitted, frozen with `student_number`.
+     */
     uh_course_code?: string | null
     user_id: string
     /**
@@ -6990,12 +7149,8 @@ export type PreviewReference = {
  * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
  * reports to an old mooc.fi course is listed under that mooc.fi course.
  */
-export type ProgressByPlatform = {
+export type ProgressByPlatform = OldVersionProgress & {
   courses_mooc_fi: Array<CoursesMoocFiCourseProgress>
-  mooc_fi: Array<MoocFiCourseProgress>
-  mooc_fi_status: ExternalPlatformStatus
-  tmc_mooc_fi: Array<TmcMoocFiCourseProgress>
-  tmc_mooc_fi_status: ExternalPlatformStatus
 }
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
@@ -7561,6 +7716,24 @@ export type SetWeeklyDigestSubscriptionRequest = {
   receives_weekly_digest: boolean
 }
 
+/**
+ * What a share-link holder is shown: the shared answer, without the model solution or anything
+ * that identifies the student.
+ */
+export type SharedSubmissionInfo = {
+  created_at: string
+  exercise: Exercise
+  /**
+   * The course material page the exercise is on; `None` for an exam exercise.
+   */
+  exercise_page_url?: string | null
+  /**
+   * `false` for a paste or backup snapshot, which is stored but never graded.
+   */
+  is_graded: boolean
+  tasks: Array<CourseMaterialExerciseTask>
+}
+
 export type SignedInAccount = "same" | "different" | "none"
 
 export type SisuDescriptionResponse = {
@@ -8035,6 +8208,10 @@ export type TmcMoocFiCourseProgress = {
   awarded_points: number
   name: string
   submissions: number
+  /**
+   * The course's page on tmc.mooc.fi, when it has one.
+   */
+  url?: string | null
 }
 
 /**
@@ -8277,6 +8454,9 @@ export type UserIdsPayload = {
   user_ids: Array<string>
 }
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export type UserInfoPayload = {
   country: string
   email: string
@@ -13457,6 +13637,39 @@ export type GetAccountLinkingUnlinkedEnroleesResponses = {
 export type GetAccountLinkingUnlinkedEnroleesResponse =
   GetAccountLinkingUnlinkedEnroleesResponses[keyof GetAccountLinkingUnlinkedEnroleesResponses]
 
+export type GetAccountLinkingCourseEnroleesData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees"
+}
+
+export type GetAccountLinkingCourseEnroleesErrors = {
+  /**
+   * No active module or mooc.fi target with a course code
+   */
+  400: unknown
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
+export type GetAccountLinkingCourseEnroleesResponses = {
+  /**
+   * The people on the enrolment lists
+   */
+  200: AdminCourseEnrolees
+}
+
+export type GetAccountLinkingCourseEnroleesResponse =
+  GetAccountLinkingCourseEnroleesResponses[keyof GetAccountLinkingCourseEnroleesResponses]
+
 export type ListAccountLinkingEmailsData = {
   body?: never
   path?: never
@@ -13477,6 +13690,10 @@ export type ListAccountLinkingEmailsData = {
      * Part of the recipient address, ignoring case
      */
     address?: string
+    /**
+     * Only mails sent for this course or mooc.fi target
+     */
+    course_or_target_id?: string
   }
   url: "/api/v0/main-frontend/credit-registration-admin/account-linking/emails"
 }
@@ -13924,6 +14141,35 @@ export type AdminResumeCourseModuleCreditRegistrationResponses = {
    */
   200: unknown
 }
+
+export type GetCreditRegistrationCourseSummaryData = {
+  body?: never
+  path: {
+    /**
+     * Course or mooc.fi target id
+     */
+    course_or_target_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary"
+}
+
+export type GetCreditRegistrationCourseSummaryErrors = {
+  /**
+   * No such course or mooc.fi target
+   */
+  404: unknown
+}
+
+export type GetCreditRegistrationCourseSummaryResponses = {
+  /**
+   * The course's name and course codes
+   */
+  200: AdminCreditRegistrationCourseSummary
+}
+
+export type GetCreditRegistrationCourseSummaryResponse =
+  GetCreditRegistrationCourseSummaryResponses[keyof GetCreditRegistrationCourseSummaryResponses]
 
 export type GetCreditRegistrationEnrolmentChecksData = {
   body?: never
@@ -17961,7 +18207,7 @@ export type RevokeSubmissionSharesOfSubmissionData = {
   body?: never
   path: {
     /**
-     * Exercise slide submission id
+     * Exercise slide submission or snapshot id
      */
     submission_id: string
   }
@@ -18015,9 +18261,9 @@ export type GetSharedSubmissionInfoData = {
 
 export type GetSharedSubmissionInfoResponses = {
   /**
-   * Data needed to render the shared submission
+   * Data needed to render the shared submission or snapshot
    */
-  200: ExerciseSlideSubmissionInfo
+  200: SharedSubmissionInfo
 }
 
 export type GetSharedSubmissionInfoResponse =
@@ -18276,7 +18522,7 @@ export type SearchUserDetailsExactData = {
 
 export type SearchUserDetailsExactResponses = {
   /**
-   * Users whose id or email equals the query
+   * Users whose id, email or TMC id equals the query
    */
   200: Array<UserDetail>
 }
@@ -18533,6 +18779,23 @@ export type UnhideCourseFromMyCoursesResponses = {
    */
   200: unknown
 }
+
+export type GetMyOldVersionProgressData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/my-old-version-progress"
+}
+
+export type GetMyOldVersionProgressResponses = {
+  /**
+   * The authenticated user's courses on the old version of the platform
+   */
+  200: OldVersionProgress
+}
+
+export type GetMyOldVersionProgressResponse =
+  GetMyOldVersionProgressResponses[keyof GetMyOldVersionProgressResponses]
 
 export type GetMyProgressByPlatformData = {
   body?: never

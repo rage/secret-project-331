@@ -59,7 +59,11 @@ pub struct AdminCreditRegistration {
     /// Frozen on the row when it left `checking_enrolment`, so it is what we actually sent.
     pub student_number: Option<DbSecret>,
     pub sisu_person_id: Option<DbSecret>,
+    /// Frozen with `student_number`; `None` until then.
     pub uh_course_code: Option<String>,
+    /// The module's or mooc.fi target's code now, which a later edit can set apart from
+    /// `uh_course_code`.
+    pub current_uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
@@ -267,6 +271,7 @@ SELECT cr.id,
   cr.student_number,
   cr.sisu_person_id,
   cr.uh_course_code,
+  s.uh_course_code AS current_uh_course_code,
   cr.selected_enrolment_id,
   cr.grade_scale_id,
   cr.grade_id,
@@ -457,6 +462,51 @@ LIMIT $15 OFFSET $16
         filters.account_linking_since,
         &user_search.word_patterns,
         user_search.misspelling_term.as_deref(),
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// An account's newest unsuperseded registration under one course code.
+#[derive(Debug, Clone)]
+pub struct LatestRegistrationByCode {
+    pub user_id: Uuid,
+    pub credit_registration_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    /// The module's or mooc.fi target's code now, trimmed and upper-cased.
+    pub uh_course_code: Option<String>,
+}
+
+/// Each of these accounts' newest unsuperseded registration per course code on one course or
+/// mooc.fi target.
+pub async fn get_latest_by_users_and_codes_on_course_or_target(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    course_or_target_id: Uuid,
+) -> ModelResult<Vec<LatestRegistrationByCode>> {
+    let res = sqlx::query_as!(
+        LatestRegistrationByCode,
+        r#"
+SELECT DISTINCT ON (cr.user_id, UPPER(TRIM(s.uh_course_code))) cr.user_id,
+  cr.id AS credit_registration_id,
+  cr.created_at,
+  UPPER(TRIM(s.uh_course_code)) AS uh_course_code
+FROM credit_registrations cr
+  JOIN credit_registration_subjects s ON s.subject_id = cr.subject_id
+WHERE cr.user_id = ANY($1::uuid [])
+  AND (
+    cr.course_id = $2
+    OR cr.external_credit_target_id = $2
+  )
+  AND cr.superseded_by_id IS NULL
+  AND cr.deleted_at IS NULL
+ORDER BY cr.user_id,
+  UPPER(TRIM(s.uh_course_code)),
+  cr.created_at DESC
+        "#,
+        user_ids,
+        course_or_target_id
     )
     .fetch_all(conn)
     .await?;

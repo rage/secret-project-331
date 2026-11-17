@@ -8322,6 +8322,43 @@
         }
       }
     },
+    "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`\n- Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and\nthe linking emails they have had.\n\nLists the rosters live. Stores nothing beyond the call log row every study registry call writes.",
+        "operationId": "getAccountLinkingCourseEnrolees",
+        "parameters": [
+          {
+            "name": "course_or_target_id",
+            "in": "path",
+            "description": "Course or mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The people on the enrolment lists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCourseEnrolees"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No active module or mooc.fi target with a course code"
+          },
+          "404": {
+            "description": "No such course or mooc.fi target"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/credit-registration-admin/account-linking/emails": {
       "get": {
         "tags": ["credit-registration-admin"],
@@ -8366,6 +8403,16 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "course_or_target_id",
+            "in": "query",
+            "description": "Only mails sent for this course or mooc.fi target",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -9044,6 +9091,40 @@
           },
           "422": {
             "description": "The module has no Suotar configuration"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One\ncourse's or mooc.fi target's name and course codes.",
+        "operationId": "getCreditRegistrationCourseSummary",
+        "parameters": [
+          {
+            "name": "course_or_target_id",
+            "in": "path",
+            "description": "Course or mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's name and course codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminCreditRegistrationCourseSummary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such course or mooc.fi target"
           }
         }
       }
@@ -15216,13 +15297,13 @@
     "/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}": {
       "delete": {
         "tags": ["shared_submissions"],
-        "summary": "DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every\nshare the current user has minted for one submission.",
+        "summary": "DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every\nshare the current user has minted for one submission or snapshot.",
         "operationId": "revokeSubmissionSharesOfSubmission",
         "parameters": [
           {
             "name": "submission_id",
             "in": "path",
-            "description": "Exercise slide submission id",
+            "description": "Exercise slide submission or snapshot id",
             "required": true,
             "schema": {
               "type": "string",
@@ -15248,7 +15329,7 @@
     "/api/v0/main-frontend/shared-submissions/{token}": {
       "get": {
         "tags": ["shared_submissions"],
-        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
         "operationId": "getSharedSubmissionInfo",
         "parameters": [
           {
@@ -15264,11 +15345,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Data needed to render the shared submission",
+            "description": "Data needed to render the shared submission or snapshot",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ExerciseSlideSubmissionInfo"
+                  "$ref": "#/components/schemas/SharedSubmissionInfo"
                 }
               }
             }
@@ -15659,7 +15740,7 @@
     "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "summary": "POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query",
         "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
@@ -15673,7 +15754,7 @@
         },
         "responses": {
           "200": {
-            "description": "Users whose id or email equals the query",
+            "description": "Users whose id, email or TMC id equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -16046,6 +16127,25 @@
         "responses": {
           "200": {
             "description": "Course restored to the user's my-courses list"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/my-old-version-progress": {
+      "get": {
+        "tags": ["users"],
+        "summary": "GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the\nold version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.\n\nKept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be\nreached is reported in its status rather than failing the request.",
+        "operationId": "getMyOldVersionProgress",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's courses on the old version of the platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldVersionProgress"
+                }
+              }
+            }
           }
         }
       }
@@ -17391,6 +17491,86 @@
           }
         }
       },
+      "AdminCourseEnrolee": {
+        "type": "object",
+        "description": "A person on a course's or mooc.fi target's enrolment lists, linked or not.",
+        "required": ["student_number", "enrolled_before_account_linking", "linking_emails"],
+        "properties": {
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The linked account's newest registration on this course or target, preferring one under a\ncourse code whose roster lists them."
+          },
+          "enrolled_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` when the study registry gave no enrolment time."
+          },
+          "enrolled_before_account_linking": {
+            "type": "boolean",
+            "description": "Enrolled before account linking began, or at no known time. A linking email then goes to\nthem automatically only when their Sisu address is the email of an account with a\nregisterable completion on the course. Always false while account linking is off."
+          },
+          "enrolment_state": {
+            "type": ["string", "null"],
+            "description": "Sisu's enrolment state, e.g. `ENROLLED`, as the study registry spells it."
+          },
+          "first_names": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "linked_user_email": {
+            "type": ["string", "null"]
+          },
+          "linked_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The account linked to them by Sisu person id or student number."
+          },
+          "linking_emails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LinkingMailSend"
+            },
+            "description": "The linking emails this course or target sent them, newest first, replaced ones included."
+          },
+          "primary_email": {
+            "type": ["string", "null"],
+            "description": "In full: support has to tell people apart and check where a linking email went."
+          },
+          "secondary_email": {
+            "type": ["string", "null"]
+          },
+          "student_number": {
+            "type": "string",
+            "description": "Echoed back to the resend endpoint to mail them."
+          }
+        }
+      },
+      "AdminCourseEnrolees": {
+        "type": "object",
+        "description": "Everyone on a course's or mooc.fi target's enrolment lists.",
+        "required": ["study_registry_unavailable", "people"],
+        "properties": {
+          "account_linking_since": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "`None` while account linking is off."
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCourseEnrolee"
+            },
+            "description": "Unlinked people first, then by last name and first names, ignoring case."
+          },
+          "study_registry_unavailable": {
+            "type": "boolean",
+            "description": "The study registry gave no usable answer for some code, so `people` says nothing."
+          }
+        }
+      },
       "AdminCreditRegistrationAction": {
         "oneOf": [
           {
@@ -17430,6 +17610,29 @@
           }
         ],
         "description": "What one hand action does to a row: either a state move, or something that leaves the state\nalone. Kept apart because only the first is a transition, and only the first is refusable."
+      },
+      "AdminCreditRegistrationCourseSummary": {
+        "type": "object",
+        "description": "A course's or mooc.fi target's name and course codes.",
+        "required": ["course_name", "credit_units"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` for a mooc.fi target."
+          },
+          "course_name": {
+            "type": "string",
+            "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "credit_units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminCreditUnitCourseCode"
+            },
+            "description": "The course's modules that register credits, or the mooc.fi target alone."
+          }
+        }
       },
       "AdminCreditRegistrationDetails": {
         "type": "object",
@@ -17800,6 +18003,10 @@
             "type": ["number", "null"],
             "format": "float"
           },
+          "current_uh_course_code": {
+            "type": ["string", "null"],
+            "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+          },
           "email": {
             "type": ["string", "null"],
             "description": "In full: masking it would leave support unable to answer the question they were asked."
@@ -17994,7 +18201,8 @@
             "$ref": "#/components/schemas/TimelineStep"
           },
           "uh_course_code": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "The code submitted, frozen with `student_number`."
           },
           "user_id": {
             "type": "string",
@@ -18032,6 +18240,24 @@
         "type": "string",
         "description": "The states an admin may move a row to; everything else is the pipeline's to decide.",
         "enum": ["ready_to_submit", "cancelled"]
+      },
+      "AdminCreditUnitCourseCode": {
+        "type": "object",
+        "description": "One module that registers credits, or a mooc.fi target, with its course code.",
+        "required": ["credit_unit_id"],
+        "properties": {
+          "course_module_name": {
+            "type": ["string", "null"],
+            "description": "`None` for a mooc.fi target or a course's default module."
+          },
+          "credit_unit_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
       },
       "AdminDeleteExternalCreditTargetPayload": {
         "type": "object",
@@ -25061,6 +25287,7 @@
         "description": "One row of the Courses tab: a course module or a mooc.fi target.",
         "required": [
           "credit_unit_id",
+          "course_or_target_id",
           "course_name",
           "check",
           "eligible_completion_count",
@@ -25103,6 +25330,11 @@
           "course_name": {
             "type": "string",
             "description": "The course's name, or \"mooc.fi: \" and the target's name."
+          },
+          "course_or_target_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The course, or the mooc.fi target, which is its own credit unit."
           },
           "credit_unit_id": {
             "type": "string",
@@ -28222,14 +28454,8 @@
       },
       "ExerciseSlideSubmissionShare": {
         "type": "object",
-        "description": "A shareable link to an existing exercise-slide submission. The `id` is the\nunguessable token used in the shareable URL; a viewer resolves the token back\nto the submission it points at.",
-        "required": [
-          "id",
-          "exercise_slide_submission_id",
-          "created_by",
-          "created_at",
-          "updated_at"
-        ],
+        "description": "A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one\nof the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer\nresolves the token back to what it points at.",
+        "required": ["id", "created_by", "created_at", "updated_at"],
         "properties": {
           "created_at": {
             "type": "string",
@@ -28243,8 +28469,12 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
+          "exercise_answer_snapshot_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "exercise_slide_submission_id": {
-            "type": "string",
+            "type": ["string", "null"],
             "format": "uuid"
           },
           "id": {
@@ -29629,6 +29859,28 @@
         "description": "Whether the link a linking mail carries can still be opened.",
         "enum": ["usable", "used", "lapsed"]
       },
+      "LinkingMailSend": {
+        "type": "object",
+        "description": "One linking mail to a person: when it was claimed and what became of its send.",
+        "required": ["claimed_at"],
+        "properties": {
+          "claimed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "send_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EmailSendStatusReport",
+                "description": "`None` until the `link-emails` phase queues it."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
       "ManualCompletionPreview": {
         "type": "object",
         "required": [
@@ -29857,7 +30109,7 @@
       "MoocFiCourseProgress": {
         "type": "object",
         "description": "A course the user has progress or a completion on in the old mooc.fi.",
-        "required": ["course_id", "name", "completed", "tmc_mooc_fi_courses"],
+        "required": ["course_id", "name", "completed", "material_links", "tmc_mooc_fi_courses"],
         "properties": {
           "completed": {
             "type": "boolean"
@@ -29865,6 +30117,24 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "exercise_progress": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MoocFiExerciseProgress",
+                "description": "`None` for a course known only from a completion."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "material_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiMaterialLink"
+            },
+            "description": "Links to the course's material, one per language version that has one."
           },
           "max_points": {
             "type": ["number", "null"],
@@ -29883,6 +30153,39 @@
               "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
             },
             "description": "tmc.mooc.fi courses that report their progress to this one."
+          }
+        }
+      },
+      "MoocFiExerciseProgress": {
+        "type": "object",
+        "description": "How many of an old mooc.fi course's exercises the user has attempted.",
+        "required": ["exercise_count", "attempted_count"],
+        "properties": {
+          "attempted_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MoocFiMaterialLink": {
+        "type": "object",
+        "description": "A link to one language version of an old mooc.fi course's material.",
+        "required": ["language", "course_name", "url"],
+        "properties": {
+          "course_name": {
+            "type": "string",
+            "description": "The course's name in this language version."
+          },
+          "language": {
+            "type": "string",
+            "description": "As mooc.fi spells it, e.g. `fi_FI`."
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -31270,6 +31573,31 @@
           }
         }
       },
+      "OldVersionProgress": {
+        "type": "object",
+        "description": "The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi\ncourse that reports to an old mooc.fi course is listed under that mooc.fi course.",
+        "required": ["mooc_fi_status", "mooc_fi", "tmc_mooc_fi_status", "tmc_mooc_fi"],
+        "properties": {
+          "mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiCourseProgress"
+            }
+          },
+          "mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          },
+          "tmc_mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
+            }
+          },
+          "tmc_mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          }
+        }
+      },
       "OrgExam": {
         "type": "object",
         "required": [
@@ -32115,6 +32443,10 @@
                   "type": ["number", "null"],
                   "format": "float"
                 },
+                "current_uh_course_code": {
+                  "type": ["string", "null"],
+                  "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+                },
                 "email": {
                   "type": ["string", "null"],
                   "description": "In full: masking it would leave support unable to answer the question they were asked."
@@ -32309,7 +32641,8 @@
                   "$ref": "#/components/schemas/TimelineStep"
                 },
                 "uh_course_code": {
-                  "type": ["string", "null"]
+                  "type": ["string", "null"],
+                  "description": "The code submitted, frozen with `student_number`."
                 },
                 "user_id": {
                   "type": "string",
@@ -33406,41 +33739,24 @@
         }
       },
       "ProgressByPlatform": {
-        "type": "object",
-        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course.",
-        "required": [
-          "courses_mooc_fi",
-          "mooc_fi_status",
-          "mooc_fi",
-          "tmc_mooc_fi_status",
-          "tmc_mooc_fi"
-        ],
-        "properties": {
-          "courses_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OldVersionProgress"
+          },
+          {
+            "type": "object",
+            "required": ["courses_mooc_fi"],
+            "properties": {
+              "courses_mooc_fi": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+                }
+              }
             }
-          },
-          "mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MoocFiCourseProgress"
-            }
-          },
-          "mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
-          },
-          "tmc_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
-            }
-          },
-          "tmc_mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
           }
-        }
+        ],
+        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course."
       },
       "ProposalStatus": {
         "type": "string",
@@ -34940,6 +35256,34 @@
           }
         }
       },
+      "SharedSubmissionInfo": {
+        "type": "object",
+        "description": "What a share-link holder is shown: the shared answer, without the model solution or anything\nthat identifies the student.",
+        "required": ["exercise", "tasks", "created_at", "is_graded"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "exercise_page_url": {
+            "type": ["string", "null"],
+            "description": "The course material page the exercise is on; `None` for an exam exercise."
+          },
+          "is_graded": {
+            "type": "boolean",
+            "description": "`false` for a paste or backup snapshot, which is stored but never graded."
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialExerciseTask"
+            }
+          }
+        }
+      },
       "SignedInAccount": {
         "type": "string",
         "enum": ["same", "different", "none"]
@@ -35977,6 +36321,10 @@
           "submissions": {
             "type": "integer",
             "format": "int32"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "description": "The course's page on tmc.mooc.fi, when it has one."
           }
         }
       },
@@ -36529,6 +36877,7 @@
       },
       "UserInfoPayload": {
         "type": "object",
+        "description": "The profile form as both frontends submit it.",
         "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
         "properties": {
           "country": {

@@ -332,6 +332,24 @@ export const zAdminBulkTransitionPayload = z.object({
   reason: z.string(),
 })
 
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export const zAdminCreditUnitCourseCode = z.object({
+  course_module_name: z.string().nullish(),
+  credit_unit_id: z.uuid(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export const zAdminCreditRegistrationCourseSummary = z.object({
+  course_id: z.uuid().nullish(),
+  course_name: z.string(),
+  credit_units: z.array(zAdminCreditUnitCourseCode),
+})
+
 export const zAdminDeleteExternalCreditTargetPayload = z.object({
   reason: z.string(),
 })
@@ -3812,15 +3830,16 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
 })
 
 /**
- * A shareable link to an existing exercise-slide submission. The `id` is the
- * unguessable token used in the shareable URL; a viewer resolves the token back
- * to the submission it points at.
+ * A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+ * of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+ * resolves the token back to what it points at.
  */
 export const zExerciseSlideSubmissionShare = z.object({
   created_at: z.iso.datetime(),
   created_by: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
-  exercise_slide_submission_id: z.uuid(),
+  exercise_answer_snapshot_id: z.uuid().nullish(),
+  exercise_slide_submission_id: z.uuid().nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
 })
@@ -4295,6 +4314,41 @@ export const zAccountLinkingEmailRow = z.object({
   student_number: z.string(),
 })
 
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export const zLinkingMailSend = z.object({
+  claimed_at: z.iso.datetime(),
+  send_status: zEmailSendStatusReport.nullish(),
+})
+
+/**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export const zAdminCourseEnrolee = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  enrolled_at: z.iso.datetime().nullish(),
+  enrolled_before_account_linking: z.boolean(),
+  enrolment_state: z.string().nullish(),
+  first_names: z.string().nullish(),
+  last_name: z.string().nullish(),
+  linked_user_email: z.string().nullish(),
+  linked_user_id: z.uuid().nullish(),
+  linking_emails: z.array(zLinkingMailSend),
+  primary_email: z.string().nullish(),
+  secondary_email: z.string().nullish(),
+  student_number: z.string(),
+})
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export const zAdminCourseEnrolees = z.object({
+  account_linking_since: z.iso.datetime().nullish(),
+  people: z.array(zAdminCourseEnrolee),
+  study_registry_unavailable: z.boolean(),
+})
+
 export const zManualCompletionPreviewUser = z.object({
   first_name: z.string().nullish(),
   grade: z
@@ -4386,6 +4440,29 @@ export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
   prerequisites: z.array(z.string()),
+})
+
+/**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export const zMoocFiExerciseProgress = z.object({
+  attempted_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  exercise_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export const zMoocFiMaterialLink = z.object({
+  course_name: z.string(),
+  language: z.string(),
+  url: z.string(),
 })
 
 /**
@@ -6395,6 +6472,18 @@ export const zSetWeeklyDigestSubscriptionRequest = z.object({
   receives_weekly_digest: z.boolean(),
 })
 
+/**
+ * What a share-link holder is shown: the shared answer, without the model solution or anything
+ * that identifies the student.
+ */
+export const zSharedSubmissionInfo = z.object({
+  created_at: z.iso.datetime(),
+  exercise: zExercise,
+  exercise_page_url: z.string().nullish(),
+  is_graded: z.boolean(),
+  tasks: z.array(zCourseMaterialExerciseTask),
+})
+
 export const zSignedInAccount = z.enum(["same", "different", "none"])
 
 export const zContinueMoocfiHandoffPayload = z.object({
@@ -7665,6 +7754,7 @@ export const zCreditRegistrationCourseStats = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_unit_id: z.uuid(),
   ects_credits: z.number().nullish(),
   eligible_completion_count: z.coerce
@@ -7788,6 +7878,7 @@ export const zTmcMoocFiCourseProgress = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string().nullish(),
 })
 
 /**
@@ -7796,6 +7887,8 @@ export const zTmcMoocFiCourseProgress = z.object({
 export const zMoocFiCourseProgress = z.object({
   completed: z.boolean(),
   course_id: z.uuid(),
+  exercise_progress: zMoocFiExerciseProgress.nullish(),
+  material_links: z.array(zMoocFiMaterialLink),
   max_points: z.number().nullish(),
   name: z.string(),
   points: z.number().nullish(),
@@ -7803,16 +7896,25 @@ export const zMoocFiCourseProgress = z.object({
 })
 
 /**
- * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
- * reports to an old mooc.fi course is listed under that mooc.fi course.
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
  */
-export const zProgressByPlatform = z.object({
-  courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+export const zOldVersionProgress = z.object({
   mooc_fi: z.array(zMoocFiCourseProgress),
   mooc_fi_status: zExternalPlatformStatus,
   tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
   tmc_mooc_fi_status: zExternalPlatformStatus,
 })
+
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zProgressByPlatform = zOldVersionProgress.and(
+  z.object({
+    courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+  }),
+)
 
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -8141,6 +8243,9 @@ export const zUserIdsPayload = z.object({
   user_ids: z.array(z.uuid()),
 })
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export const zUserInfoPayload = z.object({
   country: z.string(),
   email: z.string(),
@@ -8525,6 +8630,7 @@ export const zAdminCreditRegistrationRow = z.object({
   course_or_target_id: z.uuid(),
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
+  current_uh_course_code: z.string().nullish(),
   email: z.string().nullish(),
   engagement: zEngagement.nullish(),
   enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -8694,6 +8800,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       course_or_target_id: z.uuid(),
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
+      current_uh_course_code: z.string().nullish(),
       email: z.string().nullish(),
       engagement: zEngagement.nullish(),
       enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -10929,6 +11036,15 @@ export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
  */
 export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
+export const zGetAccountLinkingCourseEnroleesPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The people on the enrolment lists
+ */
+export const zGetAccountLinkingCourseEnroleesResponse = zAdminCourseEnrolees
+
 export const zListAccountLinkingEmailsQuery = z.object({
   page: z
     .int()
@@ -10942,6 +11058,7 @@ export const zListAccountLinkingEmailsQuery = z.object({
     .optional(),
   status: zLinkingEmailListStatus.optional(),
   address: z.string().optional(),
+  course_or_target_id: z.uuid().optional(),
 })
 
 /**
@@ -11078,6 +11195,15 @@ export const zAdminResumeCourseModuleCreditRegistrationBody = zAdminResumeCourse
 export const zAdminResumeCourseModuleCreditRegistrationPath = z.object({
   course_module_id: z.uuid(),
 })
+
+export const zGetCreditRegistrationCourseSummaryPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The course's name and course codes
+ */
+export const zGetCreditRegistrationCourseSummaryResponse = zAdminCreditRegistrationCourseSummary
 
 export const zGetCreditRegistrationEnrolmentChecksQuery = z.object({
   window_secs: z.coerce
@@ -12774,9 +12900,9 @@ export const zGetSharedSubmissionInfoPath = z.object({
 })
 
 /**
- * Data needed to render the shared submission
+ * Data needed to render the shared submission or snapshot
  */
-export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
+export const zGetSharedSubmissionInfoResponse = zSharedSubmissionInfo
 
 /**
  * Cronjobs
@@ -12870,7 +12996,7 @@ export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * Users whose id or email equals the query
+ * Users whose id, email or TMC id equals the query
  */
 export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 
@@ -12953,6 +13079,11 @@ export const zHideCourseFromMyCoursesPath = z.object({
 export const zUnhideCourseFromMyCoursesPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * The authenticated user's courses on the old version of the platform
+ */
+export const zGetMyOldVersionProgressResponse = zOldVersionProgress
 
 /**
  * The authenticated user's courses grouped by platform

@@ -11,6 +11,24 @@ use uuid::Uuid;
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 
+/// The TMC id to copy a user's details to, or `None` when there is none to copy to: the user has no
+/// TMC account, or the deployment runs in test mode, which has no TMC.
+pub fn tmc_sync_target(
+    upstream_id: Option<i32>,
+    app_conf: &ApplicationConfiguration,
+) -> Option<i32> {
+    upstream_id.filter(|_| !app_conf.test_mode)
+}
+
+/// Whether a changed address goes to TMC now. With email ownership verification on, an address the
+/// user has not proven waits until they verify it: TMC signs them in by it.
+pub fn email_change_reaches_tmc_now(
+    enable_email_ownership_verification: bool,
+    is_proven: bool,
+) -> bool {
+    is_proven || !enable_email_ownership_verification
+}
+
 #[derive(Debug, Clone)]
 pub struct TmcClient {
     client: Client,
@@ -85,6 +103,8 @@ pub struct TmcCourseProgress {
     /// Number of distinct points awarded, not a score.
     pub awarded_points: i32,
     pub submissions: i32,
+    /// The course's page on tmc.mooc.fi. `None` for a course in no organization.
+    pub url: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -404,62 +424,47 @@ impl TmcClient {
         }
     }
 
-    pub async fn update_user_information(
+    /// Makes TMC hold the given name and email for user `user_upstream_id` in one write, so TMC
+    /// applies both or neither; `None` leaves that field as it is. The email is written only when
+    /// TMC's differs (ignoring case and surrounding whitespace). TMC signs users in by the email,
+    /// and answers 400 or 422 to one it refuses, such as one another account already uses.
+    pub async fn sync_user_profile(
         &self,
-        first_name: String,
-        last_name: String,
+        user_upstream_id: i32,
+        name: Option<(String, String)>,
         email: Option<String>,
-        user_upstream_id: String,
     ) -> UtilResult<()> {
-        let mut user_obj = serde_json::Map::new();
-        let mut user_field_obj = serde_json::Map::new();
-
-        if let Some(email) = email {
-            user_obj.insert("email".to_string(), serde_json::Value::String(email));
-        }
-
-        user_field_obj.insert(
-            "first_name".to_string(),
-            serde_json::Value::String(first_name),
-        );
-        user_field_obj.insert(
-            "last_name".to_string(),
-            serde_json::Value::String(last_name),
-        );
-
+        let email = match email {
+            Some(email) => {
+                let tmc_email = self
+                    .get_user_from_tmc_mooc_fi_by_tmc_access_token_and_upstream_id(
+                        &user_upstream_id,
+                    )
+                    .await?
+                    .email;
+                (!tmc_email.trim().eq_ignore_ascii_case(email.trim())).then_some(email)
+            }
+            None => None,
+        };
         let mut payload = serde_json::Map::new();
-
-        if !user_obj.is_empty() {
-            payload.insert("user".to_string(), serde_json::Value::Object(user_obj));
+        if let Some((first_name, last_name)) = name {
+            payload.insert(
+                "user_field".to_string(),
+                json!({ "first_name": first_name, "last_name": last_name }),
+            );
         }
-
-        payload.insert(
-            "user_field".to_string(),
-            serde_json::Value::Object(user_field_obj),
-        );
-
-        let payload_value = serde_json::Value::Object(payload);
-
-        let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
-
-        self.request_with_headers(
-            reqwest::Method::PUT,
-            &url,
-            TMCRequestAuth::UseAdminToken,
-            Some(payload_value),
-        )
-        .await
-        .map(|_| ())
-    }
-
-    /// Sets the email of the TMC user `user_upstream_id`, leaving the rest of the account as it is.
-    pub async fn update_user_email(&self, email: String, user_upstream_id: i32) -> UtilResult<()> {
+        if let Some(email) = email {
+            payload.insert("user".to_string(), json!({ "email": email }));
+        }
+        if payload.is_empty() {
+            return Ok(());
+        }
         let url = format!("{}/{}", TMC_API_URL, user_upstream_id);
         self.request_with_headers(
             reqwest::Method::PUT,
             &url,
             TMCRequestAuth::UseAdminToken,
-            Some(json!({ "user": { "email": email } })),
+            Some(serde_json::Value::Object(payload)),
         )
         .await
         .map(|_| ())

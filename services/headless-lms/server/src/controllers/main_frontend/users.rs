@@ -1,4 +1,4 @@
-use crate::domain::progress_by_platform::{self, ProgressByPlatform};
+use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
@@ -31,6 +31,7 @@ use utoipa::{OpenApi, ToSchema};
     get_my_studies,
     get_my_certificates,
     get_my_progress_by_platform,
+    get_my_old_version_progress,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -732,6 +733,42 @@ async fn get_my_progress_by_platform(
 }
 
 /**
+GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+
+Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+reached is reported in its status rather than failing the request.
+*/
+#[instrument(skip(pool, tmc_client, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/my-old-version-progress",
+    operation_id = "getMyOldVersionProgress",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's courses on the old version of the platform", body = OldVersionProgress)
+    )
+)]
+async fn get_my_old_version_progress(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<OldVersionProgress>> {
+    let token = skip_authorize();
+    // Test mode never talks to the real platforms, matching account deletion.
+    let res = progress_by_platform::get_old_version_progress(
+        &pool,
+        &tmc_client,
+        user.id,
+        !app_conf.test_mode,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
 GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
 */
 #[instrument(skip(pool))]
@@ -1104,6 +1141,17 @@ pub async fn change_user_password(
     token.authorized_ok(session_verification::ok_with_renewed_cookie(renewed_cookie).json(res))
 }
 
+/// Per user, for the endpoints that ask the old version of the platform (tmc.mooc.fi and the old
+/// mooc.fi) on every request. Each endpoint keeps its own quota.
+fn old_version_upstream_rate_limit() -> RateLimit {
+    RateLimit::new(RateLimitConfig {
+        per_minute: Some(10),
+        per_hour: Some(60),
+        ..Default::default()
+    })
+    .keyed_by(RateLimitKey::User)
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/user-research-form-question-answers",
@@ -1112,18 +1160,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
     .route("/my-certificates", web::get().to(get_my_certificates))
-    // Each request calls tmc.mooc.fi and mooc.fi.
     .service(
         web::resource("/my-progress-by-platform")
-            .wrap(
-                RateLimit::new(RateLimitConfig {
-                    per_minute: Some(10),
-                    per_hour: Some(60),
-                    ..Default::default()
-                })
-                .keyed_by(RateLimitKey::User),
-            )
+            .wrap(old_version_upstream_rate_limit())
             .route(web::get().to(get_my_progress_by_platform)),
+    )
+    .service(
+        web::resource("/my-old-version-progress")
+            .wrap(old_version_upstream_rate_limit())
+            .route(web::get().to(get_my_old_version_progress)),
     )
     .route(
         "/my-courses/{course_id}/hide",

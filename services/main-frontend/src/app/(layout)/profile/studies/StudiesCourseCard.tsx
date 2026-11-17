@@ -9,7 +9,6 @@ import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
   TIME_DATE,
-  TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
@@ -34,18 +33,12 @@ import {
   completionRegistrationRoute,
   navigateToCourseRoute,
 } from "@/shared-module/common/utils/routes"
-import {
-  Link,
-  Meter,
-  METER_KIND,
-  MIDDLE_DOT,
-  RegistrationStatusBadge,
-  RelativeTime,
-} from "@/shared-module/components"
+import { Link, MIDDLE_DOT, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
+  studiesCardCompletedHeaderCss,
   studiesCardCss,
   studiesCardHeaderCss,
   studiesCardListCss,
@@ -55,18 +48,14 @@ import {
   remainingRequirements,
   remainingRequirementsList,
 } from "./completionRequirements"
+import { sameLanguage } from "./language"
+import { FIGURE_WIDTH, figureRowCss, ModuleDimension } from "./ModuleFigures"
 
 export interface StudiesCourseCardProps {
   course: MyStudiesCourse
   /** Newest credit registration per course module id; empty for a student with none. */
   registrationByCourseModuleId: ReadonlyMap<string, MyCreditRegistration>
 }
-
-/** A course with every module behind it says so in the band, not only in a line of small print. */
-const completedHeaderCss = css`
-  border-bottom-color: var(--color-green-200);
-  background: var(--color-green-100);
-`
 
 /** The band's small print, held legible against the completed tint. */
 const completedFactsCss = css`
@@ -130,9 +119,6 @@ const detailsLabelCss = css`
   gap: var(--space-2);
 `
 
-/** How wide one measured dimension gets. A bar the full width of a card reads as a rule. */
-const FIGURE_WIDTH = "17rem"
-
 /** The dimensions, then the exam under them. */
 const progressCss = css`
   display: grid;
@@ -147,30 +133,10 @@ const dimensionsCss = css`
   gap: var(--space-3-5) var(--space-5);
 `
 
-/** Matches a `Meter` label row, because the exam is one more requirement in the same list. */
-const examRowCss = css`
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  max-width: ${FIGURE_WIDTH};
-  font-size: var(--font-size-1);
-  color: var(--color-gray-600);
-`
-
 const examResultCss = css`
   color: var(--color-gray-700);
   font-weight: 600;
 `
-
-/** Holds a bare figure to the same weight and digit width as the `Meter` value above it. */
-const figureValueCss = css`
-  color: var(--color-gray-700);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-`
-
-/** A bar's fill says how far the student has come; the tick beside it says how far is enough. */
-const PROGRESS_TONE = TONE.SUCCESS
 
 /** Names what the bars are measured for: the exam, the course itself, or one of its modules. */
 const completionHeading = (
@@ -216,15 +182,6 @@ const modulesShareEcts = (modules: MyStudiesCourseModule[]): boolean => {
   return modules.every((module) => (module.ects_credits ?? null) === first)
 }
 
-/**
- * Compares only the primary subtag, so `en-US` material reads as English to an `en` reader.
- *
- * A reader whose language is not yet known counts as a different one: naming the language the
- * course is in costs a reader who did not need it far less than withholding it from one who did.
- */
-const sameLanguage = (courseLanguage: string, readerLanguage: string | undefined): boolean =>
-  readerLanguage !== undefined && courseLanguage.split("-")[0] === readerLanguage.split("-")[0]
-
 /** One course, always open: every module's progress, result and credit-registration status. */
 const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   course,
@@ -263,7 +220,9 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
 
   return (
     <article className={studiesCardCss} data-testid="profile-course-card">
-      <header className={cx(studiesCardHeaderCss, courseIsComplete && completedHeaderCss)}>
+      <header
+        className={cx(studiesCardHeaderCss, courseIsComplete && studiesCardCompletedHeaderCss)}
+      >
         <div className={spacedRowCss}>
           <h3 className={courseTitleCss}>{course.course_name}</h3>
           <Link
@@ -534,7 +493,7 @@ const ModuleProgress: React.FC<{
 
   const examRow =
     module.completion_method === "by_exam" ? (
-      <div className={examRowCss}>
+      <div className={figureRowCss}>
         <span>{t("label-exam")}</span>
         <span className={examPassed ? achievedCss : examResultCss}>
           {examPassed ? t("label-passed") : t("label-not-passed")}
@@ -569,39 +528,5 @@ const ModuleProgress: React.FC<{
     </div>
   )
 }
-
-/**
- * One dimension of a module: a bar where it is measured, otherwise the figure on its own. The
- * threshold tick is drawn only for the dimension that has one.
- */
-const ModuleDimension: React.FC<{
-  label: string
-  value: number
-  maxValue: number
-  valueLabel: string
-  threshold: number | null
-  showBar: boolean
-}> = ({ label, value, maxValue, valueLabel, threshold, showBar }) =>
-  showBar ? (
-    <Meter
-      kind={METER_KIND.PROGRESS}
-      label={label}
-      value={value}
-      maxValue={maxValue}
-      valueLabel={valueLabel}
-      tone={PROGRESS_TONE}
-      threshold={threshold}
-    />
-  ) : (
-    <ModuleFigure label={label} value={valueLabel} />
-  )
-
-/** A measured value with no threshold to judge it against: a `Meter`'s label row without the bar. */
-const ModuleFigure: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className={examRowCss}>
-    <span>{label}</span>
-    <span className={figureValueCss}>{value}</span>
-  </div>
-)
 
 export default StudiesCourseCard

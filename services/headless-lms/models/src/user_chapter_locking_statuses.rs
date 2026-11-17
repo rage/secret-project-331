@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::error::missing_model_error;
 use crate::prelude::*;
 use utoipa::ToSchema;
@@ -232,6 +234,47 @@ pub async fn get_or_init_all_for_course(
     if course.chapter_locking_enabled {
         init_for_users(conn, course_id, &[user_id]).await?;
     }
+    get_all_for_user_and_course(conn, user_id, course_id).await
+}
+
+/// The user's chapter statuses in the course as [`get_or_init_all_for_course`] would leave them,
+/// by chapter id, without storing anything: a chapter without a status reads as
+/// `not_unlocked_yet`, and a user with nothing past that gets the starting chapters unlocked. For
+/// read paths on a course with chapter locking on.
+pub async fn get_or_derive_all_for_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ChapterLockingStatus>> {
+    let mut statuses: HashMap<Uuid, ChapterLockingStatus> =
+        get_all_for_user_and_course(conn, user_id, course_id)
+            .await?
+            .into_iter()
+            .map(|s| (s.chapter_id, s.status))
+            .collect();
+    for chapter in crate::chapters::get_course_chapters(conn, course_id).await? {
+        statuses
+            .entry(chapter.id)
+            .or_insert(ChapterLockingStatus::NotUnlockedYet);
+    }
+    if !statuses.is_empty()
+        && statuses
+            .values()
+            .all(|s| *s == ChapterLockingStatus::NotUnlockedYet)
+    {
+        for chapter_id in crate::chapters::first_chapters_to_unlock(conn, course_id).await? {
+            statuses.insert(chapter_id, ChapterLockingStatus::Unlocked);
+        }
+    }
+    Ok(statuses)
+}
+
+/// The statuses stored for the user in the course.
+async fn get_all_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
     let statuses = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
@@ -842,6 +885,61 @@ mod tests {
             statuses
                 .iter()
                 .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
+        );
+    }
+
+    #[tokio::test]
+    async fn get_or_derive_all_for_course_matches_initializing_without_storing() {
+        insert_data!(:tx, :user, :org, course: course);
+        let base_module = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap()
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+        let mut chapters = vec![];
+        for chapter_number in [1, 2] {
+            let chapter = crate::chapters::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                &crate::chapters::NewChapter {
+                    name: format!("Chapter {chapter_number}"),
+                    color: None,
+                    course_id: course,
+                    chapter_number,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(base_module.id),
+                },
+            )
+            .await
+            .unwrap();
+            chapters.push(chapter);
+        }
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        let derived = get_or_derive_all_for_course(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        assert!(
+            get_all_for_user_and_course(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        let initialized: HashMap<Uuid, ChapterLockingStatus> =
+            get_or_init_all_for_course(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .into_iter()
+                .map(|s| (s.chapter_id, s.status))
+                .collect();
+        assert_eq!(derived, initialized);
+        assert_eq!(derived.len(), chapters.len());
+        assert_eq!(
+            derived.get(&chapters[0]),
+            Some(&ChapterLockingStatus::Unlocked)
         );
     }
 

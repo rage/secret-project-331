@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingCss, pageTitleCss } from "@/components/credit-registration/styles"
 import type { CertificateDetails } from "@/generated/api/types.generated"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import { CopyButton, DescriptionList, Link } from "@/shared-module/components"
@@ -47,7 +48,7 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
         gap: 1rem;
       `}
     >
-      <h1>
+      <h1 className={pageTitleCss}>
         {details
           ? t("certificate-heading", { course: details.course_name })
           : t("certificate-for-completing-a-course-module")}
@@ -78,7 +79,7 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
       </Link>
       {details && (
         <>
-          <h2>{t("certificate-details-heading")}</h2>
+          <h2 className={headingCss}>{t("certificate-details-heading")}</h2>
           <DescriptionList
             items={[
               { label: t("certificate-recipient"), value: details.name_on_certificate },

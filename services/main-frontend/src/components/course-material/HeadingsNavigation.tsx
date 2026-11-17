@@ -255,7 +255,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
           aria-hidden={realCollapsed ? true : undefined}
           {...(realCollapsed && { inert: true })}
         >
-          <div>
+          <div data-route-focus-skip>
             <h3
               className={css`
                 font-size: 16px;

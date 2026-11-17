@@ -408,6 +408,19 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(document.querySelector("#content"))
   })
 
+  test("skips headings inside a data-route-focus-skip wrapper", () => {
+    render(
+      <main id="maincontent">
+        <div data-route-focus-skip>
+          <h3>In this page</h3>
+        </div>
+        <h2 id="content">Content</h2>
+      </main>,
+    )
+    focusMainHeading()
+    expect(document.activeElement).toBe(document.querySelector("#content"))
+  })
+
   test("retries when focus() does not take at first", async () => {
     render(
       <>

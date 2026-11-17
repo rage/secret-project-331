@@ -41,8 +41,9 @@ const applyFocus = (target: HTMLElement, options: FocusOptions): (() => void) =>
   return () => target.removeEventListener("blur", clearManagedFocus)
 }
 
-/** Headings in side navigation (TOC), inert or hidden subtrees are not page content. */
-const EXCLUDED_ANCESTORS = "nav, aside, [inert], [aria-hidden='true']"
+/** Side navigation, inert or hidden subtrees and anything marked `data-route-focus-skip` (e.g. the
+ * "In this page" TOC, which is plain divs) are not page content. */
+const EXCLUDED_ANCESTORS = "nav, aside, [inert], [aria-hidden='true'], [data-route-focus-skip]"
 
 const firstContentHeading = (container: HTMLElement, selector: string): HTMLElement | null => {
   for (const heading of container.querySelectorAll<HTMLElement>(selector)) {

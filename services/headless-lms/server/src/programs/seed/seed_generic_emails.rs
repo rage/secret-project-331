@@ -790,7 +790,7 @@ async fn seed_credit_registration_status_templates(
 pub async fn seed_teacher_newsletter_email(conn: &mut sqlx::PgConnection) -> anyhow::Result<()> {
     info!("inserting teacher newsletter email");
 
-    let english_subject = Some("Teacher newsletter");
+    let english_subject = Some("Weekly update on your courses");
     let english_body = json!([
         {
             "name": "moocfi/email-teacher-newsletter",

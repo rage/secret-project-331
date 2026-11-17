@@ -437,6 +437,14 @@ async fn build_teacher_newsletter_email_content(
 ) -> Result<TeacherNewsletterContent> {
     let courses =
         headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
+
+    if courses.is_empty() {
+        return Ok(TeacherNewsletterContent {
+            html: String::new(),
+            text: String::new(),
+        });
+    }
+
     let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
 
     let (period_start, period_end) = get_newsletter_period();
@@ -468,15 +476,19 @@ async fn build_teacher_newsletter_email_content(
             .await?;
     }
 
-    let newsletter_summary = if unread_feedback_count == 0
+    let summary_html = if unread_feedback_count == 0
         && pending_proposals_count == 0
         && flagged_cheaters_count == 0
     {
-        "".to_string()
+        format!(
+            r#"<h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
+            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>"#
+        )
     } else {
         format!(
             r#"
-            <h2 style="text-align: center; font-size: 32px; margin-bottom: 48px; border-bottom: 2px solid #1a2333; padding-bottom: 16px;">Weekly newsletter</h2>
+            <h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
+            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>
             <table style="width: 100%;">
                 <tbody>
                     <tr>
@@ -509,22 +521,41 @@ async fn build_teacher_newsletter_email_content(
         )
     };
 
-    if !courses.is_empty() {
-        let (html, text): (String, String) = newsletter_items
-            .into_iter()
-            .map(|i| (i.as_html, i.as_text))
-            .unzip();
-
-        Ok(TeacherNewsletterContent {
-            html: format!("{newsletter_summary}\n{html}"),
-            text,
-        })
+    let summary_text = if unread_feedback_count == 0
+        && pending_proposals_count == 0
+        && flagged_cheaters_count == 0
+    {
+        format!("Weekly update ({period_start} to {period_end})")
     } else {
-        Ok(TeacherNewsletterContent {
-            html: "".to_string(),
-            text: "".to_string(),
-        })
-    }
+        format!(
+            "Weekly update ({period_start} to {period_end})\n\nItems waiting for review:\n{}{}{}\nSee individual courses below for details\n\n",
+            if unread_feedback_count > 0 {
+                format!("* {unread_feedback_count} unread feedback\n")
+            } else {
+                String::new()
+            },
+            if pending_proposals_count > 0 {
+                format!("* {pending_proposals_count} pending proposals\n")
+            } else {
+                String::new()
+            },
+            if flagged_cheaters_count > 0 {
+                format!("* {flagged_cheaters_count} flagged cheaters\n")
+            } else {
+                String::new()
+            },
+        )
+    };
+
+    let (html, text): (String, String) = newsletter_items
+        .into_iter()
+        .map(|i| (i.as_html, i.as_text))
+        .unzip();
+
+    Ok(TeacherNewsletterContent {
+        html: format!("{summary_html}\n{html}"),
+        text: format!("{summary_text}\n{text}"),
+    })
 }
 
 fn build_email_message(email: &Email, attempt: i32, rendered: RenderedEmail) -> Result<Message> {

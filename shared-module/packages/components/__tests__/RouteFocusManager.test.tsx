@@ -50,6 +50,13 @@ function Swap({ swapped, children }: { swapped: boolean; children?: React.ReactN
   )
 }
 
+const nextFrame = () =>
+  new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve()
+    })
+  })
+
 describe("RouteFocusManager", () => {
   beforeEach(() => {
     mockState.pathname = "/"
@@ -379,6 +386,53 @@ describe("RouteFocusManager", () => {
       await Promise.resolve()
     })
     expect(document.activeElement).toBe(document.querySelector("#late"))
+  })
+
+  test("skips headings in inert asides and navs, prefers page content", () => {
+    render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <main id="maincontent">
+          <aside inert>
+            <h3 id="toc">In this page</h3>
+          </aside>
+          <nav>
+            <h2 id="navh">Nav</h2>
+          </nav>
+          <h2 id="content">Content</h2>
+        </main>
+      </>,
+    )
+    mockState.pathname = "/next"
+    focusMainHeading()
+    expect(document.activeElement).toBe(document.querySelector("#content"))
+  })
+
+  test("retries when focus() does not take at first", async () => {
+    render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <main id="maincontent">
+          <h1 id="h">Title</h1>
+        </main>
+      </>,
+    )
+    const heading = document.querySelector("#h") as HTMLElement
+    const realFocus = heading.focus.bind(heading)
+    let calls = 0
+    jest.spyOn(heading, "focus").mockImplementation((o) => {
+      calls += 1
+      if (calls > 1) {
+        realFocus(o)
+      }
+    })
+    await act(async () => {
+      focusMainHeading()
+      await nextFrame()
+      await nextFrame()
+    })
+    expect(calls).toBeGreaterThan(1)
+    expect(document.activeElement).toBe(heading)
   })
 
   test("focusMainHeading focuses without scrolling", () => {

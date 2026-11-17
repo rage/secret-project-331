@@ -41,6 +41,18 @@ const applyFocus = (target: HTMLElement, options: FocusOptions): (() => void) =>
   return () => target.removeEventListener("blur", clearManagedFocus)
 }
 
+/** Headings in side navigation (TOC), inert or hidden subtrees are not page content. */
+const EXCLUDED_ANCESTORS = "nav, aside, [inert], [aria-hidden='true']"
+
+const firstContentHeading = (container: HTMLElement, selector: string): HTMLElement | null => {
+  for (const heading of container.querySelectorAll<HTMLElement>(selector)) {
+    if (!heading.closest(EXCLUDED_ANCESTORS)) {
+      return heading
+    }
+  }
+  return null
+}
+
 /** Focuses from script with tabindex=-1 and no ring for this focus; waits while a modal is open.
  * Returns a cancel function. */
 export const focusProgrammatically = (
@@ -61,9 +73,12 @@ export const focusProgrammatically = (
 
 const headingOrSelf = (container: HTMLElement): HTMLElement => {
   // h1, else the first heading of any level (pages whose content starts at h2), else the container.
-  const heading =
-    container.querySelector(HEADING_SELECTOR) ?? container.querySelector(ANY_HEADING_SELECTOR)
-  return heading instanceof HTMLElement ? heading : container
+  // Headings inside nav/aside/inert/hidden (e.g. the "In this page" TOC) are skipped.
+  return (
+    firstContentHeading(container, HEADING_SELECTOR) ??
+    firstContentHeading(container, ANY_HEADING_SELECTOR) ??
+    container
+  )
 }
 
 /** Focuses the container's heading and refocuses it for a while if late content replaces it.
@@ -75,6 +90,13 @@ const settleFocusOnHeading = (
 ): (() => void) => {
   let managed: HTMLElement | null = null
   let cleanupBlur: (() => void) | null = null
+  let retryFrame = 0
+  let stopped = false
+  const focusIfWithinWindow = () => {
+    if (!stopped && update()) {
+      stopped = true
+    }
+  }
   const focusTarget = () => {
     const container = getContainer()
     if (!container) {
@@ -85,8 +107,12 @@ const settleFocusOnHeading = (
       return
     }
     cleanupBlur?.()
-    managed = target
     cleanupBlur = focusProgrammatically(target, options)
+    // Only remember the target once focus took, so a failed focus() is retried on the next mutation.
+    managed = document.activeElement === target ? target : null
+    if (managed === null) {
+      retryFrame = window.requestAnimationFrame(focusIfWithinWindow)
+    }
   }
   // Returns true once the page / user took focus elsewhere, so the observer can stop.
   const update = (): boolean => {
@@ -123,8 +149,13 @@ const settleFocusOnHeading = (
     }
   })
   observer.observe(document.body, { childList: true, subtree: true })
-  const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
+  const timeout = window.setTimeout(() => {
+    stopped = true
+    observer.disconnect()
+  }, OBSERVE_MS)
   return () => {
+    stopped = true
+    window.cancelAnimationFrame(retryFrame)
     observer.disconnect()
     window.clearTimeout(timeout)
     cleanupBlur?.()

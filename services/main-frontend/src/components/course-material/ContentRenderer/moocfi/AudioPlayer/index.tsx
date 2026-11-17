@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
-import { useButton, useFocusRing } from "react-aria"
+import { FocusScope, useButton, useFocusRing, useKeyboard } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { AudioFile } from "@/components/course-material/Page"
@@ -45,15 +45,15 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
   )
   const { focusProps: closeFocusProps, isFocusVisible: isCloseFocusVisible } = useFocusRing()
 
-  // Return focus to the control that opened the player (the Listen button) on close.
-  useEffect(() => {
-    const opener = document.activeElement
-    return () => {
-      if (opener instanceof HTMLElement && opener !== document.body) {
-        opener.focus()
+  const { keyboardProps } = useKeyboard({
+    onKeyDown: (e) => {
+      if (e.key === "Escape") {
+        setIsVisible()
+      } else {
+        e.continuePropagation()
       }
-    }
-  }, [])
+    },
+  })
 
   useEffect(() => {
     if (isVisible && dialogRef.current) {
@@ -79,85 +79,82 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
         z-index: 99;
       `}
     >
-      {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Escape closes the dialog */}
-      <div
-        ref={dialogRef}
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role dialog; native <dialog> differs and ref is HTMLDivElement
-        role="dialog"
-        aria-label={t("audio-player-dialog-label")}
-        tabIndex={-1}
-        onKeyDown={(e) => {
-          if (e.key === "Escape") {
-            e.stopPropagation()
-            setIsVisible()
-          }
-        }}
-        className={css`
-          width: 100vw;
-          background: #fff;
-          position: relative;
-          border-radius: 10px;
-          border: 2px solid #e3d2f2;
-          padding: 30px 20px;
-          box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
-
-          ${respondToOrLarger.md} {
-            width: 700px;
-          }
-        `}
-      >
+      {/* Returns focus to the control that opened the player (the Listen button) on close. */}
+      <FocusScope restoreFocus>
         <div
+          {...keyboardProps}
+          ref={dialogRef}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- div+role dialog; native <dialog> differs and ref is HTMLDivElement
+          role="dialog"
+          aria-label={t("audio-player-dialog-label")}
+          tabIndex={-1}
           className={css`
-            margin: 0 auto;
+            width: 100vw;
+            background: #fff;
+            position: relative;
+            border-radius: 10px;
+            border: 2px solid #e3d2f2;
+            padding: 30px 20px;
+            box-shadow: 0px 8px 40px rgba(0, 0, 0, 0.1);
+
+            ${respondToOrLarger.md} {
+              width: 700px;
+            }
           `}
         >
-          <DisplayTrack
-            {...{
-              tracks,
-              audioRef,
-              setDuration,
-              progressBarRef,
-            }}
-          />
-          <ProgressBar {...{ progressBarRef, audioRef, timeProgress, duration }} />
-          <Controls
-            {...{
-              audioRef,
-              progressBarRef,
-              duration,
-              setTimeProgress,
-              tracks,
-              playPauseButtonRef,
-            }}
-          />
-          <button
-            {...closeButtonProps}
-            {...closeFocusProps}
-            ref={closeButtonRef}
+          <div
             className={css`
-              position: absolute;
-              height: 28px;
-              width: 28px;
-              border: none;
-              border-radius: 100px;
-              right: 10px;
-              top: 8px;
-              display: flex;
-              align-items: center;
-              padding-left: 2px;
-              ${
-                isCloseFocusVisible &&
-                css`
-                  outline: 2px solid #4a90e2;
-                  outline-offset: 2px;
-                `
-              }
+              margin: 0 auto;
             `}
           >
-            <CloseIcon aria-hidden="true" />
-          </button>
+            <DisplayTrack
+              {...{
+                tracks,
+                audioRef,
+                setDuration,
+                progressBarRef,
+              }}
+            />
+            <ProgressBar {...{ progressBarRef, audioRef, timeProgress, duration }} />
+            <Controls
+              {...{
+                audioRef,
+                progressBarRef,
+                duration,
+                setTimeProgress,
+                tracks,
+                playPauseButtonRef,
+              }}
+            />
+            <button
+              {...closeButtonProps}
+              {...closeFocusProps}
+              ref={closeButtonRef}
+              className={css`
+                position: absolute;
+                height: 28px;
+                width: 28px;
+                border: none;
+                border-radius: 100px;
+                right: 10px;
+                top: 8px;
+                display: flex;
+                align-items: center;
+                padding-left: 2px;
+                ${
+                  isCloseFocusVisible &&
+                  css`
+                    outline: 2px solid #4a90e2;
+                    outline-offset: 2px;
+                  `
+                }
+              `}
+            >
+              <CloseIcon aria-hidden="true" />
+            </button>
+          </div>
         </div>
-      </div>
+      </FocusScope>
     </div>
   ) : null
 }

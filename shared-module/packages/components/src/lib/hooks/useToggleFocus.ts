@@ -20,6 +20,7 @@ export function useToggleFocus<T extends HTMLElement = HTMLButtonElement>(
     if (isOpen) {
       focusFirstRef.current?.()
     } else if (wasOpen.current) {
+      // Not focusSafely: it defers focus after a virtual click, so Cancel no longer refocuses Edit at once.
       triggerRef.current?.focus()
     }
     wasOpen.current = isOpen

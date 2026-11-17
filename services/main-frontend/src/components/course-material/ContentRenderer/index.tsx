@@ -350,6 +350,13 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             border-radius: 3px;
           }
 
+          /* The grey fill is unreadable under a button's light text; keep the button's own contrast. */
+          a[data-button-variant] code:not(pre code) {
+            background: transparent;
+            color: inherit;
+            box-shadow: inset 0 0 0 1px currentColor;
+          }
+
           /* Styling for highlighted text */
           mark {
             padding: 0 0.4rem 0.2rem 0.4rem;

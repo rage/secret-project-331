@@ -3,7 +3,7 @@
 import { act, render } from "@testing-library/react"
 import React from "react"
 
-import RouteFocusManager from "../src/components/RouteFocusManager"
+import RouteFocusManager, { focusMainHeading } from "../src/components/RouteFocusManager"
 
 const mockState = { pathname: "/" }
 
@@ -357,5 +357,14 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(button)
     button.remove()
     observe.mockRestore()
+  })
+
+  test("focusMainHeading focuses without scrolling", () => {
+    render(<Page heading="Title" />)
+    const heading = document.querySelector("h1") as HTMLElement
+    const focus = jest.spyOn(heading, "focus")
+    focusMainHeading()
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    focus.mockRestore()
   })
 })

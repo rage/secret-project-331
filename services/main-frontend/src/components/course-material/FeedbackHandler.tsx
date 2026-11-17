@@ -30,6 +30,11 @@ const feedbackButtonCss = css`
   bottom: ${FEEDBACK_BUTTON_INSET};
   right: ${FEEDBACK_BUTTON_INSET};
   z-index: var(--layer-sticky);
+
+  /* On very short viewports a fixed button can cover the focused control (WCAG 2.4.11). */
+  @media (max-height: 400px) {
+    position: absolute;
+  }
 `
 
 // Lets the end of the page be scrolled clear of the fixed button. Goes on <body> because what

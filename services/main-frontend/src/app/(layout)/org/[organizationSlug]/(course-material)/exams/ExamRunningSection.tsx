@@ -14,7 +14,7 @@ import { focusProgrammatically } from "@/shared-module/components"
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
 import ExamInfoHeader, { EXAM_HEADING_ID } from "./ExamInfoHeader"
 import ExamTimer from "./ExamTimer"
-import useClockSkew from "./useClockSkew"
+import { useClockSkewState } from "./useClockSkew"
 import useExamStatusAnnouncer from "./useExamStatusAnnouncer"
 
 export interface ExamRunningSectionProps {
@@ -41,7 +41,7 @@ export default function ExamRunningSection({
   justStarted = false,
 }: ExamRunningSectionProps) {
   const { t } = useTranslation()
-  const skew = useClockSkew()
+  const { estimate: skew, settled: skewSettled } = useClockSkewState()
 
   useEffect(() => {
     const heading = justStarted && document.querySelector<HTMLElement>(`#${EXAM_HEADING_ID}`)
@@ -103,7 +103,11 @@ export default function ExamRunningSection({
   return (
     <>
       <CenteredClockSkewWarning />
-      <ExamTimeOverModal disabled={examData.ended} secondsLeft={secondsLeft} onClose={onRefresh} />
+      <ExamTimeOverModal
+        disabled={examData.ended || !skewSettled}
+        secondsLeft={secondsLeft}
+        onClose={onRefresh}
+      />
       <ExamInfoHeader examData={examData} />
       <ExamTimer startedAt={startedAt} endsAt={endsAt} secondsLeft={secondsLeft} />
       {secondsLeft < 10 * 60 && secondsLeft >= 0 && (

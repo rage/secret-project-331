@@ -16,6 +16,8 @@ jest.mock("../../../img/likert/neutral.svg", () => () => null)
 jest.mock("../../../img/likert/stronglyAgree.svg", () => () => null)
 jest.mock("../../../img/likert/stronglyDisagree.svg", () => () => null)
 
+const stops = () => screen.getAllByRole("radio").filter((r) => r.tabIndex === 0)
+
 describe("LikertScale", () => {
   test("radiogroup is named by its question", () => {
     render(
@@ -36,6 +38,28 @@ describe("LikertScale", () => {
     )
     expect(screen.getByRole("radiogroup", { name: /^First question/ })).toBeInTheDocument()
     expect(screen.getByRole("radiogroup", { name: "Second question" })).toBeInTheDocument()
+  })
+
+  test("only one radio is a tab stop", () => {
+    const { rerender } = render(
+      <LikertScale
+        question="Q"
+        answerRequired={false}
+        selectedOption={null}
+        setSelectedOption={() => {}}
+      />,
+    )
+    expect(stops()).toHaveLength(1)
+    expect(stops()[0]).toBe(screen.getAllByRole("radio")[0])
+    rerender(
+      <LikertScale
+        question="Q"
+        answerRequired={false}
+        selectedOption={3}
+        setSelectedOption={() => {}}
+      />,
+    )
+    expect(stops()).toEqual([screen.getAllByRole("radio")[2]])
   })
 
   test("unselected focus outline has at least 3:1 contrast on the option background", () => {

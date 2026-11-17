@@ -142,7 +142,13 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
       >
         <Likerts>
           {arr.map((option, n) => (
-            <StyledToggleButton active={selectedOption === n + 1} id={n + 1} key={n + 1}>
+            <StyledToggleButton
+              active={selectedOption === n + 1}
+              id={n + 1}
+              key={n + 1}
+              // Roving tabindex: one tab stop, on the selected option (else the first).
+              excludeFromTabOrder={n + 1 !== (selectedOption ?? 1)}
+            >
               {option.image}
               <p className="likert-scale-text">{option.text}</p>
             </StyledToggleButton>

@@ -63,13 +63,14 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
 
             figure {
               margin: 0;
+            }
 
-              img {
-                width: 12rem;
-                aspect-ratio: auto;
-                margin: 0 !important;
-                pointer-events: none;
-              }
+            figure img,
+            a > img {
+              width: 12rem;
+              aspect-ratio: auto;
+              margin: 0 !important;
+              pointer-events: none;
             }
           `}
         >
@@ -93,13 +94,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {isSvgUrl ? (
-                    <DynamicSvg src={url} label={name} />
-                  ) : (
-                    <figure>
-                      <img src={url} alt={name} />
-                    </figure>
-                  )}
+                  {isSvgUrl ? <DynamicSvg src={url} label={name} /> : <img src={url} alt={name} />}
                   {/* oxlint-disable-next-line i18next/no-literal-string */}
                   <OpensInNewTabNotice linkTarget="_blank" />
                 </a>

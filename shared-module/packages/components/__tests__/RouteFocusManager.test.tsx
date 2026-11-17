@@ -57,6 +57,18 @@ const nextFrame = () =>
     })
   })
 
+const Layout = ({ gen, children }: { gen: number; children?: React.ReactNode }) => (
+  <div key={gen}>
+    <main id="maincontent">{children}</main>
+  </div>
+)
+const tree = (gen: number, children?: React.ReactNode) => (
+  <>
+    <RouteFocusManager pathname="/page" />
+    <Layout gen={gen}>{children}</Layout>
+  </>
+)
+
 describe("RouteFocusManager", () => {
   beforeEach(() => {
     mockState.pathname = "/"
@@ -359,17 +371,6 @@ describe("RouteFocusManager", () => {
   })
 
   test("finds a heading when the whole layout around main is replaced", async () => {
-    const Layout = ({ gen, children }: { gen: number; children?: React.ReactNode }) => (
-      <div key={gen}>
-        <main id="maincontent">{children}</main>
-      </div>
-    )
-    const tree = (gen: number, children?: React.ReactNode) => (
-      <>
-        <RouteFocusManager pathname="/page" />
-        <Layout gen={gen}>{children}</Layout>
-      </>
-    )
     const { rerender } = render(
       <>
         <RouteFocusManager pathname="/" />

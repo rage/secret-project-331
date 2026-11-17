@@ -18,7 +18,7 @@ export const registerOpenModal = (surface: HTMLElement): (() => void) => {
 }
 
 /** True when `element` is inside an open modal, where focus can move freely. */
-export const isInsideOpenModal = (element: Element): boolean =>
+const isInsideOpenModal = (element: Element): boolean =>
   [...openModals].some((surface) => surface.contains(element))
 
 /**

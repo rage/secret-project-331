@@ -18,7 +18,6 @@ interface AnimationState {
   displayWord: string
   mouseClicked: boolean
   caretVisible: boolean
-  cursorStartPosition: { x: number; y: number }
   cursorTargetPosition: { x: number; y: number }
 }
 
@@ -33,7 +32,6 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
     displayWord: reduceMotion ? correctPart : incorrectPart,
     mouseClicked: false,
     caretVisible: false,
-    cursorStartPosition: { x: 0, y: 0 },
     cursorTargetPosition: { x: 0, y: 0 },
   }))
 
@@ -53,10 +51,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
   })
 
   const mouseMoveSpring = useSpring({
-    from:
-      state.phase === "mouseMove"
-        ? { left: state.cursorStartPosition.x, top: state.cursorStartPosition.y }
-        : {},
+    from: state.phase === "mouseMove" ? { left: 0, top: 0 } : {},
     to: { left: state.cursorTargetPosition.x, top: state.cursorTargetPosition.y },
     config: { tension: 80, friction: 12 },
     immediate: state.phase !== "mouseMove",

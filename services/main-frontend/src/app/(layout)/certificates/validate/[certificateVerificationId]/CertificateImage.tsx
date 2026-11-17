@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import type { CertificateDetails } from "@/generated/api/types.generated"
 import { Link } from "@/shared-module/components"
 
-export interface CertificateImageProps {
+interface CertificateImageProps {
   certificateBlob: Blob
   details?: CertificateDetails | undefined
 }

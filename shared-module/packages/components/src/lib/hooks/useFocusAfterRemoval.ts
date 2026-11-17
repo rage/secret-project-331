@@ -57,5 +57,5 @@ export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
     onFocused?.()
   }, [dependency])
 
-  return { containerRef, listHeadingRef, itemHeadingProps, remember }
+  return { containerRef, listHeadingRef, remember }
 }

@@ -35,7 +35,7 @@ describe("peer review heading focus (F-14, B-031)", () => {
     )
     const heading = screen.getByRole("heading", { name: "title-peer-review" })
     expect(heading).toHaveAttribute("tabindex", "-1")
-    expect(focusPeerReviewHeading(EXERCISE_ID)).toBe(true)
+    focusPeerReviewHeading(EXERCISE_ID)
     expect(document.activeElement).toBe(heading)
   })
 

@@ -133,7 +133,7 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
 export default ExamTimer
 
 /** Display as hours:minutes left, e.g. 1:03 or 120:59 */
-export function formatTimeLeft(secondsLeft: number) {
+function formatTimeLeft(secondsLeft: number) {
   if (secondsLeft <= 0) {
     return "0:00"
   }

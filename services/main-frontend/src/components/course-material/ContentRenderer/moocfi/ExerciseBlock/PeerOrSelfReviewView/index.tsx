@@ -9,7 +9,7 @@ import type { CourseMaterialExercise } from "@/generated/course-material-api/typ
 import { baseTheme } from "@/shared-module/common/styles"
 
 import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
-import { getPeerReviewHeadingId, usePendingPeerReviewHeadingFocus } from "./peerReviewFocus"
+import { getPeerReviewHeadingId } from "./peerReviewFocus"
 
 export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number
@@ -26,7 +26,6 @@ const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewVie
   props,
 ) => {
   const { t } = useTranslation()
-  usePendingPeerReviewHeadingFocus(props.exerciseId)
 
   return (
     <div id={getPeerReviewBeginningScrollingId(props.exerciseId)}>

@@ -8,15 +8,13 @@ export const getPeerReviewHeadingId = (exerciseId: string) =>
   // oxlint-disable-next-line i18next/no-literal-string
   `peer-review-heading-${exerciseId}`
 
-export const focusPeerReviewHeading = (exerciseId: string): boolean => {
+export const focusPeerReviewHeading = (exerciseId: string) => {
   // oxlint-disable-next-line unicorn/prefer-query-selector -- id embeds a raw UUID
   const heading = document.getElementById(getPeerReviewHeadingId(exerciseId))
-  if (!heading) {
-    return false
+  if (heading) {
+    focusProgrammatically(heading)
+    pendingExerciseId = null
   }
-  focusProgrammatically(heading)
-  pendingExerciseId = null
-  return true
 }
 
 /** Marks that the heading should take focus, also when it mounts later (view swapped out). */

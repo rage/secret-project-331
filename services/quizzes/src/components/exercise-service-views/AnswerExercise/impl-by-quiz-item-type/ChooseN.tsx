@@ -71,8 +71,6 @@ const ChooseN: React.FunctionComponent<
   const statusId = `${groupId}-status`
   // oxlint-disable-next-line i18next/no-literal-string
   const hintId = `${groupId}-hint`
-  // oxlint-disable-next-line i18next/no-literal-string
-  const liveId = `${groupId}-live`
 
   const groupAriaLabel = quizItem.title || quizItem.body
 
@@ -219,7 +217,6 @@ const ChooseN: React.FunctionComponent<
 
         {/* Persistent live region for invalid action feedback */}
         <div
-          id={liveId}
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div live region; <output> would change display and layout
           role="status"
           aria-live="polite"

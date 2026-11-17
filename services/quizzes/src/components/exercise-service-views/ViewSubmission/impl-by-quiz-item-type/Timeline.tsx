@@ -68,10 +68,6 @@ const left = css`
 
   .date {
     right: -4.688rem;
-    @media (max-width: 767.98px) {
-      right: auto;
-      left: auto;
-    }
   }
 
   .content {
@@ -89,10 +85,6 @@ const right = css`
 
   .date {
     left: -4.688rem;
-    @media (max-width: 767.98px) {
-      right: auto;
-      left: auto;
-    }
   }
 
   .content {

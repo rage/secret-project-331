@@ -25,6 +25,7 @@ import {
   optionStateStyles,
   optionTextStyles,
   resolveOptionCorrectness,
+  resolveSelectedOptionCorrectness,
 } from "../OptionStatus"
 
 const MultipleChoiceDropdownFeedback: React.FC<
@@ -51,11 +52,12 @@ const MultipleChoiceDropdownFeedback: React.FC<
   const correctOption = modelSolution?.options.find((o) => o.correct)
   // null means we don't know whether the answer was correct
   const correct = selectedOption
-    ? resolveOptionCorrectness(
+    ? resolveSelectedOptionCorrectness(
         modelSolution?.options.find((o) => o.id === selectedOption.id),
         quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
           (f) => f.option_id === selectedOption.id,
         ),
+        quiz_item_answer_feedback,
       )
     : null
   const quiz_options = public_quiz_item.options
@@ -176,10 +178,13 @@ const SubmissionFeedbackMessage: React.FC<
     const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
       (feedback) => feedback.option_id === option.id,
     )
-    const correctAnswer = resolveOptionCorrectness(
-      modelSolutionForThisOption,
-      feedbackForThisOption,
-    )
+    const correctAnswer = answerSelectedThisOption
+      ? resolveSelectedOptionCorrectness(
+          modelSolutionForThisOption,
+          feedbackForThisOption,
+          quiz_item_answer_feedback,
+        )
+      : resolveOptionCorrectness(modelSolutionForThisOption, feedbackForThisOption)
     let feedBackForOption: string | null = null
     if (answerSelectedThisOption) {
       feedBackForOption = resolveDisplayedFeedback(

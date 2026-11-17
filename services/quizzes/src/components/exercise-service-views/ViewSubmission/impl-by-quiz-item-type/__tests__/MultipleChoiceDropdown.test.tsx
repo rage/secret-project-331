@@ -58,12 +58,16 @@ interface RenderOptions {
     this_option_was_correct: boolean | null
     option_feedback?: string
   }[]
+  coefficient?: number
+  score?: number
 }
 
 const renderSubmission = ({
   selected = "o-mercury",
   solution = modelSolution,
   feedbacks,
+  coefficient = 1,
+  score,
 }: RenderOptions = {}) =>
   render(
     <MultipleChoiceDropdownSubmission
@@ -79,7 +83,8 @@ const renderSubmission = ({
               timeline_item_feedbacks: null,
               matrix_cell_feedbacks: null,
               matrix_score_breakdown: null,
-              correctnessCoefficient: 1,
+              correctnessCoefficient: coefficient,
+              ...(score === undefined ? {} : { score }),
               // oxlint-disable-next-line typescript/no-explicit-any
             } as any)
           : null
@@ -142,7 +147,27 @@ describe("MultipleChoiceDropdown submission view", () => {
     renderSubmission({
       solution: null,
       feedbacks: [{ option_id: "o-mercury", this_option_was_correct: null, option_feedback: "Hi" }],
+      coefficient: 0.5,
     })
     expect(screen.getByText("Hi").parentElement!).toHaveStyle({ borderLeftColor: "#b8b8c8" })
+  })
+
+  it("falls back to the item score when option correctness is null (fog of war)", () => {
+    renderSubmission({
+      solution: null,
+      feedbacks: [{ option_id: "o-mercury", this_option_was_correct: null }],
+      coefficient: 1,
+    })
+    expect(within(box()).getByText("option-result-correct")).toBeInTheDocument()
+  })
+
+  it("shows Wrong when option correctness is null and the item score is 0", () => {
+    renderSubmission({
+      solution: null,
+      feedbacks: [{ option_id: "o-mercury", this_option_was_correct: null }],
+      coefficient: 0,
+      score: 0,
+    })
+    expect(within(box()).getByText("option-result-wrong")).toBeInTheDocument()
   })
 })

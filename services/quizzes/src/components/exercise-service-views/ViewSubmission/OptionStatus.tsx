@@ -64,6 +64,25 @@ export const resolveOptionCorrectness = (
   return correct
 }
 
+/** Selected option of a single-select item: per-option correctness, else the item's score (null if unknown). */
+export const resolveSelectedOptionCorrectness = (
+  modelOption: { correct?: boolean | null } | null | undefined,
+  feedbackOption: { this_option_was_correct?: boolean | null } | null | undefined,
+  itemFeedback:
+    | { score?: number | null; correctnessCoefficient?: number | null }
+    | null
+    | undefined,
+): boolean | null => {
+  const optionCorrect = resolveOptionCorrectness(modelOption, feedbackOption)
+  if (optionCorrect !== null) {
+    return optionCorrect
+  }
+  if (itemFeedback?.score === 1 || itemFeedback?.correctnessCoefficient === 1) {
+    return true
+  }
+  return itemFeedback?.score === 0 ? false : null
+}
+
 interface OptionMarkerProps {
   selected: boolean
   multi: boolean

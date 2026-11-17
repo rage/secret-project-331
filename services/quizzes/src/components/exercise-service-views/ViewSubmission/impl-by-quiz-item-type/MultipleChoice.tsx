@@ -25,6 +25,7 @@ import {
   optionStateStyles,
   optionTextStyles,
   resolveOptionCorrectness,
+  resolveSelectedOptionCorrectness,
 } from "../OptionStatus"
 
 const MultipleChoiceSubmission: React.FC<
@@ -114,11 +115,16 @@ const MultipleChoiceSubmission: React.FC<
             (f) => f.option_id === qo.id,
           )
           // null means we don't know whether this option was correct
-          const correctAnswer = resolveOptionCorrectness(
-            modelSolutionForThisOption,
-            feedbackForThisOption,
-          )
           const multi = public_quiz_item.allowSelectingMultipleOptions
+          // Item score only says something about one option when a single option is selected.
+          const correctAnswer =
+            answerSelectedThisOption && !multi
+              ? resolveSelectedOptionCorrectness(
+                  modelSolutionForThisOption,
+                  feedbackForThisOption,
+                  quiz_item_answer_feedback,
+                )
+              : resolveOptionCorrectness(modelSolutionForThisOption, feedbackForThisOption)
           let chip: React.ReactNode = null
           if (answerSelectedThisOption) {
             if (correctAnswer === true) {

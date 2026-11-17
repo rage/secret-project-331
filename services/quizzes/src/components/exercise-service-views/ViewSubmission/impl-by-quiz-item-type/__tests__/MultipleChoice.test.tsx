@@ -79,6 +79,8 @@ interface RenderOptions {
   solution?: ModelSolutionQuizItemMultiplechoice | null
   feedbacks?: Feedbacks | null
   options?: PublicSpecQuizItemMultiplechoice["options"]
+  coefficient?: number
+  score?: number
 }
 
 const renderSubmission = ({
@@ -87,6 +89,8 @@ const renderSubmission = ({
   solution = modelSolution,
   feedbacks = null,
   options,
+  coefficient = 1,
+  score,
 }: RenderOptions = {}) =>
   render(
     <MultipleChoiceSubmission
@@ -109,7 +113,8 @@ const renderSubmission = ({
               timeline_item_feedbacks: null,
               matrix_cell_feedbacks: null,
               matrix_score_breakdown: null,
-              correctnessCoefficient: 1,
+              correctnessCoefficient: coefficient,
+              ...(score === undefined ? {} : { score }),
               // oxlint-disable-next-line typescript/no-explicit-any
             } as any)
           : null
@@ -201,6 +206,7 @@ describe("MultipleChoice option states", () => {
   it("fogOfWar feedback without a key is neutral with no chip; with the key the chip comes from the key", () => {
     const { unmount } = renderSubmission({
       solution: null,
+      coefficient: 0.5,
       feedbacks: [{ option_id: "o-1", this_option_was_correct: null }],
     })
     expect(items()[0]!.textContent).toBe("option-selectedYes")
@@ -232,8 +238,28 @@ describe("MultipleChoice option states", () => {
     renderSubmission({
       solution: null,
       feedbacks: [{ option_id: "o-1", this_option_was_correct: null, option_feedback: "Hello" }],
+      coefficient: 0.5,
     })
     const message = screen.getByText("Hello").parentElement!
     expect(message).toHaveStyle({ borderLeftColor: "#b8b8c8" })
+  })
+})
+
+describe("MultipleChoice item score fallback", () => {
+  const unknown: Feedbacks = [{ option_id: "o-1", this_option_was_correct: null }]
+
+  it("single select: uses the item score when option correctness is null", () => {
+    renderSubmission({ solution: null, feedbacks: unknown, coefficient: 1 })
+    expect(within(items()[0]!).getByText("option-result-correct")).toBeInTheDocument()
+  })
+
+  it("single select: Wrong when the item score is 0", () => {
+    renderSubmission({ solution: null, feedbacks: unknown, coefficient: 0, score: 0 })
+    expect(within(items()[0]!).getByText("option-result-wrong")).toBeInTheDocument()
+  })
+
+  it("multi select: does not infer option correctness from the item score", () => {
+    renderSubmission({ solution: null, feedbacks: unknown, multi: true, coefficient: 1 })
+    expect(within(items()[0]!).queryByText("option-result-correct")).not.toBeInTheDocument()
   })
 })

@@ -1,3 +1,4 @@
+import { baseTheme } from "@/shared-module/common/styles"
 import { relativeLuminance } from "@/shared-module/common/utils/color"
 
 /** The background image that applies at each breakpoint, `undefined` where the hero has none. */
@@ -42,8 +43,8 @@ const haloShadow = (rgb: string) => `
 const DARK_HALO = haloShadow("0, 0, 0")
 const LIGHT_HALO = haloShadow("255, 255, 255")
 
-// Text colour used when the author set none; matches baseTheme.colors.gray[700].
-const DEFAULT_HERO_TEXT_COLOR = "#1a2333"
+// Text colour used when the author set none.
+const DEFAULT_HERO_TEXT_COLOR = baseTheme.colors.gray[700]
 // Luminance where black and white text have equal contrast.
 const LUMINANCE_THRESHOLD = 0.179
 

@@ -86,15 +86,18 @@ const measureOnce = (): Promise<ClockSkewEstimate | null> => {
   return cachedEstimate
 }
 
-/** Measures the device clock against the server once per page load; null until known. */
-export default function useClockSkew(): ClockSkewEstimate | null {
-  const [estimate, setEstimate] = useState<ClockSkewEstimate | null>(null)
+/** Measures the device clock against the server once per page load; `settled` once it finished or failed. */
+export function useClockSkewState(): { estimate: ClockSkewEstimate | null; settled: boolean } {
+  const [state, setState] = useState<{ estimate: ClockSkewEstimate | null; settled: boolean }>({
+    estimate: null,
+    settled: false,
+  })
 
   useEffect(() => {
     let cancelled = false
     void measureOnce().then((result) => {
       if (!cancelled) {
-        setEstimate(result)
+        setState({ estimate: result, settled: true })
       }
     })
     return () => {
@@ -102,5 +105,10 @@ export default function useClockSkew(): ClockSkewEstimate | null {
     }
   }, [])
 
-  return estimate
+  return state
+}
+
+/** The measured estimate; null until known. */
+export default function useClockSkew(): ClockSkewEstimate | null {
+  return useClockSkewState().estimate
 }

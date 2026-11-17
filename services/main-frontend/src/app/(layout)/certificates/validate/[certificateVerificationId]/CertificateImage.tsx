@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect, useMemo } from "react"
-import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateDetails } from "@/generated/api/types.generated"
@@ -49,31 +48,30 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
         `}
       />
       {details && (
-        <VisuallyHidden>
-          <dl id={DETAILS_ID}>
-            <dt>{t("certificate-recipient")}</dt>
-            <dd>{details.name_on_certificate}</dd>
-            <dt>{t("certificate-course")}</dt>
-            <dd>{course}</dd>
-            <dt>{t("certificate-completion-date")}</dt>
-            {/* The UTC date, as printed on the image. */}
-            <dd>{details.completion_date.slice(0, 10)}</dd>
-            {details.grade && (
-              <>
-                <dt>{t("grade")}</dt>
-                <dd>
-                  {details.grade.grade !== null && details.grade.grade !== undefined
-                    ? String(details.grade.grade)
-                    : details.grade.passed
-                      ? t("passed")
-                      : t("failed")}
-                </dd>
-              </>
-            )}
-            <dt>{t("certificate-verification-id")}</dt>
-            <dd>{details.verification_id}</dd>
-          </dl>
-        </VisuallyHidden>
+        // hidden: read once, via aria-describedby only.
+        <dl id={DETAILS_ID} hidden>
+          <dt>{t("certificate-recipient")}</dt>
+          <dd>{details.name_on_certificate}</dd>
+          <dt>{t("certificate-course")}</dt>
+          <dd>{course}</dd>
+          <dt>{t("certificate-completion-date")}</dt>
+          {/* The UTC date, as printed on the image. */}
+          <dd>{details.completion_date.slice(0, 10)}</dd>
+          {details.grade && (
+            <>
+              <dt>{t("grade")}</dt>
+              <dd>
+                {details.grade.grade !== null && details.grade.grade !== undefined
+                  ? String(details.grade.grade)
+                  : details.grade.passed
+                    ? t("passed")
+                    : t("failed")}
+              </dd>
+            </>
+          )}
+          <dt>{t("certificate-verification-id")}</dt>
+          <dd>{details.verification_id}</dd>
+        </dl>
       )}
       <Link
         href={objectUrl}

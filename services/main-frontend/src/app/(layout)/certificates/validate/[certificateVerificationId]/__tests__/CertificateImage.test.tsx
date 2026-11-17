@@ -30,6 +30,8 @@ describe("CertificateImage", () => {
     const describedBy = image.getAttribute("aria-describedby")
     expect(describedBy).toBeTruthy()
     const description = document.querySelector(`#${describedBy}`)
+    // Hidden from browse mode, so it is not read twice.
+    expect(description).not.toBeVisible()
     expect(description).toHaveTextContent("Example Learner")
     expect(description).toHaveTextContent("Introduction to Programming (Extra module)")
     expect(description).toHaveTextContent("2026-02-03")

@@ -266,6 +266,11 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
                 tabIndex={-1}
                 className={css`
                   ${active === `ref-${index + 1}` && `background: ${baseTheme.colors.blue[100]};`}
+
+                  &:focus-visible {
+                    outline: 3px solid ${baseTheme.colors.green[500]};
+                    outline-offset: 2px;
+                  }
                 `}
               >
                 {text}

@@ -24,17 +24,19 @@ function isEmptyStop(element: HTMLElement): boolean {
   )
 }
 
+const follows = (from: Element, el: Element) =>
+  Boolean(from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
+
 function adjacentTabbable(from: Element, backwards: boolean): HTMLElement | undefined {
-  const all = [...from.ownerDocument.querySelectorAll<HTMLElement>(TABBABLE)].filter((el) =>
-    isTabbable(el),
-  )
-  const follows = (el: Element) =>
-    Boolean(from.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)
-  const nested = (el: Element) => el.contains(from) || from.contains(el)
-  if (backwards) {
-    return all.findLast((el) => !follows(el) && !nested(el) && !isEmptyStop(el))
-  }
-  return all.find((el) => follows(el) && !nested(el) && !isEmptyStop(el))
+  const all = [...from.ownerDocument.querySelectorAll<HTMLElement>(TABBABLE)]
+  // isTabbable last: it forces style and layout.
+  const isNext = (el: HTMLElement) =>
+    follows(from, el) !== backwards &&
+    !el.contains(from) &&
+    !from.contains(el) &&
+    !isEmptyStop(el) &&
+    isTabbable(el)
+  return backwards ? all.findLast((el) => isNext(el)) : all.find((el) => isNext(el))
 }
 
 /** Ref callback that stops Gutenberg's WritingFlow from tabbing past the exercise iframe.
@@ -48,7 +50,11 @@ export function useTabKeyContainment(): (element: HTMLElement | null) => void {
     }
     const focusIframeIfAdjacent = (event: KeyboardEvent, from: Element): boolean => {
       const iframe = element.querySelector("iframe")
-      if (!iframe || adjacentTabbable(from, event.shiftKey) !== iframe) {
+      // Skip the document scan when the iframe lies on the other side of `from`.
+      if (!iframe || follows(from, iframe) === event.shiftKey) {
+        return false
+      }
+      if (adjacentTabbable(from, event.shiftKey) !== iframe) {
         return false
       }
       event.preventDefault()

@@ -109,22 +109,22 @@ const CheckGlyph: React.FC<{ size: number; color: string }> = ({ size, color }) 
   </svg>
 )
 
-/** Fixed-width slot on every row; the check is drawn only when selected. */
-export const OptionMarker: React.FC<OptionMarkerProps> = ({ selected, multi }) => (
-  <span
-    aria-hidden="true"
-    className={css`
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 1.25rem;
-      width: 1.25rem;
-      height: 1.25rem;
-      margin-right: 0.75rem;
-    `}
-  >
-    {selected &&
-      (multi ? (
+/** Check before a selected option; unselected rows get no slot so their text starts at the edge. */
+export const OptionMarker: React.FC<OptionMarkerProps> = ({ selected, multi }) =>
+  !selected ? null : (
+    <span
+      aria-hidden="true"
+      className={css`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.75rem;
+      `}
+    >
+      {multi ? (
         <span
           className={css`
             display: flex;
@@ -140,9 +140,9 @@ export const OptionMarker: React.FC<OptionMarkerProps> = ({ selected, multi }) =
         </span>
       ) : (
         <CheckGlyph size={20} color={MARKER_COLOR} />
-      ))}
-  </span>
-)
+      )}
+    </span>
+  )
 
 export const CHIP = { correct: "correct", incorrect: "incorrect" } as const
 
@@ -151,8 +151,8 @@ export type OptionChipKind = (typeof CHIP)[keyof typeof CHIP]
 // Border width is taken off the vertical padding so the chip height stays 1.25rem-ish.
 const chipBase = css`
   flex: 0 0 auto;
-  /* Marker slot plus gap, so a wrapped chip lines up with the text. */
-  margin: 0 0 0.5rem 2rem;
+  /* Equal block margins centre it beside the text; inline start aligns it with the text when wrapped. */
+  margin: 0.5rem 0 0.5rem 2rem;
   font-size: 0.75rem;
   text-transform: uppercase;
   font-weight: bold;

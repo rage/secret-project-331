@@ -633,19 +633,16 @@ pub async fn get_certificate_details_by_verification_id(
         .await?;
         match requirements.course_module_ids.first() {
             Some(course_module_id) => {
-                let completions =
-                    models::course_module_completions::get_all_by_user_id_and_course_module_id(
-                        &mut conn,
-                        certificate.user_id,
-                        *course_module_id,
-                    )
-                    .await?;
-                models::course_module_completions::select_best_completion(completions).map(
-                    |completion| CertificateGrade {
-                        grade: completion.grade,
-                        passed: completion.passed,
-                    },
+                models::course_module_completions::get_best_completion_by_user_and_course_module_id(
+                    &mut conn,
+                    certificate.user_id,
+                    *course_module_id,
                 )
+                .await?
+                .map(|completion| CertificateGrade {
+                    grade: completion.grade,
+                    passed: completion.passed,
+                })
             }
             None => None,
         }

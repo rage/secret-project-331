@@ -131,6 +131,8 @@ const noNameCss = css`
 
 const shortIdCss = css`
   flex: none;
+  width: 5em;
+  line-height: 1.5;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--font-size-0);
   color: var(--color-gray-500);
@@ -252,7 +254,7 @@ const UserResult: React.FC<{ user: UserDetail; isExact: boolean }> = ({ user, is
           <span className={cx(nameCss, noNameCss)}>{t("search-users-no-name")}</span>
         )}
         <span className={shortIdCss} aria-hidden="true">
-          <MaskOverThisInSystemTests>
+          <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
             {user.user_id.slice(0, SHORT_ID_LENGTH)}
           </MaskOverThisInSystemTests>
         </span>

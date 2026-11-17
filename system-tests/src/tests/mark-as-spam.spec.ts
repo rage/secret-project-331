@@ -85,7 +85,7 @@ test("Mark answer as spam in peer review", async () => {
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
     await teacherPage.getByRole("heading", { name: "Answers requiring attention" }).click()
-    await teacherPage.getByText("Received reports1").click()
+    await teacherPage.getByRole("button", { name: "Received reports 1" }).click()
     await expect(
       teacherPage.getByText("Description: I think this is spam", { exact: true }),
     ).toBeVisible()

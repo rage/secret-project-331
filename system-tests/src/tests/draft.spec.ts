@@ -122,9 +122,13 @@ test.describe("Teacher", () => {
     await page.getByLabel("Email", { exact: true }).fill("user@example.com")
     const roleToAdd = new Select(page, page.locator("#add-user-role"), { name: "Role to add" })
     await roleToAdd.chooseOption("Material viewer")
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Add user" }).click()
-    })
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("button", { name: "Add user" }).click()
+      },
+      "Role added for user@example.com",
+    )
 
     // check that the user can access the course
     const context2 = await browser.newContext({ storageState: "src/states/user@example.com.json" })

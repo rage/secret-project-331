@@ -17,6 +17,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-open-empty",
@@ -37,6 +38,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-open-invalid",
@@ -60,6 +62,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-open-valid",

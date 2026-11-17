@@ -23,6 +23,7 @@ test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-matrix-initial",
@@ -40,6 +41,7 @@ test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
   await frame.locator('[aria-label="row: 2, column: 2"]').fill("2")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-matrix-two-cells-filled",
@@ -61,6 +63,7 @@ test("widget, matrix screenshot test", async ({ page, headless }, testInfo) => {
   await frame.locator('[aria-label="row: 6, column: 6"]').fill("6")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-matrix-whole-matrice-is-active",

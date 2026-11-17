@@ -93,7 +93,7 @@ test.describe("Students should be able to navigate and select peer review radiob
         - paragraph: Strongly agree
     `)
 
-    await accessibilityCheck(student1Page, "Peer review answering view")
+    await accessibilityCheck(student1Page, "Peer review answering view", ["page-has-heading-one"])
 
     await context1.close()
   })

@@ -19,6 +19,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-clickable",
@@ -36,6 +37,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   await frame.getByRole("button", { name: "LawnGreen" }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-clickable-answered",

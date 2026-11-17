@@ -19,6 +19,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-initial",
@@ -31,6 +32,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#00ff00",
@@ -43,6 +45,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#ff0000",

@@ -36,8 +36,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "Multiple choice with feedback" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
       await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)

@@ -1,6 +1,6 @@
 /* oxlint-disable playwright/prefer-locator */
 import type { Locator, Page } from "@playwright/test"
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
 import {
@@ -77,17 +77,10 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
 const addNewQuiz = async (page: Page) => {
   await test.step("Add new quiz", async () => {
-    let steps = 0
-    do {
-      steps++
-      await page.getByText("Add task").click()
-      // oxlint-disable-next-line playwright/no-wait-for-timeout
-      await page.waitForTimeout(100)
-      // Sometimes the add task button doesn't respond due to lag
-      // oxlint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit task"]').count()) === 0 && steps < 10)
-
-    await page.locator('[aria-label="Edit task"]').nth(0).click()
+    const editTask = page.getByRole("button", { name: "Edit task" })
+    await page.getByRole("button", { name: "Add task" }).click()
+    await expect(editTask).toHaveCount(1)
+    await editTask.click()
     await page.getByText("Quizzes").click()
   })
 }

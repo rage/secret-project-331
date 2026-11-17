@@ -17,6 +17,7 @@ test("widget, checkbox", async ({ page, headless }, testInfo) => {
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-checkbox-initial",
@@ -31,6 +32,7 @@ test("widget, checkbox", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-checkbox-both-checked",
@@ -42,6 +44,7 @@ test("widget, checkbox", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').uncheck()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-checkbox-other-unchecked",

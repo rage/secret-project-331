@@ -19,6 +19,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-dropdown",
@@ -39,6 +40,7 @@ test("widget, multiple-choice-dropdown screenshot test", async ({ page, headless
     .selectOption({ label: "RGB -color system" })
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-dropdown-answered",

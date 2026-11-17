@@ -42,7 +42,7 @@ test("Testing exam works", async ({ page }) => {
     await page.getByRole("option", { name: "Exercise", exact: true }).click()
     await page.getByLabel("Exercise name", { exact: true }).fill("Exercise name")
 
-    await page.getByRole("button", { name: "Edit", exact: true }).click()
+    await page.getByRole("button", { name: "Edit task", exact: true }).click()
     await page.getByRole("button", { name: "Quizzes" }).click()
     const quizzesEditor = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await quizzesEditor.getByRole("button", { name: "Multiple choice Choose" }).click()

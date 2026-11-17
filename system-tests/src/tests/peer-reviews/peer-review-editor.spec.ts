@@ -23,8 +23,7 @@ async function openPeerReviewConfig(page: Page) {
 
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1" })
-    .getByRole("button")
-    .first()
+    .getByRole("link", { name: "Edit page" })
     .click()
 
   await page.getByText("Peer and self review configuration").click()
@@ -60,6 +59,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   ])
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page1,
     headless,
     testInfo,

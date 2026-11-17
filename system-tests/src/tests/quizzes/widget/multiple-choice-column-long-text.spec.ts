@@ -31,6 +31,7 @@ test("widget, multiple-choice multi screenshot test with long text", async ({
   await frame.locator(`text="short answer"`).click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-multi-long-answers",

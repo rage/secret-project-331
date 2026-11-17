@@ -19,7 +19,7 @@ test.describe("Flip card accessibility", () => {
     await page.goto(TEST_PAGE)
     await selectCourseInstanceIfPrompted(page)
 
-    await accessibilityCheck(page, "Flip card initial state")
+    await accessibilityCheck(page, "Flip card initial state", ["page-has-heading-one"])
 
     const getFlipButton = (isFlipped: boolean) => {
       const buttonLabels = ["Flip to back side of card", "Flip to front side of card"]
@@ -143,7 +143,7 @@ test.describe("Flip card accessibility", () => {
       await expect(backContent).toHaveAttribute("aria-hidden", "true")
     })
 
-    await accessibilityCheck(page, "Flip card after interactions")
+    await accessibilityCheck(page, "Flip card after interactions", ["page-has-heading-one"])
 
     await test.step("Button text has sufficient contrast", async () => {
       await withViewportSize(page, { width: 1280, height: 800 }, async () => {

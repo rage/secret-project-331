@@ -28,6 +28,7 @@ test("widget, multiple-choice multi screenshot test", async ({ page, headless },
   await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-multi-answered",

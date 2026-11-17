@@ -46,16 +46,24 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await emailField.click()
   await emailField.fill("teacher@example.com")
   await roleToAdd.chooseOption("Admin")
-  await waitForSuccessNotification(page, async () => {
-    await page.getByText("Add user").click()
-  })
+  await waitForSuccessNotification(
+    page,
+    async () => {
+      await page.getByText("Add user").click()
+    },
+    "Role added for teacher@example.com",
+  )
 
   await emailField.click()
   await emailField.fill("admin@example.com")
   await roleToAdd.chooseOption("Teacher")
-  await waitForSuccessNotification(page, async () => {
-    await page.getByText("Add user").click()
-  })
+  await waitForSuccessNotification(
+    page,
+    async () => {
+      await page.getByText("Add user").click()
+    },
+    "Role added for admin@example.com",
+  )
 
   await page.getByRole("columnheader", { name: "Email" }).getByRole("button").click()
   await expect(page).toHaveURL(

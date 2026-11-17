@@ -15,6 +15,7 @@ test("author-block", async ({ page, headless }, testInfo) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

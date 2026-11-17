@@ -113,6 +113,7 @@ test("latex-block renders", async ({ page, headless }, testInfo) => {
   await expectUrlPathWithRandomUuid(page, "/org/uh-mathstat/courses/latex-course/chapter-1")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

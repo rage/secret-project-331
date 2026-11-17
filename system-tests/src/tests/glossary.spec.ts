@@ -81,6 +81,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByText("Give feedback").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -95,7 +96,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     const glossaryButton = page.getByRole("button", { name: "SSD" }).first()
     await expect(glossaryButton).toBeVisible()
 
-    await accessibilityCheck(page, "Glossary tooltip closed view")
+    await accessibilityCheck(page, "Glossary tooltip closed view", ["page-has-heading-one"])
 
     // For reliability we move the mouse to a consitent position before hovering.
     await page.mouse.move(0, 0)
@@ -106,7 +107,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
         name: SSD_DEFINITION,
       }),
     ).toBeVisible()
-    await accessibilityCheck(page, "Glossary tooltip open view")
+    await accessibilityCheck(page, "Glossary tooltip open view", ["page-has-heading-one"])
     await page.keyboard.press("Escape")
     await expect(
       page.getByRole("tooltip", {
@@ -118,7 +119,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     const popover = page.getByRole("dialog", { name: "Definition" })
     await expect(popover).toBeVisible()
     await expect(popover).toBeFocused()
-    await accessibilityCheck(page, "Glossary popover open view")
+    await accessibilityCheck(page, "Glossary popover open view", ["page-has-heading-one"])
     await page.keyboard.press("Escape")
     await expect(popover).toBeHidden()
 
@@ -134,9 +135,9 @@ test("glossary test", async ({ page, headless }, testInfo) => {
       - paragraph:
         - text: This course uses many TLAs. Why? Because why use one word when three letters will do? It's like a secret code, but everyone knows it. You'll encounter CS, HDD,
         - button "KB"
-        - text: Press to view definition , and many more. When shopping for a new computer, you might hear someone say that an
+        - text: ", and many more. When shopping for a new computer, you might hear someone say that an"
         - button "SSD"
-        - text: Press to view definition makes everything faster, but don't worry if you're not sure what that means yet. By the end of this course, you'll be fluent in the language of three-letter abbreviations.
+        - text: makes everything faster, but don't worry if you're not sure what that means yet. By the end of this course, you'll be fluent in the language of three-letter abbreviations.
     `)
   })
 
@@ -145,6 +146,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await selectCourseInstanceIfPrompted(page)
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

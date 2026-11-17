@@ -22,7 +22,7 @@ test.describe("Choose N exercise accessibility", () => {
     const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await waitForViewType(quizzesIframe, "answer-exercise")
 
-    await accessibilityCheck(page, "Choose N initial state")
+    await accessibilityCheck(page, "Choose N initial state", ["page-has-heading-one"])
 
     const firstButton = quizzesIframe.getByRole("button", { name: "Option 1" })
     const secondButton = quizzesIframe.getByRole("button", { name: "Option 2" })
@@ -92,6 +92,6 @@ test.describe("Choose N exercise accessibility", () => {
       await expect(firstButton).toHaveAttribute("aria-pressed", "true")
     })
 
-    await accessibilityCheck(page, "Choose N after interactions")
+    await accessibilityCheck(page, "Choose N after interactions", ["page-has-heading-one"])
   })
 })

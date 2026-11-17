@@ -19,6 +19,8 @@ export class ChapterSelector {
   }
 
   public async clickChapterByTitle(title: string): Promise<void> {
-    await this.page.getByRole("link", { name: title }).click()
+    // Chapter cards are named "Chapter N title"; this skips the "Previous: title" link.
+    const escaped = title.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    await this.page.getByRole("link", { name: new RegExp(`^Chapter \\d+ ${escaped}`) }).click()
   }
 }

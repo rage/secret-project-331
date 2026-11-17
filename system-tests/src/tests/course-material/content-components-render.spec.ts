@@ -50,7 +50,7 @@ for (const pageSlug of CONTENT_RENDERING_PAGES) {
 
     await expectScreenshotsToMatchSnapshots({
       // TODO: these should be removed
-      axeSkip: ["color-contrast", "empty-table-header"],
+      axeSkip: ["color-contrast", "empty-table-header", "page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

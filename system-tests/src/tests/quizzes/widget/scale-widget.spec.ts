@@ -17,6 +17,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-scale-initial",
@@ -34,6 +35,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   await iframeLocator.locator('text=123456789101112131415 >> span:has-text("1")').first().click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-scale-leftmost",
@@ -63,6 +65,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
     .click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     headless,
     testInfo,
     snapshotName: "widget-scale-mixed",

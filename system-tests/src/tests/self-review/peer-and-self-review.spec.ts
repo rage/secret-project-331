@@ -66,8 +66,7 @@ test.describe("Peer review followed by self review works", () => {
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "The timeline /chapter-1/the-" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
       await Checkbox.labelled(teacherPage, "Add peer review").setChecked(true)

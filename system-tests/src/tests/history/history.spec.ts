@@ -120,7 +120,6 @@ test("history test", async ({ page, headless }, testInfo) => {
   /*
   const stableElement = await page.getByText("core/paragraph").first().waitFor()
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
@@ -140,7 +139,7 @@ screenshotTarget: page,
 
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    axeSkip: [`landmark-unique`, NO_H1],
+    axeSkip: [`landmark-unique`],
     headless, testInfo,    snapshotName: "history-view-p4-before-compare",
     waitForTheseToBeVisibleAndStable: [stableElement2, "text=Compare"],
 
@@ -171,7 +170,6 @@ screenshotTarget: page,
 
   /*
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
@@ -194,7 +192,6 @@ screenshotTarget: page,
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",

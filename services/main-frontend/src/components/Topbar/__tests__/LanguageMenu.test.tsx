@@ -1,5 +1,6 @@
 "use client"
 
+import "@testing-library/jest-dom"
 import { fireEvent, render, screen } from "@testing-library/react"
 
 import LanguageMenu from "../LanguageMenu"
@@ -60,5 +61,17 @@ describe("LanguageMenu", () => {
     expect(
       screen.getByRole("dialog", { name: "English. change-user-interface-language" }),
     ).toBeTruthy()
+  })
+
+  it("names the dialog and menu from a hidden label, not the trigger content", () => {
+    render(<LanguageMenu />)
+    const button = screen.getByRole("button", { hidden: true })
+    fireEvent.click(button)
+    const dialog = screen.getByRole("dialog")
+    const menu = screen.getByRole("menu")
+    expect(dialog.getAttribute("aria-labelledby")).not.toBe(button.id)
+    expect(menu.getAttribute("aria-labelledby")).toBe(dialog.getAttribute("aria-labelledby"))
+    expect(dialog).toHaveAccessibleName("English. change-user-interface-language")
+    expect(menu).toHaveAccessibleName("English. change-user-interface-language")
   })
 })

@@ -31,7 +31,7 @@ const feedbackButtonCss = css`
   right: ${FEEDBACK_BUTTON_INSET};
   z-index: var(--layer-sticky);
 
-  /* Reduced motion adds a 0.01ms transition that delays unhiding, so the focus return hit a hidden button in Firefox. */
+  /* No transition: reduced motion's 0.01ms one delays unhiding, so focus returned to a still-hidden button. */
   transition: none;
 
   /* On very short viewports a fixed button can cover the focused control (WCAG 2.4.11). */

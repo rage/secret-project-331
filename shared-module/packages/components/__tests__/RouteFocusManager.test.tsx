@@ -77,6 +77,34 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(main)
   })
 
+  test("falls back to the first heading when the page has no h1", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/h2-page"
+    rerender(
+      <App heading={null}>
+        <p>intro</p>
+        <h3 id="first">First</h3>
+        <h2>Second</h2>
+      </App>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector("#first"))
+  })
+
+  test("prefers the h1 over earlier headings", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/mixed"
+    rerender(
+      <App heading="Title">
+        <h2>Later</h2>
+      </App>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector("h1"))
+  })
+
   test("does not move focus again on re-renders without navigation", () => {
     const { rerender } = render(<App heading="Home" />)
 

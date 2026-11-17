@@ -22,16 +22,17 @@ beforeAll(() => {
 })
 
 describe("CertificateImage", () => {
-  it("has an h1 and describes the image with the certificate text", () => {
+  it("has an h1 and reads the certificate text once, as hidden-but-rendered content", () => {
     render(<CertificateImage certificateBlob={new Blob(["x"])} details={details} />)
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("certificate-heading")
-    const image = screen.getByRole("img")
-    const describedBy = image.getAttribute("aria-describedby")
-    expect(describedBy).toBeTruthy()
-    const description = document.querySelector(`#${describedBy}`)
-    // Hidden from browse mode, so it is not read twice.
-    expect(description).not.toBeVisible()
+    expect(screen.getByRole("img")).not.toHaveAttribute("aria-describedby")
+    const description = document.querySelector("#certificate-details")
+    expect(description).not.toBeNull()
+    // In the accessibility tree: not hidden, display:none or aria-hidden.
+    expect(description).not.toHaveAttribute("hidden")
+    expect(description).not.toHaveAttribute("aria-hidden")
+    expect(description?.tagName).toBe("DL")
     expect(description).toHaveTextContent("Example Learner")
     expect(description).toHaveTextContent("Introduction to Programming (Extra module)")
     expect(description).toHaveTextContent("2026-02-03")

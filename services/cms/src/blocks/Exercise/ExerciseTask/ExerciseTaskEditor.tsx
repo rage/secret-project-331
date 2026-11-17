@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useBlockProps } from "@wordpress/block-editor"
+import { useMergeRefs } from "@wordpress/compose"
 import React, { useContext, useState } from "react"
 
 import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
@@ -24,6 +25,7 @@ import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
+import { useTabKeyContainment } from "./useTabKeyContainment"
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -110,6 +112,8 @@ const ExerciseTaskEditor: React.FC<
 
   const exerciseServicesQuery = useAllExerciseServices()
   const blockProps = useBlockProps()
+  const tabContainmentRef = useTabKeyContainment()
+  const mergedRef = useMergeRefs([blockProps.ref, tabContainmentRef])
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -257,7 +261,7 @@ const ExerciseTaskEditor: React.FC<
   }
 
   return (
-    <div {...blockProps}>
+    <div {...blockProps} ref={mergedRef}>
       <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
         {(exerciseServices) => renderEditor(exerciseServices)}
       </QueryResult>

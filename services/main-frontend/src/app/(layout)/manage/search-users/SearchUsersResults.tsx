@@ -7,6 +7,7 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
+import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, EmptyState, Infobox, Link, TONE } from "@/shared-module/components"
@@ -251,7 +252,9 @@ const UserResult: React.FC<{ user: UserDetail; isExact: boolean }> = ({ user, is
           <span className={cx(nameCss, noNameCss)}>{t("search-users-no-name")}</span>
         )}
         <span className={shortIdCss} aria-hidden="true">
-          {user.user_id.slice(0, SHORT_ID_LENGTH)}
+          <MaskOverThisInSystemTests>
+            {user.user_id.slice(0, SHORT_ID_LENGTH)}
+          </MaskOverThisInSystemTests>
         </span>
       </span>
       <span className={emailCss}>{user.email}</span>

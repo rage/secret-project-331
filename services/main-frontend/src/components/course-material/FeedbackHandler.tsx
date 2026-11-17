@@ -93,8 +93,13 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   useEffect(() => {
     const wasOpen = previousTypeRef.current !== null
     previousTypeRef.current = type
-    if (wasOpen && type === null && !selection.text) {
-      triggerRef.current?.focus()
+    if (wasOpen && type === null) {
+      // Closing resets the selection state; a surviving page selection would re-fire
+      // selectionchange, bring the popover back and hide the trigger under focus.
+      window.getSelection()?.removeAllRanges()
+      if (!selection.text) {
+        triggerRef.current?.focus()
+      }
     }
   }, [type, selection.text])
 

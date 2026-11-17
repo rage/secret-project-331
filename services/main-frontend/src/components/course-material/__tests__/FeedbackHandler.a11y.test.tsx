@@ -74,6 +74,48 @@ describe("FeedbackHandler", () => {
     expect(document.activeElement).toBe(trigger)
   })
 
+  it("keeps focus on the trigger after Escape when the page text is still selected", async () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <JotaiProvider>
+          <main>
+            <p className="course-material-block" id="block">
+              Selected text
+            </p>
+          </main>
+          <FeedbackHandler courseId="c" pageId="p" courseHasChatbot={false} />
+        </JotaiProvider>
+      </QueryClientProvider>,
+    )
+    // jsdom lacks Range layout.
+    Range.prototype.getBoundingClientRect = () => new DOMRect(0, 0, 10, 10)
+    const paragraph = document.querySelector("#block") as HTMLElement
+    const select = () => {
+      window.getSelection()?.selectAllChildren(paragraph)
+      act(() => {
+        document.dispatchEvent(new Event("selectionchange"))
+      })
+    }
+    select()
+    fireEvent.click(await screen.findByRole("button", { name: "give-feedback" }))
+    const dialog = await screen.findByRole("dialog")
+    // Firefox keeps the page selection while focus is in the dialog.
+    select()
+
+    fireEvent.keyDown(dialog, { key: "Escape" })
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await settleFocus()
+    // Browsers fire selectionchange again after focus moves.
+    act(() => {
+      document.dispatchEvent(new Event("selectionchange"))
+    })
+    await settleFocus()
+
+    expect(window.getSelection()?.toString()).toBe("")
+    expect(screen.getByTestId("give-feedback-button")).not.toHaveStyle("visibility: hidden")
+    expect(document.activeElement).toBe(getTrigger())
+  })
+
   it("returns focus to the trigger after closing the improve panel with Close", async () => {
     renderHandler()
     const trigger = await openType()

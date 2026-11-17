@@ -16,6 +16,12 @@ const setWidths = (scrollWidth: number, clientWidth: number) => {
   })
 }
 
+const ui = (callback?: (o: { start: boolean; end: boolean }) => void) => (
+  <ScrollRegion label="Results" onOverflowChange={callback}>
+    <table />
+  </ScrollRegion>
+)
+
 describe("ScrollRegion", () => {
   afterEach(() => {
     Reflect.deleteProperty(HTMLElement.prototype, "scrollWidth")
@@ -37,11 +43,6 @@ describe("ScrollRegion", () => {
   test("reports the current state to a callback attached after mount", () => {
     setWidths(600, 200)
     const onOverflowChange = jest.fn()
-    const ui = (callback?: (o: { start: boolean; end: boolean }) => void) => (
-      <ScrollRegion label="Results" onOverflowChange={callback}>
-        <table />
-      </ScrollRegion>
-    )
     const { rerender } = renderUi(ui())
     expect(onOverflowChange).not.toHaveBeenCalled()
     rerender(ui(onOverflowChange))

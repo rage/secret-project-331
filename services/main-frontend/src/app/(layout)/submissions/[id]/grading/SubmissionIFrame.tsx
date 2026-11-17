@@ -28,6 +28,8 @@ const TITLE = "VIEW SUBMISSION"
 interface SubmissionIFrameProps {
   coursematerialExerciseTask: CourseMaterialExerciseTask
   throttled?: boolean
+  /** `false` for an ungraded answer snapshot, which has no grading to show. */
+  isGraded?: boolean
 }
 
 interface SubmissionState {
@@ -39,6 +41,7 @@ interface SubmissionState {
 const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>> = ({
   coursematerialExerciseTask,
   throttled = false,
+  isGraded = true,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -53,7 +56,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   const missingUrl =
     !coursematerialExerciseTask.exercise_iframe_url ||
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
-  const missingGrading = !coursematerialExerciseTask.previous_submission_grading
+  const missingGrading = isGraded && !coursematerialExerciseTask.previous_submission_grading
   const previousSubmission = coursematerialExerciseTask.previous_submission
   const missingSubmission = previousSubmission === null || previousSubmission === undefined
 

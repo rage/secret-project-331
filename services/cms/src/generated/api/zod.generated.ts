@@ -22,21 +22,6 @@ export const zAgentChangeset = z.object({
   user_id: z.uuid(),
 })
 
-export const zAutomaticCompletionRequirements = z.object({
-  course_module_id: z.uuid(),
-  number_of_exercises_attempted_treshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  number_of_points_treshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  requires_exam: z.boolean(),
-})
-
 /**
  * One block type's registration: its attributes, where it may be nested and an example.
  */
@@ -123,14 +108,42 @@ export const zCodeGiveaway = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.
+ */
+export const zCompletionRequirements = z.object({
+  course_module_id: z.uuid(),
+  number_of_exercises_attempted_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  number_of_points_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+})
+
+/**
+ * How students get a module's completion, with the thresholds the method uses.
+ */
 export const zCompletionPolicy = z.union([
-  zAutomaticCompletionRequirements.and(
+  z.object({
+    method: z.enum(["not_decided"]),
+  }),
+  zCompletionRequirements.and(
     z.object({
-      policy: z.enum(["automatic"]),
+      method: z.enum(["by_requirements"]),
+    }),
+  ),
+  zCompletionRequirements.and(
+    z.object({
+      method: z.enum(["by_exam"]),
     }),
   ),
   z.object({
-    policy: z.enum(["manual"]),
+    method: z.enum(["teacher_adds"]),
   }),
 ])
 
@@ -215,28 +228,9 @@ export const zCourseInstance = z.object({
 })
 
 /**
- * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
- * `completion_policy`.
+ * How a module's completions turn into credits.
  */
-export const zCourseModule = z.object({
-  certification_enabled: z.boolean(),
-  completion_policy: zCompletionPolicy,
-  completion_registration_link_override: z.string().nullish(),
-  completions_can_be_registered_to_sisu: z.boolean(),
-  copied_from: z.uuid().nullish(),
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  ects_credits: z.number().nullish(),
-  id: z.uuid(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  uh_course_code: z.string().nullish(),
-  updated_at: z.iso.datetime(),
-})
+export const zCreditRegistrationRoute = z.enum(["platform", "external", "certificate_only"])
 
 export const zDatabaseChapter = z.object({
   chapter_image_path: z.string().nullish(),
@@ -333,6 +327,37 @@ export const zExamInstructions = z.object({
 
 export const zExamInstructionsUpdate = z.object({
   instructions: z.unknown(),
+})
+
+/**
+ * Whether passing a module requires an exam, and where it is held.
+ */
+export const zExamRequirement = z.enum(["none", "platform", "examinarium", "elsewhere"])
+
+/**
+ * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
+ * `completion_policy`.
+ */
+export const zCourseModule = z.object({
+  certification_enabled: z.boolean(),
+  completion_policy: zCompletionPolicy,
+  completion_registration_link_override: z.string().nullish(),
+  copied_from: z.uuid().nullish(),
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  credit_registration_route: zCreditRegistrationRoute,
+  deleted_at: z.iso.datetime().nullish(),
+  ects_credits: z.number().nullish(),
+  exam_location_description: z.string().nullish(),
+  exam_requirement: zExamRequirement,
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+  updated_at: z.iso.datetime(),
 })
 
 /**

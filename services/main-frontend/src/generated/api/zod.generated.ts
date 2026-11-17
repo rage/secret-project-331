@@ -332,6 +332,24 @@ export const zAdminBulkTransitionPayload = z.object({
   reason: z.string(),
 })
 
+/**
+ * One module that registers credits, or a mooc.fi target, with its course code.
+ */
+export const zAdminCreditUnitCourseCode = z.object({
+  course_module_name: z.string().nullish(),
+  credit_unit_id: z.uuid(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
+ * A course's or mooc.fi target's name and course codes.
+ */
+export const zAdminCreditRegistrationCourseSummary = z.object({
+  course_id: z.uuid().nullish(),
+  course_name: z.string(),
+  credit_units: z.array(zAdminCreditUnitCourseCode),
+})
+
 export const zAdminDeleteExternalCreditTargetPayload = z.object({
   reason: z.string(),
 })
@@ -687,21 +705,6 @@ export const zAttentionStanding = z.enum([
   "dismissed",
   "explained_by_problem",
 ])
-
-export const zAutomaticCompletionRequirements = z.object({
-  course_module_id: z.uuid(),
-  number_of_exercises_attempted_treshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  number_of_points_treshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  requires_exam: z.boolean(),
-})
 
 /**
  * A generic result representing an average metric over a time period.
@@ -1090,20 +1093,58 @@ export const zCompletionGridRow = z.object({
   user_id: z.uuid(),
 })
 
-export const zCompletionPolicy = z.union([
-  zAutomaticCompletionRequirements.and(
-    z.object({
-      policy: z.enum(["automatic"]),
-    }),
-  ),
-  z.object({
-    policy: z.enum(["manual"]),
-  }),
+/**
+ * How students get a module's completion; [`CompletionPolicy`] is the same with its thresholds.
+ */
+export const zCompletionMethod = z.enum([
+  "not_decided",
+  "by_requirements",
+  "by_exam",
+  "teacher_adds",
 ])
 
 export const zCompletionRegistrationLink = z.object({
   url: z.string(),
 })
+
+/**
+ * Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.
+ */
+export const zCompletionRequirements = z.object({
+  course_module_id: z.uuid(),
+  number_of_exercises_attempted_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  number_of_points_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+})
+
+/**
+ * How students get a module's completion, with the thresholds the method uses.
+ */
+export const zCompletionPolicy = z.union([
+  z.object({
+    method: z.enum(["not_decided"]),
+  }),
+  zCompletionRequirements.and(
+    z.object({
+      method: z.enum(["by_requirements"]),
+    }),
+  ),
+  zCompletionRequirements.and(
+    z.object({
+      method: z.enum(["by_exam"]),
+    }),
+  ),
+  z.object({
+    method: z.enum(["teacher_adds"]),
+  }),
+])
 
 export const zConsentData = z.object({
   consent: z.boolean(),
@@ -1649,6 +1690,17 @@ export const zCourseExam = z.object({
   name: z.string(),
 })
 
+/**
+ * When the course's linked exams are held and whether they can pass anyone automatically.
+ */
+export const zCourseExamsOverview = z.object({
+  any_has_pass_mark: z.boolean(),
+  count: z.int().gte(0),
+  last_ended_at: z.iso.datetime().nullish(),
+  next_ends_at: z.iso.datetime().nullish(),
+  next_starts_at: z.iso.datetime().nullish(),
+})
+
 export const zCourseInstance = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -1672,30 +1724,6 @@ export const zCourseInstanceForm = z.object({
   support_email: z.string().nullish(),
   teacher_in_charge_email: z.string(),
   teacher_in_charge_name: z.string(),
-})
-
-/**
- * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
- * `completion_policy`.
- */
-export const zCourseModule = z.object({
-  certification_enabled: z.boolean(),
-  completion_policy: zCompletionPolicy,
-  completion_registration_link_override: z.string().nullish(),
-  completions_can_be_registered_to_sisu: z.boolean(),
-  copied_from: z.uuid().nullish(),
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  ects_credits: z.number().nullish(),
-  id: z.uuid(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  uh_course_code: z.string().nullish(),
-  updated_at: z.iso.datetime(),
 })
 
 export const zCourseModuleCompletion = z.object({
@@ -1738,26 +1766,6 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
   prerequisite_modules_completed: z.boolean(),
   registered: z.boolean(),
   user_id: z.uuid(),
-})
-
-/**
- * Per-module credit-registration configuration: the module's own fields merged with its
- * `course_module_suotar_configurations` row. Every field of that row is optional
- * here because a module with no configuration row is a valid, unconfigured module.
- */
-export const zCourseModuleCreditRegistrationConfig = z.object({
-  completions_can_be_registered_to_sisu: z.boolean(),
-  course_id: z.uuid(),
-  course_module_id: z.uuid(),
-  credit_registration_config_check_message: z.string().nullish(),
-  credit_registration_config_checked_at: z.iso.datetime().nullish(),
-  credit_registration_course_code_allowed: z.boolean().nullish(),
-  credit_registration_has_enrolment_link: z.boolean(),
-  credit_registration_pause_reason: z.string().nullish(),
-  credit_registration_paused_at: z.iso.datetime().nullish(),
-  credit_registration_paused_by_user_id: z.uuid().nullish(),
-  ects_credits: z.number().nullish(),
-  uh_course_code: z.string().nullish(),
 })
 
 /**
@@ -1831,6 +1839,28 @@ export const zCourseUpdate = z.object({
   is_test_mode: z.boolean(),
   is_unlisted: z.boolean(),
   name: z.string(),
+})
+
+/**
+ * A course the user is enrolled on in courses.mooc.fi.
+ */
+export const zCoursesMoocFiCourseProgress = z.object({
+  completed_modules: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_id: z.uuid(),
+  max_points: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  name: z.string(),
+  points: z.number(),
+  total_modules: z
+    .int()
+    .gte(0)
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zCreateChatbotRequest = z.object({
@@ -2310,6 +2340,31 @@ export const zCreditRegistrationPhaseStatus = z.object({
 })
 
 /**
+ * How a module's completions turn into credits.
+ */
+export const zCreditRegistrationRoute = z.enum(["platform", "external", "certificate_only"])
+
+/**
+ * Per-module credit-registration configuration: the module's own fields merged with its
+ * `course_module_suotar_configurations` row. Every field of that row is optional
+ * here because a module with no configuration row is a valid, unconfigured module.
+ */
+export const zCourseModuleCreditRegistrationConfig = z.object({
+  course_id: z.uuid(),
+  course_module_id: z.uuid(),
+  credit_registration_config_check_message: z.string().nullish(),
+  credit_registration_config_checked_at: z.iso.datetime().nullish(),
+  credit_registration_course_code_allowed: z.boolean().nullish(),
+  credit_registration_has_enrolment_link: z.boolean(),
+  credit_registration_pause_reason: z.string().nullish(),
+  credit_registration_paused_at: z.iso.datetime().nullish(),
+  credit_registration_paused_by_user_id: z.uuid().nullish(),
+  credit_registration_route: zCreditRegistrationRoute,
+  ects_credits: z.number().nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
  * Deployment-wide switches the credit registration views adapt to.
  */
 export const zCreditRegistrationSettings = z.object({
@@ -2666,7 +2721,7 @@ export const zDailySubmissionCount = z.object({
  * without a separate course-structure fetch. Default (base) module has `name = None`.
  */
 export const zCourseModuleInfo = z.object({
-  completions_can_be_registered_to_sisu: z.boolean(),
+  credit_registration_route: zCreditRegistrationRoute,
   daily_submissions: z.array(zDailySubmissionCount),
   ects_credits: z.number().nullish(),
   exercise_count: z
@@ -2733,15 +2788,6 @@ export const zDatabaseOrganization = z.object({
   organization_image_path: z.string().nullish(),
   slug: z.string(),
   updated_at: z.iso.datetime(),
-})
-
-export const zCompleteCourseMetadata = z.object({
-  course: zCourse,
-  course_audiences: z.array(zCourseAudience),
-  course_instances: z.array(zCourseInstance),
-  course_organization: zDatabaseOrganization,
-  course_prerequisites: z.array(zCoursePrerequisite),
-  default_module: zCourseModule,
 })
 
 export const zDeploymentInfo = z.object({
@@ -3010,28 +3056,6 @@ export const zEditCoursePrerequisite = z.object({
   course_id: z.uuid(),
   id: z.uuid(),
   prerequisite: z.string(),
-})
-
-export const zCourseAuditingData = z.object({
-  audiences: z.array(zEditCourseAudience),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  created_at: z.iso.datetime(),
-  description: z.string().nullish(),
-  id: z.uuid(),
-  is_draft: z.boolean(),
-  is_joinable_by_code_only: z.boolean(),
-  is_test_mode: z.boolean(),
-  is_unlisted: z.boolean(),
-  modules: z.array(zCourseModule),
-  name: z.string(),
-  organization_id: z.uuid(),
-  organization_name: z.string(),
-  organization_slug: z.string(),
-  prerequisites: z.array(zEditCoursePrerequisite),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
 })
 
 export const zCourseAuditingDataUpdate = z.object({
@@ -3412,11 +3436,13 @@ export const zEntityField = z.enum([
   "deadline",
   "chapter_image_path",
   "completion_policy",
+  "exam_requirement",
+  "exam_location_description",
   "certification_enabled",
   "uh_course_code",
   "ects_credits",
   "completion_registration_link_override",
-  "completions_can_be_registered_to_sisu",
+  "credit_registration_route",
   "description",
   "is_draft",
   "is_test_mode",
@@ -3504,6 +3530,118 @@ export const zExamEnrollment = z.object({
   started_at: z.iso.datetime(),
   updated_at: z.iso.datetime(),
   user_id: z.uuid(),
+})
+
+/**
+ * Whether passing a module requires an exam, and where it is held.
+ */
+export const zExamRequirement = z.enum(["none", "platform", "examinarium", "elsewhere"])
+
+/**
+ * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
+ * `completion_policy`.
+ */
+export const zCourseModule = z.object({
+  certification_enabled: z.boolean(),
+  completion_policy: zCompletionPolicy,
+  completion_registration_link_override: z.string().nullish(),
+  copied_from: z.uuid().nullish(),
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  credit_registration_route: zCreditRegistrationRoute,
+  deleted_at: z.iso.datetime().nullish(),
+  ects_credits: z.number().nullish(),
+  exam_location_description: z.string().nullish(),
+  exam_requirement: zExamRequirement,
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCompleteCourseMetadata = z.object({
+  course: zCourse,
+  course_audiences: z.array(zCourseAudience),
+  course_instances: z.array(zCourseInstance),
+  course_organization: zDatabaseOrganization,
+  course_prerequisites: z.array(zCoursePrerequisite),
+  default_module: zCourseModule,
+})
+
+export const zCourseAuditingData = z.object({
+  audiences: z.array(zEditCourseAudience),
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  is_draft: z.boolean(),
+  is_joinable_by_code_only: z.boolean(),
+  is_test_mode: z.boolean(),
+  is_unlisted: z.boolean(),
+  modules: z.array(zCourseModule),
+  name: z.string(),
+  organization_id: z.uuid(),
+  organization_name: z.string(),
+  organization_slug: z.string(),
+  prerequisites: z.array(zEditCoursePrerequisite),
+  slug: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * One module's completion and credit settings with the facts that tell whether they work.
+ */
+export const zCourseModuleCompletionOverview = z.object({
+  certification_enabled: z.boolean(),
+  completion_method: zCompletionMethod,
+  course_code_allowed: z.boolean().nullish(),
+  course_module_id: z.uuid(),
+  credit_registration_pause_reason: z.string().nullish(),
+  credit_registration_paused_at: z.iso.datetime().nullish(),
+  credit_registration_route: zCreditRegistrationRoute,
+  ects_credits: z.number().nullish(),
+  exam_requirement: zExamRequirement,
+  exercises_attempted_threshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  has_completions: z.boolean(),
+  has_registration_link: z.boolean(),
+  name: z.string().nullish(),
+  not_yet_registered_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  points_threshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
+/**
+ * How students complete a course and get its credits, for the course Overview tab.
+ */
+export const zCourseCompletionOverview = z.object({
+  can_view_registrations: z.boolean(),
+  exams: zCourseExamsOverview,
+  modules: z.array(zCourseModuleCompletionOverview),
 })
 
 export const zExercise = z.object({
@@ -3692,15 +3830,16 @@ export const zExerciseSlideSubmissionCountByWeekAndHour = z.object({
 })
 
 /**
- * A shareable link to an existing exercise-slide submission. The `id` is the
- * unguessable token used in the shareable URL; a viewer resolves the token back
- * to the submission it points at.
+ * A shareable link to an exercise-slide submission or to an ungraded answer snapshot; exactly one
+ * of the two ids is set. The `id` is the unguessable token used in the shareable URL; a viewer
+ * resolves the token back to what it points at.
  */
 export const zExerciseSlideSubmissionShare = z.object({
   created_at: z.iso.datetime(),
   created_by: z.uuid(),
   deleted_at: z.iso.datetime().nullish(),
-  exercise_slide_submission_id: z.uuid(),
+  exercise_answer_snapshot_id: z.uuid().nullish(),
+  exercise_slide_submission_id: z.uuid().nullish(),
   id: z.uuid(),
   updated_at: z.iso.datetime(),
 })
@@ -3783,6 +3922,11 @@ export const zExternalCourseOutput = z.object({
  * How a mooc.fi completion with no grade reads on a target.
  */
 export const zExternalGrading = z.enum(["pass_fail", "numeric"])
+
+/**
+ * How querying an external platform for the user's courses went.
+ */
+export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
 
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
@@ -4038,6 +4182,38 @@ export const zLegacyLedgerDivergenceRow = z.object({
 })
 
 /**
+ * An exam of the course's organization that the module editor offers to link to the course.
+ */
+export const zLinkableExam = z.object({
+  ends_at: z.iso.datetime().nullish(),
+  hidden_linked_course_count: z.int().gte(0),
+  id: z.uuid(),
+  linked_course_names: z.array(z.string()),
+  name: z.string(),
+  pass_mark: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  starts_at: z.iso.datetime().nullish(),
+})
+
+/**
+ * An exam linked to the course, as the module editor lists it.
+ */
+export const zLinkedExam = z.object({
+  ends_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  pass_mark: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  starts_at: z.iso.datetime().nullish(),
+})
+
+/**
  * Something a listed person shares with the student's account, strongest first.
  */
 export const zLinkingCandidateSimilarity = z.enum([
@@ -4138,6 +4314,41 @@ export const zAccountLinkingEmailRow = z.object({
   student_number: z.string(),
 })
 
+/**
+ * One linking mail to a person: when it was claimed and what became of its send.
+ */
+export const zLinkingMailSend = z.object({
+  claimed_at: z.iso.datetime(),
+  send_status: zEmailSendStatusReport.nullish(),
+})
+
+/**
+ * A person on a course's or mooc.fi target's enrolment lists, linked or not.
+ */
+export const zAdminCourseEnrolee = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  enrolled_at: z.iso.datetime().nullish(),
+  enrolled_before_account_linking: z.boolean(),
+  enrolment_state: z.string().nullish(),
+  first_names: z.string().nullish(),
+  last_name: z.string().nullish(),
+  linked_user_email: z.string().nullish(),
+  linked_user_id: z.uuid().nullish(),
+  linking_emails: z.array(zLinkingMailSend),
+  primary_email: z.string().nullish(),
+  secondary_email: z.string().nullish(),
+  student_number: z.string(),
+})
+
+/**
+ * Everyone on a course's or mooc.fi target's enrolment lists.
+ */
+export const zAdminCourseEnrolees = z.object({
+  account_linking_since: z.iso.datetime().nullish(),
+  people: z.array(zAdminCourseEnrolee),
+  study_registry_unavailable: z.boolean(),
+})
+
 export const zManualCompletionPreviewUser = z.object({
   first_name: z.string().nullish(),
   grade: z
@@ -4212,8 +4423,10 @@ export const zChatbotConfigurationModel = z.object({
 export const zModifiedModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
-  completions_can_be_registered_to_sisu: z.boolean(),
+  credit_registration_route: zCreditRegistrationRoute,
   ects_credits: z.number().nullish(),
+  exam_location_description: z.string().nullish(),
+  exam_requirement: zExamRequirement,
   id: z.uuid(),
   name: z.string().nullish(),
   order_number: z
@@ -4227,6 +4440,29 @@ export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
   prerequisites: z.array(z.string()),
+})
+
+/**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export const zMoocFiExerciseProgress = z.object({
+  attempted_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  exercise_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export const zMoocFiMaterialLink = z.object({
+  course_name: z.string(),
+  language: z.string(),
+  url: z.string(),
 })
 
 /**
@@ -4338,8 +4574,8 @@ export const zMyStudiesCourseModule = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
-  automatic_completion: z.boolean(),
   completion: zMyStudiesCompletion.nullish(),
+  completion_method: zCompletionMethod,
   course_module_id: z.uuid(),
   ects_credits: z.number().nullish(),
   is_credit_registration_starting: z.boolean(),
@@ -4348,7 +4584,6 @@ export const zMyStudiesCourseModule = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -4529,8 +4764,10 @@ export const zNewModule = z.object({
   chapters: z.array(z.uuid()),
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
-  completions_can_be_registered_to_sisu: z.boolean(),
+  credit_registration_route: zCreditRegistrationRoute,
   ects_credits: z.number().nullish(),
+  exam_location_description: z.string().nullish(),
+  exam_requirement: zExamRequirement,
   name: z.string(),
   order_number: z
     .int()
@@ -5896,6 +6133,14 @@ export const zFieldValue = z.union([
     value: zCompletionPolicy,
   }),
   z.object({
+    type: z.enum(["exam_requirement"]),
+    value: zExamRequirement,
+  }),
+  z.object({
+    type: z.enum(["credit_registration_route"]),
+    value: zCreditRegistrationRoute,
+  }),
+  z.object({
     type: z.enum(["ai_policy"]),
     value: zCourseAiPolicy,
   }),
@@ -6229,6 +6474,18 @@ export const zSetGreatMoocVisionRequest = z.object({
 
 export const zSetWeeklyDigestSubscriptionRequest = z.object({
   receives_weekly_digest: z.boolean(),
+})
+
+/**
+ * What a share-link holder is shown: the shared answer, without the model solution or anything
+ * that identifies the student.
+ */
+export const zSharedSubmissionInfo = z.object({
+  created_at: z.iso.datetime(),
+  exercise: zExercise,
+  exercise_page_url: z.string().nullish(),
+  is_graded: z.boolean(),
+  tasks: z.array(zCourseMaterialExerciseTask),
 })
 
 export const zSignedInAccount = z.enum(["same", "different", "none"])
@@ -7501,6 +7758,7 @@ export const zCreditRegistrationCourseStats = z.object({
   course_module_id: z.uuid().nullish(),
   course_module_name: z.string().nullish(),
   course_name: z.string(),
+  course_or_target_id: z.uuid(),
   credit_unit_id: z.uuid(),
   ects_credits: z.number().nullish(),
   eligible_completion_count: z.coerce
@@ -7610,6 +7868,57 @@ export const zCreditRegistrationStatsByCourse = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
 })
+
+/**
+ * A course the user has submissions or awarded points on in tmc.mooc.fi.
+ */
+export const zTmcMoocFiCourseProgress = z.object({
+  awarded_points: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  name: z.string(),
+  submissions: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string().nullish(),
+})
+
+/**
+ * A course the user has progress or a completion on in the old mooc.fi.
+ */
+export const zMoocFiCourseProgress = z.object({
+  completed: z.boolean(),
+  course_id: z.uuid(),
+  exercise_progress: zMoocFiExerciseProgress.nullish(),
+  material_links: z.array(zMoocFiMaterialLink),
+  max_points: z.number().nullish(),
+  name: z.string(),
+  points: z.number().nullish(),
+  tmc_mooc_fi_courses: z.array(zTmcMoocFiCourseProgress),
+})
+
+/**
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zOldVersionProgress = z.object({
+  mooc_fi: z.array(zMoocFiCourseProgress),
+  mooc_fi_status: zExternalPlatformStatus,
+  tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
+  tmc_mooc_fi_status: zExternalPlatformStatus,
+})
+
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zProgressByPlatform = zOldVersionProgress.and(
+  z.object({
+    courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+  }),
+)
 
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -7818,14 +8127,13 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
-  automatic_completion: z.boolean(),
+  completion_method: zCompletionMethod,
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -7939,6 +8247,9 @@ export const zUserIdsPayload = z.object({
   user_ids: z.array(z.uuid()),
 })
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export const zUserInfoPayload = z.object({
   country: z.string(),
   email: z.string(),
@@ -8323,6 +8634,7 @@ export const zAdminCreditRegistrationRow = z.object({
   course_or_target_id: z.uuid(),
   created_at: z.iso.datetime(),
   credits: z.number().nullish(),
+  current_uh_course_code: z.string().nullish(),
   email: z.string().nullish(),
   engagement: zEngagement.nullish(),
   enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -8492,6 +8804,7 @@ export const zPageAdminCreditRegistrationRow = z.object({
       course_or_target_id: z.uuid(),
       created_at: z.iso.datetime(),
       credits: z.number().nullish(),
+      current_uh_course_code: z.string().nullish(),
       email: z.string().nullish(),
       engagement: zEngagement.nullish(),
       enrolment_check_due_at: z.iso.datetime().nullish(),
@@ -9651,6 +9964,15 @@ export const zSetCourseChatbotAsNonDefaultPath = z.object({
  */
 export const zSetCourseChatbotAsNonDefaultResponse = zChatbotConfiguration
 
+export const zGetCourseCompletionOverviewPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * How students complete the course and get its credits
+ */
+export const zGetCourseCompletionOverviewResponse = zCourseCompletionOverview
+
 export const zGetCourseInstancesPath = z.object({
   course_id: z.uuid(),
 })
@@ -9719,6 +10041,15 @@ export const zGetCourseDailyUsersWhoSubmittedSomethingResponse = z.array(
 export const zGetCourseDefaultPeerReviewPath = z.object({
   course_id: z.uuid(),
 })
+
+export const zGetCourseLinkedExamsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Exams linked to the course
+ */
+export const zGetCourseLinkedExamsResponse = z.array(zLinkedExam)
 
 export const zGetCourseExercisesPath = z.object({
   course_id: z.uuid(),
@@ -9914,6 +10245,15 @@ export const zGetCourseLanguageVersionsPath = z.object({
  * Course language versions
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse)
+
+export const zGetCourseLinkableExamsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Exams the user can link to the course
+ */
+export const zGetCourseLinkableExamsResponse = z.array(zLinkableExam)
 
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 
@@ -10700,6 +11040,15 @@ export const zGetAccountLinkingUnlinkedEnroleesPath = z.object({
  */
 export const zGetAccountLinkingUnlinkedEnroleesResponse = zAdminUnlinkedEnrolees
 
+export const zGetAccountLinkingCourseEnroleesPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The people on the enrolment lists
+ */
+export const zGetAccountLinkingCourseEnroleesResponse = zAdminCourseEnrolees
+
 export const zListAccountLinkingEmailsQuery = z.object({
   page: z
     .int()
@@ -10713,6 +11062,7 @@ export const zListAccountLinkingEmailsQuery = z.object({
     .optional(),
   status: zLinkingEmailListStatus.optional(),
   address: z.string().optional(),
+  course_or_target_id: z.uuid().optional(),
 })
 
 /**
@@ -10849,6 +11199,15 @@ export const zAdminResumeCourseModuleCreditRegistrationBody = zAdminResumeCourse
 export const zAdminResumeCourseModuleCreditRegistrationPath = z.object({
   course_module_id: z.uuid(),
 })
+
+export const zGetCreditRegistrationCourseSummaryPath = z.object({
+  course_or_target_id: z.uuid(),
+})
+
+/**
+ * The course's name and course codes
+ */
+export const zGetCreditRegistrationCourseSummaryResponse = zAdminCreditRegistrationCourseSummary
 
 export const zGetCreditRegistrationEnrolmentChecksQuery = z.object({
   window_secs: z.coerce
@@ -12556,9 +12915,9 @@ export const zGetSharedSubmissionInfoPath = z.object({
 })
 
 /**
- * Data needed to render the shared submission
+ * Data needed to render the shared submission or snapshot
  */
-export const zGetSharedSubmissionInfoResponse = zExerciseSlideSubmissionInfo
+export const zGetSharedSubmissionInfoResponse = zSharedSubmissionInfo
 
 /**
  * Cronjobs
@@ -12652,7 +13011,7 @@ export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * Users whose id or email equals the query
+ * Users whose id, email or TMC id equals the query
  */
 export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 
@@ -12735,6 +13094,16 @@ export const zHideCourseFromMyCoursesPath = z.object({
 export const zUnhideCourseFromMyCoursesPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * The authenticated user's courses on the old version of the platform
+ */
+export const zGetMyOldVersionProgressResponse = zOldVersionProgress
+
+/**
+ * The authenticated user's courses grouped by platform
+ */
+export const zGetMyProgressByPlatformResponse = zProgressByPlatform
 
 /**
  * The authenticated user's study record

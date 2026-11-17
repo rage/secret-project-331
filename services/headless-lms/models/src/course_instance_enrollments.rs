@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
-    courses::Course, prelude::*, user_course_settings::UserCourseSettings,
+    course_modules::CreditRegistrationRoute, courses::Course, prelude::*,
+    user_course_settings::UserCourseSettings,
 };
 use utoipa::ToSchema;
 
@@ -54,7 +55,7 @@ pub struct CourseModuleInfo {
     pub ects_credits: Option<f32>,
     /// The module's course code in the university's registry, e.g. `BSCS1001`.
     pub uh_course_code: Option<String>,
-    pub completions_can_be_registered_to_sisu: bool,
+    pub credit_registration_route: CreditRegistrationRoute,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -161,6 +162,31 @@ pub async fn insert_enrollment_and_set_as_current(
     tx.commit().await?;
 
     Ok(enrollment)
+}
+
+/// Removes the user's enrollments on the course.
+///
+/// Nothing in production removes an enrollment; this exists for tests, and is not `#[cfg(test)]`
+/// because `bin/sqlx-prepare` caches only the library's queries.
+pub async fn delete_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE course_instance_enrollments
+SET deleted_at = now()
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+",
+        user_id,
+        course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_by_user_and_course_instance_id(
@@ -419,7 +445,7 @@ ORDER BY c.course_module_id, "day!"
                     .unwrap_or_default(),
                 ects_credits: m.ects_credits,
                 uh_course_code: m.uh_course_code.clone(),
-                completions_can_be_registered_to_sisu: m.completions_can_be_registered_to_sisu,
+                credit_registration_route: m.credit_registration_route,
             })
             .collect();
         let course_module_completions = all_course_module_completions

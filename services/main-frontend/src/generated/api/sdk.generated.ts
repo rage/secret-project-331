@@ -283,6 +283,9 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesErrors,
+  GetAccountLinkingCourseEnroleesResponses,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponses,
   GetAccountLinkingStatsData,
@@ -338,6 +341,8 @@ import type {
   GetCourseChaptersResponses,
   GetCourseChatbotsData,
   GetCourseChatbotsResponses,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponses,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponses,
   GetCourseCompletionsHistoryByInstanceData,
@@ -416,6 +421,10 @@ import type {
   GetCourseInstanceUserProgressResponses,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponses,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponses,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponses,
   GetCourseMetadataData,
   GetCourseMetadataResponses,
   GetCourseModuleCompletionData,
@@ -481,6 +490,9 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponses,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponses,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryErrors,
+  GetCreditRegistrationCourseSummaryResponses,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsErrors,
   GetCreditRegistrationDetailsResponses,
@@ -581,6 +593,10 @@ import type {
   GetMyExternalCompletionEnrolmentRouteResponses,
   GetMyMoocfiCreditRegistrationsData,
   GetMyMoocfiCreditRegistrationsResponses,
+  GetMyOldVersionProgressData,
+  GetMyOldVersionProgressResponses,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponses,
   GetMyStudiesData,
   GetMyStudiesResponses,
   GetMyVerifiedStudentNumberData,
@@ -1056,6 +1072,7 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountLinkingCourseEnroleesResponse,
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
   zGetAccountLinkingUnlinkedEnroleesResponse,
@@ -1082,6 +1099,7 @@ import {
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
   zGetCourseChatbotsResponse,
+  zGetCourseCompletionOverviewResponse,
   zGetCourseCompletionsHistoryAllLanguageVersionsResponse,
   zGetCourseCompletionsHistoryByInstanceResponse,
   zGetCourseCompletionsHistoryCustomTimePeriodResponse,
@@ -1116,6 +1134,8 @@ import {
   zGetCourseInstanceResponse,
   zGetCourseInstancesResponse,
   zGetCourseLanguageVersionsResponse,
+  zGetCourseLinkableExamsResponse,
+  zGetCourseLinkedExamsResponse,
   zGetCourseMetadataResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
@@ -1148,6 +1168,7 @@ import {
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCreditRegistrationAttentionItemsResponse,
+  zGetCreditRegistrationCourseSummaryResponse,
   zGetCreditRegistrationDetailsResponse,
   zGetCreditRegistrationEarlierReasonsResponse,
   zGetCreditRegistrationEnrolmentChecksResponse,
@@ -1196,6 +1217,8 @@ import {
   zGetMyEnrolmentRouteResponse,
   zGetMyExternalCompletionEnrolmentRouteResponse,
   zGetMyMoocfiCreditRegistrationsResponse,
+  zGetMyOldVersionProgressResponse,
+  zGetMyProgressByPlatformResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
   zGetNumberOfPeopleCompletedACourseResponse,
@@ -3563,6 +3586,24 @@ export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = true
   })
 
 /**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverview = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseCompletionOverviewData, ThrowOnError>,
+): RequestResult<GetCourseCompletionOverviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseCompletionOverviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCourseCompletionOverviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/completion-overview",
+    ...options,
+  })
+
+/**
  * GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseInstances = <ThrowOnError extends boolean = true>(
@@ -3742,6 +3783,19 @@ export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/default-peer-review",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkedExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkedExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkedExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/exams",
     ...options,
   })
 
@@ -4061,6 +4115,19 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExams = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseLinkableExamsData, ThrowOnError>,
+): RequestResult<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetCourseLinkableExamsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseLinkableExamsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams",
+    ...options,
+  })
 
 /**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
@@ -5576,6 +5643,34 @@ export const getAccountLinkingUnlinkedEnrolees = <ThrowOnError extends boolean =
   })
 
 /**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnrolees = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountLinkingCourseEnroleesData, ThrowOnError>,
+): RequestResult<
+  GetAccountLinkingCourseEnroleesResponses,
+  GetAccountLinkingCourseEnroleesErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAccountLinkingCourseEnroleesResponses,
+    GetAccountLinkingCourseEnroleesErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAccountLinkingCourseEnroleesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees",
+    ...options,
+  })
+
+/**
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
  * linking email, newest first.
  *
@@ -6028,6 +6123,31 @@ export const adminResumeCourseModuleCreditRegistration = <ThrowOnError extends b
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummary = <ThrowOnError extends boolean = true>(
+  options: Options<GetCreditRegistrationCourseSummaryData, ThrowOnError>,
+): RequestResult<
+  GetCreditRegistrationCourseSummaryResponses,
+  GetCreditRegistrationCourseSummaryErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCreditRegistrationCourseSummaryResponses,
+    GetCreditRegistrationCourseSummaryErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCreditRegistrationCourseSummaryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary",
+    ...options,
   })
 
 /**
@@ -6543,7 +6663,7 @@ export const adminUnlinkStudentNumber = <ThrowOnError extends boolean = true>(
  * registry call log, newest first.
  *
  * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
- * the bodies are scrubbed, so there is no student number in them to search.
+ * a sampled body may not hold the student's item.
  */
 export const listSuotarApiCalls = <ThrowOnError extends boolean = true>(
   options?: Options<ListSuotarApiCallsData, ThrowOnError>,
@@ -9768,7 +9888,7 @@ export const listOwnSubmissionShares = <ThrowOnError extends boolean = true>(
 
 /**
  * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
- * share the current user has minted for one submission.
+ * share the current user has minted for one submission or snapshot.
  */
 export const revokeSubmissionSharesOfSubmission = <ThrowOnError extends boolean = true>(
   options: Options<RevokeSubmissionSharesOfSubmissionData, ThrowOnError>,
@@ -9805,7 +9925,7 @@ export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
 
 /**
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
- * render a shared submission.
+ * render a shared submission or ungraded snapshot.
  *
  * The `token` is the unguessable share id minted by the client share endpoint. Login is
  * required, but holding the token is the only capability needed to view the submission —
@@ -10054,7 +10174,7 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
   options: Options<SearchUserDetailsExactData, ThrowOnError>,
@@ -10288,6 +10408,39 @@ export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+ * old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+ *
+ * Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+ * reached is reported in its status rather than failing the request.
+ */
+export const getMyOldVersionProgress = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyOldVersionProgressData, ThrowOnError>,
+): RequestResult<GetMyOldVersionProgressResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyOldVersionProgressResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyOldVersionProgressResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-old-version-progress",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatform = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyProgressByPlatformData, ThrowOnError>,
+): RequestResult<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyProgressByPlatformResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyProgressByPlatformResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-progress-by-platform",
     ...options,
   })
 

@@ -4,9 +4,12 @@ use std::collections::HashMap;
 
 use crate::{
     agent_changeset_calls, agent_changesets,
+    course_modules::{CompletionPolicy, CreditRegistrationRoute, ExamRequirement},
     library::{
         agent_changesets::course_state::{CourseView, StagedEntity},
-        entity_snapshots::{ContentEntityType, EntityKey, EntityRef, EntitySnapshot},
+        entity_snapshots::{
+            ContentEntityType, EntityKey, EntityRef, EntitySnapshot, ModuleSnapshot, json_digest,
+        },
     },
     prelude::*,
 };
@@ -69,7 +72,15 @@ pub async fn plan_revert(
         let key = EntityKey::new(change.entity_type, change.entity_id);
         let current = current_states.get(&key).and_then(Option::as_ref);
         let current_digest = current.map(EntitySnapshot::digest).transpose()?;
-        if current_digest != change.after_digest {
+        let is_unchanged_since_call = current_digest == change.after_digest
+            || match current {
+                Some(EntitySnapshot::Module(module)) => {
+                    change.after_digest.is_some()
+                        && pre_completion_settings_digest(module)? == change.after_digest
+                }
+                _ => false,
+            };
+        if !is_unchanged_since_call {
             conflicts.push(EntityRef {
                 entity_type: change.entity_type,
                 entity_id: change.entity_id,
@@ -88,4 +99,75 @@ pub async fn plan_revert(
     } else {
         Ok(RevertPlan::Conflicts(conflicts))
     }
+}
+
+/// [`EntitySnapshot::digest`] of `module` in the module snapshot shape from before explicit
+/// completion settings, which the after-digests of calls made before them hold; `None` when that
+/// shape can't express the module's settings.
+fn pre_completion_settings_digest(module: &ModuleSnapshot) -> ModelResult<Option<String>> {
+    #[derive(Serialize)]
+    #[serde(tag = "policy", rename_all = "kebab-case")]
+    enum PreviousCompletionPolicy {
+        Automatic {
+            course_module_id: Uuid,
+            number_of_exercises_attempted_treshold: Option<i32>,
+            number_of_points_treshold: Option<i32>,
+            requires_exam: bool,
+        },
+        Manual,
+    }
+
+    // Field order is part of the digest.
+    #[derive(Serialize)]
+    struct PreviousModuleSnapshot<'a> {
+        id: Uuid,
+        course_id: Uuid,
+        name: &'a Option<String>,
+        order_number: i32,
+        completion_policy: PreviousCompletionPolicy,
+        certification_enabled: bool,
+        uh_course_code: &'a Option<String>,
+        ects_credits: Option<f32>,
+        completion_registration_link_override: &'a Option<String>,
+        completions_can_be_registered_to_sisu: bool,
+    }
+
+    let automatic = |requirements: &crate::course_modules::CompletionRequirements,
+                     requires_exam| PreviousCompletionPolicy::Automatic {
+        course_module_id: requirements.course_module_id,
+        number_of_exercises_attempted_treshold: requirements.number_of_exercises_attempted_treshold,
+        number_of_points_treshold: requirements.number_of_points_treshold,
+        requires_exam,
+    };
+    let completion_policy = match (&module.completion_policy, module.exam_requirement) {
+        (CompletionPolicy::ByRequirements(requirements), ExamRequirement::None) => {
+            automatic(requirements, false)
+        }
+        (CompletionPolicy::ByExam(requirements), ExamRequirement::Platform) => {
+            automatic(requirements, true)
+        }
+        (CompletionPolicy::TeacherAdds, ExamRequirement::None) => PreviousCompletionPolicy::Manual,
+        _ => return Ok(None),
+    };
+    let completions_can_be_registered_to_sisu = match module.credit_registration_route {
+        CreditRegistrationRoute::Platform => true,
+        CreditRegistrationRoute::CertificateOnly => false,
+        CreditRegistrationRoute::External => return Ok(None),
+    };
+    if module.exam_location_description.is_some() {
+        return Ok(None);
+    }
+    let previous = PreviousModuleSnapshot {
+        id: module.id,
+        course_id: module.course_id,
+        name: &module.name,
+        order_number: module.order_number,
+        completion_policy,
+        certification_enabled: module.certification_enabled,
+        uh_course_code: &module.uh_course_code,
+        ects_credits: module.ects_credits,
+        completion_registration_link_override: &module.completion_registration_link_override,
+        completions_can_be_registered_to_sisu,
+    };
+    Ok(Some(json_digest(&serde_json::to_string(&previous)?)))
 }

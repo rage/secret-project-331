@@ -1,6 +1,8 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::{
+    domain::error::{BadRequestReason, ForbiddenReason, bad_request_with_reason},
     domain::exercise_services::answer_uploads,
     domain::models_requests::{self, JwtKey},
     prelude::*,
@@ -212,8 +214,7 @@ pub async fn verify_user_can_answer_exercise_slide(
 ///
 /// The try limit is per slide, so without a slide id this can only reject a user who has exhausted
 /// *every* slide of the exercise; one who is out of tries on the slide they actually mean to answer
-/// still gets through here and is rejected on submit. Everything else -- deadline, enrolment, exam
-/// window -- is checked in full.
+/// still gets through here and is rejected on submit. Everything else is checked in full.
 pub async fn verify_user_can_answer_exercise(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -265,8 +266,18 @@ pub async fn is_out_of_tries(
             user_id,
         )
         .await?;
+    is_out_of_tries_given(conn, exercise.id, max_tries_per_slide, &submission_counts).await
+}
+
+/// [`is_out_of_tries`] for a caller that already holds the user's submission counts by slide id.
+pub async fn is_out_of_tries_given(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    max_tries_per_slide: i64,
+    submission_counts: &HashMap<Uuid, i64>,
+) -> models::ModelResult<bool> {
     let slides =
-        models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise.id).await?;
+        models::exercise_slides::get_exercise_slides_by_exercise_id(conn, exercise_id).await?;
     Ok(!slides.is_empty()
         && slides
             .iter()
@@ -276,7 +287,10 @@ pub async fn is_out_of_tries(
 /// The rejection both try-limit checks report, kept in one place because the message reaches the
 /// student verbatim.
 fn out_of_tries_error() -> ControllerError {
-    controller_err!(BadRequest, "You've ran out of tries.".to_string())
+    bad_request_with_reason(
+        BadRequestReason::OutOfTries,
+        "You've run out of tries.".to_string(),
+    )
 }
 
 /// The per-slide try limit, or `None` when the exercise does not limit tries.
@@ -304,11 +318,10 @@ async fn enforce_chapter_locking(
     )
     .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ChapterNotUnlockedYet),
             "Complete and lock the previous chapter to unlock exercises in this chapter."
-                .to_string(),
-            None,
+                .to_string()
         ));
     }
     if models::user_chapter_locking_statuses::is_chapter_exercises_locked(
@@ -316,10 +329,9 @@ async fn enforce_chapter_locking(
     )
     .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "The current chapter is locked, and you can no longer submit exercises.".to_string(),
-            None,
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ChapterCompletedAndLocked),
+            "The current chapter is locked, and you can no longer submit exercises.".to_string()
         ));
     }
     Ok(())
@@ -342,10 +354,9 @@ async fn enforce_deadline(
         .or_else(|| chapter.and_then(|c| c.deadline))
         && Utc::now() + Duration::seconds(1) >= deadline
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
+        return Err(bad_request_with_reason(
+            BadRequestReason::DeadlinePassed,
             "Exercise deadline passed.".to_string(),
-            None,
         ));
     }
 
@@ -353,7 +364,8 @@ async fn enforce_deadline(
 }
 
 /// Resolves the course instance or exam a submission would be recorded against, and rejects a
-/// submission the user may not make at all: not enrolled on the course, or past the exam's window.
+/// submission the user may not make at all: not enrolled on the course, past the exam's window, or
+/// to an exercise locked for the user.
 ///
 /// Does not check the try limit, which is per slide; see the two callers for that.
 async fn resolve_course_or_exam_id_for_submitting(
@@ -399,7 +411,32 @@ async fn resolve_course_or_exam_id_for_submitting(
         ))
     }?
     .data;
+    verify_exercise_accepts_submissions(conn, user_id, exercise.id, course_id_or_exam_id).await?;
     Ok(course_id_or_exam_id)
+}
+
+/// Rejects a user whose exercise state takes no more answers, the rule the course material's submit
+/// button follows. A teacher unlocking the chapter does not lift it; resetting the exercise does.
+async fn verify_exercise_accepts_submissions(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+    course_or_exam_id: CourseOrExamId,
+) -> Result<(), ControllerError> {
+    let state = models::user_exercise_states::get_user_exercise_state_if_exists(
+        conn,
+        user_id,
+        exercise_id,
+        course_or_exam_id,
+    )
+    .await?;
+    if state.is_some_and(|s| !s.reviewing_stage.accepts_submissions()) {
+        return Err(controller_err!(
+            ForbiddenWithReason(ForbiddenReason::ExerciseLocked),
+            "This exercise is locked for you and takes no more submissions.".to_string()
+        ));
+    }
+    Ok(())
 }
 
 /// The gate a submit runs: everything [`resolve_course_or_exam_id_for_submitting`] rejects, plus the

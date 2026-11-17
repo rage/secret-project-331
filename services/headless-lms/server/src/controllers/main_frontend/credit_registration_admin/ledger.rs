@@ -114,7 +114,10 @@ pub struct AdminCreditRegistrationRow {
     /// Frozen on the row before it was sent, so it is what we actually submitted.
     pub student_number: Option<String>,
     pub sisu_person_id: Option<String>,
+    /// The code submitted, frozen with `student_number`.
     pub uh_course_code: Option<String>,
+    /// The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+    pub current_uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
     pub grade_id: Option<String>,
@@ -149,8 +152,8 @@ pub struct AdminCreditRegistrationEvent {
     pub message: Option<String>,
     pub actor_user_id: Option<Uuid>,
     pub suotar_api_call_id: Option<Uuid>,
-    /// The `{request, response}` pair, scrubbed at write time: names, student numbers and email
-    /// addresses read `[redacted]` while their keys survive. The values we sent are on the row.
+    /// The `{request, response}` pair for this row's item. Once older than the call log's 90-day
+    /// window, names, student numbers and email addresses in it read `[redacted]`.
     pub details: Option<serde_json::Value>,
     /// The requestItemId the row went out under in the call behind this event.
     pub request_item_id: Option<String>,
@@ -1409,6 +1412,7 @@ fn to_admin_row(
         student_number: expose_option(&row.student_number).map(str::to_owned),
         sisu_person_id: expose_option(&row.sisu_person_id).map(str::to_owned),
         uh_course_code: row.uh_course_code,
+        current_uh_course_code: row.current_uh_course_code,
         selected_enrolment_id: row.selected_enrolment_id,
         grade_scale_id: row.grade_scale_id,
         grade_id: row.grade_id,

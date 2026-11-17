@@ -103,6 +103,7 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
         key: KEY_COURSES,
         title: t("credit-registration-tab-courses"),
         href: creditRegistrationCoursesRoute(),
+        pathPrefix: creditRegistrationCoursesRoute(),
         countHook: useCreditRegistrationMisconfiguredCourseCount,
       },
       {
@@ -137,8 +138,8 @@ const CreditRegistrationSection: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // The breadcrumb already says "Credit registration"; the heading says which of its pages this is.
   const activeTab = resolveActiveTab(tabs, pathname ?? "")
-  // A registration's own page is matched via the Registrations tab's `pathPrefix`, but it has a
-  // heading of its own (the student's name) — the tab title above it would only contradict it.
+  // A registration's or course's own page is matched via its tab's `pathPrefix`, but it has a
+  // heading of its own — the tab title above it would only contradict it.
   const showsTabHeading =
     activeTab !== undefined &&
     (pathname === activeTab.href || TAB_KEYS_WITH_SUB_TABS.has(activeTab.key))

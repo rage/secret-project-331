@@ -9,9 +9,6 @@
 //! [`LANE_COMPLETIONS`] and the table in `system-tests/src/utils/creditRegistration.ts` allocate
 //! them. Numbers are digits only, 6–12 of them, per `verified_student_numbers.student_number_format`,
 //! the leading `9` keeping them clear of real UH numbers.
-//!
-//! Names and emails are unlikely strings (`Zzyzx …`) because a spec asserts their absence from the
-//! scrubbed Suotar API log.
 
 use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;

@@ -215,6 +215,16 @@ export const zCodeGiveawayStatus = z.union([
 ])
 
 /**
+ * How students get a module's completion; [`CompletionPolicy`] is the same with its thresholds.
+ */
+export const zCompletionMethod = z.enum([
+  "not_decided",
+  "by_requirements",
+  "by_exam",
+  "teacher_adds",
+])
+
+/**
  * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
  * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
  */
@@ -1406,14 +1416,13 @@ export const zUserCourseProgress = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
-  automatic_completion: z.boolean(),
+  completion_method: zCompletionMethod,
   course_module_id: z.uuid(),
   course_module_name: z.string(),
   course_module_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  requires_exam: z.boolean(),
   score_given: z.number(),
   score_maximum: z
     .int()
@@ -1467,6 +1476,9 @@ export const zUserDetail = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export const zUserInfoPayload = z.object({
   country: z.string(),
   email: z.string(),

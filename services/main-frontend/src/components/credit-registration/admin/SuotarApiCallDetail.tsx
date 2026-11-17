@@ -21,7 +21,6 @@ import {
   breakAnywhereCss,
   codeValueCss,
   emptyStateCss,
-  noteCss,
   sectionCss,
   stackedCellCss,
   subheadingCss,
@@ -69,7 +68,6 @@ export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   return (
     <div className={sectionCss}>
-      <p className={noteCss}>{t("credit-registration-admin-item-scrubbing-note")}</p>
       {exchange === null || exchange === undefined ? (
         <p className={emptyStateCss}>{t("credit-registration-admin-no-registration-item")}</p>
       ) : (
@@ -95,8 +93,6 @@ export const RegistrationCallItem: React.FC<Props & { exchange: unknown }> = ({
  * The stored request and response of one call, with the ledger rows it carried beside them.
  *
  * Fetches when it is rendered, so a table hands it to an expanded row rather than to every row.
- * The bodies were scrubbed when they were written and are shown exactly as stored; the ledger
- * reference table is where the names and student numbers behind each `requestItemId` live.
  */
 export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -108,7 +104,6 @@ export const SuotarApiCallBodies: React.FC<Props> = ({ suotarApiCallId }) => {
     <QueryResult query={detailQuery}>
       {(detail) => (
         <div className={sectionCss}>
-          <p className={noteCss}>{t("credit-registration-admin-scrubbing-note")}</p>
           {detail.error_message && (
             <p>
               <strong>{t("credit-registration-admin-call-error-message")}:</strong>{" "}

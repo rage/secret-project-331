@@ -169,6 +169,16 @@ pub fn get_exercise_service_internally_preferred_baseurl(
     Ok(url)
 }
 
+/// Where course material loads the service's user interface in an iframe.
+pub fn get_exercise_iframe_url(
+    exercise_service: &ExerciseService,
+    user_interface_iframe_path: &str,
+) -> ModelResult<Url> {
+    let mut url = get_exercise_service_externally_preferred_baseurl(exercise_service)?;
+    url.set_path(user_interface_iframe_path);
+    Ok(url)
+}
+
 pub fn get_exercise_service_externally_preferred_baseurl(
     exercise_service: &ExerciseService,
 ) -> ModelResult<Url> {

@@ -12,6 +12,7 @@ import {
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
+import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog } from "@/shared-module/components"
 
@@ -30,6 +31,8 @@ interface Props extends DialogOpenState {
   /** The course or mooc.fi target the mail is for. */
   courseOrTargetId: string
   courseName: string
+  /** Called with each send's result, for a caller that lists this person's emails. */
+  onSent?: (result: AdminResendAccountLinkingEmailResult) => void
 }
 
 interface Fields {
@@ -51,6 +54,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   studentNumber,
   courseOrTargetId,
   courseName,
+  onSent,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -71,6 +75,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       if (sent.outcome === RESEND_QUEUED) {
         reset(DEFAULT_FIELDS)
       }
+      onSent?.(sent)
     },
   )
   // Pressing again would only run into, or override, the mail just claimed.

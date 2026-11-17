@@ -2,7 +2,7 @@
 Handlers for HTTP requests to `/api/v0/main-frontend/credit-registration-admin`.
 
 Every mutating handler writes its `credit_registration_admin_actions` row in the transaction that has
-the effect. Admins see recipient addresses in full and the scrubbed study registry bodies; the
+the effect. Admins see recipient addresses and the study registry bodies in full; the
 registry's own error text is returned to nobody.
 */
 
@@ -82,6 +82,8 @@ use secrecy::ExposeSecret;
     account_linking::get_credit_registration_linking_candidates,
     account_linking::get_account_linking_courses,
     account_linking::get_account_linking_unlinked_enrolees,
+    account_linking::get_account_linking_course_enrolees,
+    courses::get_credit_registration_course_summary,
     student_numbers::list_verified_student_numbers_for_admin,
     student_numbers::admin_unlink_student_number,
     materialize::admin_materialize_credit_registrations

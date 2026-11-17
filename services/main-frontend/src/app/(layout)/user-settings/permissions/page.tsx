@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import { LinesClipboard, XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useContext, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
@@ -14,7 +14,7 @@ import {
   getUserResearchFormQuestionAnswersOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -25,12 +25,14 @@ import { settingsCardCss } from "@/styles/sharedStyles"
 
 import OAuthGrantsSection from "./OAuthGrantsSection"
 
+// Linked to from tmc.mooc.fi's account deletion page.
+const DELETE_ACCOUNT_SECTION_ID = "delete-account"
+
 const PermissionsSettingsPage: React.FC = () => {
   const { t } = useTranslation()
   // Higher order than the parent user-settings layout so this specific page title wins deterministically.
   usePageTitle(t("link-permissions"), { order: 10 })
 
-  const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
 
@@ -41,6 +43,32 @@ const PermissionsSettingsPage: React.FC = () => {
   const getAllResearchFormAnswers = useQuery({
     ...getUserResearchFormQuestionAnswersOptions(),
   })
+
+  const deleteAccountSectionRef = useRef<HTMLDivElement>(null)
+  const [isDeleteAccountDialogOpen, setIsDeleteAccountDialogOpen] = useState(false)
+  const isDeleteAccountSectionShown =
+    getUserDetails.isSuccess && Boolean(getUserDetails.data?.email)
+  useEffect(() => {
+    if (!isDeleteAccountSectionShown) {
+      return
+    }
+    const openDeleteAccountFromHash = () => {
+      if (window.location.hash !== `#${DELETE_ACCOUNT_SECTION_ID}`) {
+        return
+      }
+      deleteAccountSectionRef.current?.scrollIntoView()
+      setIsDeleteAccountDialogOpen(true)
+      // Consumed so that a reload does not reopen the dialog and the same link works again.
+      window.history.replaceState(
+        window.history.state,
+        "",
+        window.location.pathname + window.location.search,
+      )
+    }
+    openDeleteAccountFromHash()
+    window.addEventListener("hashchange", openDeleteAccountFromHash)
+    return () => window.removeEventListener("hashchange", openDeleteAccountFromHash)
+  }, [isDeleteAccountSectionShown])
 
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
@@ -166,17 +194,15 @@ const PermissionsSettingsPage: React.FC = () => {
                 font-weight: 500;
               `}
             >
-              {loginStateContext.signedIn === true && (
-                <QueryResult query={getUserConsent}>
-                  {(data) =>
-                    data?.research_consent === true
-                      ? t("yes")
-                      : data?.research_consent === false
-                        ? t("no")
-                        : "-"
-                  }
-                </QueryResult>
-              )}
+              <QueryResult query={getUserConsent}>
+                {(data) =>
+                  data?.research_consent === true
+                    ? t("yes")
+                    : data?.research_consent === false
+                      ? t("no")
+                      : "-"
+                }
+              </QueryResult>
             </div>
           </div>
         )}
@@ -271,8 +297,10 @@ const PermissionsSettingsPage: React.FC = () => {
 
       <OAuthGrantsSection />
 
-      {getUserDetails.isSuccess && getUserDetails.data?.email && (
+      {isDeleteAccountSectionShown && (
         <div
+          id={DELETE_ACCOUNT_SECTION_ID}
+          ref={deleteAccountSectionRef}
           data-testid="delete-account-section"
           className={cx(
             settingsCardCss,
@@ -321,11 +349,14 @@ const PermissionsSettingsPage: React.FC = () => {
               {t("user-settings-delete-account")}
             </h2>
           </div>
-          <DeleteUserAccountForm />
+          <DeleteUserAccountForm
+            isDialogOpen={isDeleteAccountDialogOpen}
+            onDialogOpenChange={setIsDeleteAccountDialogOpen}
+          />
         </div>
       )}
     </div>
   )
 }
 
-export default PermissionsSettingsPage
+export default withSignedIn(PermissionsSettingsPage)

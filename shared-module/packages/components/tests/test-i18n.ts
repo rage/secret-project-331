@@ -70,6 +70,13 @@ void i18next.use(initReactI18next).init({
         "pagination.label": "Pagination",
         "pagination.pageOfTotal": "Page {{page}} of {{totalPages}}",
         "pagination.range": "Showing {{first}}–{{last}} of {{total}}",
+        "percentageCalculator.breakdown":
+          "{{percentage}} % of {{totalQuantity}} = {{fraction}} × {{total}} = {{exact}}. Rounded up, that is {{roundedQuantity}}. We round up so the requirement is never lower than the percentage.",
+        "percentageCalculator.onlyCountSaved":
+          "Only the number {{count}} is saved. If you add {{unitPlural}} later, the requirement stays {{count}}.",
+        "percentageCalculator.percentage": "Percentage",
+        "percentageCalculator.use": "Use",
+        "percentageCalculator.useCount": "Use {{count}}",
         "queryResult.loading": "Loading",
         "queryResult.refreshing": "Refreshing",
         "queryResult.retry": "Retry",

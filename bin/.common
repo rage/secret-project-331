@@ -263,13 +263,20 @@ function regenerate_tmc_langs_bindings_guard() {
   # ts-auto-guard emits a guard only for annotated types, and the plugin uses exactly these two.
   run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$bindings_target"
   run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$bindings_target"
+  # Under exactOptionalPropertyTypes ts-auto-guard checks an optional field as if it were required,
+  # rejecting valid output that omits it, so the guard is generated without that option.
+  local guard_project_dir
+  guard_project_dir=$(mktemp -d)
+  printf '{"extends": "%s", "compilerOptions": {"exactOptionalPropertyTypes": false}, "include": ["%s"]}\n' \
+    "$repo_root/services/tmc/tsconfig.json" "$bindings_target" > "$guard_project_dir/tsconfig.json"
   (
     cd "$repo_root" || exit 1
     run_command pnpm exec oxfmt "$bindings_target"
     # Guard files are committed exactly as ts-auto-guard emits them and are excluded from both
     # oxlint and oxfmt, so no formatting pass follows (oxfmt would abort on an all-ignored match).
-    run_command pnpm exec ts-auto-guard --paths "$bindings_target" --project "$repo_root/services/tmc/tsconfig.json"
+    run_command pnpm exec ts-auto-guard --paths "$bindings_target" --project "$guard_project_dir/tsconfig.json"
   )
+  rm -rf "$guard_project_dir"
   # ts-auto-guard 5.x cannot emit `import type`; its leading import references only types, so under
   # verbatimModuleSyntax rewrite the `import {` to `import type {` (a no-op at runtime).
   run_command sed -i -E 's/^import \{/import type {/' "$guard_target"

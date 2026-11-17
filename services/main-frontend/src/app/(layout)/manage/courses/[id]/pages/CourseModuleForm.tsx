@@ -1,10 +1,10 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { Trash } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useState } from "react"
-import type { Path } from "react-hook-form"
-import { useForm } from "react-hook-form"
+import React, { useEffect, useMemo, useState } from "react"
+import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { CREDIT_REGISTRATION_NS, TONE } from "@/components/credit-registration/constants"
@@ -19,11 +19,20 @@ import {
   noteCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
-import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types.generated"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Badge, Button, Checkbox, NumberField, Select, TextField } from "@/shared-module/components"
+import { getCourseExercisesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  CompletionMethod,
+  CourseModuleCreditRegistrationConfig,
+  Exercise,
+  LinkedExam,
+} from "@/generated/api/types.generated"
+import { Badge, Button, Select, TextField } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
+import type { ModuleCompletionLinks, ModuleTotals } from "./ModuleCompletionFields"
+import ModuleCompletionFields, { fieldRowCss } from "./ModuleCompletionFields"
+import type { CourseModuleFormFields, CourseModuleFormState } from "./moduleCompletionForm"
+import { formFieldsOf, formStateOf, lacksRequirement } from "./moduleCompletionForm"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -34,6 +43,13 @@ interface Props {
   module: ModuleView
   chapters: number[]
   creditRegistrationConfig: CourseModuleCreditRegistrationConfig | undefined
+  linkedExams: LinkedExam[]
+  courseId: string
+  /** For placing the course's exercises in chapters, to total up the module's. */
+  chapterNumberById: ReadonlyMap<string, number>
+  links: ModuleCompletionLinks
+  /** See `ModuleCompletionFields`. */
+  canToggleCertificates: boolean
   /** Whether the module carries edits that the page-level save has not sent yet. */
   hasUnsavedChanges?: boolean
   onSubmitForm: (id: string, fields: CourseModuleFormFields) => void
@@ -44,43 +60,8 @@ interface Props {
   children?: React.ReactNode
 }
 
-/** What the module editor hands back. */
-export interface CourseModuleFormFields {
-  name: string | null
-  starts: number
-  ends: number
-  ects_credits: number | null
-  uh_course_code: string | null
-  automatic_completion: boolean
-  automatic_completion_number_of_points_treshold: number | null
-  automatic_completion_number_of_exercises_attempted_treshold: number | null
-  automatic_completion_requires_exam: boolean
-  override_completion_link: boolean
-  completion_registration_link_override: string
-  completions_can_be_registered_to_sisu: boolean
-}
-
-/** Shorter than this is a fragment, not a link a student can follow. */
-const MIN_COMPLETION_LINK_LENGTH = 10
-
-/** Sisu rejects a registration without credits. */
-const CREDITS_FIELD: Path<CourseModuleFormState> = "ects_credits"
-
-const COMPLETION_LINK_FIELD: Path<CourseModuleFormState> = "completion_registration_link_override"
-
-/** A `minLength` that is not in force. Not `undefined`: `exactOptionalPropertyTypes` rejects it. */
-const NO_MINIMUM_LENGTH = 0
-
-const VALIDATE_ON_COMMIT = "validate" as const
-
-/** Flags what the Sisu path requires as the teacher edits, rather than only on save. */
+/** Flags what is missing as the teacher edits, rather than only on save. */
 const VALIDATE_ON_CHANGE = "onChange" as const
-
-interface CourseModuleFormState extends Omit<CourseModuleFormFields, "starts" | "ends"> {
-  /** Chapter numbers as the select holds them; `onSubmitForm` gets them back as numbers. */
-  starts: string
-  ends: string
-}
 
 const formCss = css`
   display: grid;
@@ -111,15 +92,6 @@ const groupCss = css`
   border: 0;
 `
 
-const fieldRowCss = css`
-  display: grid;
-  gap: var(--space-4);
-  ${respondToOrLarger.md} {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: start;
-  }
-`
-
 const deleteButtonCss = css`
   color: var(--color-red-600);
 `
@@ -133,41 +105,59 @@ const actionsCss = css`
   margin-left: auto;
 `
 
-const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModuleFormState => ({
-  name: module.name,
-  starts: String(module.firstChapter ?? chapters[0] ?? 1),
-  ends: String(module.lastChapter ?? chapters.at(-1) ?? 1),
-  ects_credits: module.ects_credits,
-  uh_course_code: module.uh_course_code ?? "",
-  automatic_completion: module.automatic_completion ?? false,
-  automatic_completion_number_of_points_treshold:
-    module.automatic_completion_number_of_points_treshold,
-  automatic_completion_number_of_exercises_attempted_treshold:
-    module.automatic_completion_number_of_exercises_attempted_treshold,
-  automatic_completion_requires_exam: module.automatic_completion_requires_exam,
-  override_completion_link: module.completion_registration_link_override !== null,
-  completion_registration_link_override: module.completion_registration_link_override ?? "",
-  completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
-})
+const makeDefaultValues = (module: ModuleView, chapters: number[]): CourseModuleFormState =>
+  formStateOf(
+    module,
+    module.firstChapter ?? chapters[0] ?? 1,
+    module.lastChapter ?? chapters.at(-1) ?? 1,
+  )
+
+const totalsOf = (
+  exercises: Exercise[],
+  chapterNumberById: ReadonlyMap<string, number>,
+  firstChapter: number,
+  lastChapter: number,
+): ModuleTotals =>
+  exercises.reduce(
+    (totals, exercise) => {
+      const chapterNumber = exercise.chapter_id
+        ? chapterNumberById.get(exercise.chapter_id)
+        : undefined
+      return chapterNumber !== undefined &&
+        firstChapter <= chapterNumber &&
+        chapterNumber <= lastChapter
+        ? {
+            exercises: totals.exercises + 1,
+            points: totals.points + exercise.score_maximum,
+          }
+        : totals
+    },
+    { exercises: 0, points: 0 },
+  )
+
+const COMPLETION_METHOD_LABEL_KEYS = {
+  not_decided: "pass-method-not-decided",
+  by_requirements: "pass-method-by-requirements",
+  by_exam: "pass-method-by-exam",
+  teacher_adds: "pass-method-teacher-adds",
+} as const satisfies Record<CompletionMethod, string>
 
 /** What the collapsed card says about a module, so "is this set up right?" needs no editor. */
 const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const parts: string[] = []
+  const parts: string[] = [t(COMPLETION_METHOD_LABEL_KEYS[module.completion_method])]
   if (module.uh_course_code) {
     parts.push(module.uh_course_code)
   }
   if (module.ects_credits !== null) {
     parts.push(t("module-summary-credits", { count: module.ects_credits }))
   }
-  if (module.uh_course_code && !module.completions_can_be_registered_to_sisu) {
-    parts.push(t("module-summary-sisu-registration-off"))
-  }
-  if (registersCredits(module) && !module.completion_registration_link_override?.trim()) {
-    parts.push(t("module-summary-no-enrolment-link"))
-  }
-  if (parts.length === 0) {
-    return null
+  if (module.credit_registration_route === "certificate_only") {
+    parts.push(t("route-certificate-only"))
+  } else if (module.credit_registration_route === "external") {
+    parts.push(t("module-summary-registered-outside"))
+  } else if (!module.completion_registration_link_override?.trim()) {
+    parts.push(t("module-summary-no-registration-link"))
   }
   return (
     <p className={noteCss}>
@@ -179,14 +169,18 @@ const CollapsedSummary: React.FC<{ module: ModuleView }> = ({ module }) => {
 /**
  * One module's settings, whether it exists yet or not.
  *
- * The same card creates and edits, so a module can be given its course code, and with it the study
- * registry path, at birth.
+ * The same card creates and edits, so a module can be given its completion settings at birth.
  */
 const CourseModuleForm: React.FC<Props> = ({
   mode,
   module,
   chapters,
   creditRegistrationConfig,
+  linkedExams,
+  courseId,
+  chapterNumberById,
+  links,
+  canToggleCertificates,
   hasUnsavedChanges = false,
   onSubmitForm,
   onDeleteModule,
@@ -196,46 +190,39 @@ const CourseModuleForm: React.FC<Props> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isCreate = mode === "create"
   const [editing, setEditing] = useState(isCreate)
+  const form = useForm<CourseModuleFormState>({
+    mode: VALIDATE_ON_CHANGE,
+    defaultValues: makeDefaultValues(module, chapters),
+  })
   const {
     control,
     handleSubmit,
     formState: { isValid, isSubmitting },
     reset,
-    trigger,
     watch,
-  } = useForm<CourseModuleFormState>({
-    mode: VALIDATE_ON_CHANGE,
-    defaultValues: makeDefaultValues(module, chapters),
-  })
+  } = form
   useEffect(() => {
     reset(makeDefaultValues(module, chapters))
   }, [reset, module, chapters])
-  const automaticCompletion = watch("automatic_completion")
-  const overrideLink = watch("override_completion_link")
-  const registersToStudyRegistry = registersCredits({
-    uh_course_code: watch("uh_course_code"),
-    completions_can_be_registered_to_sisu: watch("completions_can_be_registered_to_sisu"),
-  })
-  // Without this, adding a course code shows up only as a disabled Done button, and removing it
-  // again leaves the message it raised under a field nothing requires any more.
-  useEffect(() => {
-    trigger(CREDITS_FIELD)
-  }, [registersToStudyRegistry, trigger])
-  useEffect(() => {
-    trigger(COMPLETION_LINK_FIELD)
-  }, [overrideLink, trigger])
 
-  const onSubmitFormWrapper = ({ starts, ends, ...fields }: CourseModuleFormState): void => {
+  const formState = watch()
+  const starts = Number(formState.starts)
+  const ends = Number(formState.ends)
+  const hasNoRequirement = lacksRequirement(formState)
+  const exercisesQuery = useQuery({
+    ...getCourseExercisesOptions({ path: { course_id: courseId } }),
+    // Only the requirement fields use the totals.
+    enabled: editing && formState.pass_method === "automatic",
+  })
+  const exercises = exercisesQuery.data
+  const moduleTotals = useMemo(
+    () => (exercises ? totalsOf(exercises, chapterNumberById, starts, ends) : null),
+    [exercises, chapterNumberById, starts, ends],
+  )
+
+  const onSubmitFormWrapper = (state: CourseModuleFormState): void => {
     setEditing(isCreate)
-    onSubmitForm(module.id, {
-      ...fields,
-      starts: Number(starts),
-      ends: Number(ends),
-      // A disabled Checkbox still submits its value, unlike `register(name, { disabled })`.
-      automatic_completion_requires_exam: fields.automatic_completion
-        ? fields.automatic_completion_requires_exam
-        : false,
-    })
+    onSubmitForm(module.id, formFieldsOf(state))
     onCancel?.()
   }
 
@@ -258,221 +245,138 @@ const CourseModuleForm: React.FC<Props> = ({
   )
 
   return (
-    <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
-      <div className={headerCss}>
-        <div className={headerTitleCss}>
-          {editing && nameIsEditable ? (
-            <TextField
-              name="name"
-              control={control}
-              label={isCreate ? t("name-of-module") : t("edit-module")}
-              rules={{ required: t("required-field") }}
-            />
-          ) : (
-            <span className={headingCss}>
-              {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
-            </span>
-          )}
-          {hasUnsavedChanges && <Badge tone={TONE.WARNING}>{t("badge-unsaved-changes")}</Badge>}
+    <FormProvider {...form}>
+      <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
+        <div className={headerCss}>
+          <div className={headerTitleCss}>
+            {editing && nameIsEditable ? (
+              <TextField
+                name="name"
+                control={control}
+                label={isCreate ? t("name-of-module") : t("edit-module")}
+                rules={{ required: t("required-field") }}
+              />
+            ) : (
+              <span className={headingCss}>
+                {module.name ? `${module.order_number}. ${module.name}` : t("default-module")}
+              </span>
+            )}
+            {hasUnsavedChanges && <Badge tone={TONE.WARNING}>{t("badge-unsaved-changes")}</Badge>}
+            {!editing && (
+              <>
+                {registersCredits(module) && (
+                  <Badge tone={TONE.INFO}>{t("badge-registers-to-study-registry")}</Badge>
+                )}
+                {hasConfigProblem && (
+                  <Badge tone={TONE.WARNING}>{t("badge-credit-registration-config-problem")}</Badge>
+                )}
+              </>
+            )}
+          </div>
           {!editing && (
-            <>
-              {registersCredits(module) && (
-                <Badge tone={TONE.INFO}>{t("badge-registers-to-study-registry")}</Badge>
+            <div className={actionsCss}>
+              <Button
+                variant="secondary"
+                size="small"
+                type="button"
+                onClick={() => setEditing(true)}
+              >
+                {t("edit")}
+              </Button>
+              {onDeleteModule && module.name !== null && (
+                <Button
+                  aria-label={t("button-text-delete")}
+                  className={deleteButtonCss}
+                  onClick={() => onDeleteModule(module.id)}
+                  disabled={isSubmitting}
+                  type="button"
+                  variant="icon"
+                  size="small"
+                >
+                  <Trash size={16} />
+                </Button>
               )}
-              {hasConfigProblem && (
-                <Badge tone={TONE.WARNING}>{t("badge-credit-registration-config-problem")}</Badge>
-              )}
-            </>
+            </div>
           )}
         </div>
+
         {!editing && (
-          <div className={actionsCss}>
-            <Button variant="secondary" size="small" type="button" onClick={() => setEditing(true)}>
-              {t("edit")}
-            </Button>
-            {onDeleteModule && module.name !== null && (
-              <Button
-                aria-label={t("button-text-delete")}
-                className={deleteButtonCss}
-                onClick={() => onDeleteModule(module.id)}
-                disabled={isSubmitting}
-                type="button"
-                variant="icon"
-                size="small"
-              >
-                <Trash size={16} />
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {!editing && (
-        <>
-          <CollapsedSummary module={module} />
-          {/* A course whose credits are failing has to say so without the editor being opened. */}
-          {configCallout}
-          {children}
-        </>
-      )}
-
-      {editing && (
-        <>
-          <fieldset className={groupCss}>
-            <legend className={subheadingCss}>{t("heading-module-chapters")}</legend>
-            <div className={fieldRowCss}>
-              <Select
-                name="starts"
-                control={control}
-                id={isCreate ? "new-module-start" : "editing-module-start"}
-                label={t("starts")}
-                options={chapterOptions}
-              />
-              <Select
-                name="ends"
-                control={control}
-                id={isCreate ? "new-module-ends" : "editing-module-ends"}
-                label={t("ends")}
-                options={chapterOptions}
-              />
-            </div>
-          </fieldset>
-
-          <fieldset className={groupCss}>
-            <legend className={subheadingCss}>{t("heading-module-completion")}</legend>
-            <Checkbox
-              name="automatic_completion"
-              control={control}
-              label={t("enable-automatic-completion")}
-            />
-            <div className={fieldRowCss}>
-              <NumberField
-                name="automatic_completion_number_of_points_treshold"
-                control={control}
-                label={t("automatic-completion-points-treshold")}
-                isDisabled={!automaticCompletion}
-                minValue={0}
-              />
-              <NumberField
-                name="automatic_completion_number_of_exercises_attempted_treshold"
-                control={control}
-                label={t("automatic-completion-exercise-treshold")}
-                isDisabled={!automaticCompletion}
-                minValue={0}
-              />
-            </div>
-            {/* Only the default module can require an exam. */}
-            {!isCreate && !module.name && (
-              <Checkbox
-                name="automatic_completion_requires_exam"
-                control={control}
-                label={t("automatic-completion-requires-exam")}
-                isDisabled={!automaticCompletion}
-              />
-            )}
-          </fieldset>
-
-          <fieldset className={groupCss}>
-            <legend className={subheadingCss}>{t("heading-module-credits")}</legend>
-            <div className={fieldRowCss}>
-              <TextField name="uh_course_code" control={control} label={t("uh-course-code")} />
-              <NumberField
-                name="ects_credits"
-                control={control}
-                label={t("ects-credits")}
-                minValue={0}
-                step={0.5}
-                // The step only sizes the stepper buttons: snapping to it rewrites a module
-                // already stored on, say, 1.3 credits the moment the editor opens.
-                commitBehavior={VALIDATE_ON_COMMIT}
-                isRequired={registersToStudyRegistry}
-                rules={{
-                  validate: (value) => {
-                    if (value !== null && value !== undefined && value < 0) {
-                      return t("ects-credits-must-be-non-negative")
-                    }
-                    // Zero credits is as unregisterable as none.
-                    const missing = value === null || value === undefined || value === 0
-                    return missing && registersToStudyRegistry
-                      ? t("error-credits-required-for-sisu")
-                      : true
-                  },
-                }}
-              />
-            </div>
-            {/* The check is about these two fields, so its outcome sits with them. */}
+          <>
+            <CollapsedSummary module={module} />
+            {/* A course whose credits are failing has to say so without the editor being opened. */}
             {configCallout}
-            {courseCodeFoundInSisu && (
-              <p className={noteCss}>
-                {t("credit-registration-config-course-code-found", {
-                  courseCode: module.uh_course_code,
-                })}
-              </p>
-            )}
-            <Checkbox
-              name="completions_can_be_registered_to_sisu"
-              control={control}
-              label={t("completions-can-be-registered-to-sisu")}
-              description={t("description-completions-can-be-registered-to-sisu")}
-            />
-          </fieldset>
+            {children}
+          </>
+        )}
 
-          <fieldset className={groupCss}>
-            <legend className={subheadingCss}>{t("heading-credit-registration")}</legend>
-            <Checkbox
-              name="override_completion_link"
-              control={control}
-              label={t("override-completion-registration-link")}
-            />
-            <TextField
-              name="completion_registration_link_override"
-              control={control}
-              label={t("completion-registration-link")}
-              description={
-                registersToStudyRegistry
-                  ? t("description-completion-registration-link-study-registry")
-                  : undefined
-              }
-              isDisabled={!overrideLink}
-              // The field stays mounted while the override is off, so its rule has to go with it —
-              // spelled out as no minimum rather than left out, which would keep the rule it had.
-              rules={{
-                minLength: overrideLink
-                  ? {
-                      value: MIN_COMPLETION_LINK_LENGTH,
-                      message: t("error-completion-registration-link-too-short"),
-                    }
-                  : NO_MINIMUM_LENGTH,
-              }}
-            />
-          </fieldset>
+        {editing && (
+          <>
+            <fieldset className={groupCss}>
+              <legend className={subheadingCss}>{t("heading-module-chapters")}</legend>
+              <div className={fieldRowCss}>
+                <Select
+                  name="starts"
+                  control={control}
+                  id={isCreate ? "new-module-start" : "editing-module-start"}
+                  label={t("starts")}
+                  options={chapterOptions}
+                />
+                <Select
+                  name="ends"
+                  control={control}
+                  id={isCreate ? "new-module-ends" : "editing-module-ends"}
+                  label={t("ends")}
+                  options={chapterOptions}
+                />
+              </div>
+            </fieldset>
 
-          <div className={actionsCss}>
-            <Button
-              variant="secondary"
-              size="medium"
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => {
-                reset()
-                setEditing(false)
-                onCancel?.()
-              }}
-            >
-              {t("button-text-cancel")}
-            </Button>
-            <Button
-              variant="primary"
-              size="medium"
-              disabled={!isValid || isSubmitting}
-              type="submit"
-            >
-              {isCreate ? t("create-module") : t("button-text-done")}
-            </Button>
-          </div>
-        </>
-      )}
-    </form>
+            <div>
+              <ModuleCompletionFields
+                courseId={courseId}
+                linkedExams={linkedExams}
+                hasNoRequirement={hasNoRequirement}
+                moduleTotals={moduleTotals}
+                links={links}
+                canToggleCertificates={canToggleCertificates}
+              />
+              {configCallout}
+              {courseCodeFoundInSisu && (
+                <p className={noteCss}>
+                  {t("credit-registration-config-course-code-found", {
+                    courseCode: module.uh_course_code,
+                  })}
+                </p>
+              )}
+            </div>
+
+            <div className={actionsCss}>
+              <Button
+                variant="secondary"
+                size="medium"
+                type="button"
+                disabled={isSubmitting}
+                onClick={() => {
+                  reset()
+                  setEditing(false)
+                  onCancel?.()
+                }}
+              >
+                {t("button-text-cancel")}
+              </Button>
+              <Button
+                variant="primary"
+                size="medium"
+                disabled={!isValid || hasNoRequirement || isSubmitting}
+                type="submit"
+              >
+                {isCreate ? t("create-module") : t("button-text-done")}
+              </Button>
+            </div>
+          </>
+        )}
+      </form>
+    </FormProvider>
   )
 }
 

@@ -96,6 +96,7 @@ describe("currentStateMessage", () => {
         submitted_archive_url: null,
         public_spec: PUBLIC_SPEC,
         model_solution_spec: null,
+        model_solution_files: [],
       }),
     ).toBeNull()
   })

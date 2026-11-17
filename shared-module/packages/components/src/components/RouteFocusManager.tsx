@@ -12,7 +12,7 @@ const HEADING_SELECTOR = "h1"
 const ANY_HEADING_SELECTOR = "h1, h2, h3, h4, h5, h6"
 
 /** How long after a navigation late content may still pull focus to the heading. */
-const OBSERVE_MS = 3000
+const OBSERVE_MS = 8000
 
 const TABINDEX_ATTRIBUTE = "tabindex"
 
@@ -105,18 +105,24 @@ const settleFocusOnHeading = (
   if (!watched) {
     focusTarget()
   }
-  // Watches the layout root holding the container (not the body, so toasts and live regions don't
-  // count) and re-queries the container, as it may be replaced. Keeps watching after the heading
-  // has focus: the heading itself may be replaced a moment later.
-  const observer = new MutationObserver(() => {
-    if (update()) {
+  // Watches the body, as the whole layout (not just main) may be replaced while the page loads.
+  // Mutations outside the current container (toasts, live regions) are ignored.
+  let observedContainer = getContainer()
+  const observer = new MutationObserver((records) => {
+    if (typeof document === "undefined") {
+      // Environment torn down (tests) while the window was still open.
+      observer.disconnect()
+      return
+    }
+    const container = getContainer()
+    const relevant =
+      container !== observedContainer || records.some((r) => container?.contains(r.target))
+    observedContainer = container
+    if (relevant && update()) {
       observer.disconnect()
     }
   })
-  observer.observe(getContainer()?.parentElement ?? document.body, {
-    childList: true,
-    subtree: true,
-  })
+  observer.observe(document.body, { childList: true, subtree: true })
   const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
   return () => {
     observer.disconnect()

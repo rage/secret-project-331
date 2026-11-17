@@ -334,17 +334,10 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(document.querySelector("#late"))
   })
 
-  test("observes the layout root, not the body, so a mutation outside it does not refocus", async () => {
-    const observe = jest.spyOn(MutationObserver.prototype, "observe")
+  test("ignores mutations outside main, so a toast does not refocus", async () => {
     const { rerender } = render(<App heading="Home" />)
     mockState.pathname = "/about"
     rerender(<App heading={null} />)
-    const main = document.querySelector("#maincontent")
-    const observed = observe.mock.calls.map(([node]) => node)
-    expect(observed).toContain(main?.parentElement)
-    expect(observed).not.toContain(document.body)
-
-    // Focus moved on; a toast outside the root must not pull it back.
     const button = document.createElement("button")
     document.body.append(button)
     button.focus()
@@ -356,7 +349,36 @@ describe("RouteFocusManager", () => {
     })
     expect(document.activeElement).toBe(button)
     button.remove()
-    observe.mockRestore()
+  })
+
+  test("finds a heading when the whole layout around main is replaced", async () => {
+    const Layout = ({ gen, children }: { gen: number; children?: React.ReactNode }) => (
+      <div key={gen}>
+        <main id="maincontent">{children}</main>
+      </div>
+    )
+    const tree = (gen: number, children?: React.ReactNode) => (
+      <>
+        <RouteFocusManager pathname="/page" />
+        <Layout gen={gen}>{children}</Layout>
+      </>
+    )
+    const { rerender } = render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <Layout gen={0} />
+      </>,
+    )
+    rerender(tree(0))
+    await act(async () => {
+      rerender(tree(1))
+      await Promise.resolve()
+    })
+    await act(async () => {
+      rerender(tree(1, <h3 id="late">Late</h3>))
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("#late"))
   })
 
   test("focusMainHeading focuses without scrolling", () => {

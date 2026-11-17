@@ -15,15 +15,15 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { includeIf } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Spinner } from "@/shared-module/components"
 
 import CertificateImage from "./CertificateImage"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("title-validate-certificate"))
   const { certificateVerificationId } = useParams<{ certificateVerificationId: string }>()
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")
@@ -65,6 +65,13 @@ const ModuleCertificateVerification: React.FC = () => {
     // A certificate's text does not change while the page is open.
     staleTime: Infinity,
   })
+
+  usePageTitle(joinTitleSegments([t("title-validate-certificate"), details.data?.course_name]))
+
+  // Avoid a heading and list that change after the first paint.
+  if (details.isLoading) {
+    return <Spinner label={t("loading")} />
+  }
 
   return (
     <QueryResult

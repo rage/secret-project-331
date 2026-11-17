@@ -33,6 +33,18 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL(/.*\/certificates\/.*/)
   await page.getByText("Save as png").waitFor()
   const currentUrl = page.url()
+  await expect(page.getByRole("heading", { name: "Certificate details" })).toBeVisible()
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
+    headless,
+    testInfo,
+    snapshotName: "certificate-details",
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("img", { name: "Certificate image" }),
+      page.getByRole("heading", { name: "Certificate details" }),
+    ],
+    scrollToYCoordinate: 0,
+  })
   await page.goto(`${currentUrl}?debug=true`)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

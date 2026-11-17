@@ -152,8 +152,14 @@ export const useBulkUserDetails = (
   )
 }
 
-/** Display name of one user of the course; "" while loading, when unknown or without `userId`. */
-export const useUserName = (courseId: string, userId: string | null | undefined): string =>
-  formatUserName(useBulkUserDetails(courseId, userId ? [userId] : null).data?.[0])
+/** Display names of the given course users, from one request; "" while loading or unknown. */
+export const useUserNames = (
+  courseId: string,
+  userIds: (string | null | undefined)[] | undefined,
+): ((userId: string | null | undefined) => string) => {
+  const ids = [...new Set((userIds ?? []).filter((id): id is string => Boolean(id)))].toSorted()
+  const users = useBulkUserDetails(courseId, ids).data
+  return (userId) => formatUserName(users?.find((user) => user.user_id === userId))
+}
 
 type UseUserDetailsResult = UserDetailsResult

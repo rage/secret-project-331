@@ -55,9 +55,7 @@ jest.mock("@/shared-module/common/hooks/useToastMutationOptions", () => ({
 
 jest.mock("@/hooks/usePageInfo", () => ({ usePageInfo: () => ({ data: undefined }) }))
 jest.mock("@/hooks/useUserDetails", () => ({
-  useBulkUserDetails: () => ({ data: undefined }),
-  formatUserName: () => "",
-  useUserName: () => "",
+  useUserNames: () => () => "",
 }))
 jest.mock("@/hooks/useFeedbackCategoryToggleInfo", () => ({
   __esModule: true,
@@ -78,9 +76,6 @@ jest.mock("@/hooks/useFeedbackCategoryToggleInfo", () => ({
 jest.mock("@/shared-module/common/hooks/usePaginationInfo", () => ({
   __esModule: true,
   default: () => ({ page: 1, limit: 10, setPage: () => {}, setLimit: () => {} }),
-}))
-jest.mock("react-i18next", () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
 }))
 
 describe("FeedbackList", () => {

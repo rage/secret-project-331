@@ -15,7 +15,6 @@ import type {
   PageProposal,
 } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { useUserName } from "@/hooks/useUserDetails"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
@@ -104,9 +103,13 @@ function resolveBlockProposalInfo(
   return null
 }
 
+export const changeRequestHeadingId = (proposalId: string) =>
+  // oxlint-disable-next-line i18next/no-literal-string
+  `change-request-heading-${proposalId}`
+
 export interface Props {
-  courseId: string
   proposal: PageProposal
+  senderName: string
   handleProposal: (
     pageId: string,
     pageProposalId: string,
@@ -115,16 +118,15 @@ export interface Props {
 }
 
 const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
-  courseId,
   proposal,
+  senderName,
   handleProposal,
 }) => {
   const { t } = useTranslation()
 
   const pageInfo = usePageInfo(proposal.page_id)
-  const senderName = useUserName(courseId, proposal.user_id)
   const created = parseISO(proposal.created_at)
-  const headingId = `change-request-heading-${proposal.id}`
+  const headingId = changeRequestHeadingId(proposal.id)
 
   const defaultFormValues = useMemo<ProposalFormFields>(() => {
     const decisions: Record<string, ProposalDecision | ""> = {}

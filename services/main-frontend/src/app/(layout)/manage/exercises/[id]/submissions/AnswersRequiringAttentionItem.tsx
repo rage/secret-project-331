@@ -17,7 +17,7 @@ import type {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
 } from "@/generated/api/types.generated"
-import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
+import { extractUserDetail, formatUserName, useUserDetails } from "@/hooks/useUserDetails"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -41,8 +41,10 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const headingId = useId()
-  const userDetails = useBulkUserDetails(courseId, [answerRequiringAttention.user_id])
-  const userDetail = userDetails.data?.[0]
+  // Same query as the UserDisplay below, so no extra request.
+  const userDetail = extractUserDetail(
+    useUserDetails(courseId ? [courseId] : null, answerRequiringAttention.user_id).data,
+  )
   const studentName = formatUserName(userDetail) || userDetail?.email || t("student-name")
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
 

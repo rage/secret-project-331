@@ -11,11 +11,12 @@ import {
   processEditProposalMutation as processProposalMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { BlockProposalInfo } from "@/generated/api/types.generated"
+import { useUserNames } from "@/hooks/useUserDetails"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
 import { QueryResult, useFocusAfterRemoval } from "@/shared-module/components"
 
-import EditProposalView from "./EditProposalView"
+import EditProposalView, { changeRequestHeadingId } from "./EditProposalView"
 
 interface Props {
   courseId: string
@@ -47,6 +48,10 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     }),
   })
   const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getEditProposalList.data)
+  const senderName = useUserNames(
+    courseId,
+    getEditProposalList.data?.map((p) => p.user_id),
+  )
   const processProposalMutation = useToastMutationOptions(
     processProposalMutationOptions(),
     {
@@ -74,7 +79,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
         block_proposals: blockProposals,
       },
     })
-    remember(`change-request-heading-${pageProposalId}`)
+    remember(changeRequestHeadingId(pageProposalId))
     await getEditProposalList.refetch()
     await onChange()
   }
@@ -107,8 +112,8 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
                 editProposalList.map((p) => (
                   <li key={p.id}>
                     <EditProposalView
-                      courseId={courseId}
                       proposal={p}
+                      senderName={senderName(p.user_id)}
                       handleProposal={handleProposal}
                     />
                   </li>
@@ -137,8 +142,8 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
                   {proposalsForDeletedBlocks?.map((p) => (
                     <li key={p.id}>
                       <EditProposalView
-                        courseId={courseId}
                         proposal={p}
+                        senderName={senderName(p.user_id)}
                         handleProposal={handleProposal}
                       />
                     </li>

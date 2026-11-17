@@ -14,7 +14,6 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { useUserName } from "@/hooks/useUserDetails"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -24,8 +23,13 @@ import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, Disclosure, itemHeadingProps, Link } from "@/shared-module/components"
 import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
+export const feedbackHeadingId = (feedbackId: string) =>
+  // oxlint-disable-next-line i18next/no-literal-string
+  `feedback-heading-${feedbackId}`
+
 export interface FeedbackViewProps {
   courseId: string
+  senderName: string
   feedback: Feedback
   read: boolean
   setRead: (read: boolean) => Promise<void>
@@ -56,6 +60,7 @@ const CapitalizedFirstLetter = styled.span`
 
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   courseId,
+  senderName,
   feedback,
   read,
   setRead,
@@ -64,7 +69,6 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
-  const senderName = useUserName(courseId, feedback.user_id)
   const created = parseISO(feedback.created_at)
 
   const markAsReadMutation = useToastMutationOptions(
@@ -108,7 +112,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
             pageInfo.data,
             feedback.page_url_path,
           )}${feedback.blocks.length > 0 ? `?highlight-blocks=${feedback.blocks.map((b) => b.id).join(",")}` : ""}`}
-          aria-describedby={`feedback-heading-${feedback.id}`}
+          aria-describedby={feedbackHeadingId(feedback.id)}
           target="_blank"
           rel="noreferrer noopener"
           styledAsButton
@@ -119,7 +123,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         </Link>
       )}
       <h3
-        id={`feedback-heading-${feedback.id}`}
+        id={feedbackHeadingId(feedback.id)}
         {...itemHeadingProps}
         className={css`
           font-size: ${typography.h6};

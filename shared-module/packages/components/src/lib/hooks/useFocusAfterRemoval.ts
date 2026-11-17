@@ -16,6 +16,7 @@ const itemHeadings = (container: HTMLElement | null) =>
  * Keeps focus in a list when an item goes: once the removal succeeded, `remember(itemHeadingId)`
  * and focus moves to the heading at that position after `dependency` (the list data) changes.
  * Without an id, or when the list ran out, it moves to the list heading, else to `fallback`.
+ * `remember`'s `onFocused` runs right after that move, e.g. to announce what was removed.
  */
 export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
   dependency: unknown,
@@ -24,13 +25,15 @@ export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
   const containerRef = useRef<T | null>(null)
   const listHeadingRef = useRef<HTMLHeadingElement | null>(null)
   const pendingIndex = useRef<number | null>(null)
+  const pendingOnFocused = useRef<(() => void) | undefined>(undefined)
   const fallbackRef = useRef(fallback)
 
   useEffect(() => {
     fallbackRef.current = fallback
   })
 
-  const remember = (itemHeadingId?: string) => {
+  const remember = (itemHeadingId?: string, onFocused?: () => void) => {
+    pendingOnFocused.current = onFocused
     if (itemHeadingId === undefined) {
       pendingIndex.current = LIST_HEADING
       return
@@ -47,12 +50,15 @@ export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
       return
     }
     pendingIndex.current = null
+    const onFocused = pendingOnFocused.current
+    pendingOnFocused.current = undefined
     const target = itemHeadings(containerRef.current)[index] ?? listHeadingRef.current
     if (target) {
       focusProgrammatically(target)
     } else {
       fallbackRef.current?.()
     }
+    onFocused?.()
   }, [dependency])
 
   return { containerRef, listHeadingRef, itemHeadingProps, remember }

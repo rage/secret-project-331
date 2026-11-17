@@ -1,6 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import "../../../../../tests/inert-focus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import React, { useState } from "react"

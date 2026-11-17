@@ -1,6 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import "../../../../tests/inert-focus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Provider as JotaiProvider } from "jotai"
@@ -26,6 +27,15 @@ const renderHandler = () =>
         <FeedbackHandler courseId="c" pageId="p" courseHasChatbot={false} />
       </JotaiProvider>
     </QueryClientProvider>,
+  )
+
+// Lets react-aria's frame-delayed focus restore run before asserting where focus ended.
+const settleFocus = () =>
+  act(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(resolve, 100)
+      }),
   )
 
 const getTrigger = () => screen.getByRole("button", { name: "give-feedback", hidden: true })
@@ -64,7 +74,8 @@ describe("FeedbackHandler (F-07, B-001, B-012)", () => {
 
     fireEvent.keyDown(dialog, { key: "Escape" })
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
-    await waitFor(() => expect(document.activeElement).toBe(trigger))
+    await settleFocus()
+    expect(document.activeElement).toBe(trigger)
   })
 
   it("returns focus to the trigger after closing the improve panel with Close", async () => {
@@ -75,7 +86,8 @@ describe("FeedbackHandler (F-07, B-001, B-012)", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "close" }))
     await waitFor(() => expect(region).not.toBeInTheDocument())
-    await waitFor(() => expect(document.activeElement).toBe(trigger))
+    await settleFocus()
+    expect(document.activeElement).toBe(trigger)
   })
 
   it("focuses the improve panel heading when Improve material is chosen", async () => {

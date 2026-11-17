@@ -1,7 +1,8 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { useOverlayTriggerState } from "@react-stately/overlays"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { MobileMenuOverlay } from "../MobileMenu/MobileMenuOverlay"
 
@@ -55,6 +56,18 @@ const state = {
   setOpen: jest.fn(),
 }
 
+function Harness() {
+  const menuState = useOverlayTriggerState({})
+  return (
+    <>
+      <button type="button" onClick={menuState.open}>
+        Open menu
+      </button>
+      {menuState.isOpen && <MobileMenuOverlay state={menuState} onClose={menuState.close} />}
+    </>
+  )
+}
+
 describe("MobileMenuOverlay", () => {
   it("labels the close button 'close-menu' and has a single heading", () => {
     render(<MobileMenuOverlay state={state as never} />)
@@ -71,5 +84,18 @@ describe("MobileMenuOverlay", () => {
     expect(back).toHaveFocus()
     fireEvent.click(back as HTMLElement)
     expect(screen.getByRole("button", { name: "English" })).toHaveFocus()
+  })
+
+  it("returns focus to the menu button when Escape closes the menu", async () => {
+    render(<Harness />)
+    const opener = screen.getByRole("button", { name: "Open menu" })
+    opener.focus()
+    fireEvent.click(opener)
+    await waitFor(() =>
+      expect(screen.getByRole("dialog")).toContainElement(document.activeElement as HTMLElement),
+    )
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Escape" })
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await waitFor(() => expect(opener).toHaveFocus())
   })
 })

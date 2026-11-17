@@ -112,7 +112,9 @@ describe("FeedbackDialog focus management (issue #54)", () => {
     fireEvent.click(add)
 
     await waitFor(() => expect(document.activeElement).toBe(textarea))
-    expect(announce).toHaveBeenCalledWith("comment-added", "polite")
+    // Held back so the focus speech does not cut it.
+    expect(announce).not.toHaveBeenCalled()
+    await waitFor(() => expect(announce).toHaveBeenCalledWith("comment-added", "polite"))
   })
 
   it("names the Delete buttons per comment", async () => {

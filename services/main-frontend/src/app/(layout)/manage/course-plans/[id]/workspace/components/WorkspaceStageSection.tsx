@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { announce } from "@react-aria/live-announcer"
 import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -16,6 +15,7 @@ import {
 import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
+import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
 import { Button, TextField, useFocusAfterRemoval } from "@/shared-module/components"
 
 import { formatPlanDateRange } from "../../../coursePlanDates"
@@ -248,14 +248,14 @@ export default function WorkspaceStageSection({
     {
       onSuccess: (_data, variables) => {
         const deleted = stage.tasks.find((task) => task.id === variables.path.task_id)
-        remember(taskHeadingId(variables.path.task_id))
-        announce(
-          t("course-plans-task-deleted", {
-            task: deleted?.title ?? "",
-            defaultValue: "Task deleted: {{task}}",
-          }),
-          // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
-          "polite",
+        // Announced after the focus move, which would otherwise cut it.
+        remember(taskHeadingId(variables.path.task_id), () =>
+          announceAfterFocus(
+            t("course-plans-task-deleted", {
+              task: deleted?.title ?? "",
+              defaultValue: "Task deleted: {{task}}",
+            }),
+          ),
         )
         onInvalidate()
       },

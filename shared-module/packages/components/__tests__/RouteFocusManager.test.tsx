@@ -159,6 +159,52 @@ describe("RouteFocusManager", () => {
     expect(heading).not.toHaveAttribute("data-route-focus-manager-active")
   })
 
+  test("re-focuses when the focused h1 is replaced shortly after navigation", async () => {
+    const { rerender } = render(<Shell pathname="/" />)
+    rerender(
+      <Shell pathname="/chapter">
+        <h1 key="a">Chapter</h1>
+      </Shell>,
+    )
+    const first = document.querySelector("h1")
+    expect(document.activeElement).toBe(first)
+
+    // The page remounts its content after load, so the focused h1 is a new element.
+    await act(async () => {
+      rerender(
+        <Shell pathname="/chapter">
+          <h1 key="b">Chapter</h1>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    const second = document.querySelector("h1")
+    expect(second).not.toBe(first)
+    expect(document.activeElement).toBe(second)
+  })
+
+  test("leaves focus alone once the user moved it, even if the h1 is replaced", async () => {
+    const { rerender } = render(<Shell pathname="/" />)
+    rerender(
+      <Shell pathname="/chapter">
+        <h1 key="a">Chapter</h1>
+        <button type="button">Elsewhere</button>
+      </Shell>,
+    )
+    const button = document.querySelector("button")
+    button?.focus()
+    await act(async () => {
+      rerender(
+        <Shell pathname="/chapter">
+          <h1 key="b">Chapter</h1>
+          <button type="button">Elsewhere</button>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(button)
+  })
+
   test("respects a custom target selector", () => {
     function CustomApp() {
       return (

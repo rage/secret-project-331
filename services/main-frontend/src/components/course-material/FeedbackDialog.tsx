@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { announce } from "@react-aria/live-announcer"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import { useAtom } from "jotai"
 import React, { useId, useRef, useState } from "react"
@@ -14,6 +13,7 @@ import type { FeedbackBlock } from "@/generated/course-material-api/types.genera
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
 import { Button, TextArea } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
@@ -131,9 +131,8 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
     setCommentValue(COMMENT_FIELD, "")
     setSelection("", undefined)
-    // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
-    announce(t("comment-added"), "polite")
     commentFieldRef.current?.querySelector("textarea")?.focus()
+    announceAfterFocus(t("comment-added"))
   }
 
   const charactersLeft = 1000 - comment.length

@@ -1,6 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import "../../../../../tests/inert-focus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
@@ -24,6 +25,13 @@ jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
         mockResolveIpCountry = resolve
       }),
   }),
+}))
+
+jest.mock("@/generated/api/sdk.generated", () => ({
+  createUserResearchConsent: jest.fn().mockResolvedValue({}),
+}))
+jest.mock("@/hooks/useUserResearchConsentQuery", () => ({
+  refetchUserResearchConsent: jest.fn().mockResolvedValue(undefined),
 }))
 
 jest.mock("@/shared-module/common/generated/auth-api/sdk.generated", () => ({
@@ -156,7 +164,7 @@ describe("Create account form accessibility", () => {
     expect(link).toHaveTextContent("sign-in-if-you-have-an-account")
   })
 
-  it("moves focus to the confirm-email heading after signing up", async () => {
+  it("moves focus to the confirm-email heading once the research consent dialog closes", async () => {
     ;(postAuthSignup as jest.Mock).mockResolvedValue({ type: "success" })
     renderPage()
     await act(async () => {})
@@ -172,11 +180,28 @@ describe("Create account form accessibility", () => {
     fireEvent.click(await screen.findByRole("option", { name: "fi" }))
     fireEvent.click(screen.getByRole("button", { name: "create-an-account" }))
 
+    const dialog = await screen.findByTestId("research-consent-dialog")
     const heading = await screen.findByRole("heading", {
       level: 1,
       name: "message-please-confirm-your-email-address",
       hidden: true,
     })
-    await waitFor(() => expect(heading).toHaveFocus())
+    // The page behind the dialog is inert, so the heading cannot take focus yet.
+    await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement))
+
+    fireEvent.click(
+      screen.getByRole("radio", {
+        name: "research-consent-i-do-not-want-participate-in-educational-research",
+      }),
+    )
+    fireEvent.click(screen.getByRole("button", { name: "button-text-save" }))
+    await waitFor(() => expect(screen.queryByTestId("research-consent-dialog")).toBeNull())
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          setTimeout(resolve, 100)
+        }),
+    )
+    expect(heading).toHaveFocus()
   })
 })

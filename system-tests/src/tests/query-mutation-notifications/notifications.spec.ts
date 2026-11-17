@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -32,7 +34,7 @@ test.describe.serial("Query/mutation notifications", () => {
     await page.getByTestId("toast-notification").getByText("Missing exercise type for").waitFor()
     const errorToastAlert = page.getByTestId("toast-notification").getByRole("alert")
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -58,7 +60,7 @@ test.describe.serial("Query/mutation notifications", () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

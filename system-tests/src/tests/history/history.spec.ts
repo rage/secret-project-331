@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -34,7 +35,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -119,7 +120,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   /*
   const stableElement = await page.getByText("core/paragraph").first().waitFor()
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
@@ -139,7 +140,7 @@ screenshotTarget: page,
 
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    axeSkip: [`landmark-unique`, "page-has-heading-one"],
+    axeSkip: [`landmark-unique`, NO_H1],
     headless, testInfo,    snapshotName: "history-view-p4-before-compare",
     waitForTheseToBeVisibleAndStable: [stableElement2, "text=Compare"],
 
@@ -170,7 +171,7 @@ screenshotTarget: page,
 
   /*
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
@@ -193,7 +194,7 @@ screenshotTarget: page,
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
@@ -215,7 +216,7 @@ screenshotTarget: page,
   // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

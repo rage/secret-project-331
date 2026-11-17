@@ -2,6 +2,7 @@
 import { test } from "@playwright/test"
 
 import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -43,7 +44,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -62,7 +63,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -94,7 +95,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -114,7 +115,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.getByText("Mark as read").first().click()
   await page.getByText("I dont think we need these paragraphs").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

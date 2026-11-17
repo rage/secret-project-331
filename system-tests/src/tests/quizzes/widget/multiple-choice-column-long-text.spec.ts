@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { Select } from "../../../utils/components/Select"
 import {
   getLocatorForNthExerciseServiceIframe,
@@ -31,7 +33,7 @@ test("widget, multiple-choice multi screenshot test with long text", async ({
   await frame.locator(`text="short answer"`).click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-multi-long-answers",

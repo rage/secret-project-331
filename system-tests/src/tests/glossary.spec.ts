@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
+import accessibilityCheck, { NO_H1 } from "@/utils/accessibilityCheck"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -81,7 +81,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await page.getByText("Give feedback").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -96,7 +96,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     const glossaryButton = page.getByRole("button", { name: "SSD" }).first()
     await expect(glossaryButton).toBeVisible()
 
-    await accessibilityCheck(page, "Glossary tooltip closed view", ["page-has-heading-one"])
+    await accessibilityCheck(page, "Glossary tooltip closed view", [NO_H1])
 
     // For reliability we move the mouse to a consitent position before hovering.
     await page.mouse.move(0, 0)
@@ -107,7 +107,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
         name: SSD_DEFINITION,
       }),
     ).toBeVisible()
-    await accessibilityCheck(page, "Glossary tooltip open view", ["page-has-heading-one"])
+    await accessibilityCheck(page, "Glossary tooltip open view", [NO_H1])
     await page.keyboard.press("Escape")
     await expect(
       page.getByRole("tooltip", {
@@ -119,7 +119,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     const popover = page.getByRole("dialog", { name: "Definition" })
     await expect(popover).toBeVisible()
     await expect(popover).toBeFocused()
-    await accessibilityCheck(page, "Glossary popover open view", ["page-has-heading-one"])
+    await accessibilityCheck(page, "Glossary popover open view", [NO_H1])
     await page.keyboard.press("Escape")
     await expect(popover).toBeHidden()
 
@@ -146,7 +146,7 @@ test("glossary test", async ({ page, headless }, testInfo) => {
     await selectCourseInstanceIfPrompted(page)
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

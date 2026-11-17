@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -20,7 +22,7 @@ test.describe("Quizzes timeline feedback", () => {
     await selectCourseInstanceIfPrompted(page)
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -64,7 +66,7 @@ test.describe("Quizzes timeline feedback", () => {
       .selectOption({ label: "Finland joins the European Union" })
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -77,7 +79,7 @@ test.describe("Quizzes timeline feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -110,7 +112,7 @@ test.describe("Quizzes timeline feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -145,7 +147,7 @@ test.describe("Quizzes timeline feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

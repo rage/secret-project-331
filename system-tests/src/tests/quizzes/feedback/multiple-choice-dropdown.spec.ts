@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
@@ -40,7 +42,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -65,7 +67,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -90,7 +92,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -65,7 +66,7 @@ test.describe("Model solutions", () => {
 
     const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

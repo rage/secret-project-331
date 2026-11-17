@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -52,7 +53,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: frame,
       headless,
       testInfo,
@@ -71,7 +72,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: frame,
       headless,
       testInfo,
@@ -88,7 +89,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: ["page-has-heading-one"],
+      axeSkip: [NO_H1],
       screenshotTarget: frame,
       headless,
       testInfo,

@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
@@ -15,7 +17,7 @@ test("author-block", async ({ page, headless }, testInfo) => {
   await selectCourseInstanceIfPrompted(page)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

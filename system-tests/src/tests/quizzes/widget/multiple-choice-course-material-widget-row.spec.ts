@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -35,7 +36,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   const frame3 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-row-single",
@@ -49,7 +50,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast", "page-has-heading-one"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-single",
@@ -63,7 +64,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast", "page-has-heading-one"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-single",
@@ -77,7 +78,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-single",
@@ -96,7 +97,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   const frame4 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-row-multi",
@@ -110,7 +111,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast", "page-has-heading-one"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-multi",
@@ -124,7 +125,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast", "page-has-heading-one"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-multi",
@@ -138,7 +139,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-multi",

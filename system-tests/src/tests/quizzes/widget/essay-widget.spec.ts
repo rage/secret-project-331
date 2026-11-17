@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { Select } from "../../../utils/components/Select"
 import {
   getLocatorForNthExerciseServiceIframe,
@@ -24,7 +26,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   await frame.locator("textarea").fill("I think I enrolled in the wrong course XD")
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-essay-answered",
@@ -41,7 +43,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   await frame.locator(`text=79`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-essay-long-answer",

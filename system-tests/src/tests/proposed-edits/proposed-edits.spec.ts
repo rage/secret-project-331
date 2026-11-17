@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -41,7 +42,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("Improve material").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -62,7 +63,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("So big, that we need many paragraphs.").filter({ visible: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -101,7 +102,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.waitForTimeout(200)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

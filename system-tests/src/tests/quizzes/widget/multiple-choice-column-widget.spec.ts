@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
@@ -19,7 +21,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-initial",
@@ -32,7 +34,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#00ff00",
@@ -45,7 +47,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#ff0000",

@@ -11,6 +11,64 @@ export interface ResolvedErrorDisplayCopy {
   message: string | null
 }
 
+interface NormalizedMessageKey {
+  key: string
+  translationVariables?: Record<string, unknown> | undefined
+  databaseConstraint?: string
+}
+
+function normalizeMessageKey(value: unknown): NormalizedMessageKey | null {
+  if (typeof value === "string") {
+    return value ? { key: value } : null
+  }
+
+  if (!isRecord(value)) {
+    return null
+  }
+
+  if ("database_constraint" in value) {
+    const databaseConstraint = value.database_constraint
+
+    if (isRecord(databaseConstraint) && typeof databaseConstraint.constraint === "string") {
+      return {
+        key: databaseConstraint.constraint,
+        databaseConstraint: databaseConstraint.constraint,
+      }
+    }
+
+    return null
+  }
+
+  const [key, variables] = Object.entries(value)[0] ?? []
+
+  if (!key) {
+    return null
+  }
+
+  return {
+    key,
+    translationVariables: isRecord(variables) ? variables : undefined,
+  }
+}
+
+function translateMessageKey(
+  t: TFunction<"errors">,
+  messageKey: NormalizedMessageKey,
+  type: "title" | "message",
+  defaultValue: string,
+): string {
+  const namespace = messageKey.databaseConstraint
+    ? "database-constraint-error"
+    : "error-message-key"
+
+  const key = messageKey.databaseConstraint ? messageKey.databaseConstraint : messageKey.key
+
+  return t(`${namespace}.${key}.${type}`, {
+    defaultValue,
+    ...messageKey.translationVariables,
+  })
+}
+
 function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction<"errors">): string | null {
   const firstIssueCode = error.issues.find((issue) => typeof issue.code === "string")?.code
   if (!firstIssueCode) {
@@ -20,19 +78,6 @@ function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction<"errors">):
   return localized.trim() === "" ? null : localized
 }
 
-function stringifyMessageKey(value: unknown): string {
-  if (typeof value === "string") {
-    return value
-  }
-  if (isRecord(value)) {
-    const key = Object.keys(value)[0]
-
-    if (key) {
-      return key
-    }
-  }
-}
-
 /**
  * Resolves localized user-facing title and message from normalized error data.
  */
@@ -40,51 +85,32 @@ export function resolveErrorDisplayCopy(
   error: ErrorViewModel,
   t: TFunction<"errors">,
 ): ResolvedErrorDisplayCopy {
-  const errorIsDatabaseConstraint =
-    isRecord(error.messageKey) && "database_constraint" in error.messageKey
+  const messageKey = normalizeMessageKey(error.messageKey)
 
-  const localizedTitle = errorIsDatabaseConstraint
-    ? t(`database-constraint-error.${error.messageKey.database_constraint.constraint}.title`)
-    : error.messageKey
-      ? t(`error-message-key.${stringifyMessageKey(error.messageKey)}.title`, {
-          defaultValue: error.title,
-        })
-      : error.title
+  const title = messageKey ? translateMessageKey(t, messageKey, "title", error.title) : error.title
 
   const issueCodeMessage = resolveIssueCodeMessage(error, t)
+
   if (issueCodeMessage) {
     return {
-      title: localizedTitle,
+      title,
       message: issueCodeMessage,
     }
   }
 
-  const variablesArray = isRecord(error.messageKey) ? Object.values(error.messageKey) : null
+  if (messageKey) {
+    const localizedMessage = translateMessageKey(t, messageKey, "message", "")
 
-  const translationVariables =
-    variablesArray?.length === 1 && isRecord(variablesArray[0]) ? variablesArray[0] : null
-
-  if (error.messageKey) {
-    const localizedMessage = errorIsDatabaseConstraint
-      ? t(`database-constraint-error.${error.messageKey.database_constraint.constraint}.message`, {
-          defaultValue: "",
-          ...translationVariables,
-        })
-      : t(`error-message-key.${stringifyMessageKey(error.messageKey)}.message`, {
-          defaultValue: "",
-          ...translationVariables,
-        })
-
-    if (localizedMessage.trim() !== "") {
+    if (localizedMessage.trim()) {
       return {
-        title: localizedTitle,
+        title,
         message: localizedMessage,
       }
     }
   }
 
   return {
-    title: localizedTitle,
+    title,
     message: error.message,
   }
 }

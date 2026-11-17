@@ -383,10 +383,9 @@ impl error::ResponseError for ControllerError {
         let (error_type, default_message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
 
-        let message_key = if self.message_key.is_some() {
-            self.message_key.clone().unwrap()
-        } else {
-            default_message_key
+        let message_key = match self.message_key.clone() {
+            Some(key) => key,
+            None => default_message_key,
         };
 
         let error_response = ApiErrorResponse {

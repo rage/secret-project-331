@@ -344,7 +344,6 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): E
 }
 
 function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): ErrorViewModel {
-  //const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
   const status = error.status ?? null
   const category =
     error.kind === "abort"
@@ -360,10 +359,6 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): E
     "validation_error_with_cms_anchor_block_id" in error.messageKey
       ? error.messageKey.validation_error_with_cms_anchor_block_id.block_id
       : null
-
-  console.log(blockId, "blockIDDD")
-  console.log(typeof error.messageKey === "object", "coooomps")
-  console.log(typeof error.messageKey === "string", "coooomps string")
 
   return {
     category,

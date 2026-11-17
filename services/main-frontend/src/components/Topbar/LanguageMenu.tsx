@@ -3,7 +3,7 @@
 
 import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -151,6 +151,7 @@ const LanguageMenuWithHook: React.FC<
 }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
+  const popupLabelId = useId()
 
   const { items, currentLanguage, shouldShow, areLanguagesOverridden } = useLanguageMenuItems({
     availableLanguages: propAvailableLanguages,
@@ -197,6 +198,7 @@ const LanguageMenuWithHook: React.FC<
 
       <Popover
         aria-label={buttonLabel}
+        aria-labelledby={popupLabelId}
         placement={placement === "bottom-end" ? "bottom end" : "bottom start"}
         offset={8}
         lang={currentLanguage}
@@ -213,9 +215,13 @@ const LanguageMenuWithHook: React.FC<
           width: 90vw;
         `}
       >
+        <span id={popupLabelId} hidden>
+          {buttonLabel}
+        </span>
         <Menu
           data-testid="topbar-language-menu-popover"
           aria-label="Language selection"
+          aria-labelledby={popupLabelId}
           selectionMode="single"
           selectedKeys={selectedKeys}
           disallowEmptySelection

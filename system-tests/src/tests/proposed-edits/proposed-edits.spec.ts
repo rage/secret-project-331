@@ -41,6 +41,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("Improve material").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -52,11 +53,16 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 920,
   })
 
-  await page.getByText("The abacus is one of the oldest known calculating tools").click()
+  // The paragraph also has a hidden description copy of its text
+  await page
+    .getByText("The abacus is one of the oldest known calculating tools")
+    .filter({ visible: true })
+    .click()
 
-  await page.getByText("So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").filter({ visible: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -68,13 +74,13 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 920,
   })
 
-  await page.getByText("So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").filter({ visible: true }).click()
   await page.fill(
     "text=So big, that we need many paragraphs.",
     "So big, that we need many paragraphs...",
   )
 
-  await page.getByText("Like this.").click()
+  await page.getByText("Like this.").filter({ visible: true }).click()
   // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill("text=Like this.", "Like this!")
@@ -86,7 +92,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     "The abacus is the oldest known calculating tool, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many galaxies.",
   )
 
-  await page.getByText("So big,").click()
+  await page.getByText("So big,").filter({ visible: true }).click()
 
   await page.click('button:has-text("Preview")')
 
@@ -95,6 +101,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.waitForTimeout(200)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

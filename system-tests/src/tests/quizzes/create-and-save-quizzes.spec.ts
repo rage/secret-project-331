@@ -78,9 +78,10 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 const addNewQuiz = async (page: Page) => {
   await test.step("Add new quiz", async () => {
     const editTask = page.getByRole("button", { name: "Edit task" })
+    const tasksBefore = await editTask.count()
     await page.getByRole("button", { name: "Add task" }).click()
-    await expect(editTask).toHaveCount(1)
-    await editTask.click()
+    await expect(editTask).toHaveCount(tasksBefore + 1)
+    await editTask.nth(tasksBefore).click()
     await page.getByText("Quizzes").click()
   })
 }

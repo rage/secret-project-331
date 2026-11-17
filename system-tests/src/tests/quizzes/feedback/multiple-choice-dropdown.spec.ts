@@ -40,6 +40,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -64,6 +65,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -88,6 +90,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

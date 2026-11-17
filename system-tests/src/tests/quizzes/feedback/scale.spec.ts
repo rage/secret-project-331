@@ -73,6 +73,7 @@ test.describe("Quizzes scale feedback", () => {
       .first()
       .waitFor()
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

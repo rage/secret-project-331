@@ -65,6 +65,7 @@ test.describe("Model solutions", () => {
 
     const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

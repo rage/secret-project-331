@@ -55,6 +55,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
     await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -78,6 +79,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
     await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

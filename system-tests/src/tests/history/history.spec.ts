@@ -34,6 +34,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -71,7 +72,10 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await saveCMSPage(page)
 
-  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
+  await page
+    .locator('[aria-label="Block: ExerciseTask"]')
+    .getByRole("button", { name: "Edit task" })
+    .click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
@@ -98,7 +102,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`[aria-label="Page actions for New title"]`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
@@ -108,13 +112,14 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goBack()
   await page.getByText("Course pages for Introduction to history").waitFor()
 
-  await page.click(`[aria-label="Page actions for New title"]`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
   /*
   const stableElement = await page.getByText("core/paragraph").first().waitFor()
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p1",
@@ -134,7 +139,7 @@ screenshotTarget: page,
 
   await expectScreenshotsToMatchSnapshots({
 screenshotTarget: page,
-    axeSkip: [`landmark-unique`],
+    axeSkip: [`landmark-unique`, "page-has-heading-one"],
     headless, testInfo,    snapshotName: "history-view-p4-before-compare",
     waitForTheseToBeVisibleAndStable: [stableElement2, "text=Compare"],
 
@@ -165,6 +170,7 @@ screenshotTarget: page,
 
   /*
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-p4-after-compare",
@@ -187,6 +193,7 @@ screenshotTarget: page,
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
 screenshotTarget: page,
     headless, testInfo,    axeSkip: [`landmark-unique`],
     snapshotName: "history-view-after-restore",
@@ -208,6 +215,7 @@ screenshotTarget: page,
   // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

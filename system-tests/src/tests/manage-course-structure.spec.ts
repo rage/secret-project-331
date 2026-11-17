@@ -154,7 +154,9 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Update" }).click()
     })
-    await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: /The intermediaries TEST change/ }),
+    ).toBeVisible()
   })
 
   await test.step("Test more page deletion", async () => {

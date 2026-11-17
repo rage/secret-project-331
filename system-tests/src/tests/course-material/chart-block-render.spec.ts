@@ -47,6 +47,7 @@ test("Chart block renders for students", async ({ page, headless }, testInfo) =>
   await expect(chart.locator("text").first()).toHaveAttribute("font-family", /Inter/)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

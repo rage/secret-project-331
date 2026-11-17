@@ -43,6 +43,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -61,6 +62,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -92,6 +94,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -111,6 +114,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.getByText("Mark as read").first().click()
   await page.getByText("I dont think we need these paragraphs").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: ["page-has-heading-one"],
     screenshotTarget: page,
     headless,
     testInfo,

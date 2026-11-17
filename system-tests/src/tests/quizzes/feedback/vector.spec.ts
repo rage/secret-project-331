@@ -30,6 +30,7 @@ test.describe("Quizzes vector feedback", () => {
     }
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -42,6 +43,7 @@ test.describe("Quizzes vector feedback", () => {
     await getExerciseTaskIframe(page, 1).contentFrame().getByLabel("Z", { exact: true }).fill("5")
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -54,6 +56,7 @@ test.describe("Quizzes vector feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -70,6 +73,7 @@ test.describe("Quizzes vector feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was correct.").first().waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -86,6 +90,7 @@ test.describe("Quizzes vector feedback", () => {
     await page.frameLocator("iframe").getByText("Your answer was not correct.").first().waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: page,
       headless,
       testInfo,

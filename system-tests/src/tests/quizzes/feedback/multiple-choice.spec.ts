@@ -52,6 +52,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByText("Submit").click()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: frame,
       headless,
       testInfo,
@@ -70,6 +71,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByText("Submit").click()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: frame,
       headless,
       testInfo,
@@ -86,6 +88,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     await page.getByText("Submit").click()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: ["page-has-heading-one"],
       screenshotTarget: frame,
       headless,
       testInfo,

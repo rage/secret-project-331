@@ -15,7 +15,8 @@ test("Tab from the exercise heading reaches the options inside the iframe (chrom
   await selectCourseInstanceIfPrompted(page)
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
   const first = frame.getByRole("button", { name: "Option 1" })
-  await expect(first).toBeVisible()
+  // waitFor uses the 15 s action timeout; the iframe loads slowly under full-suite load
+  await first.waitFor()
 
   await page.getByRole("heading", { name: /Choose N exercise/ }).focus()
   await page.keyboard.press("Tab")

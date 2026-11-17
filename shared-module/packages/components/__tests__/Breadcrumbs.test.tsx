@@ -158,7 +158,7 @@ describe("Breadcrumbs", () => {
   describe("pending crumbs", () => {
     const pending: BreadcrumbItem[] = [
       { label: "Courses", href: "/courses" },
-      { status: "pending" },
+      { status: "pending", key: "pending" },
     ]
 
     test("hasError clears aria-busy and the hidden loading text", () => {

@@ -284,6 +284,7 @@ import {
   getMyEnrolmentRoute,
   getMyExternalCompletionEnrolmentRoute,
   getMyMoocfiCreditRegistrations,
+  getMyOldVersionProgress,
   getMyProgressByPlatform,
   getMyStudies,
   getMyVerifiedStudentNumber,
@@ -974,6 +975,8 @@ import type {
   GetMyExternalCompletionEnrolmentRouteResponse,
   GetMyMoocfiCreditRegistrationsData,
   GetMyMoocfiCreditRegistrationsResponse,
+  GetMyOldVersionProgressData,
+  GetMyOldVersionProgressResponse,
   GetMyProgressByPlatformData,
   GetMyProgressByPlatformResponse,
   GetMyStudiesData,
@@ -13528,7 +13531,7 @@ export const getBulkUserDetailsMutation = (
 }
 
 /**
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExactMutation = (
   options?: Partial<Options<SearchUserDetailsExactData>>,
@@ -13864,6 +13867,33 @@ export const unhideCourseFromMyCoursesMutation = (
   }
   return mutationOptions
 }
+
+export const getMyOldVersionProgressQueryKey = (options?: Options<GetMyOldVersionProgressData>) =>
+  createQueryKey("getMyOldVersionProgress", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+ * old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+ *
+ * Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+ * reached is reported in its status rather than failing the request.
+ */
+export const getMyOldVersionProgressOptions = (options?: Options<GetMyOldVersionProgressData>) =>
+  queryOptions<
+    GetMyOldVersionProgressResponse,
+    DefaultError,
+    GetMyOldVersionProgressResponse,
+    ReturnType<typeof getMyOldVersionProgressQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyOldVersionProgress({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyOldVersionProgressQueryKey(options),
+  })
 
 export const getMyProgressByPlatformQueryKey = (options?: Options<GetMyProgressByPlatformData>) =>
   createQueryKey("getMyProgressByPlatform", options)

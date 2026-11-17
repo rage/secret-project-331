@@ -6,16 +6,24 @@ import { searchUserDetailsExact, searchUserDetailsFuzzy } from "@/generated/api/
 import type { FuzzyUserSearchResults, UserDetail } from "@/generated/api/types.generated"
 
 /** Matches MIN_FUZZY_SEARCH_TERM_LENGTH in the headless-lms user_details model. */
-const MIN_SEARCH_TERM_LENGTH = 3
+const MIN_FUZZY_SEARCH_TERM_LENGTH = 3
+
+const NO_SIMILAR_USERS: FuzzyUserSearchResults = { users: [], has_more: false }
 
 export interface SearchUsersQueries {
   exactQuery: UseQueryResult<UserDetail[], unknown>
   fuzzyQuery: UseQueryResult<FuzzyUserSearchResults, unknown>
 }
 
-/** True for a term that cannot match anything, so it is not sent at all. */
+const isTooShortForFuzzySearch = (searchQuery: string): boolean =>
+  searchQuery.trim().length < MIN_FUZZY_SEARCH_TERM_LENGTH
+
+/**
+ * True for a term that cannot match anything, so it is not sent at all. An all-digit term may be
+ * a TMC id, which the exact search matches at any length.
+ */
 export const isSearchTermTooShort = (searchQuery: string): boolean =>
-  searchQuery.trim().length < MIN_SEARCH_TERM_LENGTH
+  !/^\d+$/.test(searchQuery.trim()) && isTooShortForFuzzySearch(searchQuery)
 
 /**
  * Runs the exact and the typo-tolerant user search for the executed query string. Both keep the
@@ -33,7 +41,10 @@ const useSearchUsersQueries = (searchQuery: string): SearchUsersQueries => {
 
   const fuzzyQuery = useQuery({
     queryKey: ["searchUsersFuzzy", searchQuery],
-    queryFn: ({ signal }) => searchUserDetailsFuzzy({ body: { query: searchQuery }, signal }),
+    queryFn: ({ signal }) =>
+      isTooShortForFuzzySearch(searchQuery)
+        ? Promise.resolve(NO_SIMILAR_USERS)
+        : searchUserDetailsFuzzy({ body: { query: searchQuery }, signal }),
     enabled,
     placeholderData: keepPreviousData,
   })

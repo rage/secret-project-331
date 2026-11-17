@@ -4443,6 +4443,29 @@ export const zModule = z.object({
 })
 
 /**
+ * How many of an old mooc.fi course's exercises the user has attempted.
+ */
+export const zMoocFiExerciseProgress = z.object({
+  attempted_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  exercise_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * A link to one language version of an old mooc.fi course's material.
+ */
+export const zMoocFiMaterialLink = z.object({
+  course_name: z.string(),
+  language: z.string(),
+  url: z.string(),
+})
+
+/**
  * Why a completion is or is not registered through courses.
  */
 export const zMoocfiCompletionStatus = z.enum([
@@ -7855,6 +7878,7 @@ export const zTmcMoocFiCourseProgress = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string().nullish(),
 })
 
 /**
@@ -7863,6 +7887,8 @@ export const zTmcMoocFiCourseProgress = z.object({
 export const zMoocFiCourseProgress = z.object({
   completed: z.boolean(),
   course_id: z.uuid(),
+  exercise_progress: zMoocFiExerciseProgress.nullish(),
+  material_links: z.array(zMoocFiMaterialLink),
   max_points: z.number().nullish(),
   name: z.string(),
   points: z.number().nullish(),
@@ -7870,16 +7896,25 @@ export const zMoocFiCourseProgress = z.object({
 })
 
 /**
- * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
- * reports to an old mooc.fi course is listed under that mooc.fi course.
+ * The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi
+ * course that reports to an old mooc.fi course is listed under that mooc.fi course.
  */
-export const zProgressByPlatform = z.object({
-  courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+export const zOldVersionProgress = z.object({
   mooc_fi: z.array(zMoocFiCourseProgress),
   mooc_fi_status: zExternalPlatformStatus,
   tmc_mooc_fi: z.array(zTmcMoocFiCourseProgress),
   tmc_mooc_fi_status: zExternalPlatformStatus,
 })
+
+/**
+ * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
+ * reports to an old mooc.fi course is listed under that mooc.fi course.
+ */
+export const zProgressByPlatform = zOldVersionProgress.and(
+  z.object({
+    courses_mooc_fi: z.array(zCoursesMoocFiCourseProgress),
+  }),
+)
 
 /**
  * A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -8208,6 +8243,9 @@ export const zUserIdsPayload = z.object({
   user_ids: z.array(z.uuid()),
 })
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export const zUserInfoPayload = z.object({
   country: z.string(),
   email: z.string(),
@@ -12958,7 +12996,7 @@ export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
 export const zSearchUserDetailsExactBody = zSearchRequest
 
 /**
- * Users whose id or email equals the query
+ * Users whose id, email or TMC id equals the query
  */
 export const zSearchUserDetailsExactResponse = z.array(zUserDetail)
 
@@ -13041,6 +13079,11 @@ export const zHideCourseFromMyCoursesPath = z.object({
 export const zUnhideCourseFromMyCoursesPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * The authenticated user's courses on the old version of the platform
+ */
+export const zGetMyOldVersionProgressResponse = zOldVersionProgress
 
 /**
  * The authenticated user's courses grouped by platform

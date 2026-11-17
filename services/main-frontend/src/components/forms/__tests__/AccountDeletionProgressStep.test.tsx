@@ -78,6 +78,7 @@ describe("AccountDeletionProgressStep", () => {
           completed: true,
           points: null,
           max_points: null,
+          material_links: [],
           tmc_mooc_fi_courses: [{ name: "Java I", awarded_points: 5, submissions: 1 }],
         },
       ],

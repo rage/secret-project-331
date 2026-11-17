@@ -30,6 +30,7 @@ import { FIND_MORE_COURSES_URL } from "../constants"
 import CertificatesSection from "./CertificatesSection"
 import { everyModulePassed } from "./completionRequirements"
 import HiddenCoursesSection from "./HiddenCoursesSection"
+import OldVersionCoursesSection from "./OldVersionCoursesSection"
 import RegistrationsNeedingAttention from "./RegistrationsNeedingAttention"
 import StudiesCourseCard from "./StudiesCourseCard"
 import StudiesSummary from "./StudiesSummary"
@@ -162,14 +163,17 @@ const StudiesPage: React.FC = () => {
               <CertificatesSection />
 
               {hiddenCourses.length > 0 ? <HiddenCoursesSection courses={hiddenCourses} /> : null}
-
-              <p className={noteCss}>
-                <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
-              </p>
             </>
           )
         }}
       </QueryResult>
+      {/* Outside the QueryResult, so its request starts with the page's and never waits on it. */}
+      <OldVersionCoursesSection />
+      {(myStudiesQuery.data?.courses.length ?? 0) > 0 ? (
+        <p className={noteCss}>
+          <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
+        </p>
+      ) : null}
     </div>
   )
 }

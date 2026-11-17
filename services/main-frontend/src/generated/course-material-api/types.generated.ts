@@ -1404,6 +1404,9 @@ export type UserDetail = {
   user_id: string
 }
 
+/**
+ * The profile form as both frontends submit it.
+ */
 export type UserInfoPayload = {
   country: string
   email: string

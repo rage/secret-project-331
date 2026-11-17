@@ -7,6 +7,7 @@ use headless_lms_models::chatbot_conversation_message_tool_calls::{
 
 use super::abort::refused_call_output;
 use crate::chatbot_error::ChatbotResult;
+use crate::chatbot_tools::action_tools::TmcEmailSync;
 use crate::chatbot_tools::{
     ClientToolAnswer, check_client_tool_call, client_tool_answer_output, execute_action_tool,
     tool_is_answered_by_client, tool_is_confirmable_action,
@@ -23,6 +24,8 @@ pub(crate) struct AnsweredClientToolCall {
     /// Data for the confirming admin's browser only, from a confirmed action tool's execution.
     /// Never persisted; carried out of band as an `ActionExecuted` stream event.
     pub(crate) execution_payload: Option<serde_json::Value>,
+    /// From a confirmed action tool; the caller applies it last before it commits.
+    pub(crate) tmc_email_sync: Option<TmcEmailSync>,
 }
 
 /// Turns a client's answer to a suspended call into the tool output that resumes the turn.
@@ -115,6 +118,7 @@ async fn apply_client_tool_answer(
             output: refused_call_output(refusal, &tool_call.tool_name).to_string(),
             client_answer: None,
             execution_payload: None,
+            tmc_email_sync: None,
         });
     }
 
@@ -131,6 +135,7 @@ async fn apply_client_tool_answer(
             output: outcome.output,
             client_answer: Some(result.clone()),
             execution_payload: outcome.client_payload,
+            tmc_email_sync: outcome.tmc_email_sync,
         });
     }
 
@@ -141,6 +146,7 @@ async fn apply_client_tool_answer(
         output,
         client_answer: Some(result.clone()),
         execution_payload: None,
+        tmc_email_sync: None,
     })
 }
 

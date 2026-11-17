@@ -93,6 +93,8 @@ const SearchUsersPage: React.FC = () => {
           name="search"
           control={control}
           label={t("search-users-field-label")}
+          description={t("search-users-field-description")}
+          isDescriptionHidden
           className={fieldCss}
         />
         <div className={buttonSlotCss}>

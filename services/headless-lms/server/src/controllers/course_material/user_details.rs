@@ -1,10 +1,10 @@
 use std::net::IpAddr;
 
-use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::user_details::UserDetail;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 
-use crate::prelude::*;
+use crate::{domain::user_info::UserInfoPayload, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(get_user_details, update_user_info, get_user_country_by_ip))]
@@ -35,16 +35,6 @@ pub async fn get_user_details(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
-pub struct UserInfoPayload {
-    pub email: String,
-    pub first_name: String,
-    pub last_name: String,
-    pub country: String,
-    pub email_communication_consent: bool,
-}
-
 /**
 POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
 */
@@ -58,27 +48,20 @@ POST `/api/v0/course-material/user-details/update-user-info` - Updates the users
         (status = 200, description = "Updated user details", body = UserDetail)
     )
 )]
-#[instrument(skip(pool, app_conf))]
+#[instrument(skip(pool, app_conf, tmc_client))]
 pub async fn update_user_info(
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
+    tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
-    let existing = models::user_details::get_user_details_by_user_id(&mut conn, user.id).await?;
-    let res = models::user_details::update_user_info(
-        &mut conn,
-        user.id,
-        &payload.email,
-        &payload.first_name,
-        &payload.last_name,
-        &payload.country,
-        payload.email_communication_consent,
-    )
-    .await?;
+    let updated =
+        domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
+            .await?;
 
-    if existing.email != res.email {
+    if updated.email_changed {
         // A database trigger has already cleared `email_verified_at` for the old address.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,
@@ -89,7 +72,7 @@ pub async fn update_user_info(
     }
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(res))
+    token.authorized_ok(web::Json(updated.user_details))
 }
 
 /**

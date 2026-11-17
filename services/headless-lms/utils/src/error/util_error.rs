@@ -114,6 +114,16 @@ pub struct UtilError {
     location: Option<&'static Location<'static>>,
 }
 
+impl UtilError {
+    /// TMC refused an address it was asked to store, e.g. because another account there uses it.
+    pub fn is_tmc_refused_address(&self) -> bool {
+        matches!(
+            self.error_type,
+            UtilErrorType::TmcHttpStatusError(400 | 422)
+        )
+    }
+}
+
 impl std::error::Error for UtilError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         self.source

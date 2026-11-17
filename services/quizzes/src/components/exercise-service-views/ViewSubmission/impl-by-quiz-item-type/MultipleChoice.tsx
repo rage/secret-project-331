@@ -18,6 +18,13 @@ import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quiz
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 import {
+  AnswerSummary,
+  SUMMARY_MODE,
+  buildSummary,
+  resolveLine2Label,
+  toSummaryOption,
+} from "../AnswerSummary"
+import {
   CHIP,
   OptionChip,
   OptionMarker,
@@ -55,6 +62,46 @@ const MultipleChoiceSubmission: React.FC<
   let quiz_options = public_quiz_item.options
   if (public_quiz_item.shuffleOptions) {
     quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
+  }
+
+  const multi = public_quiz_item.allowSelectingMultipleOptions
+  const summaryLines = quiz_item_model_solution ? buildSummaryLines() : []
+
+  function buildSummaryLines() {
+    const isSelected = (id: string) =>
+      user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
+    const keyFor = (id: string) => modelSolution.options.find((x) => x.id === id) ?? null
+    const feedbackFor = (id: string) =>
+      quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find((f) => f.option_id === id)
+    const text = (qo: (typeof quiz_options)[number]) => toSummaryOption(qo, true)
+    const chosen = quiz_options.filter((qo) => isSelected(qo.id))
+    const chosenCorrect = chosen.filter((qo) => keyFor(qo.id)?.correct === true).length
+    return buildSummary({
+      chosen: chosen.map((qo) => ({
+        ...text(qo),
+        correct: multi
+          ? resolveOptionCorrectness(keyFor(qo.id), feedbackFor(qo.id))
+          : resolveSelectedOptionCorrectness(
+              keyFor(qo.id),
+              feedbackFor(qo.id),
+              quiz_item_answer_feedback,
+            ),
+      })),
+      unselectedCorrect: quiz_options
+        .filter((qo) => !isSelected(qo.id) && keyFor(qo.id)?.correct === true)
+        .map((qo) => text(qo)),
+      incorrect: quiz_options
+        .filter((qo) => keyFor(qo.id)?.correct === false)
+        .map((qo) => text(qo)),
+      line2Label: resolveLine2Label({
+        mode: multi ? SUMMARY_MODE.multi : SUMMARY_MODE.single,
+        lenient:
+          public_quiz_item.multipleChoiceMultipleOptionsGradingPolicy ===
+          "some-correct-none-incorrect",
+        chosenCorrect,
+        totalCorrect: modelSolution.options.filter((o) => o.correct === true).length,
+      }),
+    })
   }
 
   return (
@@ -116,7 +163,6 @@ const MultipleChoiceSubmission: React.FC<
             (f) => f.option_id === qo.id,
           )
           // null means we don't know whether this option was correct
-          const multi = public_quiz_item.allowSelectingMultipleOptions
           // Item score only says something about one option when a single option is selected.
           const correctAnswer =
             answerSelectedThisOption && !multi
@@ -131,14 +177,8 @@ const MultipleChoiceSubmission: React.FC<
             if (correctAnswer === true) {
               chip = <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
             } else if (correctAnswer === false) {
-              chip = <OptionChip kind={CHIP.wrong}>{t("option-result-wrong")}</OptionChip>
+              chip = <OptionChip kind={CHIP.incorrect}>{t("option-result-incorrect")}</OptionChip>
             }
-          } else if (modelSolutionForThisOption?.correct === true) {
-            chip = (
-              <OptionChip kind={CHIP.outlined}>
-                {multi ? t("option-result-missed") : t("option-result-correct-answer")}
-              </OptionChip>
-            )
           }
           let prefix: string | null = null
           if (answerSelectedThisOption) {
@@ -180,6 +220,7 @@ const MultipleChoiceSubmission: React.FC<
           )
         })}
       </div>
+      <AnswerSummary lines={summaryLines} />
     </div>
   )
 }

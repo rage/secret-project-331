@@ -34,6 +34,7 @@ export const optionTextStyles = css`
   min-width: 0;
   padding: 0.8rem 0;
   max-width: 50ch;
+  overflow-wrap: anywhere;
 `
 
 const tints = {
@@ -143,37 +144,32 @@ export const OptionMarker: React.FC<OptionMarkerProps> = ({ selected, multi }) =
   </span>
 )
 
-export const CHIP = { correct: "correct", wrong: "wrong", outlined: "outlined" } as const
+export const CHIP = { correct: "correct", incorrect: "incorrect" } as const
 
 export type OptionChipKind = (typeof CHIP)[keyof typeof CHIP]
 
+// Border width is taken off the vertical padding so the chip height stays 1.25rem-ish.
 const chipBase = css`
   flex: 0 0 auto;
   /* Marker slot plus gap, so a wrapped chip lines up with the text. */
-  margin-left: 2rem;
+  margin: 0 0 0.5rem 2rem;
   font-size: 0.75rem;
   text-transform: uppercase;
   font-weight: bold;
-  padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
+  background: transparent;
+  padding: 0.25rem 0.3125rem 0.1875rem 0.3125rem;
   border-radius: 0.125rem;
   white-space: nowrap;
 `
 
 const chipKinds: Record<OptionChipKind, string> = {
   correct: css`
-    background: #9dc7b1;
-    color: #14261c;
+    color: #2e6b49;
+    border: 0.0625rem solid #2e6b49;
   `,
-  wrong: css`
-    background: #eedbdd;
-    color: #b12632;
-  `,
-  // Border width is taken off the vertical padding so the height matches the filled chips.
-  outlined: css`
-    background: transparent;
-    color: ${MARKER_COLOR};
-    border: 0.0625rem solid #767676;
-    padding: 0.25rem 0.3125rem 0.1875rem 0.3125rem;
+  incorrect: css`
+    color: #9b1c28;
+    border: 0.0625rem solid #9b1c28;
   `,
 }
 

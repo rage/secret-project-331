@@ -19,7 +19,13 @@ import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "../../AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles"
-import { CHIP, OptionChip } from "../OptionStatus"
+import {
+  AnswerSummary,
+  SUMMARY_MODE,
+  buildSummary,
+  resolveLine2Label,
+  toSummaryOption,
+} from "../AnswerSummary"
 
 interface OptionFeedbackToDisplay {
   optionId: string
@@ -41,26 +47,29 @@ const MultipleChoiceClickableFeedback: React.FC<
   const { t } = useTranslation()
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemChooseN
 
-  const correctOptions: string[] = []
-  const incorrectOptions: string[] = []
-  let allOptionsCorrect = true
-
-  if (modelSolution) {
-    public_quiz_item.options.forEach((option) => {
-      const modelOption = modelSolution.options.find((mo) => mo.id === option.id)
-      if (modelOption) {
-        const optionText = option.title || option.body || ""
-        if (modelOption.correct) {
-          correctOptions.push(optionText)
-        } else {
-          incorrectOptions.push(optionText)
-          allOptionsCorrect = false
-        }
-      }
-    })
-  }
-
-  const shouldShowNotice = modelSolution && !allOptionsCorrect
+  const isSelected = (id: string) => user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
+  const keyFor = (id: string) => modelSolution?.options.find((mo) => mo.id === id)
+  const summaryLines = modelSolution
+    ? buildSummary({
+        chosen: public_quiz_item.options
+          .filter((o) => isSelected(o.id))
+          .map((o) => ({ ...toSummaryOption(o), correct: keyFor(o.id)?.correct ?? null })),
+        unselectedCorrect: public_quiz_item.options
+          .filter((o) => !isSelected(o.id) && keyFor(o.id)?.correct === true)
+          .map((o) => toSummaryOption(o)),
+        incorrect: public_quiz_item.options
+          .filter((o) => keyFor(o.id)?.correct === false)
+          .map((o) => toSummaryOption(o)),
+        line2Label: resolveLine2Label({
+          mode: SUMMARY_MODE.chooseN,
+          n: public_quiz_item.n,
+          chosenCorrect: public_quiz_item.options.filter(
+            (o) => isSelected(o.id) && keyFor(o.id)?.correct === true,
+          ).length,
+          totalCorrect: modelSolution.options.filter((mo) => mo.correct === true).length,
+        }),
+      })
+    : []
 
   // Only selected options carry feedback: grading (feedback.ts) only produces
   // quiz_item_option_feedbacks entries for selectedOptionIds, mirroring MultipleChoice.tsx.
@@ -195,9 +204,6 @@ const MultipleChoiceClickableFeedback: React.FC<
                   )}
                   {o.title || o.body}
                 </span>
-                {!userSelected && shouldBeSelected === true && (
-                  <OptionChip kind={CHIP.outlined}>{t("option-result-missed")}</OptionChip>
-                )}
                 {userSelected && (
                   <span
                     className={css`
@@ -238,35 +244,7 @@ const MultipleChoiceClickableFeedback: React.FC<
             )
           })}
         </div>
-        {shouldShowNotice && (
-          <div
-            className={css`
-              margin-top: 1rem;
-              padding: 0.75rem;
-              box-sizing: border-box;
-              overflow-wrap: anywhere;
-              background-color: #f9fafb;
-              border: 1px solid #e5e7eb;
-              border-radius: 0.375rem;
-            `}
-          >
-            {correctOptions.length > 0 && (
-              <div
-                className={css`
-                  margin-bottom: ${incorrectOptions.length > 0 ? "0.75rem" : "0"};
-                `}
-              >
-                <strong>{t("choose-n-correct-options-label")}</strong> {correctOptions.join(", ")}
-              </div>
-            )}
-            {incorrectOptions.length > 0 && (
-              <div>
-                <strong>{t("choose-n-incorrect-options-label")}</strong>{" "}
-                {incorrectOptions.join(", ")}
-              </div>
-            )}
-          </div>
-        )}
+        <AnswerSummary lines={summaryLines} />
         {optionFeedbacksToDisplay.length > 0 && (
           <div
             className={css`

@@ -18,6 +18,13 @@ import type {
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
 import {
+  AnswerSummary,
+  SUMMARY_MODE,
+  buildSummary,
+  resolveLine2Label,
+  toSummaryOption,
+} from "../AnswerSummary"
+import {
   CHIP,
   OptionChip,
   OptionMarker,
@@ -50,7 +57,6 @@ const MultipleChoiceDropdownFeedback: React.FC<
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
-  const correctOption = modelSolution?.options.find((o) => o.correct)
   // null means we don't know whether the answer was correct
   const correct = selectedOption
     ? resolveSelectedOptionCorrectness(
@@ -62,6 +68,23 @@ const MultipleChoiceDropdownFeedback: React.FC<
       )
     : null
   const quiz_options = public_quiz_item.options
+  const keyFor = (id: string) => modelSolution?.options.find((o) => o.id === id)
+  const summaryLines = quiz_item_model_solution
+    ? buildSummary({
+        chosen: selectedOption ? [{ ...toSummaryOption(selectedOption), correct }] : [],
+        unselectedCorrect: quiz_options
+          .filter((o) => o.id !== selectedOption?.id && keyFor(o.id)?.correct === true)
+          .map((o) => toSummaryOption(o)),
+        incorrect: quiz_options
+          .filter((o) => keyFor(o.id)?.correct === false)
+          .map((o) => toSummaryOption(o)),
+        line2Label: resolveLine2Label({
+          mode: SUMMARY_MODE.single,
+          chosenCorrect: selectedOption && keyFor(selectedOption.id)?.correct === true ? 1 : 0,
+          totalCorrect: 0,
+        }),
+      })
+    : []
 
   return (
     <div>
@@ -140,20 +163,10 @@ const MultipleChoiceDropdownFeedback: React.FC<
           <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
         )}
         {selectedOption && correct === false && (
-          <OptionChip kind={CHIP.wrong}>{t("option-result-wrong")}</OptionChip>
+          <OptionChip kind={CHIP.incorrect}>{t("option-result-incorrect")}</OptionChip>
         )}
       </div>
-      {correctOption && (
-        <div
-          className={css`
-            margin: 0.5rem 0.5rem 0.5rem 0;
-            font-size: 1.125rem;
-            color: #57606f;
-          `}
-        >
-          {t("correct-option")}: {correctOption?.title || correctOption?.body}
-        </div>
-      )}
+      <AnswerSummary lines={summaryLines} />
       <SubmissionFeedbackMessage
         quiz_options={quiz_options}
         user_quiz_item_answer={user_quiz_item_answer}

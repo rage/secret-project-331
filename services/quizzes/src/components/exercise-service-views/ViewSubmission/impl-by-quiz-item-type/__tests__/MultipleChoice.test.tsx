@@ -13,7 +13,9 @@ import MultipleChoiceSubmission from "../MultipleChoice"
 // synchronously for the accessible-name assertions.
 vi.mock("../../../../ParsedText", () => ({
   __esModule: true,
-  default: ({ text }: { text: string | null }) => <span>{text}</span>,
+  default: ({ text, addDotToEnd }: { text: string | null; addDotToEnd?: boolean }) => (
+    <span>{addDotToEnd ? `${text}.` : text}</span>
+  ),
 }))
 
 const makeModelSolutionOption = (id: string, title: string, correct: boolean): QuizItemOption => ({
@@ -81,6 +83,7 @@ interface RenderOptions {
   options?: PublicSpecQuizItemMultiplechoice["options"]
   coefficient?: number
   score?: number
+  policy?: PublicSpecQuizItemMultiplechoice["multipleChoiceMultipleOptionsGradingPolicy"]
 }
 
 const renderSubmission = ({
@@ -91,12 +94,14 @@ const renderSubmission = ({
   options,
   coefficient = 1,
   score,
+  policy,
 }: RenderOptions = {}) =>
   render(
     <MultipleChoiceSubmission
       public_quiz_item={{
         ...publicItem,
         allowSelectingMultipleOptions: multi,
+        ...(policy ? { multipleChoiceMultipleOptionsGradingPolicy: policy } : {}),
         ...(options ? { options } : {}),
       }}
       quiz_direction="column"
@@ -149,14 +154,12 @@ describe("MultipleChoice option states", () => {
     expect(within(first!).getByText("option-result-correct")).toBeInTheDocument()
   })
 
-  it("single, selected and wrong: Wrong chip, unselected key gets Correct answer without prefix", () => {
+  it("single, selected and wrong: Incorrect chip; the unselected key row has no chip and no prefix", () => {
     renderSubmission({ selected: ["o-2"] })
     const [first, second] = items()
-    expect(within(second!).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(within(second!).getByText("option-result-incorrect")).toBeInTheDocument()
     expect(within(second!).getByText("option-selected")).toBeInTheDocument()
-    expect(within(first!).getByText("option-result-correct-answer")).toBeInTheDocument()
-    expect(within(first!).queryByText("option-selected")).not.toBeInTheDocument()
-    expect(within(first!).queryByText("option-not-selected")).not.toBeInTheDocument()
+    expect(first!.textContent).toBe("Yes")
   })
 
   it("single, unselected wrong option has no chip and no prefix", () => {
@@ -178,11 +181,11 @@ describe("MultipleChoice option states", () => {
       feedbacks: [{ option_id: "o-1", this_option_was_correct: false }],
     })
     const [first, second] = items()
-    expect(within(first!).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(within(first!).getByText("option-result-incorrect")).toBeInTheDocument()
     expect(second!.textContent).toBe("No")
   })
 
-  it("multi: unselected options are prefixed, missed key gets Missed, selected only Selected", () => {
+  it("multi: unselected options are prefixed and carry no chip", () => {
     const multiSolution: ModelSolutionQuizItemMultiplechoice = {
       ...modelSolution,
       options: [
@@ -200,7 +203,7 @@ describe("MultipleChoice option states", () => {
     const [first, second, third] = items()
     expect(first!.textContent).toBe("option-selectedYesoption-result-correct")
     expect(second!.textContent).toBe("option-not-selectedNo")
-    expect(third!.textContent).toBe("option-not-selectedMaybeoption-result-missed")
+    expect(third!.textContent).toBe("option-not-selectedMaybe")
   })
 
   it("fogOfWar feedback without a key is neutral with no chip; with the key the chip comes from the key", () => {
@@ -231,7 +234,7 @@ describe("MultipleChoice option states", () => {
     expect(second.querySelector('[aria-hidden="true"]')).not.toBeNull()
     expect(screen.queryByRole("radio")).not.toBeInTheDocument()
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument()
-    expect(screen.getAllByText("option-result-wrong")).toHaveLength(1)
+    expect(screen.getAllByText("option-result-incorrect")).toHaveLength(1)
   })
 
   it("uses a neutral left border on option feedback when correctness is unknown", () => {
@@ -240,7 +243,7 @@ describe("MultipleChoice option states", () => {
       feedbacks: [{ option_id: "o-1", this_option_was_correct: null, option_feedback: "Hello" }],
       coefficient: 0.5,
     })
-    const message = screen.getByText("Hello").parentElement!
+    const message = screen.getByText("Hello.").parentElement!
     expect(message).toHaveStyle({ borderLeftColor: "#b8b8c8" })
   })
 })
@@ -253,13 +256,143 @@ describe("MultipleChoice item score fallback", () => {
     expect(within(items()[0]!).getByText("option-result-correct")).toBeInTheDocument()
   })
 
-  it("single select: Wrong when the item score is 0", () => {
+  it("single select: Incorrect when the item score is 0", () => {
     renderSubmission({ solution: null, feedbacks: unknown, coefficient: 0, score: 0 })
-    expect(within(items()[0]!).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(within(items()[0]!).getByText("option-result-incorrect")).toBeInTheDocument()
   })
 
   it("multi select: does not infer option correctness from the item score", () => {
     renderSubmission({ solution: null, feedbacks: unknown, multi: true, coefficient: 1 })
     expect(within(items()[0]!).queryByText("option-result-correct")).not.toBeInTheDocument()
+  })
+})
+
+const summary = () => screen.queryByRole("group", { name: "answer-summary" })
+const lines = () =>
+  Array.from(summary()!.querySelectorAll("p")).map((p) =>
+    p.textContent?.replaceAll("answer-summary-list-separator", "; ").replaceAll(/\s+/g, " "),
+  )
+
+const threeOptions = {
+  options: [...publicItem.options, { id: "o-3", order: 2, title: "Maybe", body: null }],
+}
+const solutionOf = (flags: boolean[]): ModelSolutionQuizItemMultiplechoice => ({
+  ...modelSolution,
+  options: ["Yes", "No", "Maybe"].map((t, i) =>
+    makeModelSolutionOption(`o-${i + 1}`, t, flags[i]!),
+  ),
+})
+
+describe("MultipleChoice answer summary", () => {
+  it("single, correct chosen: you chose with verdict, incorrect options, no also-correct line", () => {
+    renderSubmission()
+    expect(lines()).toEqual([
+      "answer-summary-you-chose Yes answer-summary-verdict-correct.",
+      "answer-summary-incorrect-options No.",
+    ])
+  })
+
+  it("single, wrong chosen: correct options line", () => {
+    renderSubmission({ selected: ["o-2"] })
+    expect(lines()).toEqual([
+      "answer-summary-you-chose No answer-summary-verdict-incorrect.",
+      "answer-summary-correct-options Yes.",
+      "answer-summary-incorrect-options No.",
+    ])
+  })
+
+  it("single, correct chosen with another correct option: also correct", () => {
+    renderSubmission({ ...threeOptions, solution: solutionOf([true, false, true]) })
+    expect(lines()[1]).toBe("answer-summary-also-correct Maybe.")
+  })
+
+  it("single, nothing chosen: no you-chose line", () => {
+    renderSubmission({ selected: [] })
+    expect(lines()).toEqual([
+      "answer-summary-correct-options Yes.",
+      "answer-summary-incorrect-options No.",
+    ])
+  })
+
+  it("multi default: missed line, listed in display order", () => {
+    renderSubmission({
+      ...threeOptions,
+      multi: true,
+      selected: ["o-2"],
+      solution: solutionOf([true, false, true]),
+    })
+    expect(lines()).toEqual([
+      "answer-summary-you-chose No answer-summary-verdict-incorrect.",
+      "answer-summary-missed Yes; Maybe.",
+      "answer-summary-incorrect-options No.",
+    ])
+  })
+
+  it("multi, some-correct-none-incorrect: also correct with a correct choice, else correct options", () => {
+    const base = {
+      ...threeOptions,
+      multi: true,
+      solution: {
+        ...solutionOf([true, false, true]),
+        multipleChoiceMultipleOptionsGradingPolicy: "some-correct-none-incorrect" as const,
+      },
+      policy: "some-correct-none-incorrect" as const,
+    }
+    const { unmount } = renderSubmission({ ...base, selected: ["o-1"] })
+    expect(lines()[1]).toBe("answer-summary-also-correct Maybe.")
+    unmount()
+    renderSubmission({ ...base, selected: ["o-2"] })
+    expect(lines()[1]).toBe("answer-summary-correct-options Yes; Maybe.")
+  })
+
+  it("multi, everything chosen correctly and no wrong options: only the you-chose line", () => {
+    renderSubmission({
+      multi: true,
+      selected: ["o-1", "o-2"],
+      solution: solutionOf([true, true, true]),
+    })
+    expect(lines()).toEqual([
+      "answer-summary-you-chose Yes answer-summary-verdict-correct; No answer-summary-verdict-correct.",
+    ])
+  })
+
+  it("multi, nothing correct in the key: no line 2, line 3 lists every option", () => {
+    renderSubmission({
+      ...threeOptions,
+      multi: true,
+      selected: ["o-1"],
+      solution: solutionOf([false, false, false]),
+    })
+    expect(lines()).toEqual([
+      "answer-summary-you-chose Yes answer-summary-verdict-incorrect.",
+      "answer-summary-incorrect-options Yes; No; Maybe.",
+    ])
+  })
+
+  it("is absent without the key", () => {
+    renderSubmission({ solution: null })
+    expect(summary()).not.toBeInTheDocument()
+  })
+
+  it("is absent in fogOfWar without the key and present when the key is released", () => {
+    const fog: Feedbacks = [{ option_id: "o-1", this_option_was_correct: null }]
+    const { unmount } = renderSubmission({ solution: null, feedbacks: fog, coefficient: 0.5 })
+    expect(summary()).not.toBeInTheDocument()
+    unmount()
+    renderSubmission({ feedbacks: fog })
+    expect(summary()).toBeInTheDocument()
+  })
+
+  it("comes after the options list, outside it", () => {
+    renderSubmission()
+    const list = screen.getByRole("list")
+    expect(list.compareDocumentPosition(summary()!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(within(list).queryByRole("group")).not.toBeInTheDocument()
+  })
+
+  it("has one chip on the selected row only and no headings", () => {
+    renderSubmission({ selected: ["o-2"] })
+    expect(screen.getAllByText("option-result-incorrect")).toHaveLength(1)
+    expect(screen.queryAllByRole("heading")).toHaveLength(0)
   })
 })

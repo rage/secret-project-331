@@ -48,6 +48,8 @@ export type TextFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   /** Keeps `label` as the accessible name but renders it visually hidden instead of floating. */
   isLabelHidden?: boolean
   description?: React.ReactNode
+  /** Keeps `description` as the accessible description but renders it visually hidden. */
+  isDescriptionHidden?: boolean
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
   iconStart?: React.ReactNode
@@ -81,6 +83,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
     label,
     isLabelHidden,
     description,
+    isDescriptionHidden,
     errorMessage,
     fieldSize = "md",
     iconStart,
@@ -231,6 +234,10 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
         <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
         </FieldError>
+      ) : description && isDescriptionHidden ? (
+        <VisuallyHidden>
+          <p {...descriptionProps}>{description}</p>
+        </VisuallyHidden>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

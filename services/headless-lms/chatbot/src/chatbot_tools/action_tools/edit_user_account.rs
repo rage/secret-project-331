@@ -1,4 +1,5 @@
 use headless_lms_authorization::Action;
+use headless_lms_utils::services::tmc::{email_change_reaches_tmc_now, tmc_sync_target};
 use indexmap::IndexMap;
 
 use headless_lms_models::chatbot_configurations::ToolCategory;
@@ -10,7 +11,8 @@ use crate::{
     chatbot_tools::{
         ChatbotToolDeclaration,
         action_tools::{
-            ActionAuditFields, ConfirmableActionTool, ExecutedAction, verify_display_field,
+            ActionAuditFields, ConfirmableActionTool, ExecutedAction, TmcEmailSync,
+            verify_display_field,
         },
         argument_parsing::parse_required_uuid,
         tool_authorization::{ToolAuthorization, ToolRequirement},
@@ -43,6 +45,26 @@ struct RawArguments {
     current_email: String,
     new_email: String,
     mark_email_verified: String,
+}
+
+/// The TMC write a changed address needs, if any. An unchanged address is never sent: the
+/// platform's copy may be older than TMC's.
+fn tmc_email_sync(
+    new_email: Option<&str>,
+    upstream_id: Option<i32>,
+    is_marked_verified: bool,
+    app_config: &ApplicationConfiguration,
+) -> Option<TmcEmailSync> {
+    let new_email = new_email?;
+    let upstream_id = tmc_sync_target(upstream_id, app_config)?;
+    let reaches_tmc_now = email_change_reaches_tmc_now(
+        app_config.enable_email_ownership_verification,
+        is_marked_verified,
+    );
+    reaches_tmc_now.then(|| TmcEmailSync {
+        email: new_email.to_string(),
+        upstream_id,
+    })
 }
 
 impl ChatbotToolDeclaration for EditUserAccountTool {
@@ -107,7 +129,7 @@ impl ChatbotToolDeclaration for EditUserAccountTool {
 
 impl ConfirmableActionTool for EditUserAccountTool {
     type Arguments = EditUserAccountArguments;
-    type Facts = ();
+    type Facts = Option<TmcEmailSync>;
 
     fn call_requirements(
         arguments: &Self::Arguments,
@@ -182,7 +204,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
 
     async fn execute(
         conn: &mut PgConnection,
-        _app_config: &ApplicationConfiguration,
+        app_config: &ApplicationConfiguration,
         arguments: &Self::Arguments,
         _authorization: &ToolAuthorization<Self>,
     ) -> ChatbotResult<(ExecutedAction, Self::Facts)> {
@@ -219,7 +241,7 @@ impl ConfirmableActionTool for EditUserAccountTool {
         let old_email = details.email.clone();
         let mut new_email_applied: Option<String> = None;
 
-        if let Some(new_email) = &arguments.new_email {
+        if let Some(new_email) = arguments.new_email.as_ref().filter(|e| **e != old_email) {
             if let Some(other_user_id) =
                 user_details::get_active_user_id_by_email_case_insensitive(conn, new_email).await?
                 && other_user_id != user.id
@@ -255,6 +277,14 @@ impl ConfirmableActionTool for EditUserAccountTool {
         };
 
         let displayed_new_email = new_email_applied.as_deref().unwrap_or(&old_email);
+
+        let tmc_email_sync = tmc_email_sync(
+            new_email_applied.as_deref(),
+            user.upstream_id,
+            matches!(arguments.verification_change, VerificationChange::Verify),
+            app_config,
+        );
+
         let mut summary = if let Some(new_email) = &new_email_applied {
             format!("Changed email {old_email} → {new_email}")
         } else {
@@ -283,8 +313,12 @@ impl ConfirmableActionTool for EditUserAccountTool {
                     summary,
                 },
             },
-            (),
+            tmc_email_sync,
         ))
+    }
+
+    fn tmc_email_sync(facts: &Self::Facts) -> Option<TmcEmailSync> {
+        facts.clone()
     }
 
     fn output_description_instructions(
@@ -301,10 +335,16 @@ impl ConfirmableActionTool for EditUserAccountTool {
             ),
         ];
 
-        let email_changed = arguments.new_email.is_some();
+        let email_changed = arguments
+            .new_email
+            .as_ref()
+            .is_some_and(|new_email| *new_email != arguments.current_email);
         let verify_requested = matches!(arguments.verification_change, VerificationChange::Verify);
         if email_changed && !verify_requested {
             notes.push("Changing the email clears the account's verification automatically, so unless verify was also requested the account is now unverified and will be asked to re-confirm the address.".to_string());
+            if app_config.enable_email_ownership_verification {
+                notes.push("The new address reaches tmc.mooc.fi only once the user verifies it, so until then they keep signing in to tmc.mooc.fi with the old address.".to_string());
+            }
         }
         if verify_requested {
             notes.push("Marking the email verified this way records the admin's own assertion, not proof the user controls the address -- the weakest of the platform's verification methods, and the user page shows only the verified badge and its timestamp, not the method, so this distinction is invisible there and this reply is the only record of it.".to_string());

@@ -20,18 +20,84 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  headless_lms_lint:
+    if: ${{ !github.event.pull_request.draft }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CARGO_INCREMENTAL: 0
+      # Shared by clippy and the export so the sqlx macro crates compile once.
+      SQLX_OFFLINE: 1
+    defaults:
+      run:
+        working-directory: services/headless-lms
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The compile-time font guard rejects unhydrated git-lfs pointers.
+          lfs: true
+          persist-credentials: false
+
+      - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: rust
+        timeout-minutes: 5
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: services/headless-lms
+          # Cached build-script binaries hard-code /nix/store paths that a nixpkgs bump removes.
+          key: ${{ hashFiles('flake.lock') }}
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Cargo clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
+      # differ from what is committed.
+      - name: Export OpenAPI specs
+        run: cargo run -p headless-lms-entrypoint -- export-openapi
+
+      - name: Install pnpm dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile
+
+      # The committed specs are oxfmt-formatted; the raw export is not, so format it
+      # before diffing.
+      - name: Format exported OpenAPI specs
+        working-directory: .
+        run: pnpm exec oxfmt services/headless-lms/server/openapi/*.json
+
+      - name: Assert committed OpenAPI specs are up to date
+        run: git diff --exit-code server/openapi/
+
   headless_lms:
     if: ${{ !github.event.pull_request.draft }}
     permissions:
       contents: read
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    env:
+      CARGO_INCREMENTAL: 0
+      # Job-wide so cargo test reuses the build step's artifacts instead of recompiling.
+      SQLX_OFFLINE: 1
+      DATABASE_URL: postgres://postgres:postgres@localhost/headless_lms_test
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost/headless_lms_integration
+      REDIS_URL: redis://localhost:6379/1
+    defaults:
+      run:
+        working-directory: services/headless-lms
 
     services:
       postgres:
         image: pgvector/pgvector:pg18-trixie
         env:
           POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -39,6 +105,8 @@ jobs:
           --health-retries 5
       redis:
         image: redis:7.2
+        ports:
+          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -52,155 +120,51 @@ jobs:
           lfs: true
           persist-credentials: false
 
-      - name: Free up disk space
-        uses: ./.github/actions/free-disk-space
-
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          # cargo runs inside docker with CARGO_HOME redirected to .cargo-home/ (under the
-          # bind-mounted workspace) instead of the image's own /home/user/.cargo, which the
-          # runner's ~/.cargo never touches and can't cache.
-          path: |
-            .cargo-home/registry/index/
-            .cargo-home/registry/cache/
-            .cargo-home/registry/src/
-            .cargo-home/git/db/
-            services/headless-lms/target/
-          # flake.lock is part of the key because cached build-script binaries hard-code
-          # /nix/store interpreter paths, and a nixpkgs bump makes those paths vanish.
-          key: ${{ runner.os }}-cargo-${{ hashFiles('flake.lock') }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-${{ hashFiles('flake.lock') }}-
-
-      - name: Get service container network
-        id: get_network
-        run: |
-          POSTGRES_CONTAINER=$(docker ps -q -f ancestor=pgvector/pgvector:pg18-trixie | head -1)
-          if [ -z "$POSTGRES_CONTAINER" ]; then
-            echo "Postgres container not found, trying redis..."
-            REDIS_CONTAINER=$(docker ps -q -f ancestor=redis:7.2 | head -1)
-            if [ -z "$REDIS_CONTAINER" ]; then
-              echo "No service containers found"
-              exit 1
-            fi
-            NETWORK=$(docker inspect "$REDIS_CONTAINER" --format='{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}{{end}}' | head -1)
-          else
-            NETWORK=$(docker inspect "$POSTGRES_CONTAINER" --format='{{range $net, $conf := .NetworkSettings.Networks}}{{$net}}{{end}}' | head -1)
-          fi
-          echo "network=$NETWORK" >> "$GITHUB_OUTPUT"
-          echo "Using network: $NETWORK"
-
-      - name: Cargo clippy
-        env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
-        run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            -e CARGO_TERM_COLOR=always \
-            -e CARGO_HOME=/workspace/.cargo-home \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo clippy --manifest-path services/headless-lms/Cargo.toml --all-targets -- -D warnings
-
-      - name: Build
-        env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
-        run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            -e CARGO_TERM_COLOR=always \
-            -e CARGO_HOME=/workspace/.cargo-home \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo build --verbose --tests
-
-      # OpenAPI drift gate: re-export the specs under server/openapi and fail if they
-      # differ from what is committed.
-      - name: Export OpenAPI specs
-        env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
-        run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            -e CARGO_TERM_COLOR=always \
-            -e CARGO_HOME=/workspace/.cargo-home \
-            -e SQLX_OFFLINE=1 \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo run -p headless-lms-entrypoint -- export-openapi
-
       - uses: ./.github/actions/setup-nix-env
+        with:
+          dev-shell: rust
         timeout-minutes: 5
 
-      - name: Install pnpm dependencies
-        run: pnpm install --frozen-lockfile
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: services/headless-lms
+          # Cached build-script binaries hard-code /nix/store paths that a nixpkgs bump removes.
+          key: ${{ hashFiles('flake.lock') }}
+          save-if: ${{ github.ref == 'refs/heads/master' }}
 
-      # The committed specs are oxfmt-formatted; the raw export is not, so format it
-      # before diffing.
-      - name: Format exported OpenAPI specs
-        run: pnpm exec oxfmt services/headless-lms/server/openapi/*.json
+      # The server tests load /icu4x.postcard.2, which only the dev-base image generates.
+      - name: Cache ICU4X data
+        id: icu4x_cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/icu4x
+          key: icu4x-${{ hashFiles('services/headless-lms/DockerfileDevelopmentBase.dockerfile') }}
 
-      - name: Assert committed OpenAPI specs are up to date
-        run: git diff --exit-code services/headless-lms/server/openapi/
-
-      - name: Set up unit test database
+      - name: Copy ICU4X data from the dev-base image
+        if: steps.icu4x_cache.outputs.cache-hit != 'true'
         env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
+          ICU4X_DIR: ${{ runner.temp }}/icu4x
         run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            sqlx database setup
+          mkdir -p "$ICU4X_DIR"
+          container=$(docker create eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest)
+          docker cp "$container:/icu4x.postcard.2" "$ICU4X_DIR/icu4x.postcard.2"
+          docker rm "$container"
 
-      - name: Set up integration test database
+      - name: Install ICU4X data
         env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
-        run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_integration \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            sqlx database setup
+          ICU4X_DIR: ${{ runner.temp }}/icu4x
+        run: sudo ln -s "$ICU4X_DIR/icu4x.postcard.2" /icu4x.postcard.2
 
-      - name: Wait for Redis
-        env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
+      - name: Set up test databases
         run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            bash -c "timeout 20s bash -c 'until redis-cli -h redis ping; do echo \"Waiting for Redis...\"; sleep 1; done'"
+          sqlx database setup
+          sqlx database setup --database-url "$DATABASE_URL_TEST"
+
+      - name: Build tests
+        run: cargo test --no-run
 
       - name: Run tests
-        env:
-          NETWORK: ${{ steps.get_network.outputs.network }}
-        run: |
-          docker run --rm \
-            --network "$NETWORK" \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace/services/headless-lms \
-            -e CARGO_TERM_COLOR=always \
-            -e CARGO_HOME=/workspace/.cargo-home \
-            -e DATABASE_URL=postgres://postgres:postgres@postgres/headless_lms_test \
-            -e DATABASE_URL_TEST=postgres://postgres:postgres@postgres/headless_lms_integration \
-            -e REDIS_URL=redis://redis:6379/1 \
-            eu.gcr.io/moocfi-public/project-331-headless-lms-dev-base:latest \
-            cargo test --verbose
-
-      # docker runs the dev-base image as root, so these end up root-owned; the cache
-      # post-step's tar can't read rustc's 0-perm incremental *.lock files as the runner user.
-      - name: Fix cached directory ownership
-        run: sudo chown -R "$(id -u):$(id -g)" services/headless-lms/target/ .cargo-home/
+        run: cargo test
 
   cms:
     if: ${{ !github.event.pull_request.draft }}

@@ -15770,7 +15770,7 @@
     "/api/v0/main-frontend/user-details/search-exact": {
       "post": {
         "tags": ["user-details"],
-        "summary": "POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query",
+        "summary": "POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query",
         "operationId": "searchUserDetailsExact",
         "requestBody": {
           "content": {
@@ -15784,7 +15784,7 @@
         },
         "responses": {
           "200": {
-            "description": "Users whose id or email equals the query",
+            "description": "Users whose id, email or TMC id equals the query",
             "content": {
               "application/json": {
                 "schema": {
@@ -16157,6 +16157,25 @@
         "responses": {
           "200": {
             "description": "Course restored to the user's my-courses list"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/my-old-version-progress": {
+      "get": {
+        "tags": ["users"],
+        "summary": "GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the\nold version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.\n\nKept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be\nreached is reported in its status rather than failing the request.",
+        "operationId": "getMyOldVersionProgress",
+        "responses": {
+          "200": {
+            "description": "The authenticated user's courses on the old version of the platform",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OldVersionProgress"
+                }
+              }
+            }
           }
         }
       }
@@ -30168,7 +30187,7 @@
       "MoocFiCourseProgress": {
         "type": "object",
         "description": "A course the user has progress or a completion on in the old mooc.fi.",
-        "required": ["course_id", "name", "completed", "tmc_mooc_fi_courses"],
+        "required": ["course_id", "name", "completed", "material_links", "tmc_mooc_fi_courses"],
         "properties": {
           "completed": {
             "type": "boolean"
@@ -30176,6 +30195,24 @@
           "course_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "exercise_progress": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MoocFiExerciseProgress",
+                "description": "`None` for a course known only from a completion."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "material_links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiMaterialLink"
+            },
+            "description": "Links to the course's material, one per language version that has one."
           },
           "max_points": {
             "type": ["number", "null"],
@@ -30194,6 +30231,39 @@
               "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
             },
             "description": "tmc.mooc.fi courses that report their progress to this one."
+          }
+        }
+      },
+      "MoocFiExerciseProgress": {
+        "type": "object",
+        "description": "How many of an old mooc.fi course's exercises the user has attempted.",
+        "required": ["exercise_count", "attempted_count"],
+        "properties": {
+          "attempted_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MoocFiMaterialLink": {
+        "type": "object",
+        "description": "A link to one language version of an old mooc.fi course's material.",
+        "required": ["language", "course_name", "url"],
+        "properties": {
+          "course_name": {
+            "type": "string",
+            "description": "The course's name in this language version."
+          },
+          "language": {
+            "type": "string",
+            "description": "As mooc.fi spells it, e.g. `fi_FI`."
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -31578,6 +31648,31 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "OldVersionProgress": {
+        "type": "object",
+        "description": "The user's courses on the old version of the platform. Every course appears once: a tmc.mooc.fi\ncourse that reports to an old mooc.fi course is listed under that mooc.fi course.",
+        "required": ["mooc_fi_status", "mooc_fi", "tmc_mooc_fi_status", "tmc_mooc_fi"],
+        "properties": {
+          "mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocFiCourseProgress"
+            }
+          },
+          "mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
+          },
+          "tmc_mooc_fi": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
+            }
+          },
+          "tmc_mooc_fi_status": {
+            "$ref": "#/components/schemas/ExternalPlatformStatus"
           }
         }
       },
@@ -33722,41 +33817,24 @@
         }
       },
       "ProgressByPlatform": {
-        "type": "object",
-        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course.",
-        "required": [
-          "courses_mooc_fi",
-          "mooc_fi_status",
-          "mooc_fi",
-          "tmc_mooc_fi_status",
-          "tmc_mooc_fi"
-        ],
-        "properties": {
-          "courses_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/OldVersionProgress"
+          },
+          {
+            "type": "object",
+            "required": ["courses_mooc_fi"],
+            "properties": {
+              "courses_mooc_fi": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CoursesMoocFiCourseProgress"
+                }
+              }
             }
-          },
-          "mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MoocFiCourseProgress"
-            }
-          },
-          "mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
-          },
-          "tmc_mooc_fi": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/TmcMoocFiCourseProgress"
-            }
-          },
-          "tmc_mooc_fi_status": {
-            "$ref": "#/components/schemas/ExternalPlatformStatus"
           }
-        }
+        ],
+        "description": "The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that\nreports to an old mooc.fi course is listed under that mooc.fi course."
       },
       "ProposalStatus": {
         "type": "string",
@@ -36321,6 +36399,10 @@
           "submissions": {
             "type": "integer",
             "format": "int32"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "description": "The course's page on tmc.mooc.fi, when it has one."
           }
         }
       },
@@ -36873,6 +36955,7 @@
       },
       "UserInfoPayload": {
         "type": "object",
+        "description": "The profile form as both frontends submit it.",
         "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
         "properties": {
           "country": {

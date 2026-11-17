@@ -595,6 +595,8 @@ import type {
   GetMyExternalCompletionEnrolmentRouteResponses,
   GetMyMoocfiCreditRegistrationsData,
   GetMyMoocfiCreditRegistrationsResponses,
+  GetMyOldVersionProgressData,
+  GetMyOldVersionProgressResponses,
   GetMyProgressByPlatformData,
   GetMyProgressByPlatformResponses,
   GetMyStudiesData,
@@ -1216,6 +1218,7 @@ import {
   zGetMyEnrolmentRouteResponse,
   zGetMyExternalCompletionEnrolmentRouteResponse,
   zGetMyMoocfiCreditRegistrationsResponse,
+  zGetMyOldVersionProgressResponse,
   zGetMyProgressByPlatformResponse,
   zGetMyStudiesResponse,
   zGetMyVerifiedStudentNumberResponse,
@@ -10175,7 +10178,7 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExact = <ThrowOnError extends boolean = true>(
   options: Options<SearchUserDetailsExactData, ThrowOnError>,
@@ -10409,6 +10412,23 @@ export const unhideCourseFromMyCourses = <ThrowOnError extends boolean = true>(
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/my-courses/{course_id}/unhide",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+ * old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+ *
+ * Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+ * reached is reported in its status rather than failing the request.
+ */
+export const getMyOldVersionProgress = <ThrowOnError extends boolean = true>(
+  options?: Options<GetMyOldVersionProgressData, ThrowOnError>,
+): RequestResult<GetMyOldVersionProgressResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetMyOldVersionProgressResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetMyOldVersionProgressResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/my-old-version-progress",
     ...options,
   })
 

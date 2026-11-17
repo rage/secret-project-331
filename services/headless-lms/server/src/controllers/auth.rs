@@ -32,7 +32,6 @@ use headless_lms_utils::{
     services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
-use tracing_log::log;
 use utoipa::{OpenApi, ToSchema};
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -1099,33 +1098,6 @@ pub async fn delete_user_account(
 
     authentication::forget(&session);
     token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
-}
-
-/// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
-/// both; a no-op for an account without a TMC `upstream_id`. Callers run it inside their
-/// transaction so a TMC failure rolls the change back.
-pub async fn update_user_information_to_tmc(
-    upstream_id: Option<i32>,
-    first_name: String,
-    last_name: String,
-    email: Option<String>,
-    tmc_client: &TmcClient,
-    app_conf: &ApplicationConfiguration,
-) -> Result<(), ControllerError> {
-    let Some(upstream_id) = upstream_id.filter(|_| !app_conf.test_mode) else {
-        return Ok(());
-    };
-    tmc_client
-        .update_user_information(first_name, last_name, email, upstream_id.to_string())
-        .await
-        .map_err(|e| {
-            log::warn!("TMC user update failed: {:?}", e);
-            controller_err!(
-                InternalServerError,
-                "Failed to update user info to tmc".to_string(),
-                e
-            )
-        })
 }
 
 async fn handle_email_verification(

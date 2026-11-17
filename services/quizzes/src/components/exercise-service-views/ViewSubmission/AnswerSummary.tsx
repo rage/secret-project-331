@@ -97,12 +97,17 @@ export const resolveLine2Label = ({
 
 const withDot = (text: string): string => (/[.!?]$/.test(text) ? text : `${text}.`)
 
-const OptionText: React.FC<{ option: SummaryOption; addDot: boolean }> = ({ option, addDot }) =>
-  option.rich ? (
-    <ParsedText inline parseMarkdown parseLatex addDotToEnd={addDot} text={option.text} />
+// A trailing period before "; " or a verdict is read aloud as "dot".
+const withoutDot = (text: string): string => text.trimEnd().replace(/\.$/, "")
+
+const OptionText: React.FC<{ option: SummaryOption; addDot: boolean }> = ({ option, addDot }) => {
+  const text = addDot ? option.text : withoutDot(option.text)
+  return option.rich ? (
+    <ParsedText inline parseMarkdown parseLatex addDotToEnd={addDot} text={text} />
   ) : (
-    <span>{addDot ? withDot(option.text) : option.text}</span>
+    <span>{addDot ? withDot(text) : text}</span>
   )
+}
 
 const boxStyles = css`
   margin-top: 1rem;

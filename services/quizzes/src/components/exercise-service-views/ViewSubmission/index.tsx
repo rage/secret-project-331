@@ -206,6 +206,7 @@ const SubmissionFeedback: React.FC<{
       `}
     >
       <span
+        aria-hidden="true"
         className={css`
           position: relative;
           top: 2px;

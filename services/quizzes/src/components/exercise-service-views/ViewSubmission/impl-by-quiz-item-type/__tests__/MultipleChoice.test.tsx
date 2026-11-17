@@ -284,6 +284,12 @@ const solutionOf = (flags: boolean[]): ModelSolutionQuizItemMultiplechoice => ({
 })
 
 describe("MultipleChoice answer summary", () => {
+  it("renders the summary outside the item group so groups are not nested", () => {
+    renderSubmission()
+    const itemGroup = screen.getByRole("group", { name: /Is the sky blue\?/ })
+    expect(itemGroup).not.toContainElement(summary())
+  })
+
   it("single, correct chosen: you chose with verdict, incorrect options, no also-correct line", () => {
     renderSubmission()
     expect(lines()).toEqual([

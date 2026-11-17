@@ -194,4 +194,23 @@ describe("AnswerSummary", () => {
     )
     expect(screen.queryAllByRole("heading")).toHaveLength(0)
   })
+
+  it("drops a trailing period before the separator and the verdict", () => {
+    render(
+      <AnswerSummary
+        lines={buildSummary({
+          chosen: [chosen("Picked.", true)],
+          unselectedCorrect: [o("First."), o("Last.")],
+          incorrect: [],
+          line2Label: "missed",
+        })}
+      />,
+    )
+    const group = screen.getByRole("group", { name: "answer-summary" })
+    const paragraphs = Array.from(group.querySelectorAll("p")).map((p) => p.textContent)
+    expect(paragraphs).toEqual([
+      "answer-summary-you-chose Picked answer-summary-verdict-correct.",
+      "answer-summary-missed Firstanswer-summary-list-separatorLast.",
+    ])
+  })
 })

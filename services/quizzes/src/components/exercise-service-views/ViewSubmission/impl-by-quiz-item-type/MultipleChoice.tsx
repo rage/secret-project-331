@@ -104,123 +104,132 @@ const MultipleChoiceSubmission: React.FC<
   }
 
   return (
-    <div
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
-      role="group"
-      aria-labelledby={titleId}
-      className={css`
-        margin: 0.5rem 0;
-      `}
-    >
+    <>
       <div
-        id={titleId}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
+        role="group"
+        aria-labelledby={titleId}
         className={css`
-          font-weight: 500;
-          color: #4c5868;
-          font-family: ${primaryFont};
-          font-size: 1.25rem;
-          margin-bottom: 1rem;
-        `}
-      >
-        <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
-      </div>
-      <div
-        className={css`
-          color: ${quizTheme.quizBodyColor};
-          font-size: ${quizTheme.quizBodyFontSize};
           margin: 0.5rem 0;
         `}
       >
-        {public_quiz_item.body && (
-          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
-        )}
-      </div>
-      <div
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=list on a styled flex div; <ul> alters layout
-        role="list"
-        className={css`
-          display: flex;
-          flex-direction: column;
+        <div
+          id={titleId}
+          className={css`
+            font-weight: 500;
+            color: #4c5868;
+            font-family: ${primaryFont};
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+          `}
+        >
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
+        </div>
+        <div
+          className={css`
+            color: ${quizTheme.quizBodyColor};
+            font-size: ${quizTheme.quizBodyFontSize};
+            margin: 0.5rem 0;
+          `}
+        >
+          {public_quiz_item.body && (
+            <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
+          )}
+        </div>
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=list on a styled flex div; <ul> alters layout
+          role="list"
+          className={css`
+            display: flex;
+            flex-direction: column;
 
-          ${respondToOrLarger.sm} {
-            flex-direction: ${direction};
-            ${
-              public_quiz_item.optionDisplayDirection === "horizontal" &&
-              `
+            ${respondToOrLarger.sm} {
+              flex-direction: ${direction};
+              ${
+                public_quiz_item.optionDisplayDirection === "horizontal" &&
+                `
                 flex-wrap: wrap;
               `
+              }
             }
-          }
-        `}
-      >
-        {quiz_options.map((qo) => {
-          const answerSelectedThisOption =
-            user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
-          const modelSolutionForThisOption =
-            modelSolution?.options.find((x) => x.id === qo.id) ?? null
-          const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
-            (f) => f.option_id === qo.id,
-          )
-          // null means we don't know whether this option was correct
-          // Item score only says something about one option when a single option is selected.
-          const correctAnswer =
-            answerSelectedThisOption && !multi
-              ? resolveSelectedOptionCorrectness(
-                  modelSolutionForThisOption,
-                  feedbackForThisOption,
-                  quiz_item_answer_feedback,
-                )
-              : resolveOptionCorrectness(modelSolutionForThisOption, feedbackForThisOption)
-          let chip: React.ReactNode = null
-          if (answerSelectedThisOption) {
-            if (correctAnswer === true) {
-              chip = <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
-            } else if (correctAnswer === false) {
-              chip = <OptionChip kind={CHIP.incorrect}>{t("option-result-incorrect")}</OptionChip>
+          `}
+        >
+          {quiz_options.map((qo) => {
+            const answerSelectedThisOption =
+              user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
+            const modelSolutionForThisOption =
+              modelSolution?.options.find((x) => x.id === qo.id) ?? null
+            const feedbackForThisOption =
+              quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
+                (f) => f.option_id === qo.id,
+              )
+            // null means we don't know whether this option was correct
+            // Item score only says something about one option when a single option is selected.
+            const correctAnswer =
+              answerSelectedThisOption && !multi
+                ? resolveSelectedOptionCorrectness(
+                    modelSolutionForThisOption,
+                    feedbackForThisOption,
+                    quiz_item_answer_feedback,
+                  )
+                : resolveOptionCorrectness(modelSolutionForThisOption, feedbackForThisOption)
+            let chip: React.ReactNode = null
+            if (answerSelectedThisOption) {
+              if (correctAnswer === true) {
+                chip = <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
+              } else if (correctAnswer === false) {
+                chip = <OptionChip kind={CHIP.incorrect}>{t("option-result-incorrect")}</OptionChip>
+              }
             }
-          }
-          let prefix: string | null = null
-          if (answerSelectedThisOption) {
-            prefix = t("option-selected")
-          } else if (multi) {
-            prefix = t("option-not-selected")
-          }
-          let feedBackForOption: string | null = null
-          if (answerSelectedThisOption) {
-            feedBackForOption = resolveDisplayedFeedback(
-              feedbackForThisOption?.option_feedback,
-              modelSolutionForThisOption?.messagesOnModelSolution,
-            )
-          }
-          return (
-            <div
-              key={qo.id}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=listitem on a styled div; <li> needs a <ul> parent
-              role="listitem"
-            >
+            let prefix: string | null = null
+            if (answerSelectedThisOption) {
+              prefix = t("option-selected")
+            } else if (multi) {
+              prefix = t("option-not-selected")
+            }
+            let feedBackForOption: string | null = null
+            if (answerSelectedThisOption) {
+              feedBackForOption = resolveDisplayedFeedback(
+                feedbackForThisOption?.option_feedback,
+                modelSolutionForThisOption?.messagesOnModelSolution,
+              )
+            }
+            return (
               <div
-                className={cx(
-                  optionBoxStyles,
-                  optionLabelStyles,
-                  answerSelectedThisOption && optionStateStyles(correctAnswer),
-                )}
+                key={qo.id}
+                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=listitem on a styled div; <li> needs a <ul> parent
+                role="listitem"
               >
-                <div className={optionLabelStyles}>
-                  <OptionMarker selected={answerSelectedThisOption} multi={multi} />
-                  <div className={optionTextStyles}>
-                    {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
-                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                <div
+                  className={cx(
+                    optionBoxStyles,
+                    optionLabelStyles,
+                    answerSelectedThisOption && optionStateStyles(correctAnswer),
+                  )}
+                >
+                  <div className={optionLabelStyles}>
+                    <OptionMarker selected={answerSelectedThisOption} multi={multi} />
+                    <div className={optionTextStyles}>
+                      {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
+                      <ParsedText
+                        inline
+                        parseMarkdown
+                        parseLatex
+                        text={qo.title || qo.body || ""}
+                      />
+                    </div>
                   </div>
+                  {chip}
                 </div>
-                {chip}
+                <RowSubmissionFeedback correct={correctAnswer} feedback={feedBackForOption} />
               </div>
-              <RowSubmissionFeedback correct={correctAnswer} feedback={feedBackForOption} />
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
+      {/* Sibling of the item group: nested groups are read as "out of grouping" twice. */}
       <AnswerSummary lines={summaryLines} />
-    </div>
+    </>
   )
 }
 

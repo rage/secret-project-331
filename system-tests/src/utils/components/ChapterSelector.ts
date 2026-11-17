@@ -1,6 +1,8 @@
 import type { Locator, Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
+import { escapeForRegExp } from "../regex"
+
 export class ChapterSelector {
   private readonly page: Page
 
@@ -20,7 +22,7 @@ export class ChapterSelector {
 
   public async clickChapterByTitle(title: string): Promise<void> {
     // Chapter cards are named "Chapter N title"; this skips the "Previous: title" link.
-    const escaped = title.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const escaped = escapeForRegExp(title)
     await this.page.getByRole("link", { name: new RegExp(`^Chapter \\d+ ${escaped}`) }).click()
   }
 }

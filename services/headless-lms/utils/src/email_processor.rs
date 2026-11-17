@@ -626,17 +626,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                 process_content_to_html(&block.inner_blocks, theme)
             )
         }
-        EmailBlockName::TeacherNewsletter => {
-            let summary = block.str_attribute("summary").trim();
-            if summary.is_empty() {
-                return String::new();
-            }
-            // The extra left padding offsets the letter-spacing trailing the last character.
-            format!(
-                r#"<table role="presentation" class="email-one-time-code" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="{ONE_TIME_CODE_BACKGROUND_COLOR}" style="width: 100%; margin: 0 0 18px; background-color: {ONE_TIME_CODE_BACKGROUND_COLOR}; border: 1px solid {ONE_TIME_CODE_BORDER_COLOR}; border-radius: 6px; border-collapse: separate;"><tr><td align="center" style="padding: 16px 16px 16px 20px; border: 0; font-family: {ONE_TIME_CODE_FONT_FAMILY}; font-size: 22px; line-height: 30px; mso-line-height-rule: exactly; font-weight: 600; letter-spacing: 4px; color: {ONE_TIME_CODE_TEXT_COLOR}; overflow-wrap: anywhere; word-break: break-word; user-select: all;">{}</td></tr></table>"#,
-                summary
-            )
-},
+        EmailBlockName::TeacherNewsletter => String::new()
     }
 }
 
@@ -752,8 +742,7 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
         .filter(|text| !text.is_empty())
         .collect::<Vec<_>>()
         .join("\n"),
-        EmailBlockName::TeacherNewsletter => process_content_to_plaintext(&block.inner_blocks),
-        // EmailBlockName::TeacherNewsletter => block.str_attribute("summary").trim().to_string(),
+        EmailBlockName::TeacherNewsletter => String::new(),
     }
 }
 
@@ -857,16 +846,6 @@ pub struct TeacherNewsletterContent {
     pub text: String,
 }
 
-impl TeacherNewsletterContent {
-    pub fn as_html(&self) -> String {
-        self.html.to_owned()
-    }
-
-    pub fn as_text(&self) -> String {
-        self.text.to_owned()
-    }
-}
-
 /// A message ready to hand to the mail relay.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderedEmail {
@@ -928,7 +907,7 @@ pub fn render_newsletter(
     let html = wrap_in_layout(
         layout_html,
         &EmailLayoutFields {
-            content_html: &teacher_newsletter_content.as_html(),
+            content_html: &teacher_newsletter_content.html,
             subject: &subject,
             preheader: &preheader(&body),
             language,
@@ -937,7 +916,7 @@ pub fn render_newsletter(
 
     RenderedEmail {
         html: inline_css(html),
-        plain_text: teacher_newsletter_content.as_text(),
+        plain_text: teacher_newsletter_content.text,
         subject,
         unfilled_placeholders,
     }

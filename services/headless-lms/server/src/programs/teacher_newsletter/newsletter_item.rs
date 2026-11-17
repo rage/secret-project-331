@@ -8,10 +8,10 @@ pub enum TeacherNewsletterItemFormat {
     Text,
 }
 
-pub struct TeacherNewsletterItem<'a> {
-    pub base_url: &'a str,
+pub struct TeacherNewsletterItem {
+    pub base_url: String,
     pub course_id: Uuid,
-    pub course_name: &'a String,
+    pub course_name: String,
     pub returned_exercises_count: i64,
     pub completed_course_count: i64,
     pub started_course_count: i64,
@@ -23,7 +23,7 @@ pub struct TeacherNewsletterItem<'a> {
     pub proposal_count_total: i64,
 }
 
-impl<'a> TeacherNewsletterItem<'a> {
+impl TeacherNewsletterItem {
     pub fn as_html(&self) -> String {
         self.render(TeacherNewsletterItemFormat::Html)
     }
@@ -33,9 +33,9 @@ impl<'a> TeacherNewsletterItem<'a> {
     }
 
     fn render(&self, format: TeacherNewsletterItemFormat) -> String {
-        let course_name = self.course_name;
-        let base_url = self.base_url;
-        let course_id = self.course_id;
+        let course_name = &self.course_name;
+        let base_url = &self.base_url;
+        let course_id = &self.course_id;
 
         let cheaters = section_block(
             format,

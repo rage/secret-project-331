@@ -8,8 +8,6 @@ pub fn section_block(
     label: &str,
     link: String,
 ) -> String {
-    let counts_new = new_counts(count_total, count_period);
-
     match format {
         TeacherNewsletterItemFormat::Html => {
             format!(
@@ -24,7 +22,7 @@ pub fn section_block(
                                 <tbody>
                                     <tr>
                                         <td style="padding: 0; color: #1F6964; font-size: 32px; border: none; font-weight: bold;">{count_total}</td>
-                                        <td style="border: none; padding: 0; padding-left: 5px;">(+{counts_new} new)</td>
+                                        <td style="border: none; padding: 0; padding-left: 5px;">(+{count_period} new)</td>
                                         <td style="border: none; padding: 0 5px;"></td>
                                         <td style="background-color: #1F6964; border-radius: 6px; mso-padding-alt: 2px 10px; padding: 2px 10px; border: none;">
                                           <a href="{link}" style="display: inline-block; font-size: 16px; line-height: 20px; font-weight: 600; color: #FFFFFF; text-decoration: none; border: none;" >Review</a>
@@ -41,7 +39,7 @@ pub fn section_block(
             )
         }
         TeacherNewsletterItemFormat::Text => {
-            format!("* {title}: {count_total} (+{counts_new} new) — {label} Review: {link}\n")
+            format!("* {title}: {count_total} (+{count_period} new) — {label} Review: {link}\n")
         }
     }
 }
@@ -59,15 +57,5 @@ pub fn stats_block(format: TeacherNewsletterItemFormat, count: i64, label: &str)
             )
         }
         TeacherNewsletterItemFormat::Text => format!("* {label}: {count}\n"),
-    }
-}
-
-pub fn new_counts(count_total: i64, count_period: i64) -> i64 {
-    let count_difference = count_total - count_period;
-
-    if count_difference == 0 {
-        count_period
-    } else {
-        count_difference
     }
 }

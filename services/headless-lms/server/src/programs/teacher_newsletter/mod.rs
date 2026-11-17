@@ -27,10 +27,17 @@ pub async fn main() -> anyhow::Result<()> {
     setup_tracing()?;
 
     let app_conf = ApplicationConfiguration::try_from_env()?;
-    let base_url = &app_conf.base_url;
+    let base_url = app_conf.base_url;
     let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
+
+    let teachers = get_teacher_newsletter_subscriptions(&mut conn).await?;
+
+    if teachers.is_empty() {
+        info!("No subscriptions found for teacher newsletter. Skipping sending.");
+        return Ok(());
+    }
 
     let teacher_newsletter_template = get_generic_email_template_by_type_and_language(
         &mut conn,
@@ -53,8 +60,6 @@ pub async fn main() -> anyhow::Result<()> {
 
     create_newsletter_items(&mut conn, courses, &period_start, &period_end, base_url).await?;
 
-    let teachers = get_teacher_newsletter_subscriptions(&mut conn).await?;
-
     for teacher in teachers {
         models::email_deliveries::insert_email_delivery(
             &mut conn,
@@ -67,14 +72,16 @@ pub async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+// Assumes that newsletter is always sent on Monday.
+// Returns period from last week Monday to Sunday.
 pub fn get_newsletter_period() -> (String, String) {
     let date_today = Utc::now().date_naive();
     let date_yesterday = date_today - chrono::Duration::days(1);
 
     let start_date = date_today - chrono::Duration::days(7);
 
-    let period_end = date_today.format("%Y-%m-%d").to_string();
     let period_start = start_date.format("%Y-%m-%d").to_string();
+    let period_end = date_yesterday.format("%Y-%m-%d").to_string();
 
     (period_start, period_end)
 }
@@ -84,7 +91,7 @@ async fn create_newsletter_items(
     courses: Vec<Course>,
     period_start: &String,
     period_end: &String,
-    base_url: &str,
+    base_url: String,
 ) -> anyhow::Result<()> {
     for course in courses {
         let returned_exercises_count = get_total_users_returned_exercises_custom_time_period(
@@ -158,9 +165,9 @@ async fn create_newsletter_items(
                 .pending;
 
         let newsletter_item = TeacherNewsletterItem {
-            base_url,
+            base_url: base_url.clone(),
             course_id: course.id,
-            course_name: &course.name,
+            course_name: course.name,
             returned_exercises_count,
             completed_course_count,
             started_course_count,

@@ -64,15 +64,14 @@ const MultipleChoiceSubmission: React.FC<
     quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
   }
 
+  const isSelected = (id: string) => user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
+  const feedbackFor = (id: string) =>
+    quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find((f) => f.option_id === id)
   const multi = public_quiz_item.allowSelectingMultipleOptions
   const summaryLines = quiz_item_model_solution ? buildSummaryLines() : []
 
   function buildSummaryLines() {
-    const isSelected = (id: string) =>
-      user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
     const keyFor = (id: string) => modelSolution.options.find((x) => x.id === id) ?? null
-    const feedbackFor = (id: string) =>
-      quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find((f) => f.option_id === id)
     const text = (qo: (typeof quiz_options)[number]) => toSummaryOption(qo, true)
     const chosen = quiz_options.filter((qo) => isSelected(qo.id))
     const chosenCorrect = chosen.filter((qo) => keyFor(qo.id)?.correct === true).length

@@ -131,10 +131,10 @@ const getMainElement = () => document.querySelector<HTMLElement>("main")
  * Focuses main's h1, else its first heading, else `main`, and keeps it there if the heading is
  * replaced while the page settles. Does not scroll by default, so the page stays where it is.
  */
-export const focusMainHeading = (options: FocusOptions = { preventScroll: true }): void => {
+export const focusMainHeading = (options?: FocusOptions): void => {
   runWhenNoModalOpen(() => {
     if (getMainElement()) {
-      settleFocusOnHeading(getMainElement, null, options)
+      settleFocusOnHeading(getMainElement, null, options ?? { preventScroll: true })
     }
   })
 }

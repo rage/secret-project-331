@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react"
+import { vi } from "vitest"
 
 import type { UserItemAnswerChooseN } from "../../../../../../types/quizTypes/answer"
 import type {
@@ -7,6 +8,12 @@ import type {
 } from "../../../../../../types/quizTypes/modelSolutionSpec"
 import type { PublicSpecQuizItemChooseN } from "../../../../../../types/quizTypes/publicSpec"
 import ChooseNSubmission from "../ChooseN"
+
+// ParsedText renders via dynamicImport (React.lazy); mock it so feedback text is synchronous.
+vi.mock("../../../../ParsedText", () => ({
+  __esModule: true,
+  default: ({ text }: { text: string | null }) => <span>{text}</span>,
+}))
 
 const makeModelSolutionOption = (id: string, title: string, correct: boolean): QuizItemOption => ({
   id,
@@ -54,13 +61,17 @@ const answer: UserItemAnswerChooseN = {
   valid: true,
 }
 
-const renderSubmission = (solution: ModelSolutionQuizItemChooseN | null = modelSolution) =>
+const renderSubmission = (
+  solution: ModelSolutionQuizItemChooseN | null = modelSolution,
+  feedback: unknown = null,
+) =>
   render(
     <ChooseNSubmission
       public_quiz_item={publicItem}
       quiz_direction="column"
       quiz_item_model_solution={solution}
-      quiz_item_answer_feedback={null}
+      // oxlint-disable-next-line typescript/no-explicit-any
+      quiz_item_answer_feedback={feedback as any}
       user_quiz_item_answer={answer}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       user_information={{} as any}
@@ -105,5 +116,23 @@ describe("ChooseN submission view accessibility", () => {
     for (const svg of svgs) {
       expect(svg.closest('[aria-hidden="true"]')).not.toBeNull()
     }
+  })
+
+  it("marks a missed correct option as not selected with a Missed chip", () => {
+    renderSubmission()
+    const banana = screen.getByText("Banana").closest("div")!
+    expect(banana.textContent).toContain("option-not-selected")
+    expect(banana.textContent).toContain("option-result-missed")
+    const apple = screen.getAllByText("Apple")[0]!.closest("div")!
+    expect(apple.textContent).not.toContain("option-result-missed")
+  })
+
+  it("uses a neutral feedback border when correctness is unknown", () => {
+    renderSubmission(null, {
+      quiz_item_option_feedbacks: [
+        { option_id: "o-1", this_option_was_correct: null, option_feedback: "Nice" },
+      ],
+    })
+    expect(screen.getByText("Nice").parentElement!).toHaveStyle({ borderLeftColor: "#b8b8c8" })
   })
 })

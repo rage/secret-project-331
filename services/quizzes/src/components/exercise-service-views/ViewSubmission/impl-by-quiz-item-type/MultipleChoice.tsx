@@ -1,5 +1,6 @@
 import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -16,37 +17,15 @@ import type { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/q
 import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
-
-const gradingOption = css`
-  align-items: center;
-  background: ${quizTheme.quizItemBackground};
-  border: none;
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 0.3rem 0;
-  padding: 0 1rem;
-  border-radius: 0.375rem;
-  font-size: 1.125rem;
-  color: #4c5868;
-  border: 0.125rem solid #d8d8d8;
-`
-
-const gradingOptionWrongAndSelected = css`
-  background: #fbeef0;
-  border: 0.125rem solid #f5d0d3;
-`
-
-const gradingOptionSelected = css`
-  background: #f4f4f4;
-  border: 0.125rem solid #d8d8d8;
-`
-
-const gradingOptionCorrectAndSelected = css`
-  background: ${quizTheme.gradingCorrectItemBackground};
-  border: 0.125rem solid #69af8a;
-`
+import {
+  CHIP,
+  OptionChip,
+  OptionMarker,
+  optionBoxStyles,
+  optionStateStyles,
+  optionTextStyles,
+  resolveOptionCorrectness,
+} from "../OptionStatus"
 
 const MultipleChoiceSubmission: React.FC<
   React.PropsWithChildren<
@@ -131,19 +110,34 @@ const MultipleChoiceSubmission: React.FC<
             user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
           const modelSolutionForThisOption =
             modelSolution?.options.find((x) => x.id === qo.id) ?? null
-          // If correctAnswer is null we don't know whether this option was correct or not
-          let correctAnswer = modelSolutionForThisOption?.correct ?? null
           const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
             (f) => f.option_id === qo.id,
           )
-          // if we have received feedback for this option, use that
-          // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-          if (
-            feedbackForThisOption &&
-            feedbackForThisOption.this_option_was_correct !== null &&
-            !correctAnswer
-          ) {
-            correctAnswer = feedbackForThisOption.this_option_was_correct
+          // null means we don't know whether this option was correct
+          const correctAnswer = resolveOptionCorrectness(
+            modelSolutionForThisOption,
+            feedbackForThisOption,
+          )
+          const multi = public_quiz_item.allowSelectingMultipleOptions
+          let chip: React.ReactNode = null
+          if (answerSelectedThisOption) {
+            if (correctAnswer === true) {
+              chip = <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
+            } else if (correctAnswer === false) {
+              chip = <OptionChip kind={CHIP.wrong}>{t("option-result-wrong")}</OptionChip>
+            }
+          } else if (modelSolutionForThisOption?.correct === true) {
+            chip = (
+              <OptionChip kind={CHIP.outlined}>
+                {multi ? t("option-result-missed") : t("option-result-correct-answer")}
+              </OptionChip>
+            )
+          }
+          let prefix: string | null = null
+          if (answerSelectedThisOption) {
+            prefix = t("option-selected")
+          } else if (multi) {
+            prefix = t("option-not-selected")
           }
           let feedBackForOption: string | null = null
           if (answerSelectedThisOption) {
@@ -160,88 +154,18 @@ const MultipleChoiceSubmission: React.FC<
             >
               <div
                 className={cx(
-                  gradingOption,
-                  answerSelectedThisOption && gradingOptionSelected,
-                  answerSelectedThisOption &&
-                    correctAnswer === false &&
-                    gradingOptionWrongAndSelected,
-                  answerSelectedThisOption &&
-                    correctAnswer === true &&
-                    gradingOptionCorrectAndSelected,
+                  optionBoxStyles,
+                  answerSelectedThisOption && optionStateStyles(correctAnswer),
                 )}
               >
-                <div
-                  className={css`
-                    padding: 0.8rem 0;
-                    max-width: 50ch;
-                  `}
-                >
+                <OptionMarker selected={answerSelectedThisOption} multi={multi} />
+                <div className={optionTextStyles}>
+                  {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
                   <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
-                  {answerSelectedThisOption && (
-                    <div
-                      className={css`
-                        font-size: 0.875rem;
-                        font-weight: 600;
-                        color: #4c5868;
-                      `}
-                    >
-                      {t("you-selected-this-option")}
-                    </div>
-                  )}
                 </div>
-                <div>
-                  <div
-                    className={css`
-                      display: flex;
-                      flex-direction: ${sanitizeFlexDirection(
-                        public_quiz_item.optionDisplayDirection,
-                        "row",
-                      )};
-                      ${
-                        public_quiz_item.optionDisplayDirection === "horizontal" &&
-                        `
-                            padding-left: 0.635rem;
-                          `
-                      }
-                    `}
-                  >
-                    {correctAnswer === true && (
-                      <div
-                        className={css`
-                          background: #9dc7b1;
-                          font-size: 0.625rem;
-                          text-transform: uppercase;
-                          font-weight: bold;
-                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                          border-radius: 0.125rem;
-                          color: #14261c;
-                        `}
-                      >
-                        {t("correct-option")}
-                      </div>
-                    )}
-                    {correctAnswer === false && (
-                      <div
-                        className={css`
-                          background: #eedbdd;
-                          font-size: 0.625rem;
-                          text-transform: uppercase;
-                          font-weight: bold;
-                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                          border-radius: 0.125rem;
-                          color: #b12632;
-                        `}
-                      >
-                        {t("incorrect-option")}
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {chip}
               </div>
-              <RowSubmissionFeedback
-                correct={correctAnswer ?? false}
-                feedback={feedBackForOption}
-              />
+              <RowSubmissionFeedback correct={correctAnswer} feedback={feedBackForOption} />
             </div>
           )
         })}
@@ -252,7 +176,7 @@ const MultipleChoiceSubmission: React.FC<
 
 interface RowSubmissionFeedbackProps {
   feedback: string | null | undefined
-  correct: boolean
+  correct: boolean | null
 }
 
 const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedbackProps>> = ({
@@ -266,11 +190,14 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         display: flex;
         color: #4c5868;
         font-size: 1.125rem;
-        border-left: ${
-          correct
-            ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
-            : `0.375rem solid #ebcbcd`
-        };
+        border-left: 0.375rem solid
+          ${
+            correct === null
+              ? "#b8b8c8"
+              : correct
+                ? quizTheme.gradingCorrectItemBorderColor
+                : "#ebcbcd"
+          };
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

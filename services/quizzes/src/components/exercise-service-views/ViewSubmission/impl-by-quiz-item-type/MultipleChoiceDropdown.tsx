@@ -1,12 +1,10 @@
-import { css } from "@emotion/css"
-import { CheckCircle, XmarkCircle } from "@vectopus/atlas-icons-react"
+import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 import { resolveDisplayedFeedback } from "@/util/feedbackMessages"
 
 import type { QuizItemSubmissionComponentProps } from "."
@@ -19,18 +17,15 @@ import type {
 } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
-
-const SelectIcon = () => {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" role="presentation">
-      <path
-        d="M8.292 10.293a1.009 1.009 0 000 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 000-1.419.987.987 0 00-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 00-1.406 0z"
-        fill="#57606f"
-        fillRule="evenodd"
-      ></path>
-    </svg>
-  )
-}
+import {
+  CHIP,
+  OptionChip,
+  OptionMarker,
+  optionBoxStyles,
+  optionStateStyles,
+  optionTextStyles,
+  resolveOptionCorrectness,
+} from "../OptionStatus"
 
 const MultipleChoiceDropdownFeedback: React.FC<
   React.PropsWithChildren<
@@ -50,191 +45,97 @@ const MultipleChoiceDropdownFeedback: React.FC<
   const bodyId = useId()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoiceDropdown
-  const correct =
-    quiz_item_answer_feedback?.score === 1 ||
-    quiz_item_answer_feedback?.correctnessCoefficient === 1
   const selectedOption = public_quiz_item.options.filter(
     (o) => o.id === (user_quiz_item_answer.selectedOptionIds as string[])[0],
   )[0]
   const correctOption = modelSolution?.options.find((o) => o.correct)
+  // null means we don't know whether the answer was correct
+  const correct = selectedOption
+    ? resolveOptionCorrectness(
+        modelSolution?.options.find((o) => o.id === selectedOption.id),
+        quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
+          (f) => f.option_id === selectedOption.id,
+        ),
+      )
+    : null
   const quiz_options = public_quiz_item.options
 
   return (
     <div>
       <div
         className={css`
-          display: grid;
-          align-items: center;
-          ${respondToOrLarger.sm} {
-            flex-direction: row;
-          }
+          margin: 0.5rem 0 0 0;
         `}
       >
-        <div
-          className={css`
-            flex-direction: column;
-            width: 100%;
-          `}
-        >
+        {public_quiz_item.title ? (
           <div
+            id={titleId}
             className={css`
-              margin: 0.5rem 0 0 0;
+              font-size: ${quizTheme.quizTitleFontSize} !important;
+              font-weight: 500;
+              color: #4c5868;
+              font-family: ${primaryFont};
+              margin-bottom: 1rem;
             `}
           >
-            {public_quiz_item.title ? (
-              <div
-                id={titleId}
-                className={css`
-                  font-size: ${quizTheme.quizTitleFontSize} !important;
-                  font-weight: 500;
-                  color: #4c5868;
-                  font-family: ${primaryFont};
-                  margin-bottom: 1rem;
-                `}
-              >
-                {public_quiz_item.title}
-              </div>
-            ) : null}
+            {public_quiz_item.title}
           </div>
-          {public_quiz_item.body && (
-            <div
+        ) : null}
+      </div>
+      {public_quiz_item.body && (
+        <div
+          className={css`
+            margin: 0.5rem;
+          `}
+        >
+          <p
+            id={bodyId}
+            className={css`
+              font-size: 1.25rem;
+              margin: 0;
+            `}
+          >
+            {public_quiz_item.body}
+          </p>
+        </div>
+      )}
+      <div
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
+        role="group"
+        aria-labelledby={public_quiz_item.title ? titleId : undefined}
+        aria-label={public_quiz_item.title ? undefined : t("answer")}
+        aria-describedby={public_quiz_item.body ? bodyId : undefined}
+        className={cx(
+          optionBoxStyles,
+          css`
+            max-width: 50ch;
+          `,
+          selectedOption && optionStateStyles(correct),
+        )}
+      >
+        <OptionMarker selected={!!selectedOption} multi={false} />
+        <div className={optionTextStyles}>
+          {selectedOption ? (
+            <>
+              <VisuallyHidden>{t("option-selected")}</VisuallyHidden>
+              {selectedOption.title || selectedOption.body}
+            </>
+          ) : (
+            <span
               className={css`
-                margin: 0.5rem;
+                color: #7e8894;
               `}
             >
-              {public_quiz_item.body ? (
-                <p
-                  id={bodyId}
-                  className={css`
-                    font-size: 1.25rem;
-                    margin: 0;
-                  `}
-                >
-                  {public_quiz_item.body}
-                </p>
-              ) : null}
-            </div>
+              {t("answer")}
+            </span>
           )}
         </div>
-        <div
-          className={css`
-            display: flex;
-            width: 80%;
-            align-items: center;
-
-            ${respondToOrLarger.sm} {
-              width: 40%;
-            }
-          `}
-        >
-          <div
-            className={css`
-              display: flex;
-              flex: 1;
-              align-items: center;
-              position: relative;
-              min-width: 0;
-
-              .select-arrow {
-                position: absolute;
-                top: 55%;
-                transform: translateY(-50%);
-                right: 0.625rem;
-                pointer-events: none;
-              }
-            `}
-          >
-            <select
-              aria-label={public_quiz_item.title ? undefined : t("answer")}
-              aria-labelledby={public_quiz_item.title ? titleId : undefined}
-              aria-describedby={public_quiz_item.body ? bodyId : undefined}
-              disabled
-              className={css`
-                display: grid;
-                width: 100%;
-                border-radius: 0.25rem;
-                border: none;
-                padding: 0.5rem 2rem 0.5rem 0.625rem;
-                font-size: 18px;
-                cursor: pointer;
-                border: 0.188rem solid
-                  ${
-                    correct
-                      ? quizTheme.gradingCorrectItemBorderColor
-                      : quizTheme.gradingWrongItemBorderColor
-                  };
-                background: none;
-                min-height: 2.5rem;
-                grid-template-areas: "select";
-                align-items: center;
-                color: #7e8894;
-                appearance: none;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-
-                background: ${
-                  correct
-                    ? quizTheme.gradingCorrectItemBackground
-                    : quizTheme.gradingWrongItemBackground
-                };
-              `}
-            >
-              <option disabled selected={selectedOption?.id === null} value="">
-                {t("answer")}
-              </option>
-              {public_quiz_item.options.map((o) => (
-                <option
-                  key={o.id}
-                  value={o.id}
-                  selected={selectedOption?.id === o.id}
-                  className={css`
-                    display: flex;
-                  `}
-                >
-                  {o.title || o.body}
-                </option>
-              ))}
-            </select>
-            <div className="select-arrow">
-              <SelectIcon />
-            </div>
-          </div>
-          <div
-            className={css`
-              display: flex;
-              align-items: center;
-              margin-left: 0.5rem;
-              flex-shrink: 0;
-            `}
-          >
-            {correct ? (
-              <>
-                <span aria-hidden="true">
-                  <CheckCircle
-                    size={24}
-                    className={css`
-                      color: ${baseTheme.colors.green[700]};
-                    `}
-                  />
-                </span>
-                <VisuallyHidden>{t("your-answer-was-correct")}</VisuallyHidden>
-              </>
-            ) : (
-              <>
-                <span aria-hidden="true">
-                  <XmarkCircle
-                    size={24}
-                    className={css`
-                      color: ${baseTheme.colors.red[700]};
-                    `}
-                  />
-                </span>
-                <VisuallyHidden>{t("your-answer-was-not-correct")}</VisuallyHidden>
-              </>
-            )}
-          </div>
-        </div>
+        {selectedOption && correct === true && (
+          <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
+        )}
+        {selectedOption && correct === false && (
+          <OptionChip kind={CHIP.wrong}>{t("option-result-wrong")}</OptionChip>
+        )}
       </div>
       {correctOption && (
         <div
@@ -272,20 +173,13 @@ const SubmissionFeedbackMessage: React.FC<
       user_quiz_item_answer.selectedOptionIds?.includes(option.id) ?? false
     const modelSolutionForThisOption =
       modelSolution?.options.find((x) => x.id === option.id) ?? null
-    // If correctAnswer is null we don't know whether this option was correct or not
-    let correctAnswer = modelSolutionForThisOption?.correct ?? null
     const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
       (feedback) => feedback.option_id === option.id,
     )
-    if (
-      feedbackForThisOption &&
-      feedbackForThisOption.this_option_was_correct !== null &&
-      !correctAnswer
-    ) {
-      // if we have received feedback for this option, use that
-      // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-      correctAnswer = feedbackForThisOption.this_option_was_correct
-    }
+    const correctAnswer = resolveOptionCorrectness(
+      modelSolutionForThisOption,
+      feedbackForThisOption,
+    )
     let feedBackForOption: string | null = null
     if (answerSelectedThisOption) {
       feedBackForOption = resolveDisplayedFeedback(
@@ -301,11 +195,14 @@ const SubmissionFeedbackMessage: React.FC<
           display: flex;
           font-size: 1.125rem;
           color: #3c4551;
-          border-left: ${
-            correctAnswer
-              ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-              : `6px solid #ebcbcd`
-          };
+          border-left: 6px solid
+            ${
+              correctAnswer === null
+                ? "#b8b8c8"
+                : correctAnswer
+                  ? quizTheme.gradingCorrectItemBackground
+                  : "#ebcbcd"
+            };
           box-sizing: border-box;
           background: ${quizTheme.feedbackBackground};
           padding: 0.5rem 0px 0.5rem 0.5rem;

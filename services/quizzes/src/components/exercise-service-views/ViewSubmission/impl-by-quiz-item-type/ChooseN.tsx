@@ -19,12 +19,13 @@ import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "../../AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles"
+import { CHIP, OptionChip } from "../OptionStatus"
 
 interface OptionFeedbackToDisplay {
   optionId: string
   optionText: string
   message: string
-  correct: boolean
+  correct: boolean | null
 }
 
 const MultipleChoiceClickableFeedback: React.FC<
@@ -83,7 +84,7 @@ const MultipleChoiceClickableFeedback: React.FC<
       // Prefer the model solution's correctness (including an explicit `false`), falling back to
       // the feedback's this_option_was_correct only when the model solution has no verdict at all.
       const correct =
-        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? false
+        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? null
       return [
         { optionId: option.id, optionText: option.title || option.body || "", message, correct },
       ]
@@ -189,8 +190,14 @@ const MultipleChoiceClickableFeedback: React.FC<
                     ${userSelected && "padding-right: 1.5rem;"}
                   `}
                 >
+                  {!userSelected && shouldBeSelected === true && (
+                    <VisuallyHidden>{t("option-not-selected")} </VisuallyHidden>
+                  )}
                   {o.title || o.body}
                 </span>
+                {!userSelected && shouldBeSelected === true && (
+                  <OptionChip kind={CHIP.outlined}>{t("option-result-missed")}</OptionChip>
+                )}
                 {userSelected && (
                   <span
                     className={css`
@@ -291,9 +298,11 @@ const MultipleChoiceClickableFeedback: React.FC<
                     color: ${quizTheme.quizBodyColor};
                     border-left: 0.375rem solid
                       ${
-                        correct
-                          ? quizTheme.gradingCorrectItemBorderColor
-                          : quizTheme.gradingWrongItemBorderColor
+                        correct === null
+                          ? "#b8b8c8"
+                          : correct
+                            ? quizTheme.gradingCorrectItemBorderColor
+                            : quizTheme.gradingWrongItemBorderColor
                       };
                     background: ${quizTheme.feedbackBackground};
                     padding: 0.5rem 0.5rem 0.5rem 0.75rem;

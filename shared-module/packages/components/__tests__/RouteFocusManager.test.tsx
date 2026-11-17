@@ -333,4 +333,29 @@ describe("RouteFocusManager", () => {
     })
     expect(document.activeElement).toBe(document.querySelector("#late"))
   })
+
+  test("observes the layout root, not the body, so a mutation outside it does not refocus", async () => {
+    const observe = jest.spyOn(MutationObserver.prototype, "observe")
+    const { rerender } = render(<App heading="Home" />)
+    mockState.pathname = "/about"
+    rerender(<App heading={null} />)
+    const main = document.querySelector("#maincontent")
+    const observed = observe.mock.calls.map(([node]) => node)
+    expect(observed).toContain(main?.parentElement)
+    expect(observed).not.toContain(document.body)
+
+    // Focus moved on; a toast outside the root must not pull it back.
+    const button = document.createElement("button")
+    document.body.append(button)
+    button.focus()
+    await act(async () => {
+      const toast = document.createElement("div")
+      toast.setAttribute("role", "status")
+      document.body.append(toast)
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(button)
+    button.remove()
+    observe.mockRestore()
+  })
 })

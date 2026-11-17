@@ -105,14 +105,18 @@ const settleFocusOnHeading = (
   if (!watched) {
     focusTarget()
   }
-  // Watches the whole body, as the container itself may be replaced. It keeps watching after the
-  // heading has focus: the heading itself may be replaced a moment later.
+  // Watches the layout root holding the container (not the body, so toasts and live regions don't
+  // count) and re-queries the container, as it may be replaced. Keeps watching after the heading
+  // has focus: the heading itself may be replaced a moment later.
   const observer = new MutationObserver(() => {
     if (update()) {
       observer.disconnect()
     }
   })
-  observer.observe(document.body, { childList: true, subtree: true })
+  observer.observe(getContainer()?.parentElement ?? document.body, {
+    childList: true,
+    subtree: true,
+  })
   const timeout = window.setTimeout(() => observer.disconnect(), OBSERVE_MS)
   return () => {
     observer.disconnect()

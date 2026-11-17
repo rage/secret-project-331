@@ -39,6 +39,14 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "certificate-details",
+    // The verification id is random on every run, in the details list and printed in the image
+    screenshotOptions: {
+      mask: [
+        // The parent also holds the copy button, which moves with the id width
+        page.getByText(currentUrl.split("/").pop() ?? "", { exact: true }).locator(".."),
+        page.getByRole("img", { name: "Certificate image" }),
+      ],
+    },
     waitForTheseToBeVisibleAndStable: [
       page.getByRole("img", { name: "Certificate image" }),
       page.getByRole("heading", { name: "Certificate details" }),

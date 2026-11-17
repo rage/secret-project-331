@@ -20,6 +20,11 @@ pub struct PageReadStatusUpdate {
     pub page_read: bool,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, ToSchema)]
+pub struct BlockStatusUpdate {
+    pub block_statuses: serde_json::Value,
+}
+
 pub async fn get_by_user_and_page(
     conn: &mut PgConnection,
     user_id: Uuid,

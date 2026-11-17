@@ -18,7 +18,7 @@ interface ContentBlockRendererProps {
   block: Block<unknown>
   isExam: boolean
   dontAllowBlockToBeWiderThanContainerWidth: boolean
-  blockRendererOverrides: Record<string, any>
+  blockRendererOverrides: Record<string, unknown>
   highlightBlocks: string[]
 }
 

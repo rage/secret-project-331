@@ -152,3 +152,23 @@ describe("focus ring", () => {
     expect(contrastRatio(value, "#ffffff")).toBeGreaterThanOrEqual(3)
   })
 })
+
+describe("button transitions", () => {
+  test.each(["--btn-transition", "--btn-press-transition"])(
+    "%s lists properties and never animates visibility",
+    (name) => {
+      const value = rootDeclarations().getPropertyValue(name)
+      expect(value).not.toMatch(/\ball\b/)
+      expect(value).not.toContain("visibility")
+      for (const property of [
+        "background-color",
+        "color",
+        "border-color",
+        "box-shadow",
+        "outline-color",
+      ]) {
+        expect(value).toContain(property)
+      }
+    },
+  )
+})

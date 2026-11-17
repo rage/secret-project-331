@@ -122,7 +122,7 @@ const FeedbackMessagesEditor = <V extends string>({
         <FeedbackCard key={index}>
           <DeleteButtonContainer>
             <Button
-              aria-label={t("remove")}
+              aria-label={t("remove-feedback-message-n", { number: index + 1 })}
               variant="icon"
               size="small"
               onClick={() => {

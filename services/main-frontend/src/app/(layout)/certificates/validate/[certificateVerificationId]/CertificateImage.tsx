@@ -2,19 +2,18 @@
 
 import { css } from "@emotion/css"
 import React, { useEffect, useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { CertificateDetails } from "@/generated/api/types.generated"
 import { Link } from "@/shared-module/components"
-
-const DETAILS_ID = "certificate-details"
 
 export interface CertificateImageProps {
   certificateBlob: Blob
   details?: CertificateDetails | undefined
 }
 
-/** The certificate image with its content as a visually hidden description, and a heading. */
+/** The certificate image with its content as visually hidden text, and a heading. */
 const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, details }) => {
   const { t } = useTranslation()
   const objectUrl = useMemo(() => URL.createObjectURL(certificateBlob), [certificateBlob])
@@ -41,37 +40,38 @@ const CertificateImage: React.FC<CertificateImageProps> = ({ certificateBlob, de
       <img
         id="certificate-image"
         alt={t("certificate-for-completing-a-course-module")}
-        aria-describedby={details ? DETAILS_ID : undefined}
         src={objectUrl}
         className={css`
           border: 1px solid black;
         `}
       />
       {details && (
-        // hidden: read once, via aria-describedby only.
-        <dl id={DETAILS_ID} hidden>
-          <dt>{t("certificate-recipient")}</dt>
-          <dd>{details.name_on_certificate}</dd>
-          <dt>{t("certificate-course")}</dt>
-          <dd>{course}</dd>
-          <dt>{t("certificate-completion-date")}</dt>
-          {/* The UTC date, as printed on the image. */}
-          <dd>{details.completion_date.slice(0, 10)}</dd>
-          {details.grade && (
-            <>
-              <dt>{t("grade")}</dt>
-              <dd>
-                {details.grade.grade !== null && details.grade.grade !== undefined
-                  ? String(details.grade.grade)
-                  : details.grade.passed
-                    ? t("passed")
-                    : t("failed")}
-              </dd>
-            </>
-          )}
-          <dt>{t("certificate-verification-id")}</dt>
-          <dd>{details.verification_id}</dd>
-        </dl>
+        // Rendered but visually hidden, so it is read once as content (no aria-describedby).
+        <VisuallyHidden>
+          <dl id="certificate-details">
+            <dt>{t("certificate-recipient")}</dt>
+            <dd>{details.name_on_certificate}</dd>
+            <dt>{t("certificate-course")}</dt>
+            <dd>{course}</dd>
+            <dt>{t("certificate-completion-date")}</dt>
+            {/* The UTC date, as printed on the image. */}
+            <dd>{details.completion_date.slice(0, 10)}</dd>
+            {details.grade && (
+              <>
+                <dt>{t("grade")}</dt>
+                <dd>
+                  {details.grade.grade !== null && details.grade.grade !== undefined
+                    ? String(details.grade.grade)
+                    : details.grade.passed
+                      ? t("passed")
+                      : t("failed")}
+                </dd>
+              </>
+            )}
+            <dt>{t("certificate-verification-id")}</dt>
+            <dd>{details.verification_id}</dd>
+          </dl>
+        </VisuallyHidden>
       )}
       <Link
         href={objectUrl}

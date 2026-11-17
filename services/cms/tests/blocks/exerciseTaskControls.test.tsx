@@ -113,6 +113,32 @@ describe("ExerciseTaskEditor controls", () => {
   })
 })
 
+const pressTab = (target: Element, shiftKey = false) => {
+  target.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey, bubbles: true }))
+}
+
+describe("ExerciseTaskEditor Tab containment", () => {
+  it("keeps Tab and Shift+Tab from bubbling out of the block, except from fields", async () => {
+    const { container, cleanup } = await mount(createElement(Task, taskProps(false)))
+    const outer = jest.fn()
+    document.body.addEventListener("keydown", outer)
+    const edit = container.querySelector("button[aria-label=edit-task]") as Element
+    pressTab(edit)
+    pressTab(edit, true)
+    expect(outer).not.toHaveBeenCalled()
+
+    const input = document.createElement("input")
+    edit.parentElement?.append(input)
+    pressTab(input)
+    expect(outer).toHaveBeenCalledTimes(1)
+
+    edit.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }))
+    expect(outer).toHaveBeenCalledTimes(2)
+    document.body.removeEventListener("keydown", outer)
+    await cleanup()
+  })
+})
+
 describe("ExerciseSlideEditor Add task", () => {
   it("moves focus to the new task's Edit button once it renders", async () => {
     const { container, cleanup } = await mount(

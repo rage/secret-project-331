@@ -9,6 +9,8 @@ const DEFAULT_TARGET_SELECTOR = "#maincontent"
 
 const HEADING_SELECTOR = "h1"
 
+const ANY_HEADING_SELECTOR = "h1, h2, h3, h4, h5, h6"
+
 /** How long after a navigation late content may still pull focus to the heading. */
 const OBSERVE_MS = 3000
 
@@ -61,7 +63,9 @@ export const focusProgrammatically = (
 }
 
 const headingOrSelf = (container: HTMLElement): HTMLElement => {
-  const heading = container.querySelector(HEADING_SELECTOR)
+  // h1, else the first heading of any level (pages whose content starts at h2), else the container.
+  const heading =
+    container.querySelector(HEADING_SELECTOR) ?? container.querySelector(ANY_HEADING_SELECTOR)
   return heading instanceof HTMLElement ? heading : container
 }
 
@@ -120,7 +124,7 @@ const settleFocusOnHeading = (
 }
 
 /**
- * Focuses the page's main heading, or `main` itself if it has none, and keeps it there if the
+ * Focuses the page's main heading, else its first other heading, or `main` itself if it has none, and keeps it there if the
  * heading is replaced while the page settles (a refetch after a dialog closes).
  */
 export const focusMainHeading = (options: FocusOptions = {}): void => {
@@ -135,7 +139,7 @@ export const focusMainHeading = (options: FocusOptions = {}): void => {
 export interface RouteFocusManagerProps {
   /** Current route path, e.g. from Next.js `usePathname()`. */
   pathname: string
-  /** CSS selector for the main content container; focus lands on its first `h1`, or itself if none. */
+  /** CSS selector for the main content container; focus lands on its first `h1`, else its first heading, else itself. */
   targetSelector?: string
 }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import "../../../../../tests/inert-focus"
+import "@/shared-module/common/test-utils/inertFocus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 

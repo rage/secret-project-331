@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import "../../../../../../../../../tests/inert-focus"
+import "@/shared-module/common/test-utils/inertFocus"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { useState } from "react"
 
@@ -71,7 +71,7 @@ function Glossary() {
 }
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
-describe("glossary Delete with the real confirm dialog (F-38)", () => {
+describe("glossary Delete with the real confirm dialog", () => {
   it("moves focus to the next term once the confirm has closed", async () => {
     render(
       <DialogProvider>

@@ -1,6 +1,6 @@
 "use client"
 
-import "../tests/inert-focus"
+import "../../common/src/test-utils/inertFocus"
 import { act, render, screen, waitFor } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import React from "react"

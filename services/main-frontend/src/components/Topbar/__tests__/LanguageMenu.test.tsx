@@ -18,12 +18,6 @@ const mockItem = (code: string, label: string, isSelected: boolean) => ({
   onSelect: jest.fn(),
 })
 
-jest.mock("react-i18next", () => {
-  // oxlint-disable-next-line unicorn/consistent-function-scoping -- must live inside the mock factory
-  const t = (key: string) => key
-  return { useTranslation: () => ({ t, i18n: { language: "en" } }) }
-})
-
 jest.mock("../hooks/useLanguageMenuItems", () => {
   return {
     useLanguageMenuItems: () => ({

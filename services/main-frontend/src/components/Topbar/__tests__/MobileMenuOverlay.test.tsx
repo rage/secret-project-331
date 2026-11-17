@@ -6,12 +6,6 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { MobileMenuOverlay } from "../MobileMenu/MobileMenuOverlay"
 
-jest.mock("react-i18next", () => {
-  // oxlint-disable-next-line unicorn/consistent-function-scoping -- must live inside the mock factory
-  const t = (key: string) => key
-  return { useTranslation: () => ({ t, i18n: { language: "en" } }) }
-})
-
 jest.mock("../hooks/useLanguageMenuItems", () => ({
   useLanguageMenuItems: () => ({
     items: [

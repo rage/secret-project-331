@@ -5,12 +5,6 @@ import { fireEvent, render, screen } from "@testing-library/react"
 
 import UserMenu from "../UserMenu"
 
-jest.mock("react-i18next", () => {
-  // oxlint-disable-next-line unicorn/consistent-function-scoping -- must live inside the mock factory
-  const t = (key: string) => key
-  return { useTranslation: () => ({ t, i18n: { language: "en" } }) }
-})
-
 jest.mock("../hooks/useUserMenuItems", () => ({
   useUserMenuItems: () => ({
     items: [],

@@ -22,6 +22,7 @@ import {
   OptionChip,
   OptionMarker,
   optionBoxStyles,
+  optionLabelStyles,
   optionStateStyles,
   optionTextStyles,
   resolveOptionCorrectness,
@@ -109,28 +110,31 @@ const MultipleChoiceDropdownFeedback: React.FC<
         aria-describedby={public_quiz_item.body ? bodyId : undefined}
         className={cx(
           optionBoxStyles,
+          optionLabelStyles,
           css`
             max-width: 50ch;
           `,
           selectedOption && optionStateStyles(correct),
         )}
       >
-        <OptionMarker selected={!!selectedOption} multi={false} />
-        <div className={optionTextStyles}>
-          {selectedOption ? (
-            <>
-              <VisuallyHidden>{t("option-selected")}</VisuallyHidden>
-              {selectedOption.title || selectedOption.body}
-            </>
-          ) : (
-            <span
-              className={css`
-                color: #7e8894;
-              `}
-            >
-              {t("answer")}
-            </span>
-          )}
+        <div className={optionLabelStyles}>
+          <OptionMarker selected={!!selectedOption} multi={false} />
+          <div className={optionTextStyles}>
+            {selectedOption ? (
+              <>
+                <VisuallyHidden>{t("option-selected")}</VisuallyHidden>
+                {selectedOption.title || selectedOption.body}
+              </>
+            ) : (
+              <span
+                className={css`
+                  color: #7e8894;
+                `}
+              >
+                {t("answer")}
+              </span>
+            )}
+          </div>
         </div>
         {selectedOption && correct === true && (
           <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>

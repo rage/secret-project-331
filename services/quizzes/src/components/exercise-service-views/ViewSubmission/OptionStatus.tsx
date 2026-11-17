@@ -21,8 +21,16 @@ export const optionBoxStyles = css`
   border: 0.125rem solid #d8d8d8;
 `
 
+/** Marker and text stay on one line; the chip wraps under the whole label. */
+export const optionLabelStyles = css`
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+`
+
 export const optionTextStyles = css`
-  flex: 1 1 12rem;
+  flex: 1 1 auto;
   min-width: 0;
   padding: 0.8rem 0;
   max-width: 50ch;
@@ -141,7 +149,8 @@ export type OptionChipKind = (typeof CHIP)[keyof typeof CHIP]
 
 const chipBase = css`
   flex: 0 0 auto;
-  margin-left: 0.5rem;
+  /* Marker slot plus gap, so a wrapped chip lines up with the text. */
+  margin-left: 2rem;
   font-size: 0.75rem;
   text-transform: uppercase;
   font-weight: bold;

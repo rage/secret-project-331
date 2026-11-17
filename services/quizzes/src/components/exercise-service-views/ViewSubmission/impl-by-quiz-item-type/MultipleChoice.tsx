@@ -22,6 +22,7 @@ import {
   OptionChip,
   OptionMarker,
   optionBoxStyles,
+  optionLabelStyles,
   optionStateStyles,
   optionTextStyles,
   resolveOptionCorrectness,
@@ -161,13 +162,16 @@ const MultipleChoiceSubmission: React.FC<
               <div
                 className={cx(
                   optionBoxStyles,
+                  optionLabelStyles,
                   answerSelectedThisOption && optionStateStyles(correctAnswer),
                 )}
               >
-                <OptionMarker selected={answerSelectedThisOption} multi={multi} />
-                <div className={optionTextStyles}>
-                  {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
-                  <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                <div className={optionLabelStyles}>
+                  <OptionMarker selected={answerSelectedThisOption} multi={multi} />
+                  <div className={optionTextStyles}>
+                    {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
+                    <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                  </div>
                 </div>
                 {chip}
               </div>

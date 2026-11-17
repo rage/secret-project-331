@@ -155,7 +155,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
                 throttled
                 title={t("answer-by-name", {
                   name: studentName,
-                  defaultValue: "Answer by {{name}}",
                 })}
               />
             ))}

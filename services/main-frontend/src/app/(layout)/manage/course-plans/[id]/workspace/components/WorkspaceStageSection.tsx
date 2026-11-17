@@ -253,7 +253,6 @@ export default function WorkspaceStageSection({
           announceAfterFocus(
             t("course-plans-task-deleted", {
               task: deleted?.title ?? "",
-              defaultValue: "Task deleted: {{task}}",
             }),
           ),
         )

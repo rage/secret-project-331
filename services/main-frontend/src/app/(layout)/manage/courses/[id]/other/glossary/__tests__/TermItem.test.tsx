@@ -38,7 +38,8 @@ jest.mock("@/shared-module/components", () => ({
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string, o?: { term?: string }) => (o?.term ? `${key} ${o.term}` : key),
+    t: (key: string, o?: { term?: string; name?: string }) =>
+      o?.term || o?.name ? `${key} ${o.term ?? o.name}` : key,
   }),
 }))
 

@@ -119,10 +119,9 @@ const TermItem: React.FC<TermItemProps> = ({
 
   const onDelete = async () => {
     const confirmed = await confirm({
-      title: t("delete-term-named", { term: term.term, name: term.term }),
+      title: t("delete-term-named", { name: term.term }),
       message: t("confirm-delete-term", {
         term: term.term,
-        defaultValue: "Delete the term {{term}} from the glossary?",
       }),
       confirmLabel: t("button-text-delete"),
       isDestructive: true,
@@ -196,7 +195,6 @@ const TermItem: React.FC<TermItemProps> = ({
               onClick={onEdit}
               aria-label={t("edit-term-named", {
                 term: term.term,
-                defaultValue: "Edit term {{term}}",
               })}
             >
               {t("edit")}
@@ -206,7 +204,7 @@ const TermItem: React.FC<TermItemProps> = ({
               size="medium"
               onClick={onDelete}
               disabled={deleteMutation.isPending}
-              aria-label={t("delete-term-named", { term: term.term, name: term.term })}
+              aria-label={t("delete-term-named", { name: term.term })}
             >
               {t("button-text-delete")}
             </Button>

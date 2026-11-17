@@ -182,7 +182,6 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       method: "POST",
       successMessage: t("role-added-for", {
         email: emailToAdd,
-        defaultValue: "Role added for {{email}}",
       }),
     },
     {

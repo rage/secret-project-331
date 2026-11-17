@@ -78,7 +78,6 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
             {score === null
               ? t("not-graded-out-of", {
                   max: maxScore,
-                  defaultValue: "Not graded, out of {{max}} points",
                 })
               : t("points-of-max", { points: score, max: maxScore })}
           </VisuallyHidden>

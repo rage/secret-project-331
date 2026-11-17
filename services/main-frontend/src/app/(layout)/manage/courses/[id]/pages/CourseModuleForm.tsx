@@ -293,7 +293,6 @@ const CourseModuleForm: React.FC<Props> = ({
                 type="button"
                 aria-label={t("edit-module-named", {
                   name: module.name ?? t("default-module"),
-                  defaultValue: "Edit module {{name}}",
                 })}
                 onClick={() => {
                   setEditing(true)

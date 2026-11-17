@@ -141,9 +141,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       message:
         status === "ConfirmedCheating"
           ? t("dismiss-from-confirmed-dialog-message")
-          : t("dismiss-flagged-dialog-message", {
-              defaultValue: "The student will no longer be suspected of cheating.",
-            }),
+          : t("dismiss-flagged-dialog-message"),
       title: t("dismiss-suspicion"),
     })
     if (confirmed) {

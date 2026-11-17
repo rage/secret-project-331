@@ -111,6 +111,22 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     wasEditingRef.current = isCurrentlyEditing
   }, [selectedBlockId, id])
 
+  const editButton = (
+    <>
+      <button
+        ref={editButtonRef}
+        {...editButtonProps}
+        aria-describedby={descriptionId}
+        className={`edit-button ${editButtonStyles}`}
+      >
+        {t("edit")}
+      </button>
+      <span id={descriptionId} hidden>
+        {paragraphStart(content)}
+      </span>
+    </>
+  )
+
   if (selectedBlockId === id) {
     return (
       <EditableParagraph
@@ -163,17 +179,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
           setEdits={setEdits}
           editedContent={editedContent}
         />
-        <button
-          ref={editButtonRef}
-          {...editButtonProps}
-          aria-describedby={descriptionId}
-          className={`edit-button ${editButtonStyles}`}
-        >
-          {t("edit")}
-        </button>
-        <span id={descriptionId} hidden>
-          {paragraphStart(content)}
-        </span>
+        {editButton}
       </div>
     )
   }
@@ -215,17 +221,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       >
         {content}
       </div>
-      <button
-        ref={editButtonRef}
-        {...editButtonProps}
-        aria-describedby={descriptionId}
-        className={`edit-button ${editButtonStyles}`}
-      >
-        {t("edit")}
-      </button>
-      <span id={descriptionId} hidden>
-        {paragraphStart(content)}
-      </span>
+      {editButton}
     </div>
   )
 }

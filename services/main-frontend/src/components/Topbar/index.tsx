@@ -103,6 +103,16 @@ interface TopbarProps {
   languageMenuProps?: LanguageMenuProps
 }
 
+const separatorCss = css`
+  height: 24px;
+  background: #e5e7eb;
+  margin-inline: 0;
+  display: none;
+  ${respondToOrLarger.md} {
+    display: block;
+  }
+`
+
 const Topbar: React.FC<TopbarProps> = ({
   children,
   courseId,
@@ -202,18 +212,7 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableSearch && enableLanguageMenu && (
-                <span
-                  aria-hidden="true"
-                  className={css`
-                    height: 24px;
-                    background: #e5e7eb;
-                    margin-inline: 0;
-                    display: none;
-                    ${respondToOrLarger.md} {
-                      display: block;
-                    }
-                  `}
-                />
+                <span aria-hidden="true" className={separatorCss} />
               )}
 
               {enableLanguageMenu && (
@@ -226,18 +225,7 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
-                <span
-                  aria-hidden="true"
-                  className={css`
-                    height: 24px;
-                    background: #e5e7eb;
-                    margin-inline: 0;
-                    display: none;
-                    ${respondToOrLarger.md} {
-                      display: block;
-                    }
-                  `}
-                />
+                <span aria-hidden="true" className={separatorCss} />
               )}
 
               {loginStateContext.signedIn ? (
@@ -245,18 +233,7 @@ const Topbar: React.FC<TopbarProps> = ({
                   {enableUserMenu && <UserMenu menuOptions={userMenuOptions} />}
 
                   {enableUserMenu && enableQuickActions && (
-                    <span
-                      aria-hidden="true"
-                      className={css`
-                        height: 24px;
-                        background: #e5e7eb;
-                        margin-inline: 0;
-                        display: none;
-                        ${respondToOrLarger.md} {
-                          display: block;
-                        }
-                      `}
-                    />
+                    <span aria-hidden="true" className={separatorCss} />
                   )}
 
                   {enableQuickActions && (

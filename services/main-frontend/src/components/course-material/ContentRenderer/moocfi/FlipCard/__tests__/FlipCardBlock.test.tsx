@@ -31,7 +31,7 @@ const props = {
   },
 }
 
-describe("FlipCardBlock focus (B-005)", () => {
+describe("FlipCardBlock focus", () => {
   it("does not move focus on mount", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render(<FlipCardBlock {...(props as any)} />)

@@ -34,7 +34,7 @@ const props = {
   },
 }
 
-describe("RevealableContentBlock focus (F-18)", () => {
+describe("RevealableContentBlock focus", () => {
   it("moves focus into the revealed content", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     render(<RevealableContentBlock {...(props as any)} />)

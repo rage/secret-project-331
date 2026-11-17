@@ -13,7 +13,7 @@ const setupContent = (html: string) => {
   return content
 }
 
-describe("citation links (B-002)", () => {
+describe("citation links", () => {
   afterEach(() => {
     document.querySelector("#content")?.remove()
   })

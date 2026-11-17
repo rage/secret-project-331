@@ -23,7 +23,7 @@ jest.mock("@tanstack/react-query", () => ({
 const EXERCISE_ID = "11111111-1111-1111-1111-111111111111"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
-describe("peer review heading focus (F-14, B-031)", () => {
+describe("peer review heading focus", () => {
   it("makes the peer review heading focusable and focuses it on request", () => {
     render(
       <PeerOrSelfReviewView

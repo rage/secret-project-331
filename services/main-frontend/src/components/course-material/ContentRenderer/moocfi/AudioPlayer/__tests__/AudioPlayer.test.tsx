@@ -37,7 +37,7 @@ const open = () => {
   return listen
 }
 
-describe("AudioPlayer focus (B-004)", () => {
+describe("AudioPlayer focus", () => {
   beforeEach(() => {
     jest.useFakeTimers()
   })

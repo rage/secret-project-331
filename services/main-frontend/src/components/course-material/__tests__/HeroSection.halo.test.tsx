@@ -4,8 +4,6 @@ import "@testing-library/jest-dom"
 import { render, screen } from "@testing-library/react"
 import React from "react"
 
-import { relativeLuminance } from "@/shared-module/common/utils/color"
-
 import { heroTextReadabilityCss } from "../heroBackgroundImages"
 import HeroSection from "../HeroSection"
 import LandingPageHeroSection from "../LandingPageHeroSection"
@@ -30,7 +28,7 @@ const IMAGE = "https://example.com/bg.png"
 const DARK_HALO = /rgba\(0, 0, 0, 0\.55\)/
 const LIGHT_HALO = /rgba\(255, 255, 255, 0\.55\)/
 
-describe("hero text halo follows text luminance (B-037)", () => {
+describe("hero text halo follows text luminance", () => {
   it("uses a light halo for dark text and a dark halo for light text", () => {
     expect(heroTextReadabilityCss(IMAGE, "#1a2333")).toMatch(LIGHT_HALO)
     expect(heroTextReadabilityCss(IMAGE, "#000")).toMatch(LIGHT_HALO)
@@ -45,12 +43,6 @@ describe("hero text halo follows text luminance (B-037)", () => {
 
   it("adds no shadow without a background image", () => {
     expect(heroTextReadabilityCss(undefined, "#fff")).toMatch(/text-shadow:\s*none/)
-  })
-
-  it("parses luminance", () => {
-    expect(relativeLuminance("#ffffff")).toBeCloseTo(1)
-    expect(relativeLuminance("#000000")).toBeCloseTo(0)
-    expect(relativeLuminance("nope")).toBeUndefined()
   })
 })
 

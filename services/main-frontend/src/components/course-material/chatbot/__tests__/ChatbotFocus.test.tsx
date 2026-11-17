@@ -24,7 +24,7 @@ jest.mock("../shared/ChatbotChatHeader", () => ({
 }))
 jest.mock("../shared/ChatbotChatBody", () => ({ __esModule: true, default: () => <p>body</p> }))
 
-describe("chatbot dialog focus (B-014)", () => {
+describe("chatbot dialog focus", () => {
   it("moves focus into the dialog on open and back to the trigger on Escape", async () => {
     render(<ChatbotDialog />)
     const trigger = screen.getByRole("button", { name: "open-chatbot" })
@@ -46,7 +46,7 @@ describe("chatbot dialog focus (B-014)", () => {
   })
 })
 
-describe("chatbot disclaimer (B-014)", () => {
+describe("chatbot disclaimer", () => {
   it("uses a heading level below the dialog title", () => {
     render(<ChatbotDisclaimer />)
     expect(screen.getByRole("heading", { level: 4, name: "about-the-chatbot" })).toBeInTheDocument()

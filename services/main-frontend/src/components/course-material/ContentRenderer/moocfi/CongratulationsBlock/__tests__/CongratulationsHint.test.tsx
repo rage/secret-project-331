@@ -22,7 +22,7 @@ const module_: UserModuleCompletionStatus = {
   registers_credits: true,
 } as UserModuleCompletionStatus
 
-describe("disabled Register CTA (F-48)", () => {
+describe("disabled Register CTA", () => {
   it("stays focusable and explains why it is disabled", () => {
     render(<CongratulationsLinks certificateConfigurationId={null} module={module_} />)
     const button = screen.getByRole("button", { name: "register" })

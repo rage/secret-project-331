@@ -16,7 +16,7 @@ const props = (name: string, attributes: Record<string, unknown>) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ({ id: "b", data: { name, clientId: "b", isValid: true, innerBlocks: [], attributes } }) as any
 
-describe("content block semantics (F-48)", () => {
+describe("content block semantics", () => {
   it("renders a verse as pre > code", () => {
     const { container } = render(
       <VerseBlock {...props("core/verse", { content: "line one<br>line two" })} />,

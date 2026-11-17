@@ -31,7 +31,7 @@ const advance = (ms: number) => {
   }
 }
 
-describe("ImprovementExample (F-42)", () => {
+describe("ImprovementExample", () => {
   afterEach(() => {
     jest.useRealTimers()
   })

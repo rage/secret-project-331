@@ -34,7 +34,7 @@ const renderStatic = (props: unknown) =>
     </ImageInteractivityContext.Provider>,
   )
 
-describe("ImageBlock decorative images (B-043)", () => {
+describe("ImageBlock decorative images", () => {
   it("hides a decorative image from assistive technology and renders no figure", () => {
     const { container, queryByRole } = renderStatic(
       makeProps({ isDecorative: true, caption: "", title: "ornament" }),

@@ -11,7 +11,7 @@ import EditingParagraph from "../EditingParagraph"
 import PreviewableParagraph from "../PreviewableParagraph"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
-describe("PreviewableParagraph (F-15)", () => {
+describe("PreviewableParagraph", () => {
   it("is plain content, not a button or tab stop", () => {
     render(
       <PreviewableParagraph
@@ -45,7 +45,7 @@ const renderParagraph = (content: string) =>
     </JotaiProvider>,
   )
 
-describe("EditingParagraph Edit button (F-50)", () => {
+describe("EditingParagraph Edit button", () => {
   it("is described by the start of its paragraph", () => {
     renderParagraph("<strong>Photosynthesis</strong> turns light into sugar.")
     expect(screen.getByRole("button", { name: "edit" })).toHaveAccessibleDescription(

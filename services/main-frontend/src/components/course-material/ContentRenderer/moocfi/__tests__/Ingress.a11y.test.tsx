@@ -6,7 +6,7 @@ import type React from "react"
 
 import Ingress from "../Ingress"
 
-describe("Ingress (F-19)", () => {
+describe("Ingress", () => {
   it("keeps the title as h2 and renders the standfirst as a paragraph", () => {
     const props = {
       id: "i",

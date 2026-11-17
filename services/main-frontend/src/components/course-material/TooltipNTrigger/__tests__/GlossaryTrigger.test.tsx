@@ -5,7 +5,7 @@ import { render, screen } from "@testing-library/react"
 
 import TooltipNTrigger from ".."
 
-describe("glossary trigger (F-48)", () => {
+describe("glossary trigger", () => {
   it("describes the button with a hint that is not part of the text flow", () => {
     const { container } = render(
       <p>

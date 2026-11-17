@@ -58,7 +58,7 @@ beforeEach(() => {
   }) as never
 })
 
-describe("PartnersSection logos (F-25)", () => {
+describe("PartnersSection logos", () => {
   it("names each logo link from the CMS alt once and announces the new tab", async () => {
     render(<PartnersSectionBlock courseId="course" />)
 

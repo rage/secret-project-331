@@ -40,7 +40,7 @@ jest.mock("usehooks-ts", () => ({
   useMediaQuery: (query: string) => query.includes("min-width"),
 }))
 
-describe("HeadingsNavigation (F-20)", () => {
+describe("HeadingsNavigation", () => {
   beforeEach(() => {
     headings.length = 0
     for (const text of ["First", "Second"]) {

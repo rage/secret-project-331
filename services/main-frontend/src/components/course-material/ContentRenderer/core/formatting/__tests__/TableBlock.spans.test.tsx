@@ -18,7 +18,7 @@ const makeProps = (attributes: Record<string, unknown>) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) as any
 
-describe("TableBlock spans (N-06)", () => {
+describe("TableBlock spans", () => {
   it("omits colspan and rowspan when unset and keeps valid ones", () => {
     const { container } = render(
       <TableBlock
@@ -47,7 +47,7 @@ describe("TableBlock spans (N-06)", () => {
   })
 })
 
-describe("TableBlock scroll region (F-23)", () => {
+describe("TableBlock scroll region", () => {
   const descriptors = {
     scrollWidth: Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollWidth"),
     clientWidth: Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientWidth"),

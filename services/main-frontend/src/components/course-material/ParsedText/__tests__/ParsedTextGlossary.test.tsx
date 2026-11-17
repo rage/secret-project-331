@@ -9,7 +9,7 @@ import ParsedText from ".."
 
 const terms = [{ id: "g1", term: "mean", definition: "The average" }]
 
-describe("ParsedText glossary (F-06)", () => {
+describe("ParsedText glossary", () => {
   it("renders the term into spans that appear after the first scan", async () => {
     const { container } = render(
       <GlossaryContext.Provider value={{ terms: terms as never }}>

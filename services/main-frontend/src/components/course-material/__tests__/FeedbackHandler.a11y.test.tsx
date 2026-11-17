@@ -1,21 +1,17 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import "../../../../tests/inert-focus"
+import "@/shared-module/common/test-utils/inertFocus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { Provider as JotaiProvider } from "jotai"
 
+import { setupIntersectionObserverMock } from "@/shared-module/common/test-utils/mockIntersectionObserver"
+
 import FeedbackHandler from "../FeedbackHandler"
 
-// jsdom does not implement IntersectionObserver (used by the shared TextAreaField)
-class IntersectionObserverStub {
-  public observe() {}
-  public unobserve() {}
-  public disconnect() {}
-}
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(global as any).IntersectionObserver = IntersectionObserverStub
+// jsdom lacks IntersectionObserver, needed by TextArea's auto-resize.
+beforeAll(setupIntersectionObserverMock)
 
 const renderHandler = () =>
   render(
@@ -49,7 +45,7 @@ const openType = async () => {
 }
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
-describe("FeedbackHandler (F-07, B-001, B-012)", () => {
+describe("FeedbackHandler", () => {
   it("keeps the trigger mounted but hidden while a dialog is open", async () => {
     renderHandler()
     expect(screen.getByTestId("give-feedback-button")).not.toHaveStyle("visibility: hidden")

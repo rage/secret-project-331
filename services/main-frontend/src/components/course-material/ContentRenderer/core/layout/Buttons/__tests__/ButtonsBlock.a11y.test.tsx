@@ -69,7 +69,7 @@ describe("ButtonsBlock accessibility (issue #69)", () => {
   })
 })
 
-describe("ButtonsBlock variant colours (B-032)", () => {
+describe("ButtonsBlock variant colours", () => {
   const tokenSource = readFileSync(
     join(process.cwd(), "src/shared-module/components/styles/tokens.ts"),
     "utf8",

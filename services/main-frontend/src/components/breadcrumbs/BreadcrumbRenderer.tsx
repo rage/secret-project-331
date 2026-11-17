@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useAtomValue } from "jotai"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { pageErrorShownAtom } from "@/shared-module/common/hooks/pageTitleAtoms"
+import { pageErrorTitleAtom } from "@/shared-module/common/hooks/pageTitleAtoms"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Breadcrumbs, type BreadcrumbItem } from "@/shared-module/components"
 
@@ -17,7 +17,7 @@ import { breadcrumbBarCss } from "./breadcrumbBarCss"
  */
 export default function BreadcrumbRenderer({ inPage = false }: { inPage?: boolean }) {
   const registeredCrumbs = useAtomValue(breadcrumbCrumbsAtom)
-  const hasError = useAtomValue(pageErrorShownAtom)
+  const hasError = useAtomValue(pageErrorTitleAtom) !== null
 
   if (registeredCrumbs.length === 0) {
     return null

@@ -167,7 +167,7 @@ export default function ExamPageShell({
             examHasEnded={examHasEnded}
             timeMinutes={examData.time_minutes}
           >
-            <div id="maincontent">
+            <div>
               <ContentRenderer
                 data={(examData.instructions as Block<unknown>[]) ?? []}
                 isExam={false}

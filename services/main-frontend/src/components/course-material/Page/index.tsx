@@ -354,7 +354,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
         {isMaterialPage && <HeadingsNavigation />}
         {hasCourseClosed && <ClosedCourseWarningDialog />}
-        <div id="maincontent">
+        <div>
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer

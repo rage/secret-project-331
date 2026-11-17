@@ -1,7 +1,5 @@
-// jsdom has no `inert`. This gives it Chrome's behaviour: react-aria's modals mark the page
-// inert, and focus() on an inert or visibility:hidden element does nothing, and focus inside a
-// newly inert subtree is dropped. Import it first,
-// before react-aria loads, so the feature check sees `inert`.
+// Gives jsdom Chrome's focus rules for `inert` and visibility:hidden.
+// Import before react-aria so its feature check sees `inert`.
 const INERT_ATTRIBUTE = "inert"
 
 if (!("inert" in HTMLElement.prototype)) {

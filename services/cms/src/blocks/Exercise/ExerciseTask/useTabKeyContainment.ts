@@ -37,11 +37,8 @@ function adjacentTabbable(from: Element, backwards: boolean): HTMLElement | unde
   return all.find((el) => follows(el) && !nested(el) && !isEmptyStop(el))
 }
 
-/**
- * Keeps Gutenberg's WritingFlow from sending Tab and Shift+Tab past the exercise iframe: when the
- * iframe is the next or previous tabbable, focus moves to it explicitly. Other Tab presses from
- * non-fields are kept from bubbling out; fields keep Gutenberg's own handling. Returns a ref callback.
- */
+/** Ref callback that stops Gutenberg's WritingFlow from tabbing past the exercise iframe.
+ * Moves focus into the iframe when it is next; fields keep Gutenberg's own Tab handling. */
 export function useTabKeyContainment(): (element: HTMLElement | null) => void {
   const [element, setElement] = useState<HTMLElement | null>(null)
 

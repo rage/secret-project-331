@@ -41,11 +41,8 @@ const applyFocus = (target: HTMLElement, options: FocusOptions): (() => void) =>
   return () => target.removeEventListener("blur", clearManagedFocus)
 }
 
-/**
- * Focuses an element from script: adds tabindex=-1 if it has none and hides the ring for this
- * focus only. While a modal dialog is open the page is inert, so the focus waits until the dialog
- * starts closing. Returns a function that cancels a waiting focus and removes the blur listener.
- */
+/** Focuses from script with tabindex=-1 and no ring for this focus; waits while a modal is open.
+ * Returns a cancel function. */
 export const focusProgrammatically = (
   target: HTMLElement,
   options: FocusOptions = {},
@@ -69,12 +66,8 @@ const headingOrSelf = (container: HTMLElement): HTMLElement => {
   return heading instanceof HTMLElement ? heading : container
 }
 
-/**
- * Focuses the container's h1 (or the container) and, for a while, moves focus again if late content
- * replaces that heading while focus is still lost. The container is looked up again on every
- * change, since the page swap may replace it. `watched` is a focused element expected to
- * unmount (a clicked link) that keeps focus until it does. Returns a function that stops it.
- */
+/** Focuses the container's heading and refocuses it for a while if late content replaces it.
+ * `watched` (a clicked link) keeps focus until it unmounts. Returns a stop function. */
 const settleFocusOnHeading = (
   getContainer: () => HTMLElement | null,
   watched: HTMLElement | null,
@@ -131,8 +124,8 @@ const settleFocusOnHeading = (
 const getMainElement = () => document.querySelector<HTMLElement>("main")
 
 /**
- * Focuses the page's main heading, else its first other heading, or `main` itself if it has none, and keeps it there if the
- * heading is replaced while the page settles (a refetch after a dialog closes).
+ * Focuses main's h1, else its first heading, else `main`, and keeps it there if the heading is
+ * replaced while the page settles.
  */
 export const focusMainHeading = (options: FocusOptions = {}): void => {
   runWhenNoModalOpen(() => {

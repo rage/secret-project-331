@@ -12,12 +12,8 @@ const LIST_HEADING = -1
 const itemHeadings = (container: HTMLElement | null) =>
   Array.from(container?.querySelectorAll<HTMLElement>(`[${ITEM_HEADING_ATTRIBUTE}]`) ?? [])
 
-/**
- * Keeps focus in a list when an item goes: once the removal succeeded, `remember(itemHeadingId)`
- * and focus moves to the heading at that position after `dependency` (the list data) changes.
- * Without an id, or when the list ran out, it moves to the list heading, else to `fallback`.
- * `remember`'s `onFocused` runs right after that move, e.g. to announce what was removed.
- */
+/** After `remember(id)` and a `dependency` change, focuses the item heading at that position,
+ * else the list heading, else `fallback`; `onFocused` runs after the move. */
 export function useFocusAfterRemoval<T extends HTMLElement = HTMLDivElement>(
   dependency: unknown,
   fallback?: () => void,

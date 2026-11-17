@@ -42,9 +42,8 @@ interface PageTitleManagerProps {
  * server-rendered initial HTML always contains the bare site name and the resolved page title is
  * applied after hydration.
  *
- * Accessibility: Next.js's built-in route announcer is hidden. This component announces the new
- * title politely via react-aria's `announce()` once per navigation (after it settles) and for
- * later in-place changes (e.g. a fetched course name). Nothing is announced on the initial load.
+ * Replaces Next's route announcer: announces the settled title once per navigation and on later
+ * in-place changes, never on the initial load.
  */
 const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_SITE_NAME }) => {
   const resolvedTitle = useAtomValue(resolvedPageTitleAtom)

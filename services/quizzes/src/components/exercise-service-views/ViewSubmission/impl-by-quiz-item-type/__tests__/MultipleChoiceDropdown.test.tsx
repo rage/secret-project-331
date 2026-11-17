@@ -104,6 +104,11 @@ const renderSubmission = ({
 
 const box = () => screen.getByRole("group", { name: "Which planet is closest to the sun?" })
 
+const lines = () =>
+  Array.from(screen.getByRole("group", { name: "answer-summary" }).querySelectorAll("p")).map((p) =>
+    p.textContent?.replaceAll("answer-summary-list-separator", "; ").replaceAll(/\s+/g, " "),
+  )
+
 // react-i18next is mocked in src/test/setup.ts, so t() returns the translation key.
 describe("MultipleChoiceDropdown submission view", () => {
   it("shows the selection prefix and no chip when correctness is unknown", () => {
@@ -111,15 +116,55 @@ describe("MultipleChoiceDropdown submission view", () => {
     expect(box().textContent).toBe("option-selectedMercury")
   })
 
-  it("shows the Correct chip for a correct selection and keeps the key line", () => {
+  it("shows the Correct chip for a correct selection and the summary instead of the key line", () => {
     renderSubmission()
     expect(within(box()).getByText("option-result-correct")).toBeInTheDocument()
-    expect(screen.getByText("correct-option", { exact: false })).toBeInTheDocument()
+    expect(screen.queryByText("correct-option")).not.toBeInTheDocument()
+    expect(lines()).toEqual([
+      "answer-summary-you-chose Mercury answer-summary-verdict-correct.",
+      "answer-summary-incorrect-options Venus.",
+    ])
   })
 
-  it("shows the Wrong chip for a wrong selection", () => {
+  it("lists the correct options after a wrong selection", () => {
     renderSubmission({ selected: "o-venus" })
-    expect(within(box()).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(lines()).toEqual([
+      "answer-summary-you-chose Venus answer-summary-verdict-incorrect.",
+      "answer-summary-correct-options Mercury.",
+      "answer-summary-incorrect-options Venus.",
+    ])
+  })
+
+  it("with nothing selected shows lines 2 and 3 from the key", () => {
+    renderSubmission({ selected: null })
+    expect(lines()).toEqual([
+      "answer-summary-correct-options Mercury.",
+      "answer-summary-incorrect-options Venus.",
+    ])
+  })
+
+  it("lists several correct options", () => {
+    renderSubmission({
+      selected: "o-venus",
+      solution: {
+        ...modelSolution,
+        options: [
+          makeModelSolutionOption("o-mercury", "Mercury", true),
+          makeModelSolutionOption("o-venus", "Venus", true),
+        ],
+      },
+    })
+    expect(lines()[1]).toBe("answer-summary-also-correct Mercury.")
+  })
+
+  it("has no summary without the key", () => {
+    renderSubmission({ solution: null })
+    expect(screen.queryByRole("group", { name: "answer-summary" })).not.toBeInTheDocument()
+  })
+
+  it("shows the Incorrect chip for a wrong selection", () => {
+    renderSubmission({ selected: "o-venus" })
+    expect(within(box()).getByText("option-result-incorrect")).toBeInTheDocument()
     expect(within(box()).getByText("option-selected")).toBeInTheDocument()
   })
 
@@ -128,7 +173,7 @@ describe("MultipleChoiceDropdown submission view", () => {
       solution: null,
       feedbacks: [{ option_id: "o-mercury", this_option_was_correct: false }],
     })
-    expect(within(box()).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(within(box()).getByText("option-result-incorrect")).toBeInTheDocument()
   })
 
   it("shows the answer placeholder without prefix or chip when nothing is selected", () => {
@@ -161,13 +206,13 @@ describe("MultipleChoiceDropdown submission view", () => {
     expect(within(box()).getByText("option-result-correct")).toBeInTheDocument()
   })
 
-  it("shows Wrong when option correctness is null and the item score is 0", () => {
+  it("shows Incorrect when option correctness is null and the item score is 0", () => {
     renderSubmission({
       solution: null,
       feedbacks: [{ option_id: "o-mercury", this_option_was_correct: null }],
       coefficient: 0,
       score: 0,
     })
-    expect(within(box()).getByText("option-result-wrong")).toBeInTheDocument()
+    expect(within(box()).getByText("option-result-incorrect")).toBeInTheDocument()
   })
 })

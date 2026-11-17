@@ -72,7 +72,7 @@ test.describe("Quizzes timeline feedback", () => {
       scrollToYCoordinate: 470,
     })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
@@ -105,7 +105,7 @@ test.describe("Quizzes timeline feedback", () => {
       .locator(`label:text("2002")`)
       .selectOption({ label: "Finland switches their currency to Euro" })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
 
@@ -140,7 +140,7 @@ test.describe("Quizzes timeline feedback", () => {
       .locator(`label:text("2002")`)
       .selectOption({ label: "Finland switches their currency to Euro" })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 

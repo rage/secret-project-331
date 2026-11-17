@@ -65,7 +65,7 @@ test.describe("Quizzes scale feedback", () => {
       .getByLabel("Please rate this")
       .getByText("1")
       .check()
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await getExerciseTaskIframe(page, 1)
       .contentFrame()

@@ -49,7 +49,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
     await frame.getByRole("button", { name: "AC" }).click()
     await frame.getByRole("button", { name: "Jupiter" }).click()
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.getByText("Try again").waitFor()
     await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
@@ -74,7 +74,7 @@ test.describe("Quizzes clickable multiple-choice feedback", () => {
     await frame.getByRole("button", { name: "Java" }).click()
     await frame.getByRole("button", { name: "Erlang" }).click()
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.getByText(`This is an extra submit message from the teacher.`).waitFor()
 

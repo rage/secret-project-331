@@ -35,7 +35,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
       .locator(`select:below(:text("Choose the right answer from given options."))`)
       .selectOption({ label: "The Wright answer" })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
@@ -60,7 +60,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
         label: "The right answer",
       })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
@@ -85,7 +85,7 @@ test.describe("Quizzes multiple-choice dropdown feedback", () => {
         label: "The Wright answer",
       })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 

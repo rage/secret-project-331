@@ -49,7 +49,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
 
     await frame.getByText("rustup").click()
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: ["page-has-heading-one"],
@@ -68,7 +68,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
 
     await frame.getByText("cargo").click()
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: ["page-has-heading-one"],
@@ -85,7 +85,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
 
     await frame.getByText("rustup").click()
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: ["page-has-heading-one"],

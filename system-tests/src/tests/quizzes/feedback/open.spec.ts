@@ -57,7 +57,7 @@ test.describe("Quizzes open feedback", () => {
       )
       .fill("19999-01-01")
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
@@ -84,7 +84,7 @@ test.describe("Quizzes open feedback", () => {
       )
       .fill("1999-01-01")
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
     await expectScreenshotsToMatchSnapshots({
       axeSkip: ["page-has-heading-one"],

@@ -139,6 +139,56 @@ describe("ExerciseTaskEditor Tab containment", () => {
   })
 })
 
+const setup = async () => {
+  const mounted = await mount(createElement(Task, taskProps(false)))
+  const block = mounted.container.firstElementChild as HTMLElement
+  const paragraph = document.createElement("div")
+  paragraph.setAttribute("contenteditable", "true")
+  paragraph.tabIndex = 0
+  const iframe = document.createElement("iframe")
+  const after = document.createElement("button")
+  block.append(paragraph, iframe)
+  mounted.container.after(after)
+  return { ...mounted, paragraph, iframe, after }
+}
+const tabEvent = (shiftKey: boolean) =>
+  new KeyboardEvent("keydown", { key: "Tab", shiftKey, bubbles: true, cancelable: true })
+
+describe("ExerciseTaskEditor Tab into the iframe", () => {
+  it("Tab from the contenteditable paragraph focuses the iframe", async () => {
+    const { paragraph, iframe, cleanup } = await setup()
+    const outer = jest.fn()
+    document.body.addEventListener("keydown", outer)
+    const event = tabEvent(false)
+    paragraph.dispatchEvent(event)
+    expect(document.activeElement).toBe(iframe)
+    expect(event.defaultPrevented).toBe(true)
+    expect(outer).not.toHaveBeenCalled()
+    document.body.removeEventListener("keydown", outer)
+    await cleanup()
+  })
+
+  it("Shift+Tab from the element after the block focuses the iframe", async () => {
+    const { after, iframe, cleanup } = await setup()
+    const event = tabEvent(true)
+    after.dispatchEvent(event)
+    expect(document.activeElement).toBe(iframe)
+    expect(event.defaultPrevented).toBe(true)
+    await cleanup()
+  })
+
+  it("leaves other keys and non-adjacent Shift+Tab to Gutenberg", async () => {
+    const { paragraph, cleanup } = await setup()
+    const outer = jest.fn()
+    document.body.addEventListener("keydown", outer)
+    paragraph.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }))
+    paragraph.dispatchEvent(tabEvent(true))
+    expect(outer).toHaveBeenCalledTimes(2)
+    document.body.removeEventListener("keydown", outer)
+    await cleanup()
+  })
+})
+
 describe("ExerciseSlideEditor Add task", () => {
   it("moves focus to the new task's Edit button once it renders", async () => {
     const { container, cleanup } = await mount(

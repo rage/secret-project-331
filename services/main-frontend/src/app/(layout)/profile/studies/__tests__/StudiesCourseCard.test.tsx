@@ -26,8 +26,7 @@ const courseModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCours
   total_exercises: 10,
   attempted_exercises: 6,
   attempted_exercises_required: 8,
-  automatic_completion: true,
-  requires_exam: false,
+  completion_method: "by_requirements",
   completion: null,
   ...overrides,
 })
@@ -66,7 +65,7 @@ const twoModules = (passed: boolean): MyStudiesCourseModule[] => [
 
 const teacherGradedModule = (overrides: Partial<MyStudiesCourseModule>): MyStudiesCourseModule =>
   courseModule({
-    automatic_completion: false,
+    completion_method: "teacher_adds",
     score_required: null,
     attempted_exercises_required: null,
     ...overrides,
@@ -249,7 +248,7 @@ describe("StudiesCourseCard", () => {
   it("says the thresholds admit the student to an exam when one stands between them and the completion", () => {
     render(
       <StudiesCourseCard
-        course={course([courseModule({ requires_exam: true })], { exam_passed: false })}
+        course={course([courseModule({ completion_method: "by_exam" })], { exam_passed: false })}
         registrationByCourseModuleId={noRegistrations}
       />,
     )

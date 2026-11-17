@@ -4,6 +4,7 @@ import type { CourseModuleCreditRegistrationConfig } from "@/generated/api/types
 export const registersCredits = (
   module: Pick<
     CourseModuleCreditRegistrationConfig,
-    "uh_course_code" | "completions_can_be_registered_to_sisu"
+    "uh_course_code" | "credit_registration_route"
   >,
-): boolean => module.completions_can_be_registered_to_sisu && Boolean(module.uh_course_code?.trim())
+): boolean =>
+  module.credit_registration_route === "platform" && Boolean(module.uh_course_code?.trim())

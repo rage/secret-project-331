@@ -9,6 +9,7 @@ use google_cloud_auth::credentials::{
     service_account::Builder as ServiceAccountCredentialsBuilder,
 };
 use google_cloud_auth::signer::Signer;
+use google_cloud_gax::error::rpc::Code;
 use google_cloud_storage::builder::storage::SignedUrlBuilder;
 use google_cloud_storage::client::{Storage, StorageControl};
 use serde_json::Value;
@@ -137,6 +138,14 @@ impl GoogleCloudFileStore {
     }
 }
 
+/// Covers both shapes a missing object arrives in: a gRPC status, or a bare HTTP 404 from a proxy
+/// or load balancer in front of the service.
+fn is_not_found(err: &google_cloud_storage::Error) -> bool {
+    err.status()
+        .is_some_and(|status| status.code == Code::NotFound)
+        || err.http_status_code() == Some(404)
+}
+
 #[async_trait(?Send)]
 impl FileStore for GoogleCloudFileStore {
     async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: &str) -> UtilResult<()> {
@@ -184,7 +193,14 @@ impl FileStore for GoogleCloudFileStore {
             .set_bucket(self.bucket_resource_name())
             .set_object(path_to_str(path)?)
             .send()
-            .await?;
+            .await
+            .map_err(|err| {
+                if is_not_found(&err) {
+                    util_err!(FileNotFound, err.to_string(), err)
+                } else {
+                    err.into()
+                }
+            })?;
         Ok(())
     }
 
@@ -271,6 +287,20 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn is_not_found_recognizes_a_missing_object_in_either_shape() {
+        use google_cloud_gax::error::rpc::Status;
+
+        let grpc = google_cloud_storage::Error::service(Status::default().set_code(Code::NotFound));
+        let http = google_cloud_storage::Error::http(404, Default::default(), Default::default());
+        let denied = google_cloud_storage::Error::service(
+            Status::default().set_code(Code::PermissionDenied),
+        );
+        assert!(is_not_found(&grpc));
+        assert!(is_not_found(&http));
+        assert!(!is_not_found(&denied));
     }
 
     #[tokio::test]

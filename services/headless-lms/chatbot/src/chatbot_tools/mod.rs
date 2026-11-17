@@ -358,6 +358,8 @@ pub struct ActionToolOutcome {
     ///
     /// [ActionExecuted]: crate::azure_chatbot::events::ChatbotChatStreamEvent::ActionExecuted
     pub client_payload: Option<serde_json::Value>,
+    /// Applied by the caller last before it commits. `None` for a decline.
+    pub tmc_email_sync: Option<action_tools::TmcEmailSync>,
 }
 
 /// One page reference a tool call's output cites, ready to become a
@@ -651,6 +653,7 @@ macro_rules! chatbot_tool_registry {
                                 instructions.as_deref(),
                             ),
                             client_payload: None,
+                            tmc_email_sync: None,
                         });
                     }
 
@@ -699,6 +702,7 @@ macro_rules! chatbot_tool_registry {
                     return Ok(ActionToolOutcome {
                         output: delimited_tool_output(&executed.output, instructions.as_deref()),
                         client_payload: executed.client_payload,
+                        tmc_email_sync: <$action_tool as ConfirmableActionTool>::tmc_email_sync(&facts),
                     });
                 }
             )*

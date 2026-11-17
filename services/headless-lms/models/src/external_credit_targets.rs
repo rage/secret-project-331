@@ -70,6 +70,11 @@ pub struct ExternalCreditTarget {
 }
 
 impl ExternalCreditTarget {
+    /// How admin views name the target beside courses: "mooc.fi: " and its name.
+    pub fn display_name(&self) -> String {
+        format!("mooc.fi: {}", self.name)
+    }
+
     /// Whether the pipeline moves the target's rows: enabled and not paused.
     pub fn is_active(&self) -> bool {
         self.enabled_at.is_some() && self.paused_at.is_none()

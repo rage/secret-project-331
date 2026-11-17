@@ -133,6 +133,7 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourseEnrolees,
   getAccountLinkingCourses,
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
@@ -161,6 +162,7 @@ import {
   getCourseByJoinCode,
   getCourseChapters,
   getCourseChatbots,
+  getCourseCompletionOverview,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
   getCourseCompletionsHistoryByInstance,
@@ -199,6 +201,8 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseLinkableExams,
+  getCourseLinkedExams,
   getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
@@ -231,6 +235,7 @@ import {
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
+  getCreditRegistrationCourseSummary,
   getCreditRegistrationDetails,
   getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
@@ -279,6 +284,8 @@ import {
   getMyEnrolmentRoute,
   getMyExternalCompletionEnrolmentRoute,
   getMyMoocfiCreditRegistrations,
+  getMyOldVersionProgress,
+  getMyProgressByPlatform,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
@@ -672,6 +679,8 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesResponse,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
@@ -725,6 +734,8 @@ import type {
   GetCourseChaptersResponse,
   GetCourseChatbotsData,
   GetCourseChatbotsResponse,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponse,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponse,
   GetCourseCompletionsHistoryByInstanceData,
@@ -798,6 +809,10 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponse,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
@@ -862,6 +877,8 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponse,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponse,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
   GetCreditRegistrationEarlierReasonsData,
@@ -958,6 +975,10 @@ import type {
   GetMyExternalCompletionEnrolmentRouteResponse,
   GetMyMoocfiCreditRegistrationsData,
   GetMyMoocfiCreditRegistrationsResponse,
+  GetMyOldVersionProgressData,
+  GetMyOldVersionProgressResponse,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -4358,6 +4379,32 @@ export const setCourseChatbotAsNonDefaultMutation = (
   return mutationOptions
 }
 
+export const getCourseCompletionOverviewQueryKey = (
+  options: Options<GetCourseCompletionOverviewData>,
+) => createQueryKey("getCourseCompletionOverview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverviewOptions = (
+  options: Options<GetCourseCompletionOverviewData>,
+) =>
+  queryOptions<
+    GetCourseCompletionOverviewResponse,
+    DefaultError,
+    GetCourseCompletionOverviewResponse,
+    ReturnType<typeof getCourseCompletionOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCompletionOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCompletionOverviewQueryKey(options),
+  })
+
 export const getCourseInstancesQueryKey = (options: Options<GetCourseInstancesData>) =>
   createQueryKey("getCourseInstances", options)
 
@@ -4585,6 +4632,29 @@ export const getCourseDefaultPeerReviewOptions = (
         throwOnError: true,
       }),
     queryKey: getCourseDefaultPeerReviewQueryKey(options),
+  })
+
+export const getCourseLinkedExamsQueryKey = (options: Options<GetCourseLinkedExamsData>) =>
+  createQueryKey("getCourseLinkedExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExamsOptions = (options: Options<GetCourseLinkedExamsData>) =>
+  queryOptions<
+    GetCourseLinkedExamsResponse,
+    DefaultError,
+    GetCourseLinkedExamsResponse,
+    ReturnType<typeof getCourseLinkedExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkedExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkedExamsQueryKey(options),
   })
 
 export const getCourseExercisesQueryKey = (options: Options<GetCourseExercisesData>) =>
@@ -5084,6 +5154,29 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
         throwOnError: true,
       }),
     queryKey: getCourseLanguageVersionsQueryKey(options),
+  })
+
+export const getCourseLinkableExamsQueryKey = (options: Options<GetCourseLinkableExamsData>) =>
+  createQueryKey("getCourseLinkableExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkableExamsData>) =>
+  queryOptions<
+    GetCourseLinkableExamsResponse,
+    DefaultError,
+    GetCourseLinkableExamsResponse,
+    ReturnType<typeof getCourseLinkableExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkableExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkableExamsQueryKey(options),
   })
 
 /**
@@ -7060,6 +7153,36 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const getAccountLinkingCourseEnroleesQueryKey = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) => createQueryKey("getAccountLinkingCourseEnrolees", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
+ *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnroleesOptions = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingCourseEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingCourseEnroleesResponse,
+    ReturnType<typeof getAccountLinkingCourseEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourseEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCourseEnroleesQueryKey(options),
+  })
+
 export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
   createQueryKey("listAccountLinkingEmails", options)
 
@@ -7622,6 +7745,33 @@ export const adminResumeCourseModuleCreditRegistrationMutation = (
   }
   return mutationOptions
 }
+
+export const getCreditRegistrationCourseSummaryQueryKey = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) => createQueryKey("getCreditRegistrationCourseSummary", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummaryOptions = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationCourseSummaryResponse,
+    DefaultError,
+    GetCreditRegistrationCourseSummaryResponse,
+    ReturnType<typeof getCreditRegistrationCourseSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationCourseSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationCourseSummaryQueryKey(options),
+  })
 
 export const getCreditRegistrationEnrolmentChecksQueryKey = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,
@@ -12939,7 +13089,7 @@ export const listOwnSubmissionSharesOptions = (options?: Options<ListOwnSubmissi
 
 /**
  * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
- * share the current user has minted for one submission.
+ * share the current user has minted for one submission or snapshot.
  */
 export const revokeSubmissionSharesOfSubmissionMutation = (
   options?: Partial<Options<RevokeSubmissionSharesOfSubmissionData>>,
@@ -12997,7 +13147,7 @@ export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmis
 
 /**
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
- * render a shared submission.
+ * render a shared submission or ungraded snapshot.
  *
  * The `token` is the unguessable share id minted by the client share endpoint. Login is
  * required, but holding the token is the only capability needed to view the submission —
@@ -13381,7 +13531,7 @@ export const getBulkUserDetailsMutation = (
 }
 
 /**
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExactMutation = (
   options?: Partial<Options<SearchUserDetailsExactData>>,
@@ -13717,6 +13867,59 @@ export const unhideCourseFromMyCoursesMutation = (
   }
   return mutationOptions
 }
+
+export const getMyOldVersionProgressQueryKey = (options?: Options<GetMyOldVersionProgressData>) =>
+  createQueryKey("getMyOldVersionProgress", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+ * old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+ *
+ * Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+ * reached is reported in its status rather than failing the request.
+ */
+export const getMyOldVersionProgressOptions = (options?: Options<GetMyOldVersionProgressData>) =>
+  queryOptions<
+    GetMyOldVersionProgressResponse,
+    DefaultError,
+    GetMyOldVersionProgressResponse,
+    ReturnType<typeof getMyOldVersionProgressQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyOldVersionProgress({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyOldVersionProgressQueryKey(options),
+  })
+
+export const getMyProgressByPlatformQueryKey = (options?: Options<GetMyProgressByPlatformData>) =>
+  createQueryKey("getMyProgressByPlatform", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatformOptions = (options?: Options<GetMyProgressByPlatformData>) =>
+  queryOptions<
+    GetMyProgressByPlatformResponse,
+    DefaultError,
+    GetMyProgressByPlatformResponse,
+    ReturnType<typeof getMyProgressByPlatformQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyProgressByPlatform({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyProgressByPlatformQueryKey(options),
+  })
 
 export const getMyStudiesQueryKey = (options?: Options<GetMyStudiesData>) =>
   createQueryKey("getMyStudies", options)

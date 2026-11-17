@@ -14,6 +14,7 @@ import type { ExerciseFile, ExerciseIframeState } from "@/util/stateInterfaces"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
+import ModelSolution from "./ModelSolution"
 import ViewSubmission from "./ViewSubmission"
 
 interface Props {
@@ -118,6 +119,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
             fileUploadResponse={fileUploadResponse}
             grading={state.grading}
           />
+          <ModelSolution state={state} />
         </div>
       )
     }
@@ -125,6 +127,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID}>
         <ViewSubmission state={state} />
+        <ModelSolution state={state} />
       </div>
     )
   }

@@ -28,6 +28,44 @@ pub async fn resolve_linking_mail_source(
     }
 }
 
+/// A course or mooc.fi target an admin page is about, loaded.
+pub enum CourseOrTarget {
+    Course(models::courses::Course),
+    Target(models::external_credit_targets::ExternalCreditTarget),
+}
+
+impl CourseOrTarget {
+    pub fn source(&self) -> LinkingMailSource {
+        match self {
+            Self::Course(course) => LinkingMailSource::Course(course.id),
+            Self::Target(target) => LinkingMailSource::ExternalCreditTarget(target.id),
+        }
+    }
+}
+
+/// Loads what `course_or_target_id` names, refusing with not found an id that is neither a mooc.fi
+/// target nor a course. See [`resolve_linking_mail_source`] for a caller that does not need it to
+/// exist.
+pub async fn get_course_or_target(
+    conn: &mut PgConnection,
+    course_or_target_id: Uuid,
+) -> Result<CourseOrTarget, ControllerError> {
+    match models::external_credit_targets::get_by_id(conn, course_or_target_id).await {
+        Ok(target) => Ok(CourseOrTarget::Target(target)),
+        Err(error)
+            if matches!(
+                error.error_type(),
+                models::ModelErrorType::RecordNotFound | models::ModelErrorType::NotFound
+            ) =>
+        {
+            Ok(CourseOrTarget::Course(
+                models::courses::get_course(conn, course_or_target_id).await?,
+            ))
+        }
+        Err(error) => Err(error.into()),
+    }
+}
+
 /// Refuses a resend while account linking is switched off, for a course with no module that
 /// registers credits, or for a mooc.fi target that is not enabled.
 pub async fn ensure_resend_possible(
@@ -49,7 +87,7 @@ pub async fn ensure_resend_possible(
                 .any(|module| {
                     models::course_modules::registers_credits(
                         module.uh_course_code.as_deref(),
-                        module.completions_can_be_registered_to_sisu,
+                        module.credit_registration_route,
                     )
                 });
             if !registers_credits {

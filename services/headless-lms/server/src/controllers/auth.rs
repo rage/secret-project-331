@@ -32,7 +32,6 @@ use headless_lms_utils::{
     services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
-use tracing_log::log;
 use utoipa::{OpenApi, ToSchema};
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -922,8 +921,6 @@ pub enum DeleteUserAccountResult {
 /// How a failed TMC delete should be treated. The upstream status is what separates a retry that
 /// may work from one that never will.
 enum TmcDeletionFailure {
-    /// TMC has no such account, so the local deletion is still the right thing to do.
-    AlreadyGone,
     Transient,
     Rejected,
 }
@@ -932,9 +929,6 @@ fn classify_tmc_deletion_failure(error: &UtilError) -> TmcDeletionFailure {
     match error.error_type() {
         // The request never completed, so TMC provably did not act on it.
         UtilErrorType::TmcHttpError => TmcDeletionFailure::Transient,
-        // The deletion contract reports an unknown user in the body, but deployments predating it
-        // answer a bare 404.
-        UtilErrorType::TmcHttpStatusError(404) => TmcDeletionFailure::AlreadyGone,
         UtilErrorType::TmcHttpStatusError(429) => TmcDeletionFailure::Transient,
         UtilErrorType::TmcHttpStatusError(status) if *status >= 500 => {
             TmcDeletionFailure::Transient
@@ -1062,12 +1056,6 @@ pub async fn delete_user_account(
                 );
             }
             Err(error) => match classify_tmc_deletion_failure(&error) {
-                TmcDeletionFailure::AlreadyGone => {
-                    info!(
-                        "TMC has no account {upstream_id} for user {}; deleting locally anyway: {error}",
-                        auth_user.id
-                    );
-                }
                 TmcDeletionFailure::Transient => {
                     warn!(
                         "TMC was unavailable while deleting the account of user {}: {error}",
@@ -1110,33 +1098,6 @@ pub async fn delete_user_account(
 
     authentication::forget(&session);
     token.authorized_ok(web::Json(DeleteUserAccountResult::Deleted))
-}
-
-/// Copies a changed name, and `email` when it changed too, to TMC, which keeps its own copy of
-/// both; a no-op for an account without a TMC `upstream_id`. Callers run it inside their
-/// transaction so a TMC failure rolls the change back.
-pub async fn update_user_information_to_tmc(
-    upstream_id: Option<i32>,
-    first_name: String,
-    last_name: String,
-    email: Option<String>,
-    tmc_client: &TmcClient,
-    app_conf: &ApplicationConfiguration,
-) -> Result<(), ControllerError> {
-    let Some(upstream_id) = upstream_id.filter(|_| !app_conf.test_mode) else {
-        return Ok(());
-    };
-    tmc_client
-        .update_user_information(first_name, last_name, email, upstream_id.to_string())
-        .await
-        .map_err(|e| {
-            log::warn!("TMC user update failed: {:?}", e);
-            controller_err!(
-                InternalServerError,
-                "Failed to update user info to tmc".to_string(),
-                e
-            )
-        })
 }
 
 async fn handle_email_verification(
@@ -1758,4 +1719,39 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             )
             .to(verify_session),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn classify(error_type: UtilErrorType) -> TmcDeletionFailure {
+        classify_tmc_deletion_failure(&UtilError::new(error_type, "test".to_string(), None))
+    }
+
+    // Every failure stops the local deletion; a user TMC no longer has arrives as `Ok` instead.
+    #[test]
+    fn tmc_deletion_failures_keep_the_local_account() {
+        for error_type in [
+            UtilErrorType::TmcHttpError,
+            UtilErrorType::TmcHttpStatusError(429),
+            UtilErrorType::TmcHttpStatusError(500),
+            UtilErrorType::TmcHttpStatusError(503),
+        ] {
+            assert!(matches!(
+                classify(error_type),
+                TmcDeletionFailure::Transient
+            ));
+        }
+        for error_type in [
+            UtilErrorType::TmcHttpStatusError(401),
+            UtilErrorType::TmcHttpStatusError(403),
+            UtilErrorType::TmcHttpStatusError(404),
+            UtilErrorType::TmcHttpStatusError(422),
+            UtilErrorType::TmcErrorResponse,
+            UtilErrorType::DeserializationError,
+        ] {
+            assert!(matches!(classify(error_type), TmcDeletionFailure::Rejected));
+        }
+    }
 }

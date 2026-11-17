@@ -8,7 +8,9 @@ use indexmap::IndexMap;
 use headless_lms_models::chatbot_configurations::ToolCategory;
 use headless_lms_models::{
     certificate_configurations, chapters, course_instances,
-    course_modules::CompletionPolicy,
+    course_modules::{
+        CompletionMethod, CompletionPolicy, CreditRegistrationRoute, ExamRequirement,
+    },
     courses::{self, CourseAiPolicy},
     exams, peer_or_self_review_configs,
     peer_or_self_review_configs::PeerReviewProcessingStrategy,
@@ -60,18 +62,19 @@ struct ModuleInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
     order_number: i32,
-    completion_policy: &'static str,
+    completion_method: CompletionMethod,
     #[serde(skip_serializing_if = "Option::is_none")]
-    automatic_completion_number_of_exercises_attempted_treshold: Option<i32>,
+    exercises_attempted_threshold: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    automatic_completion_number_of_points_treshold: Option<i32>,
+    points_threshold: Option<i32>,
+    exam_requirement: ExamRequirement,
     #[serde(skip_serializing_if = "Option::is_none")]
-    automatic_completion_requires_exam: Option<bool>,
+    exam_location_description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ects_credits: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     uh_course_code: Option<String>,
-    completions_can_be_registered_to_sisu: bool,
+    credit_registration_route: CreditRegistrationRoute,
     certification_enabled: bool,
 }
 
@@ -94,7 +97,7 @@ struct ExamInfo {
     time_minutes: i32,
     minimum_points_treshold: i32,
     grade_manually: bool,
-    modules_that_require_this_exam_for_automatic_completion: Vec<String>,
+    modules_passed_by_exam: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -430,12 +433,7 @@ impl ChatbotTool for CourseConfigurationTool {
                         };
                         let required_by_modules = modules
                             .iter()
-                            .filter(|m| {
-                                m.completion_policy
-                                    .automatic()
-                                    .map(|r| r.requires_exam)
-                                    .unwrap_or(false)
-                            })
+                            .filter(|m| matches!(m.completion_policy, CompletionPolicy::ByExam(_)))
                             .map(|m| {
                                 m.name
                                     .clone()
@@ -450,8 +448,7 @@ impl ChatbotTool for CourseConfigurationTool {
                             time_minutes: exam.time_minutes,
                             minimum_points_treshold: exam.minimum_points_treshold,
                             grade_manually: exam.grade_manually,
-                            modules_that_require_this_exam_for_automatic_completion:
-                                required_by_modules,
+                            modules_passed_by_exam: required_by_modules,
                         });
                     }
                     CourseConfigurationFacetValue::Exams(rows)
@@ -573,25 +570,46 @@ impl ChatbotTool for CourseConfigurationTool {
         let mut notes: Vec<String> = Vec::new();
 
         if let Some(CourseConfigurationFacetValue::Modules(modules)) = facets.get("modules") {
-            if modules.iter().any(|m| m.completion_policy == "manual") {
+            if modules.iter().any(|m| {
+                matches!(
+                    m.completion_method,
+                    CompletionMethod::NotDecided | CompletionMethod::TeacherAdds
+                )
+            }) {
                 notes.push(
-                    "A module with completion_policy \"manual\" is completed by staff action, \
-                     not automatically; the absent automatic_completion_* fields there mean \
-                     \"not applicable\", not \"no threshold configured\"."
+                    "completion_method not_decided grants nothing until the teacher decides; \
+                     teacher_adds means the teacher adds the completions, nothing is completed \
+                     automatically. The thresholds are absent there because they do not apply."
                         .to_string(),
                 );
             }
-            if modules.iter().any(|m| m.completion_policy == "automatic") {
+            if modules.iter().any(|m| {
+                matches!(
+                    m.completion_method,
+                    CompletionMethod::ByRequirements | CompletionMethod::ByExam
+                )
+            }) {
                 notes.push(
-                    "For \"automatic\" modules, an absent points or exercises-attempted \
-                     threshold means that particular requirement isn't imposed (the other one \
-                     still gates completion), and switching a module to \"manual\" wipes any \
-                     stored thresholds. Meeting the listed thresholds is not sufficient by \
-                     itself: an answer sitting in WaitingForManualGrading still blocks \
-                     completion, and automatic_completion_requires_exam: true requires a passed \
-                     exam (by the exam's minimum_points_treshold), not merely an attempted one. \
+                    "Thresholds are exact counts. An absent points or exercises-attempted \
+                     threshold means that requirement isn't imposed. by_requirements completes \
+                     the module once the thresholds are met, but an answer sitting in \
+                     WaitingForManualGrading still blocks completion. by_exam: the thresholds \
+                     are only the condition for taking the exam; the completion needs a passed \
+                     exam (points at least the exam's minimum_points_treshold, after the exam \
+                     has ended) in any exam linked to the course that is not graded manually. \
                      \"Attempted\" means an exercise's activity_progress is submitted or \
                      completed."
+                        .to_string(),
+                );
+            }
+            if modules
+                .iter()
+                .any(|m| m.exam_requirement.is_outside_platform())
+            {
+                notes.push(
+                    "exam_requirement examinarium or elsewhere: the exam is held outside this \
+                     platform, which knows nothing about it; the teacher adds the completions \
+                     after the exam."
                         .to_string(),
                 );
             }
@@ -604,17 +622,16 @@ impl ChatbotTool for CourseConfigurationTool {
                 );
             }
             notes.push(
-                "Credits are registered only for modules with a uh_course_code and \
-                 completions_can_be_registered_to_sisu on; otherwise the student cannot register \
-                 credits at all. certification_enabled alone is not sufficient for a \
+                "This platform registers credits in Sisu only for modules with a uh_course_code \
+                 and credit_registration_route platform. external means the teacher registers \
+                 the credits outside this platform (e.g. straight from Examinarium); \
+                 certificate_only means no credits are registered at all. certification_enabled alone is not sufficient for a \
                  certificate to exist — a certificate_configuration must also reference the \
                  module."
                     .to_string(),
             );
             notes.push(format!(
-                "Modules can be reviewed at {base_url}/manage/courses/{course_id}/modules, \
-                 though that page renders completion_policy as an automatic-completion checkbox \
-                 rather than a named policy and shows no certificate settings.",
+                "Modules can be reviewed at {base_url}/manage/courses/{course_id}/modules.",
                 base_url = self.state.base_url,
                 course_id = self.state.course_id
             ));
@@ -646,7 +663,7 @@ impl ChatbotTool for CourseConfigurationTool {
                      exam enrollment start, not from starts_at; both it and the exam window \
                      must still be open. minimum_points_treshold is the pass threshold in \
                      points. Exams belong to an organization, so the same exam can be attached \
-                     to several courses, and modules_that_require_this_exam_for_automatic_completion \
+                     to several courses, and modules_passed_by_exam \
                      is computed across all of the course's modules and attached to every exam \
                      row — it does not identify which exam a given module actually requires, \
                      and over-reports on a multi-exam course."
@@ -654,7 +671,7 @@ impl ChatbotTool for CourseConfigurationTool {
                 );
                 notes.push(format!(
                     "Each exam can be reviewed at {}/manage/exams/<exam_id>; that page does not \
-                     show modules_that_require_this_exam_for_automatic_completion.",
+                     show modules_passed_by_exam.",
                     self.state.base_url
                 ));
             }
@@ -863,27 +880,20 @@ async fn course_modules_for(
 }
 
 fn module_to_info(module: &headless_lms_models::course_modules::CourseModule) -> ModuleInfo {
-    let (completion_policy, exercises_attempted_treshold, points_treshold, requires_exam) =
-        match &module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => (
-                "automatic",
-                requirements.number_of_exercises_attempted_treshold,
-                requirements.number_of_points_treshold,
-                Some(requirements.requires_exam),
-            ),
-            CompletionPolicy::Manual => ("manual", None, None, None),
-        };
+    let requirements = module.completion_policy.requirements();
     ModuleInfo {
         course_module_id: module.id,
         name: module.name.clone(),
         order_number: module.order_number,
-        completion_policy,
-        automatic_completion_number_of_exercises_attempted_treshold: exercises_attempted_treshold,
-        automatic_completion_number_of_points_treshold: points_treshold,
-        automatic_completion_requires_exam: requires_exam,
+        completion_method: module.completion_policy.method(),
+        exercises_attempted_threshold: requirements
+            .and_then(|r| r.number_of_exercises_attempted_treshold),
+        points_threshold: requirements.and_then(|r| r.number_of_points_treshold),
+        exam_requirement: module.exam_requirement,
+        exam_location_description: module.exam_location_description.clone(),
         ects_credits: module.ects_credits,
         uh_course_code: module.uh_course_code.clone(),
-        completions_can_be_registered_to_sisu: module.completions_can_be_registered_to_sisu,
+        credit_registration_route: module.credit_registration_route,
         certification_enabled: module.certification_enabled,
     }
 }

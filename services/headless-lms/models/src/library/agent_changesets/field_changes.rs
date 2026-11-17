@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use utoipa::ToSchema;
 
 use crate::{
-    course_modules::CompletionPolicy,
+    course_modules::{CompletionPolicy, CreditRegistrationRoute, ExamRequirement},
     courses::CourseAiPolicy,
     library::{
         agent_changesets::course_state::{
@@ -39,11 +39,13 @@ pub enum EntityField {
     Deadline,
     ChapterImagePath,
     CompletionPolicy,
+    ExamRequirement,
+    ExamLocationDescription,
     CertificationEnabled,
     UhCourseCode,
     EctsCredits,
     CompletionRegistrationLinkOverride,
-    CompletionsCanBeRegisteredToSisu,
+    CreditRegistrationRoute,
     Description,
     IsDraft,
     IsTestMode,
@@ -102,6 +104,8 @@ pub enum FieldValue {
     Reference(EntityRef),
     TextList(Vec<String>),
     CompletionPolicy(CompletionPolicy),
+    ExamRequirement(ExamRequirement),
+    CreditRegistrationRoute(CreditRegistrationRoute),
     AiPolicy(CourseAiPolicy),
     /// Blocks, as stored.
     Blocks(serde_json::Value),
@@ -251,11 +255,13 @@ impl HasFields for ModuleSnapshot {
             name,
             order_number,
             completion_policy,
+            exam_requirement,
+            exam_location_description,
             certification_enabled,
             uh_course_code,
             ects_credits,
             completion_registration_link_override,
-            completions_can_be_registered_to_sisu,
+            credit_registration_route,
         } = self;
         vec![
             (EntityField::Name, optional_text(name)),
@@ -263,6 +269,14 @@ impl HasFields for ModuleSnapshot {
             (
                 EntityField::CompletionPolicy,
                 Some(FieldValue::CompletionPolicy(completion_policy.clone())),
+            ),
+            (
+                EntityField::ExamRequirement,
+                Some(FieldValue::ExamRequirement(*exam_requirement)),
+            ),
+            (
+                EntityField::ExamLocationDescription,
+                optional_text(exam_location_description),
             ),
             (
                 EntityField::CertificationEnabled,
@@ -275,8 +289,10 @@ impl HasFields for ModuleSnapshot {
                 optional_text(completion_registration_link_override),
             ),
             (
-                EntityField::CompletionsCanBeRegisteredToSisu,
-                flag(*completions_can_be_registered_to_sisu),
+                EntityField::CreditRegistrationRoute,
+                Some(FieldValue::CreditRegistrationRoute(
+                    *credit_registration_route,
+                )),
             ),
         ]
     }

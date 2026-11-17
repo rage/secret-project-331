@@ -8,7 +8,9 @@ import { useTranslation } from "react-i18next"
 import { aiPolicyLabel } from "@/app/(layout)/manage/courses/[id]/overview/EditCourseForm/AiPolicyFields"
 import type {
   CompletionPolicy,
+  CreditRegistrationRoute,
   EntityField,
+  ExamRequirement,
   FieldChange,
   FieldValue,
 } from "@/generated/api/types.generated"
@@ -39,11 +41,13 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
     deadline: t("agent-field-deadline"),
     chapter_image_path: t("agent-field-chapter-image"),
     completion_policy: t("agent-field-completion-policy"),
+    exam_requirement: t("agent-field-exam-requirement"),
+    exam_location_description: t("agent-field-exam-location"),
     certification_enabled: t("enable-module-completion-certificates"),
     uh_course_code: t("agent-field-course-code"),
     ects_credits: t("agent-field-ects-credits"),
     completion_registration_link_override: t("completion-registration-link"),
-    completions_can_be_registered_to_sisu: t("completions-can-be-registered-to-sisu"),
+    credit_registration_route: t("agent-field-credit-registration-route"),
     description: t("agent-field-description"),
     is_draft: t("agent-field-is-draft"),
     is_test_mode: t("agent-field-is-test-mode"),
@@ -78,8 +82,11 @@ function fieldLabels(t: TFunction): Record<EntityField, string> {
 }
 
 function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
-  if (policy.policy === "manual") {
-    return t("agent-completion-policy-manual")
+  switch (policy.method) {
+    case "not_decided":
+      return t("pass-method-not-decided")
+    case "teacher_adds":
+      return t("pass-method-teacher-adds")
   }
   const requirements: string[] = []
   const points = policy.number_of_points_treshold
@@ -90,12 +97,36 @@ function completionPolicyText(policy: CompletionPolicy, t: TFunction): string {
   if (typeof exercises === "number") {
     requirements.push(t("agent-completion-exercises-attempted", { count: exercises }))
   }
-  if (policy.requires_exam) {
-    requirements.push(t("agent-completion-requires-exam"))
+  if (requirements.length === 0) {
+    return policy.method === "by_exam" ? t("pass-method-by-exam") : t("pass-method-by-requirements")
   }
-  return requirements.length === 0
-    ? t("agent-completion-policy-automatic")
-    : t("agent-completion-policy-automatic-with", { requirements: requirements.join(", ") })
+  return policy.method === "by_exam"
+    ? t("agent-completion-by-exam-with", { requirements: requirements.join(", ") })
+    : t("agent-completion-by-requirements-with", { requirements: requirements.join(", ") })
+}
+
+function examRequirementText(requirement: ExamRequirement, t: TFunction): string {
+  switch (requirement) {
+    case "none":
+      return t("agent-exam-requirement-none")
+    case "platform":
+      return t("exam-location-platform")
+    case "examinarium":
+      return t("exam-location-examinarium")
+    case "elsewhere":
+      return t("exam-location-elsewhere")
+  }
+}
+
+function creditRegistrationRouteText(route: CreditRegistrationRoute, t: TFunction): string {
+  switch (route) {
+    case "platform":
+      return t("route-platform")
+    case "external":
+      return t("route-external-outside-exam")
+    case "certificate_only":
+      return t("route-certificate-only")
+  }
 }
 
 /** A field is unique per entity, except exercise fields, which repeat per exercise and task. */
@@ -216,6 +247,10 @@ const FieldChanges: React.FC<FieldChangesProps> = ({ changes, caption }) => {
         return value.value.length > 0 ? value.value.join(", ") : ABSENT_LABEL
       case "completion_policy":
         return completionPolicyText(value.value, t)
+      case "exam_requirement":
+        return examRequirementText(value.value, t)
+      case "credit_registration_route":
+        return creditRegistrationRouteText(value.value, t)
       case "ai_policy":
         return aiPolicyLabel(value.value, t)
       case "blocks":

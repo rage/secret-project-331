@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 
 use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
-    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+    self, CompletionPolicy, CompletionRequirements, CourseModule, ExamRequirement, NewCourseModule,
 };
 use sqlx::PgConnection;
 
@@ -226,7 +226,7 @@ impl ModuleBuilder {
             order: None,
             ects: None,
             chapters: vec![],
-            completion_policy: CompletionPolicy::Manual,
+            completion_policy: CompletionPolicy::TeacherAdds,
             completions: vec![],
             default_registrar_id: None,
             uh_course_code: None,
@@ -280,7 +280,7 @@ impl ModuleBuilder {
         self
     }
     pub fn manual_completion(mut self) -> Self {
-        self.completion_policy = CompletionPolicy::Manual;
+        self.completion_policy = CompletionPolicy::TeacherAdds;
         self
     }
     pub fn automatic_completion(
@@ -289,13 +289,17 @@ impl ModuleBuilder {
         points_threshold: Option<i32>,
         requires_exam: bool,
     ) -> Self {
-        // We'll set the course_module_id when seeding
-        self.completion_policy = CompletionPolicy::Automatic(AutomaticCompletionRequirements {
-            course_module_id: uuid::Uuid::new_v4(), // Temporary, will be updated during seeding
+        // The module id is not stored; reading the module back fills in the real one.
+        let requirements = CompletionRequirements {
+            course_module_id: uuid::Uuid::new_v4(),
             number_of_exercises_attempted_treshold: exercises_threshold,
             number_of_points_treshold: points_threshold,
-            requires_exam,
-        });
+        };
+        self.completion_policy = if requires_exam {
+            CompletionPolicy::ByExam(requirements)
+        } else {
+            CompletionPolicy::ByRequirements(requirements)
+        };
         self
     }
 
@@ -307,13 +311,18 @@ impl ModuleBuilder {
         fallback_order: i32,
     ) -> Result<CourseModule> {
         let order = self.order.unwrap_or(fallback_order);
+        let exam_requirement = match self.completion_policy {
+            CompletionPolicy::ByExam(_) => ExamRequirement::Platform,
+            _ => ExamRequirement::None,
+        };
 
         let module = course_modules::insert(
             conn,
             headless_lms_models::PKeyPolicy::Generate,
             &NewCourseModule::new(course_id, self.name, order)
                 .set_ects_credits(self.ects)
-                .set_completion_policy(self.completion_policy.clone())
+                .set_exam_requirement(exam_requirement, None)
+                .set_completion_policy(self.completion_policy)
                 .set_uh_course_code(self.uh_course_code)
                 .set_completion_registration_link_override(
                     self.credit_registration
@@ -323,15 +332,6 @@ impl ModuleBuilder {
         )
         .await
         .with_context(|| format!("inserting module (order {:?})", order))?;
-
-        // Update completion policy if it's automatic to set the correct module ID
-        if let CompletionPolicy::Automatic(mut requirements) = self.completion_policy {
-            requirements.course_module_id = module.id;
-            let updated_policy = CompletionPolicy::Automatic(requirements);
-            course_modules::update_automatic_completion_status(conn, module.id, &updated_policy)
-                .await
-                .context("updating automatic completion policy")?;
-        }
 
         if let Some(credit_registration) = &self.credit_registration {
             course_module_suotar_configurations::ensure_exists(conn, module.id)
@@ -389,7 +389,7 @@ mod tests {
         assert!(module.name.is_none());
         assert!(module.ects.is_none());
         assert!(module.chapters.is_empty());
-        assert_eq!(module.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module.completion_policy, CompletionPolicy::TeacherAdds);
     }
 
     #[test]
@@ -514,7 +514,7 @@ mod tests {
     fn module_builder_manual_completion() {
         let module = ModuleBuilder::new().manual_completion();
 
-        assert_eq!(module.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module.completion_policy, CompletionPolicy::TeacherAdds);
     }
 
     #[test]
@@ -522,12 +522,11 @@ mod tests {
         let module = ModuleBuilder::new().automatic_completion(Some(5), Some(100), true);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByExam(requirements) => {
                 assert_eq!(requirements.number_of_exercises_attempted_treshold, Some(5));
                 assert_eq!(requirements.number_of_points_treshold, Some(100));
-                assert!(requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -536,12 +535,11 @@ mod tests {
         let module = ModuleBuilder::new().automatic_completion(None, None, false);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByRequirements(requirements) => {
                 assert_eq!(requirements.number_of_exercises_attempted_treshold, None);
                 assert_eq!(requirements.number_of_points_treshold, None);
-                assert!(!requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -564,15 +562,14 @@ mod tests {
         assert_eq!(module.chapters.len(), 2);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByExam(requirements) => {
                 assert_eq!(
                     requirements.number_of_exercises_attempted_treshold,
                     Some(10)
                 );
                 assert_eq!(requirements.number_of_points_treshold, Some(200));
-                assert!(requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -583,7 +580,7 @@ mod tests {
             .automatic_completion(Some(5), Some(100), false)
             .manual_completion();
 
-        assert_eq!(module1.completion_policy, CompletionPolicy::Manual);
-        assert_eq!(module2.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module1.completion_policy, CompletionPolicy::TeacherAdds);
+        assert_eq!(module2.completion_policy, CompletionPolicy::TeacherAdds);
     }
 }

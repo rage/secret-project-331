@@ -28,6 +28,12 @@ export const studiesCardHeaderCss = cx(
   `,
 )
 
+/** A completed course says so in the band, not only in a line of small print. */
+export const studiesCardCompletedHeaderCss = css`
+  border-bottom-color: var(--color-green-200);
+  background: var(--color-green-100);
+`
+
 export const studiesCardBodyCss = css`
   padding: var(--space-4);
 `

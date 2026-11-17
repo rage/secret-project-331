@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub mod reset_exercises;
 
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_utils::services::tmc::TmcClient;
 
 use crate::chatbot_tools::ChatbotToolDeclaration;
 use crate::chatbot_tools::tool_authorization::{ToolAuthorization, ToolRequirement};
@@ -42,6 +43,34 @@ pub struct ExecutedAction {
     pub audit: ActionAuditFields,
 }
 
+/// An address a confirmed action gave a user that TMC, where the same account signs in, must hold
+/// too.
+#[derive(Clone)]
+pub struct TmcEmailSync {
+    pub email: String,
+    /// The user's TMC id (`users.upstream_id`).
+    pub upstream_id: i32,
+}
+
+impl TmcEmailSync {
+    /// Writes the address to TMC. Run last before the answer path commits, after the audit row and
+    /// the recorded answer: TMC cannot be rolled back, so a TMC failure must be the one that rolls
+    /// the action back.
+    pub async fn apply(self, tmc_client: &TmcClient) -> ChatbotResult<()> {
+        tmc_client
+            .sync_user_profile(self.upstream_id, None, Some(self.email))
+            .await
+            .map_err(|e| {
+                let reason = if e.is_tmc_refused_address() {
+                    "tmc.mooc.fi refused the address, possibly because another account there uses it"
+                } else {
+                    "tmc.mooc.fi could not be reached"
+                };
+                chatbot_err!(ToolUseError, format!("Nothing was changed: {reason}."), e)
+            })
+    }
+}
+
 /// What the audit row records about a confirmed action, beyond who ran it and what tool it was.
 pub struct ActionAuditFields {
     pub target_user_id: Option<Uuid>,
@@ -62,8 +91,8 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
     type Arguments;
 
     /// Extra facts [Self::execute] gathers while performing the mutation, used only to decide
-    /// what [Self::output_description_instructions] should mention for this particular call. `()`
-    /// for a tool with nothing worth gating on.
+    /// what [Self::output_description_instructions] should mention for this particular call and
+    /// what [Self::tmc_email_sync] returns. `()` for a tool with nothing worth gating on.
     type Facts;
 
     fn parse_arguments(arguments: &str) -> ChatbotResult<Self::Arguments>;
@@ -105,6 +134,12 @@ pub trait ConfirmableActionTool: ChatbotToolDeclaration {
         facts: Option<&Self::Facts>,
         app_config: &ApplicationConfiguration,
     ) -> Option<String>;
+
+    /// The TMC write an executed call needs, which the answer path applies last before it
+    /// commits. Only a tool that changes an address TMC also holds overrides this.
+    fn tmc_email_sync(_facts: &Self::Facts) -> Option<TmcEmailSync> {
+        None
+    }
 }
 
 /// Unicode-aware case-insensitive equality for a model-supplied display field against its

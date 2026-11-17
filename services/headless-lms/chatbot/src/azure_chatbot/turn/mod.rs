@@ -42,6 +42,7 @@ use crate::llm_utils::{estimate_tokens, summarize_input_for_log};
 use crate::prelude::*;
 use crate::user_context::ChatbotTurnContext;
 use cancellation::{GuardedStream, RequestCancelledGuard, save_partial_answer};
+use headless_lms_utils::services::tmc::TmcClient;
 use round::{is_stored_by_round, parse_tool, store_output_item};
 use text_response::parse_text_response;
 
@@ -88,6 +89,7 @@ pub async fn send_chat_request_and_parse_stream(
 pub async fn answer_tool_call_and_resume_stream(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
+    tmc_client: &TmcClient,
     cache: Cache,
     chatbot_configuration_id: Uuid,
     conversation_id: Uuid,
@@ -105,6 +107,7 @@ pub async fn answer_tool_call_and_resume_stream(
             chatbot_configuration_id,
             tool_call_id,
             answer,
+            tmc_client,
         },
     )
     .await
@@ -122,6 +125,7 @@ enum TurnStart<'a> {
         chatbot_configuration_id: Uuid,
         tool_call_id: &'a str,
         answer: &'a ClientToolAnswer,
+        tmc_client: &'a TmcClient,
     },
 }
 
@@ -167,11 +171,12 @@ async fn begin_turn(
             chatbot_configuration_id,
             tool_call_id,
             answer,
+            tmc_client,
         } => {
             // One transaction for the answer path: a confirmed action tool's mutation, its audit
             // row (both inside `client_tool_output_for_answer`), and the recorded tool output
             // below commit or roll back together, so the transcript can never claim an effect the
-            // database does not have.
+            // database does not have. The TMC write goes last: it cannot be rolled back.
             let mut tx = conn.begin().await?;
 
             let answered = client_tool_output_for_answer(
@@ -195,6 +200,9 @@ async fn begin_turn(
             .await
             .map_err(rejected_tool_answer_error)?;
 
+            if let Some(tmc_email_sync) = answered.tmc_email_sync {
+                tmc_email_sync.apply(tmc_client).await?;
+            }
             tx.commit().await?;
 
             if !outcome.turn_can_resume {

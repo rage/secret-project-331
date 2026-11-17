@@ -4,6 +4,7 @@
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations::mark_listing_succeeded;
+use headless_lms_models::course_modules::course_code_match_key;
 use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_roster_schedules::{
     AccountLinkingCodeCounters, RosterUnit, record_linking_counters,
@@ -91,7 +92,9 @@ pub(super) async fn reconcile_roster(
 
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the
 /// most recent enrolment of each, one with no enrolment time counting as the oldest.
-fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
+fn distinct_people<'a>(
+    people: impl IntoIterator<Item = &'a RosterPerson>,
+) -> Vec<&'a RosterPerson> {
     let mut kept: Vec<&RosterPerson> = Vec::new();
     let mut index_by_person: HashMap<&str, usize> = HashMap::new();
     for person in people {
@@ -167,6 +170,14 @@ fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<
         .collect()
 }
 
+/// Whether `person` enrolled before `since` or at no known time: no linking mail goes to them by
+/// enrolment time, only once an account with their Sisu address has a registerable completion.
+pub fn is_enrolled_before(person: &RosterPerson, since: DateTime<Utc>) -> bool {
+    person
+        .enrolled_at()
+        .is_none_or(|enrolled_at| enrolled_at < since)
+}
+
 /// The people [`enrolled_since`] leaves out, enrolled before `since` or at no known time, whom no
 /// account is linked to.
 fn unlinked_enrolled_before<'a>(
@@ -177,12 +188,7 @@ fn unlinked_enrolled_before<'a>(
     people
         .iter()
         .copied()
-        .filter(|person| {
-            person
-                .enrolled_at()
-                .is_none_or(|enrolled_at| enrolled_at < since)
-                && !linked.is_linked(person)
-        })
+        .filter(|person| is_enrolled_before(person, since) && !linked.is_linked(person))
         .collect()
 }
 
@@ -201,19 +207,45 @@ pub(crate) async fn list_unlinked_enrolled_before(
         .collect())
 }
 
-/// Everyone on a roster whom no account is linked to, whenever they enrolled, each once with their
-/// latest enrolment.
-pub(crate) async fn list_unlinked(
+/// A person on a course's rosters with the account linked to them, if any.
+#[derive(Debug, Clone)]
+pub struct ListedEnrolee {
+    /// With their latest enrolment under any of `course_codes`.
+    pub person: RosterPerson,
+    pub linked_user_id: Option<Uuid>,
+    /// Every course code whose roster lists them, as [`course_code_match_key`] gives it.
+    pub course_codes: Vec<String>,
+}
+
+/// Everyone on these rosters, keyed by course code, each once with their latest enrolment and the
+/// account linked to them.
+pub(crate) async fn list_with_linked_accounts(
     conn: &mut PgConnection,
-    people: &[RosterPerson],
-) -> CreditRegistrationResult<Vec<RosterPerson>> {
-    let distinct = distinct_people(people);
+    rosters: &[(String, Vec<RosterPerson>)],
+) -> CreditRegistrationResult<Vec<ListedEnrolee>> {
+    let mut codes_by_person_id: HashMap<&str, BTreeSet<String>> = HashMap::new();
+    for (code, people) in rosters {
+        let key = course_code_match_key(code);
+        for person in people {
+            codes_by_person_id
+                .entry(person.person_id.expose_secret())
+                .or_default()
+                .insert(key.clone());
+        }
+    }
+    let distinct = distinct_people(rosters.iter().flat_map(|(_, people)| people));
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
     let linked = LinkedAccounts::new(&linked_rows);
     Ok(distinct
         .into_iter()
-        .filter(|person| !linked.is_linked(person))
-        .cloned()
+        .map(|person| ListedEnrolee {
+            person: person.clone(),
+            linked_user_id: linked.linked_user_id(person),
+            course_codes: codes_by_person_id
+                .get(person.person_id.expose_secret())
+                .map(|codes| codes.iter().cloned().collect())
+                .unwrap_or_default(),
+        })
         .collect())
 }
 
@@ -245,31 +277,46 @@ async fn load_linked_accounts(
 /// The accounts linked to someone on one code's roster, indexed once for every module on it.
 struct LinkedAccounts<'a> {
     rows: &'a [VerifiedStudentNumber],
-    person_ids: HashSet<&'a str>,
-    student_numbers: HashSet<&'a str>,
+    user_ids_by_person_id: HashMap<&'a str, Uuid>,
+    user_ids_by_student_number: HashMap<&'a str, Uuid>,
 }
 
 impl<'a> LinkedAccounts<'a> {
     fn new(rows: &'a [VerifiedStudentNumber]) -> Self {
+        let mut user_ids_by_person_id = HashMap::new();
+        let mut user_ids_by_student_number = HashMap::new();
+        for row in rows {
+            if let Some(person_id) = expose_option(&row.sisu_person_id) {
+                user_ids_by_person_id
+                    .entry(person_id)
+                    .or_insert(row.user_id);
+            }
+            user_ids_by_student_number
+                .entry(row.student_number.expose_secret())
+                .or_insert(row.user_id);
+        }
         Self {
             rows,
-            person_ids: rows
-                .iter()
-                .filter_map(|row| expose_option(&row.sisu_person_id))
-                .collect(),
-            student_numbers: rows
-                .iter()
-                .map(|row| row.student_number.expose_secret())
-                .collect(),
+            user_ids_by_person_id,
+            user_ids_by_student_number,
         }
+    }
+
+    /// The account linked to `person`, preferring a match by Sisu person id over one by student
+    /// number.
+    fn linked_user_id(&self, person: &RosterPerson) -> Option<Uuid> {
+        self.user_ids_by_person_id
+            .get(person.person_id.expose_secret())
+            .or_else(|| {
+                self.user_ids_by_student_number
+                    .get(person.student_number.expose_secret())
+            })
+            .copied()
     }
 
     /// Whether some account is linked to `person`, by Sisu person id or student number.
     fn is_linked(&self, person: &RosterPerson) -> bool {
-        self.person_ids.contains(person.person_id.expose_secret())
-            || self
-                .student_numbers
-                .contains(person.student_number.expose_secret())
+        self.linked_user_id(person).is_some()
     }
 }
 

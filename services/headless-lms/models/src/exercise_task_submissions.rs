@@ -1049,9 +1049,10 @@ pub async fn get_exercise_task_submission_info_by_exercise_slide_submission_id(
                     None,
                 )
             })?;
-        let mut exercise_iframe_url =
-            exercise_services::get_exercise_service_externally_preferred_baseurl(exercise_service)?;
-        exercise_iframe_url.set_path(&service_info.user_interface_iframe_path);
+        let exercise_iframe_url = exercise_services::get_exercise_iframe_url(
+            exercise_service,
+            &service_info.user_interface_iframe_path,
+        )?;
         let course_material_exercise_task = CourseMaterialExerciseTask {
             id: task.id,
             exercise_service_slug: task.exercise_type.clone(),

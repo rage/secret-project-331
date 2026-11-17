@@ -9,7 +9,6 @@ import {
   CREDIT_REGISTRATION_NS,
   LINK_INHERIT,
   TIME_DATE,
-  TONE,
 } from "@/components/credit-registration/constants"
 import type { CreditRegistrationTFunction } from "@/components/credit-registration/constants"
 import {
@@ -34,18 +33,12 @@ import {
   completionRegistrationRoute,
   navigateToCourseRoute,
 } from "@/shared-module/common/utils/routes"
-import {
-  Link,
-  Meter,
-  METER_KIND,
-  MIDDLE_DOT,
-  RegistrationStatusBadge,
-  RelativeTime,
-} from "@/shared-module/components"
+import { Link, MIDDLE_DOT, RegistrationStatusBadge, RelativeTime } from "@/shared-module/components"
 import { formatPoints } from "@/utils/completionThresholds"
 
 import {
   studiesCardBodyCss,
+  studiesCardCompletedHeaderCss,
   studiesCardCss,
   studiesCardHeaderCss,
   studiesCardListCss,
@@ -55,18 +48,14 @@ import {
   remainingRequirements,
   remainingRequirementsList,
 } from "./completionRequirements"
+import { sameLanguage } from "./language"
+import { FIGURE_WIDTH, figureRowCss, ModuleDimension } from "./ModuleFigures"
 
 export interface StudiesCourseCardProps {
   course: MyStudiesCourse
   /** Newest credit registration per course module id; empty for a student with none. */
   registrationByCourseModuleId: ReadonlyMap<string, MyCreditRegistration>
 }
-
-/** A course with every module behind it says so in the band, not only in a line of small print. */
-const completedHeaderCss = css`
-  border-bottom-color: var(--color-green-200);
-  background: var(--color-green-100);
-`
 
 /** The band's small print, held legible against the completed tint. */
 const completedFactsCss = css`
@@ -130,9 +119,6 @@ const detailsLabelCss = css`
   gap: var(--space-2);
 `
 
-/** How wide one measured dimension gets. A bar the full width of a card reads as a rule. */
-const FIGURE_WIDTH = "17rem"
-
 /** The dimensions, then the exam under them. */
 const progressCss = css`
   display: grid;
@@ -147,30 +133,10 @@ const dimensionsCss = css`
   gap: var(--space-3-5) var(--space-5);
 `
 
-/** Matches a `Meter` label row, because the exam is one more requirement in the same list. */
-const examRowCss = css`
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  max-width: ${FIGURE_WIDTH};
-  font-size: var(--font-size-1);
-  color: var(--color-gray-600);
-`
-
 const examResultCss = css`
   color: var(--color-gray-700);
   font-weight: 600;
 `
-
-/** Holds a bare figure to the same weight and digit width as the `Meter` value above it. */
-const figureValueCss = css`
-  color: var(--color-gray-700);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-`
-
-/** A bar's fill says how far the student has come; the tick beside it says how far is enough. */
-const PROGRESS_TONE = TONE.SUCCESS
 
 /** Names what the bars are measured for: the exam, the course itself, or one of its modules. */
 const completionHeading = (
@@ -197,24 +163,24 @@ const completionResultLabel = (
   return completion.passed ? t("label-passed") : t("label-not-passed")
 }
 
+/** Whether students can complete the module without a teacher adding the completion. */
+const completesAutomatically = (module: MyStudiesCourseModule): boolean =>
+  module.completion_method === "by_requirements" || module.completion_method === "by_exam"
+
+const isGradedByTeacher = (module: MyStudiesCourseModule): boolean =>
+  module.completion_method === "teacher_adds"
+
 /** Whether `ModuleProgress` has anything to show for this module. */
 const hasProgressToShow = (module: MyStudiesCourseModule): boolean =>
-  (module.score_maximum ?? 0) > 0 || (module.total_exercises ?? 0) > 0 || module.requires_exam
+  (module.score_maximum ?? 0) > 0 ||
+  (module.total_exercises ?? 0) > 0 ||
+  module.completion_method === "by_exam"
 
 /** True when every module grants the same credits, one that grants none included. */
 const modulesShareEcts = (modules: MyStudiesCourseModule[]): boolean => {
   const first = modules[0]?.ects_credits ?? null
   return modules.every((module) => (module.ects_credits ?? null) === first)
 }
-
-/**
- * Compares only the primary subtag, so `en-US` material reads as English to an `en` reader.
- *
- * A reader whose language is not yet known counts as a different one: naming the language the
- * course is in costs a reader who did not need it far less than withholding it from one who did.
- */
-const sameLanguage = (courseLanguage: string, readerLanguage: string | undefined): boolean =>
-  readerLanguage !== undefined && courseLanguage.split("-")[0] === readerLanguage.split("-")[0]
 
 /** One course, always open: every module's progress, result and credit-registration status. */
 const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
@@ -230,7 +196,7 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
   // Said once for the course rather than under each of its modules, where it would be the only
   // thing most of them have to say.
   const teacherGradesWholeCourse =
-    modules.every((module) => !module.automatic_completion) &&
+    modules.every((module) => isGradedByTeacher(module)) &&
     modules.some((module) => !module.completion)
   // Credits belong to the module that grants them, but a course whose modules all grant the same
   // says it once up here rather than printing one identical line per module.
@@ -254,7 +220,9 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
 
   return (
     <article className={studiesCardCss} data-testid="profile-course-card">
-      <header className={cx(studiesCardHeaderCss, courseIsComplete && completedHeaderCss)}>
+      <header
+        className={cx(studiesCardHeaderCss, courseIsComplete && studiesCardCompletedHeaderCss)}
+      >
         <div className={spacedRowCss}>
           <h3 className={courseTitleCss}>{course.course_name}</h3>
           <Link
@@ -426,8 +394,8 @@ const ModuleStatus: React.FC<{
     )
   }
 
-  if (!module.automatic_completion) {
-    if (explainTeacherGrading) {
+  if (!completesAutomatically(module)) {
+    if (explainTeacherGrading && isGradedByTeacher(module)) {
       return <span className={noteCss}>{t("note-graded-by-your-teacher")}</span>
     }
     return rowWouldBeBare ? <span className={noteCss}>{t("module-not-completed-yet")}</span> : null
@@ -443,7 +411,9 @@ const ModuleStatus: React.FC<{
   if (remaining === null) {
     return (
       <span className={achievedCss}>
-        {module.requires_exam ? t("label-ready-to-take-the-exam") : t("label-requirements-met")}
+        {module.completion_method === "by_exam"
+          ? t("label-ready-to-take-the-exam")
+          : t("label-requirements-met")}
       </span>
     )
   }
@@ -451,7 +421,7 @@ const ModuleStatus: React.FC<{
   const requirements = remainingRequirementsList(t, i18n.language, remaining)
   return (
     <span className={noteCss}>
-      {module.requires_exam
+      {module.completion_method === "by_exam"
         ? t("x-to-take-the-exam", { requirements })
         : isCourseItself
           ? t("x-to-complete-this-course", { requirements })
@@ -521,14 +491,15 @@ const ModuleProgress: React.FC<{
     )
   }
 
-  const examRow = module.requires_exam ? (
-    <div className={examRowCss}>
-      <span>{t("label-exam")}</span>
-      <span className={examPassed ? achievedCss : examResultCss}>
-        {examPassed ? t("label-passed") : t("label-not-passed")}
-      </span>
-    </div>
-  ) : null
+  const examRow =
+    module.completion_method === "by_exam" ? (
+      <div className={figureRowCss}>
+        <span>{t("label-exam")}</span>
+        <span className={examPassed ? achievedCss : examResultCss}>
+          {examPassed ? t("label-passed") : t("label-not-passed")}
+        </span>
+      </div>
+    ) : null
 
   if (dimensions.length === 0 && examRow === null) {
     return null
@@ -551,45 +522,11 @@ const ModuleProgress: React.FC<{
     <div
       className={progressCss}
       role="group"
-      aria-label={completionHeading(t, module.requires_exam, isCourseItself)}
+      aria-label={completionHeading(t, module.completion_method === "by_exam", isCourseItself)}
     >
       {body}
     </div>
   )
 }
-
-/**
- * One dimension of a module: a bar where it is measured, otherwise the figure on its own. The
- * threshold tick is drawn only for the dimension that has one.
- */
-const ModuleDimension: React.FC<{
-  label: string
-  value: number
-  maxValue: number
-  valueLabel: string
-  threshold: number | null
-  showBar: boolean
-}> = ({ label, value, maxValue, valueLabel, threshold, showBar }) =>
-  showBar ? (
-    <Meter
-      kind={METER_KIND.PROGRESS}
-      label={label}
-      value={value}
-      maxValue={maxValue}
-      valueLabel={valueLabel}
-      tone={PROGRESS_TONE}
-      threshold={threshold}
-    />
-  ) : (
-    <ModuleFigure label={label} value={valueLabel} />
-  )
-
-/** A measured value with no threshold to judge it against: a `Meter`'s label row without the bar. */
-const ModuleFigure: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className={examRowCss}>
-    <span>{label}</span>
-    <span className={figureValueCss}>{value}</span>
-  </div>
-)
 
 export default StudiesCourseCard

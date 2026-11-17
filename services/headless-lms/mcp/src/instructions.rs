@@ -24,7 +24,7 @@ pages, titles, paths, chapter dates; the only way to create pages), `patch_cours
 `find_replace`, `structural_replace`, `upload_file`.
 - Publish and undo: `list_changesets`, `get_preview_link`, `publish_changeset`, \
 `discard_changeset`, `get_history`, `revert_change`.
-- Learn: `guide` (block types and topics: course-structure, publishing-and-risk, \
+- Learn: `guide` (block types and topics: course-structure, course-settings, publishing-and-risk, \
 previews-and-checks, citations-and-glossary, rich-text, editing, exercises).
 
 Invariants:

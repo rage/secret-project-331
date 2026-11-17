@@ -39,7 +39,10 @@ export interface ViewSubmissionState {
   /** Where the submitted archive can be downloaded, or null when the submission named no files. */
   submitted_archive_url: string | null
   public_spec: PublicSpec
+  /** Set once the student may see the model solution. */
   model_solution_spec: ModelSolutionSpec | null
+  /** Source files of the model solution; empty until its archive has been read. */
+  model_solution_files: ExerciseFile[]
 }
 
 export interface PrivateSpec {

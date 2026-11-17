@@ -5,7 +5,7 @@ use std::collections::{HashMap, HashSet};
 use chrono::{DateTime, Duration, Utc};
 use headless_lms_models::{
     agent_changeset_entities::RiskReason,
-    course_modules::{AutomaticCompletionRequirements, CompletionPolicy},
+    course_modules::{CompletionPolicy, CompletionRequirements},
     library::{
         agent_changesets::{
             course_state::{CourseState, ExerciseDeadline},
@@ -292,11 +292,10 @@ fn settings_rules() {
         ..Default::default()
     };
     let automatic = |module: &str| {
-        CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+        CompletionPolicy::ByRequirements(CompletionRequirements {
             course_module_id: id(module),
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: None,
-            requires_exam: false,
         })
     };
     let with_policy = |module: &str| {

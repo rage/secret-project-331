@@ -65,9 +65,9 @@ pub enum ControllerErrorType {
     #[display("Not found")]
     NotFound,
 
-    /// HTTP status code 429.
+    /// HTTP status code 429, with how long until a retry can succeed for `Retry-After`.
     #[display("Too many requests")]
-    TooManyRequests,
+    TooManyRequests(Option<std::time::Duration>),
 
     /// HTTP status code 401. Needs to log in.
     #[display("Unauthorized")]
@@ -80,6 +80,11 @@ pub enum ControllerErrorType {
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
+
+    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
+    /// token that lacks a scope.
+    #[display("Forbidden")]
+    ForbiddenWithReason(ForbiddenReason),
 
     /// Varied response based on error
     #[display("OAuthError")]
@@ -111,6 +116,36 @@ impl UnauthorizedReason {
     }
 }
 
+/// Reasons a logged-in user may not answer an exercise, which a client can branch on.
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ForbiddenReason {
+    /// The exercise's chapter has not opened yet.
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    /// Chapter locking keeps the chapter closed until the previous ones are completed.
+    #[display("Chapter not unlocked yet")]
+    ChapterNotUnlockedYet,
+    /// The user has completed and locked the chapter.
+    #[display("Chapter completed and locked")]
+    ChapterCompletedAndLocked,
+    /// The user's exercise state takes no more answers, though the chapter may be open again.
+    #[display("Exercise locked")]
+    ExerciseLocked,
+}
+
+impl ForbiddenReason {
+    /// Returns the stable message key for this forbidden reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
+            Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
+            Self::ExerciseLocked => "exercise_locked",
+        }
+    }
+}
+
 /// Builds a 422 whose `message_key` the client keys its error handling on.
 pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
     controller_err!(BadRequestWithReason(reason), message)
@@ -129,6 +164,12 @@ pub enum BadRequestReason {
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
+    /// The exercise's deadline, or its chapter's, has passed.
+    #[display("Deadline passed")]
+    DeadlinePassed,
+    /// The user has used every try the exercise allows.
+    #[display("Out of tries")]
+    OutOfTries,
     /// A submission named a file that was uploaded but has since been reaped.
     #[display("Upload expired")]
     UploadExpired,
@@ -138,6 +179,9 @@ pub enum BadRequestReason {
     /// A submission named the same uploaded file more than once.
     #[display("Duplicate upload")]
     DuplicateUpload,
+    /// Only a paste snapshot can be shared, not a backup.
+    #[display("Backup not shareable")]
+    BackupNotShareable,
     /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
     #[display("Tiers overlap")]
     ExternalCreditTargetTiersOverlap,
@@ -159,9 +203,12 @@ impl BadRequestReason {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
             Self::ForeignKeyViolation => "foreign_key_violation",
             Self::NotEnrolled => "not_enrolled",
+            Self::DeadlinePassed => "deadline_passed",
+            Self::OutOfTries => "out_of_tries",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+            Self::BackupNotShareable => "backup_not_shareable",
             Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
             Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
             Self::ExternalCreditTargetMoocfiCourseFixed => {
@@ -537,7 +584,14 @@ impl error::ResponseError for ControllerError {
             metadata: metadata_json,
         };
 
-        HttpResponseBuilder::new(status)
+        let mut response = HttpResponseBuilder::new(status);
+        if let ControllerErrorType::TooManyRequests(Some(retry_after)) = self.error_type {
+            response.append_header((
+                actix_web::http::header::RETRY_AFTER,
+                retry_after.as_secs().max(1),
+            ));
+        }
+        response
             .append_header(ContentType::json())
             .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
                 error!("Error while serialising error response: {e}");
@@ -553,10 +607,11 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
-            ControllerErrorType::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
+            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -598,12 +653,13 @@ impl ControllerError {
             ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
             ControllerErrorType::NotFound => ("not_found", "not_found"),
             // Matches the rate limit middleware's response.
-            ControllerErrorType::TooManyRequests => ("rate_limit", "rate_limited"),
+            ControllerErrorType::TooManyRequests(_) => ("rate_limit", "rate_limited"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::UnauthorizedWithReason(reason) => {
                 ("unauthorized", reason.message_key())
             }
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::ForbiddenWithReason(reason) => ("forbidden", reason.message_key()),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
             ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
         }
@@ -1418,6 +1474,33 @@ mod tests {
 
         assert_eq!(value["type"], "validation_error");
         assert_eq!(value["message_key"], "not_enrolled");
+    }
+
+    #[test]
+    fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
+        for (reason, key) in [
+            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (
+                ForbiddenReason::ChapterNotUnlockedYet,
+                "chapter_not_unlocked_yet",
+            ),
+            (
+                ForbiddenReason::ChapterCompletedAndLocked,
+                "chapter_completed_and_locked",
+            ),
+            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
+        ] {
+            let response =
+                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+            let bytes = actix_web::body::to_bytes(response.into_body())
+                .now_or_never()
+                .expect("response should resolve immediately")
+                .expect("body bytes");
+            let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+            assert_eq!(value["type"], "forbidden");
+            assert_eq!(value["message_key"], key);
+        }
     }
 
     #[test]

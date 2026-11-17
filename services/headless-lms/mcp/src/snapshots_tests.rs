@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use headless_lms_models::{
+    course_modules::{CreditRegistrationRoute, ExamRequirement},
     courses::CourseAiPolicy,
     library::entity_snapshots::{ExerciseBundle, PageSnapshot},
 };
@@ -120,24 +121,23 @@ fn settings_round_trip_and_policy_conversion() {
         id: id("aud"),
         name: "Adults".into(),
     });
-    doc.modules[1].completion_policy = CompletionPolicy {
-        policy: CompletionPolicyKind::Automatic,
-        number_of_points_treshold: Some(50),
-        number_of_exercises_attempted_treshold: None,
-        requires_exam: false,
-    };
+    doc.modules[1].completion_method = CompletionMethod::ByExam;
+    doc.modules[1].exam_requirement = ExamRequirement::Platform;
+    doc.modules[1].points_threshold = Some(50);
+    doc.modules[1].credit_registration_route = CreditRegistrationRoute::CertificateOnly;
     apply_settings(&mut state, &doc);
     assert_eq!(state.settings.ai_policy, CourseAiPolicy::FullUse);
     assert_eq!(state.settings.audiences[0].audience, "Adults");
     let extra = state.modules.iter().find(|m| m.id == id("extra")).unwrap();
     assert_eq!(
-        settings_document(&state, &course_row()).modules[1].completion_policy,
-        doc.modules[1].completion_policy
+        settings_document(&state, &course_row()).modules[1],
+        doc.modules[1]
     );
     assert!(matches!(
         &extra.completion_policy,
-        ModelCompletionPolicy::Automatic(r) if r.course_module_id == id("extra")
+        CompletionPolicy::ByExam(r) if r.course_module_id == id("extra")
     ));
+    assert_eq!(extra.exam_requirement, ExamRequirement::Platform);
 }
 
 #[test]

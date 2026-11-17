@@ -19,19 +19,24 @@ export interface ScrollRegionProps extends Omit<
   onOverflowChange?: ((overflow: ScrollOverflow) => void) | undefined
 }
 
+const NO_OVERFLOW: ScrollOverflow = { start: false, end: false }
+
 /** A horizontal scroll container that is a tab stop and a named region only while it overflows. */
 export const ScrollRegion = React.forwardRef<HTMLDivElement, ScrollRegionProps>(
   function ScrollRegion({ label, labelledBy, onOverflowChange, children, ...rest }, forwardedRef) {
     const ref = useObjectRef(forwardedRef)
-    const [overflow, setOverflow] = useState<ScrollOverflow>({ start: false, end: false })
+    const [overflow, setOverflow] = useState(NO_OVERFLOW)
     const onOverflowChangeRef = useRef(onOverflowChange)
 
     useEffect(() => {
       onOverflowChangeRef.current = onOverflowChange
     })
 
+    // Callers start from no overflow, so only changes are reported.
     useEffect(() => {
-      onOverflowChangeRef.current?.(overflow)
+      if (overflow !== NO_OVERFLOW) {
+        onOverflowChangeRef.current?.(overflow)
+      }
     }, [overflow])
 
     useEffect(() => {

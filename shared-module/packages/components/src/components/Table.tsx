@@ -461,7 +461,7 @@ export function Table<Row>({
       <ScrollRegion
         className={scrollCss}
         labelledBy={labelledBy ?? captionId}
-        onOverflowChange={setOverflow}
+        onOverflowChange={overflowCue || stickyFirstColumn ? setOverflow : undefined}
       >
         <table
           className={cx(

@@ -104,6 +104,9 @@ export function StudentsTable<T extends object>({
 }: StudentsTableProps<T>) {
   const { t } = useTranslation()
   const tableId = useId()
+  // aria-labelledby splits on whitespace, so a column id with spaces would match nothing.
+  const headerLabelId = (headerId: string) =>
+    `${tableId}-${headerId.replaceAll(/[^A-Za-z0-9_-]/g, "_")}-label`
 
   // Column-coloring offsets differ per layout. Progress: Student + a 2-wide "Total" group before the
   // colored chapter groups (groups from index 2, cells from index 3). Completions: only Student before
@@ -629,7 +632,7 @@ export function StudentsTable<T extends object>({
                           : undefined
                   }
                   // Named by the label alone; the resize slider inside would add its value to it.
-                  aria-labelledby={floating ? undefined : `${tableId}-${header.id}-label`}
+                  aria-labelledby={floating ? undefined : headerLabelId(header.id)}
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                   className={cx(
                     thStyle,
@@ -681,7 +684,7 @@ export function StudentsTable<T extends object>({
                         </span>
                       )}
                     </>,
-                    `${tableId}-${header.id}-label`,
+                    headerLabelId(header.id),
                     !floating && canSort,
                   )}
 

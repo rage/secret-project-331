@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -36,7 +36,13 @@ import {
   manageCourseStudentsRoute,
   organizationFrontPageRoute,
 } from "@/shared-module/common/utils/routes"
-import { Button, ErrorNotice, QueryResults, useToggleFocus } from "@/shared-module/components"
+import {
+  Button,
+  ErrorNotice,
+  focusProgrammatically,
+  QueryResults,
+  useToggleFocus,
+} from "@/shared-module/components"
 import { viewCourseInstanceCertificatesPageRoute } from "@/utils/routing"
 
 import { MODULE_PARAM, REGISTRATION_PARAM } from "../students/StudentsContext"
@@ -291,6 +297,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       ? viewCourseInstanceCertificatesPageRoute(onlyCourseInstance.id)
       : manageCourseInstancesRoute(courseId),
   }
+  const headingRef = useRef<HTMLHeadingElement>(null)
   const initialModuleList = courseStructureQuery.data?.initialModuleList
   useEffect(() => {
     if (!courseStructureQuery.data) {
@@ -448,6 +455,10 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     })
   }
   const handleDeleteModule = (moduleId: string) => {
+    // The deleted card held focus; move it to the page heading instead of dropping to body.
+    if (headingRef.current) {
+      focusProgrammatically(headingRef.current)
+    }
     setEdited(true)
     setModuleList((old) => {
       if (!old) {
@@ -484,7 +495,9 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
       renderData={([data]) => (
         <>
           <div className={sectionsCss}>
-            <h1 className={pageTitleCss}>{t("modules")}</h1>
+            <h1 ref={headingRef} className={pageTitleCss}>
+              {t("modules")}
+            </h1>
             {moduleUpdatesMutation.isError && <ErrorNotice error={moduleUpdatesMutation.error} />}
             {moduleList?.modules
               .toSorted((l, r) => {

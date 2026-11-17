@@ -56,6 +56,16 @@ describe("NewOrEditPageForm", () => {
     )
   })
 
+  it("clears the fields after a page is created", async () => {
+    renderForm()
+    const titleInput = document.querySelector('input[name="title"]') as HTMLInputElement
+    fireEvent.change(titleInput, { target: { value: "Intro" } })
+    fireEvent.click(screen.getByRole("button", { name: "button-text-create" }))
+
+    await waitFor(() => expect(mockCreatePage).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(titleInput.value).toBe(""))
+  })
+
   it("is a form, so Enter in a field submits it", () => {
     renderForm()
 

@@ -6,7 +6,7 @@ import { mergeProps, useTextField, VisuallyHidden } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { ARIA_VALIDATION, joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
@@ -134,6 +134,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     isInvalid,
     inputElementType: textareaInputType,
     ...omitUndefined({ autoComplete, maxLength, minLength, isDisabled, isReadOnly, isRequired }),
+    validationBehavior: ARIA_VALIDATION,
   }
 
   const {

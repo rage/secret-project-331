@@ -153,6 +153,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     setValue: setAddRoleValue,
     getValues: getAddRoleValues,
     trigger: triggerAddRole,
+    setFocus: setAddRoleFocus,
   } = useForm<{ email: string; role: UserRole }>({
     defaultValues: { email: "", role: ASSISTANT },
   })
@@ -388,6 +389,9 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
           onClick={async () => {
             // oxlint-disable-next-line i18next/no-literal-string
             if (!(await triggerAddRole("email"))) {
+              // Moves focus to the invalid field so the error is announced.
+              // oxlint-disable-next-line i18next/no-literal-string
+              setAddRoleFocus("email")
               return
             }
             addMutation.mutate({

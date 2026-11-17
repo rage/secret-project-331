@@ -91,11 +91,11 @@ const settleFocusOnHeading = (
   // Returns true once the page / user took focus elsewhere, so the observer can stop.
   const update = (): boolean => {
     const active = document.activeElement
-    if (watched?.isConnected && active === watched) {
+    if (watched !== null && active === watched) {
       return false
     }
     const focusIsLost = !active || active === document.body || active === managed
-    if (!focusIsLost && active !== watched) {
+    if (!focusIsLost) {
       return true
     }
     focusTarget()

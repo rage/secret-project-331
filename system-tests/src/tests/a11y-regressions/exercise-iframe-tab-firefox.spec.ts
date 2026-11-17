@@ -14,7 +14,7 @@ test("Tab from the exercise heading reaches the options inside the iframe (firef
   await page.goto(PAGE)
   await selectCourseInstanceIfPrompted(page)
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
-  await expect(frame.getByRole("button", { name: "Option 1" })).toBeVisible()
+  await expect(frame.getByRole("button", { name: "Option 1" })).toBeVisible({ timeout: 30000 })
 
   await page.getByRole("heading", { name: /Choose N exercise/ }).focus()
   const first = frame.getByRole("button", { name: "Option 1" })

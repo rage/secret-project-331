@@ -24,8 +24,11 @@ test("Choose-N result notice with a long word fits the iframe at 320 px", async 
   const overflow = await notice.evaluate((span) => {
     span.textContent = "Your answer was partially correct. Multiplicationrulesandmoreandmore."
     const box = span.parentElement as HTMLElement
-    return { box: box.scrollWidth - box.clientWidth, doc: document.documentElement.scrollWidth }
+    return {
+      box: box.scrollWidth - box.clientWidth,
+      doc: document.documentElement.scrollWidth - window.innerWidth,
+    }
   })
   expect(overflow.box).toBeLessThanOrEqual(0)
-  expect(overflow.doc).toBeLessThanOrEqual(145)
+  expect(overflow.doc).toBeLessThanOrEqual(0)
 })

@@ -77,7 +77,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: <MagnifyingGlass />,
+        icon: <MagnifyingGlass aria-hidden="true" />,
         onAction: () => {
           const searchButton = document.querySelector<HTMLElement>("#search-for-pages-button")
           if (searchButton) {
@@ -99,7 +99,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
-        icon: <LanguageTranslation />,
+        icon: <LanguageTranslation aria-hidden="true" />,
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {

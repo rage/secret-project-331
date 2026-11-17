@@ -167,12 +167,13 @@ const LanguageMenuWithHook: React.FC<
   const triggerLabel = areLanguagesOverridden
     ? t("change-course-language")
     : t("change-user-interface-language")
+  const buttonLabel = activeNative ? `${activeNative}. ${triggerLabel}` : triggerLabel
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-language-menu"
-        ariaLabel={activeNative ? `${activeNative}. ${triggerLabel}` : triggerLabel}
+        ariaLabel={buttonLabel}
         tooltipText={
           areLanguagesOverridden
             ? `${t("change-course-language")}. ${t("course-language-note")}`
@@ -182,7 +183,7 @@ const LanguageMenuWithHook: React.FC<
         lang={currentLanguage}
         dir={getDir(currentLanguage)}
       >
-        <LanguageTranslation size={18} />
+        <LanguageTranslation size={18} aria-hidden="true" />
         <span
           className={css`
             font-size: 14px;
@@ -195,6 +196,7 @@ const LanguageMenuWithHook: React.FC<
       </TopBarMenuButton>
 
       <Popover
+        aria-label={buttonLabel}
         placement={placement === "bottom-end" ? "bottom end" : "bottom start"}
         offset={8}
         lang={currentLanguage}

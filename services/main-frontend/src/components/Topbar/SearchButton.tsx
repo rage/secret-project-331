@@ -342,7 +342,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         variant="icon"
         onClick={openModal}
       >
-        <MagnifyingGlass size={16} weight="bold" />
+        <MagnifyingGlass size={16} weight="bold" aria-hidden="true" />
       </Button>
       <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>

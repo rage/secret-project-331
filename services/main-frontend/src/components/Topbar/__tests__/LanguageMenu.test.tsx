@@ -49,4 +49,16 @@ describe("LanguageMenu", () => {
       "false",
     )
   })
+
+  it("hides the decorative icon and names the button and popup without SVG text", () => {
+    render(<LanguageMenu />)
+    const button = screen.getByRole("button", { hidden: true })
+    const svg = button.querySelector("svg[aria-hidden='true']")
+    expect(svg).not.toBeNull()
+    expect(button.getAttribute("aria-label")).toBe("English. change-user-interface-language")
+    fireEvent.click(button)
+    expect(
+      screen.getByRole("dialog", { name: "English. change-user-interface-language" }),
+    ).toBeTruthy()
+  })
 })

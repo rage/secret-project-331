@@ -126,6 +126,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
       </TopBarMenuButton>
 
       <Popover
+        aria-label={`${displayName}. ${t("open-account-menu")}`}
         placement="bottom end"
         offset={8}
         className={css`

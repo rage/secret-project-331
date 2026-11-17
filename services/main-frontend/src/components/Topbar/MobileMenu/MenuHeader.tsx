@@ -71,6 +71,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
             `}
           >
             <ArrowLeft
+              aria-hidden="true"
               size={20}
               className={css`
                 color: #111827;

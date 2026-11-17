@@ -137,7 +137,7 @@ const SelectCourseLanguage: React.FC<React.PropsWithChildren<CourseTranslationsL
               max-width: 100%;
             `}
           >
-            <LanguageTranslation size={18} />
+            <LanguageTranslation size={18} aria-hidden="true" />
             <Select
               name="courseId"
               data-testid="change-course-language"

@@ -74,7 +74,7 @@ export function useMenuItems(
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: <MagnifyingGlass />,
+        icon: <MagnifyingGlass aria-hidden="true" />,
         onAction: () => {
           const searchButton = document.querySelector<HTMLElement>("#search-for-pages-button")
           if (searchButton) {

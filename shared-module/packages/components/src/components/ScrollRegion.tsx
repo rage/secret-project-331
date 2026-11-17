@@ -32,12 +32,14 @@ export const ScrollRegion = React.forwardRef<HTMLDivElement, ScrollRegionProps>(
       onOverflowChangeRef.current = onOverflowChange
     })
 
-    // Callers start from no overflow, so only changes are reported.
+    const hasCallback = onOverflowChange !== undefined
+
+    // Also fires when a callback is attached later, so it gets the current state.
     useEffect(() => {
-      if (overflow !== NO_OVERFLOW) {
+      if (hasCallback) {
         onOverflowChangeRef.current?.(overflow)
       }
-    }, [overflow])
+    }, [overflow, hasCallback])
 
     useEffect(() => {
       const scroller = ref.current

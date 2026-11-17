@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useId, useRef, useState } from "react"
+import React, { useCallback, useEffect, useId, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -332,6 +332,13 @@ export function Table<Row>({
   // the ones an index pointed at, and an expanded index would open a different row's detail.
   const [expandedRowKeys, setExpandedRowKeys] = useState<ReadonlySet<string>>(() => new Set())
   const [overflow, setOverflow] = useState({ start: false, end: false })
+  const updateOverflow = useCallback(
+    (next: { start: boolean; end: boolean }) =>
+      setOverflow((previous) =>
+        previous.start === next.start && previous.end === next.end ? previous : next,
+      ),
+    [],
+  )
 
   // Stacking sets `display: block` on the table parts, which drops their implicit roles in most
   // browsers, so a stacking table spells every role out. They are redundant at wide widths.
@@ -461,7 +468,7 @@ export function Table<Row>({
       <ScrollRegion
         className={scrollCss}
         labelledBy={labelledBy ?? captionId}
-        onOverflowChange={overflowCue || stickyFirstColumn ? setOverflow : undefined}
+        onOverflowChange={overflowCue || stickyFirstColumn ? updateOverflow : undefined}
       >
         <table
           className={cx(

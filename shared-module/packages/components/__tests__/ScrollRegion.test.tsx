@@ -34,6 +34,20 @@ describe("ScrollRegion", () => {
     expect(onOverflowChange).toHaveBeenLastCalledWith({ start: false, end: true })
   })
 
+  test("reports the current state to a callback attached after mount", () => {
+    setWidths(600, 200)
+    const onOverflowChange = jest.fn()
+    const ui = (callback?: (o: { start: boolean; end: boolean }) => void) => (
+      <ScrollRegion label="Results" onOverflowChange={callback}>
+        <table />
+      </ScrollRegion>
+    )
+    const { rerender } = renderUi(ui())
+    expect(onOverflowChange).not.toHaveBeenCalled()
+    rerender(ui(onOverflowChange))
+    expect(onOverflowChange).toHaveBeenLastCalledWith({ start: false, end: true })
+  })
+
   test("is a plain box when the content fits", () => {
     setWidths(200, 200)
     const { container } = renderUi(

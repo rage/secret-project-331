@@ -7,6 +7,7 @@ import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -19,6 +20,8 @@ import { useUserMenuItems } from "../hooks/useUserMenuItems"
 import { MenuContent } from "./MenuContent"
 import { MenuHeader } from "./MenuHeader"
 import type { MobileMenuOverlayProps } from "./types"
+
+const TITLE_ELEMENT = "h2"
 
 export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
   state,
@@ -265,18 +268,9 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
             {/* Helps screen reader users dismiss easily when tabbing */}
             <DismissButton onDismiss={handleClose} />
 
-            <h2
-              {...titleProps}
-              className={css`
-                position: absolute;
-                left: -10000px;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-              `}
-            >
+            <VisuallyHidden elementType={TITLE_ELEMENT} {...titleProps}>
               {t("navigation-menu")}
-            </h2>
+            </VisuallyHidden>
 
             <MenuHeader
               currentSubmenu={currentSubmenu}

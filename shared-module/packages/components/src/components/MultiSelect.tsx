@@ -6,7 +6,7 @@ import { useListState } from "@react-stately/list"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useId, useMemo, useRef, useState } from "react"
-import { FocusScope, useFilter, useFocusWithin, VisuallyHidden } from "react-aria"
+import { FocusScope, useFilter, useFocusWithin, useKeyboard, VisuallyHidden } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -210,6 +210,16 @@ export function MultiSelect<
   const surfaceRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
   const listBoxRef = useRef<HTMLUListElement>(null)
+  const { keyboardProps: searchKeyboardProps } = useKeyboard({
+    onKeyDown: (keyEvent) => {
+      if (keyEvent.key === ARROW_DOWN_KEY) {
+        keyEvent.preventDefault()
+        listBoxRef.current?.focus()
+      } else {
+        keyEvent.continuePropagation()
+      }
+    },
+  })
 
   const [query, setQuery] = useState("")
   const [isFocusWithin, setIsFocusWithin] = useState(false)
@@ -381,12 +391,7 @@ export function MultiSelect<
                   aria-label={resolvedSearchLabel}
                   className={searchInputCss}
                   onChange={(changeEvent) => setQuery(changeEvent.target.value)}
-                  onKeyDown={(keyEvent) => {
-                    if (keyEvent.key === ARROW_DOWN_KEY) {
-                      keyEvent.preventDefault()
-                      listBoxRef.current?.focus()
-                    }
-                  }}
+                  {...searchKeyboardProps}
                   placeholder={resolvedSearchLabel}
                   type="search"
                   value={query}

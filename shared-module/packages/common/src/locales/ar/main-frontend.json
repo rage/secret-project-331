@@ -3245,6 +3245,7 @@
   "suspected-students": "الطلاب المشتبه بهم",
   "suspicion-dismissed-successfully": "تم رفض الاشتباه",
   "swedish": "السويدية",
+  "table-caption-with-chapter": "{{caption}}: {{chapter}}",
   "table-of-contents": "اختر صفحة في الفصل",
   "target-course": "الدورة المستهدفة",
   "teacher-chapter-lock-status-completed-and-locked": "مكتمل ومقفل",

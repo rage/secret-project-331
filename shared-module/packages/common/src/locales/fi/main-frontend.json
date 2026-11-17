@@ -3010,6 +3010,7 @@
   "suspected-students": "Epäillyt opiskelijat",
   "suspicion-dismissed-successfully": "Epäily hylätty",
   "swedish": "Ruotsi",
+  "table-caption-with-chapter": "{{caption}}: {{chapter}}",
   "table-of-contents": "Sisällysluettelo",
   "target-course": "Kohdekurssi",
   "teacher-chapter-lock-status-completed-and-locked": "Suoritettu ja lukittu",

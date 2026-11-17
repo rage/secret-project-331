@@ -50,7 +50,9 @@ const PagesTable: React.FC<PagesTableProps> = ({
 }) => {
   const { t } = useTranslation()
   // Each chapter lists the same captions; the chapter name keeps the table regions distinct.
-  const tableCaption = chapter ? `${caption}: ${chapter.name}` : caption
+  const tableCaption = chapter
+    ? t("table-caption-with-chapter", { caption, chapter: chapter.name })
+    : caption
   return (
     <Table
       caption={tableCaption}

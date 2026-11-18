@@ -2,20 +2,23 @@
 //! owner asked for them. Every address variant reaching the inbox shares it. Counted in
 //! [`headless_lms_models::email_address_mail_budgets`].
 
-use std::{env, sync::LazyLock};
+use std::sync::LazyLock;
 
 use chrono::Duration;
 use headless_lms_models::email_address_mail_budgets;
 use secrecy::ExposeSecret;
 
-use crate::{config::form_context_secret_from_env, prelude::*};
+use crate::{
+    config::{email_address_daily_mail_budget_from_env, form_context_secret_from_env},
+    prelude::*,
+};
 
 const FALLBACK_DAILY_ALLOWANCE: i32 = 3;
 const OLD_COUNTS_CLEANUP_PROBABILITY: f64 = 0.001;
 const KEPT_DAYS: i64 = 2;
 
 static DAILY_ALLOWANCE: LazyLock<i32> = LazyLock::new(|| {
-    let Ok(value) = env::var("EMAIL_ADDRESS_DAILY_MAIL_BUDGET") else {
+    let Some(value) = email_address_daily_mail_budget_from_env() else {
         return FALLBACK_DAILY_ALLOWANCE;
     };
     // Zero would silently drop every budgeted mail while the forms still report success.

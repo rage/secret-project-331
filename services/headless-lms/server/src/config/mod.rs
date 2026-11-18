@@ -202,6 +202,12 @@ pub fn form_context_secret_from_env() -> anyhow::Result<SecretString> {
     ))
 }
 
+/// The raw `EMAIL_ADDRESS_DAILY_MAIL_BUDGET`, if set. Outside [`ServerRuntimeConfig`] like
+/// [`form_context_secret_from_env`], for the same programs.
+pub fn email_address_daily_mail_budget_from_env() -> Option<String> {
+    env::var("EMAIL_ADDRESS_DAILY_MAIL_BUDGET").ok()
+}
+
 /// Sets global runtime configuration for request-path consumers.
 pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<()> {
     SERVER_RUNTIME_CONFIG.set(config).map_err(|_| {

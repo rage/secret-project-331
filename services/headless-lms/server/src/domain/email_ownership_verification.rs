@@ -19,7 +19,6 @@ pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
 /// Mail-bomb guard, not a quota: how soon after mailing a code we refuse another.
 pub const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
 
-/// Verification mails one account gets a day.
 const MAX_CODES_PER_DAY: i64 = 5;
 
 /// Wrong guesses one code tolerates before it is retired. Six digits are only safe with a cap.

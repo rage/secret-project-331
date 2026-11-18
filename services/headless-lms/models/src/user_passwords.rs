@@ -315,8 +315,8 @@ RETURNING *
     Ok(record.token)
 }
 
-/// Serializes issuing reset tokens to the user until the transaction ends, so a count from
-/// [`count_password_reset_tokens_created_since`] stays current until the token is issued.
+/// Serializes issuing reset tokens to the user until the transaction ends, so a read from
+/// [`get_password_reset_token_creation_times_since`] stays current until the token is issued.
 pub async fn lock_password_reset_tokens_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -330,15 +330,15 @@ pub async fn lock_password_reset_tokens_for_user(
     Ok(())
 }
 
-/// How many reset tokens the user has been issued since `since`, used and superseded ones included.
-pub async fn count_password_reset_tokens_created_since(
+/// When the user was issued reset tokens after `since`, used and superseded ones included.
+pub async fn get_password_reset_token_creation_times_since(
     conn: &mut PgConnection,
     user_id: Uuid,
     since: DateTime<Utc>,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
+) -> ModelResult<Vec<DateTime<Utc>>> {
+    let created_at = sqlx::query_scalar!(
         r#"
-SELECT COUNT(*) AS "count!"
+SELECT created_at
 FROM password_reset_tokens
 WHERE user_id = $1
   AND created_at > $2
@@ -346,9 +346,9 @@ WHERE user_id = $1
         user_id,
         since,
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
-    Ok(count)
+    Ok(created_at)
 }
 
 pub async fn get_unused_reset_password_token_with_user_id(

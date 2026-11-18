@@ -782,7 +782,6 @@ pub struct SendEmailCodeData {
     pub language: String,
 }
 
-/// Account deletion codes one account gets a day.
 const MAX_DELETE_USER_CODES_PER_DAY: i64 = 5;
 
 /// Outcome of asking for an account deletion code.

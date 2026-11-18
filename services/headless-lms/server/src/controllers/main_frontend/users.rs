@@ -919,7 +919,7 @@ pub async fn get_user_roles(
 /// A new account has only just chosen its password, so it gets no reset mail until this old.
 const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
 const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
-const MAX_RESET_MAILS_PER_DAY: i64 = 3;
+const MAX_RESET_MAILS_PER_DAY: usize = 3;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
@@ -996,27 +996,23 @@ pub async fn send_reset_password_email(
         let now = Utc::now();
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
-        let sent_recently = models::user_passwords::count_password_reset_tokens_created_since(
-            &mut tx,
-            user.id,
-            now - Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES),
-        )
-        .await?
-            > 0;
-        let sent_today = models::user_passwords::count_password_reset_tokens_created_since(
+        let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
             &mut tx,
             user.id,
             now - Duration::days(1),
         )
         .await?;
+        let sent_recently = sent_today.iter().any(|created_at| {
+            now - *created_at < Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES)
+        });
         // Only accounts created here with a password count as new: a row imported from TMC by this
         // handler has no password yet, and once it gets one through a reset, it already has a token.
         let is_new_account = now - user.created_at
             < Duration::hours(RESET_MAIL_MIN_ACCOUNT_AGE_HOURS)
-            && sent_today == 0
+            && sent_today.is_empty()
             && models::user_passwords::check_if_users_password_is_stored(&mut tx, user.id).await?;
         // Every outcome gets the same answer, so the response never tells whether an account exists.
-        if !is_new_account && !sent_recently && sent_today < MAX_RESET_MAILS_PER_DAY {
+        if !is_new_account && !sent_recently && sent_today.len() < MAX_RESET_MAILS_PER_DAY {
             models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
             models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)

@@ -6,12 +6,9 @@ use std::{env, sync::LazyLock};
 
 use chrono::Duration;
 use headless_lms_models::email_address_mail_budgets;
-use secrecy::{ExposeSecret, SecretString};
+use secrecy::ExposeSecret;
 
-use crate::{
-    config::{form_context_secret_from_env, try_server_runtime_config},
-    prelude::*,
-};
+use crate::{config::form_context_secret_from_env, prelude::*};
 
 const FALLBACK_DAILY_ALLOWANCE: i32 = 3;
 const OLD_COUNTS_CLEANUP_PROBABILITY: f64 = 0.001;
@@ -62,17 +59,10 @@ pub async fn try_consume_for_user(conn: &mut PgConnection, user_id: Uuid) -> any
         .email;
     let key = email_address_mail_budgets::inbox_key(
         &email,
-        inbox_key_secret()?.expose_secret().as_bytes(),
+        // From env rather than the runtime config: sync_tmc_users mails without one.
+        form_context_secret_from_env()?.expose_secret().as_bytes(),
     );
     Ok(email_address_mail_budgets::try_consume(conn, &key, daily_allowance()).await?)
-}
-
-fn inbox_key_secret() -> anyhow::Result<SecretString> {
-    // sync_tmc_users queues verification mail without the server runtime config.
-    match try_server_runtime_config() {
-        Some(config) => Ok(config.form_context_secret.clone()),
-        None => form_context_secret_from_env(),
-    }
 }
 
 async fn delete_old_counts_occasionally(conn: &mut PgConnection) -> ModelResult<()> {

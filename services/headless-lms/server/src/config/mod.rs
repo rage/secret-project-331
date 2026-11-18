@@ -211,11 +211,6 @@ pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<
     })
 }
 
-/// [`server_runtime_config`], or `None` in programs that never set it.
-pub fn try_server_runtime_config() -> Option<&'static ServerRuntimeConfig> {
-    SERVER_RUNTIME_CONFIG.get()
-}
-
 /// Returns global runtime configuration loaded during startup.
 pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
     SERVER_RUNTIME_CONFIG

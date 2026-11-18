@@ -778,6 +778,7 @@ WHERE courses.deleted_at IS NULL
         WHERE r.user_id = $1
           AND r.deleted_at IS NULL
           AND ci.deleted_at IS NULL
+          AND r.role = 'teacher'
       )
     )
   ) "#,

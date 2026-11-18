@@ -30,7 +30,7 @@ pub async fn get_teacher_newsletter_subscriptions(
         "
 SELECT user_id
 FROM teacher_newsletter_subscriptions
-WHERE subscribed = 't';
+WHERE subscribed = 't' AND deleted_at IS NULL
         ",
     )
     .fetch_all(conn)
@@ -93,19 +93,12 @@ pub async fn get_newsletter_items(
     let res = sqlx::query_as!(
         TeacherNewsletterItems,
         "
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  period_start,
-  period_end,
-  as_html,
-  as_text
+SELECT *
 FROM teacher_newsletter_items
 WHERE course_id = ANY($1)
   AND period_start >= $2
   AND period_end <= $3
+  AND deleted_at IS NULL
         ",
         course_ids,
         start_dt,

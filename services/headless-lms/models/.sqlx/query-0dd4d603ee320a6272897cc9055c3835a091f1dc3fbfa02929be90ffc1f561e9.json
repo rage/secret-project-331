@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT user_id\nFROM teacher_newsletter_subscriptions\nWHERE subscribed = 't';\n        ",
+  "query": "\nSELECT user_id\nFROM teacher_newsletter_subscriptions\nWHERE subscribed = 't' AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -22,5 +22,5 @@
       false
     ]
   },
-  "hash": "f13ab2e716e5ea86538f144211453a79d770b8ebd4d4530f2e0476ee9c03e2e9"
+  "hash": "0dd4d603ee320a6272897cc9055c3835a091f1dc3fbfa02929be90ffc1f561e9"
 }

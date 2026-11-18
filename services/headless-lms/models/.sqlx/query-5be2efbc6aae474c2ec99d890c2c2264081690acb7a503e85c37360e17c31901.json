@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  period_start,\n  period_end,\n  as_html,\n  as_text\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND period_start >= $2\n  AND period_end <= $3\n        ",
+  "query": "\nSELECT *\nFROM teacher_newsletter_items\nWHERE course_id = ANY($1)\n  AND period_start >= $2\n  AND period_end <= $3\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -122,5 +122,5 @@
       false
     ]
   },
-  "hash": "c6f3520edb62cd933a69cd9cfb3b476fba14ea3818fdd2f4a4c5ee6885bff5aa"
+  "hash": "5be2efbc6aae474c2ec99d890c2c2264081690acb7a503e85c37360e17c31901"
 }

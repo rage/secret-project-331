@@ -73,7 +73,7 @@
       "message": "Kontrollera det du har angett och försök igen.",
       "title": "Ogiltig inmatning"
     },
-    "validation_error_with_metadata": {
+    "validation_error_with_cms_anchor_block_id": {
       "message": "Kontrollera det markerade innehållet och försök igen.",
       "title": "Ogiltig inmatning"
     }

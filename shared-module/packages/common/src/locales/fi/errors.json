@@ -1,13 +1,49 @@
 {
   "button-text-try-again": "Yritä uudelleen",
   "database-constraint-error": {
+    "course_language_groups_slug_unique_non_deleted": {
+      "message": "Tällä tunnisteella oleva kurssi on jo olemassa.",
+      "title": "Virheellinen syöte"
+    },
     "courses_slug_key_when_not_deleted": {
       "message": "Tällä polkutunnuksella oleva kurssi on jo olemassa.",
-      "title": "Tietokantarajoite"
+      "title": "Virheellinen syöte"
+    },
+    "email_templates_subject_check": {
+      "message": "Aihe ei saa olla tyhjä.",
+      "title": "Virheellinen syöte"
+    },
+    "external_credit_targets_tier_overlap": {
+      "message": "Nämä tasot ovat päällekkäisiä saman kurssin toisen mooc.fi-kohteen kanssa.",
+      "title": "Virheellinen syöte"
     },
     "unique_chatbot_names_within_course": {
-      "message": "Keskustelurobotin nimi on jo toisen keskustelurobotin käytössä tällä kurssilla",
-      "title": "Tietokantarajoite"
+      "message": "Toinen tämän kurssin keskustelurobotti käyttää jo tätä nimeä.",
+      "title": "Virheellinen syöte"
+    },
+    "uq_credit_registrations_sisu_attainment": {
+      "message": "Toinen opintosuorituksen rekisteröinti on jo liitetty tähän Sisu-opintosuoritukseen.",
+      "title": "Virheellinen syöte"
+    },
+    "uq_external_credit_targets_course_code": {
+      "message": "Mooc.fi-kurssilla on jo kohde tällä kurssikoodilla",
+      "title": "Virheellinen syöte"
+    },
+    "uq_oauth_device_codes_user_code_pending": {
+      "message": "Tämä käyttäjäkoodi on jo käytössä odottavassa laitevaltuutuksessa.",
+      "title": "Virheellinen syöte"
+    },
+    "user_details_email_check": {
+      "message": "Sähköpostiosoitteessa on oltava @-merkki.",
+      "title": "Virheellinen syöte"
+    },
+    "users_email": {
+      "message": "Sähköpostiosoite on jo käytössä.",
+      "title": "Virheellinen syöte"
+    },
+    "users_upstream_id_active_uniq_idx": {
+      "message": "Tällä ulkoisella tunnisteella varustettu käyttäjä on jo olemassa.",
+      "title": "Virheellinen syöte"
     }
   },
   "default-toast-error-message": "Tapahtui virhe",
@@ -27,13 +63,49 @@
       "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
       "title": "Kirjautuminen vaaditaan"
     },
+    "backup_not_shareable": {
+      "message": "Vain liitetyn tekstin voi jakaa, ei varmuuskopiota.",
+      "title": "Varmuuskopiota ei voi jakaa"
+    },
+    "chapter_completed_and_locked": {
+      "message": "Nykyinen luku on lukittu, etkä voi enää palauttaa tehtäviä.",
+      "title": "Luku suoritettu"
+    },
     "chapter_not_open_yet": {
       "message": "Tämä luku ei ole vielä avoinna.",
       "title": "Luku on suljettu"
     },
+    "chapter_not_unlocked_yet": {
+      "message": "Avaa tämän luvun tehtävät suorittamalla edellinen luku ja lukitsemalla se.",
+      "title": "Luku on lukittu"
+    },
     "course_slug_already_taken": {
       "message": "Toinen kurssi käyttää jo tätä lyhyttä nimeä. Valitse jokin muu.",
       "title": "Lyhyt nimi on jo käytössä"
+    },
+    "deadline_passed": {
+      "message": "Tämän sisällön määräaika on jo umpeutunut.",
+      "title": "Määräaika umpeutunut"
+    },
+    "duplicate_upload": {
+      "message": "Samanniminen tiedosto on ladattu useammin kuin kerran.",
+      "title": "Päällekkäinen tiedosto"
+    },
+    "exercise_locked": {
+      "message": "Tämä tehtävä on lukittu, etkä voi enää palauttaa siihen vastauksia.",
+      "title": "Tehtävä lukittu"
+    },
+    "external_credit_target_course_code_taken": {
+      "message": "Kyseisellä mooc.fi-kurssilla on jo aktiivinen kohde tällä kurssikoodilla.",
+      "title": "Virheellinen syöte"
+    },
+    "external_credit_target_moocfi_course_fixed": {
+      "message": "mooc.fi-kurssia ei voi muuttaa sen jälkeen, kun kohteeseen on kirjattu suorituksia.",
+      "title": "Virheellinen syöte"
+    },
+    "external_credit_target_tiers_overlap": {
+      "message": "Nämä tasot ovat päällekkäisiä saman kurssin toisen mooc.fi-kohteen kanssa.",
+      "title": "Virheellinen syöte"
     },
     "forbidden": {
       "message": "Sinulla ei ole oikeutta tähän toimintoon.",
@@ -55,6 +127,10 @@
       "message": "Tarkista, että moduuleihin annetut Helsingin yliopiston kurssikoodit ovat kelvollisia.",
       "title": "Kuvausta ei voitu luoda"
     },
+    "not_enrolled": {
+      "message": "Et ole ilmoittautunut tämän tehtävän kurssille.",
+      "title": "Ei ilmoittautumista"
+    },
     "not_found": {
       "message": "Pyydettyä resurssia ei löytynyt.",
       "title": "Ei löytynyt"
@@ -62,6 +138,14 @@
     "oauth_error": {
       "message": "Kirjaudu sisään uudelleen.",
       "title": "Tunnistautuminen epäonnistui"
+    },
+    "obsolete_client": {
+      "message": "Sovellus on vanhentunut ja se on päivitettävä.",
+      "title": "Vanhentunut sovellus"
+    },
+    "out_of_tries": {
+      "message": "Yrityskerrat ovat loppuneet.",
+      "title": "Yrityskerrat käytetty"
     },
     "rate_limited": {
       "message": "Odota hetki ja yritä uudelleen.",
@@ -75,15 +159,27 @@
       "message": "Sisu-palvelusta ei löytynyt resursseja.",
       "title": "Resursseja ei löytynyt"
     },
+    "stale_version": {
+      "message": "Tätä sisältöä on päivitetty sen avaamisen jälkeen.",
+      "title": "Vanhentunut versio"
+    },
     "unauthorized": {
       "message": "Kirjaudu sisään ja yritä uudelleen.",
       "title": "Ei käyttöoikeutta"
+    },
+    "unknown_upload": {
+      "message": "Et ole ladannut tätä tiedostoa kyseistä tehtävää varten.",
+      "title": "Tuntematon tiedosto"
+    },
+    "upload_expired": {
+      "message": "Ladattu tiedosto ei ole enää saatavilla. Lataa se uudelleen.",
+      "title": "Tiedoston lataus vanhentunut"
     },
     "validation_error": {
       "message": "Tarkista antamasi tiedot ja yritä uudelleen.",
       "title": "Virheellinen syöte"
     },
-    "validation_error_with_metadata": {
+    "validation_error_with_cms_anchor_block_id": {
       "message": "Tarkista korostettu sisältö ja yritä uudelleen.",
       "title": "Virheellinen syöte"
     }

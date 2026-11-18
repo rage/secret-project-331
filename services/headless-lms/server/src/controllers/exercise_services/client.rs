@@ -11,7 +11,6 @@ declares `supports_native_client` in its service info. The course/exercise queri
 capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::error::ForbiddenReason;
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
@@ -270,9 +269,10 @@ async fn authorize_access_to_exercise_chapter(
     .await?
     {
         return Err(controller_err!(
-            ForbiddenWithReason(ForbiddenReason::ChapterNotOpenYet),
+            Forbidden,
             "This exercise's chapter is not open yet.".to_string()
-        ));
+        )
+        .with_message_key(MessageKey::ChapterNotOpenYet));
     }
     Ok(())
 }
@@ -907,11 +907,6 @@ async fn get_exercise(
             ));
         }
         None => {
-            return Err(controller_err!(
-                BadRequest,
-                "User is not enrolled to this exercise's course".to_string()
-            )
-            .with_message_key(MessageKey::NotEnrolled));
             return Err(not_enrolled_error());
         }
     };
@@ -1904,10 +1899,11 @@ async fn share_submission(
         )?;
         // Backups are pruned past the cap, which would break their links, and are not rate limited.
         if snapshot.purpose != SnapshotPurpose::Paste {
-            return Err(bad_request_with_reason(
-                BadRequestReason::BackupNotShareable,
-                "Only a paste can be shared, not a backup.".to_string(),
-            ));
+            return Err(controller_err!(
+                BadRequest,
+                "Only a paste can be shared, not a backup.".to_string()
+            )
+            .with_message_key(MessageKey::BackupNotShareable));
         }
         domain::exercise_services::submission_sharing::share_snapshot(
             &mut conn,

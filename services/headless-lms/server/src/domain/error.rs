@@ -66,11 +66,6 @@ pub enum ControllerErrorType {
     #[display("Forbidden")]
     Forbidden,
 
-    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
-    /// token that lacks a scope.
-    #[display("Forbidden")]
-    ForbiddenWithReason(ForbiddenReason),
-
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
@@ -424,7 +419,6 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
-            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -1301,19 +1295,20 @@ mod tests {
     #[test]
     fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
         for (reason, key) in [
-            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (MessageKey::ChapterNotOpenYet, "chapter_not_open_yet"),
             (
-                ForbiddenReason::ChapterNotUnlockedYet,
+                MessageKey::ChapterNotUnlockedYet,
                 "chapter_not_unlocked_yet",
             ),
             (
-                ForbiddenReason::ChapterCompletedAndLocked,
+                MessageKey::ChapterCompletedAndLocked,
                 "chapter_completed_and_locked",
             ),
-            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
+            (MessageKey::ExerciseLocked, "exercise_locked"),
         ] {
-            let response =
-                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            let response = controller_err!(Forbidden, "locked".to_string())
+                .with_message_key(reason)
+                .error_response();
             assert_eq!(response.status(), StatusCode::FORBIDDEN);
             let bytes = actix_web::body::to_bytes(response.into_body())
                 .now_or_never()

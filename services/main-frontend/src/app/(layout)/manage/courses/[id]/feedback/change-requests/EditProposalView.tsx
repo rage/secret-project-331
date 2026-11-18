@@ -21,7 +21,16 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { manageUserRoute, pageRoute } from "@/shared-module/common/utils/routes"
-import { Button, Link, Radio, RadioGroup, TextArea } from "@/shared-module/components"
+import { dateToString } from "@/shared-module/common/utils/time"
+import {
+  Button,
+  itemHeadingProps,
+  Link,
+  Radio,
+  RadioGroup,
+  TextArea,
+} from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 const ImportantText = styled.div`
   white-space: pre-wrap;
@@ -94,8 +103,13 @@ function resolveBlockProposalInfo(
   return null
 }
 
+export const changeRequestHeadingId = (proposalId: string) =>
+  // oxlint-disable-next-line i18next/no-literal-string
+  `change-request-heading-${proposalId}`
+
 export interface Props {
   proposal: PageProposal
+  senderName: string
   handleProposal: (
     pageId: string,
     pageProposalId: string,
@@ -105,11 +119,14 @@ export interface Props {
 
 const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
   proposal,
+  senderName,
   handleProposal,
 }) => {
   const { t } = useTranslation()
 
   const pageInfo = usePageInfo(proposal.page_id)
+  const created = parseISO(proposal.created_at)
+  const headingId = changeRequestHeadingId(proposal.id)
 
   const defaultFormValues = useMemo<ProposalFormFields>(() => {
     const decisions: Record<string, ProposalDecision | ""> = {}
@@ -289,6 +306,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             pageInfo.data,
             proposal.page_url_path,
           )}?highlight-blocks=${proposal.block_proposals.map((bp) => bp.block_id).join(",")}`}
+          aria-describedby={headingId}
           target="_blank"
           rel="noreferrer noopener"
           styledAsButton
@@ -298,39 +316,46 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
           {t("open-page-in-new-tab")}
         </Link>
       )}
-      <h2
+      <h3
+        id={headingId}
+        {...itemHeadingProps}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;
         `}
       >
-        {t("title-change-request")}
-      </h2>
-      {proposal.page_id && (
-        <div>
-          {t("label-page")} {proposal.page_title} <small>({proposal.page_url_path})</small>
-        </div>
-      )}
-      <div>
-        {t("label-sent-by")}{" "}
-        {proposal.user_id ? (
-          <Link href={manageUserRoute(proposal.user_id)}>
-            <HideTextInSystemTests
-              text={proposal.user_id}
-              testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-            />
-          </Link>
-        ) : (
-          t("guest")
-        )}
-      </div>
-      <div>
-        <TimeComponent
-          boldLabel={false}
-          label={t("label-created")}
-          date={parseISO(proposal.created_at)}
+        {`${t("title-change-request")}: ${proposal.page_title}, `}
+        <HideTextInSystemTests
+          text={dateToString(created, false)}
+          testPlaceholder="1970-01-01 00:00:00"
         />
-      </div>
+      </h3>
+      <dl className={inlineMetadataListCss}>
+        {proposal.page_id && (
+          <>
+            <dt>{t("label-page")} </dt>
+            <dd>
+              {proposal.page_title} <small>({proposal.page_url_path})</small>
+            </dd>
+          </>
+        )}
+        {(!proposal.user_id || senderName) && (
+          <>
+            <dt>{t("label-sent-by")} </dt>
+            <dd>
+              {proposal.user_id ? (
+                <Link href={manageUserRoute(proposal.user_id)}>{senderName}</Link>
+              ) : (
+                t("guest")
+              )}
+            </dd>
+          </>
+        )}
+        <dt>{t("label-created")} </dt>
+        <dd>
+          <TimeComponent boldLabel={false} date={created} />
+        </dd>
+      </dl>
       <ul
         className={css`
           list-style: none;

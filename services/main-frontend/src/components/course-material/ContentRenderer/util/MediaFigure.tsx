@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 
 import type { StringWithHTML } from "@/../types"
+import { baseTheme } from "@/shared-module/common/styles"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const figureCss = css`
@@ -16,6 +17,7 @@ const figureCss = css`
 const captionCss = css`
   text-align: center;
   font-size: 0.8125rem;
+  color: ${baseTheme.colors.gray[500]};
 `
 
 interface MediaFigureProps {

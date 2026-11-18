@@ -83,4 +83,16 @@ describe("EssayPeerOrSelfReviewQuestion", () => {
     ) as HTMLTextAreaElement
     expect(textarea.value).toBe("A thoughtful comment")
   })
+
+  it("marks a required answer with aria-required and keeps the star out of the name", () => {
+    render(
+      <EssayPeerOrSelfReviewQuestion
+        peerOrSelfReviewQuestion={makeQuestion({ answer_required: true })}
+        setPeerOrSelfReviewQuestionAnswer={jest.fn()}
+        peerOrSelfReviewQuestionAnswer={null}
+      />,
+    )
+    const field = screen.getByRole("textbox", { name: "What are your thoughts on the answer?" })
+    expect(field).toBeRequired()
+  })
 })

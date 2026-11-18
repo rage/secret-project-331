@@ -3,7 +3,7 @@
 
 import { css } from "@emotion/css"
 import { LanguageTranslation } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -151,6 +151,7 @@ const LanguageMenuWithHook: React.FC<
 }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
+  const popupLabelId = useId()
 
   const { items, currentLanguage, shouldShow, areLanguagesOverridden } = useLanguageMenuItems({
     availableLanguages: propAvailableLanguages,
@@ -163,15 +164,17 @@ const LanguageMenuWithHook: React.FC<
   }
 
   const activeNative = items.find((item) => item.isSelected)?.nativeLabel || ""
+  const selectedKeys = items.filter((item) => item.isSelected).map((item) => item.id)
   const triggerLabel = areLanguagesOverridden
     ? t("change-course-language")
     : t("change-user-interface-language")
+  const buttonLabel = activeNative ? `${activeNative}. ${triggerLabel}` : triggerLabel
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-language-menu"
-        ariaLabel={activeNative ? `${activeNative}. ${triggerLabel}` : triggerLabel}
+        ariaLabel={buttonLabel}
         tooltipText={
           areLanguagesOverridden
             ? `${t("change-course-language")}. ${t("course-language-note")}`
@@ -181,7 +184,7 @@ const LanguageMenuWithHook: React.FC<
         lang={currentLanguage}
         dir={getDir(currentLanguage)}
       >
-        <LanguageTranslation size={18} />
+        <LanguageTranslation size={18} aria-hidden="true" />
         <span
           className={css`
             font-size: 14px;
@@ -194,6 +197,8 @@ const LanguageMenuWithHook: React.FC<
       </TopBarMenuButton>
 
       <Popover
+        aria-label={buttonLabel}
+        aria-labelledby={popupLabelId}
         placement={placement === "bottom-end" ? "bottom end" : "bottom start"}
         offset={8}
         lang={currentLanguage}
@@ -210,9 +215,16 @@ const LanguageMenuWithHook: React.FC<
           width: 90vw;
         `}
       >
+        <span id={popupLabelId} hidden>
+          {buttonLabel}
+        </span>
         <Menu
           data-testid="topbar-language-menu-popover"
           aria-label="Language selection"
+          aria-labelledby={popupLabelId}
+          selectionMode="single"
+          selectedKeys={selectedKeys}
+          disallowEmptySelection
           className={css`
             display: grid;
             gap: 4px;
@@ -224,9 +236,9 @@ const LanguageMenuWithHook: React.FC<
             return (
               <MenuItem
                 key={item.id}
+                id={item.id}
                 onAction={item.onSelect}
                 className={`${itemRow} ${item.isSelected ? selectedItem : ""}`}
-                aria-current={item.isSelected ? "true" : undefined}
                 lang={item.lang}
                 dir={item.dir}
               >
@@ -240,6 +252,7 @@ const LanguageMenuWithHook: React.FC<
                   </span>
                   <span
                     className={`${secondaryLine} ${item.isSelected ? selectedSubtext : ""}`}
+                    aria-hidden={subtitle === item.nativeLabel ? true : undefined}
                     lang={item.isSelected ? "en" : currentLanguage}
                     dir={item.isSelected ? getDir("en") : getDir(currentLanguage)}
                   >

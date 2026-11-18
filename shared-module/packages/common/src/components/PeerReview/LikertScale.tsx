@@ -1,7 +1,7 @@
 "use client"
 
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useId } from "react"
 import { ToggleButton, ToggleButtonGroup } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -62,7 +62,7 @@ const StyledToggleButton = styled(ToggleButton)<StyledProps>`
 
   &:focus {
     outline: 3px solid
-      ${({ active }) => (active ? baseTheme.colors.green[200] : baseTheme.colors.green[400])};
+      ${({ active }) => (active ? baseTheme.colors.green[200] : baseTheme.colors.green[500])};
   }
 
   .likert-scale-text {
@@ -96,6 +96,7 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
   setSelectedOption,
 }) => {
   const { t } = useTranslation()
+  const questionId = useId()
 
   const arr = [
     {
@@ -122,13 +123,14 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
 
   return (
     <Wrapper>
-      <Question>
+      <Question id={questionId}>
         {question}
-        {answerRequired && " *"}
+        {answerRequired && <span aria-hidden="true"> *</span>}
       </Question>
 
       {/* Controlled so the checked state is always the answer the form will submit. */}
       <ToggleButtonGroup
+        aria-labelledby={questionId}
         disallowEmptySelection
         selectedKeys={selectedOption === null ? [] : [selectedOption]}
         onSelectionChange={(keys) => {
@@ -140,7 +142,13 @@ const LikertScale: React.FC<React.PropsWithChildren<LikertScaleProps>> = ({
       >
         <Likerts>
           {arr.map((option, n) => (
-            <StyledToggleButton active={selectedOption === n + 1} id={n + 1} key={n + 1}>
+            <StyledToggleButton
+              active={selectedOption === n + 1}
+              id={n + 1}
+              key={n + 1}
+              // Roving tabindex: one tab stop, on the selected option (else the first).
+              excludeFromTabOrder={n + 1 !== (selectedOption ?? 1)}
+            >
               {option.image}
               <p className="likert-scale-text">{option.text}</p>
             </StyledToggleButton>

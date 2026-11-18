@@ -24,7 +24,7 @@ test.describe("Gutenberg spacer editing", () => {
     await waitForSpinnersToDisappear(page)
     await page
       .getByRole("row", { name: "The Basics /chapter-1" })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .first()
       .click()
 

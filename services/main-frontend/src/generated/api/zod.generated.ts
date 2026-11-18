@@ -780,6 +780,27 @@ export const zCertificateGenerationRequest = z.object({
   name_on_certificate: z.string(),
 })
 
+export const zCertificateGrade = z.object({
+  grade: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  passed: z.boolean(),
+})
+
+/**
+ * The text a certificate image shows, for readers who cannot see the image.
+ */
+export const zCertificateDetails = z.object({
+  completion_date: z.iso.datetime(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  grade: zCertificateGrade.nullish(),
+  name_on_certificate: z.string(),
+  verification_id: z.string(),
+})
+
 export const zCertificateGridRow = z.object({
   certificate_id: z.uuid().nullish(),
   date_issued: z.iso.datetime().nullish(),
@@ -9025,6 +9046,15 @@ export const zGetCertificateByVerificationIdQuery = z.object({
   debug: z.boolean(),
   test_certificate_configuration_id: z.uuid().optional(),
 })
+
+export const zGetCertificateDetailsByVerificationIdPath = z.object({
+  certificate_verification_id: z.string(),
+})
+
+/**
+ * Certificate details
+ */
+export const zGetCertificateDetailsByVerificationIdResponse = zCertificateDetails
 
 export const zCreateChapterBody = zNewChapter
 

@@ -28,8 +28,14 @@ export { Radio } from "./components/Radio"
 export type { RadioNestedContentVariant, RadioProps } from "./components/Radio"
 export { RadioGroup, questionLegendCss, radioListRevealCss } from "./components/RadioGroup"
 export type { RadioGroupProps, RadioGroupVariant } from "./components/RadioGroup"
-export { default as RouteFocusManager } from "./components/RouteFocusManager"
+export {
+  default as RouteFocusManager,
+  focusMainHeading,
+  focusProgrammatically,
+} from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
+export { itemHeadingProps, useFocusAfterRemoval } from "./lib/hooks/useFocusAfterRemoval"
+export { useToggleFocus } from "./lib/hooks/useToggleFocus"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"
 export { Slider } from "./components/Slider"
@@ -86,7 +92,7 @@ export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps, DisclosureVariant } from "./components/Disclosure"
 export { EmptyState } from "./components/EmptyState"
 export type { EmptyStateProps } from "./components/EmptyState"
-export { ErrorNotice } from "./components/ErrorNotice"
+export { ErrorNotice, ErrorNoticeTitleContext } from "./components/ErrorNotice"
 export type {
   ErrorNoticeAnnouncement,
   ErrorNoticeDensity,
@@ -137,6 +143,8 @@ export { StatTile } from "./components/StatTile"
 export type { StatTileDeltaTone, StatTileProps, StatTileTone } from "./components/StatTile"
 export { StatTileList } from "./components/StatTileList"
 export type { StatTileListProps, StatTileListSize } from "./components/StatTileList"
+export { ScrollRegion } from "./components/ScrollRegion"
+export type { ScrollOverflow, ScrollRegionProps } from "./components/ScrollRegion"
 export { Table } from "./components/Table"
 export type {
   TableAlign,

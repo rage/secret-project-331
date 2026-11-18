@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 import { OverlayProvider } from "@react-aria/overlays"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import MarkAsSpamDialog from "../MarkAsSpamDialog"
 
@@ -57,5 +57,37 @@ describe("MarkAsSpamDialog (report dialog, issue #64)", () => {
 
     expect(onSubmit).toHaveBeenCalledWith("Spam", "details")
     expect(onClose).toHaveBeenCalled()
+  })
+
+  it("keeps the unselected radio group reachable with Tab (no radio is taken out of the tab order)", () => {
+    renderDialog()
+    for (const radio of screen.getAllByRole("radio")) {
+      expect(radio).not.toHaveAttribute("tabindex", "-1")
+    }
+  })
+
+  it("calls onExitComplete once the closed dialog has left", async () => {
+    const onExitComplete = jest.fn()
+    const { rerender } = render(
+      <OverlayProvider>
+        <MarkAsSpamDialog
+          isOpen
+          onClose={jest.fn()}
+          onSubmit={jest.fn()}
+          onExitComplete={onExitComplete}
+        />
+      </OverlayProvider>,
+    )
+    rerender(
+      <OverlayProvider>
+        <MarkAsSpamDialog
+          isOpen={false}
+          onClose={jest.fn()}
+          onSubmit={jest.fn()}
+          onExitComplete={onExitComplete}
+        />
+      </OverlayProvider>,
+    )
+    await waitFor(() => expect(onExitComplete).toHaveBeenCalled())
   })
 })

@@ -151,7 +151,7 @@ const ModuleCertificate: React.FC = () => {
       )}
       {courseAndModule.isSuccess && (
         <>
-          <h2>{getHeaderContent(t, courseAndModule, moduleId)}</h2>
+          <h1>{getHeaderContent(t, courseAndModule, moduleId)}</h1>
           <div>{t("certificate-generation-instructions")}</div>
           <hr />
           <TextField name="nameOnCertificate" control={control} isRequired label={t("your-name")} />

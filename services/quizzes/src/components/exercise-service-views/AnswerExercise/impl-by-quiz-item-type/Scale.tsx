@@ -1,13 +1,14 @@
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useRadioGroupState } from "@react-stately/radio"
 import type { RadioGroupState } from "@react-stately/radio"
-import React, { useRef } from "react"
+import React, { useId, useRef } from "react"
 import { mergeProps, useFocusRing, useRadio, useRadioGroup, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { joinAriaDescribedBy } from "@/shared-module/components/lib/utils/aria"
 
 import type { QuizItemComponentProps } from "."
 import type { UserItemAnswerScale } from "../../../../../types/quizTypes/answer"
@@ -27,6 +28,19 @@ const optionStyle = css`
     width: 5rem;
   }
 `
+
+const optionDisabledStyle = css`
+  cursor: default;
+`
+
+const labelTextStyle = css`
+  color: #4c5868;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+`
+
+const isRealLabel = (label: string | null | undefined): label is string =>
+  Boolean(label) && label !== "?"
 
 const optionValueStyle = css`
   color: #4c5868;
@@ -68,7 +82,7 @@ const ScaleRadio: React.FC<ScaleRadioProps> = ({ value, state }) => {
   const { focusProps, isFocusVisible } = useFocusRing()
 
   return (
-    <label className={optionStyle}>
+    <label className={cx(optionStyle, state.isDisabled && optionDisabledStyle)}>
       <VisuallyHidden>
         <input {...mergeProps(inputProps, focusProps)} ref={inputRef} />
       </VisuallyHidden>
@@ -83,38 +97,46 @@ const ScaleRadio: React.FC<ScaleRadioProps> = ({ value, state }) => {
   )
 }
 
-const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>> = ({
+interface ScaleViewProps {
+  quizItem: PublicSpecQuizItemScale
+  selectedValue: number | null | undefined
+  onSelect?: (value: number) => void
+  disabled?: boolean
+}
+
+/** Radio scale shared by the answer and results views. */
+export const ScaleView: React.FC<ScaleViewProps> = ({
   quizItem,
-  quizItemAnswerState,
-  setQuizItemAnswerState,
+  selectedValue,
+  onSelect,
+  disabled = false,
 }) => {
   const { t } = useTranslation()
   const minValue = quizItem.minValue ?? 1
   const maxValue = quizItem.maxValue ?? 7
-
-  const handleOptionSelect = (selectedOption: string) => {
-    if (!quizItemAnswerState) {
-      setQuizItemAnswerState({
-        quizItemId: quizItem.id,
-        intData: Number(selectedOption),
-        valid: true,
-        type: "scale",
-      })
-      return
-    }
-
-    setQuizItemAnswerState({ ...quizItemAnswerState, intData: Number(selectedOption), valid: true })
-  }
+  const bodyId = useId()
+  const minLabelId = useId()
+  const maxLabelId = useId()
+  const hasBody = isRealLabel(quizItem.body)
+  const hasMinLabel = isRealLabel(quizItem.minLabel)
+  const hasMaxLabel = isRealLabel(quizItem.maxLabel)
 
   const state = useRadioGroupState({
-    value:
-      quizItemAnswerState?.intData !== null && quizItemAnswerState?.intData !== undefined
-        ? String(quizItemAnswerState.intData)
-        : null,
-    onChange: handleOptionSelect,
+    value: selectedValue !== null && selectedValue !== undefined ? String(selectedValue) : null,
+    onChange: (selectedOption: string) => onSelect?.(Number(selectedOption)),
+    isDisabled: disabled,
   })
+  const describedBy = joinAriaDescribedBy(
+    hasBody ? bodyId : undefined,
+    hasMinLabel ? minLabelId : undefined,
+    hasMaxLabel ? maxLabelId : undefined,
+  )
   const { radioGroupProps, labelProps } = useRadioGroup(
-    quizItem.title ? { label: quizItem.title } : { "aria-label": t("answer") },
+    {
+      ...(quizItem.title ? { label: quizItem.title } : { "aria-label": t("answer") }),
+      ...(describedBy ? { "aria-describedby": describedBy } : {}),
+      isDisabled: disabled,
+    },
     state,
   )
 
@@ -148,6 +170,21 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
           <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />
         </div>
       )}
+      {hasBody && (
+        <div id={bodyId} className={labelTextStyle}>
+          <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />
+        </div>
+      )}
+      {hasMinLabel && (
+        <div id={minLabelId} className={labelTextStyle}>
+          {minValue}: {quizItem.minLabel}
+        </div>
+      )}
+      {hasMaxLabel && (
+        <div id={maxLabelId} className={labelTextStyle}>
+          {maxValue}: {quizItem.maxLabel}
+        </div>
+      )}
       <div
         className={css`
           display: flex;
@@ -169,6 +206,34 @@ const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAn
         })}
       </div>
     </div>
+  )
+}
+
+const Scale: React.FC<QuizItemComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>> = ({
+  quizItem,
+  quizItemAnswerState,
+  setQuizItemAnswerState,
+}) => {
+  const handleOptionSelect = (selected: number) => {
+    if (!quizItemAnswerState) {
+      setQuizItemAnswerState({
+        quizItemId: quizItem.id,
+        intData: selected,
+        valid: true,
+        type: "scale",
+      })
+      return
+    }
+
+    setQuizItemAnswerState({ ...quizItemAnswerState, intData: selected, valid: true })
+  }
+
+  return (
+    <ScaleView
+      quizItem={quizItem}
+      selectedValue={quizItemAnswerState?.intData}
+      onSelect={handleOptionSelect}
+    />
   )
 }
 

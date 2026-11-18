@@ -106,6 +106,7 @@ test.describe("Teacher can set threshold for course", () => {
       teacherPage,
       async () => {
         await targetStudentRow.getByText("Dismiss suspicion", { exact: true }).click()
+        await respondToConfirmDialog(teacherPage, true)
       },
       "Suspicion dismissed",
     )

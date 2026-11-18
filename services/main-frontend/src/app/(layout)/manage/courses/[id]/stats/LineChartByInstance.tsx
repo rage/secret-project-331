@@ -386,7 +386,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
         ) : isDataEmpty ? (
           <div>{t("no-data")}</div>
         ) : (
-          <Echarts options={chartOptions} height={DEFAULT_CHART_HEIGHT} />
+          <Echarts label={statHeading} options={chartOptions} height={DEFAULT_CHART_HEIGHT} />
         )}
       </div>
     </>

@@ -92,7 +92,11 @@ const PagePage: React.FC = () => {
   // Specific page title composed with the course name (e.g. "Chapter 1 - Programming 101") so
   // identically named pages across courses can be told apart. Wins over the layout's
   // course-name baseline once the page resolves; while loading it collapses to the course name.
-  usePageTitle(joinTitleSegments([courseMaterialState.page?.title, courseName]), { order: 10 })
+  const isFrontPage = courseMaterialState.page?.url_path === "/"
+  usePageTitle(
+    joinTitleSegments([isFrontPage ? null : courseMaterialState.page?.title, courseName]),
+    { order: 10 },
+  )
   const setLanguagePreference = useSetAtom(courseLanguagePreferenceAtom)
 
   const languageNavigation = useLanguageNavigation({
@@ -181,7 +185,7 @@ const PagePage: React.FC = () => {
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }
-    return <ErrorNotice error={courseMaterialState.error} />
+    return <ErrorNotice error={courseMaterialState.error} headingLevel={1} />
   }
 
   if (courseMaterialState.status === "loading") {

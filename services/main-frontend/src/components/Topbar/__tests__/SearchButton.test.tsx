@@ -103,4 +103,10 @@ describe("SearchButton search results", () => {
     expect(within(card).getAllByRole("link")).toHaveLength(1)
     expect(screen.getAllByRole("link")).toHaveLength(1)
   })
+
+  it("names the search input", () => {
+    render(<SearchButton courseId="course-id" organizationSlug="org-slug" />)
+    fireEvent.click(screen.getByRole("button", { name: "button-label-search-for-pages" }))
+    expect(screen.getByRole("textbox", { name: "button-label-search-for-pages" })).toBeTruthy()
+  })
 })

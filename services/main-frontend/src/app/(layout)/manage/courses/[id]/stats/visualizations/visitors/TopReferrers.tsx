@@ -93,6 +93,7 @@ const TopReferrers: React.FC<React.PropsWithChildren<TopReferrersProps>> = ({ co
                 `}
               >
                 <Echarts
+                  label={t("stats-heading-referrers")}
                   height={chartHeight}
                   options={{
                     grid: {

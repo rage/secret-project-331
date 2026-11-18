@@ -11,13 +11,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, QueryResult } from "@/shared-module/components"
+import { Button, ErrorNotice, QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {
@@ -102,29 +103,49 @@ const JoinCoursePage: React.FC = () => {
   const handleReturn = () => {
     router.push("/")
   }
+  if (!joinCode) {
+    return (
+      <div>
+        <h1>{t("title-join-course")}</h1>
+        <p>{t("join-code-missing")}</p>
+      </div>
+    )
+  }
+
   return (
     <div>
-      {joinCode && (
-        <QueryResult query={course}>
-          {(courseData) => (
+      <QueryResult
+        query={course}
+        renderBlockingError={({ error, retry }) =>
+          // A server or network failure says nothing about the code, so it is shown as is.
+          isAppApiError(error) && (error.status === null || error.status >= 500) ? (
+            <ErrorNotice error={error} retry={retry} headingLevel={1} />
+          ) : (
             <div>
-              <h1>{courseData.name}</h1>
-
-              <div>{t("do-you-want-to-join-this-course")}?</div>
-              <Button
-                variant={"primary"}
-                size={"small"}
-                onClick={() => handleRedirectMutation.mutate(courseData.id)}
-              >
-                {t("yes")}
-              </Button>
-              <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
-                {t("button-text-cancel")}
-              </Button>
+              <h1>{t("title-join-course")}</h1>
+              <p role="alert">{t("join-code-invalid")}</p>
             </div>
-          )}
-        </QueryResult>
-      )}
+          )
+        }
+      >
+        {(courseData) => (
+          <div>
+            <h1>{courseData.name}</h1>
+
+            <div>{t("do-you-want-to-join-this-course")}?</div>
+            <Button
+              variant={"primary"}
+              size={"small"}
+              onClick={() => handleRedirectMutation.mutate(courseData.id)}
+            >
+              {t("yes")}
+            </Button>
+            <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
+              {t("button-text-cancel")}
+            </Button>
+          </div>
+        )}
+      </QueryResult>
     </div>
   )
 }

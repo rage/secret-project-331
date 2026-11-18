@@ -168,6 +168,7 @@
   "please-sign-in-to-view-this-page": "Please sign in to view this page",
   "points": "Points",
   "previous-page": "Previous page",
+  "previous-page-named": "Previous: {{title}}",
   "privacy": "Privacy",
   "project-github": "Project Github",
   "queryResult.loading": "Loading",

@@ -32,6 +32,7 @@ import {
   transitionMockSuotarSubmissionsFor,
 } from "@/utils/mockSuotar"
 import { ADMIN_STORAGE_STATE, expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
+import { escapeForRegExp } from "@/utils/regex"
 import {
   CREDIT_REGISTRATION_PHASES,
   makeRosterListingsDue,
@@ -83,9 +84,7 @@ const STALE_STUDENT_NUMBER = "090009037"
 const STALE_ADDRESS = "zzyzx.deadaddress@helsinki.example.com"
 // Anchored: "old." and "older." variants of the same address also carry STALE_ADDRESS as a
 // substring, so a plain text match resolves to all three list items instead of just this one.
-const STALE_ADDRESS_EXACT = new RegExp(
-  `^${STALE_ADDRESS.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")}`,
-)
+const STALE_ADDRESS_EXACT = new RegExp(`^${escapeForRegExp(STALE_ADDRESS)}`)
 
 /** Linked from seed time, so it is the one row on this course a tick can register. */
 const ADMIN_LINKED_EMAIL = CREDIT_REGISTRATION_STUDENT_1.email

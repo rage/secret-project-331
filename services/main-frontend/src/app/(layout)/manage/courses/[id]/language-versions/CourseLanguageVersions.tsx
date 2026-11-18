@@ -41,7 +41,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               courseId={courseId}
             />
           )}
-          <h2
+          <h1
             className={css`
               font-size: clamp(2rem, 3.6vh, 36px);
               color: ${baseTheme.colors.gray[700]};
@@ -50,7 +50,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
             `}
           >
             {t("title-all-course-language-versions")}
-          </h2>
+          </h1>
           <CourseLanguageVersionsList courseId={courseId} />
           <Button
             size="medium"

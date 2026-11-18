@@ -147,6 +147,7 @@ import {
   getBulkUserDetails,
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
+  getCertificateDetailsByVerificationId,
   getChatbotConfiguration,
   getChatbotEmbedConf,
   getChatbotModel,
@@ -706,6 +707,8 @@ import type {
   GetCertificateByConfigurationIdData,
   GetCertificateByConfigurationIdResponse,
   GetCertificateByVerificationIdData,
+  GetCertificateDetailsByVerificationIdData,
+  GetCertificateDetailsByVerificationIdResponse,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
   GetChatbotEmbedConfData,
@@ -1842,6 +1845,34 @@ export const getCertificateByVerificationIdOptions = (
         throwOnError: true,
       }),
     queryKey: getCertificateByVerificationIdQueryKey(options),
+  })
+
+export const getCertificateDetailsByVerificationIdQueryKey = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) => createQueryKey("getCertificateDetailsByVerificationId", options)
+
+/**
+ * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
+ *
+ * The certificate's holder, course, module, completion date and printed grade as JSON.
+ */
+export const getCertificateDetailsByVerificationIdOptions = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) =>
+  queryOptions<
+    GetCertificateDetailsByVerificationIdResponse,
+    DefaultError,
+    GetCertificateDetailsByVerificationIdResponse,
+    ReturnType<typeof getCertificateDetailsByVerificationIdQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCertificateDetailsByVerificationId({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCertificateDetailsByVerificationIdQueryKey(options),
   })
 
 /**

@@ -20,6 +20,8 @@ export interface NextSectionLinkProps {
   nextTitle: string
   url?: string
   previous?: string
+  /** Names the previous page in its link ("Previous: <title>"); the generic label if omitted. */
+  previousTitle?: string
   chapterFrontPageURL?: string
 }
 
@@ -84,6 +86,7 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
   nextTitle,
   url,
   previous,
+  previousTitle,
   chapterFrontPageURL,
 }) => {
   const { t } = useTranslation()
@@ -146,7 +149,14 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
           `}
         >
           {previous && (
-            <Link href={previous} aria-label={t("previous-page")}>
+            <Link
+              href={previous}
+              aria-label={
+                previousTitle
+                  ? t("previous-page-named", { title: previousTitle })
+                  : t("previous-page")
+              }
+            >
               <div
                 className={css`
                   background: ${baseTheme.colors.green[100]};

@@ -339,7 +339,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             <span
               className={css`
                 display: inline-block;
-                color: ${baseTheme.colors.gray[400]};
+                color: ${baseTheme.colors.gray[500]};
                 width: 30rem;
                 font-size: 15px;
                 line-height: 120%;
@@ -372,7 +372,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             }
 
             td {
-              color: ${baseTheme.colors.gray[400]};
+              color: ${baseTheme.colors.gray[500]};
               padding: 0.4rem 0;
               font-size: 18px;
             }

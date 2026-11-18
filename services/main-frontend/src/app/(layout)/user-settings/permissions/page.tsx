@@ -270,6 +270,7 @@ const PermissionsSettingsPage: React.FC = () => {
                       {data.organization_slug && data.course_slug && (
                         <Link
                           href={`${courseFrontPageRoute(data.organization_slug, data.course_slug)}/?show_research_form=1`}
+                          aria-label={t("edit-research-consent-for", { course: data.course_name })}
                           className={css`
                             font-size: 0.8125rem;
                             font-weight: 500;

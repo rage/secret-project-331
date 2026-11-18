@@ -1,8 +1,9 @@
 "use client"
 
 import React from "react"
-import { mergeProps, useTextField } from "react-aria"
+import { mergeProps, useKeyboard, useTextField } from "react-aria"
 
+import { FieldError } from "../primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -44,14 +45,17 @@ export const PromptTextField: React.FC<PromptTextFieldProps> = ({
     inputRef,
   )
 
-  const mergedInputProps = mergeProps(inputProps, {
-    onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const { keyboardProps } = useKeyboard({
+    onKeyDown: (event) => {
       if (event.key === ENTER_KEY) {
         event.preventDefault()
         onSubmit()
+      } else {
+        event.continuePropagation()
       }
     },
   })
+  const mergedInputProps = mergeProps(inputProps, keyboardProps)
 
   return (
     <div className={fieldRootCss}>
@@ -64,9 +68,9 @@ export const PromptTextField: React.FC<PromptTextFieldProps> = ({
         />
       </div>
       {isInvalid && (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(FIELD_SIZE, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(FIELD_SIZE, true)}>
           {errorMessage}
-        </p>
+        </FieldError>
       )}
     </div>
   )

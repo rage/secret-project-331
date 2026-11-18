@@ -63,7 +63,7 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
 
   return (
     <>
-      <h3
+      <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
@@ -72,7 +72,7 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
         `}
       >
         {t("title-feedback-change-requests")}
-      </h3>
+      </h1>
       <RouteTabPageTitle
         tabs={tabs}
         entityName={courseBreadcrumbInfo.data?.course_name}

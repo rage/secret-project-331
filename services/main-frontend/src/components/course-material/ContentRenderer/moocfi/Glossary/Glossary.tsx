@@ -34,7 +34,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
 
   const renderGlossary = (data: NonNullable<typeof glossary.data>) => (
     <div className={rootCss}>
-      <h1 className={pageTitleCss}>{t("glossary")}</h1>
+      <h2 className={pageTitleCss}>{t("glossary")}</h2>
       <Table
         caption={t("glossary")}
         rows={data.toSorted((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))}

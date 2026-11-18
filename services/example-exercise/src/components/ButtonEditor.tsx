@@ -1,9 +1,12 @@
 import styled from "@emotion/styled"
+import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { Alternative } from "@/util/stateInterfaces"
 interface Props {
   item: Alternative
+  index: number
+  focusOnMount?: boolean
   onDelete: () => void
   onChange: (item: Alternative) => void
 }
@@ -38,27 +41,49 @@ const DeleteButton = styled.button`
   height: 2rem;
 `
 
-const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({ item, onDelete, onChange }) => {
+const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({
+  item,
+  index,
+  focusOnMount,
+  onDelete,
+  onChange,
+}) => {
   const { t } = useTranslation()
+  const n = index + 1
+  const inputRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (focusOnMount) {
+      inputRef.current?.focus()
+    }
+    // Only on mount: a newly added option takes focus once.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return (
     <StyledButtonEditor>
       <InputCheckbox
         type="checkbox"
-        aria-label={t("mark-option-correct")}
+        // oxlint-disable-next-line i18next/no-literal-string
+        aria-label={`${t("mark-option-correct")} ${n}`}
         checked={item.correct || false}
         onChange={(e) => {
           onChange({ ...item, correct: e.target.checked })
         }}
       />
       <Input
-        aria-label={t("input-placeholder-option-text")}
+        // oxlint-disable-next-line i18next/no-literal-string
+        aria-label={`${t("input-placeholder-option-text")} ${n}`}
+        ref={inputRef}
         placeholder={t("input-placeholder-option-text")}
         value={item.name}
         onChange={(e) => {
           onChange({ ...item, name: e.target.value })
         }}
       />
-      <DeleteButton aria-label={t("delete-option")} onClick={onDelete}>
+      <DeleteButton
+        // oxlint-disable-next-line i18next/no-literal-string
+        aria-label={`${t("delete-option")} ${n}`}
+        onClick={onDelete}
+      >
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <span aria-hidden="true">x</span>
       </DeleteButton>

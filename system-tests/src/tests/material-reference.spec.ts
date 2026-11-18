@@ -1,7 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
+import accessibilityCheck, { NO_H1 } from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { selectTab } from "@/utils/selectTab"
@@ -33,7 +33,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.getByText("Add new reference").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["page-has-heading-one"],
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -77,7 +77,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
   await page.getByText("Edit reference").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["heading-order", "page-has-heading-one"],
+    axeSkip: ["heading-order", NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -110,8 +110,7 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
 
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1" })
-    .getByRole("button")
-    .first()
+    .getByRole("link", { name: "Edit page" })
     .click()
 
   await page.locator('[aria-label="Add block"]').click()
@@ -197,13 +196,12 @@ test("material reference tests", async ({ page, headless }, testInfo) => {
       await page.getByText("References", { exact: true }).scrollIntoViewIfNeeded(),
   })
 
-  await test.step("Tooltip is accessible", async () => {
-    await accessibilityCheck(page, "Reference tooltip closed view")
-    await page.getByRole("link", { name: "[1]" }).first().hover()
-    await expect(page.getByRole("tooltip", { name: "Wang" })).toBeVisible()
-    await accessibilityCheck(page, "Reference tooltip open view")
-    await page.keyboard.press("Escape")
-    await expect(page.getByRole("tooltip", { name: "Wang" })).toBeHidden()
+  await test.step("Citation link is accessible and reaches the reference", async () => {
+    await accessibilityCheck(page, "Reference citation closed view")
+    await page.getByRole("link", { name: "[1]" }).first().click()
+    await expect(page.locator("#ref-1")).toBeFocused()
+    await expect(page.locator("#ref-1")).toContainText("Wang")
+    await accessibilityCheck(page, "Reference citation after navigation")
     await expect(page.locator("#content")).toMatchAriaSnapshot(`
     - paragraph:
       - text: This paragraph contains a citation

@@ -34,6 +34,8 @@ const iconButtonStyles = css`
   align-items: center;
   justify-content: center;
   padding: 4px;
+  min-width: 24px;
+  min-height: 24px;
   color: var(--color-gray-400);
   transition: color 0.2s ease;
 

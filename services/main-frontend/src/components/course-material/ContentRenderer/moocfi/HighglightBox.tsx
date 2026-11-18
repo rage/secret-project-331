@@ -38,7 +38,8 @@ const HightlightBlock: React.FC<
           margin-right: auto;
           padding: 0rem 1.375rem;
 
-          span {
+          p {
+            margin: 0;
             font-size: 18px;
 
             ${respondToOrLarger.md} {
@@ -52,18 +53,18 @@ const HightlightBlock: React.FC<
       >
         <ParsedText
           text={props.data.attributes.title}
-          tag="span"
+          tag="p"
           tagProps={{
             className: css`
               color: ${baseTheme.colors.green[700]};
               font-weight: 700;
               font-family: ${monospaceFont};
-              margin-right: 0.25em;
+              margin-bottom: 0.25em !important;
             `,
           }}
           useWrapperElement={true}
         />
-        <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
+        <ParsedText text={props.data.attributes.content} tag="p" useWrapperElement={true} />
       </div>
     </div>
   )

@@ -8,7 +8,9 @@ import { mergeProps, useRadioGroup } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   descriptionCss,
   errorCss,
@@ -237,7 +239,11 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
   }))
 
   const state = useRadioGroupState({
-    ...(field.value === null || field.value === undefined ? {} : { value: String(field.value) }),
+    // '' means no selection; a non-null selectedValue would give every radio tabIndex -1.
+    value:
+      field.value === null || field.value === undefined || field.value === ""
+        ? null
+        : String(field.value),
     onChange: (v) => {
       field.onChange(v)
     },
@@ -245,6 +251,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
   })
 
@@ -265,6 +272,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       ...omitUndefined({ "aria-label": ariaLabel }),
     },
@@ -334,9 +342,9 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         >
           {!isSegmented ? descriptionBlock : null}
           {resolvedRenderedError ? (
-            <div {...errorMessageProps} className={errorCss} role="alert">
+            <FieldError {...errorMessageProps} className={errorCss}>
               {resolvedRenderedError}
-            </div>
+            </FieldError>
           ) : null}
         </div>
       ) : null}

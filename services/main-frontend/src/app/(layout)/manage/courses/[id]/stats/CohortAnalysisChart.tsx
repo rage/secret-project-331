@@ -403,7 +403,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         ) : !data || data.length < 2 ? (
           <div>{t("no-data")}</div>
         ) : (
-          <Echarts options={chartOptions} height={DEFAULT_CHART_HEIGHT * 2} />
+          <Echarts label={statHeading} options={chartOptions} height={DEFAULT_CHART_HEIGHT * 2} />
         )}
       </div>
     </>

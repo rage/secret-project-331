@@ -1,3 +1,6 @@
+import { baseTheme } from "@/shared-module/common/styles"
+import { relativeLuminance } from "@/shared-module/common/utils/color"
+
 /** The background image that applies at each breakpoint, `undefined` where the hero has none. */
 export interface HeroBackgroundImages {
   mobile: string | undefined
@@ -30,12 +33,20 @@ export const resolveHeroBackgroundImages = ({
   xlarge: backgroundImageXLarge || backgroundImageLarge || backgroundImageMedium || backgroundImage,
 })
 
-const READABILITY_SHADOW = `
+const haloShadow = (rgb: string) => `
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 0 6px rgba(0, 0, 0, 0.4);
+    0 1px 2px rgba(${rgb}, 0.55),
+    0 0 6px rgba(${rgb}, 0.4);
   paint-order: stroke fill;
 `
+
+const DARK_HALO = haloShadow("0, 0, 0")
+const LIGHT_HALO = haloShadow("255, 255, 255")
+
+// Text colour used when the author set none.
+const DEFAULT_HERO_TEXT_COLOR = baseTheme.colors.gray[700]
+// Luminance where black and white text have equal contrast.
+const LUMINANCE_THRESHOLD = 0.179
 
 const NO_READABILITY_SHADOW = `
   text-shadow: none;
@@ -44,8 +55,18 @@ const NO_READABILITY_SHADOW = `
 /**
  * Declarations that keep hero text legible over an author-supplied background image (WCAG 1.4.3).
  * Pass the image that applies at the breakpoint being styled; a hero with none gets no shadow.
+ * The halo is dark around light text and light around dark text; an unparseable text colour keeps
+ * the dark halo.
  *
  * `text-shadow` inherits, so one call on the text container covers every heading and line inside.
  */
-export const heroTextReadabilityCss = (backgroundImageUrl: string | undefined): string =>
-  backgroundImageUrl ? READABILITY_SHADOW : NO_READABILITY_SHADOW
+export const heroTextReadabilityCss = (
+  backgroundImageUrl: string | undefined,
+  textColor?: string,
+): string => {
+  if (!backgroundImageUrl) {
+    return NO_READABILITY_SHADOW
+  }
+  const luminance = relativeLuminance(textColor || DEFAULT_HERO_TEXT_COLOR)
+  return luminance !== undefined && luminance <= LUMINANCE_THRESHOLD ? LIGHT_HALO : DARK_HALO
+}

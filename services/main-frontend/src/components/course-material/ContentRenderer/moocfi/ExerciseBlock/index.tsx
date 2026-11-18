@@ -6,7 +6,6 @@ import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
-import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
@@ -51,10 +50,12 @@ import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
 import ExerciseSubmitButton from "./ExerciseSubmitButton"
 import ExerciseTask from "./ExerciseTask"
+import { focusHeadingAndAnnounce } from "./focusHeadingAndAnnounce"
 import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+import { getSubmissionScore } from "./submissionScore"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -160,7 +161,6 @@ const ExerciseBlock: React.FC<
   const sectionRef = useRef<HTMLElement>(null)
   const exerciseTitleRef = useRef<HTMLHeadingElement>(null)
   const exerciseTitleId = useId()
-  const [submissionAnnouncement, setSubmissionAnnouncement] = useState<string | null>(null)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const returnTo = useCurrentPagePathForReturnTo(
@@ -247,9 +247,10 @@ const ExerciseBlock: React.FC<
           signedIn: Boolean(loginState.signedIn),
         })
         // Announce grading to screen readers and move focus to the exercise heading.
-        const scoreGiven = data.exercise_status?.score_given
+        const scoreGiven = getSubmissionScore(data)
         const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
-        setSubmissionAnnouncement(
+        focusHeadingAndAnnounce(
+          exerciseTitleRef.current,
           scoreGiven !== null &&
             scoreGiven !== undefined &&
             maxScore !== null &&
@@ -260,7 +261,6 @@ const ExerciseBlock: React.FC<
               })
             : t("answer-submitted-announcement"),
         )
-        exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       },
@@ -290,7 +290,6 @@ const ExerciseBlock: React.FC<
         isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
-      setSubmissionAnnouncement(null)
 
       setAnswers(answers)
 
@@ -312,6 +311,11 @@ const ExerciseBlock: React.FC<
     },
     {
       notify: false,
+    },
+    {
+      onSuccess: () => {
+        exerciseTitleRef.current?.focus({ preventScroll: true })
+      },
     },
   )
   const exerciseDeadline = useDateStringAsDateNullable(
@@ -567,13 +571,6 @@ const ExerciseBlock: React.FC<
               }
             />
 
-            <VisuallyHidden>
-              {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> drops the VisuallyHidden styling */}
-              <div role="status" aria-live="polite">
-                {submissionAnnouncement}
-              </div>
-            </VisuallyHidden>
-
             {chapterLockingEnabled &&
               courseMaterialExercise &&
               !isChapterLocked &&
@@ -664,6 +661,7 @@ const ExerciseBlock: React.FC<
                       )}
                       canPostSubmission={courseMaterialExercise.can_post_submission}
                       exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                      exerciseName={courseMaterialExercise.exercise.name}
                       isChapterLocked={Boolean(isChapterLocked)}
                     />
                   ))}

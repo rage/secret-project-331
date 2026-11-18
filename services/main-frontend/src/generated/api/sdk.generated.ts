@@ -313,6 +313,8 @@ import type {
   GetCertificateByConfigurationIdResponses,
   GetCertificateByVerificationIdData,
   GetCertificateByVerificationIdResponses,
+  GetCertificateDetailsByVerificationIdData,
+  GetCertificateDetailsByVerificationIdResponses,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponses,
   GetChatbotEmbedConfData,
@@ -1083,6 +1085,7 @@ import {
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
+  zGetCertificateDetailsByVerificationIdResponse,
   zGetChatbotConfigurationResponse,
   zGetChatbotEmbedConfResponse,
   zGetChatbotModelResponse,
@@ -1694,6 +1697,27 @@ export const getCertificateByVerificationId = <ThrowOnError extends boolean = tr
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/certificates/{certificate_verification_id}",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
+ *
+ * The certificate's holder, course, module, completion date and printed grade as JSON.
+ */
+export const getCertificateDetailsByVerificationId = <ThrowOnError extends boolean = true>(
+  options: Options<GetCertificateDetailsByVerificationIdData, ThrowOnError>,
+): RequestResult<GetCertificateDetailsByVerificationIdResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCertificateDetailsByVerificationIdResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCertificateDetailsByVerificationIdResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/certificates/{certificate_verification_id}/details",
     ...options,
   })
 

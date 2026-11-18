@@ -5,6 +5,7 @@ import styled from "@emotion/styled"
 import { CheckCircle, ClockTime } from "@vectopus/atlas-icons-react"
 import { hoursToSeconds, secondsToHours, secondsToMinutes } from "date-fns"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { Trans, useTranslation } from "react-i18next"
 
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -118,6 +119,8 @@ const ExamTimer: React.FC<React.PropsWithChildren<ExamTimerProps>> = ({
         />
       </InfoBoxLightGreenMedium>
       <InfoBoxDarkGreenSmall>
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
+        <VisuallyHidden elementType="span">{t("time-left")} </VisuallyHidden>
         <HideTextInSystemTests
           text={formatTimeLeft(secondsLeft)}
           testPlaceholder={formatTimeLeft(135)}

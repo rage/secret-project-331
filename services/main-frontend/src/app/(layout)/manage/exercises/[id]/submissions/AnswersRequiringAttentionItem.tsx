@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useCallback, useState } from "react"
+import React, { useCallback, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import SubmissionIFrame from "@/app/(layout)/submissions/[id]/grading/SubmissionIFrame"
@@ -17,6 +17,7 @@ import type {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
 } from "@/generated/api/types.generated"
+import { extractUserDetail, formatUserName, useUserDetails } from "@/hooks/useUserDetails"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -39,6 +40,12 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   refetch,
 }) => {
   const { t } = useTranslation()
+  const headingId = useId()
+  // Same query as the UserDisplay below, so no extra request.
+  const userDetail = extractUserDetail(
+    useUserDetails(courseId ? [courseId] : null, answerRequiringAttention.user_id).data,
+  )
+  const studentName = formatUserName(userDetail) || userDetail?.email || t("student-name")
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
 
   const submitMutation = useToastMutationOptions(
@@ -82,6 +89,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
         <ExerciseCardHeader
           title={
             <h2
+              id={headingId}
               className={css`
                 font-size: 1.7rem;
                 font-weight: 500;
@@ -141,7 +149,14 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             .slice()
             .toSorted((a, b) => a.order_number - b.order_number)
             .map((task) => (
-              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} throttled />
+              <SubmissionIFrame
+                key={task.id}
+                coursematerialExerciseTask={task}
+                throttled
+                title={t("answer-by-name", {
+                  name: studentName,
+                })}
+              />
             ))}
           <div
             className={css`
@@ -163,6 +178,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               // Resetting requires a course_id (see teacher_grading_decisions.rs).
               canResetExercise={courseId !== null}
               isSubmitting={submitMutation.isPending}
+              describedById={headingId}
               onSubmit={handleGradingDecisionSubmit}
             />
 

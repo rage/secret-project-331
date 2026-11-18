@@ -63,6 +63,7 @@ const Essay: React.FunctionComponent<
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
   const titleId = useId()
+  const textAreaId = useId()
   const bodyId = useId()
   const labelledBy =
     [quizItem.title ? titleId : null, quizItem.body ? bodyId : null].filter(Boolean).join(" ") ||
@@ -120,7 +121,7 @@ const Essay: React.FunctionComponent<
       >
         <TextArea
           key={"text-area-" + quizItem.id}
-          id="essay"
+          id={textAreaId}
           onPaste={(e) => {
             // Warn, but do not block: pasting your own draft is legitimate, so we never discard the
             // student's text. The warning dialog is shown by the parent over the iframe protocol.

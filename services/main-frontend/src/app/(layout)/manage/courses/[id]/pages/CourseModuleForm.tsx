@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { Trash } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -26,13 +26,15 @@ import type {
   Exercise,
   LinkedExam,
 } from "@/generated/api/types.generated"
-import { Badge, Button, Select, TextField } from "@/shared-module/components"
+import { Badge, Button, Select, TextField, useToggleFocus } from "@/shared-module/components"
 
 import type { ModuleView } from "./CourseModules"
 import type { ModuleCompletionLinks, ModuleTotals } from "./ModuleCompletionFields"
 import ModuleCompletionFields, { fieldRowCss } from "./ModuleCompletionFields"
 import type { CourseModuleFormFields, CourseModuleFormState } from "./moduleCompletionForm"
 import { formFieldsOf, formStateOf, lacksRequirement } from "./moduleCompletionForm"
+
+const FIRST_CONTROL_SELECTOR = "input:not([type=hidden]), select, button"
 
 /** A card that is filling in a module that does not exist yet, or editing one that does. */
 export type CourseModuleFormMode = "create" | "edit"
@@ -190,6 +192,10 @@ const CourseModuleForm: React.FC<Props> = ({
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const isCreate = mode === "create"
   const [editing, setEditing] = useState(isCreate)
+  const formRef = useRef<HTMLFormElement>(null)
+  const editButtonRef = useToggleFocus(editing, () =>
+    formRef.current?.querySelector<HTMLElement>(FIRST_CONTROL_SELECTOR)?.focus(),
+  )
   const form = useForm<CourseModuleFormState>({
     mode: VALIDATE_ON_CHANGE,
     defaultValues: makeDefaultValues(module, chapters),
@@ -246,7 +252,11 @@ const CourseModuleForm: React.FC<Props> = ({
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmitFormWrapper)} className={cx(cardCss, formCss)}>
+      <form
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmitFormWrapper)}
+        className={cx(cardCss, formCss)}
+      >
         <div className={headerCss}>
           <div className={headerTitleCss}>
             {editing && nameIsEditable ? (
@@ -255,6 +265,7 @@ const CourseModuleForm: React.FC<Props> = ({
                 control={control}
                 label={isCreate ? t("name-of-module") : t("edit-module")}
                 rules={{ required: t("required-field") }}
+                isRequired
               />
             ) : (
               <span className={headingCss}>
@@ -276,10 +287,16 @@ const CourseModuleForm: React.FC<Props> = ({
           {!editing && (
             <div className={actionsCss}>
               <Button
+                ref={editButtonRef}
                 variant="secondary"
                 size="small"
                 type="button"
-                onClick={() => setEditing(true)}
+                aria-label={t("edit-module-named", {
+                  name: module.name ?? t("default-module"),
+                })}
+                onClick={() => {
+                  setEditing(true)
+                }}
               >
                 {t("edit")}
               </Button>

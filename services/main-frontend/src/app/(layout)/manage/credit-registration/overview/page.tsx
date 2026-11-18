@@ -254,7 +254,13 @@ const PhaseTrendChart: React.FC<{ history: CreditRegistrationHistory }> = ({ his
       },
     ],
   }
-  return <Echarts options={options} height={TREND_CHART_HEIGHT} />
+  return (
+    <Echarts
+      label={t("credit-registration-heading-queue-depth")}
+      options={options}
+      height={TREND_CHART_HEIGHT}
+    />
+  )
 }
 
 const TrendSection: React.FC = () => {

@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
+
 test.use({
   storageState: "src/states/admin@example.com.json",
 })
@@ -48,11 +50,7 @@ test("Mark answer as spam in peer review", async () => {
     )
     await selectCourseInstanceIfPrompted(student1Page, "Default instance")
 
-    await student1Page
-      .locator('iframe[title="Exercise 1\\, task 1 content"]')
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" })
-      .click()
+    await getExerciseTaskFrame(student1Page, 1).getByRole("checkbox", { name: "b" }).click()
     await student1Page.getByRole("button", { name: "Submit" }).click()
   })
 
@@ -62,11 +60,7 @@ test("Mark answer as spam in peer review", async () => {
     )
     await selectCourseInstanceIfPrompted(student2Page, "Default instance")
 
-    await student2Page
-      .locator('iframe[title="Exercise 1\\, task 1 content"]')
-      .contentFrame()
-      .getByRole("checkbox", { name: "b" })
-      .click()
+    await getExerciseTaskFrame(student2Page, 1).getByRole("checkbox", { name: "b" }).click()
     await student2Page.getByRole("button", { name: "Submit" }).click()
 
     await student2Page.getByRole("button", { name: "Start peer review" }).click()
@@ -85,7 +79,7 @@ test("Mark answer as spam in peer review", async () => {
     await teacherPage.getByRole("tab", { name: "Exercises" }).click()
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
     await teacherPage.getByRole("heading", { name: "Answers requiring attention" }).click()
-    await teacherPage.getByText("Received reports1").click()
+    await teacherPage.getByRole("button", { name: "Received reports 1" }).click()
     await expect(
       teacherPage.getByText("Description: I think this is spam", { exact: true }),
     ).toBeVisible()

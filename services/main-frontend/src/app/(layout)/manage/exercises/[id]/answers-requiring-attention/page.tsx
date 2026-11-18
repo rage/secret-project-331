@@ -24,7 +24,7 @@ const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
 const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
-  <h5
+  <p
     className={css`
       font-size: 18px;
       font-weight: 500;
@@ -35,7 +35,7 @@ const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
     `}
   >
     {children}
-  </h5>
+  </p>
 )
 
 const SubmissionsPage: React.FC = () => {
@@ -89,7 +89,7 @@ const SubmissionsPage: React.FC = () => {
 
   return (
     <div>
-      <h4
+      <h1
         className={css`
           color: ${baseTheme.colors.gray[700]};
           font-family: ${primaryFont};
@@ -102,7 +102,7 @@ const SubmissionsPage: React.FC = () => {
         `}
       >
         {t("header-answers-requiring-attention")}
-      </h4>
+      </h1>
 
       {exerciseContext && (
         <ExerciseTitle>

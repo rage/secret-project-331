@@ -75,6 +75,7 @@ import {
 } from "../../utils/Gutenberg/editorHistory"
 import { normalizePasteEvent } from "../../utils/Gutenberg/paste/normalizePasteEvent"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withAccessibilityInspectors from "../../utils/Gutenberg/withAccessibilityInspectors"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
@@ -403,6 +404,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors", withAccessibilityInspectors)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors")
     }
   }, [])
 

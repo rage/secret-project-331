@@ -43,4 +43,11 @@ describe("CourseCard accessibility (issue #60)", () => {
     expect(link).not.toHaveAccessibleName(expect.stringContaining("Learn the basics"))
     expect(screen.getByText("Learn the basics of programming.")).toBeInTheDocument()
   })
+
+  it("makes the course title an h3 containing the link", () => {
+    render(<CourseCard {...baseProps} />)
+
+    const heading = screen.getByRole("heading", { level: 3, name: /Introduction to Programming/ })
+    expect(heading).toContainElement(screen.getByRole("link"))
+  })
 })

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { scrollToLocatorsParentIframeAndClick } from "@/utils/iframeLocators"
+import { scrollToLocatorsParentIframeAndClick, getExerciseTaskFrame } from "@/utils/iframeLocators"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -20,19 +20,13 @@ test("Exercise score updates gradually", async ({ page }) => {
   await expect(page.getByTestId("exercise-points")).toContainText("0/3")
 
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 2 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 2).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
-      .getByRole("checkbox", { name: "Incorrect" }),
+    getExerciseTaskFrame(page, 3).getByRole("checkbox", { name: "Incorrect" }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
   await waitForSpinnersToDisappear(page)
@@ -41,19 +35,13 @@ test("Exercise score updates gradually", async ({ page }) => {
 
   await page.getByRole("button", { name: "Try again" }).click()
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByRole("checkbox", { name: "Incorrect" }),
+    getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "Incorrect" }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 2 content"]')
-      .getByRole("checkbox", { name: "Incorrect" }),
+    getExerciseTaskFrame(page, 2).getByRole("checkbox", { name: "Incorrect" }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 3).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
   await waitForSpinnersToDisappear(page)
@@ -63,19 +51,13 @@ test("Exercise score updates gradually", async ({ page }) => {
 
   await page.getByRole("button", { name: "Try again" }).click()
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 2 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 2).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await scrollToLocatorsParentIframeAndClick(
-    page
-      .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')
-      .getByRole("checkbox", { name: "Correct", exact: true }),
+    getExerciseTaskFrame(page, 3).getByRole("checkbox", { name: "Correct", exact: true }),
   )
   await page.getByRole("button", { name: "Submit" }).click()
   await waitForSpinnersToDisappear(page)

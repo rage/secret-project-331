@@ -52,13 +52,15 @@ describe("NumberField - accessibility wiring", () => {
     expect(screen.getByRole("textbox")).toHaveAccessibleDescription("How many items.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderNumberField((control) => (
       <NumberField name="f" control={control} label="Quantity" errorMessage="Required." />
     ))
     const input = screen.getByRole("textbox")
     expect(input).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required.")
+    expect(input).toHaveAccessibleDescription("Required.")
+    expect(screen.getByText("Required.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("isRequired marks the field required", () => {

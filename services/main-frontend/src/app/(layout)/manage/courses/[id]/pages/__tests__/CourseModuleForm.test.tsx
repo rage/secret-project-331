@@ -75,7 +75,7 @@ function renderForm(module: ModuleView, linkedExams: LinkedExam[] = []) {
       />
     </QueryClientProvider>,
   )
-  fireEvent.click(screen.getByRole("button", { name: "edit" }))
+  fireEvent.click(screen.getByRole("button", { name: "edit-module-named" }))
   return { onSubmitForm }
 }
 
@@ -139,5 +139,37 @@ describe("CourseModuleForm", () => {
         expect.objectContaining({ path: { id: "exam-2" }, body: { course_id: "course-1" } }),
       ),
     )
+  })
+
+  it("focuses the first field on Edit and returns focus to Edit on Cancel", () => {
+    renderForm(moduleWith({ name: "Module A" }))
+
+    expect(document.activeElement).toBe(document.querySelector('input[name="name"]'))
+
+    fireEvent.click(screen.getByRole("button", { name: "button-text-cancel" }))
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "edit-module-named" }))
+  })
+
+  it("focuses the name field of a create card on open", () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CourseModuleForm
+          mode="create"
+          module={moduleWith({ name: "" })}
+          chapters={[1]}
+          creditRegistrationConfig={undefined}
+          linkedExams={[]}
+          courseId="course-1"
+          chapterNumberById={new Map()}
+          links={LINKS}
+          canToggleCertificates={false}
+          onSubmitForm={jest.fn()}
+          onCancel={jest.fn()}
+        />
+      </QueryClientProvider>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector('input[name="name"]'))
   })
 })

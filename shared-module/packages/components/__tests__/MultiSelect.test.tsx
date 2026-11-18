@@ -123,3 +123,24 @@ describe("MultiSelect", () => {
     expect(screen.getByRole("button", { name: "Remove Blocked" })).toBeInTheDocument()
   })
 })
+
+describe("MultiSelect error", () => {
+  test("error is described, not an alert, and sets aria-invalid", () => {
+    renderWithForm<StateFilterForm>((control) => (
+      <MultiSelect
+        name="states"
+        control={control}
+        errorMessage="Pick one"
+        getItemKey={(state) => state.id}
+        getItemTextValue={(state) => state.name}
+        items={states}
+        label="State"
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /State/ })
+    expect(trigger).toHaveAttribute("aria-invalid", "true")
+    expect(trigger).toHaveAccessibleDescription("Pick one")
+    expect(screen.queryByRole("alert")).toBeNull()
+  })
+})

@@ -47,8 +47,18 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
   const frontButtonRef = useRef<HTMLButtonElement>(null)
   const backButtonRef = useRef<HTMLButtonElement>(null)
 
-  // Move focus to the button on the visible side when the card flips
+  // Only a user flip moves focus; mount must not steal it.
+  const userFlippedRef = useRef(false)
+  const flip = () => {
+    userFlippedRef.current = true
+    setIsFlipped((flipped) => !flipped)
+  }
+
+  // Move focus to the button on the visible side after a user flip
   useEffect(() => {
+    if (!userFlippedRef.current) {
+      return
+    }
     if (isFlipped) {
       backButtonRef.current?.focus()
     } else {
@@ -67,20 +77,11 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
         background-color: transparent;
         width: 100%;
         max-width: 100%;
-        aspect-ratio: 1;
-        min-height: 200px;
         perspective: 1000px;
         margin: 0 auto;
 
-        ${respondToOrLarger.xxxs} {
-          min-height: 250px;
-        }
-
         ${respondToOrLarger.xxs} {
           max-width: ${size}px;
-          aspect-ratio: unset;
-          height: ${size}px;
-          min-height: unset;
         }
       `}
       {...hoverProps}
@@ -91,10 +92,23 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
           className={css`
             position: relative;
             width: 100%;
-            height: 100%;
+            /* Both sides share one grid cell, so the card grows to fit the taller side. */
+            display: grid;
+            aspect-ratio: 1;
+            min-height: 200px;
             text-align: center;
             transition: transform 0.4s ease-out;
             transform-style: preserve-3d;
+
+            ${respondToOrLarger.xxxs} {
+              min-height: 250px;
+            }
+
+            ${respondToOrLarger.xxs} {
+              aspect-ratio: unset;
+              min-height: ${size}px;
+            }
+
             transform: ${
               isFlipped
                 ? isHovered
@@ -112,9 +126,8 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             aria-hidden={isFlipped}
             {...(isFlipped && { inert: true })}
             className={css`
-              position: absolute;
-              width: 100%;
-              height: 100%;
+              grid-area: 1 / 1;
+              position: relative;
               margin: 0px !important;
               padding: 0px !important;
               background-color: ${baseTheme.colors.gray[100]};
@@ -139,8 +152,9 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             {!isFlipped && (
               <FlipButton
                 ref={frontButtonRef}
-                onPress={() => setIsFlipped(!isFlipped)}
+                onPress={flip}
                 ariaLabel={t("button-text-flip-to-back")}
+                overlay={currentIsImage}
               />
             )}
           </div>
@@ -150,9 +164,8 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
             aria-hidden={!isFlipped}
             {...(!isFlipped && { inert: true })}
             className={css`
-              position: absolute;
-              width: 100%;
-              height: 100%;
+              grid-area: 1 / 1;
+              position: relative;
               margin: 0px !important;
               padding: 0px !important;
               background-color: ${baseTheme.colors.gray[100]};
@@ -169,17 +182,18 @@ const FlipCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCar
               justify-content: center;
             `}
           >
-            {isFlipped && (
-              <FlipButton
-                ref={backButtonRef}
-                onPress={() => setIsFlipped(!isFlipped)}
-                ariaLabel={t("button-text-flip-to-front")}
-              />
-            )}
             <VisuallyHidden>
               {t("flip-card-roledescription")}. {t("flip-card-back-side")}.
             </VisuallyHidden>
             <ContentRenderer data={[backCard]} isExam={false} />
+            {isFlipped && (
+              <FlipButton
+                ref={backButtonRef}
+                onPress={flip}
+                ariaLabel={t("button-text-flip-to-front")}
+                overlay={currentIsImage}
+              />
+            )}
           </div>
         </div>
       </ImageInteractivityContext.Provider>

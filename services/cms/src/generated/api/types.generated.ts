@@ -476,6 +476,7 @@ export type EmailTemplateType =
   | "verify_email_address"
   | "credit_registration_action_needed"
   | "credit_registration_registered"
+  | "teacher_newsletter"
   | "verify_network"
   | "course_designer_weekly_digest"
 

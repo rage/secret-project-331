@@ -19,3 +19,4 @@ pub mod service_info_fetcher;
 pub mod sorter;
 pub mod start_server;
 pub mod sync_tmc_users;
+pub mod teacher_newsletter;

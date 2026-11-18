@@ -138,6 +138,8 @@ pub enum EmailBlockName {
     Callout,
     #[serde(rename = "moocfi/email-one-time-code")]
     OneTimeCode,
+    #[serde(rename = "moocfi/email-teacher-newsletter")]
+    TeacherNewsletter,
 }
 
 const DEFAULT_SPACER_HEIGHT_PX: u32 = 32;
@@ -165,9 +167,12 @@ impl EmailBlockName {
             Self::Button => key == "text",
             Self::Quote => matches!(key, "value" | "citation"),
             Self::Callout => key == "title",
-            Self::List | Self::Buttons | Self::Separator | Self::Spacer | Self::OneTimeCode => {
-                false
-            }
+            Self::List
+            | Self::Buttons
+            | Self::Separator
+            | Self::Spacer
+            | Self::OneTimeCode
+            | Self::TeacherNewsletter => false,
         }
     }
 }
@@ -621,6 +626,7 @@ fn block_to_html(block: &EmailGutenbergBlock, theme: EmailTheme) -> String {
                 process_content_to_html(&block.inner_blocks, theme)
             )
         }
+        EmailBlockName::TeacherNewsletter => String::new()
     }
 }
 
@@ -736,6 +742,7 @@ fn block_to_plaintext(block: &EmailGutenbergBlock) -> String {
         .filter(|text| !text.is_empty())
         .collect::<Vec<_>>()
         .join("\n"),
+        EmailBlockName::TeacherNewsletter => String::new(),
     }
 }
 
@@ -834,6 +841,11 @@ pub struct EmailRenderInput<'a> {
     pub replacements: &'a HashMap<String, String>,
 }
 
+pub struct TeacherNewsletterContent {
+    pub html: String,
+    pub text: String,
+}
+
 /// A message ready to hand to the mail relay.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RenderedEmail {
@@ -872,6 +884,39 @@ pub fn render_email(input: EmailRenderInput) -> RenderedEmail {
     RenderedEmail {
         html: inline_css(html),
         plain_text: process_content_to_plaintext(&body),
+        subject,
+        unfilled_placeholders,
+    }
+}
+
+pub fn render_newsletter(
+    input: EmailRenderInput,
+    teacher_newsletter_content: TeacherNewsletterContent,
+) -> RenderedEmail {
+    let unfilled_placeholders = BTreeSet::new();
+    let EmailRenderInput {
+        layout_html,
+        theme: _,
+        subject,
+        body,
+        language,
+        replacements: _,
+    } = input;
+    let subject = subject.to_string();
+
+    let html = wrap_in_layout(
+        layout_html,
+        &EmailLayoutFields {
+            content_html: &teacher_newsletter_content.html,
+            subject: &subject,
+            preheader: &preheader(&body),
+            language,
+        },
+    );
+
+    RenderedEmail {
+        html: inline_css(html),
+        plain_text: teacher_newsletter_content.text,
         subject,
         unfilled_placeholders,
     }

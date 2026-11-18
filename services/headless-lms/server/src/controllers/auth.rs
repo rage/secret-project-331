@@ -9,6 +9,7 @@ use crate::{
         authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
+        mail_budget,
         proof_of_work::{self, ChallengeContext, ChallengePurpose},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
         session_verification::{self, EmailCodeOutcome},
@@ -321,6 +322,7 @@ pub async fn signup(
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
 pub struct AltchaChallengeQuery {
     /// The form the challenge is for; a solution is accepted only there.
     pub purpose: ChallengePurpose,
@@ -932,19 +934,23 @@ pub async fn send_delete_user_email_code(
         )
     })?;
 
-    // A fresh code every time: mailing the outstanding one again would keep a single code alive for
-    // as long as the user kept pressing resend.
-    let code = user_email_codes::generate_code();
+    // Queued also when the inbox budget refuses the mail, so the answer does not depend on mails
+    // other accounts caused to the inbox.
+    if mail_budget::may_mail_user(&mut tx, auth_user.id).await? {
+        // A fresh code every time: mailing the outstanding one again would keep a single code alive
+        // for as long as the user kept pressing resend.
+        let code = user_email_codes::generate_code();
 
-    user_email_codes::insert_user_email_code(
-        &mut tx,
-        auth_user.id,
-        UserEmailCodePurpose::AccountDeletion,
-        &code,
-    )
-    .await?;
-    models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+        user_email_codes::insert_user_email_code(
+            &mut tx,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+            &code,
+        )
         .await?;
+        models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+            .await?;
+    }
     tx.commit().await?;
 
     token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::Queued))
@@ -1165,6 +1171,7 @@ async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
 ) -> ControllerResult<HttpResponse> {
+    // Not budgeted, like session_verification::send_email_code.
     let code = user_email_codes::generate_code();
 
     let email_verification_token =

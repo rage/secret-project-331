@@ -26,24 +26,6 @@ ON CONFLICT (signature_digest) DO NOTHING
     Ok(result.rows_affected() == 1)
 }
 
-/// Whether the challenge with `signature` has been redeemed. A cheap pre-check; only [`try_spend`]
-/// decides atomically.
-pub async fn is_spent(conn: &mut PgConnection, signature: &str) -> ModelResult<bool> {
-    let spent = sqlx::query_scalar!(
-        r#"
-SELECT EXISTS (
-    SELECT 1
-    FROM altcha_spent_challenges
-    WHERE signature_digest = $1
-  ) AS "spent!"
-"#,
-        Sha256::digest(signature.as_bytes()).to_vec(),
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(spent)
-}
-
 /// Hard-deletes challenges that expired over an hour ago. Returns how many rows went.
 ///
 /// The margin covers clock skew between the database and the servers that check expiry: a row

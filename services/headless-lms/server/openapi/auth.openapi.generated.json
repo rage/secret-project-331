@@ -22,7 +22,7 @@
         "parameters": [
           {
             "name": "purpose",
-            "in": "path",
+            "in": "query",
             "description": "The form the challenge is for; a solution is accepted only there.",
             "required": true,
             "schema": {

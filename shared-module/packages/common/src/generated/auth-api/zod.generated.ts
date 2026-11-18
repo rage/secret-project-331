@@ -378,7 +378,7 @@ export const zVerifyEmailRequest = z.object({
   email_verification_token: z.string(),
 })
 
-export const zGetAuthAltchaChallengePath = z.object({
+export const zGetAuthAltchaChallengeQuery = z.object({
   purpose: zChallengePurpose,
 })
 

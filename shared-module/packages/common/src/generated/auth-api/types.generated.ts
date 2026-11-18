@@ -375,13 +375,13 @@ export type VerifyEmailRequest = {
 
 export type GetAuthAltchaChallengeData = {
   body?: never
-  path: {
+  path?: never
+  query: {
     /**
      * The form the challenge is for; a solution is accepted only there.
      */
     purpose: ChallengePurpose
   }
-  query?: never
   url: "/api/v0/auth/altcha-challenge"
 }
 

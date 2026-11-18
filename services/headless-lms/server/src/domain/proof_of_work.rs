@@ -90,10 +90,6 @@ pub async fn verify_and_spend(
     }
     let submitted = decode(payload).ok_or_else(refusal)?;
     let signature = submitted.challenge.signature.clone().ok_or_else(refusal)?;
-    // Before the solution check, so a replayed solution costs only this lookup.
-    if altcha_spent_challenges::is_spent(conn, &signature).await? {
-        return Err(refusal());
-    }
     let challenge = verified_challenge(submitted).ok_or_else(refusal)?;
     let signed_purpose = challenge
         .parameters

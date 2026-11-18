@@ -38,6 +38,18 @@ pub fn daily_allowance() -> i32 {
     *DAILY_ALLOWANCE
 }
 
+/// Whether a mail to the user may be queued: always for a proven mailbox owner, otherwise only by
+/// spending one mail of the inbox budget with [`try_consume_for_user`].
+///
+/// Call it before minting a code or token, under the same rules. When it returns false, the caller
+/// must queue nothing and still answer as if the mail were sent.
+pub async fn may_mail_user(conn: &mut PgConnection, user_id: Uuid) -> anyhow::Result<bool> {
+    if headless_lms_models::user_details::has_mailbox_proof(conn, user_id).await? {
+        return Ok(true);
+    }
+    try_consume_for_user(conn, user_id).await
+}
+
 /// Spends one mail of the budget of the inbox the user's account address reaches now. Returns
 /// false, and spends nothing, when the day's budget is used up.
 ///

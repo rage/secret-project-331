@@ -1023,8 +1023,7 @@ pub async fn send_reset_password_email(
         if !is_new_account
             && !sent_recently
             && sent_today.len() < MAX_RESET_MAILS_PER_DAY
-            && (models::user_details::has_mailbox_proof(&mut tx, user.id).await?
-                || mail_budget::try_consume_for_user(&mut tx, user.id).await?)
+            && mail_budget::may_mail_user(&mut tx, user.id).await?
         {
             models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;

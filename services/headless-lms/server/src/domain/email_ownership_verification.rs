@@ -112,8 +112,8 @@ pub async fn queue_verification_email(
     Ok(VerificationEmailOutcome::Queued)
 }
 
-/// Mints a code for `purpose` and queues the `template_type` mail that carries it. Does not spend the
-/// [daily mail budget](crate::domain::mail_budget); callers mailing unproven addresses must.
+/// Mints a code for `purpose` and queues the `template_type` mail that carries it. Does not check the
+/// [daily mail budget](crate::domain::mail_budget); callers must first.
 ///
 /// Errors when the deployment has no such template: the lookup falls back to English, so no row
 /// means none at all.

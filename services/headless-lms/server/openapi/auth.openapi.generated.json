@@ -1051,7 +1051,7 @@
           },
           {
             "type": "object",
-            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable, or\nthe daily allowance is used up.",
+            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.",
             "required": ["retry_after_seconds", "type"],
             "properties": {
               "retry_after_seconds": {
@@ -1061,6 +1061,16 @@
               "type": {
                 "type": "string",
                 "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["daily_limit_reached"]
               }
             }
           },

@@ -790,11 +790,11 @@ const MAX_DELETE_USER_CODES_PER_DAY: i64 = 5;
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SendDeleteUserEmailCodeResult {
     Queued,
-    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable, or
-    /// the daily allowance is used up.
+    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.
     RecentlySent {
         retry_after_seconds: i64,
     },
+    DailyLimitReached,
     IncorrectPassword,
 }
 
@@ -874,9 +874,7 @@ pub async fn send_delete_user_email_code(
     )
     .await?;
     if sent_today >= MAX_DELETE_USER_CODES_PER_DAY {
-        return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::RecentlySent {
-            retry_after_seconds: Duration::days(1).num_seconds(),
-        }));
+        return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::DailyLimitReached));
     }
 
     let language = &payload.language;

@@ -34334,7 +34334,7 @@
       },
       "RequestEmailVerificationOutcome": {
         "type": "string",
-        "enum": ["queued", "already_verified", "recently_sent"]
+        "enum": ["queued", "already_verified", "recently_sent", "daily_limit_reached"]
       },
       "RequestEmailVerificationPayload": {
         "type": "object",

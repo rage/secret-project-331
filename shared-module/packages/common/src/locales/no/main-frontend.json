@@ -2242,6 +2242,7 @@
   "message-are-you-sure-you-want-to-delete-this-chapter": "Er du sikker på at du vil slette dette kapittelet? Dette vil også slette alle sider i kapittelet og alle oppgaver i kapittelet.",
   "message-are-you-sure-you-want-to-reprocess-submissions": "Er du sikker på at du vil behandle registrering av fullførte moduler på nytt for denne kursinstansen?",
   "message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received": "Er du sikker på at du vil oppdatere mottatte vurderinger for alle oppføringer som ikke er merket med tilstrekkelige mottatte medstudentvurderinger? Denne operasjonen gjelder kun for dette kurset.",
+  "message-code-daily-limit-reached": "Du har nådd dagens grense for sending av koder.",
   "message-code-did-not-work": "Koden fungerte ikke. Sjekk den og prøv igjen, eller send en ny kode.",
   "message-created-successfully": "Opprettet",
   "message-creating-failed": "Noe gikk galt, kunne ikke opprette",

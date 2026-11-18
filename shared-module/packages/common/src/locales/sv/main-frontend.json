@@ -2242,6 +2242,7 @@
   "message-are-you-sure-you-want-to-delete-this-chapter": "Är du säker på att du vill ta bort detta kapitel? Detta kommer också att ta bort alla sidor i kapitlet och alla övningar i kapitlet.",
   "message-are-you-sure-you-want-to-reprocess-submissions": "Är du säker på att du vill bearbeta om modulavslutningar för denna kursinstans?",
   "message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received": "Är du säker på att du vill uppdatera de mottagna recensionerna för alla poster som inte är markerade som mottagna tillräckligt med peer recensioner? Denna operation gäller endast denna kurs.",
+  "message-code-daily-limit-reached": "Du har nått dagens gräns för utskick av koder.",
   "message-code-did-not-work": "Koden fungerade inte. Kontrollera den och försök igen, eller skicka en ny.",
   "message-created-successfully": "Skapad framgångsrikt",
   "message-creating-failed": "Något gick fel, kunde inte skapa",

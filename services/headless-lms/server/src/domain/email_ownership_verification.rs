@@ -55,9 +55,9 @@ pub async fn record_code_as_mailbox_proof(
 pub enum VerificationEmailOutcome {
     Queued,
     AlreadyVerified,
-    /// A code was mailed to this address less than the resend interval ago, or the daily allowance
-    /// is used up.
+    /// A code was mailed to this address less than the resend interval ago.
     RecentlySent,
+    DailyLimitReached,
 }
 
 /// Mails a fresh verification code to the address the account holds now.
@@ -94,7 +94,7 @@ pub async fn queue_verification_email(
     )
     .await?;
     if sent_today >= MAX_CODES_PER_DAY {
-        return Ok(VerificationEmailOutcome::RecentlySent);
+        return Ok(VerificationEmailOutcome::DailyLimitReached);
     }
 
     mail_new_code(

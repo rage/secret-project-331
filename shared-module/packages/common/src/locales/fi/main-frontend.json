@@ -2212,6 +2212,7 @@
   "message-are-you-sure-you-want-to-delete-this-chapter": "Oletko varma että haluat poistaa tämän luvun? Tämä tulee myös poistamaan kaikki luvun sivut ja tehtävät.",
   "message-are-you-sure-you-want-to-reprocess-submissions": "Oletko varma, että haluat uudelleenkäsitellä tämän kurssiversion moduulisuoritukset?",
   "message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received": "Oletko varma, että haluat päivittää vastaanotettujen arvioiden määrän kaikille merkinnöille, jotka on merkitty tarpeeksi vertaisarvioita vastaanottaneeksi? Operaatio muuttaa vain tämän kurssin merkintöjä.",
+  "message-code-daily-limit-reached": "Olet saavuttanut tämän päivän koodien lähetysrajan.",
   "message-code-did-not-work": "Koodi ei kelvannut. Tarkista se ja yritä uudelleen, tai pyydä uusi koodi.",
   "message-created-successfully": "Luotu onnistuneesti",
   "message-creating-failed": "Jokin meni vikaan, ei voitu luoda",

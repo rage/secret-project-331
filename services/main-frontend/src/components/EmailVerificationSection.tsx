@@ -39,6 +39,7 @@ const OUTCOME_KEYS = {
   queued: null,
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
+  daily_limit_reached: "message-code-daily-limit-reached",
 } as const satisfies Record<RequestEmailVerificationOutcome, string | null>
 
 const bodyCss = css`

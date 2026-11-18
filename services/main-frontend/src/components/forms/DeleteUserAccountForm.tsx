@@ -73,6 +73,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
             )
             setStep(VERIFY_CODE_STEP)
             break
+          // An earlier code may still work, and the code step is where the message shows.
+          case "daily_limit_reached":
+            setCodeErrorMessage(t("message-code-daily-limit-reached"))
+            setStep(VERIFY_CODE_STEP)
+            break
           case "incorrect_password":
             break
         }

@@ -2328,6 +2328,7 @@
   "message-are-you-sure-you-want-to-delete-this-chapter": "Ви впевнені, що хочете видалити цей розділ? Це також призведе до видалення всіх сторінок у розділі та всіх вправ у розділі.",
   "message-are-you-sure-you-want-to-reprocess-submissions": "Ви впевнені, що хочете повторно обробити завершені модулі для цього примірника курсу?",
   "message-are-you-sure-you-want-to-update-peer-review-queue-reviews-received": "Ви впевнені, що бажаєте оновити відгуки, отримані для всіх записів, які не позначені як отримані достатньо рецензій? Ця операція стосується лише цього курсу.",
+  "message-code-daily-limit-reached": "Ви досягли сьогоднішнього ліміту надсилання кодів.",
   "message-code-did-not-work": "Цей код не спрацював. Перевірте його й спробуйте ще раз або надішліть новий.",
   "message-created-successfully": "Створено успішно",
   "message-creating-failed": "Щось пішло не так, не вдалося створити",

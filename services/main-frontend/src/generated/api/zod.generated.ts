@@ -5812,6 +5812,7 @@ export const zRequestEmailVerificationOutcome = z.enum([
   "queued",
   "already_verified",
   "recently_sent",
+  "daily_limit_reached",
 ])
 
 export const zRequestEmailVerificationPayload = z.object({

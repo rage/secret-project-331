@@ -7335,7 +7335,11 @@ export type RequestCreditRegistrationEnrolmentRecheckResult = {
   recheck_started: boolean
 }
 
-export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
+export type RequestEmailVerificationOutcome =
+  | "queued"
+  | "already_verified"
+  | "recently_sent"
+  | "daily_limit_reached"
 
 export type RequestEmailVerificationPayload = {
   /**

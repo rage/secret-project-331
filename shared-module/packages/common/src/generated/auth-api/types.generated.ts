@@ -238,6 +238,9 @@ export type SendDeleteUserEmailCodeResult =
       type: "recently_sent"
     }
   | {
+      type: "daily_limit_reached"
+    }
+  | {
       type: "incorrect_password"
     }
 

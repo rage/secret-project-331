@@ -181,6 +181,9 @@ export const zSendDeleteUserEmailCodeResult = z.union([
     type: z.enum(["recently_sent"]),
   }),
   z.object({
+    type: z.enum(["daily_limit_reached"]),
+  }),
+  z.object({
     type: z.enum(["incorrect_password"]),
   }),
 ])

@@ -62,10 +62,12 @@ WHERE user_id = $1
     .execute(&mut *tx)
     .await?;
 
+    // clock_timestamp(), not the NOW() default: callers hold a lock taken mid-transaction, and the
+    // resend interval is measured from this time.
     sqlx::query!(
         r#"
-INSERT INTO user_email_codes (code, user_id, purpose)
-VALUES ($1, $2, $3)
+INSERT INTO user_email_codes (code, user_id, purpose, created_at)
+VALUES ($1, $2, $3, clock_timestamp())
         "#,
         code.expose_secret(),
         user_id,

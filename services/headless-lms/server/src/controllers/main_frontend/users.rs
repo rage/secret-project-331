@@ -993,9 +993,9 @@ pub async fn send_reset_password_email(
     };
 
     if let Some(user) = user {
-        let now = Utc::now();
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
+        let now = Utc::now();
         let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
             &mut tx,
             user.id,

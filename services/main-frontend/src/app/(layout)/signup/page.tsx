@@ -420,7 +420,7 @@ const CreateAccountForm: React.FC = () => {
                 required: t("required-field"),
                 validate: {
                   isValidEmail: (value) =>
-                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
                 },
               }}
             />

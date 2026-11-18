@@ -179,8 +179,8 @@ mod tests {
     #[test]
     fn subdomain_reduces_to_registrable_domain() {
         assert_same_inbox(
-            "john@helsinki.fi",
-            &["john@cs.helsinki.fi", "john@helsinki.fi"],
+            "john@example.com",
+            &["john@cs.example.com", "john@example.com"],
         );
     }
 

@@ -114,6 +114,10 @@ const AltchaWidget: React.FC<AltchaWidgetProps> = ({ ref, purpose }) => {
     return () => {
       isMounted = false
       widget.removeEventListener("statechange", handleStateChange)
+      // Destroying the widget doesn't abort a solve in progress; reset() does.
+      if (widget.getState?.() === "verifying") {
+        widget.reset()
+      }
     }
   }, [isSecureContext])
 

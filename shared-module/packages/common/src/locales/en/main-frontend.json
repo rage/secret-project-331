@@ -562,6 +562,7 @@
   "check-certificate-only": "Students get a certificate only, with no Sisu entry. Check that this is intended.",
   "check-examinarium-access": "MOOC students can book Examinarium exams only if access is arranged for them. This platform can't tell whether it is, so check it before the exam.",
   "check-no-exam-has-pass-mark": "None of the linked exams has a pass mark, so nobody passes by the exam automatically. Add the completions on the Students tab after grading.",
+  "checking-your-browser": "Checking your browser…",
   "choose-a-language": "Choose a language",
   "choose-preferred-language": "Choose your preferred language",
   "citation": "Citation",

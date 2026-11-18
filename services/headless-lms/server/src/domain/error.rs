@@ -151,9 +151,10 @@ pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> Con
     controller_err!(BadRequestWithReason(reason), message)
 }
 
-/// Bad request reasons a client can branch on. `CourseSlugAlreadyTaken` has a web-frontend
-/// translation, the mooc.fi target ones become field errors on the admin form, and the rest are
-/// consumed by the VSCode client, which renders its own message.
+/// Bad request reasons a client can branch on. `CourseSlugAlreadyTaken` and
+/// `FormVerificationFailed` have web-frontend translations, the mooc.fi target ones become field
+/// errors on the admin form, and the rest are consumed by the VSCode client, which renders its own
+/// message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {
@@ -194,6 +195,9 @@ pub enum BadRequestReason {
     /// A save named a version of the record that is no longer the latest.
     #[display("Stale version")]
     StaleVersion,
+    /// The form's proof-of-work solution was missing, wrong, expired or already used.
+    #[display("Form verification failed")]
+    FormVerificationFailed,
 }
 
 impl BadRequestReason {
@@ -215,6 +219,7 @@ impl BadRequestReason {
                 "external_credit_target_moocfi_course_fixed"
             }
             Self::StaleVersion => "stale_version",
+            Self::FormVerificationFailed => "form_verification_failed",
         }
     }
 

@@ -4594,6 +4594,10 @@ export type EditedBlockStillExistsData = {
 }
 
 export type EmailData = {
+  /**
+   * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+   */
+  altcha: string
   email: string
   language: string
 }

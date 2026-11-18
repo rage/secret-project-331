@@ -562,6 +562,7 @@
   "check-certificate-only": "Opiskelijat saavat vain kurssitodistuksen ilman Sisu-merkintää. Tarkista, että näin on tarkoitus.",
   "check-examinarium-access": "MOOC-opiskelijat voivat varata Examinarium-tenttejä vain, jos heille on järjestetty pääsy. Tämä alusta ei tiedä, onko pääsy järjestetty, joten tarkista asia ennen tenttiä.",
   "check-no-exam-has-pass-mark": "Yhdelläkään liitetyistä tenteistä ei ole hyväksymisrajaa, joten kukaan ei läpäise tenttiä automaattisesti. Lisää suoritukset Opiskelijat-välilehdellä arvioinnin jälkeen.",
+  "checking-your-browser": "Tarkistetaan selaintasi…",
   "choose-a-language": "Valitse kieli",
   "choose-preferred-language": "Valitse kieli",
   "citation": "Lähdeviite",

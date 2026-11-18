@@ -75,7 +75,16 @@ export type ActionOnResource = {
   resource: Resource
 }
 
+/**
+ * What a challenge may be redeemed for.
+ */
+export type ChallengePurpose = "signup" | "password_reset"
+
 export type CreateAccountDetails = {
+  /**
+   * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+   */
+  altcha: string
   country: string
   email: string
   email_communication_consent: boolean
@@ -362,6 +371,25 @@ export type UserRole =
 export type VerifyEmailRequest = {
   code: string
   email_verification_token: string
+}
+
+export type GetAuthAltchaChallengeData = {
+  body?: never
+  path: {
+    /**
+     * The form the challenge is for; a solution is accepted only there.
+     */
+    purpose: ChallengePurpose
+  }
+  query?: never
+  url: "/api/v0/auth/altcha-challenge"
+}
+
+export type GetAuthAltchaChallengeResponses = {
+  /**
+   * A signed ALTCHA challenge
+   */
+  200: unknown
 }
 
 export type PostAuthAuthorizeData = {

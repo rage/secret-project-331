@@ -36,6 +36,9 @@ use url::Url;
 
 static SERVER_RUNTIME_CONFIG: OnceLock<ServerRuntimeConfig> = OnceLock::new();
 
+const DEFAULT_ALTCHA_COST: u32 = 1_000;
+const TEST_MODE_ALTCHA_COST: u32 = 1;
+
 #[derive(Clone)]
 pub struct FileStoreRuntimeConfig {
     pub use_google_cloud_storage: bool,
@@ -75,8 +78,12 @@ pub struct ServerRuntimeConfig {
     /// The mock Suotar's own Redis database, off the cache's index 1 so a flush cannot reach it.
     pub mock_suotar_redis_db_index: i64,
     pub private_cookie_key: SecretString,
+    /// Signs the proof-of-work challenges of [`crate::domain::proof_of_work`].
+    pub altcha_hmac_secret: SecretString,
     /// Keys the inbox hashes of [`crate::domain::mail_budget`].
     pub form_context_secret: SecretString,
+    /// PBKDF2 iterations per key the browser derives when solving a challenge.
+    pub altcha_cost: u32,
     pub test_mode: bool,
     pub allow_no_https_for_development: bool,
     pub host: String,
@@ -143,7 +150,22 @@ impl ServerRuntimeConfig {
                     .context("PRIVATE_COOKIE_KEY must be defined")?
                     .into(),
             ),
+            altcha_hmac_secret: SecretString::new(
+                env::var("ALTCHA_HMAC_SECRET")
+                    .context("ALTCHA_HMAC_SECRET must be defined")?
+                    .into(),
+            ),
             form_context_secret: form_context_secret_from_env()?,
+            altcha_cost: match env::var("ALTCHA_COST") {
+                Ok(value) => value
+                    .trim()
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|cost| *cost > 0)
+                    .context("ALTCHA_COST must be a positive integer")?,
+                Err(_) if test_mode => TEST_MODE_ALTCHA_COST,
+                Err(_) => DEFAULT_ALTCHA_COST,
+            },
             allow_no_https_for_development,
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),

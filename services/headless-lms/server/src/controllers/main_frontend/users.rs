@@ -1,5 +1,6 @@
 use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
+use crate::domain::proof_of_work::{self, ChallengePurpose};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
@@ -927,6 +928,8 @@ const MAX_RESET_MAILS_PER_DAY: usize = 3;
 pub struct EmailData {
     pub email: String,
     pub language: String,
+    /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+    pub altcha: String,
 }
 
 #[instrument(skip(pool))]
@@ -947,6 +950,8 @@ pub async fn send_reset_password_email(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
+        .await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;

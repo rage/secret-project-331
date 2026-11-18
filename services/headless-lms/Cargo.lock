@@ -432,6 +432,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
+name = "altcha"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5e19ecf5c964b673ef76d4f944ccca5a5b24f9cf07b95c47eadeb234e6f0d8b2"
+dependencies = [
+ "digest 0.10.7",
+ "hex",
+ "hmac 0.12.1",
+ "pbkdf2",
+ "rand 0.10.3",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "subtle",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "ammonia"
 version = "4.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3208,6 +3226,7 @@ dependencies = [
  "actix-session",
  "actix-web",
  "actix-web-actors",
+ "altcha",
  "anyhow",
  "argon2",
  "async-stream",
@@ -5342,6 +5361,16 @@ name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
+
+[[package]]
+name = "pbkdf2"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8ed6a7761f76e3b9f92dfb0a60a6a6477c61024b775147ff0973a02653abaf2"
+dependencies = [
+ "digest 0.10.7",
+ "hmac 0.12.1",
+]
 
 [[package]]
 name = "pem"

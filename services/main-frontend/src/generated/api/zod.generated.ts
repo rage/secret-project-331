@@ -3106,6 +3106,7 @@ export const zEditProposalInfo = z.object({
 })
 
 export const zEmailData = z.object({
+  altcha: z.string(),
   email: z.string(),
   language: z.string(),
 })

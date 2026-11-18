@@ -557,6 +557,7 @@
   "check-certificate-only": "Studentene får bare et kursbevis, uten registrering i Sisu. Sjekk at det er meningen.",
   "check-examinarium-access": "MOOC-studenter kan bestille Examinarium-eksamener bare hvis tilgang er ordnet for dem. Denne plattformen kan ikke vite om den er det, så sjekk det før eksamen.",
   "check-no-exam-has-pass-mark": "Ingen av eksamenene som er knyttet til, har en beståttgrense, så ingen består ved eksamen automatisk. Legg inn fullføringene på fanen Studenter etter vurderingen.",
+  "checking-your-browser": "Kontrollerer nettleseren din…",
   "choose-a-language": "Velg et språk",
   "choose-preferred-language": "Velg ditt foretrukne språk",
   "citation": "Sitering",

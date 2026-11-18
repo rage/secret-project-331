@@ -175,13 +175,10 @@ async fn get_course_page_by_path(
     )
     .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::UnauthorizedWithReason(
-                crate::domain::error::UnauthorizedReason::ChapterNotOpenYet,
-            ),
-            "Chapter is not open yet.".to_string(),
-            None,
-        ));
+        return Err(
+            controller_err!(Unauthorized, "Chapter is not open yet.".to_string())
+                .with_message_key(headless_lms_models::errors::MessageKey::ChapterNotOpenYet),
+        );
     }
 
     let token = authorize_access_to_course_material(

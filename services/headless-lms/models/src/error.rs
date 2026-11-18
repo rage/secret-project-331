@@ -231,11 +231,7 @@ pub enum HttpErrorType {
 impl From<sqlx::Error> for ModelError {
     fn from(err: sqlx::Error) -> Self {
         match &err {
-            sqlx::Error::RowNotFound => ModelError::new(
-                ModelErrorType::RecordNotFound,
-                err.to_string(),
-                Some(err.into()),
-            ),
+            sqlx::Error::RowNotFound => model_err!(RecordNotFound, err.to_string(), err),
             sqlx::Error::Database(db_err) => {
                 if db_err.is_foreign_key_violation() {
                     model_err!(
@@ -248,37 +244,37 @@ impl From<sqlx::Error> for ModelError {
                     )
                 } else if let Some(constraint) = db_err.constraint() {
                     match constraint {
-                        "email_templates_subject_check" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "email_templates_subject_check" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Subject must not be null",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
-                        "user_details_email_check" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "user_details_email_check" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Email must contain an '@' symbol.",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
-                        "users_email" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "users_email" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "Email is already in use.",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
-                        "users_upstream_id_active_uniq_idx" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "users_upstream_id_active_uniq_idx" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "A user with this upstream id already exists.",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
                         "courses_slug_key_when_not_deleted"
                         | "course_language_groups_slug_unique_non_deleted" => model_err!(
@@ -297,13 +293,13 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             err
                         ),
-                        "unique_chatbot_names_within_course" => ModelError::new(
-                            ModelErrorType::DatabaseConstraint {
+                        "unique_chatbot_names_within_course" => model_err!(
+                            DatabaseConstraint {
                                 constraint: constraint.to_string(),
                                 description: "The chatbot name is already taken by another chatbot on this course",
                             },
                             err.to_string(),
-                            Some(err.into()),
+                            err
                         ),
                         "external_credit_targets_tier_overlap" => model_err!(
                             DatabaseConstraint {
@@ -329,17 +325,13 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             err
                         ),
-                        _ => ModelError::new(
-                            ModelErrorType::Database,
-                            err.to_string(),
-                            Some(err.into()),
-                        ),
+                        _ => model_err!(Database, err.to_string(), err),
                     }
                 } else {
-                    ModelError::new(ModelErrorType::Database, err.to_string(), Some(err.into()))
+                    model_err!(Database, err.to_string(), err)
                 }
             }
-            _ => ModelError::new(ModelErrorType::Database, err.to_string(), Some(err.into())),
+            _ => model_err!(Database, err.to_string(), err),
         }
     }
 }

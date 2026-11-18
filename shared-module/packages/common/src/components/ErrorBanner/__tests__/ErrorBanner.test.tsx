@@ -48,7 +48,6 @@ describe("ErrorBanner", () => {
       messageKey: "forbidden",
       requestId: "req-7",
       userMessage: "No permission to view user details",
-      metadata: { block_id: "block-1" },
       body: {
         type: "forbidden",
         message_key: "forbidden",

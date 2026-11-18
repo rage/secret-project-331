@@ -73,7 +73,7 @@
       "message": "Kontroller det du skrev inn, og prøv igjen.",
       "title": "Ugyldig inndata"
     },
-    "validation_error_with_metadata": {
+    "validation_error_with_cms_anchor_block_id": {
       "message": "Kontroller det markerte innholdet, og prøv igjen.",
       "title": "Ugyldig inndata"
     }

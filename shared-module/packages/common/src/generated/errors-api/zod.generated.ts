@@ -7,6 +7,54 @@ import * as z from "zod"
 
 export const zErrorSource = z.enum(["backend", "frontend"])
 
+export const zMessageKey = z.union([
+  z.enum(["internal_error"]),
+  z.enum(["validation_error"]),
+  z.enum(["obsolete_client"]),
+  z.enum(["not_found"]),
+  z.enum(["rate_limited"]),
+  z.enum(["unauthorized"]),
+  z.enum(["forbidden"]),
+  z.enum(["oauth_error"]),
+  z.enum(["course_slug_already_taken"]),
+  z.object({
+    foreign_key_violation: z.object({
+      constraint: z.string().nullish(),
+      table: z.string().nullish(),
+    }),
+  }),
+  z.object({
+    database_constraint: z.object({
+      constraint: z.string(),
+    }),
+  }),
+  z.object({
+    validation_error_with_cms_anchor_block_id: z.object({
+      block_id: z.uuid(),
+    }),
+  }),
+  z.enum(["not_enrolled"]),
+  z.enum(["deadline_passed"]),
+  z.enum(["out_of_tries"]),
+  z.enum(["upload_expired"]),
+  z.enum(["unknown_upload"]),
+  z.enum(["duplicate_upload"]),
+  z.enum(["backup_not_shareable"]),
+  z.enum(["external_credit_target_tiers_overlap"]),
+  z.enum(["external_credit_target_course_code_taken"]),
+  z.enum(["external_credit_target_moocfi_course_fixed"]),
+  z.enum(["stale_version"]),
+  z.enum(["authentication_required_for_exam_exercise"]),
+  z.enum(["response_validation_error"]),
+  z.enum(["invalid_course_code"]),
+  z.enum(["generic_sisu_error"]),
+  z.enum(["sisu_resource_not_found"]),
+  z.enum(["chapter_not_open_yet"]),
+  z.enum(["chapter_not_unlocked_yet"]),
+  z.enum(["chapter_completed_and_locked"]),
+  z.enum(["exercise_locked"]),
+])
+
 export const zNewErrorReport = z.object({
   app_version: z.string().nullish(),
   details: z.unknown().optional(),

@@ -65,7 +65,6 @@ export const queryClient = new QueryClient({
             userMessage: error.userMessage,
             detail: error.detail,
             issues: error.issues,
-            metadata: error.metadata,
             method: error.method,
             url: error.url,
             rawText: error.rawText,

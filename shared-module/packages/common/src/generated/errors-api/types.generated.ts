@@ -9,6 +9,53 @@ export type ClientOptions = {
 
 export type ErrorSource = "backend" | "frontend"
 
+export type MessageKey =
+  | "internal_error"
+  | "validation_error"
+  | "obsolete_client"
+  | "not_found"
+  | "rate_limited"
+  | "unauthorized"
+  | "forbidden"
+  | "oauth_error"
+  | "course_slug_already_taken"
+  | {
+      foreign_key_violation: {
+        constraint?: string | null
+        table?: string | null
+      }
+    }
+  | {
+      database_constraint: {
+        constraint: string
+      }
+    }
+  | {
+      validation_error_with_cms_anchor_block_id: {
+        block_id: string
+      }
+    }
+  | "not_enrolled"
+  | "deadline_passed"
+  | "out_of_tries"
+  | "upload_expired"
+  | "unknown_upload"
+  | "duplicate_upload"
+  | "backup_not_shareable"
+  | "external_credit_target_tiers_overlap"
+  | "external_credit_target_course_code_taken"
+  | "external_credit_target_moocfi_course_fixed"
+  | "stale_version"
+  | "authentication_required_for_exam_exercise"
+  | "response_validation_error"
+  | "invalid_course_code"
+  | "generic_sisu_error"
+  | "sisu_resource_not_found"
+  | "chapter_not_open_yet"
+  | "chapter_not_unlocked_yet"
+  | "chapter_completed_and_locked"
+  | "exercise_locked"
+
 export type NewErrorReport = {
   app_version?: string | null
   details?: unknown

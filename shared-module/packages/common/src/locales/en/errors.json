@@ -1,5 +1,51 @@
 {
   "button-text-try-again": "Try again",
+  "database-constraint-error": {
+    "course_language_groups_slug_unique_non_deleted": {
+      "message": "A course with this slug already exists.",
+      "title": "Invalid input"
+    },
+    "courses_slug_key_when_not_deleted": {
+      "message": "A course with this slug already exists.",
+      "title": "Invalid input"
+    },
+    "email_templates_subject_check": {
+      "message": "Subject must not be null",
+      "title": "Invalid input"
+    },
+    "external_credit_targets_tier_overlap": {
+      "message": "These tiers overlap another mooc.fi target of the same course.",
+      "title": "Invalid input"
+    },
+    "unique_chatbot_names_within_course": {
+      "message": "The chatbot name is already taken by another chatbot on this course",
+      "title": "Invalid input"
+    },
+    "uq_credit_registrations_sisu_attainment": {
+      "message": "This Sisu attainment is already claimed by another credit registration.",
+      "title": "Invalid input"
+    },
+    "uq_external_credit_targets_course_code": {
+      "message": "The mooc.fi course already has a target with this course code.",
+      "title": "Invalid input"
+    },
+    "uq_oauth_device_codes_user_code_pending": {
+      "message": "A pending device authorization already uses this user_code.",
+      "title": "Invalid input"
+    },
+    "user_details_email_check": {
+      "message": "Email must contain an '@' symbol.",
+      "title": "Invalid input"
+    },
+    "users_email": {
+      "message": "Email is already in use.",
+      "title": "Invalid input"
+    },
+    "users_upstream_id_active_uniq_idx": {
+      "message": "A user with this upstream id already exists.",
+      "title": "Invalid input"
+    }
+  },
   "default-toast-error-message": "An error occurred",
   "default-toast-error-title": "Error",
   "dynamic-import-error-boundary-reload": "Reload page",
@@ -17,13 +63,49 @@
       "message": "Please sign in to view exam exercises.",
       "title": "Sign in required"
     },
+    "backup_not_shareable": {
+      "message": "Only a paste can be shared, not a backup.",
+      "title": "Backup not shareable"
+    },
+    "chapter_completed_and_locked": {
+      "message": "The current chapter is locked, and you can no longer submit exercises.",
+      "title": "Chapter completed"
+    },
     "chapter_not_open_yet": {
       "message": "This chapter is not open yet.",
       "title": "Chapter is closed"
     },
+    "chapter_not_unlocked_yet": {
+      "message": "Complete and lock the previous chapter to unlock exercises in this chapter.",
+      "title": "Chapter is locked"
+    },
     "course_slug_already_taken": {
       "message": "Another course is already using this slug. Please choose a different one.",
       "title": "Slug is already in use"
+    },
+    "deadline_passed": {
+      "message": "Deadline for this content has already passed.",
+      "title": "Deadline passed"
+    },
+    "duplicate_upload": {
+      "message": "Uploaded file was named more than once.",
+      "title": "Duplicate upload"
+    },
+    "exercise_locked": {
+      "message": "This exercise is locked for you and takes no more submissions.",
+      "title": "Exercise locked"
+    },
+    "external_credit_target_course_code_taken": {
+      "message": "The mooc.fi course already has a live target with this course code.",
+      "title": "Invalid input"
+    },
+    "external_credit_target_moocfi_course_fixed": {
+      "message": "The mooc.fi course cannot change once the target has completions.",
+      "title": "Invalid input"
+    },
+    "external_credit_target_tiers_overlap": {
+      "message": "These tiers overlap another mooc.fi target of the same course.",
+      "title": "Invalid input"
     },
     "forbidden": {
       "message": "You do not have permission for this action.",
@@ -45,6 +127,10 @@
       "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
       "title": "Could not generate description"
     },
+    "not_enrolled": {
+      "message": "You are not enrolled to this exercise's course",
+      "title": "Not enrolled"
+    },
     "not_found": {
       "message": "The requested resource could not be found.",
       "title": "Not found"
@@ -52,6 +138,14 @@
     "oauth_error": {
       "message": "Please sign in again.",
       "title": "Authentication failed"
+    },
+    "obsolete_client": {
+      "message": "The client is obsolete and must be upgraded",
+      "title": "Obsolete client"
+    },
+    "out_of_tries": {
+      "message": "Out of tries",
+      "title": "You've run out of tries."
     },
     "rate_limited": {
       "message": "Please wait and try again.",
@@ -65,15 +159,27 @@
       "message": "Unable to find resources from Sisu.",
       "title": "Resources not found"
     },
+    "stale_version": {
+      "message": "This content was updated after it was opened.",
+      "title": "Outdated version"
+    },
     "unauthorized": {
       "message": "Please sign in and try again.",
       "title": "Unauthorized"
+    },
+    "unknown_upload": {
+      "message": "Uploaded file was not uploaded for this exercise by you.",
+      "title": "Unknown upload"
+    },
+    "upload_expired": {
+      "message": "Uploaded file is no longer available; upload it again.",
+      "title": "Upload expired"
     },
     "validation_error": {
       "message": "Please check your input and try again.",
       "title": "Invalid input"
     },
-    "validation_error_with_metadata": {
+    "validation_error_with_cms_anchor_block_id": {
       "message": "Please check the highlighted content and try again.",
       "title": "Invalid input"
     }
@@ -107,6 +213,7 @@
   "errorNotice.code": "Code",
   "errorNotice.copyReport": "Copy error report",
   "errorNotice.detail": "Detail",
+  "errorNotice.message": "Message",
   "errorNotice.messageKey": "Message key",
   "errorNotice.method": "Method",
   "errorNotice.page": "Page",

@@ -13,7 +13,6 @@ describe("normalizeErrorForDisplay", () => {
       type: "forbidden",
       messageKey: "forbidden",
       userMessage: "No permission to view user details",
-      metadata: { scope: "course" },
       body: { type: "forbidden", message_key: "forbidden" },
     })
 
@@ -27,7 +26,6 @@ describe("normalizeErrorForDisplay", () => {
       message: "No permission to view user details",
       status: 403,
       issues: [],
-      metadata: { scope: "course" },
       extra: null,
       body: { type: "forbidden", message_key: "forbidden" },
       rawText: null,
@@ -68,10 +66,9 @@ describe("normalizeErrorForDisplay", () => {
       kind: "api",
       status: 422,
       type: "validation_error",
-      messageKey: "validation_error_with_metadata",
+      messageKey: { validation_error_with_cms_anchor_block_id: { block_id: "block-123" } },
       userMessage: "Validation failed",
       issues: [{ path: "email", code: "invalid_email", message: "Email is invalid" }],
-      metadata: { block_id: "block-123" },
     })
 
     const normalized = normalizeErrorForDisplay(error, t)

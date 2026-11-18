@@ -19,13 +19,11 @@ use headless_lms_chatbot::prelude::{ChatbotError, ChatbotErrorType};
 use headless_lms_credit_registration::error::{
     CreditRegistrationError, CreditRegistrationErrorType,
 };
-use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
+use headless_lms_models::{ModelError, ModelErrorType, errors::MessageKey, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use headless_lms_utils::http::escape_auth_param;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
-
-use uuid::Uuid;
 
 const MISSING_EXERCISE_TYPE_DESCRIPTION: &str = "Missing exercise type for exercise task.";
 
@@ -48,15 +46,6 @@ pub enum ControllerErrorType {
     #[display("Bad request")]
     BadRequest,
 
-    /// HTTP status code 400.
-    #[display("Bad request")]
-    BadRequestWithData(ErrorMetadata),
-
-    /// HTTP status code 422 with a specific domain reason, so clients can branch
-    /// on a stable `message_key` instead of parsing the human-readable message.
-    #[display("Bad request")]
-    BadRequestWithReason(BadRequestReason),
-
     /// HTTP status code 426. The client is too old and must be upgraded.
     #[display("Upgrade required")]
     UpgradeRequired,
@@ -73,18 +62,9 @@ pub enum ControllerErrorType {
     #[display("Unauthorized")]
     Unauthorized,
 
-    /// HTTP status code 401 with a specific domain reason.
-    #[display("Unauthorized")]
-    UnauthorizedWithReason(UnauthorizedReason),
-
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
-
-    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
-    /// token that lacks a scope.
-    #[display("Forbidden")]
-    ForbiddenWithReason(ForbiddenReason),
 
     /// Varied response based on error
     #[display("OAuthError")]
@@ -97,145 +77,6 @@ pub enum ControllerErrorType {
 
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum UnauthorizedReason {
-    #[display("Chapter not open yet")]
-    ChapterNotOpenYet,
-    #[display("Authentication required for exam exercise")]
-    AuthenticationRequiredForExamExercise,
-}
-
-impl UnauthorizedReason {
-    /// Returns the stable message key for this unauthorized reason.
-    fn message_key(self) -> &'static str {
-        match self {
-            Self::ChapterNotOpenYet => "chapter_not_open_yet",
-            Self::AuthenticationRequiredForExamExercise => {
-                "authentication_required_for_exam_exercise"
-            }
-        }
-    }
-}
-
-/// Reasons a logged-in user may not answer an exercise, which a client can branch on.
-#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum ForbiddenReason {
-    /// The exercise's chapter has not opened yet.
-    #[display("Chapter not open yet")]
-    ChapterNotOpenYet,
-    /// Chapter locking keeps the chapter closed until the previous ones are completed.
-    #[display("Chapter not unlocked yet")]
-    ChapterNotUnlockedYet,
-    /// The user has completed and locked the chapter.
-    #[display("Chapter completed and locked")]
-    ChapterCompletedAndLocked,
-    /// The user's exercise state takes no more answers, though the chapter may be open again.
-    #[display("Exercise locked")]
-    ExerciseLocked,
-}
-
-impl ForbiddenReason {
-    /// Returns the stable message key for this forbidden reason.
-    fn message_key(self) -> &'static str {
-        match self {
-            Self::ChapterNotOpenYet => "chapter_not_open_yet",
-            Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
-            Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
-            Self::ExerciseLocked => "exercise_locked",
-        }
-    }
-}
-
-/// Builds a 422 whose `message_key` the client keys its error handling on.
-pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
-    controller_err!(BadRequestWithReason(reason), message)
-}
-
-/// Bad request reasons a client can branch on. `CourseSlugAlreadyTaken` has a web-frontend
-/// translation, the mooc.fi target ones become field errors on the admin form, and the rest are
-/// consumed by the VSCode client, which renders its own message.
-#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum BadRequestReason {
-    #[display("Course slug already taken")]
-    CourseSlugAlreadyTaken,
-    #[display("Foreign key violation")]
-    ForeignKeyViolation,
-    /// The user is not enrolled on the course the requested exercise belongs to.
-    #[display("Not enrolled")]
-    NotEnrolled,
-    /// The exercise's deadline, or its chapter's, has passed.
-    #[display("Deadline passed")]
-    DeadlinePassed,
-    /// The user has used every try the exercise allows.
-    #[display("Out of tries")]
-    OutOfTries,
-    /// A submission named a file that was uploaded but has since been reaped.
-    #[display("Upload expired")]
-    UploadExpired,
-    /// A submission named a file the host has no upload record of for this exercise and user.
-    #[display("Unknown upload")]
-    UnknownUpload,
-    /// A submission named the same uploaded file more than once.
-    #[display("Duplicate upload")]
-    DuplicateUpload,
-    /// Only a paste snapshot can be shared, not a backup.
-    #[display("Backup not shareable")]
-    BackupNotShareable,
-    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
-    #[display("Tiers overlap")]
-    ExternalCreditTargetTiersOverlap,
-    /// The mooc.fi course already has a live target with this course code.
-    #[display("Course code taken")]
-    ExternalCreditTargetCourseCodeTaken,
-    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
-    #[display("mooc.fi course fixed")]
-    ExternalCreditTargetMoocfiCourseFixed,
-    /// A save named a version of the record that is no longer the latest.
-    #[display("Stale version")]
-    StaleVersion,
-}
-
-impl BadRequestReason {
-    /// Returns the stable message key for this bad request reason.
-    fn message_key(self) -> &'static str {
-        match self {
-            Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
-            Self::ForeignKeyViolation => "foreign_key_violation",
-            Self::NotEnrolled => "not_enrolled",
-            Self::DeadlinePassed => "deadline_passed",
-            Self::OutOfTries => "out_of_tries",
-            Self::UploadExpired => "upload_expired",
-            Self::UnknownUpload => "unknown_upload",
-            Self::DuplicateUpload => "duplicate_upload",
-            Self::BackupNotShareable => "backup_not_shareable",
-            Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
-            Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
-            Self::ExternalCreditTargetMoocfiCourseFixed => {
-                "external_credit_target_moocfi_course_fixed"
-            }
-            Self::StaleVersion => "stale_version",
-        }
-    }
-
-    /// Both slug indexes collapse into one reason: they guard the same user mistake.
-    fn from_database_constraint(constraint: &str) -> Option<Self> {
-        match constraint {
-            "courses_slug_key_when_not_deleted"
-            | "course_language_groups_slug_unique_non_deleted" => {
-                Some(Self::CourseSlugAlreadyTaken)
-            }
-            "external_credit_targets_tier_overlap" => Some(Self::ExternalCreditTargetTiersOverlap),
-            "uq_external_credit_targets_course_code" => {
-                Some(Self::ExternalCreditTargetCourseCodeTaken)
-            }
-            _ => None,
-        }
-    }
-}
-
-#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
 pub enum SisuErrorType {
     #[display("invalid course code")]
     InvalidCourseCode,
@@ -243,17 +84,6 @@ pub enum SisuErrorType {
     GenericSisuError,
     #[display("sisu resource not found")]
     SisuResourceNotFound,
-}
-
-impl SisuErrorType {
-    /// Returns the stable message key for this unauthorized reason.
-    fn message_key(self) -> &'static str {
-        match self {
-            Self::InvalidCourseCode => "invalid_course_code",
-            Self::GenericSisuError => "generic_sisu_error",
-            Self::SisuResourceNotFound => "sisu_resource_not_found",
-        }
-    }
 }
 
 /**
@@ -330,6 +160,7 @@ pub struct ControllerError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
+    message_key: Option<MessageKey>,
 }
 
 // Generate the clean developer `Debug`/`clean_string` and a cause resolver.
@@ -405,18 +236,9 @@ impl BackendError for ControllerError {
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
             location,
+            message_key: None,
         }
     }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum ErrorMetadata {
-    BlockId(Uuid),
-    ForeignKeyViolationMetadata {
-        constraint: Option<String>,
-        table: Option<String>,
-    },
 }
 
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
@@ -447,12 +269,10 @@ impl ValidationIssueCode {
 pub struct ApiErrorResponse {
     #[serde(rename = "type")]
     pub error_type: String,
-    pub message_key: String,
+    pub message_key: MessageKey,
     pub message: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub errors: Vec<ApiErrorIssue>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<serde_json::Value>,
 }
 
 impl error::ResponseError for ControllerError {
@@ -560,28 +380,19 @@ impl error::ResponseError for ControllerError {
 
         let status = self.status_code();
 
-        let metadata = match &self.error_type {
-            ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
-            _ => None,
+        let (error_type, default_message_key) = self.error_type_and_message_key();
+        let errors = self.validation_issues();
+
+        let message_key = match self.message_key.clone() {
+            Some(key) => key,
+            None => default_message_key,
         };
 
-        let metadata_json = metadata.map(|metadata| match metadata {
-            ErrorMetadata::BlockId(id) => serde_json::json!({ "block_id": id }),
-            ErrorMetadata::ForeignKeyViolationMetadata { constraint, table } => {
-                serde_json::json!({
-            "constraint": constraint,
-            "table": table })
-            }
-        });
-
-        let (error_type, message_key) = self.error_type_and_message_key();
-        let errors = self.validation_issues();
         let error_response = ApiErrorResponse {
             error_type: error_type.to_string(),
-            message_key: message_key.to_string(),
+            message_key,
             message: self.message.clone(),
             errors,
-            metadata: metadata_json,
         };
 
         let mut response = HttpResponseBuilder::new(status);
@@ -603,15 +414,11 @@ impl error::ResponseError for ControllerError {
         match self.error_type {
             ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
             ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
-            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
-            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
-            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -637,38 +444,27 @@ impl ControllerError {
         self
     }
 
-    fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
+    fn error_type_and_message_key(&self) -> (&'static str, MessageKey) {
         match self.error_type {
-            ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
-            ControllerErrorType::BadRequest => ("validation_error", "validation_error"),
-            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(_)) => {
-                ("validation_error", "validation_error_with_metadata")
+            ControllerErrorType::InternalServerError => {
+                ("internal_error", MessageKey::InternalError)
             }
-            ControllerErrorType::BadRequestWithData(
-                ErrorMetadata::ForeignKeyViolationMetadata { .. },
-            ) => ("validation_error", "foreign_key_violation"),
-            ControllerErrorType::BadRequestWithReason(reason) => {
-                ("validation_error", reason.message_key())
-            }
-            ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
-            ControllerErrorType::NotFound => ("not_found", "not_found"),
+            ControllerErrorType::BadRequest => ("validation_error", MessageKey::ValidationError),
+            ControllerErrorType::UpgradeRequired => ("obsolete_client", MessageKey::ObsoleteClient),
+            ControllerErrorType::NotFound => ("not_found", MessageKey::NotFound),
             // Matches the rate limit middleware's response.
-            ControllerErrorType::TooManyRequests(_) => ("rate_limit", "rate_limited"),
-            ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
-            ControllerErrorType::UnauthorizedWithReason(reason) => {
-                ("unauthorized", reason.message_key())
-            }
-            ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
-            ControllerErrorType::ForbiddenWithReason(reason) => ("forbidden", reason.message_key()),
-            ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
-            ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
+            ControllerErrorType::TooManyRequests(_) => ("rate_limit", MessageKey::RateLimited),
+            ControllerErrorType::Unauthorized => ("unauthorized", MessageKey::Unauthorized),
+            ControllerErrorType::Forbidden => ("forbidden", MessageKey::Forbidden),
+            ControllerErrorType::OAuthError(_) => ("oauth_error", MessageKey::OauthError),
+            ControllerErrorType::SisuError(_) => ("sisu_error", MessageKey::GenericSisuError),
         }
     }
 
     /// Derives issue-level validation details from known backend validation cases.
     fn validation_issues(&self) -> Vec<ApiErrorIssue> {
         match &self.error_type {
-            ControllerErrorType::BadRequestWithData(_)
+            ControllerErrorType::BadRequest
                 if self.message == MISSING_EXERCISE_TYPE_DESCRIPTION =>
             {
                 vec![ApiErrorIssue {
@@ -678,6 +474,13 @@ impl ControllerError {
                 }]
             }
             _ => Vec::new(),
+        }
+    }
+
+    pub fn with_message_key(self, key: MessageKey) -> Self {
+        Self {
+            message_key: Some(key),
+            ..self
         }
     }
 }
@@ -867,34 +670,40 @@ impl From<ModelError> for ControllerError {
                 span_trace,
             ),
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
+                let block_id = id.to_owned();
                 Self::new_with_traces(
-                    ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*id)),
+                    ControllerErrorType::BadRequest,
                     description.to_string(),
                     Some(err.into()),
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::ValidationErrorWithCmsAnchorBlockId { block_id })
             }
             ModelErrorType::DatabaseConstraint {
                 constraint,
                 description,
-            } => Self::new_with_traces(
-                BadRequestReason::from_database_constraint(constraint)
-                    .map_or(ControllerErrorType::BadRequest, |reason| {
-                        ControllerErrorType::BadRequestWithReason(reason)
-                    }),
-                description.to_string(),
-                Some(err.into()),
-                backtrace,
-                span_trace,
-            ),
+            } => {
+                let db_constraint = constraint.to_owned();
+                Self::new_with_traces(
+                    ControllerErrorType::BadRequest,
+                    description.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+                .with_message_key(MessageKey::DatabaseConstraint {
+                    constraint: db_constraint,
+                })
+            }
             ModelErrorType::StaleVersion => Self::new_with_traces(
-                ControllerErrorType::BadRequestWithReason(BadRequestReason::StaleVersion),
+                ControllerErrorType::BadRequest,
                 err.message().to_string(),
                 Some(err.into()),
                 backtrace,
                 span_trace,
-            ),
+            )
+            .with_message_key(MessageKey::StaleVersion),
             ModelErrorType::InvalidRequest => Self::new_with_traces(
                 ControllerErrorType::BadRequest,
                 err.message().to_string(),
@@ -902,18 +711,22 @@ impl From<ModelError> for ControllerError {
                 backtrace,
                 span_trace,
             ),
-            ModelErrorType::ForeignKeyViolation { constraint, table } => Self::new_with_traces(
-                ControllerErrorType::BadRequestWithData(
-                    ErrorMetadata::ForeignKeyViolationMetadata {
-                        constraint: constraint.to_owned(),
-                        table: table.to_owned(),
-                    },
-                ),
-                err.message().to_string(),
-                Some(err.into()),
-                backtrace,
-                span_trace,
-            ),
+            ModelErrorType::ForeignKeyViolation { constraint, table } => {
+                let db_constraint = constraint.to_owned();
+                let db_table = table.to_owned();
+
+                Self::new_with_traces(
+                    ControllerErrorType::BadRequest,
+                    err.message().to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+                .with_message_key(MessageKey::ForeignKeyViolation {
+                    constraint: db_constraint,
+                    table: db_table,
+                })
+            }
             _ => Self::new_with_traces(
                 ControllerErrorType::InternalServerError,
                 err.to_string(),
@@ -972,6 +785,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::GenericSisuError)
             }
             UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode) => {
                 Self::new_with_traces(
@@ -981,6 +795,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::InvalidCourseCode)
             }
             UtilErrorType::SisuClientError(SisuErrorVariant::SisuResourceNotFound) => {
                 Self::new_with_traces(
@@ -990,6 +805,7 @@ impl From<UtilError> for ControllerError {
                     backtrace,
                     span_trace,
                 )
+                .with_message_key(MessageKey::SisuResourceNotFound)
             }
             _ => Self::new_with_traces(
                 ControllerErrorType::InternalServerError,
@@ -1274,6 +1090,7 @@ mod tests {
     use super::*;
     use actix_web::ResponseError;
     use futures_util::FutureExt;
+    use uuid::Uuid;
 
     #[test]
     fn test_controller_err_macro_without_source() {
@@ -1292,14 +1109,11 @@ mod tests {
     #[test]
     fn test_controller_err_macro_tuple_variant_with_source() {
         let source_err = std::io::Error::other("source");
-        let err = controller_err!(
-            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
-            "Wrapped error".to_string(),
-            source_err
-        );
+        let err = controller_err!(Unauthorized, "Wrapped error".to_string(), source_err)
+            .with_message_key(MessageKey::ChapterNotOpenYet);
         assert!(matches!(
             err.error_type(),
-            ControllerErrorType::UnauthorizedWithReason(_)
+            ControllerErrorType::Unauthorized
         ));
     }
 
@@ -1348,14 +1162,6 @@ mod tests {
         let _ = controller_err!(BadRequest, "test".to_string());
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
-        let _ = controller_err!(
-            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
-            "test".to_string()
-        );
-        let _ = controller_err!(
-            BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
-            "test".to_string()
-        );
         let _ = controller_err!(Forbidden, "test".to_string());
     }
 
@@ -1394,10 +1200,13 @@ mod tests {
     #[test]
     fn test_validation_issue_code_is_serialized_for_missing_exercise_type() {
         let err = ControllerError::new(
-            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            ControllerErrorType::BadRequest,
             MISSING_EXERCISE_TYPE_DESCRIPTION.to_string(),
             None,
-        );
+        )
+        .with_message_key(MessageKey::ValidationErrorWithCmsAnchorBlockId {
+            block_id: Uuid::nil(),
+        });
         let response = err.error_response();
         let bytes = actix_web::body::to_bytes(response.into_body())
             .now_or_never()
@@ -1406,7 +1215,13 @@ mod tests {
         let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
 
         assert_eq!(value["type"], "validation_error");
-        assert_eq!(value["message_key"], "validation_error_with_metadata");
+        assert_eq!(
+            value["message_key"],
+            serde_json::json!({
+                "validation_error_with_cms_anchor_block_id":
+                {"block_id": "00000000-0000-0000-0000-000000000000"}
+            })
+        );
         assert_eq!(value["errors"][0]["code"], "missing_exercise_type");
         assert_eq!(value["errors"][0]["path"], "exercise_type");
     }
@@ -1414,10 +1229,11 @@ mod tests {
     #[test]
     fn test_chapter_not_open_uses_dedicated_message_key() {
         let err = ControllerError::new(
-            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            ControllerErrorType::Unauthorized,
             "Chapter is not open yet.".to_string(),
             None,
-        );
+        )
+        .with_message_key(MessageKey::ChapterNotOpenYet);
         let response = err.error_response();
         let bytes = actix_web::body::to_bytes(response.into_body())
             .now_or_never()
@@ -1433,12 +1249,11 @@ mod tests {
     #[test]
     fn test_exam_exercise_auth_requirement_uses_dedicated_message_key() {
         let err = ControllerError::new(
-            ControllerErrorType::UnauthorizedWithReason(
-                UnauthorizedReason::AuthenticationRequiredForExamExercise,
-            ),
+            ControllerErrorType::Unauthorized,
             "User must be authenticated to view exam exercises".to_string(),
             None,
-        );
+        )
+        .with_message_key(MessageKey::AuthenticationRequiredForExamExercise);
         let response = err.error_response();
         let bytes = actix_web::body::to_bytes(response.into_body())
             .now_or_never()
@@ -1460,10 +1275,11 @@ mod tests {
     #[test]
     fn test_not_enrolled_uses_dedicated_message_key_and_422() {
         let err = ControllerError::new(
-            ControllerErrorType::BadRequestWithReason(BadRequestReason::NotEnrolled),
+            ControllerErrorType::BadRequest,
             "User is not enrolled to this exercise's course".to_string(),
             None,
-        );
+        )
+        .with_message_key(MessageKey::NotEnrolled);
         let response = err.error_response();
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
         let bytes = actix_web::body::to_bytes(response.into_body())
@@ -1479,19 +1295,20 @@ mod tests {
     #[test]
     fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
         for (reason, key) in [
-            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (MessageKey::ChapterNotOpenYet, "chapter_not_open_yet"),
             (
-                ForbiddenReason::ChapterNotUnlockedYet,
+                MessageKey::ChapterNotUnlockedYet,
                 "chapter_not_unlocked_yet",
             ),
             (
-                ForbiddenReason::ChapterCompletedAndLocked,
+                MessageKey::ChapterCompletedAndLocked,
                 "chapter_completed_and_locked",
             ),
-            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
+            (MessageKey::ExerciseLocked, "exercise_locked"),
         ] {
-            let response =
-                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            let response = controller_err!(Forbidden, "locked".to_string())
+                .with_message_key(reason)
+                .error_response();
             assert_eq!(response.status(), StatusCode::FORBIDDEN);
             let bytes = actix_web::body::to_bytes(response.into_body())
                 .now_or_never()

@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::{
-    domain::error::{BadRequestReason, ForbiddenReason, bad_request_with_reason},
     domain::exercise_services::answer_uploads,
     domain::models_requests::{self, JwtKey},
     prelude::*,
 };
 use chrono::{Duration, Utc};
 use futures_util::future::OptionFuture;
+use headless_lms_models::errors::MessageKey;
 use models::{
     exercises::Exercise,
     library::grading::{
@@ -287,10 +287,8 @@ pub async fn is_out_of_tries_given(
 /// The rejection both try-limit checks report, kept in one place because the message reaches the
 /// student verbatim.
 fn out_of_tries_error() -> ControllerError {
-    bad_request_with_reason(
-        BadRequestReason::OutOfTries,
-        "You've run out of tries.".to_string(),
-    )
+    controller_err!(BadRequest, "You've run out of tries.".to_string())
+        .with_message_key(MessageKey::OutOfTries)
 }
 
 /// The per-slide try limit, or `None` when the exercise does not limit tries.
@@ -319,10 +317,11 @@ async fn enforce_chapter_locking(
     .await?
     {
         return Err(controller_err!(
-            ForbiddenWithReason(ForbiddenReason::ChapterNotUnlockedYet),
+            Forbidden,
             "Complete and lock the previous chapter to unlock exercises in this chapter."
                 .to_string()
-        ));
+        )
+        .with_message_key(MessageKey::ChapterNotUnlockedYet));
     }
     if models::user_chapter_locking_statuses::is_chapter_exercises_locked(
         conn, user_id, chapter_id, course_id,
@@ -330,9 +329,10 @@ async fn enforce_chapter_locking(
     .await?
     {
         return Err(controller_err!(
-            ForbiddenWithReason(ForbiddenReason::ChapterCompletedAndLocked),
+            Forbidden,
             "The current chapter is locked, and you can no longer submit exercises.".to_string()
-        ));
+        )
+        .with_message_key(MessageKey::ChapterCompletedAndLocked));
     }
     Ok(())
 }
@@ -354,10 +354,10 @@ async fn enforce_deadline(
         .or_else(|| chapter.and_then(|c| c.deadline))
         && Utc::now() + Duration::seconds(1) >= deadline
     {
-        return Err(bad_request_with_reason(
-            BadRequestReason::DeadlinePassed,
-            "Exercise deadline passed.".to_string(),
-        ));
+        return Err(
+            controller_err!(BadRequest, "Exercise deadline passed.".to_string())
+                .with_message_key(MessageKey::DeadlinePassed),
+        );
     }
 
     Ok(())
@@ -432,9 +432,10 @@ async fn verify_exercise_accepts_submissions(
     .await?;
     if state.is_some_and(|s| !s.reviewing_stage.accepts_submissions()) {
         return Err(controller_err!(
-            ForbiddenWithReason(ForbiddenReason::ExerciseLocked),
+            Forbidden,
             "This exercise is locked for you and takes no more submissions.".to_string()
-        ));
+        )
+        .with_message_key(MessageKey::ExerciseLocked));
     }
     Ok(())
 }

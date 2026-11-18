@@ -4,8 +4,8 @@ import { normalizeErrorForDisplay } from "../normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../resolveErrorDisplayCopy"
 
 const translations: Record<string, string> = {
-  "error-message-key.validation_error_with_metadata.title": "Invalid input",
-  "error-message-key.validation_error_with_metadata.message":
+  "error-message-key.validation_error_with_cms_anchor_block_id.title": "Invalid input",
+  "error-message-key.validation_error_with_cms_anchor_block_id.message":
     "Please check the highlighted content and try again.",
   "error-message-key.chapter_not_open_yet.title": "Chapter is closed",
   "error-message-key.chapter_not_open_yet.message": "This chapter is not open yet.",
@@ -26,7 +26,7 @@ describe("resolveErrorDisplayCopy", () => {
     const view = normalizeErrorForDisplay(
       {
         type: "validation_error",
-        message_key: "validation_error_with_metadata",
+        message_key: "validation_error_with_cms_anchor_block_id",
         message: "Non-localized backend message",
         errors: [{ path: "exercise_type", code: "missing_exercise_type", message: "raw" }],
         metadata: { block_id: "block-1" },
@@ -44,7 +44,7 @@ describe("resolveErrorDisplayCopy", () => {
     const view = normalizeErrorForDisplay(
       {
         type: "validation_error",
-        message_key: "validation_error_with_metadata",
+        message_key: "validation_error_with_cms_anchor_block_id",
         message: "Non-localized backend message",
         errors: [{ path: "exercise_type", code: "some_other_issue", message: "raw" }],
       },

@@ -5,8 +5,8 @@
 //! student-controlled, so the checks live here rather than in either caller — a second copy would
 //! be a second thing to keep in step.
 
-use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
+use headless_lms_models::errors::MessageKey;
 use models::exercise_answer_uploads::AnswerUpload;
 use std::collections::HashSet;
 
@@ -37,17 +37,19 @@ pub fn verify_uploads_are_usable(
     for id in requested {
         match found.iter().find(|upload| &upload.file_upload_id == id) {
             Some(upload) if upload.deleted => {
-                return Err(bad_request_with_reason(
-                    BadRequestReason::UploadExpired,
-                    format!("Uploaded file {id} is no longer available; upload it again"),
-                ));
+                return Err(controller_err!(
+                    BadRequest,
+                    format!("Uploaded file {id} is no longer available; upload it again")
+                )
+                .with_message_key(MessageKey::UploadExpired));
             }
             Some(_) => {}
             None => {
-                return Err(bad_request_with_reason(
-                    BadRequestReason::UnknownUpload,
-                    format!("Uploaded file {id} was not uploaded for this exercise by this user"),
-                ));
+                return Err(controller_err!(
+                    BadRequest,
+                    format!("Uploaded file {id} was not uploaded for this exercise by this user")
+                )
+                .with_message_key(MessageKey::UnknownUpload));
             }
         }
     }
@@ -63,10 +65,11 @@ pub fn verify_uploads_are_distinct(requested: &[Uuid]) -> Result<(), ControllerE
     let mut seen = HashSet::with_capacity(requested.len());
     for id in requested {
         if !seen.insert(id) {
-            return Err(bad_request_with_reason(
-                BadRequestReason::DuplicateUpload,
-                format!("Uploaded file {id} was named more than once"),
-            ));
+            return Err(controller_err!(
+                BadRequest,
+                format!("Uploaded file {id} was named more than once")
+            )
+            .with_message_key(MessageKey::DuplicateUpload));
         }
     }
     Ok(())

@@ -18,7 +18,6 @@ export type MessageKey =
   | "unauthorized"
   | "forbidden"
   | "oauth_error"
-  | "sisu_error"
   | "course_slug_already_taken"
   | {
       foreign_key_violation: {
@@ -37,13 +36,25 @@ export type MessageKey =
       }
     }
   | "not_enrolled"
+  | "deadline_passed"
+  | "out_of_tries"
   | "upload_expired"
   | "unknown_upload"
   | "duplicate_upload"
+  | "backup_not_shareable"
+  | "external_credit_target_tiers_overlap"
+  | "external_credit_target_course_code_taken"
+  | "external_credit_target_moocfi_course_fixed"
   | "stale_version"
-  | "chapter_not_open_yet"
   | "authentication_required_for_exam_exercise"
   | "response_validation_error"
+  | "invalid_course_code"
+  | "generic_sisu_error"
+  | "sisu_resource_not_found"
+  | "chapter_not_open_yet"
+  | "chapter_not_unlocked_yet"
+  | "chapter_completed_and_locked"
+  | "exercise_locked"
 
 export type NewErrorReport = {
   app_version?: string | null

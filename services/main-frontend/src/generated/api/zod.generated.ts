@@ -5820,6 +5820,7 @@ export const zRequestEmailVerificationOutcome = z.enum([
   "queued",
   "already_verified",
   "recently_sent",
+  "daily_limit_reached",
 ])
 
 export const zRequestEmailVerificationPayload = z.object({
@@ -13125,6 +13126,13 @@ export const zGetMyProgressByPlatformResponse = zProgressByPlatform
  */
 export const zGetMyStudiesResponse = zMyStudies
 
+export const zSendResetPasswordEmailBody = zEmailData
+
+/**
+ * Reset password email accepted
+ */
+export const zSendResetPasswordEmailResponse = z.boolean()
+
 export const zResetUserPasswordBody = zResetPasswordData
 
 /**
@@ -13138,13 +13146,6 @@ export const zGetResetPasswordTokenStatusBody = zResetPasswordTokenPayload
  * Reset password token validity
  */
 export const zGetResetPasswordTokenStatusResponse = z.boolean()
-
-export const zSendResetPasswordEmailBody = zEmailData
-
-/**
- * Reset password email accepted
- */
-export const zSendResetPasswordEmailResponse = z.boolean()
 
 export const zCreateUserResearchConsentBody = zConsentData
 

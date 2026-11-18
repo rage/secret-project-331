@@ -14000,6 +14000,28 @@ export const getMyStudiesOptions = (options?: Options<GetMyStudiesData>) =>
     queryKey: getMyStudiesQueryKey(options),
   })
 
+export const sendResetPasswordEmailMutation = (
+  options?: Partial<Options<SendResetPasswordEmailData>>,
+): UseMutationOptions<
+  SendResetPasswordEmailResponse,
+  DefaultError,
+  Options<SendResetPasswordEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendResetPasswordEmailResponse,
+    DefaultError,
+    Options<SendResetPasswordEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendResetPasswordEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,
 ): UseMutationOptions<ResetUserPasswordResponse, DefaultError, Options<ResetUserPasswordData>> => {
@@ -14032,28 +14054,6 @@ export const getResetPasswordTokenStatusMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await getResetPasswordTokenStatus({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-export const sendResetPasswordEmailMutation = (
-  options?: Partial<Options<SendResetPasswordEmailData>>,
-): UseMutationOptions<
-  SendResetPasswordEmailResponse,
-  DefaultError,
-  Options<SendResetPasswordEmailData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SendResetPasswordEmailResponse,
-    DefaultError,
-    Options<SendResetPasswordEmailData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await sendResetPasswordEmail({
         ...options,
         ...fnOptions,
         throwOnError: true,

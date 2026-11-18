@@ -92,6 +92,7 @@ async fn test_runtime_config() -> &'static ServerRuntimeConfig {
             redis_url: SecretString::new("redis://example.com".into()),
             mock_suotar_redis_db_index: 2,
             private_cookie_key: SecretString::new(PRIVATE_COOKIE_KEY.into()),
+            form_context_secret: SecretString::new("integration-test-intentionally-public".into()),
             test_mode: app_conf.test_mode,
             allow_no_https_for_development: true,
             host: "0.0.0.0".to_string(),

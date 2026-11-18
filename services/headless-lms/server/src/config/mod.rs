@@ -75,6 +75,8 @@ pub struct ServerRuntimeConfig {
     /// The mock Suotar's own Redis database, off the cache's index 1 so a flush cannot reach it.
     pub mock_suotar_redis_db_index: i64,
     pub private_cookie_key: SecretString,
+    /// Keys the inbox hashes of [`crate::domain::mail_budget`].
+    pub form_context_secret: SecretString,
     pub test_mode: bool,
     pub allow_no_https_for_development: bool,
     pub host: String,
@@ -141,6 +143,7 @@ impl ServerRuntimeConfig {
                     .context("PRIVATE_COOKIE_KEY must be defined")?
                     .into(),
             ),
+            form_context_secret: form_context_secret_from_env()?,
             allow_no_https_for_development,
             host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
             port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
@@ -167,6 +170,16 @@ impl ServerRuntimeConfig {
     }
 }
 
+/// Reads `FORM_CONTEXT_SECRET`, for programs that run without [`ServerRuntimeConfig`]; elsewhere
+/// use [`ServerRuntimeConfig::form_context_secret`].
+pub fn form_context_secret_from_env() -> anyhow::Result<SecretString> {
+    Ok(SecretString::new(
+        env::var("FORM_CONTEXT_SECRET")
+            .context("FORM_CONTEXT_SECRET must be defined")?
+            .into(),
+    ))
+}
+
 /// Sets global runtime configuration for request-path consumers.
 pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<()> {
     SERVER_RUNTIME_CONFIG.set(config).map_err(|_| {
@@ -174,6 +187,11 @@ pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<
             "SERVER_RUNTIME_CONFIG was already initialized in set_server_runtime_config"
         )
     })
+}
+
+/// [`server_runtime_config`], or `None` in programs that never set it.
+pub fn try_server_runtime_config() -> Option<&'static ServerRuntimeConfig> {
+    SERVER_RUNTIME_CONFIG.get()
 }
 
 /// Returns global runtime configuration loaded during startup.

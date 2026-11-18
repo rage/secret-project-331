@@ -60,6 +60,7 @@ pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registration_roster_schedules;
 pub mod credit_registrations;
+pub mod email_address_mail_budgets;
 pub mod email_deliveries;
 pub mod email_layouts;
 pub mod email_templates;

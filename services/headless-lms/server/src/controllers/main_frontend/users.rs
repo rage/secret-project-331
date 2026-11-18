@@ -1,3 +1,4 @@
+use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
@@ -1012,7 +1013,14 @@ pub async fn send_reset_password_email(
             && sent_today.is_empty()
             && models::user_passwords::check_if_users_password_is_stored(&mut tx, user.id).await?;
         // Every outcome gets the same answer, so the response never tells whether an account exists.
-        if !is_new_account && !sent_recently && sent_today.len() < MAX_RESET_MAILS_PER_DAY {
+        // Other accounts reaching the same inbox share its budget, so it must not hold back a proven
+        // owner's own resets.
+        if !is_new_account
+            && !sent_recently
+            && sent_today.len() < MAX_RESET_MAILS_PER_DAY
+            && (models::user_details::has_mailbox_proof(&mut tx, user.id).await?
+                || mail_budget::try_consume_for_user(&mut tx, user.id).await?)
+        {
             models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
             models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)

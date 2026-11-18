@@ -11,7 +11,7 @@ use headless_lms_models::{
     user_email_codes::UserEmailCodePurpose,
 };
 
-use crate::prelude::*;
+use crate::{domain::mail_budget, prelude::*};
 
 /// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
@@ -96,19 +96,24 @@ pub async fn queue_verification_email(
         return Ok(VerificationEmailOutcome::DailyLimitReached);
     }
 
-    mail_new_code(
-        &mut tx,
-        user_id,
-        PURPOSE,
-        EmailTemplateType::VerifyEmailAddress,
-        language,
-    )
-    .await?;
+    // Queued also when the inbox budget refuses the mail, so the outcome does not depend on mails
+    // other accounts caused to the inbox. Checked before minting: minting retires the live code.
+    if mail_budget::try_consume_for_user(&mut tx, user_id).await? {
+        mail_new_code(
+            &mut tx,
+            user_id,
+            PURPOSE,
+            EmailTemplateType::VerifyEmailAddress,
+            language,
+        )
+        .await?;
+    }
     tx.commit().await?;
     Ok(VerificationEmailOutcome::Queued)
 }
 
-/// Mints a code for `purpose` and queues the `template_type` mail that carries it.
+/// Mints a code for `purpose` and queues the `template_type` mail that carries it. Does not spend the
+/// [daily mail budget](crate::domain::mail_budget); callers mailing unproven addresses must.
 ///
 /// Errors when the deployment has no such template: the lookup falls back to English, so no row
 /// means none at all.

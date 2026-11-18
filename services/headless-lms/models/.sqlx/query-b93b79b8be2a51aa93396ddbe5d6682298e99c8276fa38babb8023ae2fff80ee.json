@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO email_address_mail_budgets AS t (inbox_key, day, mails_queued)\nVALUES ($1, (now() AT TIME ZONE 'UTC')::date, 1)\nON CONFLICT (inbox_key, day) DO UPDATE\nSET mails_queued = t.mails_queued + 1\nWHERE t.mails_queued < $2\nRETURNING mails_queued\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "mails_queued",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "email_address_mail_budgets",
+            "name": "mails_queued"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "b93b79b8be2a51aa93396ddbe5d6682298e99c8276fa38babb8023ae2fff80ee"
+}

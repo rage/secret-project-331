@@ -1,0 +1,1 @@
+DROP TABLE email_address_mail_budgets;

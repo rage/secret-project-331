@@ -298,12 +298,12 @@ WHERE user_id = $1
     .await?;
 
     // Attempt to insert new token; the unique index ensures no more than one active token per user.
-    // clock_timestamp(), not the NOW() default: callers hold a lock taken mid-transaction, and the
-    // resend interval is measured from this time.
+    // clock_timestamp(), not the NOW() defaults: callers hold a lock taken mid-transaction, and the
+    // resend interval and lifetime are measured from this time. Lifetime matches the column default.
     let record = sqlx::query!(
         r#"
-      INSERT INTO password_reset_tokens (token, user_id, created_at)
-VALUES ($1, $2, clock_timestamp())
+      INSERT INTO password_reset_tokens (token, user_id, created_at, expires_at)
+VALUES ($1, $2, clock_timestamp(), clock_timestamp() + INTERVAL '1 hour')
 RETURNING *
         "#,
         token,

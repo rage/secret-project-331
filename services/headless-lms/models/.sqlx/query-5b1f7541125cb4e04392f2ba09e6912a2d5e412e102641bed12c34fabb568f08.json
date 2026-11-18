@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      INSERT INTO password_reset_tokens (token, user_id, created_at)\nVALUES ($1, $2, clock_timestamp())\nRETURNING *\n        ",
+  "query": "\n      INSERT INTO password_reset_tokens (token, user_id, created_at, expires_at)\nVALUES ($1, $2, clock_timestamp(), clock_timestamp() + INTERVAL '1 hour')\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -109,5 +109,5 @@
       true
     ]
   },
-  "hash": "7c96dc8cb8df9eb741557df509692523a7b523672a94881dcdbccbbb6dad698f"
+  "hash": "5b1f7541125cb4e04392f2ba09e6912a2d5e412e102641bed12c34fabb568f08"
 }

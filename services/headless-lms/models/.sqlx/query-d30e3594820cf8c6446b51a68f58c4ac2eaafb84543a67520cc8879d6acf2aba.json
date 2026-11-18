@@ -93,7 +93,7 @@
       ]
     },
     "nullable": [
-      null,
+      true,
       null,
       null,
       null

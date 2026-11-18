@@ -2,8 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useAtomValue, useSetAtom } from "jotai"
-import React, { useEffect } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import EndQuestionnaireDialog from "@/components/course-material/modals/EndQuestionnaireDialog"
@@ -20,7 +19,6 @@ import {
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
 
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 
@@ -69,26 +67,9 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
     requiresExam,
   )
 
-  const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
-  const setShowEndQuestionnaire = useSetAtom(needsToAnswerEndQuestionnaire)
-
-  useEffect(() => {
-    let shouldShow =
-      points.given !== null &&
-      points.required !== null &&
-      points.given >= points.required &&
-      exercises.given !== null &&
-      exercises.required !== null &&
-      exercises.given >= exercises.required &&
-      courseModuleProgress.requires_ending_questionnaire &&
-      !courseModuleProgress.ending_questionnaire_answered &&
-      !courseModuleProgress.completion_attained
-
-    setShowEndQuestionnaire(shouldShow)
-  }, [courseModuleProgress, points, exercises, setShowEndQuestionnaire])
+  const showEndQuestionnaire = courseModuleProgress.needs_to_answer_ending_questionnaire
 
   // todo: show the congratulations block and update text for course/module
-  console.log(showEndQuestionnaire)
   return (
     <>
       <TotalWrapper>

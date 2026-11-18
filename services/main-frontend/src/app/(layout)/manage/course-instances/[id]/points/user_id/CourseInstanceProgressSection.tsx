@@ -62,6 +62,18 @@ const InfoItem = styled.div`
   border: 1px solid ${baseTheme.colors.clear[200]};
 `
 
+const suspectedCheatingStyle = (sus: boolean) => css`
+  ${
+    sus &&
+    `background-color: ${baseTheme.colors.red[100]};
+    border: 1px solid ${baseTheme.colors.red[500]};
+    > span:first-of-type {
+      color: ${baseTheme.colors.gray[600]};
+    }
+    `
+  }
+`
+
 const Label = styled.span`
   color: ${baseTheme.colors.gray[500]};
   font-size: 0.875rem;
@@ -122,6 +134,7 @@ const ProgressValue = styled.span`
 
 const iconStyle = css`
   position: absolute;
+  color: ${baseTheme.colors.red[800]};
   margin: 0.25rem;
   margin-left: 0.5rem;
 `
@@ -258,18 +271,8 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                       <ProgressBar progress={exercisesProgress} required={exercisesRequired} />
                       <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
                     </InfoItem>
-                    <InfoItem
-                      className={css`
-                        ${suspectedCheating && `background-color: ${baseTheme.colors.red[200]};`}
-                      `}
-                    >
-                      <Label
-                        className={css`
-                          ${suspectedCheating && `color: ${baseTheme.colors.gray[600]};`}
-                        `}
-                      >
-                        {t("suspected-cheating")}
-                      </Label>
+                    <InfoItem className={suspectedCheatingStyle(suspectedCheating)}>
+                      <Label>{t("suspected-cheating")}</Label>
                       <Value>
                         <BooleanAsYesOrNoText value={suspectedCheating} />
                         {suspectedCheating && (

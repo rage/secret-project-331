@@ -12,7 +12,6 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
-import { organizationSlugAtom } from "@/state/layoutAtoms"
 
 import Topbar from "./Topbar"
 
@@ -27,7 +26,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 }) => {
   const pathname = usePathname()
   const courseId = useAtomValue(currentCourseIdAtom)
-  const organizationSlug = useAtomValue(organizationSlugAtom)
 
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
@@ -61,11 +59,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
           min-height: 100vh;
         `}
       >
-        <Topbar
-          courseId={courseId}
-          organizationSlug={organizationSlug}
-          currentPagePath={pathname}
-        />
+        <Topbar courseId={courseId} currentPagePath={pathname} />
 
         <main id="maincontent">
           <Centered variant="default">{children}</Centered>

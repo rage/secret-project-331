@@ -9,13 +9,16 @@ import React, { useContext } from "react"
 import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import type { UserCourseProgress } from "@/generated/api/types.generated"
+import useUserCourseProgress from "@/hooks/course-material/useUserCourseProgress"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
-import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
+import { materialInstanceAtom } from "@/state/course-material/selectors"
+import { organizationSlugAtom } from "@/state/layoutAtoms"
 
 import EndQuestionnaireDialog from "../course-material/modals/EndQuestionnaireDialog"
 import Brand from "./Brand"
@@ -25,6 +28,14 @@ import { MobileMenuOverlay } from "./MobileMenu/MobileMenuOverlay"
 import QuickActionsMenu from "./QuickActionsMenu"
 import SearchButton from "./SearchButton"
 import UserMenu from "./UserMenu"
+
+// Returns one random module's id if that requires end questions, or null if none do
+const needsToShowEndQuestionnaire = (progress: UserCourseProgress[] | undefined): string | null => {
+  if (!progress) {
+    return null
+  }
+  return progress.find((x) => x.needs_to_answer_ending_questionnaire)?.course_module_id ?? null
+}
 
 interface MenuOption {
   type: "link" | "action" | "separator"
@@ -94,7 +105,6 @@ interface LanguageMenuProps {
 interface TopbarProps {
   children?: React.ReactNode
   courseId?: string | null
-  organizationSlug?: string | null
   currentPagePath?: string
   // Feature toggles
   enableSearch?: boolean
@@ -110,7 +120,6 @@ interface TopbarProps {
 const Topbar: React.FC<TopbarProps> = ({
   children,
   courseId,
-  organizationSlug,
   currentPagePath,
   enableSearch = true,
   enableLanguageMenu = true,
@@ -128,7 +137,10 @@ const Topbar: React.FC<TopbarProps> = ({
   const signUpPathWithReturnTo = signUpRoute(returnTo, i18n.language)
 
   const menuState = useOverlayTriggerState({})
-  const showEndQuestionnaire = useAtomValue(needsToAnswerEndQuestionnaire)
+  const courseInstanceId = useAtomValue(materialInstanceAtom)?.id
+  const organizationSlug = useAtomValue(organizationSlugAtom)
+  const userCourseProgress = useUserCourseProgress(courseInstanceId).data
+  const showEndQuestionnaireModuleId = needsToShowEndQuestionnaire(userCourseProgress)
 
   return (
     <>
@@ -160,7 +172,7 @@ const Topbar: React.FC<TopbarProps> = ({
           >
             <Brand />
 
-            {showEndQuestionnaire && (
+            {showEndQuestionnaireModuleId && (
               <div
                 className={css`
                   display: flex;
@@ -184,7 +196,12 @@ const Topbar: React.FC<TopbarProps> = ({
 
                 {
                   // todo!! fix
-                  courseId && <EndQuestionnaireDialog courseId={courseId} courseModuleId="" />
+                  courseId && (
+                    <EndQuestionnaireDialog
+                      courseId={courseId}
+                      courseModuleId={showEndQuestionnaireModuleId}
+                    />
+                  )
                 }
               </div>
             )}

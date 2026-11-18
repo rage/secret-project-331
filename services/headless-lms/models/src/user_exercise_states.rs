@@ -121,6 +121,7 @@ pub struct UserCourseProgress {
     pub requires_exam: bool,
     pub requires_ending_questionnaire: bool,
     pub ending_questionnaire_answered: bool,
+    pub needs_to_answer_ending_questionnaire: bool,
     pub completion_attained: bool,
 }
 
@@ -586,9 +587,26 @@ fn merge_modules_with_metrics(
             let answered_module_end_questions = end_questions_answered_by_course_module_id
                 .get(&course_module.id)
                 .unwrap_or(&false);
+
             let attained_completion = user_module_completions
                 .get(&course_module.id)
                 .unwrap_or(&false);
+            let requires_ending_questionnaire = course_module.ending_questions_required;
+
+            let needs_to_answer_ending_questionnaire = !attained_completion
+                && requires_ending_questionnaire
+                && !*answered_module_end_questions
+                && if let Some(req) = requirements
+                    && let Some(u_m) = user_metrics
+                {
+                    u_m.score_given.unwrap_or(0 as f32)
+                        >= req.number_of_points_treshold.unwrap_or(0 as i32) as f32
+                        && u_m.attempted_exercises.unwrap_or(0)
+                            >= req.number_of_exercises_attempted_treshold.unwrap_or(0) as i64
+                } else {
+                    true
+                };
+
             let progress = UserCourseProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
@@ -616,9 +634,10 @@ fn merge_modules_with_metrics(
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
                 automatic_completion: requirements.is_some(),
                 requires_exam: requirements.is_some_and(|x| x.requires_exam),
-                requires_ending_questionnaire: course_module.ending_questions_required,
+                requires_ending_questionnaire,
                 ending_questionnaire_answered: *answered_module_end_questions,
                 completion_attained: *attained_completion,
+                needs_to_answer_ending_questionnaire,
             };
             Ok(progress)
         })

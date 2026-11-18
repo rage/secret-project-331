@@ -307,6 +307,7 @@ mod tests {
             requires_exam: false,
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
+            needs_to_answer_ending_questionnaire: false,
             completion_attained: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
@@ -338,6 +339,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 requires_ending_questionnaire: false,
                 ending_questionnaire_answered: false,
                 completion_attained: false,
+                needs_to_answer_ending_questionnaire: false,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -354,6 +356,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 requires_ending_questionnaire: false,
                 ending_questionnaire_answered: false,
                 completion_attained: false,
+                needs_to_answer_ending_questionnaire: false,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -370,6 +373,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 requires_ending_questionnaire: false,
                 ending_questionnaire_answered: false,
                 completion_attained: false,
+                needs_to_answer_ending_questionnaire: false,
             },
             UserCourseProgress {
                 course_module_id: Uuid::nil(),
@@ -386,6 +390,7 @@ Instructions for describing the output: [instructions]Describe this information 
                 requires_ending_questionnaire: false,
                 ending_questionnaire_answered: false,
                 completion_attained: false,
+                needs_to_answer_ending_questionnaire: false,
             },
         ];
 
@@ -436,6 +441,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -466,6 +472,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -495,6 +502,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -524,6 +532,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -553,6 +562,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -582,6 +592,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();
@@ -611,6 +622,7 @@ Instructions for describing the output: [instructions]Describe this information 
             requires_ending_questionnaire: false,
             ending_questionnaire_answered: false,
             completion_attained: false,
+            needs_to_answer_ending_questionnaire: false,
         }];
         let tool = CourseProgressTool::new_mock("Advanced Chatbot Course".to_string(), progress);
         let output = tool.get_tool_output();

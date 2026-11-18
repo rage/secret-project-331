@@ -1,13 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
-import { useSetAtom } from "jotai"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useAtomValue, useSetAtom } from "jotai"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { saveCourseModuleEndQuestionnaireAnswersMutation } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import {
+  getCourseMaterialUserCourseProgressQueryKey,
+  saveCourseModuleEndQuestionnaireAnswersMutation,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { getCourseModuleEndQuestionnaire } from "@/generated/course-material-api/sdk.generated"
 import type { CourseModuleEndingQuestion } from "@/generated/course-material-api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -17,7 +20,7 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { RadioGroup, Radio, TextArea, Button, Checkbox } from "@/shared-module/components"
-import { needsToAnswerEndQuestionnaire } from "@/stores/course-material/endQuestionStore"
+import { materialInstanceAtom } from "@/state/course-material/selectors"
 
 interface Answer {
   freeText: string
@@ -50,8 +53,10 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
   courseModuleId,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const courseInstanceId = useAtomValue(materialInstanceAtom)?.id
+
   const [open, setOpen] = useState(false)
-  const setShowEndQuestionnaire = useSetAtom(needsToAnswerEndQuestionnaire)
   const { control, handleSubmit } = useForm<AnswersData>({
     defaultValues: {},
     // oxlint-disable-next-line i18next/no-literal-string
@@ -75,7 +80,13 @@ const EndQuestionnaireDialog: React.FC<EndQuestionnaireDialogProps> = ({
     {
       onSuccess: () => {
         setOpen(false)
-        setShowEndQuestionnaire(false)
+        queryClient.invalidateQueries({
+          queryKey: getCourseMaterialUserCourseProgressQueryKey({
+            path: {
+              course_instance_id: courseInstanceId,
+            },
+          }),
+        })
       },
     },
   )

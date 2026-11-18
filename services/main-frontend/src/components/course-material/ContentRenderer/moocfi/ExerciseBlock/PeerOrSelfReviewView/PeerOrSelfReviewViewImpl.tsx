@@ -128,6 +128,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
+        // invalidate usercourseprogress?
         // still old data because we have't refetched yet
         const givenEnoughReviews =
           (peerOrSelfReviewData?.peer_or_self_review_config.peer_reviews_to_give ??

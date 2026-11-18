@@ -20,6 +20,7 @@ import {
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
 import { exerciseCardPillShell } from "@/components/exercise-card/exerciseCardPillShell"
+import { getCourseMaterialUserCourseProgressQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import {
   postStartPeerOrSelfReview,
   postSubmission,
@@ -343,6 +344,13 @@ const ExerciseBlock: React.FC<
         exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
+        queryClient.invalidateQueries({
+          queryKey: getCourseMaterialUserCourseProgressQueryKeyressQueryKey({
+            path: {
+              course_instance_id: courseInstanceId,
+            },
+          }),
+        })
       },
     },
   )

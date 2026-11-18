@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
 import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
@@ -79,11 +78,6 @@ const Value = styled.span`
   color: ${baseTheme.colors.gray[700]};
   font-size: 1rem;
 `
-const iconStyle = css`
-  position: absolute;
-  margin: 0.25rem;
-  margin-left: 0.5rem;
-`
 
 interface CourseModuleCompletionsSectionProps {
   userId: string
@@ -103,10 +97,6 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
       return grade.toString()
     }
     return passed ? t("label-passed") : t("label-not-passed")
-  }
-
-  const booleanToYesNoText = (x: boolean) => {
-    return x ? t("yes") : t("no")
   }
 
   const heading = (

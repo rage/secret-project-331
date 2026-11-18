@@ -29968,6 +29968,7 @@
           "requires_exam",
           "requires_ending_questionnaire",
           "ending_questionnaire_answered",
+          "needs_to_answer_ending_questionnaire",
           "completion_attained"
         ],
         "properties": {
@@ -29998,6 +29999,9 @@
             "format": "int32"
           },
           "ending_questionnaire_answered": {
+            "type": "boolean"
+          },
+          "needs_to_answer_ending_questionnaire": {
             "type": "boolean"
           },
           "requires_ending_questionnaire": {

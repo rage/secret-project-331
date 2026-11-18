@@ -10441,6 +10441,20 @@ export const getMyStudies = <ThrowOnError extends boolean = true>(
     ...options,
   })
 
+export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(
+  options: Options<SendResetPasswordEmailData, ThrowOnError>,
+): RequestResult<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSendResetPasswordEmailResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/users/request-password-reset",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 export const resetUserPassword = <ThrowOnError extends boolean = true>(
   options: Options<ResetUserPasswordData, ThrowOnError>,
 ): RequestResult<ResetUserPasswordResponses, unknown, ThrowOnError, "data"> =>
@@ -10467,20 +10481,6 @@ export const getResetPasswordTokenStatus = <ThrowOnError extends boolean = true>
     responseValidator: async (data) => await zGetResetPasswordTokenStatusResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/reset-password-token-status",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(
-  options: Options<SendResetPasswordEmailData, ThrowOnError>,
-): RequestResult<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zSendResetPasswordEmailResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/users/send-reset-password-email",
     ...options,
     headers: {
       "Content-Type": "application/json",

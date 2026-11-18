@@ -297,11 +297,13 @@ WHERE user_id = $1
     .execute(&mut *tx)
     .await?;
 
-    // Attempt to insert new token; the unique index ensures no more than one active token per user
+    // Attempt to insert new token; the unique index ensures no more than one active token per user.
+    // clock_timestamp(), not the NOW() defaults: callers hold a lock taken mid-transaction, and the
+    // resend interval and lifetime are measured from this time. Lifetime matches the column default.
     let record = sqlx::query!(
         r#"
-      INSERT INTO password_reset_tokens (token, user_id)
-VALUES ($1, $2)
+      INSERT INTO password_reset_tokens (token, user_id, created_at, expires_at)
+VALUES ($1, $2, clock_timestamp(), clock_timestamp() + INTERVAL '1 hour')
 RETURNING *
         "#,
         token,
@@ -313,6 +315,42 @@ RETURNING *
     tx.commit().await?;
 
     Ok(record.token)
+}
+
+/// Serializes issuing reset tokens to the user until the transaction ends, so a read from
+/// [`get_password_reset_token_creation_times_since`] stays current until the token is issued.
+pub async fn lock_password_reset_tokens_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "SELECT pg_advisory_xact_lock(hashtextextended($1, 0))",
+        format!("password_reset_tokens:{user_id}")
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// When the user was issued reset tokens after `since`, used and superseded ones included.
+pub async fn get_password_reset_token_creation_times_since(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    since: DateTime<Utc>,
+) -> ModelResult<Vec<DateTime<Utc>>> {
+    let created_at = sqlx::query_scalar!(
+        r#"
+SELECT created_at
+FROM password_reset_tokens
+WHERE user_id = $1
+  AND created_at > $2
+        "#,
+        user_id,
+        since,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(created_at)
 }
 
 pub async fn get_unused_reset_password_token_with_user_id(

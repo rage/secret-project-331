@@ -62,6 +62,7 @@ pub enum RequestEmailVerificationOutcome {
     AlreadyVerified,
     /// A code went to this address moments ago.
     RecentlySent,
+    DailyLimitReached,
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -173,6 +174,9 @@ pub async fn request_email_verification_code(
             RequestEmailVerificationOutcome::AlreadyVerified
         }
         VerificationEmailOutcome::RecentlySent => RequestEmailVerificationOutcome::RecentlySent,
+        VerificationEmailOutcome::DailyLimitReached => {
+            RequestEmailVerificationOutcome::DailyLimitReached
+        }
     }))
 }
 

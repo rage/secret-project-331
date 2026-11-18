@@ -34,6 +34,10 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.getByText("Save as png").waitFor()
   const currentUrl = page.url()
   await expect(page.getByRole("heading", { name: "Certificate details" })).toBeVisible()
+  // The issue date is the day the test runs
+  await page.getByText(/^[A-Z][a-z]+ \d{1,2}, \d{4}$/).evaluate((element) => {
+    element.textContent = "November 18, 2026"
+  })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,

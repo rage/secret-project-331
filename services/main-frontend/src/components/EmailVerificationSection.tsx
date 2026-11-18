@@ -185,6 +185,11 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         </Button>
       )}
 
+      {/* Without a pending code there is no dialog to carry the outcome. */}
+      {!verified && !pendingCode && outcome && OUTCOME_KEYS[outcome] ? (
+        <p data-testid="email-verification-request-outcome">{t(OUTCOME_KEYS[outcome])}</p>
+      ) : null}
+
       {verified || !pendingCode ? null : (
         <Dialog
           open={codeDialogOpen}

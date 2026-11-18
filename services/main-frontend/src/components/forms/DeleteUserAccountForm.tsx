@@ -51,6 +51,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
 
   const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
+  const [isCodeLimitReached, setIsCodeLimitReached] = useState(false)
   const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) =>
@@ -61,6 +62,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
     {
       onSuccess: (result) => {
         setIncorrectPassword(result.type === "incorrect_password")
+        setIsCodeLimitReached(result.type === "daily_limit_reached")
         switch (result.type) {
           case "queued":
             setCodeErrorMessage(null)
@@ -73,7 +75,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
             )
             setStep(VERIFY_CODE_STEP)
             break
-          // An earlier code may still work, and the code step is where the message shows.
+          // Nothing was sent, but a code from an earlier email may still work.
           case "daily_limit_reached":
             setCodeErrorMessage(t("message-code-daily-limit-reached"))
             setStep(VERIFY_CODE_STEP)
@@ -142,6 +144,7 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
     setPassword("")
     setIncorrectPassword(false)
     setCodeErrorMessage(null)
+    setIsCodeLimitReached(false)
     sendEmailCodeMutation.reset()
     deleteAccountMutation.reset()
   }
@@ -210,7 +213,11 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
 
         {step === VERIFY_CODE_STEP && (
           <OneTimeCodeForm
-            message={t("insert-single-use-code-account-deletion")}
+            message={
+              isCodeLimitReached
+                ? t("insert-earlier-code-account-deletion")
+                : t("insert-single-use-code-account-deletion")
+            }
             onSubmit={async (code) => {
               await deleteAccountMutation.mutateAsync(code)
             }}

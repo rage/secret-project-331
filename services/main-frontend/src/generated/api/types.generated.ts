@@ -1493,6 +1493,10 @@ export type BlockProposalInfo = {
   id: string
 }
 
+export type BlockStatusUpdate = {
+  block_statuses: unknown
+}
+
 /**
  * A problem that holds up many registrations at once.
  */
@@ -17866,6 +17870,27 @@ export type RestorePageHistoryResponses = {
 
 export type RestorePageHistoryResponse =
   RestorePageHistoryResponses[keyof RestorePageHistoryResponses]
+
+export type UpdateBlockStatusData = {
+  body: BlockStatusUpdate
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/pages/{page_id}/update-block-status"
+}
+
+export type UpdateBlockStatusResponses = {
+  /**
+   * Updated block viewing status
+   */
+  200: boolean
+}
+
+export type UpdateBlockStatusResponse = UpdateBlockStatusResponses[keyof UpdateBlockStatusResponses]
 
 export type ReceivePlaygroundGradingData = {
   body: ExerciseTaskGradingResult

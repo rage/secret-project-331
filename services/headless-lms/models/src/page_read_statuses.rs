@@ -90,3 +90,65 @@ RETURNING *
 
     Ok(res)
 }
+
+pub async fn upsert_block_statuses(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    page_id: Uuid,
+    block_statuses: BlockStatusUpdate,
+) -> ModelResult<PageReadStatus> {
+    let blocks = serde_json::to_value(block_statuses.block_statuses)?;
+    let res = sqlx::query_as!(
+        PageReadStatus,
+        r#"
+INSERT INTO page_read_statuses (
+        user_id,
+        page_id,
+        page_read,
+        block_statuses
+)
+VALUES (
+        $1,
+        $2,
+        false,
+        $3
+)
+ON CONFLICT (user_id, page_id)
+DO UPDATE SET
+        block_statuses = (
+                SELECT jsonb_object_agg(
+                    COALESCE(existing.key, incoming.key),
+                    CASE
+                        WHEN existing.key IS NULL THEN incoming.value
+                        WHEN incoming.key IS NULL THEN existing.value
+                        ELSE jsonb_build_object(
+                            'read_units',
+                            COALESCE(
+                                (existing.value ->> 'read_units')::numeric,
+                                0
+                            ) + COALESCE(
+                                (incoming.value ->> 'read_units')::numeric,
+                                0
+                            ),
+                            'last_seen',
+                            incoming.value -> 'last_seen'
+                        )
+                    END
+                )
+                FROM jsonb_each(
+                    COALESCE(page_read_statuses.block_statuses, '{}'::jsonb)
+                ) AS existing
+                FULL JOIN jsonb_each($3::jsonb) AS incoming
+                    ON existing.key = incoming.key
+            )
+RETURNING *
+"#,
+        user_id,
+        page_id,
+        blocks
+    )
+    .fetch_one(conn)
+    .await?;
+
+    Ok(res)
+}

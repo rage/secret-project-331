@@ -402,7 +402,7 @@ POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the blo
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/{page_id}/update-block-stats",
+    path = "/{page_id}/update-block-status",
     operation_id = "updateBlockStatus",
     tag = "pages",
     params(
@@ -423,12 +423,9 @@ async fn update_block_status(
 
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
 
-    let status = BlockStatusUpdate {
-        block_statuses: payload.page_read,
-    };
+    let status = payload.0;
 
-    models::page_read_statuses::upsert_page_read_status(&mut conn, user.id, *page_id, status)
-        .await?;
+    models::page_read_statuses::upsert_block_statuses(&mut conn, user.id, *page_id, status).await?;
 
     token.authorized_ok(web::Json(true))
 }

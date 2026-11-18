@@ -438,6 +438,7 @@ import {
   unhideCourseFromMyCourses,
   unlinkMyStudentNumber,
   unsetExamCourse,
+  updateBlockStatus,
   updateCertificateConfiguration,
   updateChapter,
   updateChapterImage,
@@ -1262,6 +1263,8 @@ import type {
   UnlinkMyStudentNumberData,
   UnlinkMyStudentNumberResponse,
   UnsetExamCourseData,
+  UpdateBlockStatusData,
+  UpdateBlockStatusResponse,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
   UpdateChapterData,
@@ -12608,6 +12611,27 @@ export const restorePageHistoryMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await restorePageHistory({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the block viewing status.
+ */
+export const updateBlockStatusMutation = (
+  options?: Partial<Options<UpdateBlockStatusData>>,
+): UseMutationOptions<UpdateBlockStatusResponse, DefaultError, Options<UpdateBlockStatusData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateBlockStatusResponse,
+    DefaultError,
+    Options<UpdateBlockStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateBlockStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,

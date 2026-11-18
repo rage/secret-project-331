@@ -730,6 +730,10 @@ export const zBlockProposalInfo = z.object({
   id: z.uuid(),
 })
 
+export const zBlockStatusUpdate = z.object({
+  block_statuses: z.unknown(),
+})
+
 /**
  * What kind of thing a [`BlockingProblem`] is, which decides what its `subject` names.
  */
@@ -12716,6 +12720,17 @@ export const zRestorePageHistoryPath = z.object({
  * Restored history id
  */
 export const zRestorePageHistoryResponse = z.uuid()
+
+export const zUpdateBlockStatusBody = zBlockStatusUpdate
+
+export const zUpdateBlockStatusPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * Updated block viewing status
+ */
+export const zUpdateBlockStatusResponse = z.boolean()
 
 export const zReceivePlaygroundGradingBody = zExerciseTaskGradingResult
 

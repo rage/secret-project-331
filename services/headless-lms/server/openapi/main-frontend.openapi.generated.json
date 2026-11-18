@@ -14743,6 +14743,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/pages/{page_id}/update-block-status": {
+      "post": {
+        "tags": ["pages"],
+        "summary": "POST `/api/v0/main-frontend/pages/:page_id/update-block-status` - Update the block viewing status.",
+        "operationId": "updateBlockStatus",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockStatusUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated block viewing status",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/playground-views/grading/{websocket_id}": {
       "post": {
         "tags": ["playground-views"],
@@ -19766,6 +19807,13 @@
             "type": "string",
             "format": "uuid"
           }
+        }
+      },
+      "BlockStatusUpdate": {
+        "type": "object",
+        "required": ["block_statuses"],
+        "properties": {
+          "block_statuses": {}
         }
       },
       "BlockingProblem": {

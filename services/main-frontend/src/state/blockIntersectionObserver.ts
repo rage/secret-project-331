@@ -1,5 +1,7 @@
 import { atom } from "jotai"
 
+import { updateBlockStatus } from "@/generated/api/sdk.generated"
+
 export const blockIntersectionObserverAtom = atom<IntersectionObserver | null>(null)
 
 interface ActiveBlock {
@@ -16,7 +18,14 @@ export const SendBlockStatuses = async (
   pageId: string,
   statuses: Record<string, BlockViewStatus>,
 ) => {
-  // Your API mutation here
+  return await updateBlockStatus({
+    path: {
+      page_id: pageId,
+    },
+    body: {
+      block_statuses: statuses,
+    },
+  })
 }
 
 blockIntersectionObserverAtom.onMount = (setAtom) => {
@@ -80,7 +89,8 @@ blockIntersectionObserverAtom.onMount = (setAtom) => {
       void flushStatuses()
     } else {
       visibleBlocks.forEach((id) => {
-        const element = document.querySelector(`#${id}`)
+        // oxlint-disable-next-line unicorn/prefer-query-selector -- id is a raw UUID; querySelector("#"+id) may throw, getElementById is safe
+        const element = document.getElementById(id)
         const pageId = element?.getAttribute("data-page-id")
 
         if (pageId) {

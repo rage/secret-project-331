@@ -100,6 +100,44 @@ export const postAuthAuthorizeMultipleMutation = (
 }
 
 /**
+ * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/auth/create-account HTTP/1.1
+ * Content-Type: application/json
+ *
+ * {
+ * "email": "student@example.com",
+ * "first_name": "John",
+ * "last_name": "Doe",
+ * "language": "en",
+ * "password": "hunter42",
+ * "password_confirmation": "hunter42",
+ * "country" : "Finland",
+ * "email_communication_consent": true
+ * }
+ * ```
+ */
+export const postAuthSignupMutation = (
+  options?: Partial<Options<PostAuthSignupData>>,
+): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSignupResponse,
+    DefaultError,
+    Options<PostAuthSignupData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSignup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -324,44 +362,6 @@ export const postAuthSessionStatusVerifyMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await postAuthSessionStatusVerify({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
- *
- * # Example
- * ```http
- * POST /api/v0/auth/signup HTTP/1.1
- * Content-Type: application/json
- *
- * {
- * "email": "student@example.com",
- * "first_name": "John",
- * "last_name": "Doe",
- * "language": "en",
- * "password": "hunter42",
- * "password_confirmation": "hunter42",
- * "country" : "Finland",
- * "email_communication_consent": true
- * }
- * ```
- */
-export const postAuthSignupMutation = (
-  options?: Partial<Options<PostAuthSignupData>>,
-): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthSignupResponse,
-    DefaultError,
-    Options<PostAuthSignupData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await postAuthSignup({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -3,6 +3,7 @@ use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, R
 use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
+use chrono::Duration;
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
@@ -915,6 +916,11 @@ pub async fn get_user_roles(
     token.authorized_ok(web::Json(res))
 }
 
+/// A new account has only just chosen its password, so it gets no reset mail until this old.
+const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
+const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
+const MAX_RESET_MAILS_PER_DAY: i64 = 3;
+
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct EmailData {
@@ -925,7 +931,7 @@ pub struct EmailData {
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/send-reset-password-email",
+    path = "/request-password-reset",
     operation_id = "sendResetPasswordEmail",
     tag = "users",
     request_body = EmailData,
@@ -957,8 +963,10 @@ pub async fn send_reset_password_email(
         )
     })?;
 
-    let user = match models::users::get_by_email(&mut conn, email).await {
-        Ok(user) => Some(user),
+    // Only accounts that existed before this request are age-checked: a row created below from TMC
+    // belongs to a long-standing user.
+    let (user, existed_before) = match models::users::get_by_email(&mut conn, email).await {
+        Ok(user) => (Some(user), true),
         Err(_) => {
             // If the user does not exist in the courses.mooc.fi database,
             // check TMC for the user and create a new user in courses.mooc.fi if found.
@@ -967,34 +975,55 @@ pub async fn send_reset_password_email(
                 // (e.g. the user changed their email in TMC). Reuse that row instead of inserting,
                 // which would violate the users_upstream_id_active_uniq_idx unique index.
                 match models::users::find_by_upstream_id(&mut conn, tmc_user.upstream_id).await? {
-                    Some(existing_user) => Some(existing_user),
-                    None => Some(
-                        models::users::insert_with_upstream_id_and_moocfi_id(
-                            &mut conn,
-                            &tmc_user.email,
-                            tmc_user.first_name.as_deref(),
-                            tmc_user.last_name.as_deref(),
-                            tmc_user.upstream_id,
-                            tmc_user.id,
-                        )
-                        .await?,
+                    Some(existing_user) => (Some(existing_user), true),
+                    None => (
+                        Some(
+                            models::users::insert_with_upstream_id_and_moocfi_id(
+                                &mut conn,
+                                &tmc_user.email,
+                                tmc_user.first_name.as_deref(),
+                                tmc_user.last_name.as_deref(),
+                                tmc_user.upstream_id,
+                                tmc_user.id,
+                            )
+                            .await?,
+                        ),
+                        false,
                     ),
                 }
             } else {
-                None
+                (None, false)
             }
         }
     };
 
     if let Some(user) = user {
-        let token = Uuid::new_v4();
-
-        let _password_token =
-            models::user_passwords::insert_password_reset_token(&mut conn, user.id, token).await?;
-
-        let _ =
-            models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_template.id)
+        let now = Utc::now();
+        let is_new_account = existed_before
+            && now - user.created_at < Duration::hours(RESET_MAIL_MIN_ACCOUNT_AGE_HOURS);
+        let mut tx = conn.begin().await?;
+        models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
+        let sent_recently = models::user_passwords::count_password_reset_tokens_created_since(
+            &mut tx,
+            user.id,
+            now - Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES),
+        )
+        .await?
+            > 0;
+        let sent_today = models::user_passwords::count_password_reset_tokens_created_since(
+            &mut tx,
+            user.id,
+            now - Duration::days(1),
+        )
+        .await?;
+        // Every outcome gets the same answer, so the response never tells whether an account exists.
+        if !is_new_account && !sent_recently && sent_today < MAX_RESET_MAILS_PER_DAY {
+            models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
+            models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)
+                .await?;
+        }
+        tx.commit().await?;
     }
 
     token.authorized_ok(web::Json(true))
@@ -1187,7 +1216,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         web::post().to(post_user_consents),
     )
     .route(
-        "/send-reset-password-email",
+        "/request-password-reset",
         web::post().to(send_reset_password_email),
     )
     .route("/{user_id}", web::get().to(get_user))

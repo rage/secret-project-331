@@ -13095,6 +13095,13 @@ export const zGetMyProgressByPlatformResponse = zProgressByPlatform
  */
 export const zGetMyStudiesResponse = zMyStudies
 
+export const zSendResetPasswordEmailBody = zEmailData
+
+/**
+ * Reset password email accepted
+ */
+export const zSendResetPasswordEmailResponse = z.boolean()
+
 export const zResetUserPasswordBody = zResetPasswordData
 
 /**
@@ -13108,13 +13115,6 @@ export const zGetResetPasswordTokenStatusBody = zResetPasswordTokenPayload
  * Reset password token validity
  */
 export const zGetResetPasswordTokenStatusResponse = z.boolean()
-
-export const zSendResetPasswordEmailBody = zEmailData
-
-/**
- * Reset password email accepted
- */
-export const zSendResetPasswordEmailResponse = z.boolean()
 
 export const zCreateUserResearchConsentBody = zConsentData
 

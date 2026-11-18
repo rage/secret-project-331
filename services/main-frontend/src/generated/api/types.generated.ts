@@ -18830,6 +18830,23 @@ export type GetMyStudiesResponses = {
 
 export type GetMyStudiesResponse = GetMyStudiesResponses[keyof GetMyStudiesResponses]
 
+export type SendResetPasswordEmailData = {
+  body: EmailData
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/request-password-reset"
+}
+
+export type SendResetPasswordEmailResponses = {
+  /**
+   * Reset password email accepted
+   */
+  200: boolean
+}
+
+export type SendResetPasswordEmailResponse =
+  SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
+
 export type ResetUserPasswordData = {
   body: ResetPasswordData
   path?: never
@@ -18862,23 +18879,6 @@ export type GetResetPasswordTokenStatusResponses = {
 
 export type GetResetPasswordTokenStatusResponse =
   GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses]
-
-export type SendResetPasswordEmailData = {
-  body: EmailData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/send-reset-password-email"
-}
-
-export type SendResetPasswordEmailResponses = {
-  /**
-   * Reset password email accepted
-   */
-  200: boolean
-}
-
-export type SendResetPasswordEmailResponse =
-  SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
 
 export type CreateUserResearchConsentData = {
   body: ConsentData

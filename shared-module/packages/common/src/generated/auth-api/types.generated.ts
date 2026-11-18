@@ -394,6 +394,29 @@ export type PostAuthAuthorizeMultipleResponses = {
 export type PostAuthAuthorizeMultipleResponse =
   PostAuthAuthorizeMultipleResponses[keyof PostAuthAuthorizeMultipleResponses]
 
+export type PostAuthSignupData = {
+  body: CreateAccountDetails
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account"
+}
+
+export type PostAuthSignupErrors = {
+  /**
+   * Cannot sign up (e.g. already signed in or validation error)
+   */
+  400: unknown
+}
+
+export type PostAuthSignupResponses = {
+  /**
+   * Signup outcome
+   */
+  200: SignupResponse
+}
+
+export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
+
 export type PostAuthDeleteUserAccountData = {
   body: EmailCode
   path?: never
@@ -524,29 +547,6 @@ export type PostAuthSessionStatusVerifyResponses = {
 
 export type PostAuthSessionStatusVerifyResponse =
   PostAuthSessionStatusVerifyResponses[keyof PostAuthSessionStatusVerifyResponses]
-
-export type PostAuthSignupData = {
-  body: CreateAccountDetails
-  path?: never
-  query?: never
-  url: "/api/v0/auth/signup"
-}
-
-export type PostAuthSignupErrors = {
-  /**
-   * Cannot sign up (e.g. already signed in or validation error)
-   */
-  400: unknown
-}
-
-export type PostAuthSignupResponses = {
-  /**
-   * Signup outcome
-   */
-  200: SignupResponse
-}
-
-export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
 
 export type GetAuthUserInfoData = {
   body?: never

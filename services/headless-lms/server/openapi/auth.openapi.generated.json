@@ -78,6 +78,38 @@
         }
       }
     },
+    "/api/v0/auth/create-account": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/create-account HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
+        "operationId": "postAuthSignup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDetails"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signup outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot sign up (e.g. already signed in or validation error)"
+          }
+        }
+      }
+    },
     "/api/v0/auth/delete-user-account": {
       "post": {
         "tags": ["auth"],
@@ -269,38 +301,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/v0/auth/signup": {
-      "post": {
-        "tags": ["auth"],
-        "summary": "POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
-        "operationId": "postAuthSignup",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAccountDetails"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Signup outcome",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SignupResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Cannot sign up (e.g. already signed in or validation error)"
           }
         }
       }
@@ -1051,7 +1051,7 @@
           },
           {
             "type": "object",
-            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.",
+            "description": "A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable, or\nthe daily allowance is used up.",
             "required": ["retry_after_seconds", "type"],
             "properties": {
               "retry_after_seconds": {

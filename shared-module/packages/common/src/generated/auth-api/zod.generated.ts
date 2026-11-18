@@ -383,6 +383,13 @@ export const zPostAuthAuthorizeMultipleBody = z.array(zActionOnResource)
  */
 export const zPostAuthAuthorizeMultipleResponse = z.array(z.boolean())
 
+export const zPostAuthSignupBody = zCreateAccountDetails
+
+/**
+ * Signup outcome
+ */
+export const zPostAuthSignupResponse = zSignupResponse
+
 export const zPostAuthDeleteUserAccountBody = zEmailCode
 
 /**
@@ -427,13 +434,6 @@ export const zPostAuthSessionStatusVerifyBody = zSessionVerifyRequest
  * Outcome of submitting the code
  */
 export const zPostAuthSessionStatusVerifyResponse = zSessionVerifyResult
-
-export const zPostAuthSignupBody = zCreateAccountDetails
-
-/**
- * Signup outcome
- */
-export const zPostAuthSignupResponse = zSignupResponse
 
 /**
  * Profile when signed in; null when anonymous

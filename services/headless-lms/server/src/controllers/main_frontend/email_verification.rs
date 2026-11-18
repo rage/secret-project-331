@@ -60,7 +60,7 @@ pub struct EmailVerificationStatus {
 pub enum RequestEmailVerificationOutcome {
     Queued,
     AlreadyVerified,
-    /// A code went to this address moments ago.
+    /// A code went to this address moments ago, or the daily allowance is used up.
     RecentlySent,
 }
 

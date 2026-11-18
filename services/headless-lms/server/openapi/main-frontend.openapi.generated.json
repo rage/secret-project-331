@@ -16188,6 +16188,34 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/request-password-reset": {
+      "post": {
+        "tags": ["users"],
+        "operationId": "sendResetPasswordEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Reset password email accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/reset-password": {
       "post": {
         "tags": ["users"],
@@ -16233,34 +16261,6 @@
         "responses": {
           "200": {
             "description": "Reset password token validity",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/users/send-reset-password-email": {
-      "post": {
-        "tags": ["users"],
-        "operationId": "sendResetPasswordEmail",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailData"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Reset password email accepted",
             "content": {
               "text/plain": {
                 "schema": {

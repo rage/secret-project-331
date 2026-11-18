@@ -112,11 +112,11 @@ pub struct CreateAccountDetails {
 }
 
 /**
-POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
+POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
 
 # Example
 ```http
-POST /api/v0/auth/signup HTTP/1.1
+POST /api/v0/auth/create-account HTTP/1.1
 Content-Type: application/json
 
 {
@@ -133,7 +133,7 @@ Content-Type: application/json
 */
 #[utoipa::path(
     post,
-    path = "/signup",
+    path = "/create-account",
     tag = "auth",
     operation_id = "postAuthSignup",
     request_body = CreateAccountDetails,
@@ -782,12 +782,16 @@ pub struct SendEmailCodeData {
     pub language: String,
 }
 
+/// Account deletion codes one account gets a day.
+const MAX_DELETE_USER_CODES_PER_DAY: i64 = 5;
+
 /// Outcome of asking for an account deletion code.
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SendDeleteUserEmailCodeResult {
     Queued,
-    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable.
+    /// A code was mailed less than [`MIN_RESEND_INTERVAL_MINUTES`] ago and is still usable, or
+    /// the daily allowance is used up.
     RecentlySent {
         retry_after_seconds: i64,
     },
@@ -839,8 +843,15 @@ pub async fn send_delete_user_email_code(
         return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::IncorrectPassword));
     }
 
+    let mut tx = conn.begin().await?;
+    user_email_codes::lock_for_user_and_purpose(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+    )
+    .await?;
     let live_code = user_email_codes::get_unused_user_email_code_with_user_id(
-        &mut conn,
+        &mut tx,
         auth_user.id,
         UserEmailCodePurpose::AccountDeletion,
     )
@@ -855,10 +866,22 @@ pub async fn send_delete_user_email_code(
             }));
         }
     }
+    let sent_today = user_email_codes::count_created_since(
+        &mut tx,
+        auth_user.id,
+        UserEmailCodePurpose::AccountDeletion,
+        Utc::now() - Duration::days(1),
+    )
+    .await?;
+    if sent_today >= MAX_DELETE_USER_CODES_PER_DAY {
+        return token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::RecentlySent {
+            retry_after_seconds: Duration::days(1).num_seconds(),
+        }));
+    }
 
     let language = &payload.language;
     let delete_template = models::email_templates::get_generic_email_template_by_type_and_language(
-        &mut conn,
+        &mut tx,
         EmailTemplateType::DeleteUserEmail,
         language,
     )
@@ -874,7 +897,6 @@ pub async fn send_delete_user_email_code(
     // as long as the user kept pressing resend.
     let code = user_email_codes::generate_code();
 
-    let mut tx = conn.begin().await?;
     user_email_codes::insert_user_email_code(
         &mut tx,
         auth_user.id,
@@ -1613,7 +1635,7 @@ pub struct AuthRoutesApiDoc;
 
 /// The routes below that sign someone in, up or out.
 const SESSION_CHANGING_ROUTES: [&str; 5] = [
-    "/api/v0/auth/signup",
+    "/api/v0/auth/create-account",
     "/api/v0/auth/login",
     "/api/v0/auth/logout",
     "/api/v0/auth/delete-user-account",
@@ -1627,7 +1649,7 @@ pub fn changes_session(path: &str) -> bool {
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(
-        web::resource("/signup")
+        web::resource("/create-account")
             .wrap(RateLimit::new(RateLimitConfig {
                 per_minute: Some(15),
                 per_hour: None,

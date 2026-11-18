@@ -110,6 +110,45 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/auth/create-account HTTP/1.1
+ * Content-Type: application/json
+ *
+ * {
+ * "email": "student@example.com",
+ * "first_name": "John",
+ * "last_name": "Doe",
+ * "language": "en",
+ * "password": "hunter42",
+ * "password_confirmation": "hunter42",
+ * "country" : "Finland",
+ * "email_communication_consent": true
+ * }
+ * ```
+ */
+export const postAuthSignup = <ThrowOnError extends boolean = true>(
+  options: Options<PostAuthSignupData, ThrowOnError>,
+): RequestResult<PostAuthSignupResponses, PostAuthSignupErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostAuthSignupResponses,
+    PostAuthSignupErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zPostAuthSignupResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/create-account",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -251,45 +290,6 @@ export const postAuthSessionStatusVerify = <ThrowOnError extends boolean = true>
     responseValidator: async (data) => await zPostAuthSessionStatusVerifyResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/auth/session-status/verify",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
- *
- * # Example
- * ```http
- * POST /api/v0/auth/signup HTTP/1.1
- * Content-Type: application/json
- *
- * {
- * "email": "student@example.com",
- * "first_name": "John",
- * "last_name": "Doe",
- * "language": "en",
- * "password": "hunter42",
- * "password_confirmation": "hunter42",
- * "country" : "Finland",
- * "email_communication_consent": true
- * }
- * ```
- */
-export const postAuthSignup = <ThrowOnError extends boolean = true>(
-  options: Options<PostAuthSignupData, ThrowOnError>,
-): RequestResult<PostAuthSignupResponses, PostAuthSignupErrors, ThrowOnError, "data"> =>
-  (options.client ?? client).post<
-    PostAuthSignupResponses,
-    PostAuthSignupErrors,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) => await zPostAuthSignupResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/auth/signup",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -9,6 +9,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
@@ -168,6 +169,7 @@ const CreateAccountForm: React.FC = () => {
 
   const { t, i18n } = useTranslation()
   const confirmHeadingRef = useRef<HTMLHeadingElement>(null)
+  const altchaRef = useRef<AltchaWidgetHandle>(null)
   usePageTitle(confirmEmailPageVisible ? t("confirm-email-title") : t("title-sign-up"))
 
   useEffect(() => {
@@ -189,7 +191,6 @@ const CreateAccountForm: React.FC = () => {
   }, [email, trigger])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
-    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
     async (data) => {
       const {
         first_name,
@@ -200,6 +201,7 @@ const CreateAccountForm: React.FC = () => {
         country,
         email_communication_consent,
       } = data
+      const altcha = (await altchaRef.current?.solve()) ?? ""
       return postAuthSignup({
         body: {
           email: emailValue,
@@ -210,6 +212,7 @@ const CreateAccountForm: React.FC = () => {
           password_confirmation: password_confirmation,
           country: country,
           email_communication_consent: Boolean(email_communication_consent),
+          altcha,
         },
       })
     },
@@ -323,6 +326,7 @@ const CreateAccountForm: React.FC = () => {
       <h1 id="create-account-heading">{t("create-new-account")}</h1>
       <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       <form
+        noValidate
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
@@ -416,7 +420,7 @@ const CreateAccountForm: React.FC = () => {
                 required: t("required-field"),
                 validate: {
                   isValidEmail: (value) =>
-                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
                 },
               }}
             />
@@ -463,6 +467,8 @@ const CreateAccountForm: React.FC = () => {
             />
           </div>
         </fieldset>
+        {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
+        <AltchaWidget ref={altchaRef} purpose={"signup"} />
         <Button
           className="submit-button"
           variant="primary"

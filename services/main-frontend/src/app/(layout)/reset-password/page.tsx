@@ -3,10 +3,11 @@
 import { css } from "@emotion/css"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -28,6 +29,7 @@ const ResetPassword: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
   const [emailSent, setEmailSent] = useState(false)
   const [sentEmail, setSentEmail] = useState<string>("")
+  const altchaRef = useRef<AltchaWidgetHandle>(null)
   const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
     defaultValues: { email: "" },
   })
@@ -38,16 +40,19 @@ const ResetPassword: React.FC = () => {
   }, [setFocus])
 
   const postResetPassword = useToastMutation(
-    async (data: SubmitEmailFormFields) =>
-      validateGeneratedData(
+    async (data: SubmitEmailFormFields) => {
+      const altcha = (await altchaRef.current?.solve()) ?? ""
+      return validateGeneratedData(
         await sendResetPasswordEmail({
           body: {
             email: data.email,
             language: i18n.language,
+            altcha,
           },
         }),
         isBoolean,
-      ),
+      )
+    },
     { method: "POST", notify: true },
     {
       onSuccess: (_, variables) => {
@@ -93,6 +98,7 @@ const ResetPassword: React.FC = () => {
       )}
 
       <form
+        noValidate
         onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}
         className={css`
           display: flex;
@@ -115,6 +121,8 @@ const ResetPassword: React.FC = () => {
             },
           }}
         />
+        {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
+        <AltchaWidget ref={altchaRef} purpose={"password_reset"} />
         <div
           className={css`
             display: flex;

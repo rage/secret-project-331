@@ -27238,8 +27238,12 @@
       },
       "EmailData": {
         "type": "object",
-        "required": ["email", "language"],
+        "required": ["email", "language", "altcha"],
         "properties": {
+          "altcha": {
+            "type": "string",
+            "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
           "email": {
             "type": "string"
           },

@@ -33,6 +33,10 @@
       "message": "Det gick inte att lägga till eller uppdatera i tabellen '{{table}}' på grund av begränsningen '{{constraint}}'. Kontrollera data som hör till begränsningen och försök igen.",
       "title": "Brott mot främmande nyckel"
     },
+    "form_verification_failed": {
+      "message": "Skicka formuläret igen.",
+      "title": "Formuläret kunde inte verifieras"
+    },
     "generic_sisu_error": {
       "message": "Något gick fel när beskrivningen skulle skapas",
       "title": "Det gick inte att skapa beskrivningen"

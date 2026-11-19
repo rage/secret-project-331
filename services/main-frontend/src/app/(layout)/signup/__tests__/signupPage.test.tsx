@@ -5,6 +5,7 @@ import "@/shared-module/common/test-utils/inertFocus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
+import type { AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 
 import CreateAccountForm from "../page"
@@ -37,6 +38,22 @@ jest.mock("@/hooks/useUserResearchConsentQuery", () => ({
 jest.mock("@/shared-module/common/generated/auth-api/sdk.generated", () => ({
   postAuthSignup: jest.fn(),
 }))
+
+// Solved at once, so the form's own validation is what these tests see.
+jest.mock("@/components/forms/AltchaWidget", () => {
+  // jest.mock factories can't use the file's imports.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { useImperativeHandle }: typeof import("react") = require("react")
+  return {
+    __esModule: true,
+    default: function MockAltchaWidget({ ref }: { ref?: React.Ref<AltchaWidgetHandle> }) {
+      useImperativeHandle(ref, () => ({
+        solve: () => Promise.resolve("solved-challenge"),
+      }))
+      return null
+    },
+  }
+})
 
 function renderPage() {
   const queryClient = new QueryClient({

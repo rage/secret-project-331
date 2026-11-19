@@ -6,6 +6,8 @@
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type {
+  GetAuthAltchaChallengeData,
+  GetAuthAltchaChallengeResponses,
   GetAuthLoggedInData,
   GetAuthLoggedInResponses,
   GetAuthSessionStatusData,
@@ -68,6 +70,19 @@ export type Options<
 }
 
 /**
+ * GET `/api/v0/auth/altcha-challenge` A fresh proof-of-work challenge for one of the account forms, in
+ * the format the ALTCHA widget fetches.
+ */
+export const getAuthAltchaChallenge = <ThrowOnError extends boolean = true>(
+  options: Options<GetAuthAltchaChallengeData, ThrowOnError>,
+): RequestResult<GetAuthAltchaChallengeResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetAuthAltchaChallengeResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/auth/altcha-challenge",
+    ...options,
+  })
+
+/**
  * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
  * *
  */
@@ -125,7 +140,8 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
  * "password": "hunter42",
  * "password_confirmation": "hunter42",
  * "country" : "Finland",
- * "email_communication_consent": true
+ * "email_communication_consent": true,
+ * "altcha": "eyJjaGFsbGVuZ2UiOnsi..."
  * }
  * ```
  */

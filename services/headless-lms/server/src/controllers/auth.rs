@@ -9,6 +9,8 @@ use crate::{
         authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
+        mail_budget,
+        proof_of_work::{self, ChallengeContext, ChallengePurpose},
         rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey},
         session_verification::{self, EmailCodeOutcome},
     },
@@ -32,7 +34,7 @@ use headless_lms_utils::{
     services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
-use utoipa::{OpenApi, ToSchema};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct Login {
@@ -109,6 +111,8 @@ pub struct CreateAccountDetails {
     pub password_confirmation: SecretString,
     pub country: String,
     pub email_communication_consent: bool,
+    /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+    pub altcha: String,
 }
 
 /**
@@ -127,7 +131,8 @@ Content-Type: application/json
   "password": "hunter42",
   "password_confirmation": "hunter42",
   "country" : "Finland",
-  "email_communication_consent": true
+  "email_communication_consent": true,
+  "altcha": "eyJjaGFsbGVuZ2UiOnsi..."
 }
 ```
 */
@@ -153,6 +158,8 @@ pub async fn signup(
 ) -> ControllerResult<HttpResponse> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
+    proof_of_work::verify_and_spend(&mut conn, &user_details.altcha, ChallengePurpose::Signup)
+        .await?;
 
     if app_conf.test_mode {
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
@@ -312,6 +319,43 @@ pub async fn signup(
             None,
         ))
     }
+}
+
+#[derive(Debug, Deserialize, IntoParams)]
+#[into_params(parameter_in = Query)]
+pub struct AltchaChallengeQuery {
+    /// The form the challenge is for; a solution is accepted only there.
+    pub purpose: ChallengePurpose,
+}
+
+/**
+GET `/api/v0/auth/altcha-challenge` A fresh proof-of-work challenge for one of the account forms, in
+the format the ALTCHA widget fetches.
+*/
+#[utoipa::path(
+    get,
+    path = "/altcha-challenge",
+    tag = "auth",
+    operation_id = "getAuthAltchaChallenge",
+    params(AltchaChallengeQuery),
+    responses(
+        (status = 200, description = "A signed ALTCHA challenge", body = serde_json::Value)
+    )
+)]
+#[instrument]
+pub async fn altcha_challenge(
+    query: web::Query<AltchaChallengeQuery>,
+) -> ControllerResult<HttpResponse> {
+    let token = skip_authorize();
+    let challenge = proof_of_work::create_challenge(ChallengeContext {
+        purpose: query.purpose,
+    })
+    .await?;
+    token.authorized_ok(
+        HttpResponse::Ok()
+            .insert_header(CacheControl(vec![CacheDirective::NoStore]))
+            .json(challenge),
+    )
 }
 
 async fn handle_test_mode_signup(
@@ -890,19 +934,23 @@ pub async fn send_delete_user_email_code(
         )
     })?;
 
-    // A fresh code every time: mailing the outstanding one again would keep a single code alive for
-    // as long as the user kept pressing resend.
-    let code = user_email_codes::generate_code();
+    // Queued also when the inbox budget refuses the mail, so the answer does not depend on mails
+    // other accounts caused to the inbox.
+    if mail_budget::may_mail_user(&mut tx, auth_user.id).await? {
+        // A fresh code every time: mailing the outstanding one again would keep a single code alive
+        // for as long as the user kept pressing resend.
+        let code = user_email_codes::generate_code();
 
-    user_email_codes::insert_user_email_code(
-        &mut tx,
-        auth_user.id,
-        UserEmailCodePurpose::AccountDeletion,
-        &code,
-    )
-    .await?;
-    models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+        user_email_codes::insert_user_email_code(
+            &mut tx,
+            auth_user.id,
+            UserEmailCodePurpose::AccountDeletion,
+            &code,
+        )
         .await?;
+        models::email_deliveries::insert_email_delivery(&mut tx, auth_user.id, delete_template.id)
+            .await?;
+    }
     tx.commit().await?;
 
     token.authorized_ok(web::Json(SendDeleteUserEmailCodeResult::Queued))
@@ -1123,6 +1171,7 @@ async fn handle_email_verification(
     conn: &mut PgConnection,
     user: &headless_lms_models::users::User,
 ) -> ControllerResult<HttpResponse> {
+    // Not budgeted, like session_verification::send_email_code.
     let code = user_email_codes::generate_code();
 
     let email_verification_token =
@@ -1589,6 +1638,7 @@ pub async fn verify_session(
 #[openapi(
     paths(
         signup,
+        altcha_challenge,
         login,
         logout,
         logged_in,
@@ -1607,6 +1657,7 @@ pub async fn verify_session(
         LoginResponse,
         CreateAccountDetails,
         SignupResponse,
+        ChallengePurpose,
         UserInfo,
         headless_lms_authorization::ActionOnResource,
         headless_lms_authorization::Action,
@@ -1655,6 +1706,17 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 ..Default::default()
             }))
             .to(signup),
+    )
+    .service(
+        web::resource("/altcha-challenge")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(30),
+                per_hour: Some(200),
+                per_day: Some(1000),
+                per_month: None,
+                ..Default::default()
+            }))
+            .route(web::get().to(altcha_challenge)),
     )
     .service(
         web::resource("/login")

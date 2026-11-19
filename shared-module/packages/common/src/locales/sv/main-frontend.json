@@ -557,6 +557,7 @@
   "check-certificate-only": "Studerande får bara ett kursintyg, utan registrering i Sisu. Kontrollera att det är avsikten.",
   "check-examinarium-access": "MOOC-studerande kan boka Examinarium-tentamina bara om tillgång har ordnats för dem. Den här plattformen kan inte veta om den har det, så kontrollera det före tentamen.",
   "check-no-exam-has-pass-mark": "Ingen av de kopplade tentamina har en godkänt-gräns, så ingen blir godkänd genom tentamen automatiskt. Lägg till prestationerna på fliken Studerande efter bedömningen.",
+  "checking-your-browser": "Kontrollerar din webbläsare…",
   "choose-a-language": "Välj ett språk",
   "choose-preferred-language": "Välj ditt föredragna språk",
   "citation": "Citat",

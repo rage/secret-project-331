@@ -14,7 +14,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResults, ErrorNotice } from "@/shared-module/components"
 
-import EndQuestionAnswerChip from "./EndQuestionAnswersAccordion"
+import EndQuestionAnswersAccordion from "./EndQuestionAnswersAccordion"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -300,7 +300,10 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
                   {courseInstanceProgress.requires_ending_questionnaire &&
                     courseInstanceProgress.ending_questionnaire_answered &&
                     endAnswers && (
-                      <EndQuestionAnswerChip endAnswers={endAnswers} moduleName={moduleName} />
+                      <EndQuestionAnswersAccordion
+                        endAnswers={endAnswers}
+                        moduleName={moduleName}
+                      />
                     )}
                 </ModuleCard>
               )

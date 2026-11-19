@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT q.id AS question_id,\n  a.id AS answer_id,\n  a.created_at AS answer_created_at,\n  a.updated_at AS answer_updated_at,\n  a.deleted_at AS answer_deleted_at,\n  a.user_id,\n  a.course_module_id,\n  q.question_serial_number,\n  q.question_text,\n  q.question_free_text_instruction,\n  q.select_labels,\n  q.multi_select_labels,\n  a.answer_text_value,\n  a.answer_select_value,\n  a.answer_multi_select_value\nFROM course_module_ending_questions_answers AS a\n  JOIN course_module_ending_questions AS q ON a.question_id = q.id\nWHERE q.course_id = $1\n  OR course_id IS NULL\n  AND a.user_id = $2\n  AND q.deleted_at IS NULL\n  AND a.deleted_at IS NULL\n        ",
+  "query": "\nSELECT q.id AS question_id,\n  a.id AS answer_id,\n  a.created_at AS answer_created_at,\n  a.updated_at AS answer_updated_at,\n  a.deleted_at AS answer_deleted_at,\n  a.user_id,\n  a.course_module_id,\n  q.question_serial_number,\n  q.question_text,\n  q.question_free_text_instruction,\n  q.select_labels,\n  q.multi_select_labels,\n  a.answer_text_value,\n  a.answer_select_value,\n  a.answer_multi_select_value\nFROM course_module_ending_questions_answers AS a\n  JOIN course_module_ending_questions AS q ON a.question_id = q.id\n  JOIN suspected_cheaters as sc ON sc.user_id = a.user_id\nWHERE q.course_id = $1\n  OR q.course_id IS NULL\n  AND q.deleted_at IS NULL\n  AND a.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -171,7 +171,6 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid",
         "Uuid"
       ]
     },
@@ -193,5 +192,5 @@
       true
     ]
   },
-  "hash": "20a2056fffaa92460cac66fe174c85205cc101425e7ee7e6584f209ac6e32201"
+  "hash": "c815f6552feb1c913ca72eb2ad80f134807b37bf160187e45a1e47fab3c9e673"
 }

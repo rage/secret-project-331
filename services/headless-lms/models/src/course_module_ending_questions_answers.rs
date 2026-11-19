@@ -254,13 +254,51 @@ SELECT q.id AS question_id,
 FROM course_module_ending_questions_answers AS a
   JOIN course_module_ending_questions AS q ON a.question_id = q.id
 WHERE q.course_id = $1
-  OR course_id IS NULL
+  OR q.course_id IS NULL
   AND a.user_id = $2
   AND q.deleted_at IS NULL
   AND a.deleted_at IS NULL
         "#,
         course_id,
         user_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    Ok(res)
+}
+
+pub async fn get_all_for_suspected_cheaters_by_course_id(
+    conn: &mut PgConnection,
+    course_id: &Uuid,
+) -> ModelResult<Vec<CourseModuleEndingQuestionWithAnswer>> {
+    let res = sqlx::query_as!(
+        CourseModuleEndingQuestionWithAnswer,
+        r#"
+SELECT q.id AS question_id,
+  a.id AS answer_id,
+  a.created_at AS answer_created_at,
+  a.updated_at AS answer_updated_at,
+  a.deleted_at AS answer_deleted_at,
+  a.user_id,
+  a.course_module_id,
+  q.question_serial_number,
+  q.question_text,
+  q.question_free_text_instruction,
+  q.select_labels,
+  q.multi_select_labels,
+  a.answer_text_value,
+  a.answer_select_value,
+  a.answer_multi_select_value
+FROM course_module_ending_questions_answers AS a
+  JOIN course_module_ending_questions AS q ON a.question_id = q.id
+  JOIN suspected_cheaters as sc ON sc.user_id = a.user_id
+WHERE q.course_id = $1
+  OR q.course_id IS NULL
+  AND q.deleted_at IS NULL
+  AND a.deleted_at IS NULL
+        "#,
+        course_id,
     )
     .fetch_all(&mut *conn)
     .await?;

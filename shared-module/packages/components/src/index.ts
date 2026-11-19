@@ -113,6 +113,8 @@ export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Menu } from "./components/Menu"
 export type { MenuItemDescriptor, MenuProps } from "./components/Menu"
+export { Stepper } from "./components/Stepper"
+export type { StepperProps, StepperStep, StepState } from "./components/Stepper"
 export { Meter, MeterInline } from "./components/Meter"
 export type {
   MeterInlineProps,

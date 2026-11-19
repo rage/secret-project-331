@@ -3257,6 +3257,7 @@ dependencies = [
  "headless-lms-models",
  "headless-lms-utils",
  "indexmap 2.14.2",
+ "ipnet",
  "isbot",
  "itertools 0.15.0",
  "jsonwebtoken",

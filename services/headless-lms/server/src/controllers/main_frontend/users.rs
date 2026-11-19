@@ -1,8 +1,11 @@
+use crate::domain::form_volume;
 use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
 use crate::domain::proof_of_work::{self, ChallengePurpose};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
+use crate::domain::request_network::keyed_digest;
 use crate::domain::session_verification;
+use crate::domain::shared_limits;
 use crate::prelude::*;
 use anyhow::anyhow;
 use chrono::Duration;
@@ -922,6 +925,13 @@ pub async fn get_user_roles(
 const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
 const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
 const MAX_RESET_MAILS_PER_DAY: usize = 3;
+/// The same bounds counted per mail, as a still-valid link is mailed again without a new token.
+const RESET_MAIL_WINDOWS: [(i64, i64); 2] = [
+    (RESET_MAIL_MIN_INTERVAL_MINUTES * 60, 1),
+    (86_400, MAX_RESET_MAILS_PER_DAY as i64),
+];
+/// A link with less time left gets replaced instead of mailed again.
+const RESET_LINK_MIN_REMAINING_MINUTES: i64 = 30;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
@@ -932,7 +942,7 @@ pub struct EmailData {
     pub altcha: String,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(request, pool))]
 #[utoipa::path(
     post,
     path = "/request-password-reset",
@@ -940,18 +950,28 @@ pub struct EmailData {
     tag = "users",
     request_body = EmailData,
     responses(
-        (status = 200, description = "Reset password email accepted", body = bool)
+        (status = 200, description = "Reset password email accepted", body = bool),
+        (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
 pub async fn send_reset_password_email(
+    request: HttpRequest,
     pool: web::Data<PgPool>,
     payload: web::Json<EmailData>,
     tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    form_volume::count(&mut conn, ChallengePurpose::PasswordReset).await?;
     proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
         .await?;
+    shared_limits::check_and_count(
+        &mut conn,
+        "password_reset",
+        session_verification::client_ip(&request),
+        &shared_limits::PASSWORD_RESET_NETWORK_LIMITS,
+    )
+    .await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -1001,6 +1021,7 @@ pub async fn send_reset_password_email(
     if let Some(user) = user {
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
+        let reset_mail_key = keyed_digest("reset_mail", &user.id.to_string());
         let now = Utc::now();
         let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
             &mut tx,
@@ -1023,10 +1044,26 @@ pub async fn send_reset_password_email(
         if !is_new_account
             && !sent_recently
             && sent_today.len() < MAX_RESET_MAILS_PER_DAY
+            && !shared_limits::is_full(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS).await?
             && mail_budget::may_mail_user(&mut tx, user.id).await?
         {
-            models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
+            shared_limits::count(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS).await?;
+            // Replacing a link still valid would break the one the owner may be about to use.
+            let live_link = models::user_passwords::get_unused_reset_password_token_with_user_id(
+                &mut tx, user.id,
+            )
+            .await?
+            .filter(|link| {
+                link.expires_at - now > Duration::minutes(RESET_LINK_MIN_REMAINING_MINUTES)
+            });
+            if live_link.is_none() {
+                models::user_passwords::insert_password_reset_token(
+                    &mut tx,
+                    user.id,
+                    Uuid::new_v4(),
+                )
                 .await?;
+            }
             models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)
                 .await?;
         }

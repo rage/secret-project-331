@@ -38,6 +38,9 @@
                 "schema": {}
               }
             }
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }
@@ -134,6 +137,9 @@
           },
           "400": {
             "description": "Cannot sign up (e.g. already signed in or validation error)"
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }

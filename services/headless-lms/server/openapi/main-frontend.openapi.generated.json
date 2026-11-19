@@ -16242,6 +16242,9 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Too many attempts; see Retry-After"
           }
         }
       }

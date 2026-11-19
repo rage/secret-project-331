@@ -147,6 +147,7 @@ pub mod repository_exercises;
 pub mod research_forms;
 pub mod roles;
 pub mod secret;
+pub mod shared_rate_counts;
 pub mod staff_security_verified_browsers;
 pub mod staff_security_verified_networks;
 pub mod student_countries;

@@ -70,6 +70,10 @@ fn main() -> Result<()> {
             }),
         },
         Program {
+            name: "account-form-upkeep",
+            execute: Box::new(|| tokio_run(programs::account_form_upkeep::main())),
+        },
+        Program {
             name: "regrader",
             execute: Box::new(|| tokio_run(programs::regrader::main())),
         },

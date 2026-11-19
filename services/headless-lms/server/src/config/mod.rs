@@ -1,4 +1,5 @@
 //! Functionality for configuring the server
+pub mod form_safety_config;
 pub mod open_university_config;
 pub mod program_config;
 

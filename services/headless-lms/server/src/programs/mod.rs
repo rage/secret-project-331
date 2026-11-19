@@ -1,6 +1,7 @@
 /*!
 Executable programs that can be started. Contains for example the server program, background services, and utility programs.
 */
+pub mod account_form_upkeep;
 pub mod calculate_page_visit_stats;
 pub mod chatbot_syncer;
 pub mod course_designer_weekly_digest;

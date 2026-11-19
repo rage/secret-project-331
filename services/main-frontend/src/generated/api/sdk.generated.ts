@@ -870,6 +870,7 @@ import type {
   SendCourseDesignerAssistantToolResponseData,
   SendCourseDesignerAssistantToolResponseResponses,
   SendResetPasswordEmailData,
+  SendResetPasswordEmailErrors,
   SendResetPasswordEmailResponses,
   SetChatbotCourseDesignerAssistantData,
   SetChatbotCourseDesignerAssistantResponses,
@@ -10467,8 +10468,18 @@ export const getMyStudies = <ThrowOnError extends boolean = true>(
 
 export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(
   options: Options<SendResetPasswordEmailData, ThrowOnError>,
-): RequestResult<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).post<SendResetPasswordEmailResponses, unknown, ThrowOnError, "data">({
+): RequestResult<
+  SendResetPasswordEmailResponses,
+  SendResetPasswordEmailErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    SendResetPasswordEmailResponses,
+    SendResetPasswordEmailErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zSendResetPasswordEmailResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/users/request-password-reset",

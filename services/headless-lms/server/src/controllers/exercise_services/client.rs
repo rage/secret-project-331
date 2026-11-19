@@ -17,10 +17,10 @@ use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
+use headless_lms_base::version::Version;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::{ReviewingStage, UserExerciseState};
 use headless_lms_utils::course_url::course_page_url;
-use headless_lms_utils::version::Version;
 use models::CourseOrExamId;
 use models::chapters::DatabaseChapter;
 use models::exercise_answer_snapshots::{ExerciseAnswerSnapshot, SnapshotPurpose};
@@ -72,24 +72,19 @@ pub(crate) struct ExerciseServicesClientRoutesApiDoc;
 /// Header a client sends to advertise its version, e.g. `0.39.4`.
 const CLIENT_VERSION_HEADER: &str = "X-Client-Version";
 
-/// Minimum client version the backend accepts. `None` disables the check; a
-/// `"major.minor.patch"` string rejects older clients with `426 Upgrade Required`.
-const MINIMUM_CLIENT_VERSION: Option<&str> = None;
-
 /// Rejects clients older than `minimum` with `426 Upgrade Required`; a `None` minimum
 /// passes everything. When a minimum is set, a missing or unparseable client version
 /// counts as obsolete.
 fn check_client_version(
     client_version: Option<&str>,
-    minimum: Option<&str>,
+    minimum: Option<Version>,
 ) -> Result<(), ControllerError> {
     let Some(minimum) = minimum else {
         return Ok(());
     };
-    let minimum_parsed = Version::parse(minimum);
-    if let (Some(client), Some(minimum_parsed)) =
-        (client_version.and_then(Version::parse), minimum_parsed)
-        && client >= minimum_parsed
+    if client_version
+        .and_then(Version::parse)
+        .is_some_and(|client| client >= minimum)
     {
         return Ok(());
     }
@@ -276,8 +271,9 @@ async fn authorize_access_to_exercise_chapter(
     Ok(())
 }
 
-/// Extractor guarding every client route: reads `X-Client-Version` and rejects obsolete
-/// clients before the handler runs. Yields no data; its presence applies the check.
+/// Extractor guarding every client route: reads `X-Client-Version` and rejects clients older than
+/// [`ApplicationConfiguration::exercise_services_client_minimum_version`] before the handler runs.
+/// Yields no data; its presence applies the check.
 #[derive(Debug)]
 pub struct SupportedClient;
 
@@ -286,13 +282,22 @@ impl FromRequest for SupportedClient {
     type Future = Ready<Result<Self, ControllerError>>;
 
     fn from_request(req: &HttpRequest, _payload: &mut actix_http::Payload) -> Self::Future {
+        let Some(app_conf) = req.app_data::<web::Data<ApplicationConfiguration>>() else {
+            return ready(Err(controller_err!(
+                InternalServerError,
+                "Missing application configuration".to_string()
+            )));
+        };
         let client_version = req
             .headers()
             .get(CLIENT_VERSION_HEADER)
-            .and_then(|value| value.to_str().ok())
-            .map(str::to_string);
+            .and_then(|value| value.to_str().ok());
         ready(
-            check_client_version(client_version.as_deref(), MINIMUM_CLIENT_VERSION).map(|()| Self),
+            check_client_version(
+                client_version,
+                app_conf.exercise_services_client_minimum_version,
+            )
+            .map(|()| Self),
         )
     }
 }
@@ -2248,6 +2253,8 @@ mod tests {
         assert!(!p.exercise_locked);
     }
 
+    const MINIMUM: Option<Version> = Some(Version(0, 39, 4));
+
     #[test]
     fn version_check_is_disabled_when_no_minimum() {
         assert!(check_client_version(None, None).is_ok());
@@ -2257,16 +2264,38 @@ mod tests {
 
     #[test]
     fn version_check_accepts_equal_and_newer_clients() {
-        assert!(check_client_version(Some("0.39.4"), Some("0.39.4")).is_ok());
-        assert!(check_client_version(Some("0.39.5"), Some("0.39.4")).is_ok());
-        assert!(check_client_version(Some("1.0.0"), Some("0.39.4")).is_ok());
+        assert!(check_client_version(Some("0.39.4"), MINIMUM).is_ok());
+        assert!(check_client_version(Some("0.39.5"), MINIMUM).is_ok());
+        assert!(check_client_version(Some("1.0.0"), MINIMUM).is_ok());
     }
 
     #[test]
     fn version_check_rejects_older_missing_or_malformed_clients() {
-        assert!(check_client_version(Some("0.39.3"), Some("0.39.4")).is_err());
-        assert!(check_client_version(None, Some("0.39.4")).is_err());
-        assert!(check_client_version(Some("not-a-version"), Some("0.39.4")).is_err());
+        assert!(check_client_version(Some("0.39.3"), MINIMUM).is_err());
+        assert!(check_client_version(None, MINIMUM).is_err());
+        assert!(check_client_version(Some("not-a-version"), MINIMUM).is_err());
+    }
+
+    #[actix_web::test]
+    async fn supported_client_reads_the_minimum_from_app_conf() {
+        let app_conf = web::Data::new(ApplicationConfiguration {
+            exercise_services_client_minimum_version: MINIMUM,
+            ..ApplicationConfiguration::mock_conf()
+                .expect("the mock configuration is built from constants")
+        });
+        let extract = |version: &str| {
+            let req = actix_web::test::TestRequest::default()
+                .app_data(app_conf.clone())
+                .insert_header((CLIENT_VERSION_HEADER, version))
+                .to_http_request();
+            SupportedClient::extract(&req).into_inner()
+        };
+        assert!(extract("0.39.4").is_ok());
+        let rejected = extract("0.39.3").expect_err("an older client is rejected");
+        assert_eq!(
+            actix_web::ResponseError::status_code(&rejected),
+            actix_web::http::StatusCode::UPGRADE_REQUIRED
+        );
     }
 
     // submit_exercise builds this exact error for a not-enrolled user; assert it produces the
@@ -2579,6 +2608,7 @@ mod upload_tests {
             tmc_admin_access_token: SecretString::new("mock".to_string().into()),
             jwt_password: SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into()),
             mcp_configuration: None,
+            exercise_services_client_minimum_version: None,
             oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "unused".into(),
                 rsa_private_key: SecretString::new("unused".into()),

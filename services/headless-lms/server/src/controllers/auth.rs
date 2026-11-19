@@ -161,23 +161,11 @@ pub async fn signup(
 ) -> ControllerResult<HttpResponse> {
     let mut user_details = payload.0;
     user_details.email = user_details.email.trim().to_string();
-    if !signup::is_plausible_email(&user_details.email) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid email address.".to_string(),
-            None,
-        ));
-    }
-    let password = user_details.password.expose_secret();
-    if password.encode_utf16().count() < signup::MIN_PASSWORD_LENGTH
-        || password != user_details.password_confirmation.expose_secret()
-    {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid password or password confirmation.".to_string(),
-            None,
-        ));
-    }
+    signup::validate_form(
+        &user_details.email,
+        &user_details.password,
+        &user_details.password_confirmation,
+    )?;
     let mut conn = pool.acquire().await?;
     let client_ip = session_verification::client_ip(&request);
     form_volume::count(&mut conn, ChallengePurpose::Signup).await?;

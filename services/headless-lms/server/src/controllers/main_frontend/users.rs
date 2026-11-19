@@ -1044,7 +1044,9 @@ pub async fn send_reset_password_email(
         if !is_new_account
             && !sent_recently
             && sent_today.len() < MAX_RESET_MAILS_PER_DAY
-            && !shared_limits::is_full(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS).await?
+            && shared_limits::full_window(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS)
+                .await?
+                .is_none()
             && mail_budget::may_mail_user(&mut tx, user.id).await?
         {
             shared_limits::count(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS).await?;

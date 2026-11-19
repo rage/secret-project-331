@@ -107,11 +107,6 @@ pub async fn full_window(
         .max())
 }
 
-/// Whether `key` already reached any of `windows`, without counting.
-pub async fn is_full(conn: &mut PgConnection, key: &[u8], windows: &Windows) -> ModelResult<bool> {
-    Ok(full_window(conn, key, windows).await?.is_some())
-}
-
 /// Counts one event for `key` in each of `windows`.
 pub async fn count(conn: &mut PgConnection, key: &[u8], windows: &Windows) -> ModelResult<()> {
     shared_rate_counts::increment(conn, key, &lengths(windows)).await?;

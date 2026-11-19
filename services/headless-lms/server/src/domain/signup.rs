@@ -3,6 +3,8 @@
 use std::net::IpAddr;
 use std::sync::LazyLock;
 
+use secrecy::{ExposeSecret, SecretString};
+
 use crate::config::server_runtime_config;
 use crate::domain::{
     request_network::{fine_prefix, keyed_digest, prefix},
@@ -30,11 +32,11 @@ static EXISTING_ACCOUNT_RANGE_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(
 const UNKNOWN_REQUESTER_RETRY_SECONDS: i64 = 3600;
 
 /// Must match the signup form's check, which counts UTF-16 code units.
-pub const MIN_PASSWORD_LENGTH: usize = 8;
+const MIN_PASSWORD_LENGTH: usize = 8;
 
 /// Whether `email` passes the signup form's format check: `local@domain` without whitespace or a
 /// second `@`, and a dot inside the domain.
-pub fn is_plausible_email(email: &str) -> bool {
+fn is_plausible_email(email: &str) -> bool {
     let Some((local, domain)) = email.split_once('@') else {
         return false;
     };
@@ -44,6 +46,32 @@ pub fn is_plausible_email(email: &str) -> bool {
         && domain
             .char_indices()
             .any(|(i, c)| c == '.' && i > 0 && i + 1 < domain.len())
+}
+
+/// Repeats the form's checks of the address and the password, as a request need not come from it.
+pub fn validate_form(
+    email: &str,
+    password: &SecretString,
+    password_confirmation: &SecretString,
+) -> Result<(), ControllerError> {
+    if !is_plausible_email(email) {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid email address.".to_string(),
+            None,
+        ));
+    }
+    let password = password.expose_secret();
+    if password.encode_utf16().count() < MIN_PASSWORD_LENGTH
+        || password != password_confirmation.expose_secret()
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid password or password confirmation.".to_string(),
+            None,
+        ));
+    }
+    Ok(())
 }
 
 fn existing_account_keys(ip: IpAddr) -> (Vec<u8>, Vec<u8>) {
@@ -70,17 +98,15 @@ pub async fn check_may_reveal_existing_account(
         ));
     };
     let (address_key, range_key) = existing_account_keys(ip);
-    let full =
-        match shared_limits::full_window(conn, &address_key, &EXISTING_ACCOUNT_LIMITS).await? {
-            Some(length) => Some(length),
-            None => {
-                shared_limits::full_window(conn, &range_key, &EXISTING_ACCOUNT_RANGE_LIMITS).await?
-            }
-        };
-    match full {
-        Some(length) => Err(shared_limits::too_many_requests(length)),
-        None => Ok(()),
+    for (key, windows) in [
+        (&address_key, &*EXISTING_ACCOUNT_LIMITS),
+        (&range_key, &*EXISTING_ACCOUNT_RANGE_LIMITS),
+    ] {
+        if let Some(length) = shared_limits::full_window(conn, key, windows).await? {
+            return Err(shared_limits::too_many_requests(length));
+        }
     }
+    Ok(())
 }
 
 /// Counts that `client_ip` was told an address has an account. See

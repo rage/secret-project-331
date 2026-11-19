@@ -21,9 +21,19 @@ class MaterialMigrator
   # default them to this moderate width instead (a teacher can adjust per image after migration).
   DEFAULT_SVG_WIDTH = '250'
 
-  # Programming exercises get a task of this type until their real tasks exist: its service accepts
-  # an empty private spec ([] = no options), while TMC refuses to save a task without one.
-  PLACEHOLDER_EXERCISE_TYPE = 'example-exercise'
+  # Programming exercises get an empty quiz until their TMC tasks exist: production runs no
+  # example-exercise service, and TMC refuses to save a task without a spec.
+  PLACEHOLDER_EXERCISE_TYPE = 'quizzes'
+  PLACEHOLDER_PRIVATE_SPEC = {
+    'version' => '5',
+    'awardPointsEvenIfWrong' => false,
+    'grantPointsPolicy' => 'grant_whenever_possible',
+    'items' => [],
+    'title' => nil,
+    'body' => nil,
+    'quizItemDisplayDirection' => 'vertical',
+    'feedbackMessages' => [],
+  }.freeze
 
   PROGRAMMING_EXERCISE_TAGS = %w[programming-exercise in-browser-programming-exercise].freeze
 
@@ -1150,7 +1160,7 @@ class MaterialMigrator
       limit_number_of_tries: false,
       assignment: assignment,
       exercise_type: PLACEHOLDER_EXERCISE_TYPE,
-      private_spec: [],
+      private_spec: PLACEHOLDER_PRIVATE_SPEC,
       json_content: json_content
     )
     @page_placeholder_exercises << info.merge(exercise_id: exercise_id)
@@ -2058,6 +2068,12 @@ KRAMDOWN_LITERAL_PUNCTUATION = {
   typographic_symbols: { hellip: '...', mdash: '---', ndash: '--', laquo: '<<', raquo: '>>', laquo_space: '<< ', raquo_space: ' >>' },
 }.freeze
 
+# The editor's rich text accepts only <em> and <strong>; a block holding <i> or <b> can't be edited.
+# kramdown has no ~~strikethrough~~, which the old sites used for past exam dates.
+def use_editor_inline_tags(text)
+  text.gsub(%r{<(/?)i>}, '<\\1em>').gsub(%r{<(/?)b>}, '<\\1strong>').gsub(/~~(?=\S)(.+?)(?<=\S)~~/, '<s>\\1</s>')
+end
+
 # Converts inline markdown (links, emphasis, code, ...) to HTML with kramdown, which is robust
 # across courses that use varying markdown styles and mixed inline HTML.
 #
@@ -2068,6 +2084,7 @@ KRAMDOWN_LITERAL_PUNCTUATION = {
 def convert_inline_markdown(text)
   return text if text.nil? || text.empty?
 
+  text = use_editor_inline_tags(text)
   html = Kramdown::Document.new(text, **KRAMDOWN_LITERAL_PUNCTUATION).to_html.strip
 
   if html.start_with?('<p>') && html.end_with?('</p>') && html.scan('<p>').length == 1

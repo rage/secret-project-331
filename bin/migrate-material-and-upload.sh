@@ -5,6 +5,7 @@ set -euo pipefail
 usage() {
   echo 1>&2 "Usage: $0 <base_url> <material_dir> [migrate-material.rb options]"
   echo 1>&2 "Expected env vars (from the environment or .env): COURSE_ID, UPLOAD_AUTH_COOKIE, TMC_TOKEN"
+  echo 1>&2 "MIGRATION_RESUME=1 continues an interrupted import into the same course"
   echo 1>&2 "Options: bundle exec ruby misc/material-migration/migrate-material.rb --help"
 }
 

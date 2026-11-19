@@ -39,9 +39,9 @@ pub static CHALLENGE_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|
 
 static EXEMPT_NETWORKS: LazyLock<Vec<IpNet>> = LazyLock::new(network_limit_exempt_networks);
 
-/// Counts a request from `ip` for `name` and returns the length of a window it is over, if any.
-/// Requests without a known address, from an exempt network or in test mode are never over: many
-/// people can share one address, and the system tests send many requests from one.
+/// Counts a request from `ip` for `name` and returns the length of the longest window it is over,
+/// if any. Requests without a known address, from an exempt network or in test mode are never
+/// over: many people can share one address, and the system tests send many requests from one.
 async fn count_over_window(
     conn: &mut PgConnection,
     name: &str,
@@ -59,8 +59,9 @@ async fn count_over_window(
     Ok(windows
         .iter()
         .zip(counts)
-        .find(|((_, max), count)| count > max)
-        .map(|((length, _), _)| *length))
+        .filter(|((_, max), count)| count > max)
+        .map(|((length, _), _)| *length)
+        .max())
 }
 
 /// Counts a request from `ip` for `name`, refusing it with `TooManyRequests` once it is over any of
@@ -91,7 +92,7 @@ pub fn too_many_requests(length: i64) -> ControllerError {
     )
 }
 
-/// The length of a window of `windows` that `key` already reached, without counting.
+/// The length of the longest window of `windows` that `key` already reached, without counting.
 pub async fn full_window(
     conn: &mut PgConnection,
     key: &[u8],
@@ -101,8 +102,9 @@ pub async fn full_window(
     Ok(windows
         .iter()
         .zip(counts)
-        .find(|((_, max), count)| count >= max)
-        .map(|((length, _), _)| *length))
+        .filter(|((_, max), count)| count >= max)
+        .map(|((length, _), _)| *length)
+        .max())
 }
 
 /// Whether `key` already reached any of `windows`, without counting.

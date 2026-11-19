@@ -29,7 +29,7 @@ static EXISTING_ACCOUNT_RANGE_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(
 /// Retry-After for a requester without a known address, which is never told.
 const UNKNOWN_REQUESTER_RETRY_SECONDS: i64 = 3600;
 
-/// Must match the signup form's check.
+/// Must match the signup form's check, which counts UTF-16 code units.
 pub const MIN_PASSWORD_LENGTH: usize = 8;
 
 /// Whether `email` passes the signup form's format check: `local@domain` without whitespace or a

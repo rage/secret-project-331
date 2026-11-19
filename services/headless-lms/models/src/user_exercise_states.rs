@@ -12,6 +12,7 @@ use crate::{
     course_modules::{self, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
+    library::progressing::user_has_passed_exam_for_the_course_based_on_points,
     prelude::*,
 };
 
@@ -119,9 +120,12 @@ pub struct UserCourseProgress {
     pub automatic_completion: bool,
     /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
     pub requires_exam: bool,
+    pub exam_passed: bool,
     pub requires_ending_questionnaire: bool,
     pub ending_questionnaire_answered: bool,
-    pub needs_to_answer_ending_questionnaire: bool,
+    /// Helper field to indicate if the user meets all the requirements for passing
+    /// and is now ready to answer the ending questionnaire, if not answered yet.
+    pub ready_to_answer_ending_questionnaire: bool,
     pub completion_attained: bool,
 }
 
@@ -407,6 +411,8 @@ pub async fn get_user_course_progress(
     } else {
         course_modules::get_by_course_id(conn, course_id).await?
     };
+    let has_passed_course_exam =
+        user_has_passed_exam_for_the_course_based_on_points(conn, user_id, course_id).await?;
     let user_answered_module_end_questions =
         user_has_answered_all_questions_for_course_indexed_by_module_id(conn, &course_id, &user_id)
             .await?;
@@ -423,6 +429,7 @@ pub async fn get_user_course_progress(
         &user_answered_module_end_questions,
         &user_module_completions,
         &course_name,
+        has_passed_course_exam,
     )
 }
 
@@ -577,6 +584,7 @@ fn merge_modules_with_metrics(
     end_questions_answered_by_course_module_id: &HashMap<Uuid, bool>,
     user_module_completions: &HashMap<Uuid, bool>,
     default_course_module_name_placeholder: &str,
+    has_passed_course_exam: bool,
 ) -> ModelResult<Vec<UserCourseProgress>> {
     course_modules
         .into_iter()
@@ -593,18 +601,25 @@ fn merge_modules_with_metrics(
                 .unwrap_or(&false);
             let requires_ending_questionnaire = course_module.ending_questions_required;
 
-            let needs_to_answer_ending_questionnaire = !attained_completion
+            // is the user ready to answer end questionnaire?
+            let ready_to_answer_ending_questionnaire = !attained_completion
                 && requires_ending_questionnaire
                 && !*answered_module_end_questions
                 && if let Some(req) = requirements
                     && let Some(u_m) = user_metrics
                 {
-                    u_m.score_given.unwrap_or(0 as f32)
-                        >= req.number_of_points_treshold.unwrap_or(0 as i32) as f32
-                        && u_m.attempted_exercises.unwrap_or(0)
-                            >= req.number_of_exercises_attempted_treshold.unwrap_or(0) as i64
+                    // if exam is required, has the user passed it?
+                    if req.requires_exam && !has_passed_course_exam {
+                        false
+                    } else {
+                        // does the user meet the exercise requirements to pass?
+                        u_m.score_given.unwrap_or(0 as f32)
+                            >= req.number_of_points_treshold.unwrap_or(0 as i32) as f32
+                            && u_m.attempted_exercises.unwrap_or(0)
+                                >= req.number_of_exercises_attempted_treshold.unwrap_or(0) as i64
+                    }
                 } else {
-                    true
+                    false
                 };
 
             let progress = UserCourseProgress {
@@ -637,7 +652,8 @@ fn merge_modules_with_metrics(
                 requires_ending_questionnaire,
                 ending_questionnaire_answered: *answered_module_end_questions,
                 completion_attained: *attained_completion,
-                needs_to_answer_ending_questionnaire,
+                ready_to_answer_ending_questionnaire,
+                exam_passed: has_passed_course_exam,
             };
             Ok(progress)
         })
@@ -1646,6 +1662,7 @@ mod tests {
             &end_questions_answered_by_course_module_id,
             &completions,
             "Default module",
+            false,
         )
         .unwrap();
         assert_eq!(metrics.len(), 1);

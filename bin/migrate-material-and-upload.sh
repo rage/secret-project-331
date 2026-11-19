@@ -19,8 +19,9 @@ if [ $# -lt 2 ]; then
   exit 2
 fi
 
-BASE_URL=${1%/}
-MATERIAL_DIR=${2%/}
+# Exported so the .env loading below can't override them.
+export BASE_URL=${1%/}
+export MATERIAL_DIR=${2%/}
 shift 2
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -54,7 +55,7 @@ fi
 
 if [ -f "$REPO_ROOT/.env" ]; then
   echo "Loading environment from $REPO_ROOT/.env (variables already set take precedence)"
-  # A COURSE_ID given on the command line must win, or a run can upload into the wrong course.
+  # Values given on the command line must win, or a run can upload into the wrong course or site.
   preset_environment=$(export -p)
   set -a
   . "$REPO_ROOT/.env"
@@ -73,7 +74,6 @@ echo "Using COURSE_ID=$COURSE_ID"
 MIGRATION_OUTPUT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/material-migration.XXXXXX")
 echo "Writing converted pages to $MIGRATION_OUTPUT_DIR"
 
-export BASE_URL
 export COURSE_ID
 export UPLOAD_AUTH_COOKIE
 export MIGRATION_OUTPUT_DIR

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE marketing_mailing_list_access_tokens\nSET course_language_group_id = $2\nWHERE id = ANY($1)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b83b7c0e402cb2d7714d7ba0235e8cf237358f447ccedaea8f0a8b3b6615a814"
+}

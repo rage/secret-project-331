@@ -14,7 +14,6 @@ use headless_lms_base::config::{
 use headless_lms_models::library::credit_registration::enrolment_check_schedule::EnrolmentCheckSource;
 use headless_lms_models::{
     PKeyPolicy,
-    course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     course_module_completions::{self, NewCourseModuleCompletionSeed},
     course_module_suotar_configurations::SuotarPause,
     course_modules,
@@ -37,7 +36,7 @@ use headless_lms_models::{
     secret::DbSecret,
     student_number_verification_tokens::{self, SeedStudentNumberVerificationToken},
     study_registry_registrars::{self, get_or_create_default_registrar},
-    user_ai_usage_notice_acknowledgements, user_details,
+    user_details,
     user_passwords::{hash_password, upsert_user_password},
     users,
     verified_student_numbers::{self, NewVerifiedStudentNumber, StudentNumberVerificationMethod},
@@ -59,6 +58,7 @@ use crate::programs::seed::builder::{
     page::PageBuilder,
 };
 use crate::programs::seed::seed_courses::CommonCourseData;
+use crate::programs::seed::seed_helpers::enroll;
 use crate::programs::seed::seed_helpers::paragraph;
 
 /// The certificate detour's own course. Not in `mock_suotar::fixtures` with the others: this one
@@ -1053,27 +1053,6 @@ async fn link_student_number(
         },
     )
     .await?;
-    Ok(())
-}
-
-/// Enrols the way a student who has been through the course's opening dialogs is: without
-/// `user_course_settings` and the AI notice acknowledgement, the course pages open on a dialog.
-async fn enroll(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_id: Uuid,
-    course_instance_id: Uuid,
-) -> Result<()> {
-    course_instance_enrollments::insert_enrollment_and_set_as_current(
-        conn,
-        NewCourseInstanceEnrollment {
-            user_id,
-            course_id,
-            course_instance_id,
-        },
-    )
-    .await?;
-    user_ai_usage_notice_acknowledgements::acknowledge(conn, user_id, course_id).await?;
     Ok(())
 }
 

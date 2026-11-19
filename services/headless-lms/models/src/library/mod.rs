@@ -12,6 +12,7 @@ pub mod custom_view_exercises;
 pub mod entity_snapshots;
 pub mod global_stats;
 pub mod grading;
+pub mod language_versions;
 pub mod migration;
 pub mod oauth;
 pub mod page_visit_stats;

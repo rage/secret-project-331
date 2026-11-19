@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id,\n  (\n    e.deleted_at IS NOT NULL\n    OR c.deleted_at IS NOT NULL\n  ) AS \"is_deleted!\"\nFROM exercises e\n  JOIN courses c ON c.id = e.course_id\nWHERE e.exercise_language_group_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "is_deleted!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "852df158eaf53d773b41a65a6866360314a7f0ea6dd27a1d7f839accafa3141d"
+}

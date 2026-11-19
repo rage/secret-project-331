@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pages\nSET order_number = order_number + 1\nWHERE course_id = $1\n  AND chapter_id IS NOT DISTINCT FROM $2\n  AND deleted_at IS NULL\n  AND order_number >= $3\n  AND id IS DISTINCT FROM $4\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "103375d6f4c5bd1fe9d226bc5527fd85057aabb0e2fe01e287a972e5440f58e0"
+}

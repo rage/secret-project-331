@@ -3,8 +3,9 @@
 set -euo pipefail
 
 usage() {
-  echo 1>&2 "Usage: $0 <base_url> <material_dir>"
-  echo 1>&2 "Expected env vars in .env: COURSE_ID, UPLOAD_AUTH_COOKIE, TMC_TOKEN"
+  echo 1>&2 "Usage: $0 <base_url> <material_dir> [migrate-material.rb options]"
+  echo 1>&2 "Expected env vars (from the environment or .env): COURSE_ID, UPLOAD_AUTH_COOKIE, TMC_TOKEN"
+  echo 1>&2 "Options: bundle exec ruby misc/material-migration/migrate-material.rb --help"
 }
 
 die() {
@@ -12,13 +13,14 @@ die() {
   exit 1
 }
 
-if [ $# -ne 2 ]; then
+if [ $# -lt 2 ]; then
   usage
   exit 2
 fi
 
 BASE_URL=${1%/}
 MATERIAL_DIR=${2%/}
+shift 2
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
@@ -36,7 +38,7 @@ command -v bundle >/dev/null 2>&1 || {
   exit 1
 }
 
-if [ ! -f "$MIGRATION_DIR/Gemfile.lock" ]; then
+if ! bundle check >/dev/null; then
   echo "Installing migration dependencies (bundle install)"
   bundle install
 fi
@@ -50,10 +52,13 @@ if [[ "$BASE_URL" != http://* && "$BASE_URL" != https://* ]]; then
 fi
 
 if [ -f "$REPO_ROOT/.env" ]; then
-  echo "Loading environment from $REPO_ROOT/.env"
+  echo "Loading environment from $REPO_ROOT/.env (variables already set take precedence)"
+  # A COURSE_ID given on the command line must win, or a run can upload into the wrong course.
+  preset_environment=$(export -p)
   set -a
   . "$REPO_ROOT/.env"
   set +a
+  eval "$preset_environment"
 fi
 
 : "${UPLOAD_AUTH_COOKIE:?UPLOAD_AUTH_COOKIE must be set in .env}"
@@ -64,11 +69,14 @@ echo "Using base_url=$BASE_URL"
 echo "Using material_dir=$MATERIAL_DIR"
 echo "Using COURSE_ID=$COURSE_ID"
 
+MIGRATION_OUTPUT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/material-migration.XXXXXX")
+echo "Writing converted pages to $MIGRATION_OUTPUT_DIR"
+
 export BASE_URL
-export MATERIAL_DIR
 export COURSE_ID
 export UPLOAD_AUTH_COOKIE
+export MIGRATION_OUTPUT_DIR
 
-bundle exec ruby "$MIGRATION_DIR/migrate-material.rb" "$MATERIAL_DIR"
+bundle exec ruby "$MIGRATION_DIR/migrate-material.rb" --output-dir "$MIGRATION_OUTPUT_DIR" "$@" "$MATERIAL_DIR"
 
 bundle exec ruby "$MIGRATION_DIR/migrate-material-and-upload.rb"

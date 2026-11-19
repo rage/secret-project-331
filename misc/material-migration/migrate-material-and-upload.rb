@@ -6,7 +6,7 @@ require 'securerandom'
 require 'rest-client'
 
 base_url = ENV.fetch('BASE_URL').sub(%r{/$}, '')
-material_dir = ENV.fetch('MATERIAL_DIR').sub(%r{/$}, '')
+output_dir = ENV.fetch('MIGRATION_OUTPUT_DIR').sub(%r{/$}, '')
 course_id = ENV.fetch('COURSE_ID')
 session_cookie = ENV.fetch('UPLOAD_AUTH_COOKIE')
 
@@ -48,22 +48,23 @@ def block_contains_name?(blocks, name)
   end
 end
 
-markdown_files = Dir.glob(File.join(material_dir, '**', '*.md')).sort
+# "osa-2/..." before "osa-10/..." and "2-x" before "10-x".
+def natural_sort_key(path)
+  path.split(/(\d+)/).map { |part| part.match?(/\A\d+\z/) ? part.to_i : part }
+end
+
+json_files = Dir.glob(File.join(output_dir, 'pages', '**', '*.json')).sort_by { |file| natural_sort_key(file) }
 page_entries = []
 chapter_entries = {}
 information_page_entries = []
 home_page_entry = nil
 
-markdown_files.each do |markdown_file|
-  json_file = markdown_file.sub(/\.md\z/, '.json')
-  next unless File.exist?(json_file)
-
+json_files.each do |json_file|
   page_data = JSON.parse(File.read(json_file))
   chapter_slug = page_data['chapter_slug']
   chapter_number = page_data['chapter_number']
   is_front_page = page_data['is_front_page']
   entry = {
-    markdown_file: markdown_file,
     json_file: json_file,
     data: page_data,
   }
@@ -121,7 +122,7 @@ end
 # Import chapter front pages before content pages so each chapter's landing page and its
 # url_path (e.g. /part-1) exist regardless of whether individual content pages fail below.
 sorted_page_entries = page_entries.sort_by do |entry|
-  [entry[:data]['is_front_page'] ? 0 : 1, entry[:markdown_file]]
+  [entry[:data]['is_front_page'] ? 0 : 1, natural_sort_key(entry[:json_file])]
 end
 
 sorted_page_entries.each do |entry|
@@ -192,7 +193,7 @@ sorted_page_entries.each do |entry|
   end
 end
 
-information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
+information_page_entries.each do |entry|
   data = entry[:data]
 
   page_payload = {

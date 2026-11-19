@@ -26,9 +26,9 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  dotenv
-  kramdown
-  rest-client
+  dotenv (~> 3.1)
+  kramdown (~> 2.4)
+  rest-client (~> 2.1)
 
 BUNDLED WITH
    2.6.9

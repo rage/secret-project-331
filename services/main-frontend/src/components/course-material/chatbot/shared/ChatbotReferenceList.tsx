@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { Library } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,6 +9,7 @@ import type { ChatbotConversationMessageCitation } from "@/generated/course-mate
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { Link } from "@/shared-module/components"
 
 import { LIGHT_GREEN } from "./styles"
 

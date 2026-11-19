@@ -1,6 +1,9 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
+import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -11,11 +14,14 @@ test.use({
 test("widget, multiple-choice column screenshot test", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, multiple-choice, column" })
+  await Select.labelled(page, "Playground examples").chooseOption(
+    "Quizzes example, multiple-choice, column",
+  )
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-initial",
@@ -28,6 +34,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#00ff00").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#00ff00",
@@ -40,6 +47,7 @@ test("widget, multiple-choice column screenshot test", async ({ page, headless }
   await frame.getByText("#ff0000").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-column-#ff0000",

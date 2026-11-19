@@ -1,8 +1,11 @@
+import os from "node:os"
+
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
+import { LangsError } from "@/tmc/langs"
 
-import { handleGrade } from "./grade"
+import { gradingFailureFeedback, handleGrade, runScore, TemplateError } from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -151,8 +154,73 @@ describe("POST /api/grade", () => {
       body: expect.objectContaining({
         grading_progress: "Failed",
         score_given: 0,
-        feedback_text: expect.stringContaining("download stopped by the test"),
+        feedback_text:
+          "The submission could not be graded because of an error on the server. Try submitting again later.",
       }),
     })
+  })
+})
+
+describe("gradingFailureFeedback", () => {
+  it("tells the student when the answer lacks the exercise's files", () => {
+    const failure = new LangsError("No project directory found in archive", [
+      "Caused by: No project directory found in archive",
+    ])
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission does not contain the exercise's files, so it could not be graded. Submit the whole exercise, including its source files.",
+    )
+  })
+
+  it("blames the server, not the answer, when the template has no project", () => {
+    const failure = new TemplateError(
+      new LangsError("No project directory found in archive", [
+        "Caused by: No project directory found in archive",
+      ]),
+    )
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission could not be graded because of an error on the server. Try submitting again later.",
+    )
+  })
+
+  it("names the innermost cause of any other tmc-langs failure", () => {
+    const failure = new LangsError("Failed to prepare submission", [
+      "Caused by: Failed to prepare submission",
+      "Caused by: Failed to read file at src/main.py",
+    ])
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission could not be graded: Failed to read file at src/main.py",
+    )
+  })
+
+  it("keeps the service's paths out of a tmc-langs cause", () => {
+    const failure = new LangsError("Failed to prepare submission", [
+      `Caused by: Failed to read ${os.tmpdir()}/a1b2c3/src/main.py and /app/config/limits.toml`,
+    ])
+    expect(gradingFailureFeedback(failure)).toBe(
+      "The submission could not be graded: Failed to read src/main.py and limits.toml",
+    )
+  })
+
+  it("keeps the details of the service's own failures out of the feedback", () => {
+    const feedback = gradingFailureFeedback(
+      new Error("GET http://files.example/a?download-claim=secret failed"),
+    )
+    expect(feedback).not.toContain("secret")
+    expect(feedback).not.toContain("[object Object]")
+  })
+})
+
+describe("runScore", () => {
+  const passed = { status: "PASSED" as const, testResults: [{ successful: true, points: [] }] }
+
+  it("awards every point only when every test passed", () => {
+    expect(runScore(passed, 2)).toEqual({ score_given: 2, score_maximum: 2 })
+    expect(
+      runScore({ status: "TESTS_FAILED", testResults: [{ successful: false, points: [] }] }, 2),
+    ).toEqual({ score_given: 0, score_maximum: 2 })
+  })
+
+  it("scores a passing exercise without points, such as a no-tests one, as full points", () => {
+    expect(runScore(passed, 0)).toEqual({ score_given: 1, score_maximum: 1 })
   })
 })

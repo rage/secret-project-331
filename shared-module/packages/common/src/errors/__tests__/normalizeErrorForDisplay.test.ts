@@ -1,3 +1,5 @@
+import { z, ZodError } from "zod"
+
 import { AppApiError } from "../AppApiError"
 import { normalizeErrorForDisplay } from "../normalizeErrorForDisplay"
 
@@ -78,5 +80,23 @@ describe("normalizeErrorForDisplay", () => {
       { path: "email", code: "invalid_email", message: "Email is invalid" },
     ])
     expect(normalized.blockId).toBe("block-123")
+  })
+
+  // The implementation lives in `components`, which cannot depend on zod and so narrows a ZodError
+  // by shape. This is the only place a real one is available to check that narrowing against.
+  it("narrows a real ZodError", () => {
+    let thrown: unknown = null
+    try {
+      z.object({ user_id: z.uuid() }).parse({ user_id: "not-a-uuid" })
+    } catch (error) {
+      thrown = error
+    }
+    expect(thrown).toBeInstanceOf(ZodError)
+
+    const normalized = normalizeErrorForDisplay(thrown, t)
+    expect(normalized.messageKey).toBe("response_validation_error")
+    expect(normalized.status).toBe(422)
+    expect(normalized.issues[0]?.path).toBe("user_id")
+    expect(normalized.issues[0]?.code).toBe("invalid_format")
   })
 })

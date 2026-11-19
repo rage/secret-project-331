@@ -40,6 +40,8 @@ interface GradingDecisionFormProps {
   /** Shown when the teacher asks to let the student answer again. */
   rejectWarning?: React.ReactNode
   isSubmitting?: boolean
+  /** Id of the element naming what is graded; read after the repeated action buttons. */
+  describedById?: string
   onSubmit: (decision: NewTeacherGradingDecision) => void | Promise<void>
 }
 
@@ -196,6 +198,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
   canResetExercise,
   rejectWarning,
   isSubmitting = false,
+  describedById,
   onSubmit,
 }) => {
   const { t, i18n } = useTranslation()
@@ -211,6 +214,8 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
   })
+
+  const describedByProps = describedById ? { "aria-describedby": describedById } : {}
 
   const points = watch("points")
   const reason = watch("reason")
@@ -240,13 +245,14 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           className={arrowButtonCss}
           icon={<ArrowToZeroPoints size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: 0 })}
+          {...describedByProps}
           onClick={() => setPoints(0)}
         />
         <Slider
           className={trackCss}
           name="points"
           control={control}
-          label={t("points")}
+          label={t("label-adjust-points")}
           minValue={0}
           maxValue={target.exerciseMaxPoints}
           step={sliderStep(target.exerciseMaxPoints)}
@@ -259,6 +265,7 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
           className={arrowButtonCss}
           icon={<ArrowToMaxPoints size={20} weight="bold" />}
           aria-label={t("label-set-points-to", { points: target.exerciseMaxPoints })}
+          {...describedByProps}
           onClick={() => setPoints(target.exerciseMaxPoints)}
         />
         <NumberField
@@ -334,7 +341,13 @@ export const GradingDecisionForm: React.FC<GradingDecisionFormProps> = ({
       )}
 
       <div className={footerCss}>
-        <Button type="submit" variant="primary" size="medium" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          variant="primary"
+          size="medium"
+          disabled={isSubmitting}
+          {...describedByProps}
+        >
           {t("button-text-save-grading-decision")}
         </Button>
       </div>

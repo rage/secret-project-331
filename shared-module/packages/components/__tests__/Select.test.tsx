@@ -1,8 +1,9 @@
 "use client"
 
-import { act, fireEvent, screen, within } from "@testing-library/react"
+import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
+import { Dialog } from "../src/components/Dialog"
 import { Select } from "../src/components/Select"
 import { renderWithForm } from "./testUtils"
 
@@ -189,7 +190,11 @@ describe("Select", () => {
     ))
 
     expect(screen.getByRole("button", { name: /Disabled/ })).toBeDisabled()
-    expect(screen.getByRole("alert")).toHaveTextContent("Required")
+    const invalid = screen.getByRole("button", { name: /Invalid/ })
+    expect(invalid).toHaveAttribute("aria-invalid", "true")
+    expect(invalid).toHaveAccessibleDescription("Required")
+    expect(screen.getByText("Required")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("rejects duplicate option values", () => {
@@ -283,5 +288,73 @@ describe("Select", () => {
 
     expect(screen.getByRole("presentation")).toBeInTheDocument()
     expect(screen.getByRole("presentation")).toHaveTextContent("No results found")
+    // The trigger still has to point somewhere real, or aria-controls dangles on every empty search.
+    // Queried through the captured node: an open select makes the rest of the page inert, so the
+    // trigger is no longer reachable by role.
+    expect(trigger).toHaveAttribute("aria-controls", screen.getByRole("presentation").id)
+  })
+
+  test("data-testid lands on the trigger button", () => {
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        label="Country"
+        options={countryOptions}
+        data-testid="country-select"
+      />
+    ))
+
+    expect(screen.getByTestId("country-select")).toBe(
+      screen.getByRole("button", { name: /Country/ }),
+    )
+  })
+
+  test("keeps the caller's id on the trigger and a separate one on the listbox", async () => {
+    const user = userEvent.setup()
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        id="country-trigger"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
+
+    const trigger = screen.getByRole("button", { name: /Country/ })
+    expect(trigger).toHaveAttribute("id", "country-trigger")
+
+    await user.click(trigger)
+
+    const listBox = screen.getByRole("listbox")
+    expect(listBox.id).not.toBe(trigger.id)
+    expect(trigger).toHaveAttribute("aria-controls", listBox.id)
+  })
+
+  test("inside a modal Dialog, Enter opens the list on the selected option and Enter chooses it", async () => {
+    const user = userEvent.setup()
+    const { getValues } = renderWithForm<{ s: string }>(
+      (control) => (
+        <Dialog open onClose={jest.fn()} title="Settings">
+          <Select name="s" control={control} label="Language" options={languageOptions} />
+        </Dialog>
+      ),
+      { defaultValues: { s: "en" } },
+    )
+
+    const trigger = screen.getByRole("button", { name: /Language/ })
+    act(() => trigger.focus())
+    await user.keyboard("{Enter}")
+
+    const english = await screen.findByRole("option", { name: "English" })
+    await waitFor(() => expect(document.activeElement).toBe(english))
+
+    await user.keyboard("{ArrowUp}")
+    expect(document.activeElement).toBe(screen.getByRole("option", { name: "Finnish" }))
+
+    await user.keyboard("{Enter}")
+    expect(getValues().s).toBe("fi")
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
   })
 })

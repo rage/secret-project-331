@@ -17,6 +17,7 @@ import {
   NavItem,
   NavItems,
 } from "@/shared-module/common/components/Navigation/NavBar"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { DEFAULT_SITE_NAME } from "@/shared-module/common/utils/pageTitle"
@@ -86,7 +87,16 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
         </main>
       </div>
       <DynamicToaster />
-      <Footer />
+      <SessionVerificationDialog />
+      <div
+        className={css`
+          ${respondToOrLarger.xl} {
+            margin-right: ${SIDEBAR_WIDTH_PX}px;
+          }
+        `}
+      >
+        <Footer />
+      </div>
     </>
   )
 }

@@ -135,6 +135,26 @@ describe("OtpField", () => {
     expect(screen.getByRole("group", { name: /Verification code/ })).toBeInTheDocument()
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-required", "true")
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required")
+    expect(screen.getByText("Required")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
+  })
+
+  test("data-testid lands on the slot group", () => {
+    renderWithForm<{ otp: string }>(
+      (control) => (
+        <OtpField
+          name="otp"
+          control={control}
+          label="Verification code"
+          length={4}
+          data-testid="otp-slots"
+        />
+      ),
+      { defaultValues: { otp: "" } },
+    )
+
+    expect(screen.getByTestId("otp-slots")).toBe(
+      screen.getByRole("group", { name: /Verification code/ }),
+    )
   })
 })

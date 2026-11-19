@@ -6,7 +6,12 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import { getExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getExamOptions,
+  getExerciseOptions,
+  getOrganizationExamByExamIdOptions,
+  getOrganizationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
@@ -30,37 +35,76 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
   const courseId = exerciseQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
+  const examId = exerciseQuery.data?.exam_id ?? null
+  const examQuery = useQuery({
+    ...getExamOptions({ path: { id: examId ?? "" } }),
+    enabled: examId !== null,
+  })
+  const orgExamQuery = useQuery({
+    ...getOrganizationExamByExamIdOptions({ path: { exam_id: examId ?? "" } }),
+    enabled: examId !== null,
+  })
+  const examOrganizationId = orgExamQuery.data?.organization_id
+  const examOrganizationQuery = useQuery({
+    ...getOrganizationOptions({ path: { organization_id: examOrganizationId ?? "" } }),
+    enabled: examOrganizationId !== undefined,
+  })
+
   usePageTitle(exerciseQuery.data?.name ?? null)
 
   const crumbs = useMemo(
-    () => [
-      courseBreadcrumbInfo.data?.organization_name
-        ? {
-            isLoading: false as const,
-            label: courseBreadcrumbInfo.data.organization_name,
-            href: organizationFrontPageRoute(courseBreadcrumbInfo.data?.organization_slug ?? ""),
-          }
-        : { isLoading: true as const },
-      courseBreadcrumbInfo.data?.course_name && courseId
-        ? {
-            isLoading: false as const,
-            label: courseBreadcrumbInfo.data.course_name,
-            href: manageCourseRoute(courseId),
-          }
-        : { isLoading: true as const },
-      courseId
-        ? {
-            isLoading: false as const,
-            label: t("link-exercises"),
-            href: manageCourseExercisesRoute(courseId),
-          }
-        : { isLoading: true as const },
-    ],
+    () =>
+      examId !== null
+        ? [
+            examOrganizationQuery.data?.name
+              ? {
+                  isLoading: false as const,
+                  label: examOrganizationQuery.data.name,
+                  href: organizationFrontPageRoute(examOrganizationQuery.data.slug),
+                }
+              : { isLoading: true as const },
+            examQuery.data?.name
+              ? {
+                  isLoading: false as const,
+                  label: examQuery.data.name,
+                  href: `/manage/exams/${examId}`,
+                }
+              : { isLoading: true as const },
+          ]
+        : [
+            courseBreadcrumbInfo.data?.organization_name
+              ? {
+                  isLoading: false as const,
+                  label: courseBreadcrumbInfo.data.organization_name,
+                  href: organizationFrontPageRoute(
+                    courseBreadcrumbInfo.data?.organization_slug ?? "",
+                  ),
+                }
+              : { isLoading: true as const },
+            courseBreadcrumbInfo.data?.course_name && courseId
+              ? {
+                  isLoading: false as const,
+                  label: courseBreadcrumbInfo.data.course_name,
+                  href: manageCourseRoute(courseId),
+                }
+              : { isLoading: true as const },
+            courseId
+              ? {
+                  isLoading: false as const,
+                  label: t("link-exercises"),
+                  href: manageCourseExercisesRoute(courseId),
+                }
+              : { isLoading: true as const },
+          ],
     [
       courseBreadcrumbInfo.data?.organization_slug,
       courseBreadcrumbInfo.data?.organization_name,
       courseBreadcrumbInfo.data?.course_name,
       courseId,
+      examId,
+      examQuery.data?.name,
+      examOrganizationQuery.data?.name,
+      examOrganizationQuery.data?.slug,
       t,
     ],
   )

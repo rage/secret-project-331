@@ -8,10 +8,9 @@ import { useTranslation } from "react-i18next"
 
 import NewExamDialog from "@/app/(layout)/manage/exams/NewExamDialog"
 import { getOrganizationExamsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import { CardList } from "./CardListStyles"
 import ExamListItem from "./ExamListItem"

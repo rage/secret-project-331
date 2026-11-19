@@ -1,14 +1,17 @@
-//! The HS256 signing key and the claims that are minted below the server crate.
+//! The HS256 signing key and the claims that live outside the server crate.
 //!
-//! Lives here rather than beside the rest of the claim machinery in
-//! `headless_lms_server::domain::models_requests` because the answer readers that mint download
-//! URLs sit in `headless-lms-models`, under the server crate.
+//! Download claims live here, not in `headless_lms_server::domain::models_requests`, because the
+//! answer readers that mint download URLs sit in `headless-lms-models`, under the server crate.
+
+use std::net::IpAddr;
 
 use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use serde::{Serialize, de::DeserializeOwned};
 use uuid::Uuid;
+
+use crate::hmac_sha256::hmac_sha256;
 
 /// Query parameter carrying a [`DownloadClaim`]; the claimed-file route repeats it in a rename.
 pub const DOWNLOAD_CLAIM_PARAM: &str = "download-claim";
@@ -56,9 +59,109 @@ pub fn validate_hs256_claim<T: DeserializeOwned>(
     token: &str,
     key: &JwtKey,
 ) -> Result<T, jsonwebtoken::errors::Error> {
-    let validation = Validation::new(Algorithm::HS256);
+    decode_hs256_claim(token, key, Validation::new(Algorithm::HS256))
+}
+
+fn decode_hs256_claim<T: DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+    validation: Validation,
+) -> Result<T, jsonwebtoken::errors::Error> {
     decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
         .map(|token_data| token_data.claims)
+}
+
+/// Signs a student in on courses when mooc.fi's credit registration page sends them over.
+///
+/// Lives [`Self::LIFETIME`] and works only from the IP it was minted for. The redeem makes it
+/// single use by spending [`Self::jti`]. Sign it with [`sign_hs256_claim`].
+#[derive(Debug, Serialize, serde::Deserialize)]
+pub struct MoocfiHandoffClaim {
+    pub user_id: Uuid,
+    pub moocfi_course_id: Uuid,
+    /// The language mooc.fi was used in, `fi` or `en`, which courses opens in.
+    #[serde(default)]
+    pub ui_language: Option<String>,
+    /// The token is signed, not encrypted, so it carries a keyed hash and never the IP itself. A
+    /// plain hash of an IPv4 address is reversed by trying all 2^32 of them.
+    client_ip_hash: String,
+    jti: Uuid,
+    iat: i64,
+    exp: i64,
+}
+
+impl MoocfiHandoffClaim {
+    /// How long a minted handoff can be redeemed.
+    pub const LIFETIME: Duration = Duration::seconds(10);
+
+    /// A claim for the student at `client_ip` as mooc.fi saw them, expiring after
+    /// [`Self::LIFETIME`].
+    pub fn new(
+        user_id: Uuid,
+        moocfi_course_id: Uuid,
+        ui_language: Option<String>,
+        client_ip: IpAddr,
+        key: &JwtKey,
+    ) -> Self {
+        let iat = Utc::now().timestamp();
+        Self {
+            user_id,
+            moocfi_course_id,
+            ui_language,
+            client_ip_hash: client_ip_hash(client_ip, key),
+            jti: Uuid::new_v4(),
+            iat,
+            exp: iat + Self::LIFETIME.num_seconds(),
+        }
+    }
+
+    /// The handoff's own id, which spending it records.
+    pub fn jti(&self) -> Uuid {
+        self.jti
+    }
+
+    /// When the claim stops being redeemable.
+    pub fn expires_at(&self) -> chrono::DateTime<Utc> {
+        chrono::DateTime::from_timestamp(self.exp, 0).unwrap_or_else(Utc::now)
+    }
+
+    /// The keyed hash of the IP the claim was minted for, which a continuation of it keeps.
+    pub fn client_ip_hash(&self) -> &str {
+        &self.client_ip_hash
+    }
+
+    /// Whether the claim expired at most `grace` ago, or has not expired yet.
+    pub fn is_unexpired_or_expired_within(&self, grace: Duration) -> bool {
+        Utc::now().timestamp() < self.exp + grace.num_seconds()
+    }
+
+    /// Whether the claim was minted for a request from `client_ip`.
+    pub fn is_bound_to(&self, client_ip: IpAddr, key: &JwtKey) -> bool {
+        self.client_ip_hash == client_ip_hash(client_ip, key)
+    }
+
+    /// Checks only the signature, so an expired claim still names its course. Never sign anyone in
+    /// on what this returns.
+    pub fn read_ignoring_expiry(
+        token: &str,
+        key: &JwtKey,
+    ) -> Result<Self, jsonwebtoken::errors::Error> {
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.validate_exp = false;
+        decode_hs256_claim(token, key, validation)
+    }
+}
+
+/// Hex HMAC-SHA256 of the IP as printed after normalising, so textual variants of one IPv6 address
+/// and the IPv4-mapped form of an IPv4 address hash the same. Keyed with a key derived from `key`
+/// rather than `key` itself, so the MAC can never double as an HS256 signature.
+pub fn client_ip_hash(client_ip: IpAddr, key: &JwtKey) -> String {
+    let normalised = match client_ip {
+        IpAddr::V6(v6) => v6.to_ipv4_mapped().map_or(IpAddr::V6(v6), IpAddr::V4),
+        v4 => v4,
+    };
+    let derived_key = hmac_sha256(&key.0, b"moocfi-handoff-client-ip");
+    hex::encode(hmac_sha256(&derived_key, normalised.to_string().as_bytes()))
 }
 
 /// Authorizes the bearer to read one specific host-stored file for a while.
@@ -201,6 +304,41 @@ mod tests {
             .expect("signing should succeed");
         DownloadClaim::validate(&token, &JwtKey::test_key())
             .expect_err("a claim signed with another key must be rejected");
+    }
+
+    #[test]
+    fn an_expired_handoff_still_names_its_course() {
+        let key = JwtKey::test_key();
+        let token = sign_hs256_claim(
+            &serde_json::json!({
+                "user_id": Uuid::new_v4(),
+                "moocfi_course_id": Uuid::new_v4(),
+                "client_ip_hash": "",
+                "jti": Uuid::new_v4(),
+                "iat": past_timestamp(12),
+                "exp": past_timestamp(2),
+            }),
+            &key,
+        )
+        .expect("signing should succeed");
+        let claim = MoocfiHandoffClaim::read_ignoring_expiry(&token, &key)
+            .expect("an expired handoff still names its course");
+        assert!(!claim.is_unexpired_or_expired_within(Duration::zero()));
+    }
+
+    #[test]
+    fn the_client_ip_hash_needs_the_key() {
+        let ip: IpAddr = "192.0.2.1".parse().expect("an IP");
+        let mapped: IpAddr = "::ffff:192.0.2.1".parse().expect("an IP");
+        let claim = MoocfiHandoffClaim::new(
+            Uuid::new_v4(),
+            Uuid::new_v4(),
+            None,
+            ip,
+            &JwtKey::test_key(),
+        );
+        assert!(claim.is_bound_to(mapped, &JwtKey::test_key()));
+        assert!(!claim.is_bound_to(ip, &other_key()));
     }
 
     #[test]

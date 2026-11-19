@@ -1,6 +1,6 @@
 /**
  * Client for the mock Suotar's world and fault control (`/api/v0/mock-suotar/control/command`).
- * Hand-written because the mock's DTOs are deliberately not exported to `bindings.ts`, the same way
+ * Hand-written because the mock's DTOs are deliberately not part of the OpenAPI spec, the same way
  * `mock_sisu`'s are not. `suotarControl.ts` is the tick client.
  *
  * Only the commands a spec has a reason to send are wrapped; `MockSuotarCommand` in `commands.rs`

@@ -24,6 +24,7 @@ export interface SegmentedFieldCommonProps {
   isReadOnly?: boolean
   isRequired?: boolean
   isInvalid?: boolean
+  "data-testid"?: string | undefined
 }
 
 export type SegmentedTemporalFieldProps = SegmentedFieldCommonProps & {

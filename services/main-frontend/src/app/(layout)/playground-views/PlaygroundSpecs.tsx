@@ -7,12 +7,10 @@ import type { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion, TextArea, ErrorNotice } from "@/shared-module/components"
 
 export interface PlaygroundSpecsProps {
   settingsForm: UseFormReturn<PlaygroundSettings>
@@ -50,12 +48,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
       `}
     >
       <div>
-        <TextAreaField
-          id="heading-private-spec"
-          rows={20}
-          spellCheck={false}
-          label={t("private-spec")}
-          {...settingsForm.register("private_spec", {
+        <TextArea
+          name="private_spec"
+          control={settingsForm.control}
+          rules={{
             validate: (value) => {
               try {
                 JSON.parse(value)
@@ -64,7 +60,10 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
                 return false
               }
             },
-          })}
+          }}
+          id="heading-private-spec"
+          rows={20}
+          label={t("private-spec")}
           className={css`
             margin-bottom: 1rem;
             textarea {
@@ -105,12 +104,8 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("public-spec-explanation")}</p>
 
-          {publicSpecQuery.isError && (
-            <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
-          )}
-          {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
-            <Spinner variant={"medium"} />
-          )}
+          {publicSpecQuery.isError && <ErrorNotice error={publicSpecQuery.error} />}
+          {publicSpecQuery.isLoading && publicSpecQuery.isFetching && <LoadingRegion />}
           {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>
           )}
@@ -132,11 +127,9 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
 
           <p>{t("model-solution-spec-explanation")}</p>
 
-          {modelSolutionSpecQuery.isError && (
-            <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
-          )}
+          {modelSolutionSpecQuery.isError && <ErrorNotice error={modelSolutionSpecQuery.error} />}
           {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
-            <Spinner variant={"medium"} />
+            <LoadingRegion />
           )}
           {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
             <p>{t("error-cannot-load-with-the-given-inputs")}</p>

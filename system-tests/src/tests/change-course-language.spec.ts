@@ -31,11 +31,11 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 0,
     snapshotName: "course-lang-selection-eng-to-fi",
   })
-  const value = page.locator("#changeLanguage")
-  await value?.selectOption({ label: "Suomi" })
+  await page.getByTestId("change-course-language").click()
+  await page.getByRole("option", { name: "Suomi" }).click()
   await page.getByText("Valitse kieli").first().waitFor()
 
-  await page.getByText("Oletus").first().click()
+  await page.getByTestId("default-course-instance-radiobutton").check()
   await page.getByRole("button", { name: "Jatka" }).click()
   await page.getByRole("heading", { name: "Kurssin asetukset" }).waitFor({ state: "hidden" })
 
@@ -55,12 +55,12 @@ test("Changing course language works", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.getByText("Valitse kieli")],
   })
 
-  const value1 = page.locator("#changeLanguage")
-  await value1?.selectOption({ label: "English" })
+  await page.getByTestId("change-course-language").click()
+  await page.getByRole("option", { name: "English" }).click()
   await page.getByText("Choose your preferred language").first().waitFor()
   // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
-  await page.getByText("Default").first().click()
+  await page.getByTestId("default-course-instance-radiobutton").check()
   // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(200)
   await page.getByTestId("select-course-instance-continue-button").click()

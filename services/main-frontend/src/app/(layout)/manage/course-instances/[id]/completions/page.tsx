@@ -5,10 +5,10 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
 
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { INSTANCE_PARAM } from "../../../courses/[id]/students/StudentsContext"
 
@@ -37,7 +37,7 @@ const CourseInstanceCompletionsRedirect: React.FC = () => {
     router.replace(`${manageCourseStudentsRoute(courseId)}/${COMPLETIONS_TAB}?${query.toString()}`)
   }, [courseId, courseInstanceId, router])
 
-  return <Spinner variant="medium" />
+  return <LoadingRegion />
 }
 
 export default withErrorBoundary(withSignedIn(CourseInstanceCompletionsRedirect))

@@ -7,7 +7,9 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 
 import { client } from "../client.generated"
 import {
+  getAuthAltchaChallenge,
   getAuthLoggedIn,
+  getAuthSessionStatus,
   getAuthUserInfo,
   type Options,
   postAuthAuthorize,
@@ -16,12 +18,17 @@ import {
   postAuthLogin,
   postAuthLogout,
   postAuthSendEmailCode,
+  postAuthSessionStatusEmailCode,
+  postAuthSessionStatusVerify,
   postAuthSignup,
   postAuthVerifyEmail,
 } from "../sdk.generated"
 import type {
+  GetAuthAltchaChallengeData,
   GetAuthLoggedInData,
   GetAuthLoggedInResponse,
+  GetAuthSessionStatusData,
+  GetAuthSessionStatusResponse,
   GetAuthUserInfoData,
   GetAuthUserInfoResponse,
   PostAuthAuthorizeData,
@@ -35,89 +42,15 @@ import type {
   PostAuthLogoutData,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponse,
+  PostAuthSessionStatusEmailCodeData,
+  PostAuthSessionStatusEmailCodeResponse,
+  PostAuthSessionStatusVerifyData,
+  PostAuthSessionStatusVerifyResponse,
   PostAuthSignupData,
   PostAuthSignupResponse,
   PostAuthVerifyEmailData,
   PostAuthVerifyEmailResponse,
 } from "../types.generated"
-
-/**
- *
- * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
- * *
- */
-export const postAuthAuthorizeMutation = (
-  options?: Partial<Options<PostAuthAuthorizeData>>,
-): UseMutationOptions<PostAuthAuthorizeResponse, DefaultError, Options<PostAuthAuthorizeData>> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthAuthorizeResponse,
-    DefaultError,
-    Options<PostAuthAuthorizeData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await postAuthAuthorize({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
- * Returns booleans for the authorizations in the same order as the input.
- * *
- */
-export const postAuthAuthorizeMultipleMutation = (
-  options?: Partial<Options<PostAuthAuthorizeMultipleData>>,
-): UseMutationOptions<
-  PostAuthAuthorizeMultipleResponse,
-  DefaultError,
-  Options<PostAuthAuthorizeMultipleData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthAuthorizeMultipleResponse,
-    DefaultError,
-    Options<PostAuthAuthorizeMultipleData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await postAuthAuthorizeMultiple({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
- * *
- */
-export const postAuthDeleteUserAccountMutation = (
-  options?: Partial<Options<PostAuthDeleteUserAccountData>>,
-): UseMutationOptions<
-  PostAuthDeleteUserAccountResponse,
-  DefaultError,
-  Options<PostAuthDeleteUserAccountData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthDeleteUserAccountResponse,
-    DefaultError,
-    Options<PostAuthDeleteUserAccountData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await postAuthDeleteUserAccount({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
 
 export type QueryKey<TOptions extends Options> = [
   Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
@@ -158,11 +91,143 @@ const createQueryKey = <TOptions extends Options>(
   return [params]
 }
 
+export const getAuthAltchaChallengeQueryKey = (options: Options<GetAuthAltchaChallengeData>) =>
+  createQueryKey("getAuthAltchaChallenge", options)
+
+/**
+ * GET `/api/v0/auth/altcha-challenge` A fresh proof-of-work challenge for one of the account forms, in
+ * the format the ALTCHA widget fetches.
+ */
+export const getAuthAltchaChallengeOptions = (options: Options<GetAuthAltchaChallengeData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof getAuthAltchaChallengeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthAltchaChallenge({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthAltchaChallengeQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
+ * *
+ */
+export const postAuthAuthorizeMutation = (
+  options?: Partial<Options<PostAuthAuthorizeData>>,
+): UseMutationOptions<PostAuthAuthorizeResponse, DefaultError, Options<PostAuthAuthorizeData>> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthAuthorizeResponse,
+    DefaultError,
+    Options<PostAuthAuthorizeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthAuthorize({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.
+ * Returns booleans for the authorizations in the same order as the input.
+ * *
+ */
+export const postAuthAuthorizeMultipleMutation = (
+  options?: Partial<Options<PostAuthAuthorizeMultipleData>>,
+): UseMutationOptions<
+  PostAuthAuthorizeMultipleResponse,
+  DefaultError,
+  Options<PostAuthAuthorizeMultipleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthAuthorizeMultipleResponse,
+    DefaultError,
+    Options<PostAuthAuthorizeMultipleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthAuthorizeMultiple({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/auth/create-account HTTP/1.1
+ * Content-Type: application/json
+ *
+ * {
+ * "email": "student@example.com",
+ * "first_name": "John",
+ * "last_name": "Doe",
+ * "language": "en",
+ * "password": "hunter42",
+ * "password_confirmation": "hunter42",
+ * "country" : "Finland",
+ * "email_communication_consent": true,
+ * "altcha": "eyJjaGFsbGVuZ2UiOnsi..."
+ * }
+ * ```
+ */
+export const postAuthSignupMutation = (
+  options?: Partial<Options<PostAuthSignupData>>,
+): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSignupResponse,
+    DefaultError,
+    Options<PostAuthSignupData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSignup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
+ * *
+ */
+export const postAuthDeleteUserAccountMutation = (
+  options?: Partial<Options<PostAuthDeleteUserAccountData>>,
+): UseMutationOptions<
+  PostAuthDeleteUserAccountResponse,
+  DefaultError,
+  Options<PostAuthDeleteUserAccountData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthDeleteUserAccountResponse,
+    DefaultError,
+    Options<PostAuthDeleteUserAccountData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthDeleteUserAccount({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getAuthLoggedInQueryKey = (options?: Options<GetAuthLoggedInData>) =>
   createQueryKey("getAuthLoggedIn", options)
 
 /**
- *
  * GET `/api/v0/auth/logged-in` Returns the current user's login status.
  * *
  */
@@ -184,7 +249,6 @@ export const getAuthLoggedInOptions = (options?: Options<GetAuthLoggedInData>) =
   })
 
 /**
- *
  * POST `/api/v0/auth/login` Logs in to the system.
  * Returns LoginResponse indicating success, email verification required, or failure.
  * *
@@ -208,7 +272,6 @@ export const postAuthLoginMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/logout` Logs out.
  * *
  */
@@ -227,7 +290,6 @@ export const postAuthLogoutMutation = (
 }
 
 /**
- *
  * POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
  * *
  */
@@ -253,37 +315,75 @@ export const postAuthSendEmailCodeMutation = (
   return mutationOptions
 }
 
+export const getAuthSessionStatusQueryKey = (options?: Options<GetAuthSessionStatusData>) =>
+  createQueryKey("getAuthSessionStatus", options)
+
 /**
- *
- * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
- *
- * # Example
- * ```http
- * POST /api/v0/auth/signup HTTP/1.1
- * Content-Type: application/json
- *
- * {
- * "email": "student@example.com",
- * "first_name": "John",
- * "last_name": "Doe",
- * "language": "en",
- * "password": "hunter42",
- * "password_confirmation": "hunter42",
- * "country" : "Finland",
- * "email_communication_consent": true
- * }
- * ```
+ * GET `/api/v0/auth/session-status` Whether the signed-in user must confirm this session with an
+ * emailed code: a user with a role on a browser or network they have not confirmed. Only the UI
+ * enforces it.
  */
-export const postAuthSignupMutation = (
-  options?: Partial<Options<PostAuthSignupData>>,
-): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthSignupResponse,
+export const getAuthSessionStatusOptions = (options?: Options<GetAuthSessionStatusData>) =>
+  queryOptions<
+    GetAuthSessionStatusResponse,
     DefaultError,
-    Options<PostAuthSignupData>
+    GetAuthSessionStatusResponse,
+    ReturnType<typeof getAuthSessionStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthSessionStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthSessionStatusQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/auth/session-status/email-code` Mails the signed-in user a code for confirming the
+ * session, when [`session_status`] asks for one and no usable code is out already.
+ */
+export const postAuthSessionStatusEmailCodeMutation = (
+  options?: Partial<Options<PostAuthSessionStatusEmailCodeData>>,
+): UseMutationOptions<
+  PostAuthSessionStatusEmailCodeResponse,
+  DefaultError,
+  Options<PostAuthSessionStatusEmailCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSessionStatusEmailCodeResponse,
+    DefaultError,
+    Options<PostAuthSessionStatusEmailCodeData>
   > = {
     mutationFn: async (fnOptions) =>
-      await postAuthSignup({
+      await postAuthSessionStatusEmailCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/auth/session-status/verify` Confirms the session with the emailed code, remembering
+ * this browser and network for the signed-in user.
+ */
+export const postAuthSessionStatusVerifyMutation = (
+  options?: Partial<Options<PostAuthSessionStatusVerifyData>>,
+): UseMutationOptions<
+  PostAuthSessionStatusVerifyResponse,
+  DefaultError,
+  Options<PostAuthSessionStatusVerifyData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSessionStatusVerifyResponse,
+    DefaultError,
+    Options<PostAuthSessionStatusVerifyData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSessionStatusVerify({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -296,7 +396,6 @@ export const getAuthUserInfoQueryKey = (options?: Options<GetAuthUserInfoData>) 
   createQueryKey("getAuthUserInfo", options)
 
 /**
- *
  * GET `/api/v0/auth/user-info` Returns the current user's info.
  * *
  */
@@ -318,7 +417,6 @@ export const getAuthUserInfoOptions = (options?: Options<GetAuthUserInfoData>) =
   })
 
 /**
- *
  * POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
  * *
  */

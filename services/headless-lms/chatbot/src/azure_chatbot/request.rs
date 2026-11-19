@@ -7,6 +7,7 @@ use headless_lms_models::chatbot_configurations_models::{ChatbotConfigurationMod
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_models::chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning;
 use headless_lms_models::chatbot_conversation_messages::{ChatbotConversationMessage, Message};
+use headless_lms_models::course_designer_plans::{CourseDesignerPlan, CourseDesignerStage};
 
 use super::azure::protocol::{
     InputItem, LLMRequest, LLMRequestParams, LLMToolChoice, RequestTextOptions,
@@ -15,6 +16,8 @@ use super::azure::tools::AzureLLMToolDefinition;
 use super::client_tool_calls::abort::ToolCallAbortReason;
 use super::search_grounding::build_search_grounding_instruction;
 use crate::chatbot_error::ChatbotResult;
+use crate::chatbot_tools::ChatbotToolDeclaration;
+use crate::chatbot_tools::course_plan_tools::get_course_plan::GetCoursePlanTool;
 use crate::chatbot_tools::provider_tools::azure_ai_search::{
     self, get_azure_ai_search_tool_definition,
 };
@@ -233,16 +236,22 @@ impl LLMRequest {
             model,
             messages,
             mut tools,
+            course_plan,
         } = inputs;
 
         let offers_tools = !tools.is_empty();
+        // A plan turn may run on the fallback assistant, which has no guide course to search.
         let offers_search = configuration.use_azure_search
-            && enabled_tool_categories.contains(azure_ai_search::CATEGORY);
+            && enabled_tool_categories.contains(azure_ai_search::CATEGORY)
+            && (course_plan.is_none() || configuration.course_id.is_some());
 
         let mut system_prompt = configuration.prompt.clone();
         system_prompt.push_str(
             "All code you generate should be indented with 2 spaces, regardless of the language.\n",
         );
+        if let Some(plan) = &course_plan {
+            system_prompt.push_str(&course_plan_instruction(plan));
+        }
         if offers_search {
             system_prompt.push_str(&build_search_grounding_instruction(enabled_tool_categories));
             tools.push(AzureLLMToolDefinition::Search(
@@ -299,6 +308,8 @@ struct TurnInputs {
     model: ChatbotConfigurationModel,
     messages: Vec<ChatbotConversationMessage>,
     tools: Vec<AzureLLMToolDefinition>,
+    /// The plan a course design assistant turn is about.
+    course_plan: Option<CourseDesignerPlan>,
 }
 
 impl TurnInputs {
@@ -325,8 +336,24 @@ impl TurnInputs {
             model,
             messages,
             tools,
+            course_plan: user_context.course_plan.clone(),
         })
     }
+}
+
+/// The system prompt addendum of a course design assistant turn.
+fn course_plan_instruction(plan: &CourseDesignerPlan) -> String {
+    let stage = plan
+        .active_stage
+        .map(CourseDesignerStage::as_str)
+        .unwrap_or("none (the schedule is not finalized)");
+    format!(
+        "\n\nYou are helping the team that is designing a MOOC with the course design plan \"{}\". Plan status: {:?}. Active stage: {stage}. Today is {}.\nRead the plan with {} before giving feedback or proposing changes, and base what you say on it. To change the plan, use the propose_ tools: each one shows the user a card to apply or discard, and nothing changes until they apply it. Never say a change is made before the tool result confirms it was applied. Answer in the language the user writes in.\n",
+        plan.name.as_deref().unwrap_or("Untitled plan"),
+        plan.status,
+        Utc::now().date_naive(),
+        GetCoursePlanTool::NAME,
+    )
 }
 
 #[cfg(test)]

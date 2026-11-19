@@ -8,9 +8,11 @@ import { EmailAddress } from "@/components/credit-registration/EmailAddress"
 import InlineParts from "@/components/credit-registration/InlineParts"
 import {
   getAccountLinkingStatsQueryKey,
+  listAccountLinkingEmailsQueryKey,
   listCreditRegistrationsForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminResendAccountLinkingEmail } from "@/generated/api/sdk.generated"
+import type { AdminResendAccountLinkingEmailResult } from "@/generated/api/types.generated"
 import type { DialogAction } from "@/shared-module/components"
 import { Checkbox, Dialog } from "@/shared-module/components"
 
@@ -20,13 +22,17 @@ import { dialogFormCss, noteCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { sendStatusLabel } from "./adminCreditRegistrationCopy"
+import { AUDIT_ACTION } from "./auditActions"
 import { ResendOutcomeNotice } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 
 interface Props extends DialogOpenState {
   studentNumber: string
-  courseId: string
+  /** The course or mooc.fi target the mail is for. */
+  courseOrTargetId: string
   courseName: string
+  /** Called with each send's result, for a caller that lists this person's emails. */
+  onSent?: (result: AdminResendAccountLinkingEmailResult) => void
 }
 
 interface Fields {
@@ -46,8 +52,9 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
   isOpen,
   onClose,
   studentNumber,
-  courseId,
+  courseOrTargetId,
   courseName,
+  onSent,
 }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
@@ -59,7 +66,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       adminResendAccountLinkingEmail({
         body: {
           student_number: studentNumber,
-          course_id: courseId,
+          course_or_target_id: courseOrTargetId,
           override_rate_caps: fields.override_rate_caps,
           reason: fields.reason.trim() === "" ? null : fields.reason.trim(),
         },
@@ -68,6 +75,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       if (sent.outcome === RESEND_QUEUED) {
         reset(DEFAULT_FIELDS)
       }
+      onSent?.(sent)
     },
   )
   // Pressing again would only run into, or override, the mail just claimed.
@@ -83,6 +91,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
       void Promise.all([
         queryClient.invalidateQueries({ queryKey: getAccountLinkingStatsQueryKey() }),
         queryClient.invalidateQueries({ queryKey: listCreditRegistrationsForAdminQueryKey() }),
+        queryClient.invalidateQueries({ queryKey: listAccountLinkingEmailsQueryKey() }),
       ])
     }
   }
@@ -135,6 +144,7 @@ const AdminResendLinkingEmailDialog: React.FC<Props> = ({
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.RESEND_LINK_EMAIL}
             description={t("credit-registration-admin-resend-reason-description")}
             isRequired={override}
           />

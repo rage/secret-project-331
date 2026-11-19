@@ -30,7 +30,9 @@ export const fillPeerReview = async (
     // Check that the assignment is showing in the peer review page.
     await expect(page.getByTestId("assignment")).toContainText("Answer this question.")
 
-    await page.getByPlaceholder("Write a review").fill("It was hard to understand")
+    await page
+      .getByRole("textbox", { name: "What are your thoughts on the answer" })
+      .fill("It was hard to understand")
     await page
       .locator(
         `:nth-match(p:text-is('${options[0]}'):below(span:has-text('Was the answer correct? *')), 1)`,

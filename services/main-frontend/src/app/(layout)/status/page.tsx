@@ -4,10 +4,11 @@ import { css } from "@emotion/css"
 import React, { useEffect, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
+import { Button } from "@/shared-module/components"
 
 import { useFavicon } from "../../../hooks/useFavicon"
 import { useLocalNotifications } from "../../../hooks/useLocalNotifications"
@@ -141,13 +142,7 @@ const StatusPage: React.FC = () => {
           margin-bottom: 2rem;
         `}
       >
-        <h1
-          className={css`
-            margin: 0;
-          `}
-        >
-          {t("status-kubernetes-status")}
-        </h1>
+        <h1 className={pageTitleCss}>{t("status-kubernetes-status")}</h1>
         {notificationsSupported && (
           <Button
             variant={notificationsEnabled ? "secondary" : "tertiary"}

@@ -1,29 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  columnVisibilityFeature,
-  createColumnHelper,
-  flexRender,
-  tableFeatures,
-  useTable,
-} from "@tanstack/react-table"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import type { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Disclosure, QueryResult, Table } from "@/shared-module/components"
 
 export interface DailyVisitCountsGroupedByReferrerProps {
   courseId: string
 }
-
-const tableFeaturesConfig = tableFeatures({ columnVisibilityFeature })
 
 const DailyVisitCountsGroupedByReferrer: React.FC<
   React.PropsWithChildren<DailyVisitCountsGroupedByReferrerProps>
@@ -69,25 +59,6 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
     return sorted
   }, [query.data])
 
-  const columnHelper = createColumnHelper<
-    typeof tableFeaturesConfig,
-    PageVisitDatumSummaryByCourse
-  >()
-
-  const columns = columnHelper.columns([
-    columnHelper.accessor("visit_date", {
-      header: t("header-visit-date"),
-    }),
-    columnHelper.accessor("referrer", { header: t("header-referrer") }),
-    columnHelper.accessor("num_visitors", { header: t("header-number-of-visitors") }),
-  ])
-
-  const table = useTable({
-    features: tableFeaturesConfig,
-    data: aggregatedData ?? [],
-    columns,
-  })
-
   return (
     <div
       className={css`
@@ -101,70 +72,25 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
         {() =>
           !aggregatedData || aggregatedData.length === 0 ? null : (
             <>
-              <Accordion
+              <Disclosure
                 className={css`
                   margin-bottom: 0.5rem;
                   width: 100%;
                 `}
+                title={t("header-grouped-by-referrer")}
               >
-                <details>
-                  <summary>{t("header-grouped-by-referrer")}</summary>
-                  <div
-                    className={css`
-                      table {
-                        width: 100%;
-                        border-collapse: separate;
-                        border-spacing: 0;
-                      }
-
-                      td {
-                        padding: 0.5rem 0.7rem;
-                        max-width: 3000px;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                        border: 1px solid ${baseTheme.colors.clear[300]};
-                      }
-                      thead {
-                        th {
-                          text-align: left;
-                          padding-left: 0.5rem;
-                          font-weight: 600;
-                          font-size: 14px;
-                          line-height: 16px;
-                          color: ${baseTheme.colors.gray[500]};
-                        }
-                      }
-                    `}
-                  >
-                    <table>
-                      <thead>
-                        {table.getHeaderGroups().map((headerGroup) => (
-                          <tr key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                              <th key={header.id}>
-                                {!header.isPlaceholder &&
-                                  flexRender(header.column.columnDef.header, header.getContext())}
-                              </th>
-                            ))}
-                          </tr>
-                        ))}
-                      </thead>
-                      <tbody>
-                        {table.getRowModel().rows.map((row) => (
-                          <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                              <td key={cell.id}>
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </details>
-              </Accordion>
+                <Table
+                  caption={t("header-grouped-by-referrer")}
+                  density={DENSITY_COMPACT}
+                  rows={aggregatedData}
+                  rowKey={rowToGroupingKey}
+                  columns={[
+                    { header: t("header-visit-date"), cell: (row) => row.visit_date },
+                    { header: t("header-referrer"), cell: (row) => row.referrer },
+                    { header: t("header-number-of-visitors"), cell: (row) => row.num_visitors },
+                  ]}
+                />
+              </Disclosure>
               <DebugModal data={aggregatedData} />
             </>
           )

@@ -1,44 +1,27 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { omit } from "lodash"
 import React, { useCallback, useEffect, useReducer, useRef, useState } from "react"
+import type { Control } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
   ChatbotConversation,
   ChatbotConversationInfo,
   ChatbotPageContext,
   ClientToolAnswer,
   ClientToolName,
-  SendChatbotMessageData,
-  SendChatbotToolResponseData,
 } from "@/generated/course-material-api/types.generated"
-import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
-import useConversationInfo from "@/hooks/course-material/chatbot/useConversationInfo"
-import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
-import useUpdateConversationTitleMutation from "@/hooks/course-material/chatbot/useUpdateConversationTitle"
 import { isAbortError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullability"
-import { getSavedChatbotAnonymousToken } from "@/utils/anonymousTokenLocalStorage"
 
+import type { ChatbotEndpoints, ChatbotTurnRequest } from "../chatbotEndpoints"
 import type { ChatbotAction, ChatbotState } from "../chatbotReducer"
 import chatbotReducer from "../chatbotReducer"
+import type { ClientToolRegistry } from "../clientToolRegistry"
+import { BASE_CLIENT_TOOL_REGISTRY } from "../clientToolRegistry"
 import { hasOpenClientToolCall } from "../messageClassification"
 import readChatbotResponseStream from "../readChatbotResponseStream"
-
-const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
-  "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"
-
-const SEND_CHATBOT_TOOL_RESPONSE_PATH: SendChatbotToolResponseData["url"] =
-  "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/tool-response"
-
-/**
- * One turn's request, paired with the endpoint it belongs to so a message body can never be sent
- * to the tool-response endpoint or vice versa.
- */
-type ChatbotTurnRequest =
-  | { url: typeof SEND_CHATBOT_MESSAGE_PATH; body: SendChatbotMessageData["body"] }
-  | { url: typeof SEND_CHATBOT_TOOL_RESPONSE_PATH; body: SendChatbotToolResponseData["body"] }
 
 /** Which client tool call the learner answered, and with what. */
 export interface ClientToolResponse {
@@ -47,21 +30,37 @@ export interface ClientToolResponse {
   answer: ClientToolAnswer
 }
 
+/** Called with what a confirmed action tool's execution sent back for this browser. */
+export type ActionExecutedHandler = (toolName: ClientToolName, payload: unknown) => void
+
 /** A turn `runTurn` refused because another is still streaming. Never surfaced to the learner. */
 class TurnAlreadyRunningError extends Error {}
+
+/** react-hook-form field name for the chatbot composer's only field. */
+export const MESSAGE_FIELD = "message" as const
+
+/** The chatbot composer's only field: the message being drafted. */
+export interface ChatbotComposerValues {
+  [MESSAGE_FIELD]: string
+}
 
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
+  control: Control<ChatbotComposerValues>
+  /** Reads the composer's current text and sends it as a new message. */
+  submitMessage: () => Promise<void>
   error: unknown | null
   messageState: ChatbotState
   dispatch: (action: ChatbotAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   chatbotMessageAnnouncement: string
+  /** The tools this chatbot renders: its endpoints' registry, or the base one. */
+  clientToolRegistry: ClientToolRegistry
   newMessageMutation: UseMutationResult<void, unknown, string, unknown>
   toolResponseMutation: UseMutationResult<void, unknown, ClientToolResponse, unknown>
+  /** Why answering a call failed, for the calls whose bubble shows it (`showsAnswerError`). */
+  answerErrorByToolCallId: Readonly<Record<string, unknown>>
   /** Whether either endpoint is streaming a turn right now. */
   isTurnInFlight: boolean
   /** Ends the turn that is streaming now, without surfacing an error. Does nothing otherwise. */
@@ -75,13 +74,13 @@ export interface ChatbotStateAndData {
     unknown,
     string | null | undefined,
     unknown
-  >
+  > | null
   handlePickSuggestionMutation: UseMutationResult<void, unknown, string, unknown>
   handleSubmitMutation: UseMutationResult<void, unknown, string, unknown>
 }
 
 /**
- * Queries, state and data for one mounted chatbot.
+ * Queries, state and data for one mounted chatbot talking to `endpoints`.
  *
  * `setIsOpen` is only for the chatbots that live in a dialog. `pageId` is the course material page
  * context to send with a message, or null for the callers that have no page (the chatbot command
@@ -90,14 +89,19 @@ export interface ChatbotStateAndData {
  * is otherwise null there anyway.
  */
 const useChatbotStateAndData = (
-  chatbotConfigurationId: string | null,
+  endpoints: ChatbotEndpoints,
   pageId: string | null,
   isAlwaysOpen: boolean,
+  onActionExecuted?: ActionExecutedHandler,
 ): ChatbotStateAndData => {
   const { t } = useTranslation()
-  const [newMessage, setNewMessage] = useState("")
+  const clientToolRegistry = endpoints.clientToolRegistry ?? BASE_CLIENT_TOOL_REGISTRY
+  const composerForm = useForm<ChatbotComposerValues>({ defaultValues: { [MESSAGE_FIELD]: "" } })
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
+  const [answerErrorByToolCallId, setAnswerErrorByToolCallId] = useState<
+    Readonly<Record<string, unknown>>
+  >({})
 
   let [isOpen, setIsOpen] = useState(false)
   let setDialogOpen: React.Dispatch<boolean> | undefined = setIsOpen
@@ -137,32 +141,24 @@ const useChatbotStateAndData = (
         apply(...args)
       }
     }
-  const anonymousToken = getSavedChatbotAnonymousToken()
 
-  const currentConversationIdQuery = useCurrentConversationId(chatbotConfigurationId)
+  const currentConversationIdQuery = endpoints.useCurrentConversationId()
 
   const activeConversationId = currentConversationIdQuery.isLoading
     ? null
     : (convId ?? currentConversationIdQuery.data)
 
-  const currentConversationInfo = useConversationInfo(
-    chatbotConfigurationId,
-    activeConversationId,
-    anonymousToken,
-  )
+  const currentConversationInfo = endpoints.useConversationInfo(activeConversationId)
 
-  const newConversationMutation = useNewConversationMutation(
-    chatbotConfigurationId,
-    setNewMessage,
+  const newConversationMutation = endpoints.useNewConversationMutation({
+    resetComposerMessage: composerForm.reset,
     setError,
     setConvId,
-  )
+  })
 
   // .mutate call takes as an argument a string that is to be used as the conversation title
-  const updateConversationTitleMutation = useUpdateConversationTitleMutation(
-    chatbotConfigurationId,
-    activeConversationId,
-  )
+  const updateConversationTitleMutation =
+    endpoints.useUpdateConversationTitleMutation(activeConversationId)
 
   /**
    * Takes the conversation as the ended turn left it and announces what the learner is expected to
@@ -175,7 +171,10 @@ const useChatbotStateAndData = (
     dispatch({ type: "TURN_ENDED" })
     const refetched = await currentConversationInfo.refetch()
     dispatch({ type: "RESPONSE_COMPLETED" })
-    const waiting = hasOpenClientToolCall(refetched.data?.current_conversation_messages ?? [])
+    const waiting = hasOpenClientToolCall(
+      refetched.data?.current_conversation_messages ?? [],
+      clientToolRegistry,
+    )
     setChatbotMessageAnnouncement(
       waiting ? t("chatbot-asked-a-question") : t("chatbot-finished-responding"),
     )
@@ -189,38 +188,25 @@ const useChatbotStateAndData = (
     return conversation.id
   }
 
-  /**
-   * Posts to one of the two chatbot turn endpoints and applies the response stream to the chat
-   * state. Shared so the anonymous token, which is the only authentication an embedded or public
-   * conversation has, cannot end up sent by one endpoint and not the other.
-   */
+  /** Posts one turn and applies its response stream to the chat state. */
   const postChatbotStream = async (
     request: ChatbotTurnRequest,
     conversationId: string,
     signal: AbortSignal,
   ): Promise<void> => {
-    const stream = await courseMaterialClient.post<
-      ReadableStream<Uint8Array>,
-      unknown,
-      true,
-      "data"
-    >({
-      body: request.body,
-      parseAs: "stream",
-      path: {
-        chatbot_configuration_id: chatbotConfigurationId,
-        conversation_id: conversationId,
+    const stream = await endpoints.postTurn(request, conversationId, signal)
+    const dispatchWhileMounted = whileMounted(dispatch)
+    await readChatbotResponseStream(
+      stream,
+      (action) => {
+        // Outside `whileMounted`: what the action changed stays changed after the chat closes.
+        if (action.type === "ACTION_EXECUTED" && request.kind === "toolResponse") {
+          onActionExecuted?.(request.toolName, action.payload.payload)
+        }
+        dispatchWhileMounted(action)
       },
-      ...includeIf(anonymousToken, {
-        headers: {
-          authorization: `Bearer ${anonymousToken}`,
-        },
-      }),
-      responseStyle: "data",
-      signal,
-      url: request.url,
-    })
-    await readChatbotResponseStream(stream, whileMounted(dispatch), whileMounted(setError))
+      whileMounted(setError),
+    )
   }
 
   /**
@@ -262,7 +248,7 @@ const useChatbotStateAndData = (
    * A turn can fail after the server already changed the conversation — e.g. it refused an
    * answer — so only a refetch can say whether the question is still waiting.
    */
-  const onTurnError = async (err: unknown) => {
+  const onTurnError = async (err: unknown, isShownElsewhere = false) => {
     // A refused start never touched the running turn's state, so there is nothing to settle.
     if (err instanceof TurnAlreadyRunningError) {
       return
@@ -272,7 +258,7 @@ const useChatbotStateAndData = (
     }
     dispatch({ type: "TURN_ENDED" })
     const stopped = isAbortError(err)
-    if (!stopped) {
+    if (!stopped && !isShownElsewhere) {
       setError(err)
     }
     setChatbotMessageAnnouncement(
@@ -291,22 +277,15 @@ const useChatbotStateAndData = (
         const conversationId = requireConversationId()
         const message = messageToSend.trim()
         dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
-        setNewMessage("")
+        composerForm.resetField(MESSAGE_FIELD)
         const pageContext: ChatbotPageContext | undefined =
           pageId !== null ? { page_id: pageId } : undefined
-        await postChatbotStream(
-          {
-            url: SEND_CHATBOT_MESSAGE_PATH,
-            body: omitUndefined({ message, page_context: pageContext }),
-          },
-          conversationId,
-          signal,
-        )
+        await postChatbotStream({ kind: "message", message, pageContext }, conversationId, signal)
       }),
     { notify: false },
     {
       onSuccess: settleFinishedTurn,
-      onError: onTurnError,
+      onError: (err) => onTurnError(err),
     },
   )
 
@@ -317,7 +296,7 @@ const useChatbotStateAndData = (
       await newMessageMutation.mutateAsync(message)
 
       if (titleIsMissing) {
-        updateConversationTitleMutation.mutate(message)
+        updateConversationTitleMutation?.mutate(message)
       }
     },
     { notify: false },
@@ -330,21 +309,24 @@ const useChatbotStateAndData = (
       await newMessageMutation.mutateAsync(message)
 
       if (titleIsMissing) {
-        updateConversationTitleMutation.mutate(message)
+        updateConversationTitleMutation?.mutate(message)
       }
     },
     { notify: false },
+  )
+
+  const submitComposerMessage = useCallback(
+    (values: ChatbotComposerValues) => handleSubmitMutation.mutate(values.message),
+    [handleSubmitMutation],
   )
 
   const toolResponseMutation = useToastMutation(
     async ({ toolCallId, toolName, answer }: ClientToolResponse) => {
       await runTurn(async (signal) => {
         const conversationId = requireConversationId()
+        setAnswerErrorByToolCallId((previous) => omit(previous, toolCallId))
         await postChatbotStream(
-          {
-            url: SEND_CHATBOT_TOOL_RESPONSE_PATH,
-            body: { tool_call_id: toolCallId, tool_name: toolName, answer },
-          },
+          { kind: "toolResponse", toolCallId, toolName, answer },
           conversationId,
           signal,
         )
@@ -353,7 +335,16 @@ const useChatbotStateAndData = (
     { notify: false },
     {
       onSuccess: settleFinishedTurn,
-      onError: onTurnError,
+      onError: (err, { toolCallId, toolName }) => {
+        const isShownOnBubble =
+          clientToolRegistry[toolName]?.showsAnswerError === true &&
+          !(err instanceof TurnAlreadyRunningError) &&
+          !isAbortError(err)
+        if (isShownOnBubble && isMountedRef.current) {
+          setAnswerErrorByToolCallId((previous) => ({ ...previous, [toolCallId]: err }))
+        }
+        return onTurnError(err, isShownOnBubble)
+      },
     },
   )
 
@@ -361,13 +352,15 @@ const useChatbotStateAndData = (
     newConversationMutation,
     newMessageMutation,
     toolResponseMutation,
+    answerErrorByToolCallId,
     currentConversationInfo,
-    newMessage,
-    setNewMessage,
+    control: composerForm.control,
+    submitMessage: composerForm.handleSubmit(submitComposerMessage),
     messageState,
     dispatch,
     error,
     chatbotMessageAnnouncement,
+    clientToolRegistry,
     isTurnInFlight,
     stopTurn,
     setDialogOpen,

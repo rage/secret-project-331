@@ -4,8 +4,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import type { Control } from "react-hook-form"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { ErrorNotice } from "@/shared-module/components"
 import { Button } from "@/shared-module/components/components/Button"
 import { TextArea } from "@/shared-module/components/components/TextArea"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -78,7 +78,7 @@ const ChartAiPromptStep: React.FC<ChartAiPromptStepProps> = ({
           </span>
         )}
       </div>
-      {error !== null && <ErrorBanner error={error} />}
+      {error !== null && <ErrorNotice error={error} />}
       <div
         className={css`
           display: flex;

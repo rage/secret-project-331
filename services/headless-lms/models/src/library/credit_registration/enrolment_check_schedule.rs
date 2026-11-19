@@ -47,11 +47,21 @@ impl EnrolmentCheckSource {
     pub fn is_prompted(self) -> bool {
         self != Self::Schedule
     }
+
+    /// When a schedule this source started at `anchor` runs a check of its own ahead of the ladder's
+    /// first rung, or `None` for one that waits for that rung. The ladder runs on unchanged after.
+    pub fn own_check_at(self, anchor: DateTime<Utc>) -> Option<DateTime<Utc>> {
+        (self == Self::AccountLink).then(|| anchor + ACCOUNT_LINK_CHECK_DELAY)
+    }
 }
 
 /// Suotar's copy of Sisu shows a new enrolment after 15 to 60 minutes, so a check sooner than this
 /// after an enrolment usually cannot see it.
 pub const REGISTRY_LAG: TimeDelta = TimeDelta::hours(1);
+
+/// How soon after a student links their number from a roster mail their enrolment is checked. The
+/// roster already listed the enrolment, so unlike a request this need not wait out [`REGISTRY_LAG`].
+pub const ACCOUNT_LINK_CHECK_DELAY: TimeDelta = TimeDelta::minutes(1);
 
 /// How soon after a check request, or after the last check, another request may start one. Shared
 /// by the student's recheck, Done and the teacher's button.
@@ -182,7 +192,7 @@ fn resolve(
 }
 
 /// The first rung of a ladder started at `anchor`. A check request's own check runs before it, at
-/// once.
+/// once, and an account link's a minute after the link; see [`EnrolmentCheckSource::own_check_at`].
 pub fn first_check(
     group: EnrolmentCheckGroup,
     anchor: DateTime<Utc>,
@@ -279,6 +289,29 @@ mod tests {
             ),
             None
         );
+    }
+
+    #[test]
+    fn only_an_account_link_checks_ahead_of_the_first_rung() {
+        let anchor = at(TimeDelta::zero());
+        assert_eq!(
+            EnrolmentCheckSource::AccountLink.own_check_at(anchor),
+            Some(at(ACCOUNT_LINK_CHECK_DELAY))
+        );
+        assert_eq!(EnrolmentCheckSource::Schedule.own_check_at(anchor), None);
+        assert_eq!(
+            EnrolmentCheckSource::StudentRequest.own_check_at(anchor),
+            None
+        );
+        // A miss carries on from the ladder's first rung.
+        let after_own_check = next_check_after(
+            EnrolmentCheckGroup::CheckRequested,
+            anchor,
+            at(ACCOUNT_LINK_CHECK_DELAY),
+        )
+        .unwrap();
+        assert_eq!(after_own_check.step, 0);
+        assert_eq!(after_own_check.due_at, at(TimeDelta::minutes(15)));
     }
 
     #[test]

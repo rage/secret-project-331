@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (s.exercise_id) s.exercise_id,\n  s.id\nFROM exercise_slides s\n  LEFT JOIN user_exercise_states ues ON ues.exercise_id = s.exercise_id\n  AND ues.user_id = $1\n  AND ues.course_id = $2\n  AND ues.deleted_at IS NULL\nWHERE s.exercise_id = ANY($3)\n  AND s.deleted_at IS NULL\nORDER BY s.exercise_id,\n  s.id = ues.selected_exercise_slide_id DESC NULLS LAST,\n  random()\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slides",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slides",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "ce2bcf584c58a00c48b515fa7326967188c6de628cf95f3cbc2e2bf0517ae417"
+}

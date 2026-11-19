@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import React, { useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -63,7 +64,6 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
       {hasBlockers && (
         <div
           id={hintId}
-          role="status"
           className={cx(blockerListStyles, emphasizeReasons && blockerListEmphasizedStyles)}
         >
           <ul>
@@ -81,6 +81,9 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           if (blocked) {
             if (hasBlockers) {
               setEmphasizeReasons(true)
+              // Spoken only after a blocked Submit; the visible list changes silently while answering.
+              // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+              announce(blockers.join(" "), "polite")
             }
             return
           }

@@ -15,8 +15,24 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
+import { Button, Checkbox, ComboBox, TextField, useToggleFocus } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
+
+const dtCss = css`
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: ${baseTheme.colors.gray[500]};
+  margin-bottom: 0.375rem;
+`
+
+const ddCss = css`
+  font-size: 0.9375rem;
+  color: ${baseTheme.colors.gray[700]};
+  font-weight: 500;
+  margin: 0;
+`
 
 interface SelectUserInfoFormFields {
   email: string
@@ -46,7 +62,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
 
-  const { handleSubmit, control, reset } = useForm<SelectUserInfoFormFields>({
+  const { handleSubmit, control, reset, setFocus } = useForm<SelectUserInfoFormFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
@@ -57,6 +73,9 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
       emailCommunicationConsent: emailCommunicationConsent,
     },
   })
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editButtonRef = useToggleFocus(isEditing, () => setFocus("email"))
 
   const countriesOptions = useMemo(
     () =>
@@ -132,7 +151,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             border-bottom: 1px solid ${baseTheme.colors.gray[100]};
           `}
         >
-          <h3
+          <h2
             className={css`
               font-size: 1.0625rem;
               font-weight: 600;
@@ -141,37 +160,24 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             `}
           >
             {t("user-settings-personal-info")}
-          </h3>
-          <button
+          </h2>
+          <Button
+            ref={editButtonRef}
             data-testid="edit-profile-button"
+            variant="tertiary"
+            size="small"
+            icon={<Pencil size={14} />}
             onClick={() => setIsEditing(true)}
-            className={css`
-              display: inline-flex;
-              align-items: center;
-              gap: 0.375rem;
-              font-size: 0.8125rem;
-              font-weight: 500;
-              color: ${baseTheme.colors.green[700]};
-              background: transparent;
-              border: none;
-              padding: 0.375rem 0.625rem;
-              border-radius: 6px;
-              cursor: pointer;
-              transition: all 0.15s ease;
-              &:hover {
-                background: ${baseTheme.colors.green[75]};
-              }
-            `}
           >
-            <Pencil size={14} />
             {t("user-settings-edit-profile")}
-          </button>
+          </Button>
         </div>
 
-        <div
+        <dl
           className={css`
             display: grid;
             gap: 1.25rem;
+            margin: 0;
             ${respondToOrLarger.md} {
               grid-template-columns: repeat(2, 1fr);
               gap: 1.25rem 2rem;
@@ -185,105 +191,33 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
               }
             `}
           >
-            <div
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("email")}
-            </div>
-            <div
-              data-testid="personal-info-email-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-              `}
-            >
+            <dt className={dtCss}>{t("email")}</dt>
+            <dd data-testid="personal-info-email-value" className={ddCss}>
               {email || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("first-name")}
-            </div>
-            <div
-              data-testid="personal-info-first-name-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-              `}
-            >
+            <dt className={dtCss}>{t("first-name")}</dt>
+            <dd data-testid="personal-info-first-name-value" className={ddCss}>
               {firstName || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("last-name")}
-            </div>
-            <div
-              data-testid="personal-info-last-name-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-              `}
-            >
+            <dt className={dtCss}>{t("last-name")}</dt>
+            <dd data-testid="personal-info-last-name-value" className={ddCss}>
               {lastName || "-"}
-            </div>
+            </dd>
           </div>
 
           <div>
-            <div
-              className={css`
-                font-size: 0.75rem;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.03em;
-                color: ${baseTheme.colors.gray[400]};
-                margin-bottom: 0.375rem;
-              `}
-            >
-              {t("enter-country-question")}
-            </div>
-            <div
-              data-testid="personal-info-country-value"
-              className={css`
-                font-size: 0.9375rem;
-                color: ${baseTheme.colors.gray[700]};
-                font-weight: 500;
-              `}
-            >
+            <dt className={dtCss}>{t("enter-country-question")}</dt>
+            <dd data-testid="personal-info-country-value" className={ddCss}>
               {selectedCountryLabel || "-"}
-            </div>
+            </dd>
           </div>
-        </div>
+        </dl>
 
         <div
           className={css`
@@ -302,28 +236,16 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           >
             {t("email-communication-consent-checkbox-text")}
           </p>
-          <div
+          <dl
             className={css`
-              font-size: 0.75rem;
-              font-weight: 500;
-              text-transform: uppercase;
-              letter-spacing: 0.03em;
-              color: ${baseTheme.colors.gray[400]};
-              margin-bottom: 0.375rem;
+              margin: 0;
             `}
           >
-            {t("status")}
-          </div>
-          <div
-            data-testid="personal-info-email-consent-value"
-            className={css`
-              font-size: 0.9375rem;
-              color: ${baseTheme.colors.gray[700]};
-              font-weight: 500;
-            `}
-          >
-            {emailCommunicationConsent ? t("yes") : t("no")}
-          </div>
+            <dt className={dtCss}>{t("status")}</dt>
+            <dd data-testid="personal-info-email-consent-value" className={ddCss}>
+              {emailCommunicationConsent ? t("yes") : t("no")}
+            </dd>
+          </dl>
         </div>
       </div>
     )
@@ -331,19 +253,22 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   return (
     <div className={settingsCardCss}>
-      <h3
+      <h2
         className={css`
           font-size: 1.0625rem;
           font-weight: 600;
           color: ${baseTheme.colors.gray[700]};
+          display: flex;
+          align-items: center;
+          min-height: 2rem;
           margin: 0 0 1.25rem 0;
           padding-bottom: 1rem;
           border-bottom: 1px solid ${baseTheme.colors.gray[100]};
         `}
       >
         {t("user-settings-personal-info")}
-      </h3>
-      <form onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
+      </h2>
+      <form noValidate onSubmit={handleSubmit((data) => postUserCountryMutation.mutate(data))}>
         <div
           className={css`
             display: grid;
@@ -358,6 +283,8 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="email"
             control={control}
             label={t("email")}
+            type="email"
+            autoComplete="email"
             placeholder={t("email")}
             isRequired
             rules={{
@@ -375,6 +302,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="first_name"
             control={control}
             label={t("first-name")}
+            autoComplete="given-name"
             placeholder={t("enter-first-name")}
             isRequired
             rules={{ required: t("required-field") }}
@@ -384,6 +312,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
             name="last_name"
             control={control}
             label={t("last-name")}
+            autoComplete="family-name"
             placeholder={t("enter-last-name")}
             isRequired
             rules={{ required: t("required-field") }}
@@ -391,6 +320,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
           <ComboBox
             name="country"
+            autoComplete="country-name"
             control={control}
             label={t("enter-country-question")}
             items={countriesOptions}

@@ -92,12 +92,13 @@ const CourseUsersCountsByExercise: React.FC<
                   <div>
                     <h3
                       className={css`
-                        color: ${baseTheme.colors.gray[400]};
+                        color: ${baseTheme.colors.gray[500]};
                         font-size: 1.3rem;
                       `}
                     >{`${t("chapter")} ${chapterData[0]?.chapter_number}`}</h3>
                   </div>
                   <Echarts
+                    label={`${t("stats-heading-exercise-participation", "Exercise Attempts and Points")}, ${t("chapter")} ${chapterData[0]?.chapter_number}`}
                     height={Math.max(
                       chapterData.length > 2
                         ? chapterData.length * 100

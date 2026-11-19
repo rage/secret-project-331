@@ -1,6 +1,9 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
+import { Select } from "../../../utils/components/Select"
 import {
   getLocatorForNthExerciseServiceIframe,
   scrollLocatorsParentIframeToViewIfNeeded,
@@ -14,7 +17,7 @@ test.use({
 test("widget, essay", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, essay" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes example, essay")
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
@@ -23,6 +26,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   await frame.locator("textarea").fill("I think I enrolled in the wrong course XD")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-essay-answered",
@@ -39,6 +43,7 @@ test("widget, essay", async ({ page, headless }, testInfo) => {
   await frame.locator(`text=79`).waitFor()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-essay-long-answer",

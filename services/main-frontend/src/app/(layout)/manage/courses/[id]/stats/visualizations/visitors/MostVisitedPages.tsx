@@ -103,6 +103,7 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
                 `}
               >
                 <Echarts
+                  label={t("stats-heading-page-popularity")}
                   height={chartHeight}
                   options={{
                     grid: {

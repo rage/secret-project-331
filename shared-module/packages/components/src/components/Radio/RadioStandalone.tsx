@@ -1,12 +1,13 @@
 "use client"
 
-import { cx } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef } from "react-aria"
 
 import { joinAriaDescribedBy, resolveFieldState } from "../../lib/utils/field"
 import { includeIf, omitUndefined } from "../../lib/utils/nullability"
 import {
+  checkableBadgeCss,
   checkableContentCss,
   checkableInputCss,
   checkableLabelCss,
@@ -18,16 +19,28 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
+import { FieldError } from "../primitives/FieldError"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 import type { RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
 const defaultFieldSize = "md" as const
 
+/** On its own line like a `RadioGroup` item, so sibling radios stack instead of running together. */
+const standaloneRowCss = css`
+  display: flex;
+  width: fit-content;
+
+  & + & {
+    margin-block-start: var(--space-2);
+  }
+`
+
 /** Renders a standalone radio input outside of `RadioGroup`. */
 export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
   const {
     label,
+    badge,
     description,
     errorMessage,
     fieldSize,
@@ -40,6 +53,9 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
     "aria-describedby": ariaDescribedBy,
     onChange,
     required,
+    nestedContent: _nestedContent,
+    nestedContentVariant: _nestedContentVariant,
+    isHidden: _isHidden,
     ...rest
   } = props
 
@@ -74,7 +90,12 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
 
   return (
     <label
-      className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
+      className={cx(
+        checkableRowCss,
+        standaloneRowCss,
+        resolveCheckableSizeCss(resolvedFieldSize),
+        className,
+      )}
       data-disabled={String(standaloneState.isDisabled)}
     >
       <input {...mergedInputProps} ref={inputRef} />
@@ -98,16 +119,19 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
         )}
       </span>
       <span className={checkableContentCss}>
-        <span className={checkableLabelCss}>{label}</span>
+        <span className={checkableLabelCss}>
+          {label}
+          {badge ? <span className={checkableBadgeCss}>{badge}</span> : null}
+        </span>
         {description ? (
           <span className={descriptionCss} id={descriptionId}>
             {description}
           </span>
         ) : null}
         {errorMessage ? (
-          <span className={errorCss} id={errorMessageId} role="alert">
+          <FieldError inline className={errorCss} id={errorMessageId}>
             {errorMessage}
-          </span>
+          </FieldError>
         ) : null}
       </span>
     </label>

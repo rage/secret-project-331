@@ -5,6 +5,9 @@ import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { tableRowByCell } from "@/utils/tableRows"
+
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
 
 test.describe("test teacher changing grade behavior", () => {
   let studentContext: BrowserContext
@@ -38,11 +41,7 @@ test.describe("test teacher changing grade behavior", () => {
       const studentChapterSelector = new ChapterSelector(studentPage)
       await studentChapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await studentPage
-        .locator('iframe[title="Exercise 1\\, task 1 content"]')
-        .contentFrame()
-        .getByRole("checkbox", { name: "a" })
-        .click()
+      await getExerciseTaskFrame(studentPage, 1).getByRole("checkbox", { name: "a" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Your answer was not correct").waitFor()
     })
@@ -56,9 +55,7 @@ test.describe("test teacher changing grade behavior", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage
-        .getByRole("link", { name: "02364d40-2aac-4763-8a06-2381fd298d79	" })
-        .click()
+      await tableRowByCell(teacherPage, "student1@example.com").getByRole("link").click()
 
       const exerciseDetailsComponent = teacherPage
         .getByTestId("exercise-status")

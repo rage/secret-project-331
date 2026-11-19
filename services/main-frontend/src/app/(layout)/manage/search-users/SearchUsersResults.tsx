@@ -7,6 +7,7 @@ import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
+import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import { manageUserRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Button, EmptyState, Infobox, Link, TONE } from "@/shared-module/components"
@@ -130,6 +131,8 @@ const noNameCss = css`
 
 const shortIdCss = css`
   flex: none;
+  width: 5em;
+  line-height: 1.5;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: var(--font-size-0);
   color: var(--color-gray-500);
@@ -251,7 +254,9 @@ const UserResult: React.FC<{ user: UserDetail; isExact: boolean }> = ({ user, is
           <span className={cx(nameCss, noNameCss)}>{t("search-users-no-name")}</span>
         )}
         <span className={shortIdCss} aria-hidden="true">
-          {user.user_id.slice(0, SHORT_ID_LENGTH)}
+          <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
+            {user.user_id.slice(0, SHORT_ID_LENGTH)}
+          </MaskOverThisInSystemTests>
         </span>
       </span>
       <span className={emailCss}>{user.email}</span>
@@ -369,11 +374,9 @@ const SearchUsersResults: React.FC<SearchUsersResultsProps> = ({
                   )}
                 </div>
               )}
-              {!isStale && (state.hasSimilarTimedOut || state.hasFuzzyFailed) ? (
+              {!isStale && state.hasFuzzyFailed ? (
                 <Infobox tone={TONE.WARNING}>
-                  {state.hasSimilarTimedOut
-                    ? t("search-users-similar-timed-out")
-                    : t("search-users-similar-failed")}{" "}
+                  {t("search-users-similar-failed")}{" "}
                   <Button variant="tertiary" size="small" onClick={onRetryFuzzy}>
                     {t("try-again")}
                   </Button>

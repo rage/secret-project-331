@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useAtom, useSetAtom } from "jotai"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useId, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -43,6 +43,16 @@ const editButtonStyles = css`
   }
 `
 
+const DESCRIPTION_MAX_LENGTH = 60
+
+// Start of the paragraph as plain text, so each Edit button says which paragraph it edits.
+const paragraphStart = (content: string | null | undefined) => {
+  const text = (content ?? "").replaceAll(/<[^>]*>/g, "").trim()
+  return text.length > DESCRIPTION_MAX_LENGTH
+    ? `${text.slice(0, DESCRIPTION_MAX_LENGTH).trimEnd()}…`
+    : text
+}
+
 interface EditingParagraphProps {
   data: {
     attributes: ParagraphAttributes & {
@@ -65,6 +75,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
   const setEdits = useSetAtom(blockEditsAtom)
   const editButtonRef = useRef<HTMLButtonElement>(null)
   const wasEditingRef = useRef(false)
+  const descriptionId = useId()
 
   // Get the edited content even when not actively editing this paragraph
   const { editedContent } = useParagraphEditing({
@@ -99,6 +110,22 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
     }
     wasEditingRef.current = isCurrentlyEditing
   }, [selectedBlockId, id])
+
+  const editButton = (
+    <>
+      <button
+        ref={editButtonRef}
+        {...editButtonProps}
+        aria-describedby={descriptionId}
+        className={`edit-button ${editButtonStyles}`}
+      >
+        {t("edit")}
+      </button>
+      <span id={descriptionId} hidden>
+        {paragraphStart(content)}
+      </span>
+    </>
+  )
 
   if (selectedBlockId === id) {
     return (
@@ -152,13 +179,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
           setEdits={setEdits}
           editedContent={editedContent}
         />
-        <button
-          ref={editButtonRef}
-          {...editButtonProps}
-          className={`edit-button ${editButtonStyles}`}
-        >
-          {t("edit")}
-        </button>
+        {editButton}
       </div>
     )
   }
@@ -200,13 +221,7 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
       >
         {content}
       </div>
-      <button
-        ref={editButtonRef}
-        {...editButtonProps}
-        className={`edit-button ${editButtonStyles}`}
-      >
-        {t("edit")}
-      </button>
+      {editButton}
     </div>
   )
 }

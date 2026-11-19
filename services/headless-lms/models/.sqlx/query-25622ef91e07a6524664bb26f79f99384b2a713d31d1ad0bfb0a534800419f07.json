@@ -1,0 +1,93 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT call_id,\n  entity_type,\n  entity_id,\n  label,\n  before_snapshot IS NOT NULL AS \"has_before!\",\n  after_digest IS NOT NULL AS \"has_after!\"\nFROM agent_changeset_call_entities\nWHERE call_id = ANY($1)\nORDER BY entity_type,\n  label,\n  entity_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "call_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "call_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "entity_type",
+        "type_info": {
+          "Custom": {
+            "name": "content_entity_type",
+            "kind": {
+              "Enum": [
+                "page",
+                "chapter",
+                "module",
+                "course_settings",
+                "glossary_term",
+                "reference",
+                "course_default_review_config"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_type"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "entity_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "entity_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "label",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "agent_changeset_call_entities",
+            "name": "label"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "has_before!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "has_after!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "25622ef91e07a6524664bb26f79f99384b2a713d31d1ad0bfb0a534800419f07"
+}

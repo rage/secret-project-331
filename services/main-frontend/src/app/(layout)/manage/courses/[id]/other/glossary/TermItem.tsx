@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -9,11 +10,32 @@ import {
   updateGlossaryTermMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import {
+  Button,
+  itemHeadingProps,
+  TextArea,
+  TextField,
+  useDialog,
+  useToggleFocus,
+} from "@/shared-module/components"
+
+const entryCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+/** A term names one entry in the list, so it stays well under the page title. */
+const termCss = css`
+  margin: 0;
+  font-size: var(--font-size-4);
+`
+
+const actionsCss = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+`
 
 interface UpdateTermForm {
   updatedTerm: string
@@ -26,15 +48,27 @@ interface TermItemProps {
   onEdit: () => void
   onCancel: () => void
   refetch: () => void
+  /** Called once a delete succeeds, before the refetch, so the list can move focus once it is gone. */
+  onBeforeDelete?: (headingId: string) => void
 }
 
-const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, refetch }) => {
+const TermItem: React.FC<TermItemProps> = ({
+  term,
+  isEditing,
+  onEdit,
+  onCancel,
+  refetch,
+  onBeforeDelete,
+}) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
+  const headingId = `term-heading-${term.id}`
   const {
-    register,
+    control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
     reset,
+    setFocus,
   } = useForm<UpdateTermForm>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -50,6 +84,9 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       updatedDefinition: term.definition,
     })
   }, [term, reset])
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editButtonRef = useToggleFocus(isEditing, () => setFocus("updatedTerm"))
 
   const updateMutation = useToastMutationOptions(
     updateGlossaryTermMutation(),
@@ -71,8 +108,29 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       notify: true,
       method: "DELETE",
     },
-    { onSuccess: () => refetch() },
+    {
+      onSuccess: () => {
+        // Only a delete that succeeded moves focus; the heading is still in the list here.
+        onBeforeDelete?.(headingId)
+        refetch()
+      },
+    },
   )
+
+  const onDelete = async () => {
+    const confirmed = await confirm({
+      title: t("delete-term-named", { name: term.term }),
+      message: t("confirm-delete-term", {
+        term: term.term,
+      }),
+      confirmLabel: t("button-text-delete"),
+      isDestructive: true,
+    })
+    if (!confirmed) {
+      return
+    }
+    deleteMutation.mutate({ path: { term_id: term.id } })
+  }
 
   const onUpdate = (data: UpdateTermForm) => {
     updateMutation.mutate({
@@ -87,66 +145,73 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
   }
 
   return (
-    <div>
-      <hr />
+    <li>
       {isEditing ? (
-        <form onSubmit={handleSubmit(onUpdate)}>
+        <form onSubmit={handleSubmit(onUpdate)} className={entryCss}>
           <TextField
-            placeholder={t("updated-term")}
+            name="updatedTerm"
+            control={control}
             label={t("updated-term")}
-            {...register("updatedTerm", {
+            rules={{
               required: true,
               pattern: {
                 value: /\S+/,
                 message: t("required"),
               },
-            })}
-            {...includeIf(errors.updatedTerm, { error: t("required") })}
+            }}
           />
-          <TextAreaField
+          <TextArea
+            name="updatedDefinition"
+            control={control}
             label={t("updated-definition")}
-            placeholder={t("updated-definition")}
-            {...register("updatedDefinition", {
+            rules={{
               required: true,
               pattern: {
                 value: /\S+/,
                 message: t("required"),
               },
-            })}
-            {...includeIf(errors.updatedDefinition, { error: t("required") })}
-            disabled={false}
+            }}
           />
-          <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
-            {t("button-text-save")}
-          </Button>
-          <Button variant="tertiary" size="medium" type="button" onClick={onCancel}>
-            {t("button-text-cancel")}
-          </Button>
+          <div className={actionsCss}>
+            <Button variant="primary" size="medium" type="submit" disabled={!isValid}>
+              {t("button-text-save")}
+            </Button>
+            <Button variant="tertiary" size="medium" type="button" onClick={onCancel}>
+              {t("button-text-cancel")}
+            </Button>
+          </div>
         </form>
       ) : (
-        <>
-          <div>{term.term}</div>
-          <div>{term.definition}</div>
-          <Button variant="primary" size="medium" onClick={onEdit}>
-            {t("edit")}
-          </Button>
-          <Button
-            variant="tertiary"
-            size="medium"
-            onClick={() =>
-              deleteMutation.mutate({
-                path: {
-                  term_id: term.id,
-                },
-              })
-            }
-            disabled={deleteMutation.isPending}
-          >
-            {t("button-text-delete")}
-          </Button>
-        </>
+        <div className={entryCss}>
+          <h2 id={headingId} {...itemHeadingProps} className={termCss}>
+            {term.term}
+          </h2>
+          <p>{term.definition}</p>
+          <div className={actionsCss}>
+            <Button
+              ref={editButtonRef}
+              variant="primary"
+              size="medium"
+              onClick={onEdit}
+              aria-label={t("edit-term-named", {
+                term: term.term,
+              })}
+            >
+              {t("edit")}
+            </Button>
+            <Button
+              variant="tertiary"
+              size="medium"
+              onClick={onDelete}
+              disabled={deleteMutation.isPending}
+              aria-label={t("delete-term-named", { name: term.term })}
+            >
+              {t("button-text-delete")}
+            </Button>
+          </div>
+        </div>
       )}
-    </div>
+    </li>
   )
 }
 

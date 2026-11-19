@@ -123,6 +123,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
               <div className={chartsContainerStyles}>
                 <div>
                   <Echarts
+                    label={t("title-device-type")}
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {
@@ -161,6 +162,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
 
                 <div>
                   <Echarts
+                    label={t("title-operating-system")}
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {
@@ -199,6 +201,7 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
 
                 <div>
                   <Echarts
+                    label={t("title-browser")}
                     height={DEFAULT_CHART_HEIGHT}
                     options={{
                       tooltip: {

@@ -1,28 +1,38 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   createExerciseServiceMutation as createExerciseServiceMutationOptions,
   getExerciseServicesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
 import ExerciseServiceContainer from "./ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
+
+const pageCss = css`
+  display: grid;
+  gap: var(--space-4);
+`
+
+const newButtonCss = css`
+  justify-self: start;
+`
 
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()
@@ -34,6 +44,8 @@ const ExerciseServicePage: React.FC = () => {
     public_url: "",
     internal_url: "",
     max_reprocessing_submissions_at_once: 1,
+    is_global_admin_only: false,
+    is_experimental: false,
   })
 
   const getExerciseServices = useQuery(getExerciseServicesOptions())
@@ -71,6 +83,8 @@ const ExerciseServicePage: React.FC = () => {
       public_url: "",
       internal_url: "",
       max_reprocessing_submissions_at_once: 1,
+      is_global_admin_only: false,
+      is_experimental: false,
     })
   }
 
@@ -120,6 +134,7 @@ const ExerciseServicePage: React.FC = () => {
         exercise_service={exerciseService}
         onChange={onChangeCreationModal}
         onChangeName={onChangeName}
+        onChangeFlags={(flags) => setExerciseService((previous) => ({ ...previous, ...flags }))}
         handleSubmit={async () => {
           if (!canSave(exerciseService)) {
             return
@@ -134,12 +149,11 @@ const ExerciseServicePage: React.FC = () => {
   )
 
   return (
-    <div>
-      <h1>{t("title-manage-exercise-services")}</h1>
-      <Button onClick={openModal} variant="primary" size="medium">
+    <div className={pageCss}>
+      <h1 className={pageTitleCss}>{t("title-manage-exercise-services")}</h1>
+      <Button className={newButtonCss} onClick={openModal} variant="primary" size="medium">
         {t("button-text-new")}
       </Button>
-      <br />
       <QueryResult query={getExerciseServices} treatEmptyAsData>
         {() => renderExerciseServices()}
       </QueryResult>

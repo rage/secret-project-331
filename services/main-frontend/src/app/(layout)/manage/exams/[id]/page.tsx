@@ -2,9 +2,9 @@
 
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,43 +14,49 @@ import {
   unsetExamCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getOrganization } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import {
   manageCourseByIdRoute,
   manageExamQuestionsRoute,
   testExamRoute,
 } from "@/shared-module/common/utils/routes"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import {
+  Button,
+  DescriptionList,
+  Link,
+  QueryResult,
+  TextField,
+  ErrorNotice,
+} from "@/shared-module/components"
 import { examPointsCsvHref, examSubmissionsCsvHref } from "@/utils/exportDownloadUrls"
 
 import EditExamDialog from "../EditExamDialog"
 
 const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
 
-const detailRow = css`
-  font-family: ${primaryFont};
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: ${baseTheme.colors.gray[600]};
-  margin-bottom: 0.25rem;
-`
+// oxlint-disable-next-line i18next/no-literal-string -- typographic placeholder for an unset value
+const NO_VALUE = "—"
 
-const detailValue = css`
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[700]};
+const actionRow = css`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.5rem 0;
+
+  & > a {
+    max-width: 100%;
+    white-space: normal;
+  }
 `
 
 const ManageExam: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const getExam = useQuery({
     ...getExamOptions({
       path: {
@@ -81,7 +87,17 @@ const ManageExam: React.FC = () => {
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
-  const [newCourse, setNewCourse] = useState("")
+  const {
+    control: newCourseControl,
+    watch: watchNewCourse,
+    reset: resetNewCourse,
+  } = useForm<{
+    newCourse: string
+  }>({
+    defaultValues: { newCourse: "" },
+  })
+  // oxlint-disable-next-line i18next/no-literal-string
+  const newCourse = watchNewCourse("newCourse")
   const setCourseMutation = useToastMutationOptions(
     setExamCourseMutation(),
     {
@@ -137,41 +153,34 @@ const ManageExam: React.FC = () => {
                 border-bottom: 1px solid ${baseTheme.colors.clear[300]};
               `}
             >
-              <div className={detailRow}>
-                {t("label-starts-at")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable-next-line i18next/no-literal-string */}
-                  {humanReadableDateTime(data.starts_at, i18n.language) ?? "—"}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-ends-at")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable-next-line i18next/no-literal-string */}
-                  {humanReadableDateTime(data.ends_at, i18n.language) ?? "—"}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-duration")}:{" "}
-                <span className={detailValue}>
-                  {data.time_minutes} {t("minutes")}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-grade-exam-manually")}:{" "}
-                <span className={detailValue}>{data.grade_manually ? t("yes") : t("no")}</span>
-              </div>
-              <div className={detailRow}>
-                {t("label-minimum-points-threshold")}:{" "}
-                <span className={detailValue}>
-                  {/* oxlint-disable i18next/no-literal-string */}
-                  {data.minimum_points_treshold > 0 ? String(data.minimum_points_treshold) : "—"}
-                  {/* oxlint-enable i18next/no-literal-string */}
-                </span>
-              </div>
-              <div className={detailRow}>
-                {t("label-language")}: <span className={detailValue}>{data.language}</span>
-              </div>
+              <DescriptionList
+                items={[
+                  {
+                    label: t("label-starts-at"),
+                    value: data.starts_at ? dateToString(data.starts_at) : NO_VALUE,
+                  },
+                  {
+                    label: t("label-ends-at"),
+                    value: data.ends_at ? dateToString(data.ends_at) : NO_VALUE,
+                  },
+                  {
+                    label: t("label-duration"),
+                    value: t("minutes", { count: data.time_minutes }),
+                  },
+                  {
+                    label: t("label-grade-exam-manually"),
+                    value: data.grade_manually ? t("yes") : t("no"),
+                  },
+                  {
+                    label: t("label-minimum-points-threshold"),
+                    value:
+                      data.minimum_points_treshold > 0
+                        ? String(data.minimum_points_treshold)
+                        : NO_VALUE,
+                  },
+                  { label: t("label-language"), value: data.language },
+                ]}
+              />
               <Button
                 size="medium"
                 variant="primary"
@@ -202,52 +211,71 @@ const ManageExam: React.FC = () => {
               />
             )}
 
-            <ul
-              className={css`
-                list-style-type: none;
-                padding-left: 0;
-                margin: 0 0 1.5rem 0;
-                font-family: ${primaryFont};
-                font-size: 1rem;
-              `}
-            >
-              <li className={detailRow}>
-                <a href={`/cms/pages/${data.page_id}`}>{t("link-edit-exam-page")}</a>
-              </li>
-              <li className={detailRow}>
-                <Link
-                  href={`/manage/exams/${data.id}/permissions`}
-                  aria-label={`${t("link-manage-permissions")} ${data.name}`}
-                >
-                  {t("link-manage-permissions")}
-                </Link>
-              </li>
-              <li className={detailRow}>
-                <a href={`/cms/exams/${data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
-              </li>
-              <li className={detailRow}>
-                <a href={examPointsCsvHref(data.id)} download>
-                  <Button variant="tertiary" size="medium" type="button">
-                    {t("link-export-points")}
-                  </Button>
-                </a>
-              </li>
-              <li className={detailRow}>
-                <a href={examSubmissionsCsvHref(data.id)} download>
-                  <Button variant="tertiary" size="medium" type="button">
-                    {t("link-export-submissions")}
-                  </Button>
-                </a>
-              </li>
-              <li className={detailRow}>
-                <Link href={manageExamQuestionsRoute(data.id)}>{t("grading")}</Link>
-              </li>
+            <div className={actionRow}>
+              <Link
+                href={`/cms/pages/${data.page_id}`}
+                isCrossService
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-edit-exam-page")}
+              </Link>
+              <Link
+                href={`/cms/exams/${data.id}/edit`}
+                isCrossService
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-edit-exam-instructions")}
+              </Link>
+              <Link
+                href={`/manage/exams/${data.id}/permissions`}
+                aria-label={`${t("link-manage-permissions")} ${data.name}`}
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-manage-permissions")}
+              </Link>
+              <Link
+                href={manageExamQuestionsRoute(data.id)}
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("grading")}
+              </Link>
               {organizationSlug && (
-                <li className={detailRow}>
-                  <Link href={testExamRoute(organizationSlug, data.id)}>{t("link-test-exam")}</Link>
-                </li>
+                <Link
+                  href={testExamRoute(organizationSlug, data.id)}
+                  styledAsButton
+                  variant="tertiary"
+                  size="medium"
+                >
+                  {t("link-test-exam")}
+                </Link>
               )}
-            </ul>
+              <Link
+                href={examPointsCsvHref(data.id)}
+                download
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-export-points")}
+              </Link>
+              <Link
+                href={examSubmissionsCsvHref(data.id)}
+                download
+                styledAsButton
+                variant="tertiary"
+                size="medium"
+              >
+                {t("link-export-submissions")}
+              </Link>
+            </div>
 
             <h2
               className={css`
@@ -291,10 +319,9 @@ const ManageExam: React.FC = () => {
               </div>
             ))}
             <TextField
+              name="newCourse"
+              control={newCourseControl}
               label={t("add-course")}
-              value={newCourse}
-              onChange={(event) => setNewCourse(event.target.value)}
-              placeholder={t("course-id")}
               className={css`
                 margin-bottom: 0.5rem;
               `}
@@ -309,18 +336,21 @@ const ManageExam: React.FC = () => {
                     course_id: newCourse,
                   },
                 })
-                setNewCourse("")
+                resetNewCourse()
               }}
               variant="secondary"
               size="medium"
             >
               {t("add-course")}
             </Button>
+            {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
             {setCourseMutation.isError && (
-              <ErrorBanner variant="readOnly" error={setCourseMutation.error} />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorNotice error={setCourseMutation.error} announce="off" />
             )}
             {unsetCourseMutation.isError && (
-              <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} />
+              // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+              <ErrorNotice error={unsetCourseMutation.error} announce="off" />
             )}
           </>
         )}

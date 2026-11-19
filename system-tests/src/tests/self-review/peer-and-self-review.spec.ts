@@ -2,6 +2,11 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
+import {
+  waitForExerciseServiceIframeToBeStable,
+  getExerciseTaskFrame,
+} from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -61,12 +66,11 @@ test.describe("Peer review followed by self review works", () => {
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "The timeline /chapter-1/the-" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
-      await teacherPage.getByText("Add peer review").click()
-      await teacherPage.getByText("Add self review").click()
+      await Checkbox.labelled(teacherPage, "Add peer review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
       await waitForSuccessNotification(teacherPage, async () => {
         await teacherPage.getByRole("button", { name: "Save", exact: true }).click()
       })
@@ -87,8 +91,8 @@ test.describe("Peer review followed by self review works", () => {
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })
-      await page1.getByLabel("Peer reviews to receive *").fill("1")
-      await page1.getByLabel("Peer reviews to give *").fill("2")
+      await page1.getByLabel("Peer reviews to receive", { exact: true }).fill("1")
+      await page1.getByLabel("Peer reviews to give", { exact: true }).fill("2")
       await waitForSuccessNotification(page1, async () => {
         await page1.getByRole("button", { name: "Save" }).click()
       })
@@ -100,18 +104,13 @@ test.describe("Peer review followed by self review works", () => {
       )
       await selectCourseInstanceIfPrompted(student1Page)
       await student1Page.getByText("After you submit this").waitFor()
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student1Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student1Page.getByRole("button", { name: "Submit" }).click()
@@ -124,18 +123,13 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student2Page)
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student2Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student2Page.getByRole("button", { name: "Submit" }).click()
@@ -144,7 +138,9 @@ test.describe("Peer review followed by self review works", () => {
       await student2Page.getByRole("heading", { name: "Peer review instructions" }).waitFor()
       await student2Page.getByText("Here's what you will do: x.").waitFor()
       await student2Page.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
-      await student2Page.getByPlaceholder("Write a review").fill("Best answer of our generation!")
+      await student2Page
+        .getByRole("textbox", { name: "The answer was hard to read" })
+        .fill("Best answer of our generation!")
       await student2Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student2Page.getByRole("radio", { name: "Disagree", exact: true }).nth(1).click()
       await waitForSuccessNotification(student2Page, async () => {
@@ -158,25 +154,17 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student3Page)
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student3Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student3Page.getByRole("button", { name: "Submit" }).click()
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByText("Your answer was correct.")
-        .waitFor()
+      await getExerciseTaskFrame(student3Page, 1).getByText("Your answer was correct.").waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
       await refreshUntilPeerReviewCandidate(student3Page, "0 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
@@ -187,7 +175,7 @@ test.describe("Peer review followed by self review works", () => {
       await refreshUntilPeerReviewCandidate(student3Page, "1 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
-      await student3Page.getByPlaceholder("Write a review").fill("LOL")
+      await student3Page.getByRole("textbox", { name: "The answer was hard to read" }).fill("LOL")
       await student3Page.getByRole("button", { name: "Submit" }).click()
     })
 
@@ -196,7 +184,7 @@ test.describe("Peer review followed by self review works", () => {
       await student3Page.getByRole("heading", { name: "Self review instructions" }).waitFor()
       await student3Page.getByText("Here's what you will do: x.").waitFor()
       await student3Page
-        .getByPlaceholder("Write a review")
+        .getByRole("textbox", { name: "The answer was hard to read" })
         .fill("I agree with myself. I am the best!")
       await student3Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
       await student3Page
@@ -211,7 +199,9 @@ test.describe("Peer review followed by self review works", () => {
 
     await test.step(`Student 1 reviews student 3's answer`, async () => {
       await student1Page.getByRole("button", { name: "Refresh" }).click()
-      await student1Page.getByPlaceholder("Write a review").fill("Good point. I agree with you.")
+      await student1Page
+        .getByRole("textbox", { name: "The answer was hard to read" })
+        .fill("Good point. I agree with you.")
       await student1Page.getByRole("radio", { name: "Strongly agree", exact: true }).first().click()
       await student1Page
         .getByRole("radio", { name: "Strongly disagree", exact: true })
@@ -230,6 +220,8 @@ test.describe("Peer review followed by self review works", () => {
         )
         .waitFor()
       await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+      // The iframe grows as it renders, which moves "Received reviews" away from a quick click.
+      await waitForExerciseServiceIframeToBeStable(student3Page, "quizzes", 1)
       await student3Page.getByText("Received reviews").click()
       await student3Page
         .getByLabel("Exercise:Best quizzes exercise")

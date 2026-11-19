@@ -19,12 +19,19 @@ import {
   QUIZ_TITLE_STYLE,
   TWO_DIMENSIONAL_BUTTON_STYLES,
 } from "../../AnswerExercise/impl-by-quiz-item-type/AnswerQuizStyles"
+import {
+  AnswerSummary,
+  SUMMARY_MODE,
+  buildSummary,
+  resolveLine2Label,
+  toSummaryOption,
+} from "../AnswerSummary"
 
 interface OptionFeedbackToDisplay {
   optionId: string
   optionText: string
   message: string
-  correct: boolean
+  correct: boolean | null
 }
 
 const MultipleChoiceClickableFeedback: React.FC<
@@ -40,26 +47,29 @@ const MultipleChoiceClickableFeedback: React.FC<
   const { t } = useTranslation()
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemChooseN
 
-  const correctOptions: string[] = []
-  const incorrectOptions: string[] = []
-  let allOptionsCorrect = true
-
-  if (modelSolution) {
-    public_quiz_item.options.forEach((option) => {
-      const modelOption = modelSolution.options.find((mo) => mo.id === option.id)
-      if (modelOption) {
-        const optionText = option.title || option.body || ""
-        if (modelOption.correct) {
-          correctOptions.push(optionText)
-        } else {
-          incorrectOptions.push(optionText)
-          allOptionsCorrect = false
-        }
-      }
-    })
-  }
-
-  const shouldShowNotice = modelSolution && !allOptionsCorrect
+  const isSelected = (id: string) => user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
+  const keyFor = (id: string) => modelSolution?.options.find((mo) => mo.id === id)
+  const summaryLines = modelSolution
+    ? buildSummary({
+        chosen: public_quiz_item.options
+          .filter((o) => isSelected(o.id))
+          .map((o) => ({ ...toSummaryOption(o), correct: keyFor(o.id)?.correct ?? null })),
+        unselectedCorrect: public_quiz_item.options
+          .filter((o) => !isSelected(o.id) && keyFor(o.id)?.correct === true)
+          .map((o) => toSummaryOption(o)),
+        incorrect: public_quiz_item.options
+          .filter((o) => keyFor(o.id)?.correct === false)
+          .map((o) => toSummaryOption(o)),
+        line2Label: resolveLine2Label({
+          mode: SUMMARY_MODE.chooseN,
+          n: public_quiz_item.n,
+          chosenCorrect: public_quiz_item.options.filter(
+            (o) => isSelected(o.id) && keyFor(o.id)?.correct === true,
+          ).length,
+          totalCorrect: modelSolution.options.filter((mo) => mo.correct === true).length,
+        }),
+      })
+    : []
 
   // Only selected options carry feedback: grading (feedback.ts) only produces
   // quiz_item_option_feedbacks entries for selectedOptionIds, mirroring MultipleChoice.tsx.
@@ -83,7 +93,7 @@ const MultipleChoiceClickableFeedback: React.FC<
       // Prefer the model solution's correctness (including an explicit `false`), falling back to
       // the feedback's this_option_was_correct only when the model solution has no verdict at all.
       const correct =
-        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? false
+        modelSolutionForOption?.correct ?? feedbackForOption?.this_option_was_correct ?? null
       return [
         { optionId: option.id, optionText: option.title || option.body || "", message, correct },
       ]
@@ -101,16 +111,21 @@ const MultipleChoiceClickableFeedback: React.FC<
         }
       `}
     >
-      <h2
+      <div
         className={css`
           display: flex;
+          overflow-wrap: anywhere;
           ${QUIZ_TITLE_STYLE}
         `}
       >
         {public_quiz_item.title || public_quiz_item.body}
-      </h2>
+      </div>
 
-      <div>
+      <div
+        className={css`
+          min-width: 0;
+        `}
+      >
         <div
           className={css`
             display: flex;
@@ -147,14 +162,12 @@ const MultipleChoiceClickableFeedback: React.FC<
                 borderColor = "#bbf7d0"
                 backgroundColor = "#ffffff"
               }
+            } else if (isCorrect) {
+              borderColor = "#fecaca"
+              backgroundColor = "#ffffff"
             } else {
-              if (isCorrect) {
-                borderColor = "#fecaca"
-                backgroundColor = "#ffffff"
-              } else {
-                borderColor = "#c53030"
-                backgroundColor = "#fff5f5"
-              }
+              borderColor = "#c53030"
+              backgroundColor = "#fff5f5"
             }
 
             return (
@@ -170,6 +183,10 @@ const MultipleChoiceClickableFeedback: React.FC<
                     ${borderColor} 0 -2px 0 inset;
                   color: #2d3a4a;
                   ${userSelected && "font-weight: 600;"}
+                  box-sizing: border-box;
+                  max-width: 100%;
+                  margin-right: 0;
+                  overflow-wrap: anywhere;
                   cursor: default;
                   pointer-events: none;
                 `}
@@ -178,8 +195,13 @@ const MultipleChoiceClickableFeedback: React.FC<
                   className={css`
                     flex: 1;
                     text-align: center;
+                    min-width: 0;
+                    ${userSelected && "padding-right: 1.5rem;"}
                   `}
                 >
+                  {!userSelected && shouldBeSelected === true && (
+                    <VisuallyHidden>{t("option-not-selected")} </VisuallyHidden>
+                  )}
                   {o.title || o.body}
                 </span>
                 {userSelected && (
@@ -222,40 +244,14 @@ const MultipleChoiceClickableFeedback: React.FC<
             )
           })}
         </div>
-        {shouldShowNotice && (
-          <div
-            className={css`
-              margin-top: 1rem;
-              padding: 1rem;
-              background-color: #f9fafb;
-              border: 1px solid #e5e7eb;
-              border-radius: 0.375rem;
-            `}
-          >
-            {correctOptions.length > 0 && (
-              <div
-                className={css`
-                  margin-bottom: ${incorrectOptions.length > 0 ? "0.75rem" : "0"};
-                `}
-              >
-                <strong>{t("choose-n-correct-options-label")}</strong> {correctOptions.join(", ")}
-              </div>
-            )}
-            {incorrectOptions.length > 0 && (
-              <div>
-                <strong>{t("choose-n-incorrect-options-label")}</strong>{" "}
-                {incorrectOptions.join(", ")}
-              </div>
-            )}
-          </div>
-        )}
+        <AnswerSummary lines={summaryLines} />
         {optionFeedbacksToDisplay.length > 0 && (
           <div
             className={css`
               margin-top: 1rem;
             `}
           >
-            <h3
+            <div
               className={css`
                 font-family: ${primaryFont};
                 font-size: 1rem;
@@ -265,7 +261,7 @@ const MultipleChoiceClickableFeedback: React.FC<
               `}
             >
               {t("choose-n-feedback-heading")}
-            </h3>
+            </div>
             <div
               className={css`
                 display: flex;
@@ -280,13 +276,16 @@ const MultipleChoiceClickableFeedback: React.FC<
                     color: ${quizTheme.quizBodyColor};
                     border-left: 0.375rem solid
                       ${
-                        correct
-                          ? quizTheme.gradingCorrectItemBorderColor
-                          : quizTheme.gradingWrongItemBorderColor
+                        correct === null
+                          ? "#b8b8c8"
+                          : correct
+                            ? quizTheme.gradingCorrectItemBorderColor
+                            : quizTheme.gradingWrongItemBorderColor
                       };
                     background: ${quizTheme.feedbackBackground};
                     padding: 0.5rem 0.5rem 0.5rem 0.75rem;
                     box-sizing: border-box;
+                    overflow-wrap: anywhere;
                   `}
                 >
                   <strong>{optionText}:</strong>{" "}

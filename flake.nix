@@ -25,15 +25,15 @@
         # binaries there instead (keeps node and pnpm's embedded nodejs-slim stable).
         # Bump version+hash together:
         # nix-prefetch-url https://nodejs.org/dist/v<VER>/node-v<VER>-darwin-arm64.tar.xz
-        nodeVersion = "24.19.0";
+        nodeVersion = "26.13.0";
         officialNodeSrcs = {
           aarch64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-arm64.tar.xz";
-            sha256 = "153v346r9pxn8rviazlfx7nhil7rz89mw44340sq054w8xbz271z";
+            sha256 = "0vjv96i5ccnnhdy3gp0d8lkassbxph2pj5l1x03w17yzv63k2nvg";
           };
           x86_64-darwin = {
             url = "https://nodejs.org/dist/v${nodeVersion}/node-v${nodeVersion}-darwin-x64.tar.xz";
-            sha256 = "1r4g6afmn03ak4q1dyz1sl2mwwy649kcb5zl3msz1xj61wirapnk";
+            sha256 = "1612570xvvnd47j18kgrmaqnw1z2xh7380hcjfmy34hsk2y3dmlb";
           };
         };
         officialNodeOverlay = final: prev:
@@ -51,15 +51,21 @@
                   cp -R ./* "$out/"
                   runHook postInstall
                 '';
-                passthru = { inherit (prev.nodejs) pkgs; };
-                meta.mainProgram = "node";
+                passthru = {
+                  inherit (prev.nodejs) pkgs;
+                  python = prev.python3;
+                };
+                meta = {
+                  mainProgram = "node";
+                  platforms = prev.lib.platforms.darwin;
+                };
               };
             in
             {
               nodejs = officialNode;
-              nodejs_24 = officialNode;
+              nodejs_26 = officialNode;
               nodejs-slim = officialNode;
-              nodejs-slim_24 = officialNode;
+              nodejs-slim_26 = officialNode;
             }
           );
 
@@ -72,6 +78,39 @@
         };
 
         lib = pkgs.lib;
+
+        # Must match packageManager in package.json: older pnpm can't parse
+        # lockfile.includeResolutionSettings in pnpm-workspace.yaml, and nixpkgs lags behind.
+        # Bump version+hashes together:
+        # nix-prefetch-url https://registry.npmjs.org/@pnpm/exe.<PLATFORM>/-/exe.<PLATFORM>-<VER>.tgz
+        pnpmVersion = "12.17.0";
+        pnpmPlatforms = {
+          x86_64-linux = { name = "linux-x64"; sha256 = "1m69jc8dmc8i2aj6vj27bnnx2gskjhd6vpw8fj7msxl21z87273c"; };
+          aarch64-linux = { name = "linux-arm64"; sha256 = "0l2x24j4163s3c8pyf6xq28sf105216dkxc29pimbaf3m9j04zh1"; };
+          x86_64-darwin = { name = "darwin-x64"; sha256 = "00gzhlh62ik76cs7pzlq58vf3iwk3snw7s5ln18synxcjbkil7d5"; };
+          aarch64-darwin = { name = "darwin-arm64"; sha256 = "0wm5n2pfqwlw5l6czm58j5y210bjfszdcy5ckzyajjgrjxvir4kz"; };
+        };
+        pnpm = pkgs.stdenv.mkDerivation {
+          pname = "pnpm";
+          version = pnpmVersion;
+          src = pkgs.fetchurl (
+            let platform = pnpmPlatforms.${system}; in
+            {
+              url = "https://registry.npmjs.org/@pnpm/exe.${platform.name}/-/exe.${platform.name}-${pnpmVersion}.tgz";
+              inherit (platform) sha256;
+            }
+          );
+          nativeBuildInputs = [ pkgs.makeWrapper ] ++ lib.optional pkgs.stdenv.isLinux pkgs.autoPatchelfHook;
+          buildInputs = lib.optional pkgs.stdenv.isLinux pkgs.stdenv.cc.cc.lib;
+          installPhase = ''
+            runHook preInstall
+            install -Dm755 pnpm "$out/bin/pnpm"
+            ln -s "$out/bin/pnpm" "$out/bin/pn"
+            makeWrapper "$out/bin/pnpm" "$out/bin/pnpx" --add-flag dlx
+            runHook postInstall
+          '';
+          meta.mainProgram = "pnpm";
+        };
         rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
         opensslPkgConfigPath = lib.makeSearchPath "lib/pkgconfig" [
@@ -192,7 +231,7 @@
             tar -xzf "$srcPlaywright"    --strip-components=1 -C "$modules/playwright"
             tar -xzf "$srcPlaywrightCore" --strip-components=1 -C "$modules/playwright-core"
 
-            makeWrapper ${pkgs.nodejs_24}/bin/node "$out/bin/playwright-cli" \
+            makeWrapper ${pkgs.nodejs_26}/bin/node "$out/bin/playwright-cli" \
               --add-flags "$modules/@playwright/cli/playwright-cli.js" \
               --set-default PLAYWRIGHT_MCP_EXECUTABLE_PATH ${pkgs.chromium}/bin/chromium
 
@@ -229,7 +268,7 @@
           pkgs.mold
         ];
         pathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [
-          pkgs.nodejs_24
+          pkgs.nodejs_26
           rustToolchain
         ]
         ++ projectCliPackages
@@ -259,7 +298,7 @@
           pkgs.moreutils
           pkgs.openssl
           pkgs.pkg-config
-          pkgs.pnpm
+          pnpm
           pkgs.postgresql
           pkgs.python3
           pkgs.redis
@@ -273,41 +312,55 @@
 
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
 
-        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_24 ];
+        nodeShellPathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [ pkgs.nodejs_26 ];
         clusterShellPathPriorityPackages =
           nodeShellPathPriorityPackages ++ projectCliPackages ++ [ pkgs.minikube ];
+        rustShellPathPriorityPackages =
+          nodeShellPathPriorityPackages
+          ++ [
+            rustToolchain
+            pkgs.sqlx-cli
+          ]
+          ++ lib.optional pkgs.stdenv.isLinux pkgs.mold;
+
+        # If you add or rename an attr or shellHook export in rustBuildEnv or the shells
+        # below, also update the matching env-var list in
+        # .github/actions/setup-nix-env/action.yml — it forwards a fixed set of names into
+        # CI steps, not the whole environment.
+        rustBuildEnv = {
+          # tikv-jemalloc-sys configure uses -O0 -Werror; glibc fortify warns
+          # without optimization, so disable only fortify/fortify3 from Nix defaults.
+          hardeningDisable = [
+            "fortify"
+            "fortify3"
+          ];
+          OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+          LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
+          # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
+          # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
+          # toolchain stops that shim from swapping in a rustc that cannot load the proc
+          # macros built here.
+          RUSTUP_TOOLCHAIN = "${rustToolchain}";
+        };
+        rustBuildShellHook = ''
+          export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+          if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
+            export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+          fi
+        '';
       in
       {
         devShells.default = pkgs.mkShell (
-          {
+          rustBuildEnv
+          // {
             packages = pathPriorityPackages ++ shellSupportPackages;
-            # tikv-jemalloc-sys configure uses -O0 -Werror; glibc fortify warns
-            # without optimization, so disable only fortify/fortify3 from Nix defaults.
-            hardeningDisable = [
-              "fortify"
-              "fortify3"
-            ];
-
-            # If you add or rename an attr or shellHook export here, also update the
-            # matching env-var list in .github/actions/setup-nix-env/action.yml — it
-            # forwards a fixed set of names into CI steps, not the whole environment.
-            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
-            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
-            LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
-            # Cargo resolves subcommands from $CARGO_HOME/bin before $PATH, so rustup's
-            # cargo-clippy shim shadows this toolchain's one. Pointing rustup at the Nix
-            # toolchain stops that shim from swapping in a rustc that cannot load the proc
-            # macros built here.
-            RUSTUP_TOOLCHAIN = "${rustToolchain}";
             TILT_DISABLE_ANALYTICS = "1";
 
             shellHook = ''
               export PATH="${pathPriorityBinPath}:$PATH"
-              export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-
-              if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
-                export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
-              fi
+              ${rustBuildShellHook}
 
               # Base images are amd64-only, so on arm64 hosts (Apple Silicon) build for
               # linux/amd64 under emulation — else skaffold fails with "no match for platform".
@@ -321,11 +374,34 @@
           }
         );
 
+        # For the headless-lms CI jobs: builds and tests the Rust workspace natively and runs
+        # pnpm for the OpenAPI formatting, without the default shell's cluster tools and Chromium.
+        devShells.rust = pkgs.mkShell (
+          rustBuildEnv
+          // {
+            packages = rustShellPathPriorityPackages ++ [
+              pkgs.cmake
+              pkgs.gcc
+              pkgs.gnumake
+              pkgs.libclang
+              pkgs.openssl
+              pkgs.pkg-config
+              pnpm
+              pkgs.zlib
+              pkgs.zstd
+            ];
+            shellHook = ''
+              export PATH="${lib.makeBinPath rustShellPathPriorityPackages}:$PATH"
+              ${rustBuildShellHook}
+            '';
+          }
+        );
+
         # For CI jobs that only need Node: the default shell's closure (Chromium, Rust, clang, …)
         # takes minutes to fetch on a runner with an empty Nix store.
         devShells.node = pkgs.mkShell {
           packages = nodeShellPathPriorityPackages ++ [
-            pkgs.pnpm
+            pnpm
             pkgs.rsync
           ];
           shellHook = ''
@@ -343,7 +419,7 @@
               pkgs.git-lfs
               pkgs.jq
               pkgs.moreutils
-              pkgs.pnpm
+              pnpm
               pkgs.rsync
             ];
           shellHook = ''

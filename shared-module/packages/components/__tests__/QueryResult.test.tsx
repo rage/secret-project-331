@@ -3,7 +3,10 @@
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { act, fireEvent, screen } from "@testing-library/react"
+import { createInstance } from "i18next"
+import { I18nextProvider } from "react-i18next"
 
+import { spinnerGlyphCss } from "../src/components/primitives/spinnerStyles"
 import { QueryResult } from "../src/components/queryResult/QueryResult"
 import { domClick, renderUi } from "./testUtils"
 
@@ -23,6 +26,22 @@ function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQ
     ...partial,
   } as UseQueryResult<T, E>
 }
+export async function setupQueryResultI18N() {
+  const scopedI18n = createInstance()
+  await scopedI18n.init({
+    lng: "en",
+    fallbackLng: "en",
+    ns: ["shared-module", "errors"],
+    defaultNS: "shared-module",
+    interpolation: { escapeValue: false },
+    resources: {
+      en: {
+        errors: { "errorNotice.retry": "Retry" },
+      },
+    },
+  })
+  return scopedI18n
+}
 
 test("renders data", () => {
   renderUi(
@@ -34,21 +53,24 @@ test("renders data", () => {
   expect(screen.getByText("hi")).toBeInTheDocument()
 })
 
-test("blocking error shows alert and retry calls refetch", () => {
+test("blocking error shows alert and retry calls refetch", async () => {
   const refetch = jest.fn()
+  const i18n = await setupQueryResultI18N()
   renderUi(
-    <QueryResult
-      query={makeQuery({
-        data: undefined,
-        isPending: false,
-        isError: true,
-        error: new Error("failed"),
-        refetch,
-      })}
-      themeMode="light"
-    >
-      {() => null}
-    </QueryResult>,
+    <I18nextProvider i18n={i18n}>
+      <QueryResult
+        query={makeQuery({
+          data: undefined,
+          isPending: false,
+          isError: true,
+          error: new Error("failed"),
+          refetch,
+        })}
+        themeMode="light"
+      >
+        {() => null}
+      </QueryResult>
+    </I18nextProvider>,
   )
 
   expect(screen.getByRole("alert")).toBeInTheDocument()
@@ -125,7 +147,9 @@ test("initial loading delays centered spinner until loadingDelayMs", () => {
     act(() => {
       jest.advanceTimersByTime(400)
     })
-    expect(screen.getByTestId("query-loading-spinner")).toBeInTheDocument()
+    const spinner = screen.getByTestId("query-loading-spinner")
+    expect(spinner).toBeInTheDocument()
+    expect(spinner).toHaveClass(spinnerGlyphCss("lg", "accent"))
   } finally {
     jest.useRealTimers()
   }

@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,7 +15,7 @@ import type {
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { Badge, Meter, MIDDLE_DOT, QueryResult } from "@/shared-module/components"
+import { Badge, Meter, MIDDLE_DOT, QueryResult, Link } from "@/shared-module/components"
 
 import { ratioPercent, toHours } from "../lib/durations"
 

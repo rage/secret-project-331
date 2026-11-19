@@ -1,12 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InfoCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { dateToString } from "../utils/time"
-import Button from "./Button"
-import SpeechBalloon from "./SpeechBalloon"
 import HideTextInSystemTests from "./system-tests/HideTextInSystemTests"
 
 interface TimeComponentProps {
@@ -16,6 +13,7 @@ interface TimeComponentProps {
   boldLabel?: boolean
 }
 
+/** A timestamp with its UTC offset, e.g. `2026-10-09 14:47:33 UTC+03:00`. */
 const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
   label,
   date,
@@ -26,61 +24,23 @@ const TimeComponent: React.FC<React.PropsWithChildren<TimeComponentProps>> = ({
     <span
       className={css`
         ${right && "float: right;"}
-        vertical-align: middle;
-        position: relative;
+        display: inline-flex;
+        flex-wrap: wrap;
+        column-gap: 0.25rem;
+        white-space: nowrap;
       `}
     >
       {label && (
         <span
           className={css`
             ${boldLabel && "font-weight: bold;"}
-            margin-right: 0.2rem;
           `}
         >
           {label}
         </span>
       )}
       <span className="time-component-date">
-        <HideTextInSystemTests
-          text={dateToString(date, false)}
-          testPlaceholder="1970-01-01 00:00"
-        />
-      </span>
-      <span
-        className={css`
-          position: relative;
-          display: inline-flex;
-
-          &:has(button:focus) > div,
-          &:has(button:hover) > div {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.3s ease;
-          }
-        `}
-      >
-        <Button
-          size="small"
-          aria-label={dateToString(date, true)}
-          className={css`
-            position: relative;
-          `}
-          variant={"icon"}
-        >
-          <InfoCircle size={18} />
-        </Button>
-        <SpeechBalloon
-          className={css`
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            visibility: hidden;
-            opacity: 0;
-          `}
-        >
-          <p> {dateToString(date, true)} </p>
-        </SpeechBalloon>
+        <HideTextInSystemTests text={dateToString(date, true)} testPlaceholder="1970-01-01 00:00" />
       </span>
     </span>
   )

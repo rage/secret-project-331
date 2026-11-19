@@ -100,8 +100,8 @@ describe("Dialog", () => {
     await waitFor(() => expect(dialog.contains(document.activeElement)).toBe(true))
 
     domClick(screen.getByRole("button", { name: "Close" }))
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
-    // Focus restore also runs a frame after unmount
+    // The dialog stays mounted through its exit animation before actually unmounting.
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
     await waitFor(() => expect(trigger).toHaveFocus())
   })
 
@@ -211,6 +211,28 @@ describe("Dialog", () => {
     expect(onCancel).not.toHaveBeenCalled()
   })
 
+  test("renders header actions beside the title, before the close button", () => {
+    const onDownload = jest.fn()
+    renderUi(
+      <Dialog
+        open
+        onClose={jest.fn()}
+        title="Data"
+        headerActions={[{ label: "Download", onPress: onDownload }]}
+      >
+        <p>Content</p>
+      </Dialog>,
+    )
+    const download = screen.getByRole("button", { name: "Download" })
+    const close = screen.getByRole("button", { name: "Close" })
+    expect(download.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getByText("Content").compareDocumentPosition(download)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING,
+    )
+    fireEvent.click(download)
+    expect(onDownload).toHaveBeenCalledTimes(1)
+  })
+
   test("disables an action", () => {
     renderUi(
       <Dialog open onClose={jest.fn()} title="Save" actions={[{ label: "Save", disabled: true }]}>
@@ -218,5 +240,57 @@ describe("Dialog", () => {
       </Dialog>,
     )
     expect(screen.getByRole("button", { name: "Save" })).toBeDisabled()
+  })
+
+  test("padding defaults to normal", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Padded">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-edge-padding")).toBe(
+      "var(--space-5)",
+    )
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe(
+      "var(--dialog-edge-padding)",
+    )
+  })
+
+  test("padding none collapses the body padding but keeps the header and footer inset", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Flush" padding="none">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-padding")).toBe("0")
+    expect(getComputedStyle(dialog).getPropertyValue("--dialog-edge-padding")).toBe(
+      "var(--space-5)",
+    )
+  })
+
+  test("role defaults to dialog with no aria-describedby", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Settings">
+        <p>Content</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("dialog", { name: "Settings" })
+    expect(dialog).not.toHaveAttribute("aria-describedby")
+  })
+
+  test("alertdialog role wires aria-describedby to a description that actually resolves", () => {
+    renderUi(
+      <Dialog open onClose={jest.fn()} title="Delete course" role="alertdialog">
+        <p>This cannot be undone.</p>
+      </Dialog>,
+    )
+    const dialog = screen.getByRole("alertdialog", { name: "Delete course" })
+    const describedBy = dialog.getAttribute("aria-describedby")
+    expect(describedBy).toBeTruthy()
+    const description = describedBy ? document.querySelector(`[id="${describedBy}"]`) : null
+    expect(description).not.toBeNull()
+    expect(description).toHaveTextContent("This cannot be undone.")
   })
 })

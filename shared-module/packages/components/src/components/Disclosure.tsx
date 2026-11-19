@@ -24,6 +24,8 @@ export interface DisclosureProps {
   /** Accessible label for the trigger when `title` is not plain text. */
   "aria-label"?: string
   className?: string
+  /** Lands on the trigger button, the element a test presses. */
+  "data-testid"?: string | undefined
 }
 
 const CHEVRON_DIRECTION = "right" as const
@@ -130,6 +132,7 @@ export const Disclosure: React.FC<DisclosureProps> = ({
   variant = "card",
   "aria-label": ariaLabel,
   className,
+  "data-testid": dataTestId,
 }) => {
   const plain = variant === "plain"
   const [internalExpanded, setInternalExpanded] = React.useState(defaultExpanded)
@@ -163,6 +166,7 @@ export const Disclosure: React.FC<DisclosureProps> = ({
         className={cx(triggerCss, plain && triggerPlainCss)}
         aria-expanded={expanded}
         aria-controls={panelId}
+        data-testid={dataTestId}
       >
         <span className={titleRowCss}>
           <span className={chevronCss} data-expanded={expanded}>

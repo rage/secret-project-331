@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  m.course_designer_plan_id,\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at,\n  m.receives_weekly_digest\nFROM course_designer_plan_members m\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = ANY($1)\n  AND m.deleted_at IS NULL\nORDER BY m.created_at ASC, m.id ASC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_designer_plan_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "course_designer_plan_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "first_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "last_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "email",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "receives_weekly_digest",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_members",
+            "name": "receives_weekly_digest"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "798fab76e2908ddc46a7e1a4a8951817b5a2576eff307cd25d5bae33918a82af"
+}

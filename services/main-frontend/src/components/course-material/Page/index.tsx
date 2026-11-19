@@ -19,13 +19,12 @@ import useResearchConsentForm from "@/hooks/course-material/useResearchConsentFo
 import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchConsentFormAnswers"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   isMaterialPageAtom,
@@ -34,6 +33,7 @@ import {
 } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 import type { Block } from "@/types/courseMaterialBlock"
+import { researchFormQuestionIds } from "@/utils/course-material/researchConsentForm"
 
 import Chatbot from "../chatbot/Chatbot"
 import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
@@ -189,10 +189,21 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     userDetailsQuery.data?.last_name,
   ])
 
+  const researchFormQuestionIdsToAnswer = researchFormQuestionIds(
+    researchConsentFormQuery.data?.content,
+  )
+  const hasUnansweredResearchQuestions =
+    researchConsentFormAnswerQuery.data !== undefined &&
+    researchFormQuestionIdsToAnswer.some(
+      (questionId) =>
+        !researchConsentFormAnswerQuery.data.some(
+          (answer) => answer.research_form_question_id === questionId,
+        ),
+    )
+
   useEffect(() => {
     if (
-      researchConsentFormQuery.data !== null &&
-      researchConsentFormAnswerQuery.data?.length === 0 &&
+      hasUnansweredResearchQuestions &&
       !showResearchConsentFormBecauseOfMissingAnswers &&
       !hasAnsweredForm &&
       !waitingForCourseSettingsToBeFilled
@@ -200,10 +211,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
       setShowResearchConsentFormBecauseOfMissingAnswers(true)
     }
   }, [
-    researchConsentFormAnswerQuery.data?.length,
+    hasUnansweredResearchQuestions,
     hasAnsweredForm,
     showResearchConsentFormBecauseOfMissingAnswers,
-    researchConsentFormQuery.data,
     waitingForCourseSettingsToBeFilled,
   ])
 
@@ -213,20 +223,20 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const glossary = useGlossary(courseId, courseMaterialState.examData, isMaterialPage)
 
   if (glossary.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (glossary.isError) {
-    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
+    return <ErrorNotice error={glossary.error} headingLevel={1} />
   }
   const glossaryState: GlossaryState = { terms: glossary.data ?? [] }
 
   if (getPageAudioFiles.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
 
   if (getPageAudioFiles.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPageAudioFiles.error} />
+    return <ErrorNotice error={getPageAudioFiles.error} headingLevel={1} />
   }
 
   if (getPageAudioFiles.isSuccess) {
@@ -282,7 +292,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
             shouldAnswerResearchForm={showResearchConsentFormBecauseOfMissingAnswers}
             {...omitUndefined({ usersInitialAnswers: researchConsentFormAnswerQuery.data })}
             // oxlint-disable-next-line typescript/no-non-null-assertion -- researchFormIsLoadedAndExists guarantees data is non-null
-            researchForm={researchConsentFormQuery.data!}
+            content={researchConsentFormQuery.data!.content}
             onClose={() => {
               setShowResearchConsentFormBecauseOfUrl(false)
               setShowResearchConsentFormBecauseOfMissingAnswers(false)
@@ -344,7 +354,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
         {isMaterialPage && <HeadingsNavigation />}
         {hasCourseClosed && <ClosedCourseWarningDialog />}
-        <div id="maincontent">
+        <div>
           {/* TODO: Better type for Page.content in bindings. */}
           <div id="content" className={inlineColorStyles}>
             <ContentRenderer

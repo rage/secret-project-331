@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -14,6 +14,7 @@ import { headingFont, primaryFont } from "@/shared-module/exercise-react/styles"
 import type { PrivateSpecQuizItemMultiplechoice } from "../../../../../../types/quizTypes/privateSpec"
 import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizzesExerciseServiceOutputState"
 import findQuizItem from "../../utils/general"
+import applyOptionChanges from "../common/applyOptionChanges"
 import EditorCard from "../common/EditorCard"
 import FeedbackMessagesEditor, {
   useItemFeedbackVisibilityOptions,
@@ -21,6 +22,7 @@ import FeedbackMessagesEditor, {
 import MultipleChoiceOption from "../common/MultipleChoiceOption"
 import ParsedTextField from "../common/ParsedTextField"
 import ToggleCard from "../common/ToggleCard"
+import UnaddedDraftNotice from "../common/UnaddedDraftNotice"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string
@@ -104,6 +106,7 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
 
 const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const layoutTitleId = useId()
 
   const [optionTitle, setOptionTitle] = useState("")
   const [correct, setCorrect] = useState(false)
@@ -167,20 +170,8 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                 draft.options = draft.options.filter((opt) => opt.id !== option.id)
               })
             }}
-            onUpdateValues={(title, feedbackMessages, optionCorrect) => {
-              updateState((draft) => {
-                if (!draft) {
-                  return
-                }
-                draft.options = draft.options.map((opt) => {
-                  if (opt.id === option.id) {
-                    opt.title = title
-                    opt.correct = optionCorrect
-                    opt.feedbackMessages = feedbackMessages
-                  }
-                  return opt
-                })
-              })
+            onChange={(changes) => {
+              updateState((draft) => applyOptionChanges(draft, option.id, changes))
             }}
             key={option.id}
             option={option}
@@ -238,6 +229,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         >
           {t("add-option")}
         </Button>
+        <UnaddedDraftNotice draft={optionTitle} />
       </OptionCreationContainer>
 
       {/* Advanced options */}
@@ -246,9 +238,9 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
-            <OptionTitle> {t("layout-options")} </OptionTitle>
+            <OptionTitle id={layoutTitleId}> {t("layout-options")} </OptionTitle>
             <OptionDescription>{t("layout-options-description")}</OptionDescription>
-            <MultipleChoiceLayoutChoiceContainer role="radiogroup">
+            <MultipleChoiceLayoutChoiceContainer role="radiogroup" aria-labelledby={layoutTitleId}>
               <RadioButton
                 onChange={() => {
                   updateState((draft) => {
@@ -354,7 +346,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                 })
               }}
-              defaultValue={selected.multipleChoiceMultipleOptionsGradingPolicy}
+              value={selected.multipleChoiceMultipleOptionsGradingPolicy}
               label={t("multiple-choice-grading")}
               options={MULTIPLE_CHOICE_OPTIONS}
             />

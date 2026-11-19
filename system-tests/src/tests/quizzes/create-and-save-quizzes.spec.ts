@@ -1,8 +1,13 @@
 /* oxlint-disable playwright/prefer-locator */
 import type { Locator, Page } from "@playwright/test"
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
+import {
+  createCourseChapter,
+  createCoursePage,
+  openCoursePageInEditor,
+} from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 import { addQuizFeedbackMessage } from "@/utils/quizFeedbackMessages"
 
@@ -37,30 +42,12 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]")
 
-    await page.getByText("Pages").click()
+    await page.getByRole("tab", { name: "Pages" }).click()
     await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-    await page.click(`:nth-match(button:has-text("New chapter"), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Name")`, "first")
-
-    await page.click(`button:text("Create")`)
-
-    await page.getByText(`Chapter 1`).waitFor()
-
-    await page.click(`:nth-match(button:text("New page"):below(:text("Chapter 1")), 1)`)
-
-    // await page.click('input[type="text"]')
-
-    // Fill input[type="text"]
-    await page.fill(`label:has-text("Title")`, "first page")
-
-    await page.click(`button:text("Create")`)
-
-    await page.click(`button:text("Edit page"):right-of(:text("first page"))`)
+    await createCourseChapter(page, "first")
+    await createCoursePage(page, { chapterNumber: 1 }, "first page")
+    await openCoursePageInEditor(page, "first page")
 
     await page.getByLabel("Hero section title...").click()
 
@@ -79,29 +66,22 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click('[aria-label="Block: Exercise"]')
 
-    await page.click('[placeholder="Exercise name"]')
+    await page.getByLabel("Exercise name", { exact: true }).click()
 
-    // Fill [placeholder="Exercise name"]
-    await page.fill('[placeholder="Exercise name"]', "quizzes test")
+    await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")
 
     // The test will add a task later on
-    await page.getByLabel("Delete").click()
+    await page.getByLabel("Delete task").click()
   })
 }
 
 const addNewQuiz = async (page: Page) => {
   await test.step("Add new quiz", async () => {
-    let steps = 0
-    do {
-      steps++
-      await page.getByText("Add task").click()
-      // oxlint-disable-next-line playwright/no-wait-for-timeout
-      await page.waitForTimeout(100)
-      // Sometimes the add task button doesn't respond due to lag
-      // oxlint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
-
-    await page.locator('[aria-label="Edit"]').nth(0).click()
+    const editTask = page.getByRole("button", { name: "Edit task" })
+    const tasksBefore = await editTask.count()
+    await page.getByRole("button", { name: "Add task" }).click()
+    await expect(editTask).toHaveCount(tasksBefore + 1)
+    await editTask.nth(tasksBefore).click()
     await page.getByText("Quizzes").click()
   })
 }
@@ -361,7 +341,7 @@ const createTimeline = async (frame: Locator) => {
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 3")
     await frame.getByRole("button", { name: "Add", exact: true }).click()
-    await frame.getByLabel("Delete").nth(1).click()
+    await frame.getByLabel("Delete row").nth(1).click()
   })
 }
 
@@ -431,7 +411,7 @@ test("Create quizzes in page", async ({ page }) => {
   await scrollToFrame(page, timelineIframe)
   await createTimeline(timelineIframe)
 
-  await page.click(`button:text-is("Save") >> visible=true`)
+  await page.getByRole("button", { name: "Save", exact: true }).click()
 })
 
 async function scrollToFrame(page: Page, locator: Locator) {

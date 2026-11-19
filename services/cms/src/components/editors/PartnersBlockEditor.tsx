@@ -4,9 +4,9 @@ import { css } from "@emotion/css"
 import React, { useContext, useEffect, useState } from "react"
 
 import type { PartnersBlock } from "@/generated/api"
-import Button from "@/shared-module/common/components/Button"
 import SuccessNotification from "@/shared-module/common/components/Notifications/Success"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { Button } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

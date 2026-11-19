@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { downloadToString } from "../../utils/download"
@@ -33,6 +34,11 @@ test("Manually adding completions works", async ({ page }) => {
 
   await page.getByText("Manually add completions").click()
 
+  // The module select is required and starts on its placeholder, so "Check" submits nothing
+  // until one is picked.
+  const courseModule = new Select(page, page.getByRole("button", { name: "Course module" }))
+  await courseModule.chooseOption("Default")
+
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]
   await page.locator('textarea[name="completions"]').fill(`user_id,grade
@@ -56,8 +62,7 @@ test("Manually adding completions works", async ({ page }) => {
 
   await page.getByText("Manually add completions").click()
 
-  // Select 57db3a62-d098-489a-8869-0a14efd6fa80
-  await page.locator("select").selectOption({ label: "Another module" })
+  await courseModule.chooseOption("Another module")
 
   await page.locator('textarea[name="completions"]').click()
   // Fill textarea[name="completions"]

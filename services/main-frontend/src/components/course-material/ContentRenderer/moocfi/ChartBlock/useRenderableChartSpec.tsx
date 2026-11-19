@@ -1,12 +1,12 @@
 "use client"
 
-import React, { useMemo } from "react"
-import type { VegaLite } from "react-vega"
+import { useMemo } from "react"
+import type { VegaEmbedProps } from "react-vega"
 
 import { primaryFont } from "@/shared-module/common/styles"
 
 /** The spec object the renderer accepts, taken from react-vega so it cannot drift from it. */
-export type VegaLiteSpec = React.ComponentProps<typeof VegaLite>["spec"]
+export type VegaLiteSpec = Exclude<VegaEmbedProps["spec"], string>
 
 // These mirror the cms block's chartSpec.ts, so a published chart matches the editor's preview.
 

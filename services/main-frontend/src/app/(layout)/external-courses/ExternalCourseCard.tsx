@@ -13,12 +13,17 @@ import {
   updateExternalCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExternalCourseOutput } from "@/generated/api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
-import { Button, Checkbox, nullIfEmpty, TextArea } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  nullIfEmpty,
+  TextArea,
+  useDialog,
+  ErrorNotice,
+} from "@/shared-module/components"
 
 import ContentDisplayBox from "../manage/course-auditing/CourseCard/ContentDisplayBox"
 
@@ -48,10 +53,10 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
 
   const cancelEdit = async () => {
     if (isDirty) {
-      const confirmed = await confirm(
-        t("course-auditing-edit-unsaved-dialog-message"),
-        t("course-auditing-edit-unsaved-dialog-title"),
-      )
+      const confirmed = await confirm({
+        message: t("course-auditing-edit-unsaved-dialog-message"),
+        title: t("course-auditing-edit-unsaved-dialog-title"),
+      })
       if (confirmed) {
         reset()
         updateMutation.reset()
@@ -65,10 +70,12 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
   }
 
   const deleteContent = async () => {
-    const confirmed = await confirm(
-      t("delete-course-confirmation", { name: externalCourse.name }),
-      t("button-text-delete"),
-    )
+    const confirmed = await confirm({
+      message: t("delete-course-confirmation", { name: externalCourse.name }),
+      title: t("button-text-delete"),
+      confirmLabel: t("button-text-delete"),
+      isDestructive: true,
+    })
     if (confirmed) {
       await deleteMutation.mutateAsync({
         body: externalCourse,
@@ -215,9 +222,7 @@ const ExternalCourseCard: React.FC<ExternalCourseCardProps> = ({ externalCourse 
               gap: 1rem;
             `}
           >
-            {updateMutation.isError && (
-              <ErrorBanner error={updateMutation.error} variant="readOnly" />
-            )}
+            {updateMutation.isError && <ErrorNotice error={updateMutation.error} />}
             <TextArea
               control={control}
               label={t("text-field-label-name")}

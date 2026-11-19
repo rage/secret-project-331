@@ -4,8 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { retryFailedCreditRegistrationsForCourse } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import { Button, Infobox } from "@/shared-module/components"
+import { Button, Infobox, useDialog } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "./constants"
 import { refusalSentence } from "./resubmissionRefusal"
@@ -21,7 +20,7 @@ interface Props {
    * sending those again fails them the same way.
    */
   retryableCount: number
-  /** Whether any enabled module is paused, in which case nothing this button sends will move. */
+  /** Whether any module is paused, in which case nothing this button sends will move. */
   isAnyModulePaused: boolean
 }
 
@@ -48,15 +47,13 @@ const RetryFailedCreditRegistrationsBlock: React.FC<Props> = ({
   )
 
   const askAndRetry = async () => {
-    const confirmed = await confirm(
-      t("credit-registration-bulk-retry-confirm", { count: retryableCount }),
-      t("credit-registration-bulk-retry-confirm-title"),
-      {
-        yesButtonLabel: t("button-text-retry-failed-credit-registrations", {
-          count: retryableCount,
-        }),
-      },
-    )
+    const confirmed = await confirm({
+      title: t("credit-registration-bulk-retry-confirm-title"),
+      message: t("credit-registration-bulk-retry-confirm", { count: retryableCount }),
+      confirmLabel: t("button-text-retry-failed-credit-registrations", {
+        count: retryableCount,
+      }),
+    })
     if (confirmed) {
       mutation.mutate(undefined)
     }

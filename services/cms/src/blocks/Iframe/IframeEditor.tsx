@@ -6,9 +6,9 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody } from "@wordpress/components"
 import React, { useState } from "react"
 
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { Button, TextField } from "@/shared-module/components"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { IframeAttributes } from "."
@@ -16,6 +16,36 @@ import { IFRAME_BLOCK_DEFAULT_HEIGHT_PX } from "."
 import VisibleBlockWrapper from "../../components/blocks/VisibleBlockWrapper"
 import BlockWrapper from "../BlockWrapper"
 import IFramePlaceHolder from "./IframePlaceholder"
+
+interface DimensionValues {
+  heightPx: string
+  widthPx: string
+}
+
+interface DimensionFieldsProps {
+  attributes: IframeAttributes
+  setAttributes: (attributes: Partial<IframeAttributes>) => void
+}
+
+const DimensionFields: React.FC<DimensionFieldsProps> = ({ attributes, setAttributes }) => {
+  const { control } = useAttributeForm<DimensionValues>(
+    {
+      heightPx: (attributes.heightPx ?? IFRAME_BLOCK_DEFAULT_HEIGHT_PX).toString(),
+      widthPx: attributes.widthPx?.toString() ?? "",
+    },
+    ({ heightPx, widthPx }) =>
+      setAttributes({
+        heightPx: Number(heightPx),
+        widthPx: widthPx === "" ? undefined : Number(widthPx),
+      }),
+  )
+  return (
+    <>
+      <TextField name="heightPx" control={control} label="Height px" />
+      <TextField name="widthPx" control={control} label="Width px (leave empty for auto)" />
+    </>
+  )
+}
 
 const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttributes>>> = ({
   attributes,
@@ -45,19 +75,7 @@ const IframeEditor: React.FC<React.PropsWithChildren<BlockEditProps<IframeAttrib
       <VisibleBlockWrapper blockName="Iframe">
         <InspectorControls key="settings">
           <PanelBody title={"Dimensions"} initialOpen>
-            <TextField
-              value={attributes.heightPx?.toString() ?? IFRAME_BLOCK_DEFAULT_HEIGHT_PX}
-              onChangeByValue={(newValue) => setAttributes({ heightPx: Number(newValue) })}
-              label="Height px"
-            />
-            <TextField
-              value={attributes.widthPx}
-              onChangeByValue={(newValue) =>
-                setAttributes({ widthPx: newValue === "" ? undefined : Number(newValue) })
-              }
-              placeholder="Auto"
-              label="Width px (leave empty for auto)"
-            />
+            <DimensionFields attributes={attributes} setAttributes={setAttributes} />
           </PanelBody>
         </InspectorControls>
         <div

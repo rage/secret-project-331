@@ -52,6 +52,7 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
     )
   }
 
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const BlockEditWithCustomHtmlParagraphWarning = (props: CustomHtmlBlockProps) =>
     props.name === CUSTOM_HTML_BLOCK_NAME ? (
       <CustomHtmlParagraphWarning {...props} />

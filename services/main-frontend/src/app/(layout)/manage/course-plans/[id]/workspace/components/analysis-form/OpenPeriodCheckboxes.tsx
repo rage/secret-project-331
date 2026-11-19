@@ -4,6 +4,7 @@ import type { TFunction } from "i18next"
 import type { Control, UseFormSetValue } from "react-hook-form"
 import { useWatch } from "react-hook-form"
 
+import SelectAllCheckbox from "@/components/forms/SelectAllCheckbox"
 import { Checkbox } from "@/shared-module/components"
 
 import {
@@ -14,7 +15,6 @@ import {
   OPEN_PERIOD_II,
   OPEN_PERIOD_III,
   OPEN_PERIOD_IV,
-  openPeriodAllRowStyles,
   roleBlockStyles,
   sectionTitleStyles,
 } from "./analysisFormDomain"
@@ -35,8 +35,7 @@ export default function OpenPeriodCheckboxes(props: {
   })
   const allSelected = Boolean(p1 && p2 && p3 && p4)
 
-  const handleToggleAll = () => {
-    const next = !allSelected
+  const handleToggleAll = (next: boolean) => {
     setValue(OPEN_PERIOD_I, next, { shouldDirty: true })
     setValue(OPEN_PERIOD_II, next, { shouldDirty: true })
     setValue(OPEN_PERIOD_III, next, { shouldDirty: true })
@@ -50,10 +49,11 @@ export default function OpenPeriodCheckboxes(props: {
       </legend>
       <div className={checkboxGroupStyles}>
         <div className={checkboxRowStyles}>
-          <label className={openPeriodAllRowStyles}>
-            <input type="checkbox" checked={allSelected} onChange={handleToggleAll} />
-            {t("course-plans-analysis-period-all")}
-          </label>
+          <SelectAllCheckbox
+            label={t("course-plans-analysis-period-all")}
+            isAllSelected={allSelected}
+            onToggleAll={handleToggleAll}
+          />
           <Checkbox
             name={OPEN_PERIOD_I}
             control={control}

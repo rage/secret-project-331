@@ -10,6 +10,8 @@ interface RouteTabListContextValue {
   state: TabListState<object>
   tabs: RouteTabDefinition[]
   orientation: "horizontal" | "vertical"
+  /** False when the route matches no tab, so `RouteTab` can avoid painting one as current. */
+  isCurrentRouteATab: boolean
 }
 
 const RouteTabListContext = createContext<RouteTabListContextValue | null>(null)
@@ -30,9 +32,12 @@ export function RouteTabListProvider({
   orientation = "horizontal",
   children,
 }: RouteTabListProviderProps) {
-  const state = useRouteTabListState(tabs)
+  const { state, isCurrentRouteATab } = useRouteTabListState(tabs)
 
-  const value = useMemo(() => ({ state, tabs, orientation }), [state, tabs, orientation])
+  const value = useMemo(
+    () => ({ state, tabs, orientation, isCurrentRouteATab }),
+    [state, tabs, orientation, isCurrentRouteATab],
+  )
 
   return <RouteTabListContext.Provider value={value}>{children}</RouteTabListContext.Provider>
 }

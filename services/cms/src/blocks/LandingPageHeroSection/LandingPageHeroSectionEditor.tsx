@@ -1,29 +1,22 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
+import { InspectorControls, RichText } from "@wordpress/block-editor"
 import React from "react"
 
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { Button } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { LandingPageHeroSectionAttributes } from "."
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
-
-const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/paragraph"]
-const LANDING_PAGE_HERO_SECTION_TEMPLATE: Template[] = [
-  [
-    "core/paragraph",
-    { content: "Insert sales speech...", placeholder: "Insert sales speech...", align: "center" },
-  ],
-]
 
 const LandingPageHeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<LandingPageHeroSectionAttributes>>
@@ -74,11 +67,7 @@ const LandingPageHeroSectionEditor: React.FC<
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("welcome-message-for-course")}
           />
-          <InnerBlocks
-            template={LANDING_PAGE_HERO_SECTION_TEMPLATE}
-            allowedBlocks={ALLOWED_NESTED_BLOCKS}
-            templateLock="all"
-          />
+          <RegisteredInnerBlocks />
           <div
             className={css`
               display: flex;

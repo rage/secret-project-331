@@ -1,4 +1,7 @@
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import { renderHook } from "@testing-library/react"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { v4 } from "uuid"
 
 import type {
@@ -8,10 +11,13 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 
 import type { ChatbotConversationMessageWithStatus } from "../shared/ChatbotChatBody"
+import { BASE_CLIENT_TOOL_REGISTRY } from "../shared/clientToolRegistry"
 import type {
+  ChatbotComposerValues,
   ChatbotStateAndData,
   ClientToolResponse,
 } from "../shared/hooks/useChatbotStateAndData"
+import { MESSAGE_FIELD } from "../shared/hooks/useChatbotStateAndData"
 
 export const CONVERSATION_ID = "11111111-1111-4111-8111-111111111111"
 export const TIME = "2024-01-01T00:00:00.000Z"
@@ -81,9 +87,26 @@ export const makeChatBodyProps = ({
   isLoading = false,
   isTurnInFlight = false,
 }: ChatBodyOverrides = {}): ChatBodyFixture => {
-  const sendMessage = jest.fn()
   const answer = jest.fn()
   const stopTurn = jest.fn()
+
+  // Seeded with setValue rather than as the default, so a send's `resetField` clears the field
+  // the way production does instead of restoring `newMessage`.
+  const { result } = renderHook(() => {
+    const form = useForm<ChatbotComposerValues>({ defaultValues: { [MESSAGE_FIELD]: "" } })
+    useEffect(() => {
+      if (newMessage) {
+        form.setValue(MESSAGE_FIELD, newMessage)
+      }
+      // oxlint-disable-next-line react/exhaustive-deps -- seeds once per fixture instance; `form` is stable
+    }, [])
+    return form
+  })
+  const composerForm = result.current
+
+  const sendMessage = jest.fn((_message: string) => {
+    composerForm.resetField(MESSAGE_FIELD)
+  })
 
   const currentConversationInfo = {
     isLoading,
@@ -137,14 +160,16 @@ export const makeChatBodyProps = ({
   const props: ChatbotStateAndData = {
     currentConversationInfo,
     newConversationMutation,
-    newMessage,
-    setNewMessage: jest.fn(),
+    control: composerForm.control,
+    submitMessage: composerForm.handleSubmit((values) => sendMessage(values.message)),
     error: null,
     messageState: { messages: streamedMessages, executionPayloadByToolCallId: {} },
     dispatch: jest.fn(),
     chatbotMessageAnnouncement: "",
+    clientToolRegistry: BASE_CLIENT_TOOL_REGISTRY,
     newMessageMutation,
     toolResponseMutation,
+    answerErrorByToolCallId: {},
     isTurnInFlight,
     stopTurn,
     setDialogOpen: jest.fn(),

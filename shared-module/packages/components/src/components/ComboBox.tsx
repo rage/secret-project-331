@@ -9,10 +9,12 @@ import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -84,8 +86,12 @@ export type ComboBoxProps<
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   placeholder?: string
+  /** HTML autocomplete token for the input, e.g. `country-name`. */
+  autoComplete?: string
   "aria-label"?: string
   className?: string
+  /** Lands on the text input; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -122,7 +128,9 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     onKeyDown,
     onKeyUp,
     placeholder,
+    autoComplete,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -163,15 +171,19 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   const selectedKey =
     field.value === null || field.value === undefined ? null : (field.value as ComboBoxKey)
 
+  // Input text equal to the selection is not a search: show every option.
+  const selectedTextValue = normalizedItems.find((item) => item.key === selectedKey)?.textValue
+
   const state = useComboBoxState({
-    items: normalizedItems,
+    defaultItems: normalizedItems,
     children: (item) => (
       <Item key={item.key} textValue={item.textValue}>
         {item.rendered}
       </Item>
     ),
     disabledKeys,
-    defaultFilter: contains,
+    defaultFilter: (textValue, inputValue) =>
+      inputValue === selectedTextValue || contains(textValue, inputValue),
     selectedKey,
     onSelectionChange: (key) => {
       field.onChange(key)
@@ -180,6 +192,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -211,6 +224,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,
@@ -295,6 +309,8 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
             resolveComboBoxInputCss(fieldSize),
             !isEditable && comboBoxInputReadonlyCss,
           )}
+          data-testid={dataTestId}
+          {...omitUndefined({ autoComplete })}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}
@@ -322,9 +338,9 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

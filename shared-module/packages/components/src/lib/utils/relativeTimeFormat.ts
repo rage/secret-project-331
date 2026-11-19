@@ -69,12 +69,17 @@ export function formatTimestamp(at: Date): string {
   return `${formatIsoDate(at)} ${pad(at.getHours())}:${pad(at.getMinutes())}:${pad(at.getSeconds())}`
 }
 
-/** The same, plus the offset `dateToString` appends: `2026-09-07 12:10:45 UTC+03:00`. */
-export function formatTimestampWithZone(at: Date): string {
+/** `UTC+03:00`: the offset of `at` in the local zone, as `dateToString` appends it. */
+export function formatUtcOffset(at: Date): string {
   const offsetMinutes = -at.getTimezoneOffset()
   const sign = offsetMinutes < 0 ? "-" : "+"
   const absolute = Math.abs(offsetMinutes)
-  return `${formatTimestamp(at)} UTC${sign}${pad(Math.floor(absolute / 60))}:${pad(absolute % 60)}`
+  return `UTC${sign}${pad(Math.floor(absolute / 60))}:${pad(absolute % 60)}`
+}
+
+/** The same, plus the offset `dateToString` appends: `2026-09-07 12:10:45 UTC+03:00`. */
+export function formatTimestampWithZone(at: Date): string {
+  return `${formatTimestamp(at)} ${formatUtcOffset(at)}`
 }
 
 const DURATION_UNITS = {

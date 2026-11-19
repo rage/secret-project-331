@@ -12,7 +12,13 @@ export interface CopyButtonProps {
   label: string
   /** Visible content; defaults to a copy glyph. Overriding it opts out of the state icon swap. */
   children?: React.ReactNode
+  /** Blocks the copy and swaps the tooltip to `disabledReason`, e.g. until a reveal step happens. */
+  disabled?: boolean
+  /** Tooltip shown in place of `label` while `disabled`. Required together with `disabled`. */
+  disabledReason?: string
   className?: string
+  /** Lands on the button, the element a test presses. */
+  "data-testid"?: string | undefined
 }
 
 const COPY_GLYPH = "⧉"
@@ -73,6 +79,14 @@ const rootCss = css`
   &:focus-visible {
     outline: var(--focus-ring-width) solid var(--focus-ring-color);
     outline-offset: var(--focus-ring-offset);
+  }
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  &[aria-disabled="true"]:hover {
+    color: var(--color-gray-500);
+    border-color: var(--color-clear-400);
   }
 `
 
@@ -143,7 +157,15 @@ async function writeToClipboard(value: string): Promise<void> {
 }
 
 /** Icon button that copies `value`, swaps to a check/cross with a tooltip, and announces the result. */
-export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, className }) => {
+export const CopyButton: React.FC<CopyButtonProps> = ({
+  value,
+  label,
+  children,
+  disabled = false,
+  disabledReason,
+  className,
+  "data-testid": dataTestId,
+}) => {
   const { t } = useTranslation("shared-module")
   const ref = React.useRef<HTMLButtonElement>(null)
   const [status, setStatus] = React.useState<CopyStatus>(COPY_STATUS.IDLE)
@@ -159,10 +181,16 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
     [],
   )
 
+  // Not passed as react-aria's isDisabled: that sets the native `disabled` attribute, which drops
+  // the button from the tab order and suppresses hover, so a keyboard or mouse user could never
+  // reach disabledReason. aria-disabled keeps it focusable and hoverable while blocking the press.
   const { buttonProps, isPressed } = useButton(
     {
       "aria-label": label,
       onPress: async () => {
+        if (disabled) {
+          return
+        }
         let next: CopyStatus = COPY_STATUS.COPIED
         try {
           await writeToClipboard(value)
@@ -180,8 +208,9 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
   )
   const { hoverProps, isHovered } = useHover({})
 
-  const message =
-    status === COPY_STATUS.COPIED
+  const message = disabled
+    ? (disabledReason ?? label)
+    : status === COPY_STATUS.COPIED
       ? t("copy-button.copied")
       : status === COPY_STATUS.ERROR
         ? t("copy-button.failed")
@@ -200,7 +229,9 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
         ref={ref}
         className={cx(rootCss, className)}
         type="button"
+        aria-disabled={disabled || undefined}
         data-pressed={isPressed}
+        data-testid={dataTestId}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       >

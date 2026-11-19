@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
@@ -14,16 +14,22 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import Accordion from "@/shared-module/common/components/Accordion"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
-import { Button } from "@/shared-module/components/components/Button"
+import { dateToString } from "@/shared-module/common/utils/time"
+import { Button, Disclosure, itemHeadingProps, Link } from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
+
+export const feedbackHeadingId = (feedbackId: string) =>
+  // oxlint-disable-next-line i18next/no-literal-string
+  `feedback-heading-${feedbackId}`
 
 export interface FeedbackViewProps {
   courseId: string
+  senderName: string
   feedback: Feedback
   read: boolean
   setRead: (read: boolean) => Promise<void>
@@ -41,6 +47,10 @@ const TextInformationWrapper = styled.div`
   margin-bottom: 1rem;
 `
 
+const metadataSpacingCss = css`
+  margin-bottom: 1rem;
+`
+
 const CapitalizedFirstLetter = styled.span`
   display: inline-block;
   &::first-letter {
@@ -50,6 +60,7 @@ const CapitalizedFirstLetter = styled.span`
 
 const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   courseId,
+  senderName,
   feedback,
   read,
   setRead,
@@ -58,6 +69,7 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
   const queryClient = useQueryClient()
 
   const pageInfo = usePageInfo(feedback.page_id ?? null)
+  const created = parseISO(feedback.created_at)
 
   const markAsReadMutation = useToastMutationOptions(
     markFeedbackAsReadMutation(),
@@ -92,50 +104,59 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       `}
     >
       {feedback.page_url_path && pageInfo.data && (
-        <a
+        <Link
           className={css`
-            display: block;
             float: right;
           `}
           href={`${pageRoute(
             pageInfo.data,
             feedback.page_url_path,
           )}${feedback.blocks.length > 0 ? `?highlight-blocks=${feedback.blocks.map((b) => b.id).join(",")}` : ""}`}
+          aria-describedby={feedbackHeadingId(feedback.id)}
           target="_blank"
           rel="noreferrer noopener"
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="secondary" size="medium">
-            {t("open-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-page-in-new-tab")}
+        </Link>
       )}
-      <h2
+      <h3
+        id={feedbackHeadingId(feedback.id)}
+        {...itemHeadingProps}
         className={css`
           font-size: ${typography.h6};
           margin-bottom: 0.5rem;
         `}
       >
-        {t("title-feedback")}
-      </h2>
-
-      <TextInformationWrapper>
-        {feedback.page_id && (
-          <div>
-            {t("label-page")} {feedback.page_title} <small>({feedback.page_url_path})</small>
-          </div>
-        )}
+        {`${t("title-feedback")}: ${feedback.page_title}, `}
         <HideTextInSystemTests
-          text={t("sent-by", { user: feedback.user_id ?? t("guest") })}
-          testPlaceholder="Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+          text={dateToString(created, false)}
+          testPlaceholder="1970-01-01 00:00:00"
         />
-        <div>
-          <TimeComponent
-            boldLabel={false}
-            label={t("label-created")}
-            date={parseISO(feedback.created_at)}
-          />
-        </div>
-      </TextInformationWrapper>
+      </h3>
+
+      <dl className={cx(inlineMetadataListCss, metadataSpacingCss)}>
+        {feedback.page_id && (
+          <>
+            <dt>{t("label-page")} </dt>
+            <dd>
+              {feedback.page_title} <small>({feedback.page_url_path})</small>
+            </dd>
+          </>
+        )}
+        {(!feedback.user_id || senderName) && (
+          <>
+            <dt>{t("label-sent-by")} </dt>
+            <dd>{feedback.user_id ? senderName : t("guest")}</dd>
+          </>
+        )}
+        <dt>{t("label-created")} </dt>
+        <dd>
+          <TimeComponent boldLabel={false} date={created} />
+        </dd>
+      </dl>
       {feedback.feedback_category_name && (
         <TextInformationWrapper>
           {t("assigned-feedback-category")}
@@ -161,26 +182,23 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
         `}
       >
         {feedback.blocks.length > 0 && (
-          <Accordion>
-            <details>
-              <summary>{t("text-visible-when-feedback-given")}</summary>
-              <div>
-                {[...feedback.blocks]
-                  .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
-                  .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
-                  .map((b) => (
-                    <p
-                      className={css`
-                        margin-bottom: 0.5rem;
-                      `}
-                      key={b.id}
-                    >
-                      {b.text}
-                    </p>
-                  ))}
-              </div>
-            </details>
-          </Accordion>
+          <Disclosure title={t("text-visible-when-feedback-given")}>
+            <div>
+              {[...feedback.blocks]
+                .toSorted((a, b) => a.text?.localeCompare(b.text ?? "") ?? 0)
+                .toSorted((a, b) => (a.order_number ?? 0) - (b.order_number ?? 0))
+                .map((b) => (
+                  <p
+                    className={css`
+                      margin-bottom: 0.5rem;
+                    `}
+                    key={b.id}
+                  >
+                    {b.text}
+                  </p>
+                ))}
+            </div>
+          </Disclosure>
         )}
       </div>
       <Button

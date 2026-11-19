@@ -15,6 +15,8 @@ const ExerciseSettingsConfiguration: BlockConfiguration<Record<string, never>> =
   category: MOOCFI_CATEGORY_SLUG,
   parent: ["moocfi/exercise"],
   attributes: {},
+  allowedBlocks: ["core/image", "core/paragraph", "core/list", "moocfi/latex"],
+  innerBlocksArea: { templateLock: false },
   edit: ExerciseSettingsEditor,
   save: ExerciseSettingsSave,
 }

@@ -19,6 +19,7 @@ import {
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
@@ -30,6 +31,7 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -71,6 +73,8 @@ export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = Rh
   className?: string
   searchEnabled?: boolean
   searchPlaceholder?: string
+  /** Lands on the trigger button; the listbox is reachable from its `aria-controls` while open. */
+  "data-testid"?: string | undefined
 }
 
 const selectRootCss = css`
@@ -140,6 +144,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     onKeyUp,
     searchEnabled = false,
     searchPlaceholder = "search",
+    "data-testid": dataTestId,
   } = props
 
   const [filterValue, setFilterValue] = useState("")
@@ -185,6 +190,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     isDisabled,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -213,6 +219,11 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
   // oxlint-disable-next-line i18next/no-literal-string
   const collectionProps = omit(collectionPropsWrong, ["aria-label"])
 
+  // The collection id belongs to the listbox alone. Spreading it into useSelect below would land it
+  // on the trigger too, dropping the caller's id and leaving aria-controls pointing at the trigger.
+  // oxlint-disable-next-line i18next/no-literal-string
+  const collectionPropsWithoutId = omit(collectionProps, ["id"])
+
   const {
     triggerProps,
     valueProps,
@@ -229,12 +240,13 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       value: selectedKey,
       isDisabled,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,
       errorMessage: resolvedError,
       name: field.name,
-      ...collectionProps,
+      ...collectionPropsWithoutId,
       ...omitUndefined({ autoComplete }),
     },
     state,
@@ -284,6 +296,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     onKeyDown,
     onKeyUp,
+    "aria-invalid": hookIsInvalid ? true : undefined,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -314,6 +327,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
           ref={composeRefs(buttonRef, field.ref)}
           className={resolveSelectTriggerCss(fieldSize)}
           type="button"
+          data-testid={dataTestId}
         >
           <span
             {...valueProps}
@@ -372,7 +386,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               )}
               {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
                 <ListBox
-                  {...mergeProps(menuProps, collectionProps)}
+                  {...(searchEnabled ? mergeProps(menuProps, collectionProps) : menuProps)}
                   // useSelect asks for native-select behaviour, where the press that opens the
                   // listbox also selects whatever it is released over. A long listbox is clamped
                   // to the viewport and can then cover the trigger, so that release picks an
@@ -388,9 +402,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

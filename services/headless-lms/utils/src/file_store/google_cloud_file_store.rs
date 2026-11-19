@@ -9,12 +9,16 @@ use google_cloud_auth::credentials::{
     service_account::Builder as ServiceAccountCredentialsBuilder,
 };
 use google_cloud_auth::signer::Signer;
+use google_cloud_gax::error::rpc::Code;
 use google_cloud_storage::builder::storage::SignedUrlBuilder;
 use google_cloud_storage::client::{Storage, StorageControl};
 use serde_json::Value;
 use std::{env, io};
 
-use super::{FileStore, GenericPayload, generate_cache_folder_dir, path_to_str};
+use super::{
+    FileStore, GenericPayload, attachment_content_disposition, generate_cache_folder_dir,
+    path_to_str,
+};
 
 pub struct GoogleCloudFileStore {
     bucket_name: String,
@@ -105,6 +109,43 @@ impl GoogleCloudFileStore {
     }
 }
 
+impl GoogleCloudFileStore {
+    /// `content_disposition` overrides the header the signed url's response carries.
+    async fn signed_get_url(
+        &self,
+        path: &Path,
+        content_disposition: Option<String>,
+    ) -> UtilResult<String> {
+        let object_name = path_to_str(path)?;
+        // Keep old behavior: verify object exists before returning a URL.
+        self.control_client
+            .get_object()
+            .set_bucket(self.bucket_resource_name())
+            .set_object(object_name)
+            .send()
+            .await?;
+        let mut builder = SignedUrlBuilder::for_object(self.bucket_resource_name(), object_name)
+            .with_method(google_cloud_storage::http::Method::GET)
+            .with_expiration(std::time::Duration::from_secs(300));
+        if let Some(content_disposition) = content_disposition {
+            builder = builder.with_query_param("response-content-disposition", content_disposition);
+        }
+        let url = builder
+            .sign_with(&self.signer)
+            .await
+            .map_err(|e| util_err!(CloudStorage, e.to_string(), e))?;
+        Ok(url)
+    }
+}
+
+/// Covers both shapes a missing object arrives in: a gRPC status, or a bare HTTP 404 from a proxy
+/// or load balancer in front of the service.
+fn is_not_found(err: &google_cloud_storage::Error) -> bool {
+    err.status()
+        .is_some_and(|status| status.code == Code::NotFound)
+        || err.http_status_code() == Some(404)
+}
+
 #[async_trait(?Send)]
 impl FileStore for GoogleCloudFileStore {
     async fn upload(&self, path: &Path, file: Vec<u8>, mime_type: &str) -> UtilResult<()> {
@@ -134,23 +175,16 @@ impl FileStore for GoogleCloudFileStore {
     }
 
     async fn get_direct_download_url(&self, path: &Path) -> UtilResult<String> {
-        let object_name = path_to_str(path)?;
-        // Keep old behavior: verify object exists before returning a URL.
-        self.control_client
-            .get_object()
-            .set_bucket(self.bucket_resource_name())
-            .set_object(object_name)
-            .send()
-            .await?;
-        let url = SignedUrlBuilder::for_object(self.bucket_resource_name(), object_name)
-            .with_method(google_cloud_storage::http::Method::GET)
-            .with_expiration(std::time::Duration::from_secs(300))
-            .sign_with(&self.signer)
+        self.signed_get_url(path, None).await
+    }
+
+    async fn get_direct_attachment_download_url(
+        &self,
+        path: &Path,
+        file_name: &str,
+    ) -> UtilResult<String> {
+        self.signed_get_url(path, Some(attachment_content_disposition(file_name)))
             .await
-            .map_err(|e| {
-                UtilError::new(UtilErrorType::CloudStorage, e.to_string(), Some(e.into()))
-            })?;
-        Ok(url)
     }
 
     async fn delete(&self, path: &Path) -> UtilResult<()> {
@@ -159,7 +193,14 @@ impl FileStore for GoogleCloudFileStore {
             .set_bucket(self.bucket_resource_name())
             .set_object(path_to_str(path)?)
             .send()
-            .await?;
+            .await
+            .map_err(|err| {
+                if is_not_found(&err) {
+                    util_err!(FileNotFound, err.to_string(), err)
+                } else {
+                    err.into()
+                }
+            })?;
         Ok(())
     }
 
@@ -246,6 +287,20 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn is_not_found_recognizes_a_missing_object_in_either_shape() {
+        use google_cloud_gax::error::rpc::Status;
+
+        let grpc = google_cloud_storage::Error::service(Status::default().set_code(Code::NotFound));
+        let http = google_cloud_storage::Error::http(404, Default::default(), Default::default());
+        let denied = google_cloud_storage::Error::service(
+            Status::default().set_code(Code::PermissionDenied),
+        );
+        assert!(is_not_found(&grpc));
+        assert!(is_not_found(&http));
+        assert!(!is_not_found(&denied));
     }
 
     #[tokio::test]

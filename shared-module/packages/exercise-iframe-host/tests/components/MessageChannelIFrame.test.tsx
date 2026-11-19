@@ -9,8 +9,8 @@ import MessageChannelIFrame from "../../src/MessageChannelIFrame"
 import i18nTest from "../testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
-// MessageChannelIFrame now takes its dialog controller via prop (the host injects
-// common's useDialog()); no test exercises the open-dialog path, so a stub suffices.
+// MessageChannelIFrame takes its dialog controller via prop (the host injects
+// components' useDialog()); no test exercises the open-dialog path, so a stub suffices.
 const mockDialog = {
   alert: jest.fn(() => Promise.resolve()),
   confirm: jest.fn(() => Promise.resolve(true)),
@@ -58,6 +58,19 @@ describe("MessageChannelIFrame", () => {
     addEventListenerSpy.mockRestore()
     removeEventListenerSpy.mockRestore()
   })
+
+  const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
+    const readyEvent = createMockMessageEvent("ready", {
+      source: iframeWindow as unknown as Window,
+      origin: "null",
+    })
+
+    act(() => {
+      messageListeners.forEach((listener) => {
+        listener(readyEvent)
+      })
+    })
+  }
 
   test("It renders", async () => {
     window.MessageChannel = jest.fn().mockImplementation(function () {
@@ -313,19 +326,6 @@ describe("MessageChannelIFrame", () => {
         </I18nextProvider>,
       )
 
-      const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
-        const readyEvent = createMockMessageEvent("ready", {
-          source: iframeWindow as unknown as Window,
-          origin: "null",
-        })
-
-        act(() => {
-          messageListeners.forEach((listener) => {
-            listener(readyEvent)
-          })
-        })
-      }
-
       const firstIframe = (await waitFor(() => {
         const iframe = container.querySelector("iframe")
         expect(iframe).not.toBeNull()
@@ -445,19 +445,6 @@ describe("MessageChannelIFrame", () => {
           />
         </I18nextProvider>,
       )
-
-      const dispatchReady = (iframeWindow: { postMessage: jest.Mock }) => {
-        const readyEvent = createMockMessageEvent("ready", {
-          source: iframeWindow as unknown as Window,
-          origin: "null",
-        })
-
-        act(() => {
-          messageListeners.forEach((listener) => {
-            listener(readyEvent)
-          })
-        })
-      }
 
       // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures mockChannels via typeof; cannot hoist
       const sendCurrentState = (channel: (typeof mockChannels)[number]) => {
@@ -1476,15 +1463,15 @@ describe("MessageChannelIFrame", () => {
     beforeEach(() => {
       openSpy = jest.spyOn(window, "open").mockReturnValue({} as Window)
       clickedAnchors = []
-      clickSpy = jest
-        .spyOn(HTMLAnchorElement.prototype, "click")
-        .mockImplementation(function (this: HTMLAnchorElement) {
-          clickedAnchors.push({
-            href: this.href,
-            download: this.download,
-            target: this.target,
-          })
+      clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+        this: HTMLAnchorElement,
+      ) {
+        clickedAnchors.push({
+          href: this.href,
+          download: this.download,
+          target: this.target,
         })
+      })
       // startFileDownload's blob path is covered in parentLinkActions.test.ts; here a rejected fetch
       // keeps these wiring tests on the same fallback path they asserted before that path existed.
       jest.stubGlobal("fetch", jest.fn().mockRejectedValue(new Error("network error")))
@@ -1509,9 +1496,10 @@ describe("MessageChannelIFrame", () => {
         )
       })
       expect(dialog.confirm).toHaveBeenCalledWith(
-        expect.anything(),
-        "exercise-wants-to-open-a-link-title",
-        expect.objectContaining({ yesButtonLabel: "open-link-confirm-button" }),
+        expect.objectContaining({
+          title: "exercise-wants-to-open-a-link-title",
+          confirmLabel: "open-link-confirm-button",
+        }),
       )
     })
 
@@ -1533,10 +1521,10 @@ describe("MessageChannelIFrame", () => {
       sendFromIframe({ message: "open-link", data: "https://example.com/docs" })
 
       await waitFor(() => {
-        expect(dialog.alert).toHaveBeenCalledWith(
-          "opening-the-link-was-blocked-explanation",
-          "opening-the-link-was-blocked-title",
-        )
+        expect(dialog.alert).toHaveBeenCalledWith({
+          message: "opening-the-link-was-blocked-explanation",
+          title: "opening-the-link-was-blocked-title",
+        })
       })
     })
 
@@ -1568,9 +1556,10 @@ describe("MessageChannelIFrame", () => {
         ])
       })
       expect(dialog.confirm).toHaveBeenCalledWith(
-        expect.anything(),
-        "exercise-wants-to-download-a-file-title",
-        expect.objectContaining({ yesButtonLabel: "download-file-confirm-button" }),
+        expect.objectContaining({
+          title: "exercise-wants-to-download-a-file-title",
+          confirmLabel: "download-file-confirm-button",
+        }),
       )
     })
 

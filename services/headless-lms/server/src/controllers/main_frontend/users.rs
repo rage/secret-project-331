@@ -1,6 +1,12 @@
+use crate::domain::mail_budget;
+use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
+use crate::domain::proof_of_work::{self, ChallengePurpose};
+use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
+use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
-use headless_lms_utils::services::tmc::TmcClient;
+use chrono::Duration;
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
     course_module_completions::CourseModuleCompletion, courses::Course,
@@ -27,6 +33,8 @@ use utoipa::{OpenApi, ToSchema};
     unhide_course_from_my_courses,
     get_my_studies,
     get_my_certificates,
+    get_my_progress_by_platform,
+    get_my_old_version_progress,
     get_user_reset_exercise_logs,
     get_user_course_submission_times,
     send_reset_password_email,
@@ -366,11 +374,9 @@ pub struct MyStudiesCourseModule {
     /// Attempted exercises an automatic completion requires. `None` when the module is completed
     /// manually or sets no attempt threshold.
     pub attempted_exercises_required: Option<i32>,
-    /// False when a teacher grades the module, in which case neither threshold says anything about
-    /// completing it.
-    pub automatic_completion: bool,
-    /// When true, the thresholds qualify the student to sit an exam rather than complete the module.
-    pub requires_exam: bool,
+    /// The thresholds say something only for `by_requirements`, and for `by_exam`, where they
+    /// qualify the student to take the exam rather than complete the module.
+    pub completion_method: models::course_modules::CompletionMethod,
     /// `None` when no completion may be shown to the student. May be a failed one, so check `passed`.
     pub completion: Option<MyStudiesCompletion>,
 }
@@ -473,22 +479,6 @@ async fn get_my_studies(
     )
     .await?;
 
-    let registering_new_completion_module_ids: HashSet<Uuid> =
-        if models::verified_student_numbers::get_by_user_id(&mut conn, user.id)
-            .await?
-            .is_some()
-        {
-            models::course_modules::get_ids_registering_eligible_new_completions_via_suotar(
-                &mut conn,
-                &course_ids,
-            )
-            .await?
-            .into_iter()
-            .collect()
-        } else {
-            HashSet::new()
-        };
-
     let completion_ids: Vec<Uuid> = enrollments_info
         .course_enrollments
         .iter()
@@ -557,10 +547,11 @@ async fn get_my_studies(
                     order_number: course_module.order_number,
                     ects_credits: course_module.ects_credits,
                     uh_course_code: course_module.uh_course_code.clone(),
-                    supports_credit_registration: registration_completion.map_or_else(
-                        || registering_new_completion_module_ids.contains(&course_module.id),
-                        |completion| completion.register_credits_via_suotar,
-                    ),
+                    supports_credit_registration: models::course_modules::registers_credits(
+                        course_module.uh_course_code.as_deref(),
+                        course_module.credit_registration_route,
+                    ) && registration_completion
+                        .is_none_or(|completion| completion.register_credits_via_suotar),
                     is_credit_registration_starting: registration_completion.is_some_and(
                         |completion| credit_registration_expected_ids.contains(&completion.id),
                     ),
@@ -572,11 +563,12 @@ async fn get_my_studies(
                         .map_or(0, |progress| progress.attempted_exercises),
                     attempted_exercises_required: progress
                         .and_then(|progress| progress.attempted_exercises_required),
-                    // Defaults to automatic: a missing row must not make the profile claim a
-                    // teacher grades the module.
-                    automatic_completion: progress
-                        .is_none_or(|progress| progress.automatic_completion),
-                    requires_exam: progress.is_some_and(|progress| progress.requires_exam),
+                    // Every module has a progress row; should one be missing, the profile must not
+                    // claim a teacher grades the module.
+                    completion_method: progress.map_or(
+                        models::course_modules::CompletionMethod::ByRequirements,
+                        |progress| progress.completion_method,
+                    ),
                     completion: best_completion_by_module.remove(&course_module.id),
                 }
             })
@@ -584,7 +576,9 @@ async fn get_my_studies(
         modules.sort_by_key(|m| m.order_number);
 
         // Only worth the queries when a module's requirements hinge on an exam.
-        let exam_passed = if modules.iter().any(|module| module.requires_exam) {
+        let exam_passed = if modules.iter().any(|module| {
+            module.completion_method == models::course_modules::CompletionMethod::ByExam
+        }) {
             Some(
                 models::library::progressing::user_has_passed_exam_for_the_course_based_on_points(
                     &mut conn,
@@ -702,6 +696,77 @@ async fn get_my_certificates(
     let token = skip_authorize();
 
     let res = models::generated_certificates::get_all_by_user_id(&mut conn, user.id).await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+
+A platform that cannot be reached is reported in its status rather than failing the request.
+*/
+#[instrument(skip(pool, tmc_client, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/my-progress-by-platform",
+    operation_id = "getMyProgressByPlatform",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's courses grouped by platform", body = ProgressByPlatform)
+    )
+)]
+async fn get_my_progress_by_platform(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<ProgressByPlatform>> {
+    let token = skip_authorize();
+    // Test mode never talks to the real platforms, matching account deletion.
+    let res = progress_by_platform::get_progress_by_platform(
+        &pool,
+        &tmc_client,
+        user.id,
+        !app_conf.test_mode,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+
+Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+reached is reported in its status rather than failing the request.
+*/
+#[instrument(skip(pool, tmc_client, app_conf))]
+#[utoipa::path(
+    get,
+    path = "/my-old-version-progress",
+    operation_id = "getMyOldVersionProgress",
+    tag = "users",
+    responses(
+        (status = 200, description = "The authenticated user's courses on the old version of the platform", body = OldVersionProgress)
+    )
+)]
+async fn get_my_old_version_progress(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    tmc_client: web::Data<TmcClient>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<OldVersionProgress>> {
+    let token = skip_authorize();
+    // Test mode never talks to the real platforms, matching account deletion.
+    let res = progress_by_platform::get_old_version_progress(
+        &pool,
+        &tmc_client,
+        user.id,
+        !app_conf.test_mode,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }
@@ -853,17 +918,24 @@ pub async fn get_user_roles(
     token.authorized_ok(web::Json(res))
 }
 
+/// A new account has only just chosen its password, so it gets no reset mail until this old.
+const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
+const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
+const MAX_RESET_MAILS_PER_DAY: usize = 3;
+
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct EmailData {
     pub email: String,
     pub language: String,
+    /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+    pub altcha: String,
 }
 
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/send-reset-password-email",
+    path = "/request-password-reset",
     operation_id = "sendResetPasswordEmail",
     tag = "users",
     request_body = EmailData,
@@ -878,6 +950,8 @@ pub async fn send_reset_password_email(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
+        .await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -925,14 +999,38 @@ pub async fn send_reset_password_email(
     };
 
     if let Some(user) = user {
-        let token = Uuid::new_v4();
-
-        let _password_token =
-            models::user_passwords::insert_password_reset_token(&mut conn, user.id, token).await?;
-
-        let _ =
-            models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_template.id)
+        let mut tx = conn.begin().await?;
+        models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
+        let now = Utc::now();
+        let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
+            &mut tx,
+            user.id,
+            now - Duration::days(1),
+        )
+        .await?;
+        let sent_recently = sent_today.iter().any(|created_at| {
+            now - *created_at < Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES)
+        });
+        // Only accounts created here with a password count as new: a row imported from TMC by this
+        // handler has no password yet, and once it gets one through a reset, it already has a token.
+        let is_new_account = now - user.created_at
+            < Duration::hours(RESET_MAIL_MIN_ACCOUNT_AGE_HOURS)
+            && sent_today.is_empty()
+            && models::user_passwords::check_if_users_password_is_stored(&mut tx, user.id).await?;
+        // Every outcome gets the same answer, so the response never tells whether an account exists.
+        // Other accounts reaching the same inbox share its budget, so it must not hold back a proven
+        // owner's own resets.
+        if !is_new_account
+            && !sent_recently
+            && sent_today.len() < MAX_RESET_MAILS_PER_DAY
+            && mail_budget::may_mail_user(&mut tx, user.id).await?
+        {
+            models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
+            models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)
+                .await?;
+        }
+        tx.commit().await?;
     }
 
     token.authorized_ok(web::Json(true))
@@ -1001,6 +1099,11 @@ pub async fn reset_user_password(
     let token = skip_authorize();
 
     let token_uuid = Uuid::parse_str(payload.token.expose_secret())?;
+    // Hashing is deliberately expensive, so an anonymous caller without a live token must not
+    // reach it. The change below re-checks the token under a row lock.
+    if !models::user_passwords::is_reset_password_token_valid(&mut conn, &token_uuid).await? {
+        return token.authorized_ok(web::Json(false));
+    }
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
@@ -1023,7 +1126,7 @@ pub struct ChangePasswordData {
     pub new_password: SecretString,
 }
 
-#[instrument(skip(pool))]
+#[instrument(skip(req, pool, ip_to_country_mapper, app_conf, payload))]
 #[utoipa::path(
     post,
     path = "/change-password",
@@ -1035,24 +1138,54 @@ pub struct ChangePasswordData {
     )
 )]
 pub async fn change_user_password(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<ChangePasswordData>,
     user: AuthUser,
-) -> ControllerResult<web::Json<bool>> {
+) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let password_hash = models::user_passwords::hash_password(&payload.new_password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
+    let mut tx = conn.begin().await?;
+    let recognition = session_verification::check_session(
+        &mut tx,
+        &ip_to_country_mapper,
+        &app_conf,
+        user.id,
+        &req,
+    )
+    .await?
+    .into_recognition();
     let res = models::user_passwords::change_user_password_with_old_password(
-        &mut conn,
+        &mut tx,
         user.id,
         &payload.old_password,
         &password_hash,
     )
     .await?;
+    if res {
+        session_verification::forget_after_password_change(&mut tx, user.id, recognition.as_ref())
+            .await?;
+    }
+    tx.commit().await?;
 
-    token.authorized_ok(web::Json(res))
+    let renewed_cookie = recognition.and_then(|r| r.renewed_cookie);
+    token.authorized_ok(session_verification::ok_with_renewed_cookie(renewed_cookie).json(res))
+}
+
+/// Per user, for the endpoints that ask the old version of the platform (tmc.mooc.fi and the old
+/// mooc.fi) on every request. Each endpoint keeps its own quota.
+fn old_version_upstream_rate_limit() -> RateLimit {
+    RateLimit::new(RateLimitConfig {
+        per_minute: Some(10),
+        per_hour: Some(60),
+        ..Default::default()
+    })
+    .keyed_by(RateLimitKey::User)
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -1063,6 +1196,16 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route("/my-courses", web::get().to(get_my_courses))
     .route("/my-studies", web::get().to(get_my_studies))
     .route("/my-certificates", web::get().to(get_my_certificates))
+    .service(
+        web::resource("/my-progress-by-platform")
+            .wrap(old_version_upstream_rate_limit())
+            .route(web::get().to(get_my_progress_by_platform)),
+    )
+    .service(
+        web::resource("/my-old-version-progress")
+            .wrap(old_version_upstream_rate_limit())
+            .route(web::get().to(get_my_old_version_progress)),
+    )
     .route(
         "/my-courses/{course_id}/hide",
         web::post().to(hide_course_from_my_courses),
@@ -1079,9 +1222,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/user-research-consents",
         web::post().to(post_user_consents),
     )
-    .route(
-        "/send-reset-password-email",
-        web::post().to(send_reset_password_email),
+    .service(
+        web::resource("/request-password-reset")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(10),
+                per_hour: Some(50),
+                per_day: Some(200),
+                ..Default::default()
+            }))
+            .route(web::post().to(send_reset_password_email)),
     )
     .route("/{user_id}", web::get().to(get_user))
     .route(

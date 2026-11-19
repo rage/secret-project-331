@@ -5,30 +5,31 @@ import { motion, useReducedMotion } from "motion/react"
 import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { Button } from "../Button"
+import { useLoadingAffordance } from "../../lib/utils/loading"
+import { ErrorNotice } from "../ErrorNotice"
+import {
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+} from "../loadingTestIds"
+import { spinnerGlyphCss } from "../primitives/spinnerStyles"
 import type { RetryFn } from "./queryResultState"
-import { getErrorMessage } from "./queryResultState"
 import {
   animatedContentCss,
   animatedContentNonInteractiveCss,
   animatedContentRefreshingCss,
   bannerCss,
-  blockingErrorCss,
-  errorStackCss,
-  errorTextCss,
   initialLoadingCenterCss,
   initialLoadingSurfaceCss,
   initialLoadingSurfaceDarkCss,
   initialLoadingSurfaceLightCss,
   loadingSurfaceMinHeightCss,
-  queryLoadingSpinnerCss,
   type RefreshIndicator,
   skeletonBlockBaseCss,
   skeletonBlockDarkCss,
   skeletonBlockDimsCss,
   skeletonBlockLightCss,
   skeletonBlocksCss,
-  staleStatusCss,
   type ThemeMode,
   topProgressCss,
   topProgressTrackDarkCss,
@@ -52,22 +53,6 @@ const contentEntranceEase = [0.2, 0, 0, 1] as const
 
 /** Tall enough for the three skeleton blocks and their padding, and no taller. */
 const DEFAULT_MIN_HEIGHT = 120
-
-/** Delays showing an affordance (e.g. centered spinner) to avoid flashes on fast requests. */
-export function useDelayedFlag(active: boolean, delayMs: number): boolean {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    if (!active) {
-      setVisible(false)
-      return
-    }
-    const t = setTimeout(() => setVisible(true), delayMs)
-    return () => clearTimeout(t)
-  }, [active, delayMs])
-
-  return visible
-}
 
 /**
  * Clears the settling state when `transitionend` never fires (jsdom, or a refetch so fast the
@@ -133,37 +118,6 @@ export interface AnimatedQueryFrameProps<E> {
   renderStaleError?: (args: FallbackArgs<E>) => React.ReactNode
 }
 
-/** Default blocking-error UI with retry. */
-export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation()
-  return (
-    <div className={blockingErrorCss} role="alert">
-      <div className={errorStackCss}>
-        <p className={errorTextCss}>{getErrorMessage(error)}</p>
-        <Button type="button" variant="secondary" size="small" onPress={retry}>
-          {t("queryResult.retry")}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-/** Inline stale-error notice with retry (content still renders below). */
-export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
-  const { t } = useTranslation()
-  return (
-    <div className={errorStackCss}>
-      {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div role=status; <output> changes styling */}
-      <div className={staleStatusCss} role="status">
-        {getErrorMessage(error)}
-      </div>
-      <Button type="button" variant="tertiary" size="small" onPress={retry}>
-        {t("queryResult.retry")}
-      </Button>
-    </div>
-  )
-}
-
 /** The React nodes that render nothing, which a render prop returns when it has nothing to show. */
 function rendersNothing(node: React.ReactNode): boolean {
   return node === null || node === undefined || node === false
@@ -192,9 +146,11 @@ export function AnimatedQueryFrame<E>({
   renderBlockingError,
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const shouldReduceMotion = !!useReducedMotion()
-  const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
+  const showDelayedSpinner = useLoadingAffordance(initialLoading, {
+    delayMs: loadingDelayMs,
+  })
   const blurring = refreshIndicator !== "quiet" && refreshing
   const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(blurring)
   const surfaceThemeCss =
@@ -204,10 +160,17 @@ export function AnimatedQueryFrame<E>({
 
   if (blockingError && error !== undefined) {
     const args = { error, retry }
-    return renderBlockingError ? renderBlockingError(args) : <DefaultBlockingError {...args} />
+    return renderBlockingError ? (
+      renderBlockingError(args)
+    ) : (
+      <ErrorNotice error={error} retry={retry} />
+    )
   }
 
-  if (initialLoading) {
+  // Once the delayed spinner has appeared, hold the whole section for its minVisibleMs even
+  // after initialLoading flips false — otherwise a resolve landing right after the spinner
+  // shows just flashes it instead of the flicker it exists to prevent.
+  if (initialLoading || showDelayedSpinner) {
     const loadingLabel = t("queryResult.loading")
     return (
       <section
@@ -217,7 +180,7 @@ export function AnimatedQueryFrame<E>({
         aria-live="polite"
         aria-busy="true"
         aria-label={loadingLabel}
-        data-testid="query-initial-loading"
+        data-testid={QUERY_INITIAL_LOADING_TEST_ID}
       >
         <div
           className={cx(
@@ -246,8 +209,8 @@ export function AnimatedQueryFrame<E>({
               transition={{ duration: 0.2 }}
             >
               <div
-                className={queryLoadingSpinnerCss}
-                data-testid="query-loading-spinner"
+                className={spinnerGlyphCss("lg", "accent")}
+                data-testid={QUERY_LOADING_SPINNER_TEST_ID}
                 aria-hidden
               />
             </motion.div>
@@ -268,8 +231,7 @@ export function AnimatedQueryFrame<E>({
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
       aria-busy={refreshing || blurSettling ? "true" : undefined}
-      // oxlint-disable-next-line i18next/no-literal-string
-      {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
+      {...((refreshing || blurSettling) && { "data-testid": QUERY_REFRESHING_TEST_ID })}
     >
       {refreshing ? (
         <div
@@ -292,7 +254,11 @@ export function AnimatedQueryFrame<E>({
             initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            {renderStaleError ? renderStaleError(staleArgs) : <DefaultStaleError {...staleArgs} />}
+            {renderStaleError ? (
+              renderStaleError(staleArgs)
+            ) : (
+              <ErrorNotice error={error} retry={retry} />
+            )}
           </motion.div>
         ) : null}
         <div

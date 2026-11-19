@@ -154,15 +154,6 @@ const WhereRegistrationsStandList: React.FC<{
                     })}
                     appearance={LINK_INHERIT}
                     className={rowLinkCss}
-                    aria-label={t("credit-registration-admin-open-count", {
-                      count: row.count,
-                      step: engagement
-                        ? t("credit-registration-admin-step-with-engagement", {
-                            step: stepLabel,
-                            engagement,
-                          })
-                        : stepLabel,
-                    })}
                   >
                     <span className={stepCss}>
                       <span className={labelCss}>

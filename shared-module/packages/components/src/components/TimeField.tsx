@@ -14,7 +14,9 @@ const floatingLayout = "floating" as const
 const timeFieldKind = "time" as const
 
 /**
- * Segmented time input; value is a time string compatible with the segmented serializer.
+ * Segmented time input with a time picker popover; value is a time string compatible with the
+ * segmented serializer.
+ * A pointer click anywhere on the field opens the picker; the keyboard edits the segments.
  * Uses react-hook-form; pass `name` and `control`.
  *
  * @example
@@ -41,6 +43,7 @@ export type TimeFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> =
   step?: number | string
   hourCycle?: 12 | 24
   inputRef?: React.Ref<HTMLInputElement>
+  "data-testid"?: string | undefined
 }
 
 export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -67,6 +70,7 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
     step,
     hourCycle,
     inputRef,
+    "data-testid": dataTestId,
   } = props
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
   const value = (field.value as string | undefined) ?? ""
@@ -94,6 +98,7 @@ export function TimeField<T extends FieldValues, N extends Path<T> = Path<T>>(
       {...omitUndefined({ step })}
       {...omitUndefined({ hourCycle })}
       {...omitUndefined({ inputRef })}
+      data-testid={dataTestId}
       value={value}
       onChange={(e) => {
         field.onChange(e.target.value)

@@ -13,28 +13,22 @@ import {
   getCmsPageNavigationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getExercisesWithSubmissions } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 /* oxlint-disable i18next/no-literal-string */
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
+import { Button, Link, useDialog, ErrorNotice } from "@/shared-module/components"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-import {
-  blockTypeMapForFrontPages,
-  blockTypeMapForPages,
-  blockTypeMapForTopLevelPages,
-} from "../../blocks"
+import { customBlocksForPageType, insertableBlockNames } from "../../blocks/pageTypeBlocks"
+import { ALL_COURSE_FEATURES, pageTypeOfPage } from "../../blocks/pageTypes"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
@@ -45,61 +39,35 @@ import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenb
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
+import { isStaleVersionError } from "../../utils/staleSave"
 import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
+import PendingAgentChangesNotice from "./PendingAgentChangesNotice"
+
+/** `overwrite` saves over a newer version made by someone else instead of refusing. */
+export interface PageSaveVariables {
+  page: CmsPageUpdate
+  overwrite: boolean
+}
 
 interface PageEditorProps {
   data: Page
   courseCanAddChatbot: boolean
-  saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
+  saveMutation: UseMutationResult<ContentManagementPage, unknown, PageSaveVariables, unknown>
+  /** Loads the latest saved page and drops the editor's unsaved changes. */
+  onDiscardChanges: () => void
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
 }
 
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
-const supportedBlocks = (chapter_id: string | null, exam_id: string | null): string[] => {
-  const supportedBlocksForPages: string[] = blockTypeMapForPages.map((mapping) => mapping[0])
-  const supportedBlocksTopLevelPages: string[] = blockTypeMapForTopLevelPages.map(
-    (mapping) => mapping[0],
-  )
-
-  const allSupportedBlocks =
-    chapter_id || exam_id
-      ? supportedCoreBlocks.concat(supportedBlocksForPages)
-      : supportedCoreBlocks.concat(supportedBlocksTopLevelPages)
-
-  return allSupportedBlocks
-}
-
-const customBlocks = (
-  chapterId: string | null,
-  examId: string | null,
-  urlPath: string,
-  canAddChatbot: boolean,
-  chapterLockingEnabled: boolean,
-) => {
-  if (chapterId !== null || examId !== null) {
-    let blocks = blockTypeMapForPages
-    if (!chapterLockingEnabled) {
-      blocks = blocks.filter((v) => v[0] !== "moocfi/lock-chapter")
-    }
-    if (!canAddChatbot) {
-      blocks = blocks.filter((v) => v[0] !== "moocfi/chatbot")
-    }
-    return blocks
-  }
-  if (urlPath === "/") {
-    return blockTypeMapForFrontPages
-  }
-  return blockTypeMapForTopLevelPages
-}
-
 const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   data,
   courseCanAddChatbot,
   saveMutation,
+  onDiscardChanges,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
 }) => {
@@ -110,17 +78,24 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const pageInfo = usePageInfo(data.id, prefix)
   const [title, setTitle] = useState(data.title)
   const savedTitle = data.title
-  const savedContent = modifyBlocks(
-    data.content as BlockInstance[],
-    supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
-  ) as BlockInstance[]
-  const [content, contentDispatch] = useReducer(
-    editorContentReducer,
-    modifyBlocks(
-      savedContent,
-      supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
-    ) as BlockInstance[],
+  const pageType = pageTypeOfPage(data.chapter_id ?? null, data.exam_id ?? null, data.url_path)
+  // Existing course front pages may hold top-level page blocks.
+  // Turning a course feature off mustn't turn its blocks already on a page into placeholders.
+  const knownBlocks = useMemo(
+    () =>
+      pageType === "course-front-page"
+        ? [
+            ...insertableBlockNames(pageType, ALL_COURSE_FEATURES),
+            ...insertableBlockNames("top-level-page", ALL_COURSE_FEATURES),
+          ]
+        : insertableBlockNames(pageType, ALL_COURSE_FEATURES),
+    [pageType],
   )
+  const savedContent = useMemo(
+    () => modifyBlocks(data.content as BlockInstance[], knownBlocks),
+    [data.content, knownBlocks],
+  )
+  const [content, contentDispatch] = useReducer(editorContentReducer, savedContent)
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
   const checkExercisesWithSubmissions = useToastMutation(
@@ -170,11 +145,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         return
       }
       if (exerciseIdsWithSubmissions.length > 0) {
-        const confirmed = await confirm(
-          t("confirm-remove-exercise-with-submissions", {
+        const confirmed = await confirm({
+          message: t("confirm-remove-exercise-with-submissions", {
             count: exerciseIdsWithSubmissions.length,
           }),
-        )
+          isDestructive: true,
+        })
         if (!confirmed) {
           setCurrentlySaving(false)
           return
@@ -182,35 +158,60 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       }
     }
 
-    saveMutation.mutate(dataToSave, {
-      onSuccess: (saveResult) => {
-        if (!isGutenbergBlockArray(saveResult.page.content)) {
-          throw new Error("Content is not a GutenbergBlock array")
-        }
-        contentDispatch({
-          type: "setContent",
-          // The save unwraps unsupported blocks, so they have to be wrapped again to match
-          // savedContent, and because the editor has no type registered for their real names.
-          payload: modifyBlocks(
-            denormalizeDocument({
-              content: saveResult.page.content,
-              exercises: saveResult.exercises,
-              exercise_slides: saveResult.exercise_slides,
-              exercise_tasks: saveResult.exercise_tasks,
-              url_path: saveResult.page.url_path,
-              title: saveResult.page.title,
-              ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
-              hidden: saveResult.page.hidden,
-            }).content,
-            supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
-          ),
-        })
-        setNeedToRunMigrationsAndValidations(true)
+    savePage(dataToSave, false)
+  }
+
+  const savePage = (page: CmsPageUpdate, overwrite: boolean) => {
+    setCurrentlySaving(true)
+    saveMutation.mutate(
+      { page, overwrite },
+      {
+        onSuccess: (saveResult) => {
+          if (!isGutenbergBlockArray(saveResult.page.content)) {
+            throw new Error("Content is not a GutenbergBlock array")
+          }
+          contentDispatch({
+            type: "setContent",
+            // The save unwraps unsupported blocks; rewrap them to match savedContent, as the editor
+            // has no type for their real names.
+            payload: modifyBlocks(
+              denormalizeDocument({
+                content: saveResult.page.content,
+                exercises: saveResult.exercises,
+                exercise_slides: saveResult.exercise_slides,
+                exercise_tasks: saveResult.exercise_tasks,
+                url_path: saveResult.page.url_path,
+                title: saveResult.page.title,
+                ...omitUndefined({ chapter_id: saveResult.page.chapter_id }),
+                hidden: saveResult.page.hidden,
+              }).content,
+              knownBlocks,
+            ),
+          })
+          setNeedToRunMigrationsAndValidations(true)
+        },
+        onError: async (error) => {
+          if (!isStaleVersionError(error)) {
+            return
+          }
+          const shouldOverwrite = await confirm({
+            title: t("stale-save-title"),
+            message: t("stale-save-page-message"),
+            confirmLabel: t("stale-save-replace-their-changes"),
+            cancelLabel: t("stale-save-discard-my-changes"),
+            isKeyboardDismissDisabled: true,
+          })
+          if (shouldOverwrite) {
+            savePage(page, true)
+          } else {
+            onDiscardChanges()
+          }
+        },
+        onSettled: () => {
+          setCurrentlySaving(false)
+        },
       },
-      onSettled: () => {
-        setCurrentlySaving(false)
-      },
-    })
+    )
   }
 
   let mediaUpload
@@ -255,43 +256,37 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const saveAndReset = (
     <div>
       {pageInfo.data && pageInfo.data.organization_slug && pageInfo.data.course_slug && (
-        <a
+        <Link
           className={css`
-            display: block;
             margin-bottom: 1rem;
+            width: 100%;
           `}
           href={pageRoute(pageInfo.data, data.url_path)}
           target="_blank"
           rel="noopener noreferrer"
+          isCrossService
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button
-            variant={"secondary"}
-            size={"medium"}
-            transform="none"
-            className={css`
-              width: 100%;
-            `}
-          >
-            {t("open-saved-page-in-new-tab")}
-          </Button>
-        </a>
+          {t("open-saved-page-in-new-tab")}
+        </Link>
       )}
       <div
         className={css`
           display: flex;
+          flex-wrap: wrap;
           justify-content: center;
+          gap: var(--space-3);
           background: #f5f6f7;
           padding: 1rem;
+          /* Gutenberg's own stylesheet loads last and can disable pointer events on the inspector. */
+          pointer-events: auto;
         `}
       >
         <Button
           variant="primary"
           size="medium"
-          className={css`
-            margin-right: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={handleOnSave}
           disabled={currentContentStateSaved || currentlySaving}
         >
@@ -300,13 +295,11 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         <Button
           variant="secondary"
           size="medium"
-          className={css`
-            margin-left: 1rem;
-            border: 1px black solid;
-            pointer-events: auto;
-          `}
           onClick={async () => {
-            const res = await confirm(t("are-you-sure-you-want-to-discard-changes"))
+            const res = await confirm({
+              message: t("are-you-sure-you-want-to-discard-changes"),
+              isDestructive: true,
+            })
             if (res) {
               contentDispatch({ type: "setContent", payload: savedContent })
             }
@@ -315,15 +308,9 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         >
           {t("reset")}
         </Button>
-        <Menu variant="bottom">
-          <li>
-            <a href={nextPageUrl}>
-              <Button size="medium" variant="primary">
-                {t("next-page")}
-              </Button>
-            </a>
-          </li>
-        </Menu>
+        <Link href={nextPageUrl} isCrossService styledAsButton size="medium" variant="tertiary">
+          {t("next-page")}
+        </Link>
       </div>
     </div>
   )
@@ -335,14 +322,11 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   const memoizedCustomBlocks = useMemo(
     () =>
-      customBlocks(
-        data.chapter_id ?? null,
-        data.exam_id ?? null,
-        data.url_path,
-        courseCanAddChatbot,
-        chapterLockingEnabled,
-      ),
-    [data.chapter_id, data.exam_id, data.url_path, courseCanAddChatbot, chapterLockingEnabled],
+      customBlocksForPageType(pageType, {
+        can_add_chatbot: courseCanAddChatbot,
+        chapter_locking_enabled: chapterLockingEnabled,
+      }),
+    [pageType, courseCanAddChatbot, chapterLockingEnabled],
   )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
@@ -357,7 +341,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       </BreakFromCentered>
       <div className="editor__component">
         <div>
-          {saveMutation.isError && <ErrorBanner variant={"text"} error={saveMutation.error} />}
+          {data.course_id && <PendingAgentChangesNotice pageId={data.id} />}
+          {saveMutation.isError && !isStaleVersionError(saveMutation.error) && (
+            <ErrorNotice error={saveMutation.error} />
+          )}
           <UpdatePageDetailsForm title={title} setTitle={setTitle} />
         </div>
       </div>

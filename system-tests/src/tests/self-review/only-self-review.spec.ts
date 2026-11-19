@@ -1,10 +1,14 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
+import { Checkbox } from "@/utils/components/Checkbox"
+import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getExerciseTaskFrame } from "../../utils/iframeLocators"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext
@@ -32,12 +36,13 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "Multiple choice with feedback" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
-      await teacherPage.getByText("Peer and self review").click()
-      await teacherPage.getByText("Add self review").click()
-      await teacherPage.getByText("Use course default peer").click()
+      await expandPeerAndSelfReviewConfig(teacherPage)
+      await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
+      await Checkbox.labelled(teacherPage, "Use course default peer review config").setChecked(
+        false,
+      )
       await teacherPage.getByLabel("Add default block").click()
       await teacherPage
         .getByLabel("Empty block; start writing or")
@@ -47,7 +52,10 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
       await teacherPage.getByLabel("Peer review question", { exact: true }).fill("General feedback")
       await teacherPage.getByRole("button", { name: "Add peer review question" }).click()
-      await teacherPage.getByLabel("Peer review question type").nth(1).selectOption("Scale")
+      await new Select(
+        teacherPage,
+        teacherPage.getByRole("button", { name: /Peer review question type/ }).nth(1),
+      ).chooseOption("Likert Scale")
       await teacherPage
         .getByLabel("Peer review question", { exact: true })
         .nth(1)
@@ -62,19 +70,13 @@ test.describe("An exercise that has self review but no peer review works", () =>
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-multiple-choice-with-feedback",
       )
       await selectCourseInstanceIfPrompted(student1Page)
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByRole("button", { name: "cargo" })
-        .click()
+      await getExerciseTaskFrame(student1Page, 1).getByRole("button", { name: "cargo" }).click()
       await student1Page.getByRole("button", { name: "Submit" }).click()
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByText("Your answer was correct.")
-        .waitFor()
+      await getExerciseTaskFrame(student1Page, 1).getByText("Your answer was correct.").waitFor()
       await student1Page.getByRole("button", { name: "Start self review" }).click()
       await student1Page.getByText("In this review, you have to do x.").waitFor()
       await student1Page
-        .getByPlaceholder("Write a review")
+        .getByRole("textbox", { name: "General feedback" })
         .fill("This was such a good answer 100/100.")
       await student1Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await waitForSuccessNotification(student1Page, async () => {

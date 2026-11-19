@@ -1,11 +1,10 @@
 "use client"
 
-import Link from "next/link"
 import React from "react"
 
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import { manageCourseByIdRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Link } from "@/shared-module/components"
 
 export interface CourseTranslationsListProps {
   courseId: string

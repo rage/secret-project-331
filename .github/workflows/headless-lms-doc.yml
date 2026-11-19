@@ -52,6 +52,10 @@ jobs:
           # The compile-time font guard rejects unhydrated git-lfs pointers.
           lfs: true
 
+      # The restored target/ plus the full devShell closure fill a stock runner's disk.
+      - name: Free up disk space
+        uses: ./.github/actions/free-disk-space
+
       - name: Cache Cargo dependencies and docs build output
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

@@ -11,14 +11,14 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import Spinner from "@/shared-module/common/components/Spinner"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextField } from "@/shared-module/components"
+import { Button, Infobox, LoadingRegion, TextField } from "@/shared-module/components"
 import { getOauthScopeDescriptions } from "@/utils/oauthScopeDescriptions"
 
 interface DeviceCodeFields {
@@ -31,6 +31,16 @@ const denyButtonStyles = css`
   --btn-secondary-fg: var(--color-red-700);
   --btn-secondary-bg-hover: var(--color-red-700);
   --btn-secondary-border-hover: var(--color-red-700);
+`
+
+const userCodeStyles = css`
+  font-family: ${monospaceFont};
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  padding: 0.5rem 1rem;
+  border: 2px solid ${baseTheme.colors.gray[300]};
+  border-radius: 4px;
 `
 
 const DeviceVerificationPage: React.FC = () => {
@@ -114,20 +124,27 @@ const DeviceVerificationPage: React.FC = () => {
               description={t("oauth-device-enter-code")}
             />
           </div>
-          {verification.isError && (
-            <GenericInfobox>{t("oauth-device-code-not-found")}</GenericInfobox>
-          )}
+          {verification.isError && <Infobox>{t("oauth-device-code-not-found")}</Infobox>}
           <Button variant="primary" size="large" type="submit" disabled={!inputValue.trim()}>
             {t("button-text-submit")}
           </Button>
         </form>
       )}
 
-      {userCode.length > 0 && verification.isPending && <Spinner variant="medium" />}
+      {userCode.length > 0 && verification.isPending && <LoadingRegion />}
 
       {verification.isSuccess && (
         <>
-          <h2>{verification.data.client_name}</h2>
+          <h2>
+            {t("oauth-device-client-requesting-access", {
+              clientName: verification.data.client_name,
+            })}
+          </h2>
+          {/* RFC 8628 §5.4: the user can only spot a phished code if they can compare it. */}
+          <p>{t("oauth-device-compare-code")}</p>
+          <p className={userCodeStyles} dir="ltr" data-testid="oauth-device-user-code">
+            {verification.data.user_code}
+          </p>
           <p>{t("oauth-application-requesting-access")}</p>
           <ul>
             {verification.data.scopes.map((scope) => (
@@ -171,4 +188,12 @@ const DeviceVerificationPage: React.FC = () => {
   )
 }
 
-export default withErrorBoundary(withSignedIn(DeviceVerificationPage))
+// Outside the (layout) group, so it mounts the session check itself: approving grants a lasting token.
+const DeviceVerificationPageWithSessionCheck: React.FC = () => (
+  <>
+    <DeviceVerificationPage />
+    <SessionVerificationDialog />
+  </>
+)
+
+export default withErrorBoundary(withSignedIn(DeviceVerificationPageWithSessionCheck))

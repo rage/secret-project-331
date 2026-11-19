@@ -290,6 +290,32 @@ RETURNING *
     Ok(res)
 }
 
+/// Inserts the configuration's initial message as the assistant's first message in a new
+/// conversation. `used_tokens` is the token estimate of `configuration.initial_message`.
+pub async fn insert_initial_message(
+    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    configuration: &crate::chatbot_configurations::ChatbotConfiguration,
+    used_tokens: i32,
+    user_id: Option<Uuid>,
+    anonymous_token: Option<String>,
+) -> ModelResult<ChatbotConversationMessage> {
+    insert_for_conversation_user_and_configuration(
+        conn,
+        ChatbotConversationMessage::text(
+            conversation_id,
+            MessageRole::Assistant,
+            configuration.initial_message.clone(),
+            used_tokens,
+            Some("initial-message".to_string()),
+        ),
+        user_id,
+        anonymous_token,
+        configuration.id,
+    )
+    .await
+}
+
 /// Whether a reasoning message is read with its `encrypted_content`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ReasoningPayload {

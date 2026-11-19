@@ -1,5 +1,6 @@
-/* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
+
+import { NO_H1 } from "@/utils/accessibilityCheck"
 
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -21,18 +22,19 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
 
     await page.getByText("Add task").click()
     await showNextToastsInfinitely(page)
-    await page.click(`button:text-is("Save") >> visible=true`)
+    await page.getByRole("button", { name: "Save", exact: true }).click()
     await page.evaluate(() => {
       window.scrollTo(0, 0)
     })
     await page.getByTestId("toast-notification").getByText("Missing exercise type for").waitFor()
     const errorToastAlert = page.getByTestId("toast-notification").getByRole("alert")
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -50,14 +52,15 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
-    await page.fill('input[label="Title"]', "New title")
+    await page.getByLabel("Title", { exact: true }).fill("New title")
 
     await showNextToastsInfinitely(page)
-    await page.click(`button:text-is("Save") >> visible=true`)
+    await page.getByRole("button", { name: "Save", exact: true }).click()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

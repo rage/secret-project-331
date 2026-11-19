@@ -2,13 +2,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useContext, useState } from "react"
+import React, { useContext, useId, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
+import { useTranslation } from "react-i18next"
 
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { LoadingRegion } from "@/shared-module/components"
 
 import { useUserMenuItems } from "./hooks/useUserMenuItems"
 import TopBarMenuButton from "./TopBarMenuButton"
@@ -56,8 +57,10 @@ export interface UserMenuProps {
 }
 
 const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOptions }) => {
+  const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
+  const popupLabelId = useId()
 
   const { items, displayName, displayInitial, displayEmail, fullDisplayName, shouldShow } =
     useUserMenuItems({
@@ -66,23 +69,30 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
     })
 
   if (loginStateContext.isLoading) {
-    return <Spinner variant="large" />
+    return <LoadingRegion minHeight={40} />
   }
 
   if (!shouldShow) {
     return null
   }
 
+  const popupLabel = `${displayName}. ${t("open-account-menu")}`
+
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <TopBarMenuButton
         id="topbar-user-menu"
-        ariaLabel="Open account menu"
-        tooltipText="Account menu"
+        ariaLabel={`${displayName}. ${t("open-account-menu")}`}
+        tooltipText={t("account-menu")}
       >
         <div
           aria-hidden
+          data-initial={displayInitial}
           className={css`
+            /* Generated content keeps the initial out of the button's visible text, which axe requires the aria-label to contain. */
+            &::before {
+              content: attr(data-initial);
+            }
             width: 28px;
             height: 28px;
             display: grid;
@@ -95,9 +105,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
             user-select: none;
             border: 1px solid #d1d5db;
           `}
-        >
-          {displayInitial}
-        </div>
+        />
 
         <span
           className={css`
@@ -121,6 +129,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
       </TopBarMenuButton>
 
       <Popover
+        aria-label={popupLabel}
+        aria-labelledby={popupLabelId}
         placement="bottom end"
         offset={8}
         className={css`
@@ -175,7 +185,11 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
           </div>
         </div>
 
+        <span id={popupLabelId} hidden>
+          {popupLabel}
+        </span>
         <Menu
+          aria-labelledby={popupLabelId}
           data-testid="topbar-user-menu-popover"
           aria-label="Account actions"
           className={css`

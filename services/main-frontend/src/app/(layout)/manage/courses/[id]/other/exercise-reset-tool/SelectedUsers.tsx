@@ -2,12 +2,13 @@
 
 import { css } from "@emotion/css"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { UserDetail } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, Table } from "@/shared-module/components"
 
 import UserSearch from "./UserSearch"
 
@@ -79,60 +80,31 @@ const SelectedUsers: React.FC<Props> = ({
             <p>{t("label-no-users-selected")}</p>
           </div>
         ) : (
-          <table
-            className={css`
-              border-collapse: collapse;
-              margin-bottom: 1.5rem;
-
-              width: 100%;
-
-              td,
-              th {
-                padding-left: 28px;
-                text-align: left;
-                height: 60px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                opacity: 0.8;
-              }
-              td {
-                border-top: 1px solid #ced1d7;
-              }
-              th {
-                font-weight: ${fontWeights.medium};
-              }
-            `}
-          >
-            <thead>
-              <tr>
-                <th>{t("text-field-label-name")}</th>
-                <th>{t("label-email")}</th>
-                <th>{t("label-user-id")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedUsers.map((user) => (
-                <tr key={user.user_id}>
-                  <td>
-                    {user.first_name} {user.last_name}
-                  </td>
-                  <td>{user.email}</td>
-                  <td>{user.user_id}</td>
-                  <td>
-                    <Button
-                      onClick={() => removeUser(user.user_id)}
-                      variant={"secondary"}
-                      size={"small"}
-                      transform={"capitalize"}
-                    >
-                      {t("button-remove")}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Table
+            caption={t("label-selected-users")}
+            rows={selectedUsers}
+            rowKey={(user) => user.user_id}
+            columns={[
+              {
+                header: t("text-field-label-name"),
+                cell: (user) => `${user.first_name ?? ""} ${user.last_name ?? ""}`,
+              },
+              { header: t("label-email"), cell: (user) => user.email },
+              { header: t("label-user-id"), cell: (user) => user.user_id },
+              {
+                header: <VisuallyHidden>{t("button-remove")}</VisuallyHidden>,
+                cell: (user) => (
+                  <Button
+                    onClick={() => removeUser(user.user_id)}
+                    variant={"secondary"}
+                    size={"small"}
+                  >
+                    {t("button-remove")}
+                  </Button>
+                ),
+              },
+            ]}
+          />
         )}
       </div>
     </div>

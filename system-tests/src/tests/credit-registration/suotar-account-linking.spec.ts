@@ -1,6 +1,7 @@
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   CREDIT_REGISTRATIONS_API,
+  MAIN_FRONTEND_API,
   linkStudentNumberUrl,
   seededStudentStorageState,
 } from "@/utils/creditRegistration"
@@ -40,7 +41,8 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   // The token carries no account, so this display is all that stands between a forwarded email and
   // the wrong account.
   await expect(page.getByText("090002018")).toBeVisible()
-  await expect(page.getByText("Zzyzx Linkvalid")).toHaveCount(0)
+  // Twice: the account is "Zzyzx Claimer", so the name update line repeats Sisu's name.
+  await expect(page.getByText("Zzyzx Linkvalid", { exact: true }).first()).toBeVisible()
   await expect(page.getByText(CLAIMER_EMAIL)).toBeVisible()
   await accessibilityCheck(page, "Student number linking confirmation")
 
@@ -60,6 +62,10 @@ test("A preview consumes nothing, and confirming links the number to the logged-
   })
   expect(link).not.toHaveProperty("first_names")
   expect(link).not.toHaveProperty("last_name")
+
+  const details = await page.request.get(`${MAIN_FRONTEND_API}/user-details/user-details-for-user`)
+  await expect(details).toBeOK()
+  expect(await details.json()).toMatchObject({ first_name: "Zzyzx", last_name: "Linkvalid" })
 })
 
 test("An expired link and an already-used link say different things", async ({ page }) => {

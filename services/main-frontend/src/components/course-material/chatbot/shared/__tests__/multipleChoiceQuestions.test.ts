@@ -2,6 +2,7 @@ import { v4 } from "uuid"
 
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 
+import { BASE_CLIENT_TOOL_REGISTRY } from "../clientToolRegistry"
 import { openClientToolCalls } from "../messageClassification"
 import {
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
@@ -122,33 +123,37 @@ describe("questionOf", () => {
 
 describe("openClientToolCalls", () => {
   it("keeps a question that has no output yet", () => {
-    const open = openClientToolCalls([text("user", 1), question("call_1", undefined, 2)])
+    const open = openClientToolCalls(
+      [text("user", 1), question("call_1", undefined, 2)],
+      BASE_CLIENT_TOOL_REGISTRY,
+    )
 
     expect(open.map((q) => q.toolCallId)).toEqual(["call_1"])
   })
 
   it("closes a question its output has arrived for", () => {
-    const open = openClientToolCalls([question("call_1", undefined, 1), toolOutput("call_1", 2)])
+    const open = openClientToolCalls(
+      [question("call_1", undefined, 1), toolOutput("call_1", 2)],
+      BASE_CLIENT_TOOL_REGISTRY,
+    )
 
     expect(open).toEqual([])
   })
 
   it("closes every waiting question when the learner writes instead", () => {
-    const open = openClientToolCalls([
-      question("call_1", undefined, 1),
-      question("call_2", undefined, 2),
-      text("user", 3),
-    ])
+    const open = openClientToolCalls(
+      [question("call_1", undefined, 1), question("call_2", undefined, 2), text("user", 3)],
+      BASE_CLIENT_TOOL_REGISTRY,
+    )
 
     expect(open).toEqual([])
   })
 
   it("keeps a question the chatbot asked after the learner's message", () => {
-    const open = openClientToolCalls([
-      question("call_1", undefined, 1),
-      text("user", 2),
-      question("call_2", undefined, 3),
-    ])
+    const open = openClientToolCalls(
+      [question("call_1", undefined, 1), text("user", 2), question("call_2", undefined, 3)],
+      BASE_CLIENT_TOOL_REGISTRY,
+    )
 
     expect(open.map((q) => q.toolCallId)).toEqual(["call_2"])
   })

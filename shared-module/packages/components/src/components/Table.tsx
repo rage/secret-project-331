@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useEffect, useId, useRef, useState } from "react"
+import React, { useCallback, useEffect, useId, useRef, useState } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -17,6 +17,7 @@ import { ChevronIcon } from "./primitives/ChevronIcon"
 import {
   alignCss,
   bodyCellCss,
+  breakAnywhereCss,
   captionCss,
   cellCompactCss,
   cellCss,
@@ -53,6 +54,7 @@ import {
   tableFixedCss,
   wrapCss,
 } from "./primitives/tableStyles"
+import { ScrollRegion } from "./ScrollRegion"
 
 export type TableAlign = "start" | "center" | "end"
 
@@ -99,6 +101,11 @@ export interface TableColumn<Row> {
    */
   nowrap?: boolean
   /**
+   * Lets the cell break an unbreakable token (an id, an email) anywhere, so the column can shrink
+   * below it. Leave unset for words and dates, which should only wrap between words.
+   */
+  breakAnywhere?: boolean
+  /**
    * Turns the header into a button and shows a sort indicator. Called with the direction the
    * press asks for, which is the opposite of `sortDirection` once this column is the sorted one.
    * Sorting itself belongs to the caller.
@@ -143,7 +150,10 @@ export type TableProps<Row> = TableName & TableOptions<Row>
 export interface TableOptions<Row> {
   columns: TableColumn<Row>[]
   rows: Row[]
-  /** Stable identity per row; keeps React from reusing the wrong row on reorder. */
+  /**
+   * Stable identity per row; keeps React from reusing the wrong row on reorder. Also emitted as
+   * the row's `data-row-key`, so a test can scope to one row.
+   */
   rowKey: (row: Row, index: number) => React.Key
   /**
    * Puts a heading row before each run of consecutive rows in the same group. Sort the rows by
@@ -170,6 +180,7 @@ export interface TableOptions<Row> {
   /** Adds a leading checkbox column. Controlled: hand it the picked keys and handle the change. */
   selection?: TableSelection<Row>
   className?: string
+  "data-testid"?: string | undefined
 }
 
 function cssLength(value: string | number): string {
@@ -312,14 +323,22 @@ export function Table<Row>({
   expandableRow,
   selection,
   className,
+  "data-testid": dataTestId,
 }: TableProps<Row>) {
   const { t } = useTranslation("shared-module")
-  const scrollRef = useRef<HTMLDivElement>(null)
   const detailIdPrefix = useId()
+  const captionId = useId()
   // Keyed like the selection, not by row index: the rows under a paged or re-sorted table are not
   // the ones an index pointed at, and an expanded index would open a different row's detail.
   const [expandedRowKeys, setExpandedRowKeys] = useState<ReadonlySet<string>>(() => new Set())
   const [overflow, setOverflow] = useState({ start: false, end: false })
+  const updateOverflow = useCallback(
+    (next: { start: boolean; end: boolean }) =>
+      setOverflow((previous) =>
+        previous.start === next.start && previous.end === next.end ? previous : next,
+      ),
+    [],
+  )
 
   // Stacking sets `display: block` on the table parts, which drops their implicit roles in most
   // browsers, so a stacking table spells every role out. They are redundant at wide widths.
@@ -329,39 +348,6 @@ export function Table<Row>({
   const controlColumnCount = (hasSelection ? 1 : 0) + (hasExpandable ? 1 : 0)
   const totalColumnCount = columns.length + controlColumnCount
   const compact = density === "compact"
-  const tracksOverflow = overflowCue || stickyFirstColumn
-
-  useEffect(() => {
-    const scroller = scrollRef.current
-    if (!tracksOverflow || scroller === null) {
-      return
-    }
-
-    const measure = () => {
-      // RTL counts `scrollLeft` down from zero, so the distance from the start is its magnitude.
-      const fromStart = Math.abs(scroller.scrollLeft)
-      const scrollable = scroller.scrollWidth - scroller.clientWidth
-      setOverflow((previous) => {
-        const start = fromStart > 1
-        const end = scrollable - fromStart > 1
-        return previous.start === start && previous.end === end ? previous : { start, end }
-      })
-    }
-
-    measure()
-    scroller.addEventListener("scroll", measure, { passive: true })
-    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure)
-    observer?.observe(scroller)
-    const table = scroller.firstElementChild
-    if (table !== null) {
-      observer?.observe(table)
-    }
-
-    return () => {
-      scroller.removeEventListener("scroll", measure)
-      observer?.disconnect()
-    }
-  }, [tracksOverflow])
 
   const isFixedLayout = columns.some((column) => column.width !== undefined)
   const growWeights = columns.map((column) => growWeightOf(column))
@@ -399,6 +385,7 @@ export function Table<Row>({
     cell: cx(
       isFixedLayout || column.minWidth === undefined ? undefined : minWidthCss(column.minWidth),
       wrapFor(column),
+      column.breakAnywhere ? breakAnywhereCss : undefined,
       alignFor(column),
     ),
   }))
@@ -477,8 +464,12 @@ export function Table<Row>({
     )
 
   return (
-    <div className={cx(frameCss, stackClass, className)}>
-      <div className={scrollCss} ref={scrollRef}>
+    <div className={cx(frameCss, stackClass, className)} data-testid={dataTestId}>
+      <ScrollRegion
+        className={scrollCss}
+        labelledBy={labelledBy ?? captionId}
+        onOverflowChange={overflowCue || stickyFirstColumn ? updateOverflow : undefined}
+      >
         <table
           className={cx(
             tableCss,
@@ -490,10 +481,14 @@ export function Table<Row>({
           aria-labelledby={labelledBy}
         >
           {labelledBy !== undefined ? null : showCaption ? (
-            <caption className={captionCss}>{caption}</caption>
+            <caption className={captionCss} id={captionId}>
+              {caption}
+            </caption>
           ) : (
             // oxlint-disable-next-line i18next/no-literal-string -- element name, not user-facing text
-            <VisuallyHidden elementType="caption">{caption}</VisuallyHidden>
+            <VisuallyHidden elementType="caption" id={captionId}>
+              {caption}
+            </VisuallyHidden>
           )}
           {isSized ? (
             <colgroup>
@@ -595,7 +590,7 @@ export function Table<Row>({
                         </th>
                       </tr>
                     ) : null}
-                    <tr role={isStacking ? "row" : undefined}>
+                    <tr data-row-key={String(key)} role={isStacking ? "row" : undefined}>
                       {hasSelection ? (
                         <td
                           className={cx(
@@ -693,7 +688,7 @@ export function Table<Row>({
             )}
           </tbody>
         </table>
-      </div>
+      </ScrollRegion>
       {overflowCue ? (
         <>
           <span

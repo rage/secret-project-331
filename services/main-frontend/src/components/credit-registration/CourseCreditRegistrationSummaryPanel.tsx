@@ -368,7 +368,7 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
   )
 
   const shownModules = (summaryQuery.data?.modules ?? []).filter(
-    (module) => module.enabled && (!moduleId || module.course_module_id === moduleId),
+    (module) => !moduleId || module.course_module_id === moduleId,
   )
   const failedCount = sumBy(shownModules, (module) => module.failed_count)
   const { reasons, retryableCount, isCapped } = useCourseFailureReasons(
@@ -378,14 +378,15 @@ const CourseCreditRegistrationSummaryPanel: React.FC<Props> = ({
     failedCount > 0,
   )
 
+  const configOf = (id: string) =>
+    configsQuery.data?.find((config) => config.course_module_id === id)
+
   return (
     <QueryResult query={summaryQuery} refreshIndicator={QUIET_REFRESH}>
       {(summary) => {
         if (shownModules.length === 0) {
           return null
         }
-        const configOf = (id: string) =>
-          configsQuery.data?.find((config) => config.course_module_id === id)
         const isCourseWide = hasOnlyDefaultModule(
           summary.modules.map((module) => module.course_module_name),
         )

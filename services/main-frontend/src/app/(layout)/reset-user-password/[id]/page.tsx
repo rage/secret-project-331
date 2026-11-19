@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next"
 
 import ResetPasswordForm from "@/components/forms/ResetUserPasswordForm"
 import { getResetPasswordTokenStatus } from "@/generated/api/sdk.generated"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, QueryResult } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 const ResetPassword: React.FC = () => {
@@ -38,7 +37,7 @@ const ResetPassword: React.FC = () => {
           data === true ? (
             <ResetPasswordForm token={token} />
           ) : (
-            <GenericInfobox>{t("reset-link-has-expired")}</GenericInfobox>
+            <Infobox>{t("reset-link-has-expired")}</Infobox>
           )
         }
       </QueryResult>

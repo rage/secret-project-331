@@ -7,10 +7,9 @@ import { useTranslation } from "react-i18next"
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import Button from "@/shared-module/common/components/Button"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult } from "@/shared-module/components"
 
 import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
@@ -42,7 +41,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
               courseId={courseId}
             />
           )}
-          <h2
+          <h1
             className={css`
               font-size: clamp(2rem, 3.6vh, 36px);
               color: ${baseTheme.colors.gray[700]};
@@ -51,7 +50,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
             `}
           >
             {t("title-all-course-language-versions")}
-          </h2>
+          </h1>
           <CourseLanguageVersionsList courseId={courseId} />
           <Button
             size="medium"

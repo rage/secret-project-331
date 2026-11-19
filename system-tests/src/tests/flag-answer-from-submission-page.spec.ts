@@ -5,8 +5,11 @@ import { ChapterSelector } from "@/utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import { tableRowByCell } from "@/utils/tableRows"
 
-const STUDENT_2_USER_ID = "d7d6246c-45a8-4ff4-bf4d-31dedfaac159"
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
+
+const STUDENT_2_EMAIL = "student2@example.com"
 const PLAGIARISM_FEEDBACK = "This answer is word for word another student's."
 const AI_FEEDBACK = "This exercise does not allow AI."
 const PARTIAL_POINTS_FEEDBACK = "Half of the answer was missing."
@@ -45,11 +48,7 @@ test.describe("flagging an answer from the submission page", () => {
       const chapterSelector = new ChapterSelector(studentPage)
       await chapterSelector.clickChapter(1)
       await studentPage.getByRole("link", { name: "1 Page One" }).click()
-      await studentPage
-        .locator('iframe[title="Exercise 1\\, task 1 content"]')
-        .contentFrame()
-        .getByRole("checkbox", { name: "b" })
-        .click()
+      await getExerciseTaskFrame(studentPage, 1).getByRole("checkbox", { name: "b" }).click()
       await studentPage.getByRole("button", { name: "Submit" }).click()
       await studentPage.getByText("Good job!").waitFor()
       await expect(studentPage.getByTestId("exercise-points")).toContainText("1/1")
@@ -64,7 +63,7 @@ test.describe("flagging an answer from the submission page", () => {
         .filter({ has: teacherPage.getByRole("heading", { name: "Default", exact: true }) })
         .getByRole("link", { name: "View points" })
         .click()
-      await teacherPage.getByRole("link", { name: STUDENT_2_USER_ID }).click()
+      await tableRowByCell(teacherPage, STUDENT_2_EMAIL).getByRole("link").click()
       const exerciseDetails = teacherPage
         .getByTestId("exercise-status")
         .filter({ hasText: "Best exercise" })

@@ -34,6 +34,7 @@ import {
 } from "../styles"
 import { useInvalidateAfterMaterialize } from "./adminCreditRegistrationHooks"
 import AdminStateLabel from "./AdminStateLabel"
+import { AUDIT_ACTION } from "./auditActions"
 import StudentCell, { STUDENT_COLUMN_MIN_WIDTH } from "./StudentCell"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
@@ -95,6 +96,7 @@ const MaterializeButton: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterMaterialize = useInvalidateAfterMaterialize()
   const { button, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.REQUEUE_BATCH,
     mutationFn: (fields) =>
       adminMaterializeCreditRegistrations({ body: { reason: fields.reason } }),
     invalidate: () => void invalidateAfterMaterialize(),
@@ -129,7 +131,7 @@ const ReconciliationSection: React.FC<Props> = ({ reconciliation }) => {
         <Table
           caption={t("credit-registration-heading-never-entered")}
           density={DENSITY_COMPACT}
-          rowKey={(row) => row.course_module_completion_id}
+          rowKey={(row) => row.course_module_completion_id ?? row.external_completion_id ?? ""}
           rows={reconciliation.never_entered}
           columns={[
             {

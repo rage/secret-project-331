@@ -564,3 +564,58 @@ pub async fn transition_batch(conn: &mut PgConnection, moves: &[BatchMove]) -> M
     tx.commit().await?;
     Ok(i64::try_from(writes.len()).unwrap_or(i64::MAX))
 }
+
+/// States of a row with nothing sent to Sisu, provided it has no submitted attainment: a
+/// `failed_retryable` row with one resumes at verification.
+const UNSENT_STATES: [CreditRegistrationState; 7] = [
+    CreditRegistrationState::Pending,
+    CreditRegistrationState::ReadyToSubmit,
+    CreditRegistrationState::ResolvingEnrolment,
+    CreditRegistrationState::CheckingEnrolment,
+    CreditRegistrationState::NoUsableEnrolment,
+    CreditRegistrationState::Blocked,
+    CreditRegistrationState::FailedRetryable,
+];
+
+/// Cancels the module's registrations that have not been sent to Sisu, for when a teacher stops
+/// its completions being registered there. Rows Sisu may already hold are left alone. Returns how
+/// many moved.
+pub async fn cancel_unsent_for_course_module(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+    actor_user_id: Uuid,
+) -> ModelResult<i64> {
+    let rows = sqlx::query!(
+        r#"
+SELECT id,
+  state
+FROM credit_registrations
+WHERE course_module_id = $1
+  AND state = ANY($2::credit_registration_state [])
+  AND submitted_attainment_id IS NULL
+  AND superseded_by_id IS NULL
+  AND deleted_at IS NULL
+        "#,
+        course_module_id,
+        &UNSENT_STATES as &[CreditRegistrationState],
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let moves: Vec<BatchMove> = rows
+        .into_iter()
+        .map(|row| BatchMove {
+            id: row.id,
+            transition: Transition {
+                needs_admin_attention: Some(AdminAttention::Clear),
+                event_message: Some(
+                    "Completions of this module are no longer registered to Sisu.".to_string(),
+                ),
+                actor_user_id: Some(actor_user_id),
+                // Read without a lock: a row a phase has moved on since is that phase's.
+                expected_from_state: Some(row.state),
+                ..Transition::to(CreditRegistrationState::Cancelled)
+            },
+        })
+        .collect();
+    transition_batch(conn, &moves).await
+}

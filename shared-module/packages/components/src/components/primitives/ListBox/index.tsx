@@ -34,7 +34,8 @@ export function ListBox<T extends object>({
 
   if (collection.length === 0) {
     return (
-      <div className={listBoxEmptyStateCss} role="presentation">
+      // Carries the listbox id so the trigger's aria-controls still resolves with no options.
+      <div className={listBoxEmptyStateCss} id={listBoxProps.id} role="presentation">
         {emptyState ?? t("listBox.noResults")}
       </div>
     )

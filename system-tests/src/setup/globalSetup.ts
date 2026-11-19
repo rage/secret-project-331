@@ -3,7 +3,7 @@ import fs from "fs"
 import path from "path"
 
 import type { FullConfig } from "@playwright/test"
-import { load as yamlLoad } from "js-yaml"
+import { loadAll as yamlLoadAll } from "js-yaml"
 import playWrightPackageJson from "playwright/package.json"
 import which from "which"
 
@@ -30,7 +30,9 @@ function makeSurePnpmInstallHasBeenRan() {
   // Ensure pnpm install has been run after Playwright version changes.
   const pnpmLockPath = path.join(__dirname, "../../pnpm-lock.yaml")
   const pnpmLockContent = fs.readFileSync(pnpmLockPath, "utf8")
-  const pnpmLock = yamlLoad(pnpmLockContent) as {
+  // pnpm 12 writes a leading document that pins pnpm itself, so the project's importers may be in
+  // any document; its "." importer exists there too, without dependencies.
+  const pnpmLockDocuments = yamlLoadAll(pnpmLockContent) as {
     importers?: Record<
       string,
       {
@@ -38,19 +40,13 @@ function makeSurePnpmInstallHasBeenRan() {
         dependencies?: Record<string, string | { version: string; specifier: string }>
       }
     >
-  }
-
-  // Find the importer for the system-tests workspace (fallback to root if needed).
-  const importer = pnpmLock?.importers?.["system-tests"] ?? pnpmLock?.importers?.["."] ?? null
-  if (!importer) {
-    console.warn(
-      "pnpm-lock.yaml: no importer for system-tests or root; skipping Playwright version check",
-    )
-    return
-  }
+  }[]
 
   // Lockfile stores resolved versions under devDependencies/dependencies.
-  const playwrightEntry = importer.devDependencies?.playwright ?? importer.dependencies?.playwright
+  const playwrightEntry = pnpmLockDocuments
+    .flatMap((document) => [document?.importers?.["system-tests"], document?.importers?.["."]])
+    .map((importer) => importer?.devDependencies?.playwright ?? importer?.dependencies?.playwright)
+    .find((entry) => entry !== undefined)
 
   if (!playwrightEntry) {
     console.warn("pnpm-lock.yaml: Playwright not found in importer; skipping version check")

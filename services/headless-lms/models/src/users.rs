@@ -323,12 +323,14 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<D
     crate::email_deliveries::soft_delete_unsent_retryable_deliveries_for_user(&mut tx, id).await?;
     crate::completion_registration_credit_justifications::delete_all_by_user_id(&mut tx, id)
         .await?;
+    crate::credit_registration_enrolment_routes::delete_all_by_user_id(&mut tx, id).await?;
     sqlx::query!("DELETE FROM user_details WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;
     sqlx::query!("DELETE FROM user_passwords WHERE user_id = $1", id,)
         .execute(&mut *tx)
         .await?;
+    crate::staff_security_verified_browsers::delete_all_for_user_with_networks(&mut tx, id).await?;
     sqlx::query!(
         "UPDATE users set deleted_at = now() WHERE id = $1 AND deleted_at IS NULL",
         id,
@@ -349,4 +351,18 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<D
     tx.commit().await?;
     info!("Deletion succeeded");
     Ok(revoked_access_digests)
+}
+
+/// Ids of every user that is not deleted.
+pub async fn get_all_ids(conn: &mut PgConnection) -> ModelResult<Vec<Uuid>> {
+    let ids = sqlx::query_scalar!(
+        r#"
+SELECT id
+FROM users
+WHERE deleted_at IS NULL
+        "#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(ids)
 }

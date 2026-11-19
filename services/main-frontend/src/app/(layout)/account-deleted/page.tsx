@@ -1,45 +1,28 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { Envelope } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
-import { baseTheme } from "@/shared-module/common/styles"
+import { Infobox, Link, TONE } from "@/shared-module/components"
 
 const AccountDeletedPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("account-deleted"))
   return (
     <>
-      <div
+      <h1>{t("account-deleted")}</h1>
+      <Infobox
+        tone={TONE.SUCCESS}
         className={css`
-          background-color: ${baseTheme.colors.green[100]};
-          padding: 3rem;
-          margin-bottom: 1rem;
-
-          h1 {
-            font-size: 2rem;
-          }
+          margin-bottom: var(--space-4);
         `}
       >
-        <h1>
-          <Envelope
-            className={css`
-              color: ${baseTheme.colors.green[500]};
-              margin-right: 0.5rem;
-            `}
-          />
-          {t("message-your-account-has-been-deleted")}
-        </h1>
-      </div>
+        {t("message-your-account-has-been-deleted")}
+      </Infobox>
 
-      <Link href="/">
-        <Button size="medium" variant="primary">
-          {t("home-page")}
-        </Button>
+      <Link href="/" styledAsButton size="medium" variant="primary">
+        {t("home-page")}
       </Link>
     </>
   )

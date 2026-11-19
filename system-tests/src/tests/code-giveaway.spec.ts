@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { Select } from "@/utils/components/Select"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectTab } from "@/utils/selectTab"
@@ -8,6 +9,8 @@ import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 test.use({
   storageState: "src/states/teacher@example.com.json",
 })
+
+const CODE_GIVEAWAY_SELECT = "#code-giveaway-select"
 
 test("Code giveaways work", async ({ page }) => {
   await page.goto("http://project-331.local/")
@@ -31,20 +34,14 @@ test("Code giveaways work", async ({ page }) => {
   await page.goBack()
   await selectTab(page, "Pages")
   await waitForSpinnersToDisappear(page)
-  await page
-    .getByRole("row", { name: "Giveaway / Edit page Dropdown" })
-    .getByRole("button")
-    .first()
-    .click()
+  await page.getByRole("link", { name: "Edit page Giveaway" }).click()
   await page.getByLabel("Add block").click()
   await page.getByPlaceholder("Search").fill("code")
   await page.getByRole("option", { name: "CodeGiveaway" }).click()
   await page.getByRole("heading", { name: "CodeGiveaway" }).click()
-  await page
-    .locator("div")
-    .filter({ hasText: /^Select an optionBest code giveaway of this generation$/ })
-    .getByRole("combobox")
-    .selectOption({ label: "Best code giveaway of this generation" })
+  await new Select(page, page.locator(CODE_GIVEAWAY_SELECT), {
+    name: "Code giveaway",
+  }).chooseOption("Best code giveaway of this generation")
   await page.getByLabel("Add default block").click()
   await page
     .getByLabel("Empty block; start writing or")
@@ -53,7 +50,7 @@ test("Code giveaways work", async ({ page }) => {
     await page.getByRole("button", { name: "Save", exact: true }).click()
   })
   const page1Promise = page.waitForEvent("popup")
-  await page.getByRole("button", { name: "Open saved page in a new tab" }).click()
+  await page.getByRole("link", { name: "Open saved page in a new tab" }).click()
 
   const page1 = await page1Promise
   await selectCourseInstanceIfPrompted(page1)

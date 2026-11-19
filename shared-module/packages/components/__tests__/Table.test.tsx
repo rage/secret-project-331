@@ -110,6 +110,14 @@ describe("Table", () => {
     expect(screen.queryByRole("cell")).not.toBeInTheDocument()
   })
 
+  test("puts data-testid on the frame and every row key on its row", () => {
+    renderTable({ "data-testid": "completions-table" })
+
+    const root = screen.getByTestId("completions-table")
+    expect(root.tagName).toBe("DIV")
+    expect(root.querySelector('[data-row-key="b"]')?.tagName).toBe("TR")
+  })
+
   test("fills the body with the empty state when there are no rows", () => {
     renderTable({ rows: [], emptyState: "No completions yet" })
 

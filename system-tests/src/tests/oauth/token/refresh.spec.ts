@@ -27,37 +27,37 @@ test.afterAll(async () => {
 
 const REFRESH_USER = getOAuthTestUser("refresh")
 
-test.describe("/token endpoint - Refresh Token Grant", () => {
-  async function getRefreshToken(page: Page): Promise<string> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid", "offline_access"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
+async function getRefreshToken(page: Page): Promise<string> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state } = await oauthUrl(["openid", "offline_access"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
 
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, REFRESH_USER.email, REFRESH_USER.password)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid", "offline_access"])
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    expect(tok.refresh_token).toBeTruthy()
-    return tok.refresh_token!
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    await performLogin(page, REFRESH_USER.email, REFRESH_USER.password)
+  } catch {
+    // Already logged in or consent already granted
   }
 
+  try {
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    const consent = new ConsentPage(page, ["openid", "offline_access"])
+    await consent.approve()
+  } catch {
+    // Already logged in or consent already granted
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+  expect(tok.refresh_token).toBeTruthy()
+  return tok.refresh_token!
+}
+
+test.describe("/token endpoint - Refresh Token Grant", () => {
   test("missing refresh_token parameter -> invalid_request error", async () => {
     const body = new URLSearchParams({
       grant_type: "refresh_token",

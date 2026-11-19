@@ -7,6 +7,7 @@ import { adminDismissCreditRegistrationAttention } from "@/generated/api/sdk.gen
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { useInvalidateAttentionItems } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { useReasonConfirmAction } from "./useReasonConfirmAction"
 
 /**
@@ -17,6 +18,7 @@ const AdminDismissAttentionButton: React.FC<{ registrationId: string }> = ({ reg
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAttentionItems = useInvalidateAttentionItems()
   const { button, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.DISMISS_ATTENTION,
     mutationFn: ({ reason }) =>
       adminDismissCreditRegistrationAttention({
         path: { credit_registration_id: registrationId },

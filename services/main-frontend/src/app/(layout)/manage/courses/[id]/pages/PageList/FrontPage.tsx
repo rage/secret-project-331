@@ -8,8 +8,7 @@ import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
-import PageListItem, { MOVING_NOT_ALLOWED } from "./PageListItem"
-import TableWrapper from "./TableWrapper"
+import PagesTable from "./PagesTable"
 
 interface Props {
   data: Page | null | undefined
@@ -28,6 +27,7 @@ const FrontPage: React.FC<React.PropsWithChildren<Props>> = ({
   if (!data) {
     return null
   }
+  const caption = chapter ? t("heading-chapter-front-page") : t("heading-course-front-page")
 
   return (
     <div
@@ -47,22 +47,17 @@ const FrontPage: React.FC<React.PropsWithChildren<Props>> = ({
           font-weight: 550;
         `}
       >
-        {chapter ? t("heading-chapter-front-page") : t("heading-course-front-page")}
+        {caption}
       </h3>
-      <TableWrapper>
-        <PageListItem
-          page={data}
-          key={data.id}
-          pageOrderDispatch={pageOrderDispatch}
-          // Don't allow deleting front pages because the user cannot add them back at the moment
-          onDeletePage={null}
-          moving={MOVING_NOT_ALLOWED}
-          reload={() => {
-            // NOP
-          }}
-          chapter={chapter}
-        />
-      </TableWrapper>
+      <PagesTable
+        caption={caption}
+        pages={[data]}
+        chapter={chapter}
+        pageOrderDispatch={pageOrderDispatch}
+        // Front pages cannot be re-added once deleted
+        onDeletePage={null}
+        reload={() => undefined}
+      />
     </div>
   )
 }

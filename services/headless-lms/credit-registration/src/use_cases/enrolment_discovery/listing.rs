@@ -35,13 +35,14 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
     registry: &mut R,
     request: &[CodeListing],
     account_linking_since: Option<DateTime<Utc>>,
+    ignores_test_holds: bool,
 ) -> CreditRegistrationResult<FetchedRosters> {
     let codes: Vec<String> = request
         .iter()
         .map(|listing| listing.code.course_code.as_str().to_string())
         .collect();
-    let module_count: usize = request.iter().map(|listing| listing.modules.len()).sum();
-    let attempted = i32::try_from(module_count).unwrap_or(i32::MAX);
+    let unit_count: usize = request.iter().map(|listing| listing.units.len()).sum();
+    let attempted = i32::try_from(unit_count).unwrap_or(i32::MAX);
     let started_at = {
         let mut conn = pool.acquire().await?;
         mark_attempted(&mut conn, &codes).await?
@@ -71,8 +72,14 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
         let course_code = listing.code.course_code.as_str();
         match roster {
             Ok(people) => {
-                new_mails +=
-                    reconcile_roster(&mut conn, listing, people, account_linking_since).await?;
+                new_mails += reconcile_roster(
+                    &mut conn,
+                    listing,
+                    people,
+                    account_linking_since,
+                    ignores_test_holds,
+                )
+                .await?;
                 let person_count = i32::try_from(people.len()).unwrap_or(i32::MAX);
                 enrolments += person_count;
                 let previous_fetch_at = mark_fetched(
@@ -88,9 +95,9 @@ pub(super) async fn fetch_course_roster<R: StudyRegistry>(
             }
             Err(error) => {
                 let error = *error;
-                items_failed += i32::try_from(listing.modules.len()).unwrap_or(i32::MAX);
-                for module in &listing.modules {
-                    mark_listing_failed(&mut conn, module.course_module_id, error).await?;
+                items_failed += i32::try_from(listing.units.len()).unwrap_or(i32::MAX);
+                for unit in &listing.units {
+                    mark_listing_failed(&mut conn, unit.credit_unit_id, error).await?;
                 }
                 // Not one to back off from: a new realisation can open at any time.
                 if error == NO_REALISATION_CODE {
@@ -160,8 +167,8 @@ async fn record_roster_failure(
     error: &RegistryError,
 ) -> CreditRegistrationResult<()> {
     let code = request_level_code(error.kind);
-    for module in request.iter().flat_map(|listing| &listing.modules) {
-        mark_listing_failed(conn, module.course_module_id, code).await?;
+    for unit in request.iter().flat_map(|listing| &listing.units) {
+        mark_listing_failed(conn, unit.credit_unit_id, code).await?;
     }
     if !error.blames_request_items() {
         return Ok(());

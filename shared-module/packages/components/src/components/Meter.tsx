@@ -36,6 +36,7 @@ export interface MeterProps {
    */
   showLabel?: boolean
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const fillToneCss: Record<MeterTone, string> = {
@@ -169,6 +170,7 @@ export const Meter: React.FC<MeterProps> = ({
   kind = "measure",
   showLabel = true,
   className,
+  "data-testid": dataTestId,
 }) => {
   const { progressBarProps, labelProps } = useProgressBar({
     label,
@@ -191,6 +193,7 @@ export const Meter: React.FC<MeterProps> = ({
       {...progressBarProps}
       role={kind === "progress" ? "progressbar" : "meter"}
       className={cx(rootCss, className)}
+      data-testid={dataTestId}
     >
       {showLabel ? (
         <div className={labelRowCss}>

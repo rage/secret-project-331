@@ -31,6 +31,8 @@ const config: StorybookConfig = {
     viteConfig.resolve = viteConfig.resolve ?? {}
     viteConfig.resolve.alias = {
       ...viteConfig.resolve.alias,
+      // Mirrors the "@/*" path in tsconfig.json, which synced shared-module files import through.
+      "@": resolve(__dirname, "../src"),
       "next/link": resolve(__dirname, "../src/mocks/next-link.tsx"),
     }
     return viteConfig

@@ -84,8 +84,7 @@ INSERT INTO course_module_completions (
     email,
     grade,
     passed,
-    completion_granter_user_id,
-    register_credits_via_suotar
+    completion_granter_user_id
   )
 VALUES (
     $1,
@@ -99,16 +98,7 @@ VALUES (
     $9,
     $10,
     $11,
-    $12,
-    -- Decided here rather than by the caller: the flag is what keeps the two registration paths
-    -- from both claiming a completion, and a caller that forgot it would hand the row to neither.
-    (
-      SELECT cm.deleted_at IS NULL
-        AND cm.enable_credit_registration_via_suotar
-        AND cm.register_eligible_new_completions_via_suotar
-      FROM course_modules cm
-      WHERE cm.id = $3
-    )
+    $12
   )
 RETURNING *
         ",
@@ -143,6 +133,8 @@ pub struct NewCourseModuleCompletionSeed {
     pub passed: Option<bool>,
     pub prerequisite_modules_completed: Option<bool>,
     pub needs_to_be_reviewed: Option<bool>,
+    /// False seeds a completion from before the push path, which the pull path registers.
+    pub register_credits_via_suotar: bool,
 }
 
 pub async fn insert_seed_row(
@@ -165,16 +157,7 @@ pub async fn insert_seed_row(
             needs_to_be_reviewed,
             register_credits_via_suotar
         )
-        VALUES (
-            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,
-            (
-              SELECT cm.deleted_at IS NULL
-                AND cm.enable_credit_registration_via_suotar
-                AND cm.register_eligible_new_completions_via_suotar
-              FROM course_modules cm
-              WHERE cm.id = $2
-            )
-        )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
         RETURNING id
         "#,
         seed.course_id,
@@ -188,6 +171,7 @@ pub async fn insert_seed_row(
         seed.passed,
         seed.prerequisite_modules_completed,
         seed.needs_to_be_reviewed,
+        seed.register_credits_via_suotar,
     )
     .fetch_one(conn)
     .await?;
@@ -277,15 +261,15 @@ pub async fn get_all_with_registration_information_by_course_instance_id(
         CourseModuleCompletionWithRegistrationInfo,
         r#"
 SELECT completions.completion_registration_attempt_date,
-  completions.course_module_id,
-  completions.created_at,
+  completions.course_module_id AS "course_module_id!",
+  completions.created_at AS "created_at!",
   completions.grade,
-  completions.passed,
-  completions.prerequisite_modules_completed,
+  completions.passed AS "passed!",
+  completions.prerequisite_modules_completed AS "prerequisite_modules_completed!",
   (registered.id IS NOT NULL) AS "registered!",
-  completions.needs_to_be_reviewed,
-  completions.user_id,
-  completions.completion_date
+  completions.needs_to_be_reviewed AS "needs_to_be_reviewed!",
+  completions.user_id AS "user_id!",
+  completions.completion_date AS "completion_date!"
 FROM course_module_completions completions
   LEFT JOIN course_module_completion_registered_to_study_registries registered ON (
     completions.id = registered.course_module_completion_id
@@ -482,7 +466,7 @@ WHERE course_module_completion_id = ANY($1)
 }
 
 /// The completion that decides which credit registration flow a student gets for one module: one
-/// opted in to `register_credits_via_suotar` outranks the rest, then the newest wins. While the push
+/// carrying `register_credits_via_suotar` outranks the rest, then the newest wins. While the push
 /// path owns a completion, the student must not be sent to the old flow for another.
 ///
 /// Pass completions awaiting review too: leaving them out could switch the flow and so reveal the
@@ -532,6 +516,31 @@ WHERE course_id = $1
     .fetch_one(conn)
     .await?;
     Ok(res.count.unwrap_or(0))
+}
+
+/// The course's modules that at least one student has completed.
+pub async fn get_completed_module_ids_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT m.id
+FROM course_modules m
+WHERE m.course_id = $1
+  AND EXISTS (
+    SELECT 1
+    FROM course_module_completions c
+    WHERE c.course_module_id = m.id
+      AND c.course_id = $1
+      AND c.deleted_at IS NULL
+  )
+",
+        course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }
 
 /// Gets automatically granted course module completion for the given user on the specified course.
@@ -842,7 +851,12 @@ pub fn stream_by_course_module_id<'a>(
         r#"
 SELECT *
 FROM course_module_completions
-WHERE course_module_id = ANY($1)
+WHERE course_module_id IN (
+    SELECT id
+    FROM course_modules
+    WHERE id = ANY($1)
+      AND credit_registration_route = 'platform'
+  )
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE
   -- Completions still awaiting suspected-cheater review are withheld from study-registry
@@ -850,9 +864,9 @@ WHERE course_module_id = ANY($1)
   AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
   -- Completions on the push path are registered by us; letting the registry pull them too would put
-  -- a second attainment on the student's transcript. Per student and module, not per module: a
-  -- module can be switched on while students with no flagged completion stay the pull path's, and
-  -- a flagged completion takes its siblings along, since any of them registers the same credit.
+  -- a second attainment on the student's transcript. Per student and module: a completion from
+  -- before the push path stays the pull path's until the student gets a flagged one, which takes
+  -- its siblings along, since any of them registers the same credit.
   AND NOT EXISTS (
     SELECT 1
     FROM course_module_completions sibling

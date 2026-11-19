@@ -46,7 +46,7 @@ export async function signUp(
 
   // The research-consent form is shown to every new user and blocks the page until answered.
   await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
-  await page.getByText("I do not want to participate").click()
+  await page.getByRole("radio", { name: "I do not want to participate" }).check()
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save" }).click()
   })

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE feedback\nSET page_id = moved.page_id\nFROM UNNEST($1::uuid [], $2::uuid []) AS moved(id, page_id)\nWHERE feedback.id = moved.id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6f497871bad1cbae4ddd617ad78c87ae385b6b7788334c4b07af5375d7a0776f"
+}

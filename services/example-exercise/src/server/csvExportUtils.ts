@@ -20,6 +20,15 @@ export interface CsvExportRequest<T> {
   items: T[]
 }
 
+/**
+ * Neutralises a text cell a spreadsheet would run as a formula (leading `=`, `+`, `-`, `@`, tab or
+ * carriage return) by prefixing an apostrophe. The host writes cells verbatim, so every text cell
+ * built from teacher or student input goes through this.
+ */
+export function csvText(text: string | null): string | null {
+  return text !== null && /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+}
+
 /** Validates that the body is `{ items: [...] }`, throwing a 400 otherwise. */
 export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
   if (
@@ -49,38 +58,10 @@ export function parseSpecArrayStrict<T>(
   return value
 }
 
-/** Reads a top-level string field off an object, or `null` if absent/not a string. */
-export function parseStringField(value: unknown, fieldName: string): string | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  return typeof typedValue[fieldName] === "string" ? (typedValue[fieldName] as string) : null
-}
-
 export function parseNumberField(value: unknown, fieldName: string): number | null {
   if (!value || typeof value !== "object") {
     return null
   }
   const typedValue = value as Record<string, unknown>
   return typeof typedValue[fieldName] === "number" ? (typedValue[fieldName] as number) : null
-}
-
-export function parseBooleanFieldFromObject(
-  value: unknown,
-  objectFieldName: string,
-  fieldName: string,
-): boolean | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  const nestedValue = typedValue[objectFieldName]
-  if (!nestedValue || typeof nestedValue !== "object") {
-    return null
-  }
-  const typedNestedValue = nestedValue as Record<string, unknown>
-  return typeof typedNestedValue[fieldName] === "boolean"
-    ? (typedNestedValue[fieldName] as boolean)
-    : null
 }

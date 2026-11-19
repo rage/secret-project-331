@@ -12,6 +12,12 @@ export const STAGE_ACCENTS: Record<CourseDesignerStage, string> = {
   Evaluation: baseTheme.colors.green[600],
 }
 
+/** Key of the "MOOC design" overview tab shown before the stage tabs. */
+export const MOOC_DESIGN_TAB = "MoocDesign"
+
+/** A workspace tab: the overview or one stage. */
+export type WorkspaceTab = CourseDesignerStage | typeof MOOC_DESIGN_TAB
+
 /** Month key for timeline comparisons. */
 export function getMonthKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`

@@ -1,26 +1,22 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { css } from "@emotion/css"
 import { useAtomValue } from "jotai"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
-import {
-  getCourseMaterialResearchConsentFormQuestions,
-  postCourseMaterialResearchConsentFormAnswer,
-} from "@/generated/course-material-api/sdk.generated"
-import type {
-  ResearchForm,
-  ResearchFormQuestion,
-  ResearchFormQuestionAnswer,
-} from "@/generated/course-material-api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { postCourseMaterialResearchConsentFormAnswer } from "@/generated/course-material-api/sdk.generated"
+import type { ResearchFormQuestionAnswer } from "@/generated/course-material-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog } from "@/shared-module/components"
 import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import type { Block } from "@/types/courseMaterialBlock"
+import { courseMaterialBlockClass } from "@/utils/course-material/constants"
+import { researchFormQuestionIds } from "@/utils/course-material/researchConsentForm"
 
 import ContentRenderer from "../ContentRenderer"
 
@@ -29,111 +25,144 @@ interface ResearchConsentFormProps {
   editForm: boolean
   shouldAnswerResearchForm: boolean
   usersInitialAnswers?: ResearchFormQuestionAnswer[]
-  researchForm: ResearchForm
+  /** The form's Gutenberg blocks. */
+  content: unknown
+  /** Shows the form outside the course material: Save only closes the dialog. */
+  preview?: { courseName: string }
 }
 
-interface UserAnswer {
-  questionId: string
-  answer: boolean
-}
+/**
+ * ContentRenderer sizes its blocks for a full-width course page — 20px text, 3rem between blocks,
+ * headings that outgrow the dialog title. Hold the authored form to the dialog's own scale and
+ * rhythm, and let the dialog's padding be the only gutter around the outermost blocks.
+ */
+const authoredFormCss = css`
+  .${courseMaterialBlockClass} {
+    font-size: var(--font-size-2);
+    margin-block: var(--space-4);
+  }
+
+  .${courseMaterialBlockClass}:first-child {
+    margin-block-start: 0;
+  }
+
+  .${courseMaterialBlockClass}:last-child {
+    margin-block-end: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  p,
+  ol,
+  ul {
+    margin-block: 0;
+  }
+
+  h1 {
+    font-size: var(--font-size-3-5);
+  }
+
+  h2 {
+    font-size: var(--font-size-3);
+  }
+
+  h3 {
+    font-size: var(--font-size-2);
+  }
+`
 
 const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsentFormProps>> = ({
   editForm,
   onClose,
   shouldAnswerResearchForm,
   usersInitialAnswers,
-  researchForm,
+  content,
+  preview,
 }) => {
   const { t } = useTranslation()
   const userId = useUserInfo().data?.user_id
   const courseId = useAtomValue(currentCourseIdAtom)
-  const courseName = useAtomValue(materialCourseAtom)?.name
+  const materialCourseName = useAtomValue(materialCourseAtom)?.name
+  const courseName = preview?.courseName ?? materialCourseName
 
-  const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<Record<string, boolean>>()
-  const getResearchFormQuestions = useQuery({
-    queryKey: ["course-material-research-consent-form-questions", courseId],
-    // oxlint-disable-next-line eslint/require-await -- async for the Promise<ResearchFormQuestion[]> contract
-    queryFn: async (): Promise<ResearchFormQuestion[]> =>
-      getCourseMaterialResearchConsentFormQuestions({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-    enabled: courseId !== null,
-  })
+  const { control, reset, getValues } = useForm<Record<string, boolean>>()
+  const questionIds = useMemo(() => researchFormQuestionIds(content), [content])
 
-  // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
+  // Adds all checkbox ids and false as default answer to the form
   useEffect(() => {
-    setQuestionIdsAndAnswers((prev) => {
-      let res = prev
-      if (!res) {
-        res = {}
+    const res = { ...getValues() }
+    if (usersInitialAnswers) {
+      for (const answer of usersInitialAnswers) {
+        res[answer.research_form_question_id] = answer.research_consent
       }
-      if (usersInitialAnswers) {
-        for (const answer of usersInitialAnswers) {
-          res[answer.research_form_question_id] = answer.research_consent
-        }
+    }
+    // useController pre-registers every rendered checkbox's key with value undefined, so
+    // hasOwnProperty is already true here; check the value itself to actually catch unanswered ones.
+    for (const questionId of questionIds) {
+      if (res[questionId] === undefined) {
+        res[questionId] = false
       }
-      // Find out missing questions and add them to the list
-      for (const question of getResearchFormQuestions.data ?? []) {
-        if (Object.prototype.hasOwnProperty.call(res, question.id) === false) {
-          res[question.id] = false
-        }
-      }
-      return res
-    })
-  }, [getResearchFormQuestions.data, setQuestionIdsAndAnswers, usersInitialAnswers])
+    }
+    reset(res)
+  }, [questionIds, getValues, reset, usersInitialAnswers])
 
   const mutation = useToastMutation(
-    (answer: UserAnswer) =>
-      postCourseMaterialResearchConsentFormAnswer({
-        body: {
-          research_consent: answer.answer,
-          research_form_question_id: answer.questionId,
-          user_id: assertNotNullOrUndefined(userId),
-        },
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
+    async (answers: Record<string, boolean>) => {
+      // Answers to questions since removed from the form stay out; the backend rejects them.
+      for (const questionId of questionIds) {
+        await postCourseMaterialResearchConsentFormAnswer({
+          body: {
+            research_consent: answers[questionId] ?? false,
+            research_form_question_id: questionId,
+            user_id: assertNotNullOrUndefined(userId),
+          },
+          path: {
+            course_id: assertNotNullOrUndefined(courseId),
+          },
+        })
+      }
+    },
     {
       notify: true,
       method: "POST",
     },
+    { onSuccess: onClose },
   )
 
   const handleOnSubmit = () => {
-    if (questionIdsAndAnswers) {
-      Object.entries(questionIdsAndAnswers).forEach(([id, bol]) => {
-        const newAnswer: UserAnswer = { questionId: id, answer: bol }
-        mutation.mutate(newAnswer)
-      })
+    if (preview) {
+      onClose()
+      return
     }
-    onClose()
+    mutation.mutate(getValues())
   }
   return (
-    <StandardDialog
+    <Dialog
       open={shouldAnswerResearchForm || editForm}
+      // Consent must be an explicit choice: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
       title={
         courseName
           ? t("research-consent-for-course", { courseName })
           : t("title-research-consent-form")
       }
       showCloseButton={false}
-      closeable={false}
-      buttons={[
+      actions={[
         {
-          children: t("save"),
+          label: t("save"),
           onClick: handleOnSubmit,
-          variant: "tertiary",
-          transform: "capitalize",
+          variant: "primary",
+          disabled: mutation.isPending,
         },
       ]}
     >
-      <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
-        <ContentRenderer data={(researchForm.content as Block<unknown>[]) ?? []} isExam={false} />
+      <CheckboxContext.Provider value={{ control }}>
+        <div className={authoredFormCss}>
+          <ContentRenderer data={(content as Block<unknown>[]) ?? []} isExam={false} />
+        </div>
       </CheckboxContext.Provider>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

@@ -2,7 +2,7 @@
 //!
 //! The pure half decides what each move does to a row (`outcomes`), how long to wait and what may
 //! be retried (`backoff`, `classification`), what gets registered (`payload`, `grade_mapping`,
-//! `enrolment_selection`), and what of an exchange may be kept (`scrub`). The rest are database steps
+//! `enrolment_selection`), and what personal data is removed from what is kept (`scrub`). The rest are database steps
 //! the phases run, such as `materialize`, `preconditions`, `enrolment_checks` and `account_linking`.
 //! Every state change goes through `credit_registrations::transition`.
 
@@ -10,22 +10,28 @@ pub mod account_linking;
 pub mod backoff;
 pub mod classification;
 pub mod config_validation;
+pub mod course_unit_poll_slots;
 pub mod enrolment_check_schedule;
 pub mod enrolment_checks;
 pub mod enrolment_selection;
 pub mod grade_mapping;
 pub mod legacy_mirror;
 pub mod materialize;
+pub mod moocfi_grade;
+pub mod moocfi_recheck;
+pub mod moocfi_report;
 pub mod outcomes;
 pub mod payload;
 pub mod pending_reason;
 pub mod preconditions;
 pub mod scrub;
 pub mod sisu_day_gap;
+pub mod sisu_name;
 pub mod student_facing_status;
 pub mod student_notifications;
 pub mod student_number;
 pub mod student_number_change;
+pub mod student_progress;
 pub mod study_registry;
 pub mod submission_context;
 pub mod timeline;

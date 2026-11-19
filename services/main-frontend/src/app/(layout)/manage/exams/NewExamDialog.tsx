@@ -1,19 +1,17 @@
 "use client"
 
 import type { UseQueryResult } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import NewExamForm from "@/components/forms/NewExamForm"
+import NewExamForm, { NEW_EXAM_FORM_ID } from "@/components/forms/NewExamForm"
 import {
   createOrganizationExamMutation as createOrganizationExamMutationOptions,
   duplicateExamMutation as duplicateExamMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { NewExam, OrgExam } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResult } from "@/shared-module/components"
+import { Dialog, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 interface ExamDialogProps {
   organizationId: string
@@ -29,6 +27,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   close,
 }) => {
   const { t } = useTranslation()
+  const [form, setForm] = useState<HTMLFormElement | null>(null)
   const createExamMutation = useToastMutationOptions(
     createOrganizationExamMutationOptions(),
     {
@@ -71,6 +70,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       initialData={null}
       organizationId={organizationId}
       onCancel={close}
+      formRef={setForm}
       onCreateNewExam={(newExam) =>
         createExamMutation.mutate({
           body: newExam,
@@ -91,17 +91,35 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   )
 
   return (
-    <StandardDialog open={open} onClose={onClose} title={t("new-exam")}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={t("new-exam")}
+      actions={[
+        {
+          label: t("button-text-submit"),
+          variant: "primary",
+          type: "submit",
+          domProps: { form: NEW_EXAM_FORM_ID },
+          // The form mounts only after QueryResult's loading skeleton, which can outlast the
+          // query; until then the footer button would submit nothing.
+          disabled: form === null,
+        },
+      ]}
+    >
+      {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {createExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={createExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={createExamMutation.error} announce="off" />
       )}
       {duplicateExamMutation.isError && (
-        <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={duplicateExamMutation.error} announce="off" />
       )}
       <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}
       </QueryResult>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

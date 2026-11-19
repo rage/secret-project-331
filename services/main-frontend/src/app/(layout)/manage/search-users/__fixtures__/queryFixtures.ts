@@ -46,4 +46,4 @@ export const failed = <T>(): UseQueryResult<T, unknown> =>
 export const fuzzyResults = (
   users: UserDetail[],
   overrides: Partial<FuzzyUserSearchResults> = {},
-): FuzzyUserSearchResults => ({ users, has_more: false, timed_out: false, ...overrides })
+): FuzzyUserSearchResults => ({ users, has_more: false, ...overrides })

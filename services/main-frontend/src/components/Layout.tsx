@@ -10,9 +10,11 @@ import React from "react"
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
+import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
 
+import PendingRolesNotice from "./PendingRolesNotice"
 import Topbar from "./Topbar"
 
 interface LayoutProps {
@@ -61,11 +63,20 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
       >
         <Topbar courseId={courseId} currentPagePath={pathname} />
 
-        <main id="maincontent">
-          <Centered variant="default">{children}</Centered>
+        <main
+          id="maincontent"
+          className={css`
+            padding-top: var(--space-4);
+          `}
+        >
+          <Centered variant="default">
+            <PendingRolesNotice />
+            {children}
+          </Centered>
         </main>
       </div>
       <Footer privacyLinks={customPrivacyLinks} />
+      <SessionVerificationDialog />
     </>
   )
 

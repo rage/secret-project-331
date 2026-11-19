@@ -38,7 +38,13 @@ export const resolvedPageTitleAtom = atom<string | null>((get) => {
   return best?.title ?? null
 })
 
+/** Whether the title carries the changed-in-background marker. */
+export const pageTitleChangeMarkerAtom = atom(false)
+
 let seqCounter = 0
 
 /** Returns a process-monotonic sequence number for ordering registrations within a level. */
 export const nextPageTitleSeq = (): number => ++seqCounter
+
+/** Title of the page-level error notice replacing the page, else null. */
+export const pageErrorTitleAtom = atom<string | null>(null)

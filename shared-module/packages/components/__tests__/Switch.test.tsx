@@ -92,4 +92,12 @@ describe("Switch", () => {
       "checkbox",
     )
   })
+
+  test("data-testid lands on the switch input", () => {
+    renderBooleanField((control) => (
+      <Switch name="f" control={control} label="Tagged" data-testid="tagged-switch" />
+    ))
+
+    expect(screen.getByTestId("tagged-switch")).toBe(screen.getByRole("switch", { name: "Tagged" }))
+  })
 })

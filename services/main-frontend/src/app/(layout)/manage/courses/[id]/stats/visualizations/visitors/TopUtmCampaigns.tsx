@@ -83,6 +83,7 @@ const TopUTMCampaigns: React.FC<React.PropsWithChildren<TopUTMCampaignsProps>> =
                 `}
               >
                 <Echarts
+                  label={t("header-utm-campaigns")}
                   height={chartHeight}
                   options={{
                     grid: {

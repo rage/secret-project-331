@@ -52,13 +52,15 @@ describe("NumberField - accessibility wiring", () => {
     expect(screen.getByRole("textbox")).toHaveAccessibleDescription("How many items.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderNumberField((control) => (
       <NumberField name="f" control={control} label="Quantity" errorMessage="Required." />
     ))
     const input = screen.getByRole("textbox")
     expect(input).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required.")
+    expect(input).toHaveAccessibleDescription("Required.")
+    expect(screen.getByText("Required.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("isRequired marks the field required", () => {
@@ -255,5 +257,16 @@ describe("NumberField - size variants", () => {
       <NumberField name="f" control={control} label="Quantity" fieldSize={size} />
     ))
     expect(screen.getByRole("textbox")).toBeInTheDocument()
+  })
+})
+
+describe("NumberField - data-testid", () => {
+  test("lands on the input, not the stepper group", () => {
+    renderNumberField((control) => (
+      <NumberField name="f" control={control} label="Quantity" data-testid="quantity-field" />
+    ))
+    expect(screen.getByTestId("quantity-field")).toBe(
+      screen.getByRole("textbox", { name: "Quantity" }),
+    )
   })
 })

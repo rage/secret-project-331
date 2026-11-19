@@ -33,6 +33,10 @@
       "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the data related to the constraint and try again.",
       "title": "Foreign key violation"
     },
+    "form_verification_failed": {
+      "message": "Please send the form again.",
+      "title": "The form could not be verified"
+    },
     "generic_sisu_error": {
       "message": "Something went wrong in generating description",
       "title": "Could not generate description"
@@ -104,6 +108,23 @@
     "unrecognized_keys": "Unrecognized keys: {{keys}}"
   },
   "error-zod-issue-prefix": "Validation issue at",
+  "errorNotice.code": "Code",
+  "errorNotice.copyReport": "Copy error report",
+  "errorNotice.detail": "Detail",
+  "errorNotice.messageKey": "Message key",
+  "errorNotice.method": "Method",
+  "errorNotice.page": "Page",
+  "errorNotice.rawResponse": "Raw response",
+  "errorNotice.requestId": "Request ID",
+  "errorNotice.retry": "Retry",
+  "errorNotice.retryAfter": "Retry after",
+  "errorNotice.seconds": "{{seconds}} s",
+  "errorNotice.stackTrace": "Stack trace",
+  "errorNotice.status": "Status",
+  "errorNotice.technicalDetails": "Technical details",
+  "errorNotice.time": "Time",
+  "errorNotice.type": "Type",
+  "errorNotice.url": "URL",
   "failed-to-send-message": "Failed to send message",
   "go-to-error": "Go to error",
   "label-error-loading": "Error loading data.",

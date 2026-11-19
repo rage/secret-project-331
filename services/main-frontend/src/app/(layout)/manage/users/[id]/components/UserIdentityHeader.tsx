@@ -19,12 +19,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserDetail, UserRole } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
+import { dateToString } from "@/shared-module/common/utils/time"
 import {
   Avatar,
   Badge,
   CopyButton,
   DescriptionList,
   type DescriptionListItem,
+  Link,
   QueryResults,
 } from "@/shared-module/components"
 
@@ -38,8 +40,9 @@ export interface UserIdentityHeaderProps {
   studentNumber: StudentNumberState | null
 }
 
-// The student's TMC (mooc.fi) participant page; the account's upstream_id is the participant id.
-const TMC_PARTICIPANT_URL = "https://tmc.mooc.fi/participants/"
+// The account's upstream_id is both the tmc.mooc.fi participant id and the mooc.fi admin user id.
+const tmcParticipantUrl = (tmcId: number) => `https://tmc.mooc.fi/participants/${tmcId}`
+const moocfiAdminUserUrl = (tmcId: number) => `https://www.mooc.fi/admin/users/${tmcId}/summary`
 
 const headerCss = css`
   display: flex;
@@ -47,21 +50,6 @@ const headerCss = css`
   gap: var(--space-4);
   margin-bottom: var(--space-3);
   min-width: 0;
-`
-
-const tmcLinkCss = css`
-  display: inline-flex;
-  text-decoration: none;
-  border-radius: 999px;
-
-  &:hover {
-    filter: brightness(0.96);
-  }
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
 `
 
 const bodyCss = css`
@@ -106,8 +94,11 @@ const idButtonRowCss = css`
 // CopyButton's default chrome is a bordered chip, which reads as a Badge once it carries a text
 // label rather than just its glyph.
 const quietCopyButtonCss = css`
+  padding: 0;
   border: none;
   background: none;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 `
 
 /** The number the credits are registered under, or what we last did about getting one confirmed. */
@@ -146,7 +137,8 @@ const StudentNumberValue: React.FC<{ state: StudentNumberState }> = ({ state }) 
 
 /**
  * Identity block: monogram, name, the email with its verification note, the student number the
- * credits go under, and the account chips (roles, TMC id).
+ * credits go under, the account chips (roles, TMC id), and links to the user on the old version of
+ * the platform.
  */
 const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userId,
@@ -154,7 +146,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
   userDetailsNotFound,
   studentNumber,
 }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const rolesQuery = useQuery({ ...getUserRolesOptions({ path: { user_id: userId } }) })
   const userQuery = useQuery({ ...getUserOptions({ path: { user_id: userId } }) })
 
@@ -180,7 +172,7 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
           <Badge tone={verifiedAt ? TONE.SUCCESS : TONE.NEUTRAL}>
             {verifiedAt
               ? t("email-verified-on", {
-                  date: new Date(verifiedAt).toLocaleString(i18n.language),
+                  date: dateToString(verifiedAt),
                 })
               : t("email-not-verified")}
           </Badge>
@@ -221,14 +213,15 @@ const UserIdentityHeader: React.FC<UserIdentityHeaderProps> = ({
                       </Badge>
                     ))}
                     {tmcId !== null ? (
-                      <a
-                        className={tmcLinkCss}
-                        href={`${TMC_PARTICIPANT_URL}${tmcId}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <>
                         <Badge tone={TONE.NEUTRAL}>{t("tmc-id", { id: tmcId })}</Badge>
-                      </a>
+                        <Link href={tmcParticipantUrl(tmcId)} target="_blank" rel="noreferrer">
+                          {t("link-open-on-tmc-mooc-fi")}
+                        </Link>
+                        <Link href={moocfiAdminUserUrl(tmcId)} target="_blank" rel="noreferrer">
+                          {t("link-open-on-mooc-fi")}
+                        </Link>
+                      </>
                     ) : null}
                   </div>
                 )

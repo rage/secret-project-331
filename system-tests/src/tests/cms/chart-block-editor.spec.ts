@@ -1,5 +1,6 @@
 import { expect, type Locator, type Page, test } from "@playwright/test"
 
+import { createCoursePage, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -70,10 +71,8 @@ const createPageWithChartBlock = async (page: Page, title: string) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   // Chapter 3: concurrent page creation in the same chapter races with other tests
   // (converting-blocks uses chapter 2, custom-iframe chapter 1).
-  await page.getByRole("button", { name: "New page" }).nth(3).click()
-  await page.getByLabel("Title  *").fill(title)
-  await page.getByRole("button", { name: "Create" }).click()
-  await page.getByRole("row", { name: title }).getByRole("button", { name: "Edit page" }).click()
+  await createCoursePage(page, { chapterNumber: 3 }, title)
+  await openCoursePageInEditor(page, title, { chapterNumber: 3 })
 
   await page.getByLabel("Add block").click()
   await page.getByPlaceholder("Search").fill("chart")

@@ -1,28 +1,14 @@
 "use client"
 
 import React from "react"
-import { useTranslation } from "react-i18next"
-
-import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import type { CodeGiveawayCode as CodeGiveawayCodeType } from "@/generated/api/types.generated"
 
 interface CodeGiveawayCodeProps {
-  code: CodeGiveawayCodeType
+  code: string
   revealed: boolean
 }
 
 const CodeGiveawayCode: React.FC<CodeGiveawayCodeProps> = ({ code, revealed }) => {
-  const { t } = useTranslation()
-
-  const { code_given_to_user_id, added_by_user_id, code: codeValue } = code
-
-  return (
-    <FullWidthTableRow>
-      <td>{revealed ? <code>{codeValue}</code> : <code>******</code>}</td>
-      <td>{code_given_to_user_id ? code_given_to_user_id : t("not-given")}</td>
-      <td>{added_by_user_id}</td>
-    </FullWidthTableRow>
-  )
+  return <code>{revealed ? code : "******"}</code>
 }
 
 export default CodeGiveawayCode

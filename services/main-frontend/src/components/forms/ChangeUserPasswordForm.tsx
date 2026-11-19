@@ -6,11 +6,9 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { changeUserPassword } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Button, TextField, useToggleFocus } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ChangePasswordFormFields {
@@ -19,30 +17,30 @@ interface ChangePasswordFormFields {
   password_confirmation: string
 }
 
+class WrongCurrentPasswordError extends Error {}
+
 const ChangeUserPasswordForm: React.FC = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<ChangePasswordFormFields>({
-    // oxlint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
-    defaultValues: {
-      current_password: "",
-      new_password: "",
-      password_confirmation: "",
-    },
-  })
+  const { handleSubmit, control, reset, watch, setError, setFocus } =
+    useForm<ChangePasswordFormFields>({
+      // oxlint-disable-next-line i18next/no-literal-string
+      mode: "onChange",
+      defaultValues: {
+        current_password: "",
+        new_password: "",
+        password_confirmation: "",
+      },
+    })
   const newPassword = watch("new_password")
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const openButtonRef = useToggleFocus(isOpen, () => setFocus("current_password"))
 
   const changePasswordMutation = useToastMutation<boolean, unknown, ChangePasswordFormFields>(
     async (data) => {
-      return validateGeneratedData(
+      const changed = validateGeneratedData(
         await changeUserPassword({
           body: {
             old_password: data.current_password,
@@ -51,15 +49,28 @@ const ChangeUserPasswordForm: React.FC = () => {
         }),
         isBoolean,
       )
+      // The API answers 200 false when the current password is wrong.
+      if (!changed) {
+        throw new WrongCurrentPasswordError()
+      }
+      return changed
     },
     {
       method: "POST",
       notify: true,
+      isErrorHandledByCaller: (error) => error instanceof WrongCurrentPasswordError,
     },
     {
       onSuccess: () => {
         setIsOpen(false)
         reset()
+      },
+      onError: (error) => {
+        if (error instanceof WrongCurrentPasswordError) {
+          setError("current_password", { type: "server", message: t("current-password-incorrect") })
+          // oxlint-disable-next-line i18next/no-literal-string
+          setFocus("current_password")
+        }
       },
     },
   )
@@ -77,6 +88,7 @@ const ChangeUserPasswordForm: React.FC = () => {
     return (
       <div>
         <Button
+          ref={openButtonRef}
           data-testid="change-password-button"
           variant="primary"
           size="small"
@@ -94,39 +106,44 @@ const ChangeUserPasswordForm: React.FC = () => {
       className={css`
         display: flex;
         flex-direction: column;
+        gap: var(--space-4);
       `}
     >
       <TextField
+        name="current_password"
+        control={control}
         label={t("old-password")}
         type="password"
-        placeholder={t("enter-your-current-password")}
-        {...register("current_password", { required: t("required-field") })}
-        {...omitUndefined({ error: errors.current_password?.message })}
-        required
+        autoComplete="current-password"
+        rules={{ required: t("required-field") }}
+        isRequired
       />
 
       <TextField
+        name="new_password"
+        control={control}
         label={t("new-password")}
+        description={t("password-must-have-at-least-8-characters")}
         type="password"
-        placeholder={t("enter-your-new-password")}
-        {...register("new_password", {
+        autoComplete="new-password"
+        rules={{
           required: t("required-field"),
           minLength: { value: 8, message: t("password-must-have-at-least-8-characters") },
-        })}
-        {...omitUndefined({ error: errors.new_password?.message })}
-        required
+        }}
+        isRequired
       />
 
       <TextField
+        name="password_confirmation"
+        control={control}
         label={t("confirm-new-password")}
         type="password"
-        placeholder={t("confirm-your-new-password")}
-        {...register("password_confirmation", {
+        autoComplete="new-password"
+        rules={{
           required: t("required-field"),
           validate: (value) => value === newPassword || t("passwords-dont-match"),
-        })}
-        {...omitUndefined({ error: errors.password_confirmation?.message })}
-        required
+        }}
+        isRequired
       />
 
       <div
@@ -135,15 +152,10 @@ const ChangeUserPasswordForm: React.FC = () => {
           gap: 10px;
         `}
       >
-        <Button
-          type="submit"
-          disabled={changePasswordMutation.isPending}
-          variant={"primary"}
-          size={"small"}
-        >
+        <Button type="submit" disabled={changePasswordMutation.isPending} variant={"primary"}>
           {t("button-text-save")}
         </Button>
-        <Button type="button" variant="secondary" onClick={handleCancel} size={"small"}>
+        <Button type="button" variant="secondary" onClick={handleCancel}>
           {t("button-text-cancel")}
         </Button>
       </div>

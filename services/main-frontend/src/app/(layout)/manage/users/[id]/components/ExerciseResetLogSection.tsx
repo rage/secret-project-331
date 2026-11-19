@@ -6,11 +6,11 @@ import { groupBy } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { emptyStateCss } from "@/components/credit-registration/styles"
 import { getUserResetExerciseLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import { baseTheme, fontWeights } from "@/shared-module/common/styles"
-import { CopyButton, QueryResult } from "@/shared-module/components"
+import { CopyButton, QueryResult, Table } from "@/shared-module/components"
 
 export interface ExerciseResetLogSectionProps {
   userId: string
@@ -25,36 +25,7 @@ const localDay = (iso: string): string => {
 }
 
 const groupCss = css`
-  border: 1px solid #ced1d7;
-  border-radius: 8px;
   margin-bottom: 1rem;
-  overflow: hidden;
-`
-
-const groupHeaderCss = css`
-  background: #f7f8f9;
-  padding: 0.6rem 0.9rem;
-  font-weight: ${fontWeights.medium};
-  color: ${baseTheme.colors.gray[600]};
-`
-
-const tableCss = css`
-  border-collapse: collapse;
-  width: 100%;
-  text-align: left;
-  font-size: ${baseTheme.fontSizes[0]}px;
-
-  th,
-  td {
-    padding: 0.6rem 0.9rem;
-    border-top: 1px solid #ced1d7;
-    color: ${baseTheme.colors.gray[700]};
-  }
-
-  th {
-    font-weight: ${fontWeights.medium};
-    color: ${baseTheme.colors.gray[500]};
-  }
 `
 
 const idCellCss = css`
@@ -87,39 +58,38 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
                 .trim()
               return (
                 <div key={groupKey} className={groupCss}>
-                  <div className={groupHeaderCss}>
-                    {t("reset-group-header", {
+                  <Table
+                    caption={t("reset-group-header", {
                       amount: logs.length,
                       name: resetterName || t("reset-by-unknown-user"),
                     })}
-                  </div>
-                  <table className={tableCss}>
-                    <thead>
-                      <tr>
-                        <th scope="col">{t("exercise")}</th>
-                        <th scope="col">{t("label-when")}</th>
-                        <th scope="col">{t("label-reason")}</th>
-                        <th scope="col">{t("label-exercise-id")}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {logs.map((log) => (
-                        <tr key={log.id}>
-                          <td>{log.exercise_name}</td>
-                          <td>
-                            <TimeComponent date={new Date(log.created_at)} boldLabel={false} />
-                          </td>
-                          <td>{log.reason ?? t("label-not-specified")}</td>
-                          <td>
-                            <span className={idCellCss}>
-                              {log.exercise_id}
-                              <CopyButton value={log.exercise_id} label={t("copy-exercise-id")} />
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    showCaption
+                    density={DENSITY_COMPACT}
+                    rows={logs}
+                    rowKey={(log) => log.id}
+                    columns={[
+                      { header: t("exercise"), cell: (log) => log.exercise_name },
+                      {
+                        header: t("label-when"),
+                        cell: (log) => (
+                          <TimeComponent date={new Date(log.created_at)} boldLabel={false} />
+                        ),
+                      },
+                      {
+                        header: t("label-reason"),
+                        cell: (log) => log.reason ?? t("label-not-specified"),
+                      },
+                      {
+                        header: t("label-exercise-id"),
+                        cell: (log) => (
+                          <span className={idCellCss}>
+                            {log.exercise_id}
+                            <CopyButton value={log.exercise_id} label={t("copy-exercise-id")} />
+                          </span>
+                        ),
+                      },
+                    ]}
+                  />
                 </div>
               )
             })}

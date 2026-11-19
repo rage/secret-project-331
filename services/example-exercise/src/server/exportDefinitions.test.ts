@@ -16,10 +16,13 @@ describe("POST /api/export-definitions", () => {
       post({
         items: [
           {
-            private_spec: [
-              { id: "id-1", name: "First option", correct: true },
-              { id: "id-2", name: "Second option", correct: false },
-            ],
+            private_spec: {
+              version: "1",
+              alternatives: [
+                { id: "id-1", name: "First option", correct: true },
+                { id: "id-2", name: "Second option", correct: false },
+              ],
+            },
           },
         ],
       }),

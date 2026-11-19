@@ -2,14 +2,21 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useEffect } from "react"
+import { useForm, useWatch } from "react-hook-form"
 
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { TextField } from "@/shared-module/components"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
 `
+
+interface UpdatePageDetailsFormFields {
+  title: string
+}
+
+const TITLE_FIELD_NAME = "title"
 
 interface UpdatePageDetailsFormProps {
   title: string
@@ -21,6 +28,13 @@ const UpdatePageDetailsForm: React.FC<React.PropsWithChildren<UpdatePageDetailsF
   setTitle,
 }) => {
   const { t } = useTranslation()
+  const { control } = useForm<UpdatePageDetailsFormFields>({ defaultValues: { title } })
+  const watchedTitle = useWatch({ control, name: TITLE_FIELD_NAME })
+
+  useEffect(() => {
+    setTitle(watchedTitle)
+  }, [watchedTitle, setTitle])
+
   return (
     <div
       className={css`
@@ -30,12 +44,10 @@ const UpdatePageDetailsForm: React.FC<React.PropsWithChildren<UpdatePageDetailsF
       <div>
         <FieldContainer>
           <TextField
-            required
+            name={TITLE_FIELD_NAME}
+            control={control}
+            isRequired
             label={t("label-title")}
-            value={title}
-            onChangeByValue={(value) => {
-              setTitle(value)
-            }}
           />
         </FieldContainer>
       </div>

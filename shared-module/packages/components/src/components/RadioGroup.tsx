@@ -8,7 +8,9 @@ import { mergeProps, useRadioGroup } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   descriptionCss,
   errorCss,
@@ -30,6 +32,7 @@ interface RadioGroupContextValue {
   state: RadioGroupState
   variant: RadioGroupVariant
   fillWidth: boolean
+  showCheckMark: boolean
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContextValue | null>(null)
@@ -40,9 +43,26 @@ const fieldsetCss = css`
   border: 0;
 `
 
+/**
+ * A rendered `<legend>` sits outside its fieldset's formatting context, so the grid `gap` never
+ * lands under it and the options end up flush against the label. The UA's 2px inline padding
+ * would also push it off the options' left edge.
+ *
+ * It captions a block of rows rather than labelling one control, so it gets more room beneath it
+ * than a field label does.
+ */
+const legendCss = css`
+  padding: 0;
+  margin-bottom: var(--space-3);
+`
+
+/**
+ * Roomy enough that an option's description does not read as part of the option below it. A caller
+ * can widen it by setting `--radio-list-gap` through `className`; hidden options read it too.
+ */
 const radioListCss = css`
   display: grid;
-  gap: var(--space-2);
+  gap: var(--radio-list-gap, var(--space-3));
 `
 
 const radioListHorizontalCss = css`
@@ -63,6 +83,14 @@ const segmentedListCss = css`
  * `list`-variant group is likewise the subject of its own band, not a field among others in a
  * longer form, can pass it as the `label` to get the same weight.
  */
+/**
+ * For a `Reveal` that is an item of the list: cancels the list gap it would still take up while
+ * closed, reading `--radio-list-gap` like the list does.
+ */
+export const radioListRevealCss = css`
+  --reveal-collapsed-margin-top: calc(-1 * var(--radio-list-gap, var(--space-3)));
+`
+
 export const questionLegendCss = css`
   color: var(--color-gray-700);
   font-size: var(--font-size-3);
@@ -152,10 +180,16 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   variant?: RadioGroupVariant
   /**
    * `segmented` only — splits the row evenly between options instead of each hugging its own
-   * text. For a pair whose labels are long and unevenly sized enough to wrap raggedly; leave unset
-   * for a short choice like Yes/No, where hugging the text is the more compact, expected look.
+   * text, wrapping onto more rows when the options get too narrow to read. For options whose
+   * labels are long and unevenly sized enough to wrap raggedly; leave unset for a short choice
+   * like Yes/No, where hugging the text is the more compact, expected look.
    */
   fillWidth?: boolean
+  /**
+   * `segmented` only — puts a check mark on the chosen option, for a question whose answer is
+   * kept, where the fill alone could read as a highlighted button rather than a recorded answer.
+   */
+  showCheckMark?: boolean
   /**
    * Renders `description` as an ordinary paragraph — body text size and color, and the band's
    * normal paragraph spacing — instead of the smaller, muted field-hint style. For a description
@@ -165,6 +199,8 @@ export type RadioGroupProps<T extends FieldValues, N extends Path<T> = Path<T>> 
   "aria-label"?: string
   className?: string
   children?: React.ReactNode
+  /** Lands on the group element; give each `Radio` its own id to address the inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -184,10 +220,12 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     orientation = "vertical",
     variant = "list",
     fillWidth = false,
+    showCheckMark = false,
     proseDescription = false,
     className,
     children,
     "aria-label": ariaLabel,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -201,7 +239,11 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
   }))
 
   const state = useRadioGroupState({
-    ...(field.value === null || field.value === undefined ? {} : { value: String(field.value) }),
+    // '' means no selection; a non-null selectedValue would give every radio tabIndex -1.
+    value:
+      field.value === null || field.value === undefined || field.value === ""
+        ? null
+        : String(field.value),
     onChange: (v) => {
       field.onChange(v)
     },
@@ -209,6 +251,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
   })
 
@@ -229,6 +272,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       ...omitUndefined({ "aria-label": ariaLabel }),
     },
@@ -261,8 +305,12 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
       ref={fieldsetRef}
       className={cx(fieldRootCss, fieldsetCss, className)}
       disabled={state.isDisabled}
+      data-testid={dataTestId}
     >
-      <legend {...labelProps} className={isSegmented ? questionLegendCss : stackedLabelCss}>
+      <legend
+        {...labelProps}
+        className={cx(isSegmented ? questionLegendCss : stackedLabelCss, legendCss)}
+      >
         {label}
       </legend>
 
@@ -272,7 +320,7 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         </div>
       ) : null}
 
-      <RadioGroupContext.Provider value={{ fieldSize, state, variant, fillWidth }}>
+      <RadioGroupContext.Provider value={{ fieldSize, state, variant, fillWidth, showCheckMark }}>
         <div
           className={cx(
             resolveRadioListCss(variant, orientation),
@@ -294,9 +342,9 @@ export function RadioGroup<T extends FieldValues, N extends Path<T> = Path<T>>(
         >
           {!isSegmented ? descriptionBlock : null}
           {resolvedRenderedError ? (
-            <div {...errorMessageProps} className={errorCss} role="alert">
+            <FieldError {...errorMessageProps} className={errorCss}>
               {resolvedRenderedError}
-            </div>
+            </FieldError>
           ) : null}
         </div>
       ) : null}

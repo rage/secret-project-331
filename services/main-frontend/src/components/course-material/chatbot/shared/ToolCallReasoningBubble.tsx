@@ -9,8 +9,8 @@ import {
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
-import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Disclosure } from "@/shared-module/components"
 
 import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 import ChatbotStatusRow from "./ChatbotStatusRow"
@@ -23,16 +23,6 @@ const textStyle = css`
 `
 
 const detailsStyle = css`
-  details > summary::marker {
-    content: none;
-  }
-  details > summary {
-    cursor: pointer;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: baseline;
-  }
   color: rgb(0 0 0 / 70%);
   border-radius: 10px;
   padding: 0.25rem;
@@ -40,13 +30,6 @@ const detailsStyle = css`
   max-width: stretch;
   border: 2px dashed ${baseTheme.colors.blue[200]};
   background-color: ${baseTheme.colors.blue[50]};
-`
-
-const iconStyle = (open: boolean) => css`
-  transform: scale(0.8) ${open ? " rotate(180deg)" : ""};
-  transition: transform 0.2s ease;
-  flex: 1;
-  margin: 0 0.5rem 0 1.5rem;
 `
 
 // Hoisted because emotion re-serializes and re-hashes the result on every call.
@@ -192,19 +175,18 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
   }
   return (
     <div className={detailsStyle}>
-      <details open={isOpen} onToggle={() => setIsOpen(!isOpen)}>
-        <summary>
-          <span className={textStyle}>
-            {summaryText}
-            <DownIcon className={iconStyle(isOpen)} />
-          </span>
-        </summary>
+      <Disclosure
+        variant="plain"
+        title={<span className={textStyle}>{summaryText}</span>}
+        expanded={isOpen}
+        onExpandedChange={setIsOpen}
+      >
         <ul className={expandableListStyle}>
           {expandableText.map((item, idx) => (
             <li key={idx}>{item}</li>
           ))}
         </ul>
-      </details>
+      </Disclosure>
     </div>
   )
 }

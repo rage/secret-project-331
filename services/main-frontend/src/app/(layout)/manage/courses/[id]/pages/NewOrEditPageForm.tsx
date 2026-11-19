@@ -2,7 +2,8 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useRef } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,9 +11,8 @@ import {
   updatePageDetailsMutation as updatePageDetailsMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CreatePageData, Page } from "@/generated/api/types.generated"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { Dialog, TextField } from "@/shared-module/components"
 import { cleanUrlPath, normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -39,6 +39,13 @@ interface NewOrEditPageFormProps {
 
 type NewPage = CreatePageData["body"]
 
+interface PageDetailsFields {
+  title: string
+  path: string
+}
+
+const NEW_OR_EDIT_PAGE_FORM_ID = "new-or-edit-page-form"
+
 const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps>> = ({
   courseId,
   onSubmitForm,
@@ -57,8 +64,30 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     }
     return prevPath.replace(prefix, "")
   }, [prefix, savedPage?.url_path])
-  const [path, setPath] = useState(initialPath)
-  const [title, setTitle] = useState(savedPage?.title ?? "")
+  const {
+    control,
+    reset,
+    watch,
+    setValue,
+    getValues,
+    handleSubmit: handleFormSubmit,
+  } = useForm<PageDetailsFields>({
+    defaultValues: { title: savedPage?.title ?? "", path: initialPath },
+  })
+  const title = watch("title")
+  const path = watch("path")
+
+  // Deriving the path from the title is a convenience for a fresh edit, not a rule the initial
+  // (possibly hand-picked) path must obey, so this skips the render that fires from the seeded value.
+  const skipNextTitleDerivedPath = useRef(true)
+  useEffect(() => {
+    if (skipNextTitleDerivedPath.current) {
+      skipNextTitleDerivedPath.current = false
+      return
+    }
+    setValue("path", normalizePath(title))
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [title])
 
   const createPageMutation = useToastMutationOptions(
     createPageMutationOptions(),
@@ -118,47 +147,36 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     await createPageMutation.mutateAsync({
       body: newPage,
     })
+    reset({ title: "", path: "" })
   }
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={isUpdate ? t("heading-edit-page") : t("heading-new-page")}
-      buttons={[
+      actions={[
         {
           disabled: isPending,
-
           variant: "primary",
-          onClick: () => {
-            void handleSubmit()
-          },
-          children: isUpdate ? t("button-text-update") : t("button-text-create"),
+          type: "submit",
+          domProps: { form: NEW_OR_EDIT_PAGE_FORM_ID },
+          label: isUpdate ? t("button-text-update") : t("button-text-create"),
         },
       ]}
     >
-      <div>
+      <form id={NEW_OR_EDIT_PAGE_FORM_ID} onSubmit={handleFormSubmit(handleSubmit)}>
         <div>
-          <FieldContainer
-            className={css`
-              margin-left: 4px;
-            `}
-          >
+          <FieldContainer>
             <TextField
-              required
+              isRequired
+              name="title"
+              control={control}
+              rules={{ required: t("required-field") }}
               label={t("text-field-label-title")}
-              value={title}
-              onChangeByValue={(value) => {
-                setTitle(value)
-                setPath(normalizePath(value))
-              }}
             />
           </FieldContainer>
-          <FieldContainer
-            className={css`
-              margin-left: -4px;
-            `}
-          >
+          <FieldContainer>
             <PathFieldWithPrefixElement>
               <span
                 className={css`
@@ -170,27 +188,28 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
               >
                 {prefix}
               </span>
-              <TextField
-                required
-                label={t("text-field-label-path")}
-                value={path}
+              <div
+                // React's onBlur bubbles from the input (unlike the native blur event), so this
+                // wrapper is what lets the cleanup run without the field exposing an onBlur prop.
+                onBlur={() => setValue("path", cleanUrlPath(getValues("path")))}
                 className={css`
-                  width: 100%;
+                  flex: 1 1 auto;
+                  min-width: 0;
                 `}
-                onChangeByValue={(value) => {
-                  setPath(value)
-                }}
-                onBlur={() => {
-                  // Clean a manually entered path the way the backend stores it. On blur, not
-                  // per-keystroke, so typing hyphens mid-edit still works.
-                  setPath((current) => cleanUrlPath(current))
-                }}
-              />
+              >
+                <TextField
+                  isRequired
+                  name="path"
+                  control={control}
+                  rules={{ required: t("required-field") }}
+                  label={t("text-field-label-path")}
+                />
+              </div>
             </PathFieldWithPrefixElement>
           </FieldContainer>
         </div>
-      </div>
-    </StandardDialog>
+      </form>
+    </Dialog>
   )
 }
 

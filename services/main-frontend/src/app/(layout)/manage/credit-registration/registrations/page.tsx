@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { ExclamationTriangle, MagnifyingGlass } from "@vectopus/atlas-icons-react"
+import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useId, useMemo } from "react"
 import type { Key } from "react-aria"
 import { useTranslation } from "react-i18next"
@@ -17,20 +17,22 @@ import {
   useCreditRegistrationCourseStats,
   useCreditRegistrationOverview,
 } from "@/components/credit-registration/admin/adminCreditRegistrationHooks"
-import { TONE_INK } from "@/components/credit-registration/admin/AdminStateLabel"
-import LinkingMethodLabel from "@/components/credit-registration/admin/LinkingMethodLabel"
+import { courseFacetOptions } from "@/components/credit-registration/admin/courseFacet"
 import {
   ALL_STATES,
   BUCKET_OF_STATE,
   BUCKET_ORDER,
   bucketLabel,
 } from "@/components/credit-registration/admin/queueBuckets"
+import {
+  RegistrationStatusCell,
+  RegistrationStudentNumberCell,
+} from "@/components/credit-registration/admin/RegistrationListCells"
 import { REGISTRATIONS_PARAM } from "@/components/credit-registration/admin/registrationsListUrl"
 import StudentCell, {
   STUDENT_COLUMN_MIN_WIDTH,
 } from "@/components/credit-registration/admin/StudentCell"
 import {
-  ATTENTION_STEPS,
   ENGAGEMENT_STEPS,
   ENGAGEMENTS,
   engagementLabel,
@@ -58,7 +60,6 @@ import {
   TABLE_STACK,
   TONE,
 } from "@/components/credit-registration/constants"
-import InlineParts from "@/components/credit-registration/InlineParts"
 import { labelFrom } from "@/components/credit-registration/labelFrom"
 import {
   breakAnywhereCss,
@@ -75,14 +76,12 @@ import {
 } from "@/components/credit-registration/styles"
 import { ZonedTimestamp } from "@/components/credit-registration/ZonedTimestamp"
 import type {
-  AdminCreditRegistrationRow,
   CreditRegistrationErrorCode,
   CreditRegistrationState,
   Engagement,
   TimelinePhase,
   TimelineStep,
 } from "@/generated/api/types.generated"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
 import {
@@ -93,6 +92,7 @@ import {
   Disclosure,
   EmptyState,
   MultiSelect,
+  Pagination,
   QueryResult,
   Select,
   Table,
@@ -103,7 +103,6 @@ import {
 
 const ROWS_PER_PAGE = 50
 const SEARCH_ICON_SIZE = 16
-const ATTENTION_ICON_SIZE = 14
 
 const PARAM = REGISTRATIONS_PARAM
 const TRUE = "true"
@@ -200,28 +199,6 @@ const activityCss = css`
   gap: var(--space-2);
 `
 
-const attentionLineCss = css`
-  display: inline-flex;
-  gap: var(--space-2);
-  align-items: flex-start;
-`
-
-/** Centred on the first line of a label that may wrap. */
-const attentionIconCss = css`
-  flex: none;
-  margin-top: 0.2em;
-`
-
-const numberLineCss = css`
-  display: inline-flex;
-  gap: var(--space-2);
-  align-items: center;
-`
-
-const stepCss = css`
-  font-weight: 500;
-`
-
 /** Mirrors a multi-valued param into a form field and back; each side writes only on a difference. */
 const useMirroredParam = (
   values: string[],
@@ -240,40 +217,6 @@ const useMirroredParam = (
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [picked.join()])
-}
-
-/** The step in the timeline's words, and under it why the row needs a person, if it does. */
-const StatusCell: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const needsAttention = row.attention_standing === "needs_attention"
-  const isAttention = !row.superseded && (needsAttention || ATTENTION_STEPS.has(row.timeline_step))
-  const reason = needsAttention ? row.attention_reasons[0] : undefined
-  return (
-    <span className={stackedCellCss}>
-      <span className={cx(stepCss, attentionLineCss)}>
-        {isAttention && (
-          <ExclamationTriangle
-            size={ATTENTION_ICON_SIZE}
-            className={cx(TONE_INK["action-needed"], attentionIconCss)}
-            aria-hidden
-          />
-        )}
-        {timelineStepLabel(t, row.timeline_step)}
-      </span>
-      <InlineParts
-        className={noteCss}
-        parts={[
-          reason && attentionReasonLabel(t, reason),
-          row.attention_standing === "running_late" && t("credit-registration-admin-running-late"),
-          row.superseded && (
-            <Badge key="replaced" tone={TONE.NEUTRAL} size={BADGE_COMPACT}>
-              {t("credit-registration-admin-replaced")}
-            </Badge>
-          ),
-        ]}
-      />
-    </span>
-  )
 }
 
 /** Superseded attempts and students who have not started are hidden unless asked for. */
@@ -351,29 +294,26 @@ const RegistrationsPage: React.FC = () => {
   const registrationsQuery = useAdminCreditRegistrations(query, { paused: searchPending })
   const chipFilters = CHIP_PARAMS.flatMap((name) => params(name).map((value) => ({ name, value })))
 
-  // The stats are one row per module, and a course can have several enabled modules: dedupe by
-  // course_id or the Select gets two options with the same value and refuses to render at all.
   const courseStatsQuery = useCreditRegistrationCourseStats()
-  const courseOptions = useMemo(() => {
-    const byCourseId = new Map<string, string>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      byCourseId.set(courseModule.course_id, courseModule.course_name)
-    }
-    return Array.from(byCourseId, ([value, label]) => ({ value, label }))
-  }, [courseStatsQuery.data?.modules])
+  const courseOptions = useMemo(
+    () => courseFacetOptions(courseStatsQuery.data?.credit_units ?? []),
+    [courseStatsQuery.data?.credit_units],
+  )
 
   // Naming the module only tells the reader something where a course has more than one.
   const manyModuleCourseIds = useMemo(() => {
     const counts = new Map<string, number>()
-    for (const courseModule of courseStatsQuery.data?.modules ?? []) {
-      counts.set(courseModule.course_id, (counts.get(courseModule.course_id) ?? 0) + 1)
+    for (const unit of courseStatsQuery.data?.credit_units ?? []) {
+      if (unit.course_id) {
+        counts.set(unit.course_id, (counts.get(unit.course_id) ?? 0) + 1)
+      }
     }
     return new Set(
       Array.from(counts)
         .filter(([, count]) => count > 1)
         .map(([courseId]) => courseId),
     )
-  }, [courseStatsQuery.data?.modules])
+  }, [courseStatsQuery.data?.credit_units])
 
   // The live ledger's codes, so the filter never offers one no row could match.
   const overviewQuery = useCreditRegistrationOverview()
@@ -667,7 +607,7 @@ const RegistrationsPage: React.FC = () => {
                       cell: (row) => (
                         <span className={stackedCellCss}>
                           <span className={breakAnywhereCss}>{row.course_name}</span>
-                          {manyModuleCourseIds.has(row.course_id) && (
+                          {row.course_id && manyModuleCourseIds.has(row.course_id) && (
                             <span className={noteCss}>{row.course_module_name}</span>
                           )}
                           {row.uh_course_code && (
@@ -680,33 +620,12 @@ const RegistrationsPage: React.FC = () => {
                       header: t("label-student-number"),
                       minWidth: "8rem",
                       nowrap: true,
-                      cell: (row) => {
-                        const number = row.verified_student_number ?? row.student_number
-                        if (!number) {
-                          return (
-                            <span className={noteCss}>
-                              {t("credit-registration-admin-not-linked")}
-                            </span>
-                          )
-                        }
-                        return (
-                          <span className={numberLineCss}>
-                            <span className={codeValueCss}>{number}</span>
-                            {row.verified_student_number_via && (
-                              <LinkingMethodLabel
-                                iconOnly
-                                method={row.verified_student_number_via}
-                                linkedAt={row.verified_student_number_at}
-                              />
-                            )}
-                          </span>
-                        )
-                      },
+                      cell: (row) => <RegistrationStudentNumberCell row={row} />,
                     },
                     {
                       header: t("label-status"),
                       minWidth: "10rem",
-                      cell: (row) => <StatusCell row={row} />,
+                      cell: (row) => <RegistrationStatusCell row={row} />,
                     },
                     {
                       header: t("credit-registration-admin-student-activity"),
@@ -743,7 +662,10 @@ const RegistrationsPage: React.FC = () => {
                   ]}
                 />
                 <Pagination
-                  paginationInfo={paginationInfo}
+                  page={paginationInfo.page}
+                  onPageChange={paginationInfo.setPage}
+                  itemsPerPage={paginationInfo.limit}
+                  onItemsPerPageChange={paginationInfo.setLimit}
                   totalPages={page.total_pages}
                   totalItems={page.total_count}
                   itemsPerPageOptions={ADMIN_PAGE_SIZE_OPTIONS}

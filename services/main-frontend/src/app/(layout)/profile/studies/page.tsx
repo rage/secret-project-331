@@ -5,8 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { registrationNeedsAttention } from "@/components/credit-registration/creditRegistrationCopy"
-import { StudentNumberSummaryLine } from "@/components/credit-registration/StudentNumberCard"
+import StudentNumberCard from "@/components/credit-registration/StudentNumberCard"
 import {
   emptyStateCss,
   headingCss,
@@ -31,19 +30,10 @@ import { FIND_MORE_COURSES_URL } from "../constants"
 import CertificatesSection from "./CertificatesSection"
 import { everyModulePassed } from "./completionRequirements"
 import HiddenCoursesSection from "./HiddenCoursesSection"
+import OldVersionCoursesSection from "./OldVersionCoursesSection"
 import RegistrationsNeedingAttention from "./RegistrationsNeedingAttention"
 import StudiesCourseCard from "./StudiesCourseCard"
 import StudiesSummary from "./StudiesSummary"
-
-/** The credit total and the student number read as one block, and collapse when neither applies. */
-const summaryBlockCss = css`
-  display: grid;
-  gap: var(--space-4);
-
-  &:empty {
-    display: none;
-  }
-`
 
 /** Cards are objects, and need more air between them than the blocks inside one get. */
 const courseListCss = css`
@@ -75,12 +65,14 @@ const shownRegistrationPerCourseModule = (
 ): ReadonlyMap<string, MyCreditRegistration> => {
   const shown = new Map<string, MyCreditRegistration>()
   for (const registration of registrations) {
-    if (registration.superseded) {
+    const courseModuleId = registration.course_module_id
+    // A mooc.fi registration belongs to no course here.
+    if (registration.superseded || !courseModuleId) {
       continue
     }
-    const chosen = shown.get(registration.course_module_id)
+    const chosen = shown.get(courseModuleId)
     if (!chosen || (!holdsCredit(chosen) && holdsCredit(registration))) {
-      shown.set(registration.course_module_id, registration)
+      shown.set(courseModuleId, registration)
     }
   }
   return shown
@@ -97,10 +89,6 @@ const StudiesPage: React.FC = () => {
   // registration statuses cannot, and RegistrationsNeedingAttention reports that problem on its own.
   const registrations = registrationsQuery.data ?? []
   const registrationByCourseModuleId = shownRegistrationPerCourseModule(registrations)
-  const hasAttentionItems = registrations.some(
-    (registration) =>
-      !registration.superseded && registrationNeedsAttention(registration.student_facing_status),
-  )
 
   return (
     <div className={narrowPageCss}>
@@ -110,20 +98,23 @@ const StudiesPage: React.FC = () => {
         {(myStudies) => {
           if (myStudies.courses.length === 0) {
             return (
-              <EmptyState
-                title={t("you-have-not-started-any-courses-yet")}
-                hint={t("studies-empty-state-hint")}
-                action={
-                  <Link
-                    href={FIND_MORE_COURSES_URL}
-                    styledAsButton
-                    variant="secondary"
-                    size="medium"
-                  >
-                    {t("link-text-find-more-courses")}
-                  </Link>
-                }
-              />
+              <>
+                <EmptyState
+                  title={t("you-have-not-started-any-courses-yet")}
+                  hint={t("studies-empty-state-hint")}
+                  action={
+                    <Link
+                      href={FIND_MORE_COURSES_URL}
+                      styledAsButton
+                      variant="secondary"
+                      size="medium"
+                    >
+                      {t("link-text-find-more-courses")}
+                    </Link>
+                  }
+                />
+                <StudentNumberCard showStudiesLink={false} />
+              </>
             )
           }
 
@@ -158,12 +149,8 @@ const StudiesPage: React.FC = () => {
 
           return (
             <>
-              <div className={summaryBlockCss}>
-                <StudiesSummary totals={myStudies.totals} />
-                {showCreditRegistration ? (
-                  <StudentNumberSummaryLine hasAttentionItems={hasAttentionItems} />
-                ) : null}
-              </div>
+              <StudiesSummary totals={myStudies.totals} />
+              <StudentNumberCard showStudiesLink={false} />
 
               {showCreditRegistration ? <RegistrationsNeedingAttention /> : null}
 
@@ -176,14 +163,17 @@ const StudiesPage: React.FC = () => {
               <CertificatesSection />
 
               {hiddenCourses.length > 0 ? <HiddenCoursesSection courses={hiddenCourses} /> : null}
-
-              <p className={noteCss}>
-                <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
-              </p>
             </>
           )
         }}
       </QueryResult>
+      {/* Outside the QueryResult, so its request starts with the page's and never waits on it. */}
+      <OldVersionCoursesSection />
+      {(myStudiesQuery.data?.courses.length ?? 0) > 0 ? (
+        <p className={noteCss}>
+          <Link href={FIND_MORE_COURSES_URL}>{t("link-text-find-more-courses")}</Link>
+        </p>
+      ) : null}
     </div>
   )
 }

@@ -1,6 +1,9 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
+import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -11,11 +14,12 @@ test.use({
 test("widget, open", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, open" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes example, open")
 
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-empty",
@@ -36,6 +40,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-invalid",
@@ -59,6 +64,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-valid",

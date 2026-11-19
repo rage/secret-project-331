@@ -5,11 +5,9 @@ import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import useUserCourseProgress from "@/hooks/course-material/useUserCourseProgress"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Infobox, LoadingRegion, QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 
 import type { BlockRendererProps } from "../.."
@@ -23,10 +21,10 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const getUserCourseProgress = useUserCourseProgress(courseInstanceId)
 
   if (courseMaterialState.status !== "ready" || loginStateContext.isLoading) {
-    return <Spinner variant={"small"} />
+    return <LoadingRegion />
   }
   if (!loginStateContext.signedIn) {
-    return <GenericInfobox>{t("please-log-in-to-see-your-progress")}</GenericInfobox>
+    return <Infobox>{t("please-log-in-to-see-your-progress")}</Infobox>
   }
   if (!courseMaterialState.instance) {
     return <div>{t("select-course-version-to-see-your-progress")}</div>

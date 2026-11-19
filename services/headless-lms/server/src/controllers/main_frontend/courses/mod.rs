@@ -1,6 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses`.
 
 pub mod chatbots;
+pub mod completion_overview;
 pub mod stats;
 pub mod students;
 
@@ -21,6 +22,9 @@ use headless_lms_models::{
 use std::sync::Arc;
 use utoipa::{OpenApi, ToSchema};
 
+use crate::domain::authorization::{
+    fetch_user_roles, is_permitted_on_course, is_permitted_on_exam,
+};
 use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
     chapters::Chapter,
@@ -83,6 +87,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_course_structure,
         add_media_for_course,
         get_all_exercises,
+        get_linked_exams,
+        get_linkable_exams,
         get_all_exercises_and_count_of_answers_requiring_attention,
         get_all_course_language_versions,
         create_course_copy,
@@ -139,6 +145,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
+        (path = "/{course_id}/completion-overview", api = completion_overview::MainFrontendCourseCompletionOverviewApiDoc),
         (path = "/{course_id}/stats", api = stats::MainFrontendCourseStatsApiDoc),
         (path = "/{course_id}/students", api = students::MainFrontendCourseStudentsApiDoc)
     )
@@ -471,6 +478,10 @@ async fn post_new_course(
         Res::Organization(new_course.organization_id),
     )
     .await?;
+    if new_course.can_add_chatbot {
+        // Same gate as update_course: only global admins enable chatbots.
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+    }
 
     let mut tx = conn.begin().await?;
     let (course, ..) = library::content_management::create_new_course(
@@ -537,36 +548,21 @@ async fn update_course(
 ) -> ControllerResult<web::Json<Course>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
-    let course_update = payload.0;
     let course_before_update = models::courses::get_course(&mut conn, *course_id).await?;
-    if course_update.can_add_chatbot != course_before_update.can_add_chatbot {
+    if payload.can_add_chatbot != course_before_update.can_add_chatbot {
         // Only global admins can change the chatbot status
-        let _token2 =
-            authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?;
     }
 
-    let locking_just_enabled =
-        !course_before_update.chapter_locking_enabled && course_update.chapter_locking_enabled;
-
-    let course =
-        models::courses::update_course(&mut conn, app_conf.as_ref(), *course_id, course_update)
-            .await?;
-
-    if locking_just_enabled {
-        use models::{user_chapter_locking_statuses, user_course_settings};
-
-        let all_user_settings =
-            user_course_settings::get_all_by_course_id(&mut conn, *course_id).await?;
-
-        for settings in all_user_settings {
-            let _ = user_chapter_locking_statuses::get_or_init_all_for_course(
-                &mut conn,
-                settings.user_id,
-                *course_id,
-            )
-            .await?;
-        }
-    }
+    let course = models::courses::update_course(
+        &mut conn,
+        app_conf.as_ref(),
+        *course_id,
+        payload.0,
+        user.id,
+        true,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course))
 }
@@ -736,7 +732,7 @@ async fn add_media_for_course(
     let media_path = upload_file_from_cms(
         request.headers(),
         payload,
-        StoreKind::Course(course.id),
+        MediaOwner::Course(course.id),
         file_store.as_ref(),
         &mut conn,
         user,
@@ -773,6 +769,142 @@ async fn get_all_exercises(
     let exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
 
     token.authorized_ok(web::Json(exercises))
+}
+
+/// An exam linked to the course, as the module editor lists it.
+#[derive(Debug, Serialize, ToSchema)]
+pub struct LinkedExam {
+    pub id: Uuid,
+    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    /// The points that complete the course automatically; `None` when the teacher adds the
+    /// completions.
+    pub pass_mark: Option<i32>,
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exams",
+    operation_id = "getCourseLinkedExams",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exams linked to the course", body = [LinkedExam])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_linked_exams(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<LinkedExam>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewInternalCourseStructure,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let exams = models::exams::get_summaries_by_course_id(&mut conn, *course_id)
+        .await?
+        .into_iter()
+        .map(|exam| LinkedExam {
+            pass_mark: exam.pass_mark(),
+            id: exam.id,
+            name: exam.name,
+            starts_at: exam.starts_at,
+            ends_at: exam.ends_at,
+        })
+        .collect();
+    token.authorized_ok(web::Json(exams))
+}
+
+/// An exam of the course's organization that the module editor offers to link to the course.
+#[derive(Debug, Serialize, ToSchema)]
+pub struct LinkableExam {
+    pub id: Uuid,
+    pub name: String,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    /// See [`LinkedExam::pass_mark`].
+    pub pass_mark: Option<i32>,
+    /// The other courses the exam is linked to that the user may see; linking it here keeps
+    /// those links.
+    pub linked_course_names: Vec<String>,
+    /// How many more courses the exam is linked to, whose names the user may not see.
+    pub hidden_linked_course_count: usize,
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/linkable-exams",
+    operation_id = "getCourseLinkableExams",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exams the user can link to the course", body = [LinkableExam])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_linkable_exams(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<LinkableExam>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let organization_id = models::courses::get_organization_id(&mut conn, *course_id).await?;
+    let roles = fetch_user_roles(&mut conn, Some(user.id)).await?;
+    let linked_exam_ids =
+        models::course_exams::get_exam_ids_by_course_id(&mut conn, *course_id).await?;
+    let course_links =
+        models::exams::get_course_exams_for_organization(&mut conn, organization_id).await?;
+    let mut exams = models::exams::get_exams_for_organization(&mut conn, organization_id).await?;
+    exams.sort_by(|a, b| a.name.cmp(&b.name).then(a.starts_at.cmp(&b.starts_at)));
+    let exams = exams
+        .into_iter()
+        .filter(|exam| !linked_exam_ids.contains(&exam.id))
+        // Linking also needs edit rights on the exam, so leave out the ones it would refuse.
+        .filter(|exam| is_permitted_on_exam(&roles, Act::Edit, exam.id, organization_id))
+        .map(|exam| {
+            let (visible_links, hidden_links): (Vec<_>, Vec<_>) = course_links
+                .iter()
+                .filter(|link| link.id == exam.id)
+                .partition(|link| {
+                    is_permitted_on_course(
+                        &roles,
+                        Act::ViewInternalCourseStructure,
+                        link.course_id,
+                        organization_id,
+                    )
+                });
+            LinkableExam {
+                pass_mark: exam.pass_mark(),
+                linked_course_names: visible_links
+                    .into_iter()
+                    .map(|link| link.course_name.clone())
+                    .collect(),
+                hidden_linked_course_count: hidden_links.len(),
+                id: exam.id,
+                name: exam.name,
+                starts_at: exam.starts_at,
+                ends_at: exam.ends_at,
+            }
+        })
+        .collect();
+    token.authorized_ok(web::Json(exams))
 }
 
 /**
@@ -1563,7 +1695,7 @@ pub async fn post_new_chapter_ordering(
     let course_id = course_id.into_inner();
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::pages::reorder_chapters(&mut conn, &payload, course_id).await?;
+    models::pages::reorder_chapters(&mut conn, &payload, course_id, user.id).await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -1709,23 +1841,8 @@ pub async fn update_modules(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 
-    let updates = payload.into_inner();
-    if models::course_modules::would_change_credit_registration_via_suotar(
-        &mut conn, *course_id, &updates,
-    )
-    .await?
-    {
-        // Editing a course is not enough to put a module on the live study registry path.
-        authorize(
-            &mut conn,
-            Act::Administrate,
-            Some(user.id),
-            Res::GlobalPermissions,
-        )
+    models::course_modules::update_modules(&mut conn, *course_id, payload.into_inner(), user.id)
         .await?;
-    }
-
-    models::course_modules::update_modules(&mut conn, *course_id, updates).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -2512,6 +2629,7 @@ async fn teacher_dismiss_suspected_cheater(
 
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    reject_own_suspected_cheater_case(&user, user_id)?;
 
     models::suspected_cheaters::dismiss_by_user_id_and_course_id(&mut conn, user_id, course_id)
         .await?;
@@ -2545,6 +2663,7 @@ async fn teacher_confirm_suspected_cheater(
 
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    reject_own_suspected_cheater_case(&user, user_id)?;
 
     // Confirming sets the status and fails the student's completions (snapshotting the previous
     // grade so a later dismiss can restore it); see confirm_cheater_by_user_id_and_course_id.
@@ -2554,6 +2673,22 @@ async fn teacher_confirm_suspected_cheater(
     .await?;
 
     token.authorized_ok(web::Json(()))
+}
+
+/// Refuses a review decision on the reviewer's own case: assistants are often students on the same
+/// course.
+fn reject_own_suspected_cheater_case(
+    reviewer: &AuthUser,
+    suspected_user_id: Uuid,
+) -> Result<(), ControllerError> {
+    if reviewer.id == suspected_user_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "You cannot review your own case.".to_string(),
+            None,
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
@@ -2804,8 +2939,8 @@ async fn get_sisu_course_llm_descriptions(
     let (course_modules, course_lang, message_suggest_llm, token) = {
         let mut conn = pool.acquire().await?;
 
-        let token =
-            authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+        // Each call reaches Sisu and an LLM, so only course editors (its one caller) may trigger it.
+        let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
         let course_modules =
             models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
         let course_lang = models::courses::get_course(&mut conn, *course_id)
@@ -2865,9 +3000,14 @@ async fn update_metadata(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let metadata_update = payload.0;
-    let course =
-        models::courses::set_metadata(&mut conn, app_conf.as_ref(), *course_id, metadata_update)
-            .await?;
+    let course = models::courses::set_metadata(
+        &mut conn,
+        app_conf.as_ref(),
+        *course_id,
+        metadata_update,
+        user.id,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(course))
 }
@@ -2994,6 +3134,10 @@ We add the routes by calling the route method instead of using the route annotat
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(web::scope("/{course_id}/stats").configure(stats::_add_routes))
         .service(web::scope("/{course_id}/chatbots").configure(chatbots::_add_routes))
+        .service(
+            web::scope("/{course_id}/completion-overview")
+                .configure(completion_overview::_add_routes),
+        )
         .service(web::scope("/{course_id}/students").configure(students::_add_routes))
         .route("/{course_id}", web::get().to(get_course))
         .route("", web::post().to(post_new_course))
@@ -3020,6 +3164,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_daily_user_counts_with_submissions),
         )
         .route("/{course_id}/exercises", web::get().to(get_all_exercises))
+        .route("/{course_id}/exams", web::get().to(get_linked_exams))
+        .route(
+            "/{course_id}/linkable-exams",
+            web::get().to(get_linkable_exams),
+        )
         .route(
             "/{course_id}/exercises-and-count-of-answers-requiring-attention",
             web::get().to(get_all_exercises_and_count_of_answers_requiring_attention),

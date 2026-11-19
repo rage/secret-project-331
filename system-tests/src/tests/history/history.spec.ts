@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+import { openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { saveCMSPage } from "../../utils/cmsUtils"
@@ -33,6 +35,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -57,7 +60,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   // same tab across different courses) can be told apart from the browser tab.
   await expect(page).toHaveTitle(/Pages - Introduction to history/)
 
-  await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
+  await openCoursePageInEditor(page, "Page One")
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
@@ -66,17 +69,14 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await saveCMSPage(page)
 
-  // Triple click [placeholder="Exercise name"]
-  await page.click('[placeholder="Exercise name"]', {
-    clickCount: 3,
-  })
-
-  // Fill [placeholder="Exercise name"]
-  await page.fill('[placeholder="Exercise name"]', "New exercise!")
+  await page.getByLabel("Exercise name", { exact: true }).fill("New exercise!")
 
   await saveCMSPage(page)
 
-  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
+  await page
+    .locator('[aria-label="Block: ExerciseTask"]')
+    .getByRole("button", { name: "Edit task" })
+    .click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
@@ -90,7 +90,9 @@ test("history test", async ({ page, headless }, testInfo) => {
   await frame.locator(':nth-match(input[type="checkbox"], 2)').check()
 
   await saveCMSPage(page)
-  await page.locator(`button:enabled:text-is("Save") >> visible=true`).waitFor()
+  // Save goes disabled once the editor's content matches what came back from the server, so this
+  // is what "the round trip is over" looks like from the outside.
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled()
   await page.waitForTimeout(100)
 
   await page.goto("http://project-331.local/org/uh-cs")
@@ -101,7 +103,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
@@ -111,7 +113,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goBack()
   await page.getByText("Course pages for Introduction to history").waitFor()
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
@@ -186,7 +188,7 @@ screenshotTarget: page,
 
   await page.getByText("Restore").click()
   await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
-  await page.locator("[aria-label='Current page: 1']").waitFor()
+  await page.getByLabel("Current page: 1", { exact: true }).waitFor()
   await page.waitForTimeout(100)
   /*
   await expectScreenshotsToMatchSnapshots({
@@ -211,6 +213,7 @@ screenshotTarget: page,
   // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

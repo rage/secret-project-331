@@ -1,24 +1,26 @@
 "use client"
 
-import { css } from "@emotion/css"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { css, cx } from "@emotion/css"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { subheadingCss } from "@/components/credit-registration/styles"
 import type {
   CertificateConfigurationAndRequirements,
   CertificateTextAnchor,
   PaperSize,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import FileField from "@/shared-module/common/components/InputFields/FileField"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import { Button, Checkbox, FileField, Select, TextField } from "@/shared-module/components"
+
+const sectionLabelCss = cx(
+  subheadingCss,
+  css`
+    margin-bottom: var(--space-2);
+  `,
+)
 
 interface Props {
   generatingCertificatesEnabled: boolean
@@ -45,9 +47,10 @@ export interface CertificateFields {
   dateTextAnchor: CertificateTextAnchor
   locale: string
   paperSize: PaperSize
-  backgroundSvg: FileList
-  overlaySvg: FileList
+  backgroundSvg: File[]
+  overlaySvg: File[]
   clearCurrentOverlaySvg: boolean
+  enableGrade: boolean
   renderGrade: boolean
   gradePosX: string | null
   gradePosY: string | null
@@ -66,6 +69,8 @@ const PAPER_SIZE_OPTIONS: { value: PaperSize; label: string }[] = [
   { value: "horizontal-a4", label: "Horizontal A4" },
 ]
 
+const ENABLE_GRADE_FIELD = "enableGrade" as const
+
 const CertificateForm: React.FC<Props> = ({
   configurationAndRequirements,
   onClickSave,
@@ -74,11 +79,7 @@ const CertificateForm: React.FC<Props> = ({
   const configuration = configurationAndRequirements?.certificate_configuration
   const { t } = useTranslation()
   /* oxlint-disable i18next/no-literal-string */
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CertificateFields>({
+  const { control, handleSubmit } = useForm<CertificateFields>({
     mode: "onChange",
     defaultValues: {
       ownerNamePosX: configuration?.certificate_owner_name_x_pos ?? "50%",
@@ -98,7 +99,10 @@ const CertificateForm: React.FC<Props> = ({
       dateTextAnchor: configuration?.certificate_date_text_anchor ?? "start",
       locale: configuration?.certificate_locale ?? "en",
       paperSize: configuration?.paper_size ?? "horizontal-a4",
+      backgroundSvg: [],
+      overlaySvg: [],
       clearCurrentOverlaySvg: false,
+      enableGrade: !!configuration?.certificate_grade_x_pos,
       renderGrade: configuration?.render_certificate_grade ?? false,
       gradePosX: configuration?.certificate_grade_x_pos ?? null,
       gradePosY: configuration?.certificate_grade_y_pos ?? null,
@@ -112,7 +116,7 @@ const CertificateForm: React.FC<Props> = ({
     onClickSave(data)
   })
 
-  const [showGradeFields, setShowGradeFields] = useState(!!configuration?.certificate_grade_x_pos)
+  const showGradeFields = useWatch({ control, name: ENABLE_GRADE_FIELD })
 
   return (
     <form
@@ -125,39 +129,38 @@ const CertificateForm: React.FC<Props> = ({
     >
       <TextField
         id={"locale"}
-        {...includeIf(errors.locale, { error: errors.locale })}
+        name="locale"
+        control={control}
         label={t("label-locale")}
-        {...register("locale", { required: t("required-field") })}
+        rules={{ required: t("required-field") }}
       />
-      <SelectField
+      <Select
         id={"paperSize"}
+        name="paperSize"
+        control={control}
         options={PAPER_SIZE_OPTIONS}
         label={t("label-paper-size")}
-        {...register("paperSize")}
       />
       <MaskOverThisInSystemTests useDisplayBlockAndHideOverflow>
         <SetHeightInSystemTests heightPx={100}>
           <FileField
             id={"backgroundSvg"}
-            {...includeIf(errors.backgroundSvg, { error: errors.backgroundSvg })}
+            name="backgroundSvg"
+            control={control}
             label={
               configuration
                 ? t("label-background-svg-current", { path: configuration.background_svg_path })
                 : t("label-background-svg")
             }
-            {...register(
-              "backgroundSvg",
-              // required if configuration does not exist yet
-              configuration ? undefined : { required: t("required-field") },
-            )}
-            // required for new configurations
-            required={configuration === null}
+            rules={configuration ? undefined : { required: t("required-field") }}
+            isRequired={configuration === null}
             // oxlint-disable-next-line i18next/no-literal-string
             accept={".svg"}
           />
           <FileField
             id={"overlaySvg"}
-            {...includeIf(errors.overlaySvg, { error: errors.overlaySvg })}
+            name="overlaySvg"
+            control={control}
             label={
               configuration
                 ? configuration.overlay_svg_path
@@ -165,176 +168,182 @@ const CertificateForm: React.FC<Props> = ({
                   : t("label-overlay-svg-optional")
                 : t("label-overlay-svg")
             }
-            {...register("overlaySvg")}
             // oxlint-disable-next-line i18next/no-literal-string
             accept={".svg"}
           />
         </SetHeightInSystemTests>
       </MaskOverThisInSystemTests>
-      <CheckBox
+      <Checkbox
         id={"clearCurrentOverlaySvg"}
+        name="clearCurrentOverlaySvg"
+        control={control}
         label={t("label-delete-current-overlay-svg")}
-        {...register("clearCurrentOverlaySvg")}
-        // disabled if no current overlay SVG
-        disabled={configuration?.overlay_svg_path === null}
+        isDisabled={configuration?.overlay_svg_path === null}
       />
       <hr />
       <div>
-        <h3>{t("certificate-owner-name")}</h3>
+        <h3 className={sectionLabelCss}>{t("certificate-owner-name")}</h3>
         <TextField
           id={"ownerNamePosX"}
-          {...includeIf(errors.ownerNamePosX, { error: errors.ownerNamePosX })}
+          name="ownerNamePosX"
+          control={control}
           label={t("label-position-x")}
-          {...register("ownerNamePosX", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"ownerNamePosY"}
-          {...includeIf(errors.ownerNamePosY, { error: errors.ownerNamePosY })}
+          name="ownerNamePosY"
+          control={control}
           label={t("label-position-y")}
-          {...register("ownerNamePosY", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"ownerNameFontSize"}
-          {...includeIf(errors.ownerNameFontSize, { error: errors.ownerNameFontSize })}
+          name="ownerNameFontSize"
+          control={control}
           label={t("label-font-size")}
-          {...register("ownerNameFontSize", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"ownerNameTextColor"}
-          {...includeIf(errors.ownerNameTextColor, { error: errors.ownerNameTextColor })}
+          name="ownerNameTextColor"
+          control={control}
           label={t("label-text-color")}
-          {...register("ownerNameTextColor", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
-        <SelectField
+        <Select
           id={"ownerNameTextAnchor"}
+          name="ownerNameTextAnchor"
+          control={control}
           options={ANCHOR_OPTIONS}
           label={t("label-text-anchor")}
-          {...register("ownerNameTextAnchor")}
         />
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-validation-url")}</h3>
+        <h3 className={sectionLabelCss}>{t("certificate-validation-url")}</h3>
         <TextField
           id={"validateUrlPosX"}
-          {...includeIf(errors.validateUrlPosX, { error: errors.validateUrlPosX })}
+          name="validateUrlPosX"
+          control={control}
           label={t("label-position-x")}
-          {...register("validateUrlPosX", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"validateUrlPosY"}
-          {...includeIf(errors.validateUrlPosY, { error: errors.validateUrlPosY })}
+          name="validateUrlPosY"
+          control={control}
           label={t("label-position-y")}
-          {...register("validateUrlPosY", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"validateUrlFontSize"}
-          {...includeIf(errors.validateUrlFontSize, { error: errors.validateUrlFontSize })}
+          name="validateUrlFontSize"
+          control={control}
           label={t("label-font-size")}
-          {...register("validateUrlFontSize", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"validateUrlTextColor"}
-          {...includeIf(errors.validateUrlTextColor, { error: errors.validateUrlTextColor })}
+          name="validateUrlTextColor"
+          control={control}
           label={t("label-text-color")}
-          {...register("validateUrlTextColor", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
-        <SelectField
+        <Select
           id={"validateUrlTextAnchor"}
+          name="validateUrlTextAnchor"
+          control={control}
           options={ANCHOR_OPTIONS}
           label={t("label-text-anchor")}
-          {...register("validateUrlTextAnchor")}
         />
       </div>
       <hr />
       <div>
-        <h3>{t("date")}</h3>
+        <h3 className={sectionLabelCss}>{t("date")}</h3>
         <TextField
           id={"datePosX"}
-          {...includeIf(errors.datePosX, { error: errors.datePosX })}
+          name="datePosX"
+          control={control}
           label={t("label-position-x")}
-          {...register("datePosX", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"datePosY"}
-          {...includeIf(errors.datePosY, { error: errors.datePosY })}
+          name="datePosY"
+          control={control}
           label={t("label-position-y")}
-          {...register("datePosY", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"dateFontSize"}
-          {...includeIf(errors.dateFontSize, { error: errors.dateFontSize })}
+          name="dateFontSize"
+          control={control}
           label={t("label-font-size")}
-          {...register("dateFontSize", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
         <TextField
           id={"dateTextColor"}
-          {...includeIf(errors.dateTextColor, { error: errors.dateTextColor })}
+          name="dateTextColor"
+          control={control}
           label={t("label-text-color")}
-          {...register("dateTextColor", { required: t("required-field") })}
+          rules={{ required: t("required-field") }}
         />
-        <SelectField
+        <Select
           id={"dateTextAnchor"}
+          name="dateTextAnchor"
+          control={control}
           options={ANCHOR_OPTIONS}
           label={t("label-text-anchor")}
-          {...register("dateTextAnchor")}
         />
       </div>
       <hr />
-      <CheckBox
-        id="enableGrade"
-        label={t("label-grade")}
-        checked={showGradeFields}
-        onChange={(e) => {
-          const checked = e.target.checked
-          setShowGradeFields(checked)
-        }}
-      />
+      <Checkbox id="enableGrade" name="enableGrade" control={control} label={t("label-grade")} />
       {showGradeFields && (
         <>
           <hr />
-          <CheckBox
+          <Checkbox
             id="renderGrade"
+            name="renderGrade"
+            control={control}
             label={t("label-show-grade-in-cerfiticate")}
-            {...register("renderGrade")}
           />
           <div>
-            <h3>{t("grade")}</h3>
+            <h3 className={sectionLabelCss}>{t("grade")}</h3>
             <TextField
               id={"gradePosX"}
-              {...includeIf(errors.gradePosX, { error: errors.gradePosX })}
+              name="gradePosX"
+              control={control}
               label={t("label-position-x")}
-              {...register("gradePosX", showGradeFields ? { required: t("required-field") } : {})}
+              rules={{ required: t("required-field") }}
             />
             <TextField
               id={"gradePosY"}
-              {...includeIf(errors.gradePosY, { error: errors.gradePosY })}
+              name="gradePosY"
+              control={control}
               label={t("label-position-y")}
-              {...register("gradePosY", showGradeFields ? { required: t("required-field") } : {})}
+              rules={{ required: t("required-field") }}
             />
             <TextField
               id={"gradeFontSize"}
-              {...includeIf(errors.gradeFontSize, { error: errors.gradeFontSize })}
+              name="gradeFontSize"
+              control={control}
               label={t("label-font-size")}
-              {...register(
-                "gradeFontSize",
-                showGradeFields ? { required: t("required-field") } : {},
-              )}
+              rules={{ required: t("required-field") }}
             />
             <TextField
               id={"gradeTextColor"}
-              {...includeIf(errors.gradeTextColor, { error: errors.gradeTextColor })}
+              name="gradeTextColor"
+              control={control}
               label={t("label-text-color")}
-              {...register(
-                "gradeTextColor",
-                showGradeFields ? { required: t("required-field") } : {},
-              )}
+              rules={{ required: t("required-field") }}
             />
-            <SelectField
+            <Select
               id={"gradeTextAnchor"}
+              name="gradeTextAnchor"
+              control={control}
               options={ANCHOR_OPTIONS}
               label={t("label-text-anchor")}
-              {...register("gradeTextAnchor")}
             />
           </div>
         </>

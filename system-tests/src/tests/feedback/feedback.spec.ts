@@ -2,6 +2,7 @@
 import { test } from "@playwright/test"
 
 import { textSelectionTooltipTestId } from "@/shared-module/common/styles/constants"
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -43,6 +44,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   })
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -61,6 +63,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   )
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -71,8 +74,8 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 
-  await page.click(`button:text("Add comment")`)
-  await page.click(`button:text("Send")`)
+  await page.getByRole("button", { name: "Add comment", exact: true }).click()
+  await page.getByRole("button", { name: "Send", exact: true }).click()
   await page.getByText("Feedback submitted successfully").waitFor()
 
   await logout(page)
@@ -85,16 +88,20 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Feedback 6" }).click()
 
   // Makes sure the components have rendered so that the next waitForTheseToBeVisibleAndStable always works with the placeholder
-  await page.getByText(`Page: Page One`).waitFor()
+  await page
+    .getByRole("heading", { level: 3, name: /^Feedback: Page One/ })
+    .first()
+    .waitFor()
 
   // Unread feedback view
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "feedback-unread",
     waitForTheseToBeVisibleAndStable: [
-      page.locator(`text=Sent by: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`).first(),
+      page.getByRole("heading", { level: 3, name: /^Feedback: Page One/ }).first(),
     ],
   })
 
@@ -108,6 +115,7 @@ test("feedback test", async ({ page, headless }, testInfo) => {
   await page.getByText("Mark as read").first().click()
   await page.getByText("I dont think we need these paragraphs").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

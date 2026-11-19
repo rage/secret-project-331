@@ -11,12 +11,10 @@ import { useTranslation } from "react-i18next"
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
 import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { MaterialReference } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
 
 import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
@@ -47,7 +45,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
 
   const renderReferences = (data: MaterialReference[]) => (
     <div>
-      <h2
+      <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
@@ -56,7 +54,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
         `}
       >
         {t("references")}
-      </h2>
+      </h1>
       {data.length > 10 && (
         <Button variant="primary" size="medium" onClick={() => setShowNewReferenceModal(true)}>
           {t("add-new-reference")}
@@ -77,14 +75,18 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
 
               return (
                 <li key={idx}>
-                  <h5>
+                  <h2
+                    className={css`
+                      font-size: ${typography.h6};
+                    `}
+                  >
                     {r.citation_key},{" "}
                     {c.format(BIBLIOGRAPHY, {
                       type: TYPE,
                       style: STYLE,
                       lang: LANG,
                     })}
-                  </h5>
+                  </h2>
                   <Button
                     size="medium"
                     variant="secondary"
@@ -102,7 +104,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
               return (
                 <li key={idx}>
                   <ErrorHeader>{r.citation_key}</ErrorHeader>
-                  <ErrorBanner error={error} variant="readOnly" />
+                  <ErrorNotice error={error} />
                   <Button
                     size="medium"
                     variant="secondary"
@@ -144,7 +146,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
               }
             `}
           >
-            <ErrorBanner variant="readOnly" error={error} />
+            <ErrorNotice error={error} />
           </div>
         )}
       >

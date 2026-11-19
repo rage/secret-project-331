@@ -3,7 +3,7 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Dialog } from "@/shared-module/components"
 
 import NewExternalCourseForm from "./NewExternalCourseForm"
 
@@ -16,21 +16,22 @@ const NewExternalCourseDialog: React.FC<NewExternalCourseDialogProps> = ({ open,
   const { t } = useTranslation()
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={t("new-course")}
-      buttons={[
+      actions={[
         {
-          children: t("button-text-create"),
+          label: t("button-text-create"),
           variant: "primary",
+          type: "submit",
           // oxlint-disable-next-line i18next/no-literal-string
-          form: "new-external-course-form",
+          domProps: { form: "new-external-course-form" },
         },
       ]}
     >
       <NewExternalCourseForm onSuccess={onClose} />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

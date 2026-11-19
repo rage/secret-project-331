@@ -1,6 +1,10 @@
 /* oxlint-disable playwright/no-wait-for-timeout */
+import crypto from "crypto"
+
 import { expect, test } from "@playwright/test"
 
+import { DateTimeLocalField } from "@/utils/components/DateTimeLocalField"
+import { Select } from "@/utils/components/Select"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -10,16 +14,16 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-// TODO: Temporarily disabled
-// oxlint-disable-next-line playwright/no-skipped-test
-test.skip("Testing exam works", async ({ page }) => {
+test("Testing exam works", async ({ page }) => {
+  const examName = `Exam for testing ${crypto.randomUUID().slice(0, 8)}`
+
   await test.step("Create exam", async () => {
     await page.goto("http://project-331.local/organizations")
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("button", { name: "Create" }).nth(1).click()
-    await page.getByLabel("Name", { exact: true }).fill("Exam for testing")
-    await page.getByLabel("Starts at").fill("1990-12-03T12:00")
-    await page.getByLabel("Ends at").fill("2052-03-09T09:08:01")
+    await page.getByLabel("Name", { exact: true }).fill(examName)
+    await new DateTimeLocalField(page, "exam-starts-at-field").setValue("1990-12-03T12:00")
+    await new DateTimeLocalField(page, "exam-ends-at-field").setValue("2052-03-09T09:08")
     await page.getByLabel("Time in minutes", { exact: true }).fill("60")
     await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Exam created successfully").waitFor()
@@ -28,23 +32,23 @@ test.skip("Testing exam works", async ({ page }) => {
   await test.step("Add exercise to exam", async () => {
     await page
       .getByTestId("exam-list-item")
-      .filter({ hasText: "Exam for testing" })
+      .filter({ hasText: examName })
       .getByRole("link", { name: "Manage" })
-      .first()
       .click()
 
-    await page.getByRole("link", { name: "Manage page" }).click()
-    await page.getByLabel("Toggle view").selectOption("block-menu")
+    await page.getByRole("link", { name: "Edit exam page" }).click()
+    const sidebarView = new Select(page, page.locator("#select-sidebar-view"))
+    await sidebarView.chooseOptionByValue("block-menu")
     await page.getByRole("option", { name: "Exercise", exact: true }).click()
-    await page.getByPlaceholder("Exercise name").fill("Exercise name")
+    await page.getByLabel("Exercise name", { exact: true }).fill("Exercise name")
 
-    await page.getByLabel("Edit").click()
+    await page.getByRole("button", { name: "Edit task", exact: true }).click()
     await page.getByRole("button", { name: "Quizzes" }).click()
     const quizzesEditor = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await quizzesEditor.getByRole("button", { name: "Multiple choice Choose" }).click()
     await quizzesEditor.getByLabel("Title", { exact: true }).fill("Multiple choice")
     await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Correct answer")
-    await quizzesEditor.getByLabel("Correct").check()
+    await quizzesEditor.getByRole("checkbox", { name: "Correct" }).check()
     await quizzesEditor.getByRole("button", { name: "Add option" }).click()
     await quizzesEditor.getByLabel("Option title", { exact: true }).fill("Wrong answer")
     await quizzesEditor.getByRole("button", { name: "Add option" }).click()
@@ -57,9 +61,8 @@ test.skip("Testing exam works", async ({ page }) => {
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page
       .getByTestId("exam-list-item")
-      .filter({ hasText: "Exam for testing" })
+      .filter({ hasText: examName })
       .getByRole("link", { name: "Manage" })
-      .first()
       .click()
   })
 
@@ -85,11 +88,6 @@ test.skip("Testing exam works", async ({ page }) => {
 
     await page.getByLabel("show answers").uncheck()
     await waitForViewType(quizzesIframe, "view-submission")
-    await quizzesIframe
-      .locator("div")
-      .filter({ hasText: /^Correct answer$/ })
-      .first()
-      .waitFor()
     await expect(quizzesIframe.getByText("Your answer was correct.")).toBeHidden()
   })
 
@@ -117,7 +115,7 @@ test.skip("Testing exam works", async ({ page }) => {
     await page.waitForTimeout(100)
     await page.getByText("Your submission has been saved.").isVisible()
     await page.waitForTimeout(100)
-    await page.getByText("Show answers").click()
+    await page.getByRole("checkbox", { name: "Show answers" }).check()
     await page.waitForTimeout(100)
     await expect(quizzesIframe.getByText("Your answer was correct.")).toBeVisible()
   })

@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import React, { useRef } from "react"
+import React, { useId, useRef } from "react"
 import { useButton } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Dialog } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -23,6 +23,10 @@ const FeedbackTypeDialog: React.FC = () => {
   const selection = useAtomValue(selectionAtom)
   const setSelection = useSetAtom(selectionAtom)
 
+  const feedbackTitleId = useId()
+  const feedbackDescriptionId = useId()
+  const improvementTitleId = useId()
+  const improvementDescriptionId = useId()
   const feedbackButtonRef = useRef<HTMLButtonElement>(null)
   const improvementButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -60,7 +64,8 @@ const FeedbackTypeDialog: React.FC = () => {
   const { buttonProps: feedbackButtonProps } = useButton(
     {
       onPress: handleFeedbackClick,
-      "aria-label": t("written-feedback"),
+      "aria-labelledby": feedbackTitleId,
+      "aria-describedby": feedbackDescriptionId,
     },
     feedbackButtonRef,
   )
@@ -68,18 +73,14 @@ const FeedbackTypeDialog: React.FC = () => {
   const { buttonProps: improvementButtonProps } = useButton(
     {
       onPress: handleImprovementClick,
-      "aria-label": t("improve-material"),
+      "aria-labelledby": improvementTitleId,
+      "aria-describedby": improvementDescriptionId,
     },
     improvementButtonRef,
   )
 
   return (
-    <StandardDialog
-      open={type === "select-type"}
-      onClose={handleClose}
-      title={t("select-feedback-type")}
-      width="normal"
-    >
+    <Dialog open={type === "select-type"} onClose={handleClose} title={t("select-feedback-type")}>
       <div
         className={css`
           display: flex;
@@ -142,7 +143,8 @@ const FeedbackTypeDialog: React.FC = () => {
               gap: 0.5rem;
             `}
           >
-            <h3
+            <div
+              id={feedbackTitleId}
               className={css`
                 font-size: 1.25rem;
                 font-weight: 600;
@@ -151,8 +153,9 @@ const FeedbackTypeDialog: React.FC = () => {
               `}
             >
               {t("written-feedback")}
-            </h3>
+            </div>
             <p
+              id={feedbackDescriptionId}
               className={css`
                 font-size: 0.875rem;
                 color: ${baseTheme.colors.gray[600]};
@@ -218,7 +221,8 @@ const FeedbackTypeDialog: React.FC = () => {
               gap: 0.5rem;
             `}
           >
-            <h3
+            <div
+              id={improvementTitleId}
               className={css`
                 font-size: 1.25rem;
                 font-weight: 600;
@@ -227,8 +231,9 @@ const FeedbackTypeDialog: React.FC = () => {
               `}
             >
               {t("improve-material")}
-            </h3>
+            </div>
             <p
+              id={improvementDescriptionId}
               className={css`
                 font-size: 0.875rem;
                 color: ${baseTheme.colors.gray[600]};
@@ -242,7 +247,7 @@ const FeedbackTypeDialog: React.FC = () => {
           </div>
         </button>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

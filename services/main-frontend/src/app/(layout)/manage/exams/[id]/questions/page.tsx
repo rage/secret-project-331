@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   getExamExercisesOptions,
   getExamOptions,
@@ -13,21 +14,22 @@ import {
   releaseExamGradesMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
-import type { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
-import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
-import Button from "@/shared-module/common/components/Button"
-import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import {
+  Badge,
+  Button,
+  Infobox,
+  QueryResult,
+  TONE,
+  Table,
+  useDialog,
+} from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -104,13 +106,9 @@ const GradingPage: React.FC = () => {
     (exerciseId: string) => {
       if (!getExam.data?.grade_manually) {
         return (
-          <div
-            className={css`
-              color: #32bea6;
-            `}
-          >
+          <Badge tone={TONE.SUCCESS} size="compact">
             {t("label-graded-automatically")}
-          </div>
+          </Badge>
         )
       }
 
@@ -119,33 +117,21 @@ const GradingPage: React.FC = () => {
         const countGraded = submissions.filter((sub) => sub.teacher_grading_decision).length
         if (submissions.length === countGraded) {
           return (
-            <div
-              className={css`
-                color: #32bea6;
-              `}
-            >
+            <Badge tone={TONE.SUCCESS} size="compact">
               {t("status-graded")}
-            </div>
+            </Badge>
           )
         } else if (countGraded === 0) {
           return (
-            <div
-              className={css`
-                color: #f76d82;
-              `}
-            >
+            <Badge tone={TONE.DANGER} size="compact">
               {t("status-ungraded")}
-            </div>
+            </Badge>
           )
         } else if (submissions.length > countGraded) {
           return (
-            <div
-              className={css`
-                color: #ffce54;
-              `}
-            >
+            <Badge tone={TONE.WARNING} size="compact">
               {t("status-in-progress")}
-            </div>
+            </Badge>
           )
         }
       } else {
@@ -200,106 +186,51 @@ const GradingPage: React.FC = () => {
     [allSubmissionsList, getExam.data?.grade_manually],
   )
 
-  const pieces: BreadcrumbPiece[] = useMemo(() => {
-    const breadcrumbPieces = [
-      // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("link-manage"), url: `/manage/exams/${id}` },
-      // oxlint-disable-next-line i18next/no-literal-string
-      { text: t("questions"), url: `/manage/exams/${id}/questions` },
-    ]
-    return breadcrumbPieces
-  }, [id, t])
-
   const questionsContent = (
     <>
-      <h3
+      <h1 className={pageTitleCss}>{getExam.data?.name}</h1>
+      <Table
+        caption={t("questions")}
+        rows={sorted}
+        rowKey={(exercise) => exercise.name}
         className={css`
-          font-weight: ${fontWeights.medium};
-          font-family: ${headingFont};
-        `}
-      >
-        {getExam.data?.name}
-      </h3>
-      <table
-        className={css`
-          display: block;
-          overflow-x: auto;
-          border-collapse: collapse;
           margin-top: 1.5rem;
-          width: 100%;
-
-          td,
-          th {
-            padding-left: 20px;
-            text-align: left;
-            height: 60px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          tr {
-            border-bottom: 1.5px solid #0000001a;
-            font-size: ${baseTheme.fontSizes[18]};
-          }
         `}
-      >
-        <thead>
-          <tr
-            className={css`
-              font-family: ${headingFont};
-              font-weight: ${fontWeights.semibold};
-              font-size: ${baseTheme.fontSizes[18]};
-              color: #7c7c7ccc;
-              opacity: 0.8;
-            `}
-          >
-            <th>{t("label-grade")}</th>
-            <th>{t("question")}</th>
-            <th>{t("status")}</th>
-            <th>{t("number-of-answered")}</th>
-            <th>{t("number-of-graded")}</th>
-            <th>{t("number-of-unpublished-gradings")}</th>
-            <th>{t("points")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted?.map((exercise) => (
-            <tr key={exercise.name}>
-              <td>
-                {getExam.data?.grade_manually ? (
-                  <Button
-                    variant={"primary"}
-                    size={"small"}
-                    transform="none"
-                    onClick={() => {
-                      router.push(exerciseExamSubmissionsRoute(exercise.id))
-                    }}
-                  >
-                    {t("grade")}
-                  </Button>
-                ) : (
-                  <Button
-                    variant={"primary"}
-                    size={"small"}
-                    transform="none"
-                    onClick={() => {
-                      router.push(exerciseExamSubmissionsRoute(exercise.id))
-                    }}
-                  >
-                    {t("label-review")}
-                  </Button>
-                )}
-              </td>
-              <td>{t("question-n", { n: exercise.order_number + 1 })}</td>
-              <td>{exercise.id && gradedCheck(exercise.id)}</td>
-              <td>{exercise.id && totalAnswered(exercise.id)}</td>
-              <td>{exercise.id && totalGraded(exercise.id)}</td>
-              <td>{exercise.id && totalPublished(exercise.id)}</td>
-              <td>{exercise.score_maximum}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        columns={[
+          {
+            header: t("label-grade"),
+            cell: (exercise) => (
+              <Button
+                variant={"primary"}
+                size={"small"}
+                onClick={() => {
+                  router.push(exerciseExamSubmissionsRoute(exercise.id))
+                }}
+              >
+                {getExam.data?.grade_manually ? t("grade") : t("label-review")}
+              </Button>
+            ),
+          },
+          {
+            header: t("question"),
+            cell: (exercise) => t("question-n", { n: exercise.order_number + 1 }),
+          },
+          { header: t("status"), cell: (exercise) => exercise.id && gradedCheck(exercise.id) },
+          {
+            header: t("number-of-answered"),
+            cell: (exercise) => exercise.id && totalAnswered(exercise.id),
+          },
+          {
+            header: t("number-of-graded"),
+            cell: (exercise) => exercise.id && totalGraded(exercise.id),
+          },
+          {
+            header: t("number-of-unpublished-gradings"),
+            cell: (exercise) => exercise.id && totalPublished(exercise.id),
+          },
+          { header: t("points"), cell: (exercise) => exercise.score_maximum },
+        ]}
+      />
       {getExam.data?.grade_manually && (
         <div
           className={css`
@@ -307,9 +238,7 @@ const GradingPage: React.FC = () => {
           `}
         >
           {checkPublishable() !== 0 && (
-            <GenericInfobox>
-              {t("unpublishable-grading-results", { amount: checkPublishable() })}
-            </GenericInfobox>
+            <Infobox>{t("unpublishable-grading-results", { amount: checkPublishable() })}</Infobox>
           )}
         </div>
       )}
@@ -361,9 +290,6 @@ const GradingPage: React.FC = () => {
 
   return (
     <div>
-      <BreakFromCentered sidebar={false}>
-        <Breadcrumbs pieces={pieces} />
-      </BreakFromCentered>
       <QueryResult query={getExercises} treatEmptyAsData>
         {() => questionsContent}
       </QueryResult>

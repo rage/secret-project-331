@@ -1,0 +1,33 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_account_linking_emails (\n    student_number,\n    sisu_person_id,\n    course_id,\n    external_credit_target_id,\n    emailed_to,\n    student_number_verification_token_id\n  )\nSELECT * FROM UNNEST($1::text [], $2::text [], $3::uuid [], $6::uuid [], $4::text [], $5::uuid []) ON CONFLICT DO NOTHING\nRETURNING student_number_verification_token_id AS \"token_id!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "token_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_account_linking_emails",
+            "name": "student_number_verification_token_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "TextArray",
+        "TextArray",
+        "UuidArray",
+        "TextArray",
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "2386afd65a18d17bbb4171eb317a145594f812a540a40e1bf1390439545af046"
+}

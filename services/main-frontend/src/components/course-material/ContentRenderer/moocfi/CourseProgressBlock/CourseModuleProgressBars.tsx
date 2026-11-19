@@ -47,7 +47,7 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
   courseId,
 }) => {
   const { t, i18n } = useTranslation()
-  const requiresExam = courseModuleProgress.requires_exam
+  const requiresExam = courseModuleProgress.completion_method === "by_exam"
   const points: ProgressMeasure = withoutEmptyThreshold({
     given: courseModuleProgress.score_given,
     max: courseModuleProgress.score_maximum ?? null,

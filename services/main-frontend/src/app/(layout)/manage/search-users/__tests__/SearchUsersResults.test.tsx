@@ -112,25 +112,16 @@ describe("SearchUsersResults", () => {
     expect(screen.getByText("search-users-too-short")).toBeInTheDocument()
   })
 
-  it("offers a retry when the similar-user search times out", () => {
+  it("keeps showing exact matches and offers a retry when the similar-user search fails", () => {
     const onRetryFuzzy = jest.fn()
-    renderResults(
-      succeeded([createUser("exact", "exact@example.com")]),
-      succeeded(fuzzyResults([], { timed_out: true })),
-      { onRetryFuzzy },
-    )
-
-    expect(screen.getByText("exact@example.com")).toBeInTheDocument()
-    expect(screen.getByText("search-users-similar-timed-out")).toBeInTheDocument()
-    fireEvent.click(screen.getByRole("button", { name: "try-again" }))
-    expect(onRetryFuzzy).toHaveBeenCalled()
-  })
-
-  it("keeps showing exact matches when the similar-user search fails", () => {
-    renderResults(succeeded([createUser("exact", "exact@example.com")]), failed())
+    renderResults(succeeded([createUser("exact", "exact@example.com")]), failed(), {
+      onRetryFuzzy,
+    })
 
     expect(screen.getByText("exact@example.com")).toBeInTheDocument()
     expect(screen.getByText("search-users-similar-failed")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "try-again" }))
+    expect(onRetryFuzzy).toHaveBeenCalled()
   })
 
   it("makes the previous results inert while the new search runs", () => {

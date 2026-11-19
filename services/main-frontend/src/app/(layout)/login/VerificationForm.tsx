@@ -1,10 +1,9 @@
 "use client"
 
-import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import OneTimeCodeForm from "@/components/forms/OneTimeCodeForm"
+import { OneTimeCodeForm } from "@/shared-module/components"
 
 interface VerificationFormProps {
   onSubmit: (code: string) => Promise<void>
@@ -28,9 +27,7 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
       submitLabel={t("verify-button")}
       error={error}
       isSubmitting={isSubmitting}
-      containerClassName={css`
-        padding: 0;
-      `}
+      submitOnComplete
     />
   )
 }

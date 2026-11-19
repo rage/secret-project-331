@@ -10,15 +10,13 @@ import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBrea
 import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
-import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { EmptyState, Pagination, QueryResult } from "@/shared-module/components"
 
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
@@ -26,7 +24,7 @@ const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
 const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
-  <h5
+  <p
     className={css`
       font-size: 18px;
       font-weight: 500;
@@ -34,11 +32,10 @@ const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
       margin-top: 0.5rem;
       color: ${baseTheme.colors.gray[500]};
       font-family: ${primaryFont};
-      text-align: center;
     `}
   >
     {children}
-  </h5>
+  </p>
 )
 
 const SubmissionsPage: React.FC = () => {
@@ -92,7 +89,7 @@ const SubmissionsPage: React.FC = () => {
 
   return (
     <div>
-      <h4
+      <h1
         className={css`
           color: ${baseTheme.colors.gray[700]};
           font-family: ${primaryFont};
@@ -100,13 +97,12 @@ const SubmissionsPage: React.FC = () => {
           font-weight: 600;
           line-height: 1.2;
           letter-spacing: -0.01em;
-          text-align: center;
           margin-bottom: 0.75rem;
           margin-top: 1rem;
         `}
       >
         {t("header-answers-requiring-attention")}
-      </h4>
+      </h1>
 
       {exerciseContext && (
         <ExerciseTitle>
@@ -122,22 +118,28 @@ const SubmissionsPage: React.FC = () => {
       )}
 
       <QueryResult query={answersQuery}>
-        {(answers) => (
-          // AccordionProvider here allows us to collapse/expand all accordions in this subtree
-          <AccordionProvider>
-            <AnswersRequiringAttentionList
-              answersRequiringAttention={answers.data}
-              exercise_max_points={answers.exercise_max_points}
-              courseId={exerciseQuery.data?.course_id ?? null}
-              refetch={answersQuery.refetch}
-            />
-            <Pagination
-              totalPages={answers.total_pages}
-              paginationInfo={paginationInfo}
-              itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
-            />
-          </AccordionProvider>
-        )}
+        {(answers) =>
+          answers.data.length === 0 ? (
+            <EmptyState title={t("no-answers-requiring-attention")} />
+          ) : (
+            <>
+              <AnswersRequiringAttentionList
+                answersRequiringAttention={answers.data}
+                exercise_max_points={answers.exercise_max_points}
+                courseId={exerciseQuery.data?.course_id ?? null}
+                refetch={answersQuery.refetch}
+              />
+              <Pagination
+                totalPages={answers.total_pages}
+                page={paginationInfo.page}
+                onPageChange={paginationInfo.setPage}
+                itemsPerPage={paginationInfo.limit}
+                onItemsPerPageChange={paginationInfo.setLimit}
+                itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+              />
+            </>
+          )
+        }
       </QueryResult>
     </div>
   )

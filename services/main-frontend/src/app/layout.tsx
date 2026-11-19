@@ -5,15 +5,16 @@ import Script from "next/script"
 import React, { Suspense, useEffect } from "react"
 
 import DesignTokensRoot from "@/components/DesignTokensRoot"
+import FramedNavigationGuard from "@/components/FramedNavigationGuard"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { LoadingRegion } from "@/shared-module/components"
 
 import "react-medium-image-zoom/dist/styles.css"
 
@@ -38,11 +39,12 @@ const RootLayout = ({
     <html lang="en" dir={getDir("en")}>
       <body>
         <DesignTokensRoot />
+        <FramedNavigationGuard />
         <Script noModule id="outdated-browser-warning">
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>
         <AriaRouterProvider>
-          <Suspense fallback={<Spinner />}>
+          <Suspense fallback={<LoadingRegion />}>
             <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
             <DynamicToaster />
           </Suspense>

@@ -11,7 +11,7 @@ import { popoverCss } from "./selectStyles"
 const popoverUnderlayCss = css`
   position: fixed;
   inset: 0;
-  z-index: var(--z-popover);
+  z-index: var(--layer-overlay);
   pointer-events: none;
 `
 

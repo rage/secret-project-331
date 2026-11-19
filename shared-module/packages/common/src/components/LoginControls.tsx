@@ -4,6 +4,8 @@ import { cx } from "@emotion/css"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Link } from "@/shared-module/components/components/Link"
+
 import LoginStateContext from "../contexts/LoginStateContext"
 import useLogout from "../hooks/useLogout"
 import "../init/registerAuthApiClients"
@@ -33,11 +35,9 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
   return loginStateContext.signedIn ? (
     <>
       <li className={cx(styles)}>
-        <a href={"/user-settings"}>
-          <Button size="medium" variant="primary">
-            {t("user-settings")}
-          </Button>
-        </a>
+        <Link href="/user-settings" isCrossService styledAsButton size="medium" variant="primary">
+          {t("user-settings")}
+        </Link>
       </li>
       <li className={cx(styles)}>
         <Button size="medium" variant="primary" onClick={logout}>
@@ -48,18 +48,26 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
   ) : (
     <>
       <li className={cx(styles)}>
-        <a href={signUpRoute(returnTo)}>
-          <Button size="medium" variant="primary">
-            {t("create-new-account")}
-          </Button>
-        </a>
+        <Link
+          href={signUpRoute(returnTo)}
+          isCrossService
+          styledAsButton
+          size="medium"
+          variant="primary"
+        >
+          {t("create-new-account")}
+        </Link>
       </li>
       <li className={cx(styles)}>
-        <a href={loginRoute(returnTo)}>
-          <Button size="medium" variant="primary">
-            {t("log-in")}
-          </Button>
-        </a>
+        <Link
+          href={loginRoute(returnTo)}
+          isCrossService
+          styledAsButton
+          size="medium"
+          variant="primary"
+        >
+          {t("log-in")}
+        </Link>
       </li>
     </>
   )

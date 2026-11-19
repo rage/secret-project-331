@@ -20,7 +20,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     waitForTheseToBeVisibleAndStable: [
       page.getByText("Automatic course exam"),
       page.getByText("Submissions are no longer accepted after"),
-      page.getByText("You have 1 minutes to complete the exam after starting"),
+      page.getByText("You have 1 minute to complete the exam after starting"),
       page.getByText("You have not met the requirements for taking this exam."),
     ],
   })
@@ -52,7 +52,7 @@ test("Can take exam after enough course points", async ({ page, headless }, test
     waitForTheseToBeVisibleAndStable: [
       page.getByText("Automatic course exam"),
       page.getByText("Submissions are no longer accepted after"),
-      page.getByText("You have 1 minutes to complete the exam after starting"),
+      page.getByText("You have 1 minute to complete the exam after starting"),
     ],
   })
 

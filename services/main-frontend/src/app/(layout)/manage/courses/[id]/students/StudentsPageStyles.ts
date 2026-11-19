@@ -1,6 +1,5 @@
 import { css, cx } from "@emotion/css"
 
-import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const headerTopRow = css`
@@ -100,46 +99,4 @@ export const searchBoxWrap = css`
     flex: 0 1 20rem;
     width: auto;
   }
-`
-
-// Same field tokens the shared Select uses, so the two controls in one toolbar read as one system.
-export const searchInput = css`
-  width: 100%;
-  height: var(--control-height-md);
-  border: none;
-  border-radius: var(--surface-radius);
-  box-shadow: inset 0 0 0 1px var(--field-border);
-  /* Left gutter reserves room for the icon, right for the absolute pending spinner, so long search
-     text is never obscured by either. */
-  padding-left: 2.75rem;
-  padding-right: 2.25rem;
-  font-size: 14px;
-  font-family: ${primaryFont};
-  color: var(--field-text-color);
-  background: var(--field-bg);
-
-  &:focus {
-    outline: none;
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-focus),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
-  }
-`
-
-export const searchIcon = css`
-  position: absolute;
-  left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  color: var(--color-gray-500);
-  pointer-events: none;
-`
-
-export const searchPendingSpinner = css`
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
 `

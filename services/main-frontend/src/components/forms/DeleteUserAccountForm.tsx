@@ -1,15 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
 import i18n from "i18next"
 import { useRouter } from "next/navigation"
-import React, { useContext, useState } from "react"
+import React, { useContext, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import {
   postAuthDeleteUserAccount,
@@ -17,30 +13,46 @@ import {
 } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
-
-import OneTimeCodeForm from "./OneTimeCodeForm"
+import {
+  Button,
+  Dialog,
+  type DialogAction,
+  ErrorNotice,
+  OneTimeCodeForm,
+} from "@/shared-module/components"
 import "@/shared-module/common/init/registerAuthApiClients"
 
-import VerifyPasswordForm from "./VerifyPasswordForm"
+import AccountDeletionProgressStep from "./AccountDeletionProgressStep"
+import VerifyPasswordForm, { type VerifyPasswordFormHandle } from "./VerifyPasswordForm"
 
+const PROGRESS_STEP = "progress"
 const PASSWORD_STEP = "password"
 const VERIFY_CODE_STEP = "verifyCode"
 
-type Step = typeof PASSWORD_STEP | typeof VERIFY_CODE_STEP
+type Step = typeof PROGRESS_STEP | typeof PASSWORD_STEP | typeof VERIFY_CODE_STEP
 
-const DeleteUserAccountForm: React.FC = () => {
+interface DeleteUserAccountFormProps {
+  isDialogOpen: boolean
+  onDialogOpenChange: (isOpen: boolean) => void
+}
+
+const DeleteUserAccountForm: React.FC<DeleteUserAccountFormProps> = ({
+  isDialogOpen,
+  onDialogOpenChange,
+}) => {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const queryClient = useQueryClient()
   const router = useRouter()
 
-  const [step, setStep] = useState<Step>(PASSWORD_STEP)
+  const [step, setStep] = useState<Step>(PROGRESS_STEP)
   const [password, setPassword] = useState("")
+  const [isProgressLossAcknowledged, setIsProgressLossAcknowledged] = useState(false)
 
   const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [codeErrorMessage, setCodeErrorMessage] = useState<string | null>(null)
-  const [openDialog, setOpenDialog] = useState(false)
-
+  const [isCodeLimitReached, setIsCodeLimitReached] = useState(false)
+  const verifyPasswordFormRef = useRef<VerifyPasswordFormHandle>(null)
   const sendEmailCodeMutation = useToastMutation(
     async (passwordInput: string) =>
       await postAuthSendEmailCode({
@@ -50,6 +62,7 @@ const DeleteUserAccountForm: React.FC = () => {
     {
       onSuccess: (result) => {
         setIncorrectPassword(result.type === "incorrect_password")
+        setIsCodeLimitReached(result.type === "daily_limit_reached")
         switch (result.type) {
           case "queued":
             setCodeErrorMessage(null)
@@ -60,6 +73,11 @@ const DeleteUserAccountForm: React.FC = () => {
             setCodeErrorMessage(
               t("delete-account-code-recently-sent", { seconds: result.retry_after_seconds }),
             )
+            setStep(VERIFY_CODE_STEP)
+            break
+          // Nothing was sent, but a code from an earlier email may still work.
+          case "daily_limit_reached":
+            setCodeErrorMessage(t("message-code-daily-limit-reached"))
             setStep(VERIFY_CODE_STEP)
             break
           case "incorrect_password":
@@ -118,46 +136,88 @@ const DeleteUserAccountForm: React.FC = () => {
     }
   }
 
+  // Every opening starts over, so the user cannot skip the progress step by reopening.
+  const closeDialog = () => {
+    onDialogOpenChange(false)
+    setStep(PROGRESS_STEP)
+    setIsProgressLossAcknowledged(false)
+    setPassword("")
+    setIncorrectPassword(false)
+    setCodeErrorMessage(null)
+    setIsCodeLimitReached(false)
+    sendEmailCodeMutation.reset()
+    deleteAccountMutation.reset()
+  }
+
+  const cancelAction: DialogAction = {
+    label: t("button-text-cancel"),
+    variant: "tertiary",
+    onPress: closeDialog,
+  }
+  const primaryAction: DialogAction | null =
+    step === PROGRESS_STEP
+      ? {
+          label: t("continue"),
+          variant: "danger",
+          disabled: !isProgressLossAcknowledged,
+          onPress: () => setStep(PASSWORD_STEP),
+        }
+      : step === PASSWORD_STEP
+        ? {
+            label: t("confirm"),
+            variant: "danger",
+            disabled: sendEmailCodeMutation.isPending,
+            onPress: () => verifyPasswordFormRef.current?.submit(),
+          }
+        : null
+  const actions: readonly [DialogAction, ...DialogAction[]] = primaryAction
+    ? [cancelAction, primaryAction]
+    : [cancelAction]
+
   return (
     <>
       <Button
         data-testid="delete-account-button"
-        variant="secondary"
+        variant="danger"
         size="small"
-        onClick={() => setOpenDialog(true)}
+        onClick={() => onDialogOpenChange(true)}
       >
         {t("title-delete-account")}
       </Button>
 
-      <StandardDialog
-        open={openDialog}
+      <Dialog
+        open={isDialogOpen}
+        size={step === PROGRESS_STEP ? "normal" : "small"}
         title={t("title-delete-account")}
-        showCloseButton
-        // oxlint-disable-next-line i18next/no-literal-string
-        aria-modal="true"
-        onClose={() => setOpenDialog(false)}
+        onClose={closeDialog}
+        actions={actions}
       >
         {(sendEmailCodeMutation.isError || deleteAccountMutation.isError) && (
-          <ErrorBanner error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+          <ErrorNotice error={sendEmailCodeMutation.error || deleteAccountMutation.error} />
+        )}
+
+        {step === PROGRESS_STEP && (
+          <AccountDeletionProgressStep onAcknowledgedChange={setIsProgressLossAcknowledged} />
         )}
 
         {step === PASSWORD_STEP && (
           <VerifyPasswordForm
+            ref={verifyPasswordFormRef}
             onSubmit={async (passwordValue) => {
               setPassword(passwordValue)
               await requestDeletionCode(passwordValue)
             }}
-            isPending={sendEmailCodeMutation.isPending}
             credentialsError={incorrectPassword}
           />
         )}
 
         {step === VERIFY_CODE_STEP && (
           <OneTimeCodeForm
-            containerClassName={css`
-              padding: 0;
-            `}
-            message={t("insert-single-use-code-account-deletion")}
+            message={
+              isCodeLimitReached
+                ? t("insert-earlier-code-account-deletion")
+                : t("insert-single-use-code-account-deletion")
+            }
             onSubmit={async (code) => {
               await deleteAccountMutation.mutateAsync(code)
             }}
@@ -171,7 +231,7 @@ const DeleteUserAccountForm: React.FC = () => {
             }}
           />
         )}
-      </StandardDialog>
+      </Dialog>
     </>
   )
 }

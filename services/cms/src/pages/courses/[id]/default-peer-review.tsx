@@ -1,6 +1,7 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { css } from "@emotion/css"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import type {
@@ -8,12 +9,15 @@ import type {
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
 } from "@/generated/api"
-import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCmsCourseDefaultPeerReviewOptions,
+  getCmsCourseDefaultPeerReviewQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import type { SimplifiedUrlQuery } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dontRenderUntilQueryParametersReady } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { Button, useDialog } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
@@ -25,6 +29,16 @@ import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
+import { isStaleVersionError } from "../../../utils/staleSave"
+
+const pageCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--space-4);
+`
 
 interface PeerReviewManagerProps {
   // courseId
@@ -35,6 +49,8 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   query,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { confirm } = useDialog()
   const [attributes, setAttributesRaw] = useState<Partial<Readonly<ExerciseAttributes>>>({
     peer_or_self_review_config: "{}",
     peer_or_self_review_questions_config: "[]",
@@ -82,7 +98,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }, [peerOrSelfReviewConfigurationQuery.data])
 
   const mutateCourseDefaultPeerReview = useToastMutation(
-    () => {
+    (overwrite: boolean) => {
       {
         let prc: CmsPeerOrSelfReviewConfig = JSON.parse(
           attributes.peer_or_self_review_config ?? "{}",
@@ -100,7 +116,12 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
           path: {
             course_id: id,
           },
-          body: configuration,
+          body: {
+            ...configuration,
+            expected_updated_at: overwrite
+              ? null
+              : (peerOrSelfReviewConfigurationQuery.data?.updated_at ?? null),
+          },
         })
       }
     },
@@ -109,9 +130,34 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       method: "PUT",
       errorMessage: t("default-toast-error-message"),
       successMessage: t("default-toast-success-message"),
+      isErrorHandledByCaller: isStaleVersionError,
     },
 
-    { onSuccess: () => peerOrSelfReviewConfigurationQuery.refetch() },
+    {
+      onSuccess: (saved) => {
+        queryClient.setQueryData(
+          getCmsCourseDefaultPeerReviewQueryKey({ path: { course_id: id } }),
+          saved,
+        )
+      },
+      onError: async (error) => {
+        if (!isStaleVersionError(error)) {
+          return
+        }
+        const shouldOverwrite = await confirm({
+          title: t("stale-save-title"),
+          message: t("stale-save-default-peer-review-message"),
+          confirmLabel: t("stale-save-replace-their-changes"),
+          cancelLabel: t("stale-save-discard-my-changes"),
+          isKeyboardDismissDisabled: true,
+        })
+        if (shouldOverwrite) {
+          mutateCourseDefaultPeerReview.mutate(true)
+        } else {
+          void peerOrSelfReviewConfigurationQuery.refetch()
+        }
+      },
+    },
   )
 
   const parsedAdditionalInstructions: BlockInstance[] = useMemo(() => {
@@ -143,7 +189,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
       <CmsPageTitle title={t("edit-default-peer-review")} />
       <QueryResult query={peerOrSelfReviewConfigurationQuery}>
         {(data) => (
-          <>
+          <div className={pageCss}>
             <PeerReviewEditor
               attributes={attributes}
               setAttributes={setAttributes}
@@ -158,13 +204,16 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
               }
             />
             <Button
+              className={css`
+                align-self: flex-start;
+              `}
               variant="primary"
               size="medium"
-              onClick={() => mutateCourseDefaultPeerReview.mutate()}
+              onClick={() => mutateCourseDefaultPeerReview.mutate(false)}
             >
               {t("save")}
             </Button>
-          </>
+          </div>
         )}
       </QueryResult>
     </>

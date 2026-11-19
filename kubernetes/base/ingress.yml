@@ -10,12 +10,18 @@ metadata:
     nginx.ingress.kubernetes.io/configuration-snippet: |
       proxy_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
       grpc_set_header l5d-dst-override $service_name.$namespace.svc.cluster.local:$service_port;
+      # The client controls this header, and the backend would prefer it over X-Forwarded-For.
+      proxy_set_header Forwarded "";
     nginx.ingress.kubernetes.io/server-snippet: |
       location ^~ /oembed/1.0/proxy {
         return 301 /api/v0/cms/gutenberg/oembed/preview?$args;
       }
       location ^~ /wp/v2/themes {
         return 301 /api/v0/cms/gutenberg/themes?$args;
+      }
+      # In-cluster only: headless-lms calls the CMS block validator directly.
+      location ^~ /cms/api/agent/ {
+        return 404;
       }
 
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -25,6 +31,20 @@ spec:
       http:
         paths:
           - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /.well-known/oauth-protected-resource
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /.well-known/oauth-authorization-server
             pathType: Prefix
             backend:
               service:

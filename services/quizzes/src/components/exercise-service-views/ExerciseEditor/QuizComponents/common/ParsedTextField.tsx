@@ -127,6 +127,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
           href="https://github.com/rage/secret-project-331/wiki/Add-new-exercise#formatting-feedback-messages"
           target="_blank"
           rel="noopener noreferrer"
+          aria-label={t("formatting-help-link")}
           onClick={(e) => {
             // The iframe sandbox blocks target="_blank", so the parent opens the link (after asking
             // the user) instead of the browser doing nothing here.
@@ -138,7 +139,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
             requestOpenLink(messagePort, target.href)
           }}
         >
-          <InfoCircle />
+          <InfoCircle aria-hidden="true" />
         </InfoLink>
       </TextfieldWrapper>
       <DisplayContainer>{hasTags && PreviewButton}</DisplayContainer>

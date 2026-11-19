@@ -6,6 +6,7 @@ import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment, useMemo } from "@wordpress/element"
 
+import { Link } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -69,6 +70,7 @@ const renderGuidanceText = (
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const HeadingHierarchyWarnings = (props: BlockEditWithClientIdProps) => {
     const { t } = useTranslation()
     const isPreviewMode = useIsBlockPreviewMode()
@@ -114,9 +116,9 @@ const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
               ))}
               <p className={noticeParagraphClass}>{renderGuidanceText(issues, t)}</p>
               <p className={noticeParagraphClass}>
-                <a href={W3C_HEADINGS_GUIDANCE_URL} target="_blank" rel="noopener noreferrer">
+                <Link href={W3C_HEADINGS_GUIDANCE_URL} target="_blank" rel="noopener noreferrer">
                   {t("link-heading-structure-guidance")}
-                </a>
+                </Link>
               </p>
             </Notice>
           </div>
@@ -127,6 +129,7 @@ const withHeadingHierarchyWarnings = createHigherOrderComponent((BlockEdit) => {
 
   // This dispatcher runs for every block in the document; the hooks stay in the inner component so
   // that only heading blocks subscribe to the store.
+  // oxlint-disable-next-line unicorn/consistent-function-scoping -- captures BlockEdit from HOC scope
   const BlockEditWithHeadingWarnings = (props: BlockEditWithClientIdProps) =>
     HEADING_SOURCE_BLOCK_NAME_SET.has(props.name) ? (
       <HeadingHierarchyWarnings {...props} />

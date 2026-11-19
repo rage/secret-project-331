@@ -11,7 +11,7 @@ import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 
 interface Props {
   studentNumber: string
-  courseId: string
+  courseOrTargetId: string
   courseName: string
   variant?: ButtonVariant
 }
@@ -19,7 +19,7 @@ interface Props {
 /** The resend dialog behind a button of its own, for a page that offers it as one of its actions. */
 const AdminResendLinkingEmailButton: React.FC<Props> = ({
   studentNumber,
-  courseId,
+  courseOrTargetId,
   courseName,
   variant = "secondary",
 }) => {
@@ -35,7 +35,7 @@ const AdminResendLinkingEmailButton: React.FC<Props> = ({
         isOpen={open}
         onClose={() => setOpen(false)}
         studentNumber={studentNumber}
-        courseId={courseId}
+        courseOrTargetId={courseOrTargetId}
         courseName={courseName}
       />
     </>

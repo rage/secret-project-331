@@ -6,9 +6,8 @@ import type { ColumnDef } from "@tanstack/react-table"
 import React, { useDeferredValue, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import type { TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 import { getTeacherChapterLockLabel } from "@/utils/chapterLockingStatus"
 
@@ -256,20 +255,20 @@ export const ProgressTabContent: React.FC = () => {
   }, [deferredStructureData, deferredDetailData, deferredIdentityRows, t])
 
   if (identityQuery.isError) {
-    return <ErrorBanner error={identityQuery.error} />
+    return <ErrorNotice error={identityQuery.error} />
   }
   if (structureQuery.isError) {
-    return <ErrorBanner error={structureQuery.error} />
+    return <ErrorNotice error={structureQuery.error} />
   }
   if (detailQuery.isError) {
-    return <ErrorBanner error={detailQuery.error} />
+    return <ErrorNotice error={detailQuery.error} />
   }
   if (
     identityQuery.isPending ||
     structureQuery.isPending ||
     (userIds.length > 0 && detailQuery.isLoading)
   ) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (

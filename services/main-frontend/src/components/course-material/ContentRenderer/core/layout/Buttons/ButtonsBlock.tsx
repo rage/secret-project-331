@@ -7,6 +7,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Link } from "@/shared-module/components"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import type { BlockRendererProps } from "../../.."
 import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
@@ -102,11 +103,12 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
+    const variant = getButtonTypeFromClassName(className)
     return (
       <Link
         key={button.clientId}
         styledAsButton
-        variant={getButtonTypeFromClassName(className)}
+        variant={variant}
         size="medium"
         href={url ?? ""}
         isDisabled={!url}
@@ -126,7 +128,11 @@ const ButtonsBlock: React.FC<
           margin-right: 0.5rem;
         `}
       >
-        <span dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }} />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: sanitizeCourseMaterialHtml(text ?? placeholder ?? "BUTTON"),
+          }}
+        />
         <OpensInNewTabNotice linkTarget={linkTarget} />
       </Link>
     )

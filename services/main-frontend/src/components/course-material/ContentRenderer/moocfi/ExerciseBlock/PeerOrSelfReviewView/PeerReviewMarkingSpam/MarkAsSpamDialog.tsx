@@ -5,8 +5,8 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import { Radio, RadioGroup, TextArea } from "@/shared-module/components"
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { Dialog, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 export const ReportReasonValues = {
   // oxlint-disable-next-line i18next/no-literal-string
@@ -21,7 +21,7 @@ export const ReportReasonValues = {
 export type ReportReason = (typeof ReportReasonValues)[keyof typeof ReportReasonValues]
 
 interface ReportFormFields {
-  reason: string
+  reason: string | null
   description: string
 }
 
@@ -29,10 +29,11 @@ const MarkAsSpamDialog: React.FC<{
   isOpen: boolean
   onClose: () => void
   onSubmit: (reason: ReportReason, description: string) => void
-}> = ({ isOpen, onClose, onSubmit }) => {
+  onExitComplete?: () => void
+}> = ({ isOpen, onClose, onSubmit, onExitComplete }) => {
   const { t } = useTranslation()
   const { control, watch, reset } = useForm<ReportFormFields>({
-    defaultValues: { reason: "", description: "" },
+    defaultValues: { reason: null, description: "" },
   })
   const selectedReason = watch("reason")
 
@@ -45,16 +46,17 @@ const MarkAsSpamDialog: React.FC<{
   }
 
   return (
-    <StandardDialog
+    <Dialog
       open={isOpen}
       onClose={onClose}
+      {...omitUndefined({ onExitComplete })}
       title={t("title-report-dialog")}
-      buttons={[
+      actions={[
         {
           variant: "primary",
           onClick: () => handleSubmit(),
           disabled: !selectedReason,
-          children: t("submit-button"),
+          label: t("submit-button"),
         },
       ]}
     >
@@ -83,7 +85,7 @@ const MarkAsSpamDialog: React.FC<{
           margin-bottom: 1rem;
         `}
       />
-    </StandardDialog>
+    </Dialog>
   )
 }
 

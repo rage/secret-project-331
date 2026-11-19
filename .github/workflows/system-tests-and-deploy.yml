@@ -10,6 +10,7 @@ on:
     paths-ignore:
       - "docs/**"
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths-ignore:
@@ -25,6 +26,7 @@ env:
 
 jobs:
   build-and-system-tests:
+    if: ${{ !github.event.pull_request.draft }}
     permissions:
       contents: read
     runs-on: ubicloud-standard-30-ubuntu-2404
@@ -132,7 +134,8 @@ jobs:
         # breaking `kubectl exec` with "server gave HTTP response to HTTPS client". Ask
         # minikube for its own newest validated version instead, so a flake.lock bump to
         # either tool can't silently drift them into an untested combination.
-        run: minikube start --addons ingress --memory 60g --driver docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
+        # skaffold builds into the node's Docker daemon, which minikube >= 1.39 no longer runs by default.
+        run: minikube start --addons ingress --memory 60g --driver docker --container-runtime docker --kubernetes-version "$(minikube config defaults kubernetes-version | head -n 1 | tr -d '* ')"
         timeout-minutes: 10
 
       - name: Build
@@ -436,6 +439,7 @@ jobs:
         run: skaffold deploy --force --filename ./skaffold.production.yaml -p production --build-artifacts=./skaffold-build-output/skaffold-build-output.json --namespace courses-moocfi
 
   typecheck:
+    if: ${{ !github.event.pull_request.draft }}
     permissions:
       contents: read
     runs-on: ubuntu-24.04

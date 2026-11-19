@@ -4,7 +4,15 @@ import { css, cx } from "@emotion/css"
 import { flexRender, useTable } from "@tanstack/react-table"
 import type { ColumnDef, OnChangeFn, Row, SortingState } from "@tanstack/react-table"
 import { useWindowVirtualizer } from "@tanstack/react-virtual"
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
+import React, {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -32,6 +40,7 @@ import {
   PAD,
   rowStyle,
   sortableThCss,
+  sortButtonCss,
   tableEmptyCell,
   tableStyle,
   tableViewportCss,
@@ -54,6 +63,17 @@ const spacerCellStyle = (height: number): React.CSSProperties => ({
   padding: 0,
   border: 0,
 })
+
+/** A header's label, wrapped in the sort button when the column can be sorted. */
+// The button has no handler: its click bubbles to the th, which sorts.
+const renderHeaderLabel = (content: React.ReactNode, id: string, isButton: boolean) =>
+  isButton ? (
+    <button type="button" id={id} className={sortButtonCss}>
+      {content}
+    </button>
+  ) : (
+    <span id={id}>{content}</span>
+  )
 
 interface StudentsTableProps<T extends object> {
   columns: ColumnDef<StudentsTableFeatures, T, unknown>[]
@@ -83,6 +103,10 @@ export function StudentsTable<T extends object>({
   onSortingChange,
 }: StudentsTableProps<T>) {
   const { t } = useTranslation()
+  const tableId = useId()
+  // aria-labelledby splits on whitespace, so a column id with spaces would match nothing.
+  const headerLabelId = (headerId: string) =>
+    `${tableId}-${headerId.replaceAll(/[^A-Za-z0-9_-]/g, "_")}-label`
 
   // Column-coloring offsets differ per layout. Progress: Student + a 2-wide "Total" group before the
   // colored chapter groups (groups from index 2, cells from index 3). Completions: only Student before
@@ -607,18 +631,9 @@ export function StudentsTable<T extends object>({
                           ? "none"
                           : undefined
                   }
+                  // Named by the label alone; the resize slider inside would add its value to it.
+                  aria-labelledby={floating ? undefined : headerLabelId(header.id)}
                   onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
-                  onKeyDown={
-                    !floating && canSort
-                      ? (e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault()
-                            header.column.toggleSorting()
-                          }
-                        }
-                      : undefined
-                  }
-                  tabIndex={!floating && canSort ? 0 : undefined}
                   className={cx(
                     thStyle,
                     canSort && sortableThCss,
@@ -659,12 +674,18 @@ export function StudentsTable<T extends object>({
                   rowSpan={isTopLevelLeaf && headerRowCount > 1 ? headerRowCount : undefined}
                   colSpan={header.colSpan > 1 ? header.colSpan : undefined}
                 >
-                  {headerLabel}
-                  {canSort && (
-                    <span aria-hidden="true">
-                      {/* oxlint-disable-next-line i18next/no-literal-string */}
-                      {sortDirection === "asc" ? " ▲" : sortDirection === "desc" ? " ▼" : " ⇅"}
-                    </span>
+                  {renderHeaderLabel(
+                    <>
+                      {headerLabel}
+                      {canSort && (
+                        <span aria-hidden="true">
+                          {/* oxlint-disable-next-line i18next/no-literal-string */}
+                          {sortDirection === "asc" ? " ▲" : sortDirection === "desc" ? " ▼" : " ⇅"}
+                        </span>
+                      )}
+                    </>,
+                    headerLabelId(header.id),
+                    !floating && canSort,
                   )}
 
                   {colorHeaderUnderline &&

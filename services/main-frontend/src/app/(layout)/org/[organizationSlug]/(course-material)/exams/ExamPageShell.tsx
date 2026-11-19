@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { isPast } from "date-fns"
 import { useAtomValue, useSetAtom } from "jotai"
-import React, { useCallback, useEffect, useMemo } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
@@ -11,12 +11,11 @@ import { enrollInExam } from "@/generated/course-material-api/sdk.generated"
 import type { ExamData, ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { humanReadableDateTime } from "@/shared-module/common/utils/time"
+import { dateToString } from "@/shared-module/common/utils/time"
+import { LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
@@ -105,6 +104,15 @@ export default function ExamPageShell({
     }
   }, [courseMaterialState.examData, i18n])
 
+  const [justStarted, setJustStarted] = useState(false)
+  const isRunning = courseMaterialState.examData?.enrollment_data.tag === "EnrolledAndStarted"
+  // Stays set for one render of the running view, which then focuses and announces the start.
+  useEffect(() => {
+    if (justStarted && isRunning) {
+      setJustStarted(false)
+    }
+  }, [justStarted, isRunning])
+
   const examEnrollmentDataForBanner = useMemo((): ExamEnrollmentData | null => {
     const data = courseMaterialState.examData
     if (!data) {
@@ -117,10 +125,10 @@ export default function ExamPageShell({
   }, [mode, courseMaterialState.examData])
 
   if (courseMaterialState.error) {
-    return <ErrorBanner variant="readOnly" error={courseMaterialState.error} />
+    return <ErrorNotice error={courseMaterialState.error} />
   }
   if (courseMaterialState.status === "loading" || !courseMaterialState.examData) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   const examData = courseMaterialState.examData
@@ -146,14 +154,20 @@ export default function ExamPageShell({
         <div id="exam-instructions">
           <ExamStartBanner
             onStart={async () => {
-              await enrollMutation.mutateAsync()
+              setJustStarted(true)
+              try {
+                await enrollMutation.mutateAsync()
+              } catch (error) {
+                setJustStarted(false)
+                throw error
+              }
             }}
             examEnrollmentData={bannerEnrollmentData}
             examHasStarted={examHasStarted}
             examHasEnded={examHasEnded}
             timeMinutes={examData.time_minutes}
           >
-            <div id="maincontent">
+            <div>
               <ContentRenderer
                 data={(examData.instructions as Block<unknown>[]) ?? []}
                 isExam={false}
@@ -194,7 +208,7 @@ export default function ExamPageShell({
         <ExamInfoHeader examData={examData} />
         <div className={timeUpMessageClass}>
           {t("exam-time-up", {
-            "ends-at": humanReadableDateTime(examData.ends_at, i18n.language),
+            "ends-at": dateToString(examData.ends_at),
           })}
         </div>
       </Centered>
@@ -233,7 +247,7 @@ export default function ExamPageShell({
   }
 
   if (enrollmentTag !== "EnrolledAndStarted") {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   return (
@@ -247,6 +261,7 @@ export default function ExamPageShell({
       }
       renderAfterPage={() => renderAfterPage?.({ examId, examData })}
       showEndedInfo={showEndedInfo}
+      justStarted={justStarted}
     />
   )
 }

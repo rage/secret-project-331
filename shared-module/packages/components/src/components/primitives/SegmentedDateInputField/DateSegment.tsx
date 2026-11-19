@@ -6,11 +6,15 @@ import { useRef } from "react"
 import { mergeProps, useDateSegment, useFocusRing } from "react-aria"
 
 import {
-  kloSegmentLiteralCss,
   segmentCss,
+  segmentEditableCss,
   segmentLiteralCss,
   segmentPlaceholderCss,
 } from "./segmentedDateInputFieldStyles"
+
+// Finnish joins date and time with " klo "; the field shows the plain space between them instead.
+// oxlint-disable-next-line i18next/no-literal-string
+const finnishDateTimeJoiner = "klo"
 
 /** One editable or literal date/time segment in the segmented control. */
 export function DateSegment({
@@ -28,6 +32,8 @@ export function DateSegment({
   // blurred). useFocusRing shares react-aria's own focus-visible tracking, so the ring agrees
   // with the rest of the field's focus state.
   const { focusProps, isFocusVisible } = useFocusRing()
+  const isLiteral = segment.type === "literal"
+  const text = isLiteral && segment.text.trim() === finnishDateTimeJoiner ? " " : segment.text
 
   return (
     <div
@@ -35,14 +41,12 @@ export function DateSegment({
       ref={ref}
       className={cx(
         segmentCss,
+        isLiteral ? segmentLiteralCss : segmentEditableCss,
         segment.isPlaceholder ? segmentPlaceholderCss : undefined,
-        segment.type === "literal" ? segmentLiteralCss : undefined,
-        segment.type === "literal" ? segmentLiteralCss : undefined,
-        segment.text.trim() === "klo" ? kloSegmentLiteralCss : undefined,
       )}
       data-focus-visible={isFocusVisible ? "true" : "false"}
     >
-      {segment.text}
+      {text}
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { useListState } from "@react-stately/list"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import { MagnifyingGlass } from "@vectopus/atlas-icons-react"
 import React, { useId, useMemo, useRef, useState } from "react"
-import { FocusScope, useFilter, useFocusWithin, VisuallyHidden } from "react-aria"
+import { FocusScope, useFilter, useFocusWithin, useKeyboard, VisuallyHidden } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -16,6 +16,7 @@ import { normalizeComboBoxItems } from "../lib/utils/combobox"
 import { resolveFieldDescribedBy } from "../lib/utils/field"
 import { omitUndefined } from "../lib/utils/nullability"
 import { Chip } from "./Chip"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -209,6 +210,16 @@ export function MultiSelect<
   const surfaceRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
   const listBoxRef = useRef<HTMLUListElement>(null)
+  const { keyboardProps: searchKeyboardProps } = useKeyboard({
+    onKeyDown: (keyEvent) => {
+      if (keyEvent.key === ARROW_DOWN_KEY) {
+        keyEvent.preventDefault()
+        listBoxRef.current?.focus()
+      } else {
+        keyEvent.continuePropagation()
+      }
+    },
+  })
 
   const [query, setQuery] = useState("")
   const [isFocusWithin, setIsFocusWithin] = useState(false)
@@ -338,6 +349,8 @@ export function MultiSelect<
             aria-describedby={describedBy}
             aria-expanded={overlayState.isOpen}
             aria-haspopup="listbox"
+            // oxlint-disable-next-line jsx-a11y/role-supports-aria-props -- marks the trigger invalid for AT
+            aria-invalid={isInvalid ? true : undefined}
             aria-labelledby={`${labelId} ${summaryId}`}
             className={triggerCss}
             disabled={isDisabled}
@@ -378,12 +391,7 @@ export function MultiSelect<
                   aria-label={resolvedSearchLabel}
                   className={searchInputCss}
                   onChange={(changeEvent) => setQuery(changeEvent.target.value)}
-                  onKeyDown={(keyEvent) => {
-                    if (keyEvent.key === ARROW_DOWN_KEY) {
-                      keyEvent.preventDefault()
-                      listBoxRef.current?.focus()
-                    }
-                  }}
+                  {...searchKeyboardProps}
                   placeholder={resolvedSearchLabel}
                   type="search"
                   value={query}
@@ -405,9 +413,9 @@ export function MultiSelect<
       </div>
 
       {resolvedError ? (
-        <p className={resolveMessageCss(fieldSize, true)} id={errorMessageId} role="alert">
+        <FieldError className={resolveMessageCss(fieldSize, true)} id={errorMessageId}>
           {resolvedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p className={resolveMessageCss(fieldSize, false)} id={descriptionId}>
           {description}

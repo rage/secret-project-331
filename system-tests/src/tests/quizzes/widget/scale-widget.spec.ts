@@ -1,6 +1,9 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
+import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -11,11 +14,12 @@ test.use({
 test("widget, scale", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/playground")
 
-  await page.selectOption("select", { label: "Quizzes example, scale" })
+  await Select.labelled(page, "Playground examples").chooseOption("Quizzes example, scale")
 
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-scale-initial",
@@ -33,6 +37,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
   await iframeLocator.locator('text=123456789101112131415 >> span:has-text("1")').first().click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-scale-leftmost",
@@ -62,6 +67,7 @@ test("widget, scale", async ({ page, headless }, testInfo) => {
     .click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-scale-mixed",

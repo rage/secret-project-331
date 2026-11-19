@@ -81,6 +81,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
                 `}
               >
                 <Echarts
+                  label={t("stats-heading-users-with-submissions-by-day")}
                   height={200 * Object.keys(eChartsData).length}
                   options={{
                     tooltip: {

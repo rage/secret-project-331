@@ -4,8 +4,8 @@
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
+import EmptyBlockSave from "../EmptyBlockSave"
 import ChatbotEditor from "./ChatbotEditor"
-import ChatbotSave from "./ChatbotSave"
 
 export interface ChatbotBlockAttributes {
   chatbotConfigurationId: string | undefined
@@ -28,7 +28,7 @@ const ChatbotBlockConfiguration: BlockConfiguration<ChatbotBlockAttributes> = {
     },
   },
   edit: ChatbotEditor,
-  save: ChatbotSave,
+  save: EmptyBlockSave,
 }
 
 export default ChatbotBlockConfiguration

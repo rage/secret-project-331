@@ -24,6 +24,8 @@ pub enum UtilErrorType {
     TokioIo,
     SerdeJson,
     CloudStorage,
+    /// The file store has no object at the requested path.
+    FileNotFound,
     Other,
     Unavailable,
     DeserializationError,
@@ -110,6 +112,16 @@ pub struct UtilError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
+}
+
+impl UtilError {
+    /// TMC refused an address it was asked to store, e.g. because another account there uses it.
+    pub fn is_tmc_refused_address(&self) -> bool {
+        matches!(
+            self.error_type,
+            UtilErrorType::TmcHttpStatusError(400 | 422)
+        )
+    }
 }
 
 impl std::error::Error for UtilError {

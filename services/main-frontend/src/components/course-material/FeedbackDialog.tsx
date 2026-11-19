@@ -4,16 +4,17 @@ import { css } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import { useAtom } from "jotai"
 import React, { useId, useRef, useState } from "react"
-import { FocusScope, useDialog } from "react-aria"
+import { FocusScope, useDialog, useKeyboard } from "react-aria"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { postFeedback } from "@/generated/course-material-api/sdk.generated"
 import type { FeedbackBlock } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
+import { Button, TextArea } from "@/shared-module/components"
 import {
   currentlyOpenFeedbackDialogAtom,
   selectionAtom,
@@ -34,17 +35,35 @@ interface Comment {
 }
 
 const CLOSE_SYMBOL = "×"
+// oxlint-disable-next-line i18next/no-literal-string
+const COMMENT_FIELD = "comment" as const
 
 const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [selection, setSelection] = useAtom(selectionAtom)
   const [comments, setComments] = useState<Comment[]>([])
-  const [comment, setComment] = useState("")
+  const {
+    control: commentFormControl,
+    setValue: setCommentValue,
+    setFocus,
+  } = useForm<{ comment: string }>({
+    defaultValues: { [COMMENT_FIELD]: "" },
+  })
+  const comment = useWatch({ control: commentFormControl, name: COMMENT_FIELD })
   const [error, setError] = useState<string | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const { dialogProps } = useDialog({ "aria-labelledby": titleId }, dialogRef)
+  const { keyboardProps } = useKeyboard({
+    onKeyDown: (e) => {
+      if (e.key === "Escape") {
+        setCurrentlyOpenFeedbackDialog(null)
+      } else {
+        e.continuePropagation()
+      }
+    },
+  })
 
   const mutation = useToastMutation(
     (commentsToSubmit: Comment[]) => {
@@ -87,6 +106,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     setError("")
     if (comment.length === 0) {
       setError(t("error-comment-cannot-be-empty"))
+      setFocus(COMMENT_FIELD)
       return
     }
     if (charactersLeft <= 0) {
@@ -112,8 +132,10 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
     }
     const selectedText = selection.text.slice(0, 10000)
     setComments((cs) => [...cs, { comment, selectedText, relatedBlocks }])
-    setComment("")
+    setCommentValue(COMMENT_FIELD, "")
     setSelection("", undefined)
+    setFocus(COMMENT_FIELD)
+    announceAfterFocus(t("comment-added"))
   }
 
   const charactersLeft = 1000 - comment.length
@@ -126,6 +148,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
         {...dialogProps}
         ref={dialogRef}
         id={FEEDBACK_DIALOG_CONTENT_ID}
+        {...keyboardProps}
         className={css`
           position: fixed;
           max-width: 500px;
@@ -140,16 +163,15 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
           z-index: 1100;
           display: flex;
           flex-direction: column;
-          max-height: 80vh;
+          max-height: calc(100vh - 140px);
           height: auto;
-          min-height: 200px;
+          min-height: min(200px, calc(100vh - 140px));
           overflow-y: auto;
 
           ${respondToOrLarger.xxs} {
             width: 400px;
             left: auto;
             height: auto;
-            max-height: 60vh;
           }
         `}
       >
@@ -276,6 +298,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
                       color: ${baseTheme.colors.red[600]};
                     }
                   `}
+                  aria-label={t("delete-comment-n", { n: i + 1 })}
                   onClick={() => setComments((cs) => [...cs.slice(0, i), ...cs.slice(i + 1)])}
                 >
                   {t("delete")}
@@ -391,12 +414,10 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
             </div>
           )}
 
-          <TextAreaField
-            value={comment}
+          <TextArea
+            name={COMMENT_FIELD}
+            control={commentFormControl}
             label={t("add-comment")}
-            name=""
-            onChangeByValue={(value) => setComment(value)}
-            placeholder={t("write-your-feedback-here")}
             autoResize
             rows={3}
           />
@@ -434,6 +455,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
 
           {(error || mutation.isError) && (
             <div
+              role="alert"
               className={css`
                 color: ${baseTheme.colors.red[600]};
                 margin-bottom: 1rem;
@@ -461,7 +483,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
               variant="tertiary"
               size="medium"
               onClick={addComment}
-              disabled={comment.length === 0}
               className={css`
                 min-width: 100px;
                 width: 100%;

@@ -1,12 +1,11 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialCoursePages } from "@/generated/course-material-api/sdk.generated"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, Link } from "@/shared-module/components"
 import { coursePageRoute } from "@/utils/course-material/routing"
 
 interface PublicPageListProps {

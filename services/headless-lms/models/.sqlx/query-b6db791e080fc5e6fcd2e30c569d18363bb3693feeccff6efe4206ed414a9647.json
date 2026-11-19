@@ -1,0 +1,175 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_designer_plan_section_statuses (\n  course_designer_plan_id,\n  stage,\n  section_key,\n  status,\n  comment,\n  updated_by_user_id\n)\nSELECT $1, $3, $4, $5, $6, $2\nWHERE EXISTS (\n  SELECT 1\n  FROM course_designer_plan_members m\n  JOIN course_designer_plans p ON p.id = m.course_designer_plan_id\n  WHERE m.course_designer_plan_id = $1\n    AND m.user_id = $2\n    AND m.deleted_at IS NULL\n    AND p.deleted_at IS NULL\n)\nON CONFLICT ON CONSTRAINT course_designer_plan_section_statuses_section_unique DO UPDATE\nSET status = EXCLUDED.status,\n  comment = EXCLUDED.comment,\n  updated_by_user_id = EXCLUDED.updated_by_user_id\nRETURNING\n  id,\n  created_at,\n  updated_at,\n  course_designer_plan_id,\n  stage AS \"stage: CourseDesignerStage\",\n  section_key,\n  status AS \"status: CourseDesignerSectionStatus\",\n  comment,\n  updated_by_user_id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_designer_plan_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "course_designer_plan_id"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "stage: CourseDesignerStage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "stage"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "section_key",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "section_key"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "status: CourseDesignerSectionStatus",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_section_status",
+            "kind": {
+              "Enum": [
+                "ready",
+                "unfinished"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "comment",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "comment"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_section_statuses",
+            "name": "updated_by_user_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "Varchar",
+        {
+          "Custom": {
+            "name": "course_designer_section_status",
+            "kind": {
+              "Enum": [
+                "ready",
+                "unfinished"
+              ]
+            }
+          }
+        },
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "b6db791e080fc5e6fcd2e30c569d18363bb3693feeccff6efe4206ed414a9647"
+}

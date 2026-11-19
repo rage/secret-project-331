@@ -881,7 +881,7 @@ async fn insert_page_history_for_copies(
                 peer_or_self_review_questions: page.peer_or_self_review_questions,
             },
             HistoryChangeReason::PageSaved,
-            author_user_id,
+            crate::entity_history::HistoryAuthor::user(author_user_id),
             None,
         )
         .await?;
@@ -1051,15 +1051,15 @@ INSERT INTO course_modules (
     name,
     order_number,
     copied_from,
-    automatic_completion,
+    completion_method,
     automatic_completion_number_of_exercises_attempted_treshold,
     automatic_completion_number_of_points_treshold,
-    automatic_completion_requires_exam,
+    exam_requirement,
+    exam_location_description,
     certification_enabled,
+    credit_registration_route,
     completion_registration_link_override,
     ects_credits,
-    enable_registering_completion_to_uh_open_university,
-    enable_credit_registration_via_suotar,
     uh_course_code
   )
 SELECT uuid_generate_v5($1, id::text),
@@ -1067,15 +1067,15 @@ SELECT uuid_generate_v5($1, id::text),
   name,
   order_number,
   id,
-  automatic_completion,
+  completion_method,
   automatic_completion_number_of_exercises_attempted_treshold,
   automatic_completion_number_of_points_treshold,
-  automatic_completion_requires_exam,
+  exam_requirement,
+  exam_location_description,
   certification_enabled,
+  credit_registration_route,
   completion_registration_link_override,
   ects_credits,
-  enable_registering_completion_to_uh_open_university,
-  enable_credit_registration_via_suotar,
   uh_course_code
 FROM course_modules
 WHERE course_id = $2
@@ -1710,7 +1710,8 @@ INSERT INTO chatbot_configurations (
     reasoning_effort,
     suggest_next_messages,
     initial_suggested_messages,
-    publicly_accessible
+    publicly_accessible,
+    embeddable
   )
 SELECT
   uuid_generate_v5($1, id::text),
@@ -1737,7 +1738,8 @@ SELECT
   reasoning_effort,
   suggest_next_messages,
   initial_suggested_messages,
-  publicly_accessible
+  publicly_accessible,
+  embeddable
 FROM chatbot_configurations
 WHERE course_id = $2
   AND deleted_at IS NULL

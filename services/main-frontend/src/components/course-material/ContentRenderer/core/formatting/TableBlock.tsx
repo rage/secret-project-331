@@ -1,13 +1,14 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useMemo, useRef, useState } from "react"
 
 import type { CellAttributes, Cells, TableAttributes } from "@/../types/GutenbergBlockAttributes"
 import ParsedText from "@/components/course-material/ParsedText"
 import { baseTheme } from "@/shared-module/common/styles"
-import { stringToNumberOrPlaceholder } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { type ScrollOverflow, ScrollRegion } from "@/shared-module/components"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 
 import type { BlockRendererProps } from "../.."
 
@@ -42,6 +43,12 @@ const leftShadowStyles = css`
   left: 0;
   background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.16));
 `
+
+// Valid span as a number, else undefined so the attribute is omitted (never "NaN").
+const spanOf = (value: string | undefined | null): number | undefined => {
+  const n = Number(value)
+  return value && Number.isInteger(n) && n > 0 ? n : undefined
+}
 
 const fetchAlignment = (align: string | undefined) => {
   if (align) {
@@ -91,33 +98,17 @@ const TableBlock: React.FC<
 
   const captionRef = useRef<HTMLElement>(null)
 
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScroll, setCanScroll] = useState({ left: false, right: false })
-
-  const updateScrollState = useCallback(() => {
-    const el = scrollRef.current
-    if (!el) {
-      return
-    }
-    const left = el.scrollLeft > 1
-    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1
-    setCanScroll((prev) => (prev.left === left && prev.right === right ? prev : { left, right }))
-  }, [])
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) {
-      return
-    }
-    updateScrollState()
-    const resizeObserver = new ResizeObserver(updateScrollState)
-    resizeObserver.observe(el)
-    return () => resizeObserver.disconnect()
-  }, [updateScrollState])
+  const [canScroll, setCanScroll] = useState<ScrollOverflow>({ start: false, end: false })
+  // Named by the caption when there is one.
+  const captionText = caption ? richTextToPlainText(caption) : ""
 
   return (
     <div className={scrollWrapperStyles}>
-      <div ref={scrollRef} onScroll={updateScrollState} className={scrollContainerStyles}>
+      <ScrollRegion
+        className={scrollContainerStyles}
+        label={captionText || undefined}
+        onOverflowChange={setCanScroll}
+      >
         <table
           className={css`
             border-collapse: collapse;
@@ -158,8 +149,8 @@ const TableBlock: React.FC<
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
                           className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                          colSpan: spanOf(cell.colspan),
+                          rowSpan: spanOf(cell.rowspan),
                         }}
                         useWrapperElement={false}
                         // oxlint-disable-next-line i18next/no-literal-string
@@ -186,8 +177,8 @@ const TableBlock: React.FC<
                             { scope: cell.scope ?? "row" }
                           : {}),
                         className: fetchAlignment(cell.align),
-                        colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                        rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                        colSpan: spanOf(cell.colspan),
+                        rowSpan: spanOf(cell.rowspan),
                       }}
                       useWrapperElement={false}
                       // oxlint-disable-next-line i18next/no-literal-string
@@ -212,8 +203,8 @@ const TableBlock: React.FC<
                           // oxlint-disable-next-line i18next/no-literal-string
                           scope: "col",
                           className: fetchAlignment(cell.align),
-                          colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
-                          rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
+                          colSpan: spanOf(cell.colspan),
+                          rowSpan: spanOf(cell.rowspan),
                         }}
                         useWrapperElement={false}
                         // oxlint-disable-next-line i18next/no-literal-string
@@ -238,11 +229,11 @@ const TableBlock: React.FC<
             wrapperRef={captionRef}
           />
         </table>
-      </div>
-      {canScroll.left && <div aria-hidden className={cx(edgeShadowBaseStyles, leftShadowStyles)} />}
-      {canScroll.right && (
-        <div aria-hidden className={cx(edgeShadowBaseStyles, rightShadowStyles)} />
+      </ScrollRegion>
+      {canScroll.start && (
+        <div aria-hidden className={cx(edgeShadowBaseStyles, leftShadowStyles)} />
       )}
+      {canScroll.end && <div aria-hidden className={cx(edgeShadowBaseStyles, rightShadowStyles)} />}
     </div>
   )
 }

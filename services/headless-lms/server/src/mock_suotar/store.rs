@@ -6,10 +6,14 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::sync::RwLock;
+use std::time::Duration;
 
 use anyhow::{Context, anyhow};
 use itertools::Itertools;
-use redis::{AsyncCommands, aio::ConnectionManager};
+use redis::{
+    AsyncCommands,
+    aio::{ConnectionManager, ConnectionManagerConfig},
+};
 use serde::de::DeserializeOwned;
 use tokio::sync::{Mutex, OnceCell};
 
@@ -20,6 +24,9 @@ use super::world::{
     CourseCode, MockAttainment, MockCourseUnit, MockEnrolment, MockPerson, MockSubmission,
     RecordedCall, StudentNumber, WorkingSet, WorldDefaults, WorldWrite, person_course_key,
 };
+
+/// Redis's 500 ms default times out the mock's commands under a full parallel test run.
+const MOCK_REDIS_RESPONSE_TIMEOUT: Duration = Duration::from_secs(10);
 
 const GENERATION_KEY: &str = "ms:generation";
 const GENERATION_SEQ_KEY: &str = "ms:seq:generation";
@@ -150,7 +157,11 @@ impl MockSuotarStore {
     async fn conn(&self) -> anyhow::Result<ConnectionManager> {
         let manager = self
             .connection
-            .get_or_try_init(|| async { ConnectionManager::new(self.client.clone()).await })
+            .get_or_try_init(|| async {
+                let config = ConnectionManagerConfig::new()
+                    .set_response_timeout(Some(MOCK_REDIS_RESPONSE_TIMEOUT));
+                ConnectionManager::new_with_config(self.client.clone(), config).await
+            })
             .await
             .context("the mock Suotar could not reach Redis")?;
         Ok(manager.clone())

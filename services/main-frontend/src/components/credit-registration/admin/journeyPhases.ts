@@ -327,7 +327,7 @@ export const buildJourney = (
   const mailSentAt = (kind: CreditRegistrationNotificationKind): string | null =>
     details.notification_emails.find((mail) => mail.kind === kind)?.send_status.sent_at ?? null
 
-  const pleaseRegisterSentAt = mailSentAt("action_needed")
+  const enrolmentNeededSentAt = mailSentAt("action_needed")
   const courseSlots: Slot[] = [
     {
       key: "course_started",
@@ -339,12 +339,12 @@ export const buildJourney = (
       label: t("credit-registration-admin-journey-course-finished"),
       at: newest.completion_date,
     },
-    ...(pleaseRegisterSentAt
+    ...(enrolmentNeededSentAt
       ? [
           {
-            key: "please_register_sent",
-            label: t("credit-registration-admin-journey-please-register-sent"),
-            at: pleaseRegisterSentAt,
+            key: "enrolment_needed_sent",
+            label: t("credit-registration-admin-journey-enrolment-needed-sent"),
+            at: enrolmentNeededSentAt,
           },
         ]
       : []),

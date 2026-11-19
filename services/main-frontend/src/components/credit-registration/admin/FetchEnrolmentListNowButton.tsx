@@ -9,9 +9,8 @@ import {
   getCreditRegistrationAttentionItemsQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminRequestEnrolmentListFetch } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Button } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
 
 import { BUTTON_TERTIARY, CREDIT_REGISTRATION_NS } from "../constants"
 
@@ -37,11 +36,10 @@ export const useFetchEnrolmentListNow = (courseCode: string) => {
     },
   )
   const run = async () => {
-    const confirmed = await confirm(
-      t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
-      undefined,
-      { yesButtonLabel: t("button-text-fetch-enrolment-list-now") },
-    )
+    const confirmed = await confirm({
+      message: t("credit-registration-admin-fetch-now-confirm", { code: courseCode }),
+      confirmLabel: t("button-text-fetch-enrolment-list-now"),
+    })
     if (confirmed) {
       mutation.mutate()
     }

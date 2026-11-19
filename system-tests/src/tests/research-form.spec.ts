@@ -22,22 +22,16 @@ test("User can create and respond to research form in a course", async ({
     await page
       .getByRole("link", { name: "Manage course 'Advanced course instance management'" })
       .click()
-    await page.getByRole("button", { name: "Create or edit research form" }).click()
+    await page.getByRole("link", { name: "Create or edit research form" }).click()
     await page.getByRole("button", { name: "create" }).click()
-    // Gutenberg 16.2's empty state is a ghost block, and no "Add block" button exists until it
-    // is selected. Clicking it turns it into a real paragraph; insert through the sidebar menu.
-    await page.getByRole("document", { name: "Add default block" }).click()
-    await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
-    await page.getByRole("option", { name: "Heading", exact: true }).click()
-    await page.getByRole("document", { name: "Block: Heading" }).fill("Research form")
-    await page.getByRole("combobox", { name: "Toggle view" }).selectOption("block-menu")
-    await page.getByRole("option", { name: "Paragraph" }).click()
-    await page
-      .getByRole("document", {
-        name: "Empty block; start writing or type forward slash to choose a block",
-      })
-      .fill("This course does research")
-    await page.getByRole("option", { name: "Research Form Question" }).click()
+    // A new form starts as an introduction paragraph and an empty question. Typing "## " over the
+    // introduction turns it into a heading.
+    const introduction = page.getByRole("document", { name: "Block: Paragraph" })
+    await introduction.click()
+    await page.keyboard.press("ControlOrMeta+a")
+    await page.keyboard.type("## Research form")
+    await page.keyboard.press("Enter")
+    await page.keyboard.type("This course does research")
     const question = page.getByRole("textbox", { name: "Research form question" })
     await question.click()
     await question.fill("I want to take part in reseach")
@@ -61,7 +55,7 @@ test("User can create and respond to research form in a course", async ({
       snapshotName: "research-consent-form-shows-if-not-aswered",
       waitForTheseToBeVisibleAndStable: [page.getByText("Research form")],
     })
-    await page.getByText("I want to take part in research").click()
+    await page.getByRole("checkbox", { name: "I want to take part in research" }).check()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })

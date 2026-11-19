@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { isEqual, omit } from "lodash"
 import { useParams } from "next/navigation"
 import React, { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,10 +25,7 @@ import ManualLinkingEmailSendLines from "@/components/credit-registration/admin/
 import RegistrationJourney from "@/components/credit-registration/admin/RegistrationJourney"
 import RegistrationProblemActions from "@/components/credit-registration/admin/RegistrationProblemActions"
 import { RegistrationCallItem } from "@/components/credit-registration/admin/SuotarApiCallDetail"
-import {
-  CallStatusCell,
-  SuotarEndpointCell,
-} from "@/components/credit-registration/admin/suotarCallColumns"
+import { CallStatusCell } from "@/components/credit-registration/admin/suotarCallColumns"
 import {
   buildTimeline,
   eventSentence,
@@ -35,6 +33,7 @@ import {
 } from "@/components/credit-registration/admin/timelineRows"
 import type { TimelineContext } from "@/components/credit-registration/admin/timelineRows"
 import { timelineStepLabel } from "@/components/credit-registration/admin/timelineSteps"
+import { useRegistrationPageTitle } from "@/components/credit-registration/admin/useRegistrationPageTitle"
 import {
   ALIGN_END,
   CREDIT_REGISTRATION_NS,
@@ -64,7 +63,6 @@ import {
 } from "@/components/credit-registration/styles"
 import {
   formatZonedTimestamp,
-  ZonedTimeRange,
   ZonedTimestamp,
 } from "@/components/credit-registration/ZonedTimestamp"
 import type {
@@ -72,14 +70,17 @@ import type {
   AdminCreditRegistrationEvent,
   AdminCreditRegistrationRow,
   AdminLinkingEmail,
+  AdminMoocfiCompletion,
   AdminNotificationEmail,
   AdminSuotarApiCall,
   CreditRegistrationAdminActionRow,
 } from "@/generated/api/types.generated"
 import { formatUserName } from "@/hooks/useUserDetails"
-import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { isRecord } from "@/shared-module/common/utils/objects"
 import {
+  creditRegistrationCourseRoute,
   creditRegistrationItemRoute,
   creditRegistrationRegistrationsRoute,
   manageCourseRoute,
@@ -190,14 +191,21 @@ const HeaderSection: React.FC<{
     <div className={sectionHeaderCss}>
       <h1 className={pageTitleCss}>{formatUserName(row) || t("missing-name")}</h1>
       <span className={rowCss}>
-        <Link href={manageCourseRoute(row.course_id)} className={breakAnywhereCss}>
-          {row.course_name}
-        </Link>
+        {row.course_id ? (
+          <Link href={manageCourseRoute(row.course_id)} className={breakAnywhereCss}>
+            {row.course_name}
+          </Link>
+        ) : (
+          <span className={breakAnywhereCss}>{row.course_name}</span>
+        )}
         {row.course_module_name ? (
           <span className={breakAnywhereCss}>{row.course_module_name}</span>
         ) : null}
-        {row.uh_course_code ? <code className={codeValueCss}>{row.uh_course_code}</code> : null}
       </span>
+      <CourseCodeLine row={row} />
+      <Link href={creditRegistrationCourseRoute(row.course_or_target_id)} prefetch={false}>
+        {t("credit-registration-admin-open-course-page")}
+      </Link>
       <span className={idRowCss}>
         <span className={cx(noteCss, codeValueCss)}>{row.id}</span>
         <CopyButton
@@ -214,6 +222,35 @@ const HeaderSection: React.FC<{
         )}
       </span>
     </div>
+  )
+}
+
+const codeValue = (code: string | null) =>
+  code ? <code className={codeValueCss}>{code}</code> : <AbsentValue />
+
+/**
+ * The course code now, and the one sent to Sisu as well when a later edit set them apart: support
+ * looks the course up in Sisu by it.
+ */
+const CourseCodeLine: React.FC<{ row: AdminCreditRegistrationRow }> = ({ row }) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const current = row.current_uh_course_code?.trim() || null
+  const submitted = row.uh_course_code?.trim() || null
+  const isDifferent = submitted !== null && submitted.toUpperCase() !== current?.toUpperCase()
+  return (
+    <span className={rowCss}>
+      <span>
+        {isDifferent
+          ? t("credit-registration-admin-current-course-code-label")
+          : t("credit-registration-admin-course-code-label")}{" "}
+        {codeValue(current)}
+      </span>
+      {isDifferent && (
+        <span>
+          {t("credit-registration-admin-submitted-course-code-label")} {codeValue(submitted)}
+        </span>
+      )}
+    </span>
   )
 }
 
@@ -428,7 +465,112 @@ const FactsSection: React.FC<{
   )
 }
 
-/** Suotar's codes are single camelCase words; breaking one mid-word makes it unreadable. */
+/** The mooc.fi completion behind a mooc.fi row, and how reporting the registration back went. */
+const MoocfiCompletionSection: React.FC<{ completion: AdminMoocfiCompletion }> = ({
+  completion,
+}) => {
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const headingId = useId()
+
+  const completionItems: DescriptionListItem[] = [
+    {
+      label: t("label-moocfi-completion-id"),
+      value: <span className={codeValueCss}>{completion.moocfi_completion_id}</span>,
+    },
+    {
+      label: t("label-moocfi-raw-grade"),
+      value: completion.raw_grade ? (
+        <code className={codeValueCss}>{completion.raw_grade}</code>
+      ) : (
+        <AbsentValue />
+      ),
+    },
+    ...(completion.tier !== null && completion.tier !== undefined
+      ? [{ label: t("label-moocfi-tier"), value: completion.tier }]
+      : []),
+    {
+      label: t("label-moocfi-checked-at"),
+      value: <ZonedTimestamp at={completion.upstream_checked_at} />,
+    },
+    ...(completion.upstream_missing_at
+      ? [
+          {
+            label: t("label-moocfi-missing-since"),
+            value: <ZonedTimestamp at={completion.upstream_missing_at} />,
+          },
+        ]
+      : []),
+    ...(completion.registered_upstream_at
+      ? [
+          {
+            label: t("label-moocfi-registered-elsewhere-at"),
+            value: <ZonedTimestamp at={completion.registered_upstream_at} />,
+          },
+        ]
+      : []),
+    ...(completion.registered_equivalent_moocfi_completion_id
+      ? [
+          {
+            label: t("label-moocfi-registered-equivalent"),
+            value: (
+              <span className={codeValueCss}>
+                {completion.registered_equivalent_moocfi_completion_id}
+              </span>
+            ),
+          },
+        ]
+      : []),
+  ]
+
+  const report = completion.registration_report
+  const reportItems: DescriptionListItem[] = [
+    {
+      label: t("label-moocfi-reported-at"),
+      value: report.reported_at ? (
+        <ZonedTimestamp at={report.reported_at} />
+      ) : report.is_skipped ? (
+        t("credit-registration-admin-moocfi-not-reportable")
+      ) : (
+        t("credit-registration-admin-moocfi-not-reported")
+      ),
+    },
+    ...(report.attempt_count > 0
+      ? [{ label: t("label-moocfi-report-attempts"), value: report.attempt_count }]
+      : []),
+    ...(!report.reported_at && report.attempt_count > 0 && report.next_attempt_at
+      ? [
+          {
+            label: t("label-moocfi-next-report-attempt"),
+            value: <ZonedTimestamp at={report.next_attempt_at} />,
+          },
+        ]
+      : []),
+    ...(report.last_error
+      ? [
+          {
+            label: t("label-credit-registration-last-error"),
+            value: <code className={codeValueCss}>{report.last_error}</code>,
+          },
+        ]
+      : []),
+  ]
+
+  return (
+    <section className={sectionCardCss} aria-labelledby={headingId}>
+      <div className={sectionCardHeaderCss}>
+        <h2 id={headingId} className={headingCss}>
+          {t("credit-registration-heading-moocfi-completion")}
+        </h2>
+      </div>
+      <div className={factsGridCss}>
+        <DescriptionList items={completionItems} />
+        <DescriptionList items={reportItems} />
+      </div>
+    </section>
+  )
+}
+
+/** Suotar's codes and endpoint names are single words; breaking one mid-word makes it unreadable. */
 const unbrokenCodeCss = css`
   white-space: nowrap;
   overflow-wrap: normal;
@@ -436,55 +578,63 @@ const unbrokenCodeCss = css`
 
 type Event = AdminCreditRegistrationEvent
 
-/** Consecutive calls that went the same way, newest first, shown as one row. */
-interface CallGroup {
-  calls: [AdminSuotarApiCall, ...AdminSuotarApiCall[]]
+interface CallRow {
+  call: AdminSuotarApiCall
   event: Event | undefined
+  /** Suotar answered this registration's item exactly as it did in the call before. */
+  isSameAsPrevious: boolean
 }
 
-const callGroupKey = (call: AdminSuotarApiCall, event: Event | undefined): string =>
-  JSON.stringify([
-    call.endpoint,
-    call.succeeded,
-    call.http_status ?? null,
-    call.request_level_error_code ?? null,
-    event?.suotar_code ?? null,
-    event?.suotar_answer ?? null,
-    event?.from_state ?? null,
-    event?.to_state ?? null,
-  ])
+const REQUEST_ITEM_ID = "requestItemId"
 
-const groupCalls = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallGroup[] => {
-  const groups: (CallGroup & { key: string })[] = []
-  for (const call of calls) {
+/** The item's answer without its `requestItemId`, which is fresh on every call. */
+const comparableItemResponse = (event: Event | undefined): unknown => {
+  const response = isRecord(event?.details) ? event.details.response : undefined
+  return isRecord(response) ? omit(response, REQUEST_ITEM_ID) : response
+}
+
+/** `calls` is newest first, so the call before each one is the next in the list. */
+const toCallRows = (calls: AdminSuotarApiCall[], eventByCall: Map<string, Event>): CallRow[] =>
+  calls.map((call, index) => {
     const event = eventByCall.get(call.id)
-    const key = callGroupKey(call, event)
-    const last = groups.at(-1)
-    if (last && last.key === key) {
-      last.calls.push(call)
-    } else {
-      groups.push({ key, calls: [call], event })
+    const previous = calls.at(index + 1)
+    const response = comparableItemResponse(event)
+    const previousResponse = previous
+      ? comparableItemResponse(eventByCall.get(previous.id))
+      : undefined
+    return {
+      call,
+      event,
+      isSameAsPrevious:
+        previous?.endpoint === call.endpoint &&
+        response !== undefined &&
+        isEqual(response, previousResponse),
     }
-  }
-  return groups
-}
+  })
 
 /** What Suotar said about this registration, in plain words over its own code. */
 const CallAnswer: React.FC<{
-  group: CallGroup
+  row: CallRow
   context: TimelineContext
-}> = ({ group, context }) => {
+}> = ({ row, context }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const [newest] = group.calls
-  const { event } = group
-  if (!event) {
-    return <CallStatusCell call={newest} />
-  }
+  const { call, event, isSameAsPrevious } = row
   return (
     <span className={cx(sectionHeaderCss)}>
-      <span>{eventSentence(t, event, context)}</span>
-      {event.suotar_code && (
-        <code className={cx(noteCss, codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+      {event ? (
+        <>
+          <span>{eventSentence(t, event, context)}</span>
+          {event.suotar_code && (
+            <code className={cx(noteCss, codeValueCss, unbrokenCodeCss)}>{event.suotar_code}</code>
+          )}
+        </>
+      ) : (
+        <CallStatusCell call={call} />
+      )}
+      {isSameAsPrevious && (
+        <span className={noteCss}>
+          {t("credit-registration-admin-same-answer-as-previous-call")}
+        </span>
       )}
     </span>
   )
@@ -497,7 +647,7 @@ const ApiCallSection: React.FC<{
 }> = ({ calls, events, context }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const headingId = useId()
-  const groups = useMemo(() => {
+  const rows = useMemo(() => {
     const eventByCall = new Map(
       events.flatMap((event) =>
         event.kind === "suotar_response" && event.suotar_api_call_id
@@ -505,7 +655,7 @@ const ApiCallSection: React.FC<{
           : [],
       ),
     )
-    return groupCalls(calls, eventByCall)
+    return toCallRows(calls, eventByCall)
   }, [calls, events])
   if (calls.length === 0) {
     return (
@@ -530,51 +680,35 @@ const ApiCallSection: React.FC<{
         labelledBy={headingId}
         density={DENSITY_COMPACT}
         responsive={TABLE_STACK}
-        rowKey={(group) => group.calls[0].id}
-        rows={groups}
-        expandableRow={(group) => (
-          <RegistrationCallItem
-            suotarApiCallId={group.calls[0].id}
-            exchange={group.event?.details}
-          />
+        rowKey={(row) => row.call.id}
+        rows={rows}
+        expandableRow={(row) => (
+          <RegistrationCallItem suotarApiCallId={row.call.id} exchange={row.event?.details} />
         )}
         columns={[
           {
             header: t("label-time"),
             minWidth: "10rem",
-            cell: (group) => {
-              const [newest] = group.calls
-              const oldest = group.calls.at(-1) ?? newest
-              return group.calls.length === 1 ? (
-                <ZonedTimestamp at={newest.started_at} />
-              ) : (
-                <span className={sectionHeaderCss}>
-                  <span>
-                    {t("credit-registration-admin-calls-repeated", { count: group.calls.length })}
-                  </span>
-                  <span className={noteCss}>
-                    <ZonedTimeRange from={oldest.started_at} to={newest.started_at} />
-                  </span>
-                </span>
-              )
-            },
+            cell: (row) => <ZonedTimestamp at={row.call.started_at} />,
           },
           {
             header: t("credit-registration-admin-column-what"),
             minWidth: "10rem",
-            cell: (group) => <SuotarEndpointCell endpoint={group.calls[0].endpoint} />,
+            cell: (row) => (
+              <code className={cx(codeValueCss, unbrokenCodeCss)}>{row.call.endpoint}</code>
+            ),
           },
           {
             header: t("credit-registration-admin-column-answer"),
             grow: true,
             minWidth: "12rem",
-            cell: (group) => <CallAnswer group={group} context={context} />,
+            cell: (row) => <CallAnswer row={row} context={context} />,
           },
           {
             header: t("credit-registration-admin-column-duration-ms"),
             align: ALIGN_END,
             nowrap: true,
-            cell: (group) => group.calls[0].duration_ms ?? <AbsentValue />,
+            cell: (row) => row.call.duration_ms ?? <AbsentValue />,
           },
         ]}
       />
@@ -746,7 +880,10 @@ const RegistrationDetailPage: React.FC = () => {
   )
 
   const studentName = row ? formatUserName(row) || t("missing-name") : null
-  usePageTitle(studentName)
+  useRegistrationPageTitle(
+    details,
+    isAppApiError(detailsQuery.error) && detailsQuery.error.status === 404,
+  )
   const crumbs = useMemo(
     () => [
       {
@@ -803,6 +940,9 @@ const RegistrationDetailPage: React.FC = () => {
             />
             {!problem && !loaded.registration.superseded && <ActionsSection details={loaded} />}
             <FactsSection details={loaded} context={context} />
+            {loaded.moocfi_completion && (
+              <MoocfiCompletionSection completion={loaded.moocfi_completion} />
+            )}
             <ApiCallSection
               calls={loaded.suotar_api_calls}
               events={loaded.events}

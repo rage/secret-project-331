@@ -1,18 +1,25 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 
 import ChatbotContext from "./ChatbotContext"
+import type { ChatbotEndpoints } from "./chatbotEndpoints"
+import courseMaterialChatbotEndpoints from "./courseMaterialChatbotEndpoints"
+import type { ActionExecutedHandler } from "./hooks/useChatbotStateAndData"
 import useChatbotStateAndData from "./hooks/useChatbotStateAndData"
 import useSynchronizeDefaultChatbotCommunicationChannel from "./hooks/useSynchronizeDefaultChatbotCommunicationChannel"
 
-interface ChatbotChatProps {
-  chatbotConfigurationId: string | null
+type ChatbotChatProps = {
   isAlwaysOpen: boolean
   /** The course material page to send as context with a message, or null where there is none. */
   pageId: string | null
+  onActionExecuted?: ActionExecutedHandler
   children: React.ReactNode
-}
+} & (
+  | { chatbotConfigurationId: string | null; endpoints?: never }
+  /** Another backend than the course material chatbot; see `ChatbotEndpoints`. */
+  | { endpoints: ChatbotEndpoints; chatbotConfigurationId?: never }
+)
 
 /**
  * Handles all the necessary setup and data for the chatbot.
@@ -32,11 +39,22 @@ interface ChatbotChatProps {
  */
 const ChatbotChat: React.FC<ChatbotChatProps> = ({
   chatbotConfigurationId,
+  endpoints,
   isAlwaysOpen,
   pageId,
+  onActionExecuted,
   children,
 }) => {
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, pageId, isAlwaysOpen)
+  const courseMaterialEndpoints = useMemo(
+    () => courseMaterialChatbotEndpoints(chatbotConfigurationId ?? null),
+    [chatbotConfigurationId],
+  )
+  const chatbotStateAndData = useChatbotStateAndData(
+    endpoints ?? courseMaterialEndpoints,
+    pageId,
+    isAlwaysOpen,
+    onActionExecuted,
+  )
 
   useSynchronizeDefaultChatbotCommunicationChannel(
     isAlwaysOpen,

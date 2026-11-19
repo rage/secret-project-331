@@ -19,15 +19,13 @@ import type {
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PeerReviewProgress from "@/shared-module/common/components/PeerReview/PeerReviewProgress"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import { Button, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import type { Block } from "@/types/courseMaterialBlock"
 
@@ -37,6 +35,11 @@ import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import {
+  focusPeerReviewHeading,
+  requestPeerReviewHeadingFocus,
+  usePendingPeerReviewHeadingFocus,
+} from "./peerReviewFocus"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
@@ -53,6 +56,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     new Map(),
   )
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [focusRequest, setFocusRequest] = useState(0)
+  usePendingPeerReviewHeadingFocus(exerciseId, focusRequest)
 
   const query = useQuery({
     ...fetchPeerOrSelfReviewDataByExerciseIdOptions({
@@ -128,7 +133,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
-        // invalidate usercourseprogress?
+        requestPeerReviewHeadingFocus(exerciseId)
         // still old data because we have't refetched yet
         const givenEnoughReviews =
           (peerOrSelfReviewData?.peer_or_self_review_config.peer_reviews_to_give ??
@@ -161,6 +166,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         }
 
         setAnswers(new Map())
+        // Focuses once the refetched view renders; a swapped-in view focuses on mount instead.
+        setFocusRequest((n) => n + 1)
       },
     },
   )
@@ -191,10 +198,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     },
     { notify: true, method: "POST" },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
+        requestPeerReviewHeadingFocus(exerciseId)
         setIsReportDialogOpen(false)
         setAnswers(new Map())
-        query.refetch()
+        await query.refetch()
+        setFocusRequest((n) => n + 1)
       },
     },
   )
@@ -204,18 +213,18 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
   }
 
   if (query.isError) {
-    return <ErrorBanner variant={"readOnly"} error={query.error} />
+    return <ErrorNotice error={query.error} />
   }
 
   // Uses isFetching instead of isPending because we want there to be a visual indication when the refresh button is clicked
   if (query.isFetching) {
-    return <Spinner variant="medium" />
+    return <LoadingRegion />
   }
 
   if (!query.data) {
     return (
       <div>
-        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+        <ErrorNotice error={t("error-loading-exercise")} />
         <button
           className={cx(exerciseButtonStyles)}
           onClick={() => {
@@ -429,25 +438,29 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       >
         {t("submit-button")}
       </button>
-      <Button
-        className={css`
-          display: flex !important;
-          align-items: center;
-          gap: 6px;
-        `}
-        variant={"icon"}
-        transform="capitalize"
-        size={"small"}
-        onClick={() => setIsReportDialogOpen(true)}
-      >
-        <ExclamationMessage /> {t("button-text-report")}
-      </Button>
+      {!selfReview && (
+        <>
+          <Button
+            className={css`
+              display: flex !important;
+              align-items: center;
+              gap: 6px;
+            `}
+            variant={"icon"}
+            size={"small"}
+            onClick={() => setIsReportDialogOpen(true)}
+          >
+            <ExclamationMessage /> {t("button-text-report")}
+          </Button>
 
-      <MarkAsSpamDialog
-        isOpen={isReportDialogOpen}
-        onClose={() => setIsReportDialogOpen(false)}
-        onSubmit={handleReportSubmit}
-      />
+          <MarkAsSpamDialog
+            isOpen={isReportDialogOpen}
+            onClose={() => setIsReportDialogOpen(false)}
+            onSubmit={handleReportSubmit}
+            onExitComplete={() => focusPeerReviewHeading(exerciseId)}
+          />
+        </>
+      )}
     </div>
   )
 }

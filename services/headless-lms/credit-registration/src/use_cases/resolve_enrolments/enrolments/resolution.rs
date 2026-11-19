@@ -2,8 +2,8 @@
 //! duplicate of a credit already held, failed, or its payload frozen for import.
 
 use headless_lms_models::credit_registrations::{
-    CreditRegistrationState, LiveSuccessForModule, RecordedCredit,
-    get_recorded_credits_for_same_module, lock_live_successes_for_same_module,
+    CreditRegistrationState, LiveSuccessForCourseCode, RecordedCredit,
+    get_recorded_credits_for_same_course_code, lock_live_successes_for_same_course_code,
 };
 use headless_lms_models::library::credit_registration::grade_mapping::{
     improves_on_all, map_grade,
@@ -22,11 +22,11 @@ use crate::error::CreditRegistrationResult;
 use crate::registry::{BatchRequest, EnrolmentLookup};
 use crate::workflow::{Decision, PayloadChange};
 
-/// The credits outside Sisu this attempt's grade competes with for the module: what we registered
-/// from the student's other attempts, which Suotar's copy of Sisu may predate, and the credits our
-/// records hold.
+/// The credits outside Sisu this attempt's grade competes with for the course code: what we
+/// registered from the student's other attempts, which Suotar's copy of Sisu may predate, and the
+/// credits our records hold.
 pub(super) struct CompetingCredits {
-    registered_by_us: Vec<LiveSuccessForModule>,
+    registered_by_us: Vec<LiveSuccessForCourseCode>,
     recorded_locally: Vec<RecordedCredit>,
 }
 
@@ -41,12 +41,12 @@ impl CompetingCredits {
         let row_id = lookup.claim().id();
         let registered_by_us = match lookup.result() {
             EnrolmentLookupResult::Listed { .. } => {
-                lock_live_successes_for_same_module(tx, row_id).await?
+                lock_live_successes_for_same_course_code(tx, row_id).await?
             }
             EnrolmentLookupResult::Refused { .. } => Vec::new(),
         };
         let recorded_locally = if lookup.result().is_enrolment_error() {
-            get_recorded_credits_for_same_module(tx, row_id).await?
+            get_recorded_credits_for_same_course_code(tx, row_id).await?
         } else {
             Vec::new()
         };
@@ -81,7 +81,7 @@ pub(super) fn resolve<'a>(
     if !registered_grades.is_empty() && !improves_on_all(&registered_grades, ours) {
         return unsent_duplicate(
             lookup,
-            "A grade at least as good is already registered for this module from another \
+            "A grade at least as good is already registered for this course code from another \
              attempt, so nothing was submitted.",
         );
     }
@@ -100,7 +100,7 @@ pub(super) fn resolve<'a>(
         return unsent_duplicate(
             lookup,
             "The study registry has no usable enrolment, but our records already hold a credit at \
-             least as good for this module, so nothing was submitted.",
+             least as good for this course code, so nothing was submitted.",
         );
     }
     let facts = lookup.claim().facts(Utc::now());
@@ -221,8 +221,8 @@ mod tests {
     use super::*;
     use crate::test_fixtures::{attainment, date};
 
-    fn registered(grade_id: &str) -> LiveSuccessForModule {
-        LiveSuccessForModule {
+    fn registered(grade_id: &str) -> LiveSuccessForCourseCode {
+        LiveSuccessForCourseCode {
             id: Uuid::new_v4(),
             credit: recorded(grade_id),
         }
@@ -238,7 +238,7 @@ mod tests {
     }
 
     fn competing(
-        registered_by_us: Vec<LiveSuccessForModule>,
+        registered_by_us: Vec<LiveSuccessForCourseCode>,
         recorded_locally: Vec<RecordedCredit>,
     ) -> CompetingCredits {
         CompetingCredits {

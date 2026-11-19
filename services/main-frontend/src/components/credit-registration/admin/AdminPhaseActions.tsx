@@ -9,11 +9,11 @@ import {
   listCreditRegistrationPhasesQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { adminPausePhase, adminResumePhase, adminRunPhaseNow } from "@/generated/api/sdk.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Menu, type MenuItemDescriptor } from "@/shared-module/components"
+import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
+import { AUDIT_ACTION } from "./auditActions"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
 const LINK_EMAILS_PHASE = "link-emails"
@@ -37,6 +37,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     ])
 
   const { pauseItem, resumeItem, dialog } = usePauseResumeAction({
+    pauseAuditAction: AUDIT_ACTION.PAUSE_PHASE,
     pause: (fields) => adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
     resume: () => adminResumePhase({ path: { phase }, body: { reason: null } }),
     invalidate: () => void invalidatePhases(),
@@ -66,11 +67,10 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     label: t("button-text-credit-registration-phase-run-now"),
     isDisabled: runNowMutation.isPending,
     onAction: async () => {
-      const confirmed = await confirm(
-        t("credit-registration-admin-phase-run-now-confirm", { phase }),
-        undefined,
-        { yesButtonLabel: t("button-text-credit-registration-phase-run-now") },
-      )
+      const confirmed = await confirm({
+        message: t("credit-registration-admin-phase-run-now-confirm", { phase }),
+        confirmLabel: t("button-text-credit-registration-phase-run-now"),
+      })
       if (confirmed) {
         runNowMutation.mutate()
       }

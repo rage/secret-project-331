@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 
@@ -20,6 +22,7 @@ test.describe("Quizzes timeline feedback", () => {
     await selectCourseInstanceIfPrompted(page)
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -63,6 +66,7 @@ test.describe("Quizzes timeline feedback", () => {
       .selectOption({ label: "Finland joins the European Union" })
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -70,11 +74,12 @@ test.describe("Quizzes timeline feedback", () => {
       scrollToYCoordinate: 470,
     })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -102,11 +107,12 @@ test.describe("Quizzes timeline feedback", () => {
       .locator(`label:text("2002")`)
       .selectOption({ label: "Finland switches their currency to Euro" })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -136,11 +142,12 @@ test.describe("Quizzes timeline feedback", () => {
       .locator(`label:text("2002")`)
       .selectOption({ label: "Finland switches their currency to Euro" })
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
 
     await page.frameLocator("iframe").getByText("Your answer was partially correct.").waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

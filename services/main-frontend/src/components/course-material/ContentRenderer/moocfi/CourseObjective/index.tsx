@@ -109,7 +109,7 @@ const CourseObjective: React.FC<React.PropsWithChildren<CardProps>> = ({ title, 
   const titleLength = title.split(" ").length
   return (
     <Wrapper length={titleLength}>
-      <h2>{title}</h2>
+      <h2 dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(title) }} />
       <TextBox>
         {data &&
           data.map(

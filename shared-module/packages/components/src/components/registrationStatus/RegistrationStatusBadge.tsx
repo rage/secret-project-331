@@ -16,6 +16,7 @@ export interface RegistrationStatusBadgeProps {
   children: React.ReactNode
   size?: BadgeSize
   className?: string
+  "data-testid"?: string | undefined
 }
 
 const ICON_SIZE: Record<BadgeSize, number> = {
@@ -28,6 +29,7 @@ export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = (
   children,
   size = "default",
   className,
+  "data-testid": dataTestId,
 }) => {
   const Icon = registrationStatusIcon[state]
   const icon = Icon ? <Icon size={ICON_SIZE[size]} /> : undefined
@@ -37,6 +39,7 @@ export const RegistrationStatusBadge: React.FC<RegistrationStatusBadgeProps> = (
       size={size}
       {...includeIf(Icon, { icon })}
       {...includeIf(className, { className })}
+      data-testid={dataTestId}
     >
       {children}
     </Badge>

@@ -2,13 +2,14 @@
 
 import { css } from "@emotion/css"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCourseOtherCheatersSuspectedRoute } from "@/shared-module/common/utils/routes"
+import { Link } from "@/shared-module/components"
 
 interface SuspectedCheatersReviewBannerProps {
   courseId: string
@@ -31,6 +32,7 @@ const SuspectedCheatersReviewBanner: React.FC<SuspectedCheatersReviewBannerProps
 
   return (
     <Link
+      appearance={LINK_INHERIT}
       href={manageCourseOtherCheatersSuspectedRoute(courseId)}
       className={css`
         display: flex;

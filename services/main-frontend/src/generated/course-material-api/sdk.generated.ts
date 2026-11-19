@@ -316,7 +316,6 @@ export const updateCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
  */
 export const getCourseMaterialChapterPagesWithExercises = <ThrowOnError extends boolean = true>(
@@ -341,7 +340,6 @@ export const getCourseMaterialChapterPagesWithExercises = <ThrowOnError extends 
   })
 
 /**
- *
  * POST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)
  *
  * Completes a chapter for the authenticated user (marks it as done).
@@ -370,7 +368,6 @@ export const lockCourseMaterialChapter = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter
  *
  * Returns information about unreturned exercises in the chapter before locking.
@@ -393,7 +390,6 @@ export const getCourseMaterialChapterLockPreview = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
  */
 export const getCourseMaterialChapterPages = <ThrowOnError extends boolean = true>(
@@ -413,7 +409,6 @@ export const getCourseMaterialChapterPages = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
  */
 export const getCourseMaterialChapterPagesExcludingFrontPage = <
@@ -440,7 +435,6 @@ export const getCourseMaterialChapterPagesExcludingFrontPage = <
   })
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/conversations/all`
  *
  * Returns all conversations that a user has.
@@ -456,7 +450,6 @@ export const allUserConversations = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
  *
  * Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
@@ -478,7 +471,6 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
  * Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
@@ -494,7 +486,6 @@ export const getConversationInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
  *
  * Returns current chatbot conversation id.
@@ -510,7 +501,6 @@ export const getCurrentConversationId = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/new`
  *
  * Sends a new chat message to the chatbot.
@@ -526,7 +516,6 @@ export const newChatbotConversation = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
  *
  * Sends a new chat message to the chatbot.
@@ -546,7 +535,6 @@ export const sendChatbotMessage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`
  *
  * Answers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else
@@ -568,7 +556,6 @@ export const sendChatbotToolResponse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
  *
  * Updates the title of a chatbot conversation.
@@ -587,7 +574,6 @@ export const updateTitle = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.
  */
 export const claimCodeFromCodeGiveaway = <ThrowOnError extends boolean = true>(
@@ -606,7 +592,6 @@ export const claimCodeFromCodeGiveaway = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
  */
 export const getCodeGiveawayStatus = <ThrowOnError extends boolean = true>(
@@ -620,7 +605,6 @@ export const getCodeGiveawayStatus = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
  */
 export const getCourseMaterialBackgroundQuestionsAndAnswers = <ThrowOnError extends boolean = true>(
@@ -645,7 +629,6 @@ export const getCourseMaterialBackgroundQuestionsAndAnswers = <ThrowOnError exte
   })
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
  */
 export const getCourseMaterialChapterExerciseProgress = <ThrowOnError extends boolean = true>(
@@ -670,7 +653,6 @@ export const getCourseMaterialChapterExerciseProgress = <ThrowOnError extends bo
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
  */
 export const getCourseMaterialChapterProgress = <ThrowOnError extends boolean = true>(
@@ -690,7 +672,6 @@ export const getCourseMaterialChapterProgress = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
 export const getCourseMaterialCourseModuleCompletionsForUser = <
@@ -717,7 +698,6 @@ export const getCourseMaterialCourseModuleCompletionsForUser = <
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
  */
 export const getCourseMaterialCourseModulePointsBreakdown = <ThrowOnError extends boolean = true>(
@@ -742,7 +722,6 @@ export const getCourseMaterialCourseModulePointsBreakdown = <ThrowOnError extend
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
 export const getCourseMaterialUserModuleCompletions = <ThrowOnError extends boolean = true>(
@@ -762,7 +741,6 @@ export const getCourseMaterialUserModuleCompletions = <ThrowOnError extends bool
   })
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
  */
 export const getCourseMaterialUserCourseProgress = <ThrowOnError extends boolean = true>(
@@ -782,7 +760,6 @@ export const getCourseMaterialUserCourseProgress = <ThrowOnError extends boolean
   })
 
 /**
- *
  * POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
  */
 export const saveCourseMaterialCourseSettings = <ThrowOnError extends boolean = true>(
@@ -806,7 +783,6 @@ export const saveCourseMaterialCourseSettings = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
  *
  * Returns course module id based on chapter.
@@ -828,7 +804,6 @@ export const getCourseMaterialModuleIdByChapterId = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/course/:course_instance_id`
  *
  * Returns course module id based on chapter.
@@ -855,7 +830,6 @@ export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends 
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/course/:course_id/end_questions`
  *
  * Returns course module end questions.
@@ -877,7 +851,6 @@ export const getCourseModuleEndQuestionnaire = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/course-material/course-modules/course/:course_id/:course_module_id/end_questions`
  *
  * Saves course module end question answers.
@@ -901,7 +874,6 @@ export const saveCourseModuleEndQuestionnaireAnswers = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`
  *
  * Returns exercise submissions for user to be used in en exercise service Custom view.
@@ -928,7 +900,6 @@ export const getCourseMaterialExerciseTasksByModuleAndType = <ThrowOnError exten
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id` - Get course.
  */
 export const getCourseMaterialCourse = <ThrowOnError extends boolean = true>(
@@ -942,7 +913,6 @@ export const getCourseMaterialCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the
  * current user has acknowledged the AI-usage / academic-integrity notice for this course.
  */
@@ -963,7 +933,6 @@ export const getAiUsageNoticeAcknowledgement = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that
  * the current user has acknowledged the AI-usage / academic-integrity notice for this course.
  */
@@ -980,7 +949,6 @@ export const acknowledgeAiUsageNotice = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
  */
 export const getCourseMaterialChapters = <ThrowOnError extends boolean = true>(
@@ -996,7 +964,6 @@ export const getCourseMaterialChapters = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseMaterialCourseInstances = <ThrowOnError extends boolean = true>(
@@ -1016,7 +983,6 @@ export const getCourseMaterialCourseInstances = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
 export const getCourseMaterialStudentCountries = <ThrowOnError extends boolean = true>(
@@ -1036,7 +1002,6 @@ export const getCourseMaterialStudentCountries = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
  */
 export const postCourseMaterialStudentCountry = <ThrowOnError extends boolean = true>(
@@ -1056,7 +1021,6 @@ export const postCourseMaterialStudentCountry = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
  */
 export const getCurrentCourseMaterialCourseInstance = <ThrowOnError extends boolean = true>(
@@ -1076,7 +1040,6 @@ export const getCurrentCourseMaterialCourseInstance = <ThrowOnError extends bool
   })
 
 /**
- *
  * GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
  */
 export const getCourseMaterialCustomPrivacyPolicyCheckboxTexts = <
@@ -1103,7 +1066,6 @@ export const getCourseMaterialCustomPrivacyPolicyCheckboxTexts = <
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
  */
 export const postFeedback = <ThrowOnError extends boolean = true>(
@@ -1121,7 +1083,6 @@ export const postFeedback = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
  */
 export const getCourseMaterialUserMarketingConsent = <ThrowOnError extends boolean = true>(
@@ -1153,7 +1114,6 @@ export const getCourseMaterialGlossary = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
  */
 export const getCourseMaterialLanguageVersionNavigationInfos = <
@@ -1180,7 +1140,6 @@ export const getCourseMaterialLanguageVersionNavigationInfos = <
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.
  *
  * Since anyone can access this endpoint, any unlisted pages are omited from these results.
@@ -1201,7 +1160,6 @@ export const getCourseMaterialCoursePages = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
 export const getCourseMaterialPageByCourseIdAndLanguageGroupId = <
@@ -1228,7 +1186,6 @@ export const getCourseMaterialPageByCourseIdAndLanguageGroupId = <
   })
 
 /**
- *
  * GET /courses/:course_id/partners-block - Gets a partners block related to a course
  */
 export const getCourseMaterialPartnersBlock = <ThrowOnError extends boolean = true>(
@@ -1248,7 +1205,6 @@ export const getCourseMaterialPartnersBlock = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
  */
 export const getCourseMaterialPrivacyLink = <ThrowOnError extends boolean = true>(
@@ -1282,7 +1238,6 @@ export const getCourseMaterialReferences = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
  */
 export const getCourseMaterialResearchConsentForm = <ThrowOnError extends boolean = true>(
@@ -1302,7 +1257,6 @@ export const getCourseMaterialResearchConsentForm = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
  */
 export const getCourseMaterialResearchConsentFormQuestions = <ThrowOnError extends boolean = true>(
@@ -1327,7 +1281,6 @@ export const getCourseMaterialResearchConsentFormQuestions = <ThrowOnError exten
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
  */
 export const postCourseMaterialResearchConsentFormAnswer = <ThrowOnError extends boolean = true>(
@@ -1356,7 +1309,6 @@ export const postCourseMaterialResearchConsentFormAnswer = <ThrowOnError extends
   })
 
 /**
- *
  * GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
  */
 export const getCourseMaterialResearchConsentFormAnswers = <ThrowOnError extends boolean = true>(
@@ -1381,7 +1333,6 @@ export const getCourseMaterialResearchConsentFormAnswers = <ThrowOnError extends
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.
  *
  * Provided words are supposed to appear right after each other in the source document.
@@ -1414,7 +1365,6 @@ export const searchPagesWithPhrase = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.
  *
  * Provided words can appear in any order in the source document.
@@ -1447,7 +1397,6 @@ export const searchPagesWithWords = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/course-material/courses/:course_id/top-level-pages
  */
 export const getCourseMaterialTopLevelPages = <ThrowOnError extends boolean = true>(
@@ -1467,7 +1416,6 @@ export const getCourseMaterialTopLevelPages = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locking statuses for course
  *
  * Returns all chapters that the authenticated user has unlocked or completed for the specified course.
@@ -1490,7 +1438,6 @@ export const getCourseMaterialUserChapterLocks = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
  */
 export const updateMarketingConsent = <ThrowOnError extends boolean = true>(
@@ -1508,7 +1455,6 @@ export const updateMarketingConsent = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
  */
 export const getCourseMaterialUserCourseSettings = <ThrowOnError extends boolean = true>(
@@ -1528,7 +1474,6 @@ export const getCourseMaterialUserCourseSettings = <ThrowOnError extends boolean
   })
 
 /**
- *
  * GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
 export const getCourseMaterialStudentCountry = <ThrowOnError extends boolean = true>(
@@ -1548,7 +1493,6 @@ export const getCourseMaterialStudentCountry = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET `/:course_slug/page-by-path/...` - Returns a course page by path
  *
  * If the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.
@@ -1573,7 +1517,6 @@ export const getCourseMaterialCoursePageByPath = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
  */
 export const postCourseMaterialCourseEditProposal = <ThrowOnError extends boolean = true>(
@@ -1597,7 +1540,6 @@ export const postCourseMaterialCourseEditProposal = <ThrowOnError extends boolea
   })
 
 /**
- *
  * GET /api/v0/course-material/exams/:id/fetch-exam-for-testing
  *
  * Fetches an exam for testing.
@@ -1613,7 +1555,6 @@ export const fetchExamForTesting = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/reset-exam-progress
  *
  * Used for testing an exam, resets exercise submissions and restarts the exam time.
@@ -1628,7 +1569,6 @@ export const resetExamProgress = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/update-show-exercise-answers
  *
  * Used for testing an exam, updates wheter exercise answers are shown.
@@ -1652,7 +1592,6 @@ export const updateShowExerciseAnswers = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/course-material/exams/:id
  */
 export const fetchExam = <ThrowOnError extends boolean = true>(
@@ -1666,7 +1605,6 @@ export const fetchExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/end-exam-time
  *
  * Used for marking the students exam as ended in the exam enrollment
@@ -1681,7 +1619,6 @@ export const endExamTime = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/enroll
  */
 export const enrollInExam = <ThrowOnError extends boolean = true>(
@@ -1698,7 +1635,6 @@ export const enrollInExam = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/course-material/exams/:id/enrollment
  */
 export const fetchExamEnrollment = <ThrowOnError extends boolean = true>(
@@ -1712,7 +1648,6 @@ export const fetchExamEnrollment = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
  * relevant context so that doing the exercise is possible based on the response.
  *
@@ -1732,7 +1667,6 @@ export const getCourseMaterialExercise = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
  */
 export const fetchPeerReviewDataReceivedByExerciseId = <ThrowOnError extends boolean = true>(
@@ -1752,7 +1686,6 @@ export const fetchPeerReviewDataReceivedByExerciseId = <ThrowOnError extends boo
   })
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
  */
 export const postFlagAnswerInPeerReview = <ThrowOnError extends boolean = true>(
@@ -1775,7 +1708,6 @@ export const postFlagAnswerInPeerReview = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * * exercise submission.
  */
@@ -1800,7 +1732,6 @@ export const postPeerOrSelfReviewSubmission = <ThrowOnError extends boolean = tr
   })
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
  * * the user will start the peer or self reviewing process.
  * *
@@ -1823,7 +1754,6 @@ export const postStartPeerOrSelfReview = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
  *
  * This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
@@ -1845,7 +1775,6 @@ export const fetchPeerOrSelfReviewDataByExerciseId = <ThrowOnError extends boole
   })
 
 /**
- *
  * POST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an
  * exercise.
  *
@@ -1883,7 +1812,6 @@ export const postSubmission = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
  */
 export const getCourseMaterialMentimeterOembed = <ThrowOnError extends boolean = true>(
@@ -1903,7 +1831,6 @@ export const getCourseMaterialMentimeterOembed = <ThrowOnError extends boolean =
   })
 
 /**
- *
  * GET /organizations/:organization_id - Get organization.
  */
 export const getCourseMaterialOrganization = <ThrowOnError extends boolean = true>(
@@ -1939,7 +1866,6 @@ export const getCourseMaterialPageAudioFiles = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET /api/v0/course-material/pages/exam/{page_id}
  */
 export const getCourseMaterialPageByExamId = <ThrowOnError extends boolean = true>(
@@ -1959,7 +1885,6 @@ export const getCourseMaterialPageByExamId = <ThrowOnError extends boolean = tru
   })
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs
  */
 export const getCourseMaterialPageChapterAndCourseInformation = <
@@ -1986,7 +1911,6 @@ export const getCourseMaterialPageChapterAndCourseInformation = <
   })
 
 /**
- *
  * GET /api/v0/course-material/page/{page_id}
  */
 export const getCourseMaterialChapterFrontPage = <ThrowOnError extends boolean = true>(
@@ -2022,7 +1946,6 @@ export const getCourseMaterialIsPageChapterFrontPage = <ThrowOnError extends boo
   })
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
 export const getCourseMaterialPageNavigation = <ThrowOnError extends boolean = true>(
@@ -2042,7 +1965,6 @@ export const getCourseMaterialPageNavigation = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/url-path - returns the page's URL path.
  * # Example
  * ```json
@@ -2065,7 +1987,6 @@ export const getCourseMaterialPageUrlPath = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * POST `/api/v0/course-material/proposed-edits/:course-id`
  */
 export const postCourseMaterialProposedEdits = <ThrowOnError extends boolean = true>(
@@ -2087,7 +2008,6 @@ export const postCourseMaterialProposedEdits = <ThrowOnError extends boolean = t
   })
 
 /**
- *
  * POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
  */
 export const updateCourseMaterialUserInfo = <ThrowOnError extends boolean = true>(
@@ -2110,7 +2030,6 @@ export const updateCourseMaterialUserInfo = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/course-material/user-details/user` - Find user details by user id
  */
 export const getCourseMaterialAuthenticatedUserDetails = <ThrowOnError extends boolean = true>(
@@ -2135,7 +2054,6 @@ export const getCourseMaterialAuthenticatedUserDetails = <ThrowOnError extends b
   })
 
 /**
- *
  * GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address
  */
 export const getCourseMaterialCountryFromIp = <ThrowOnError extends boolean = true>(

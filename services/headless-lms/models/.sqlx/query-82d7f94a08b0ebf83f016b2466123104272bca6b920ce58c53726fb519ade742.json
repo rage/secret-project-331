@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE pages SET chapter_id = $2, order_number = $3 WHERE pages.id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "82d7f94a08b0ebf83f016b2466123104272bca6b920ce58c53726fb519ade742"
+}

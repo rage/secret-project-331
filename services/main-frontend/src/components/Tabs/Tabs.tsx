@@ -30,9 +30,14 @@ export const useTabsContext = () => {
 interface TabsProps {
   children: React.ReactNode
   orientation?: "horizontal" | "vertical"
+  wrapOnPhone?: boolean
 }
 
-const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => {
+const Tabs: React.FC<TabsProps> = ({
+  children,
+  orientation = "horizontal",
+  wrapOnPhone = false,
+}) => {
   const pathname = usePathname()
 
   const basePath = useMemo(() => {
@@ -90,7 +95,7 @@ const Tabs: React.FC<TabsProps> = ({ children, orientation = "horizontal" }) => 
 
   return (
     <TabsContext.Provider value={{ state, basePath, isCurrentRouteATab: currentTab !== undefined }}>
-      <TabStrip state={state} orientation={orientation} selectedKey={selectedKey}>
+      <TabStrip state={state} orientation={orientation} wrapOnPhone={wrapOnPhone}>
         {tabChildren}
       </TabStrip>
       {panelChildren}

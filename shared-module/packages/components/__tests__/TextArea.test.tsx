@@ -30,14 +30,15 @@ describe("TextArea - accessibility wiring", () => {
     expect(screen.getByRole("textbox")).toHaveAccessibleDescription("Tell us about yourself.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderStringField((control) => (
       <TextArea name="f" control={control} label="Bio" errorMessage="Too short." />
     ))
     const textarea = screen.getByRole("textbox")
     expect(textarea).toHaveAttribute("aria-invalid", "true")
     expect(textarea).toHaveAccessibleDescription("Too short.")
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short.")
+    expect(screen.getByText("Too short.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("errorMessage takes precedence over description", () => {
@@ -50,7 +51,8 @@ describe("TextArea - accessibility wiring", () => {
         errorMessage="Too short."
       />
     ))
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short.")
+    expect(screen.getByText("Too short.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
     expect(screen.queryByText("Help.")).not.toBeInTheDocument()
   })
 
@@ -322,5 +324,78 @@ describe("TextArea - auto-resize", () => {
     fireEvent.change(textarea, { target: { value: "Some text" } })
 
     expect(textarea.style.height).toBe("")
+  })
+})
+
+describe("TextArea - isLabelHidden", () => {
+  test("label stays the accessible name but is clipped from view", () => {
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Message" isLabelHidden />
+    ))
+    expect(screen.getByRole("textbox", { name: "Message" })).toBeInTheDocument()
+
+    // react-aria's VisuallyHidden clips via inline style rather than display:none, so
+    // jest-dom's toBeVisible() would not catch a regression here; check the clip directly.
+    const wrapper = screen.getByText("Message").parentElement as HTMLElement
+    expect(wrapper.style.width).toBe("1px")
+    expect(wrapper.style.height).toBe("1px")
+    expect(wrapper.style.overflow).toBe("hidden")
+  })
+
+  test("placeholder is only rendered when the label is hidden", () => {
+    renderStringField((control) => (
+      <TextArea
+        name="f"
+        control={control}
+        label="Message"
+        isLabelHidden
+        placeholder="Ask anything"
+      />
+    ))
+    expect(screen.getByRole("textbox")).toHaveAttribute("placeholder", "Ask anything")
+  })
+})
+
+describe("TextArea - inputRef", () => {
+  test("receives the textarea element", () => {
+    const inputRef = { current: null as HTMLTextAreaElement | null }
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" inputRef={inputRef} />
+    ))
+    expect(inputRef.current).toBe(screen.getByRole("textbox"))
+  })
+
+  test("focus() through inputRef moves focus to the textarea", () => {
+    const inputRef = { current: null as HTMLTextAreaElement | null }
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" inputRef={inputRef} />
+    ))
+    inputRef.current?.focus()
+    expect(screen.getByRole("textbox")).toHaveFocus()
+  })
+})
+
+describe("TextArea - onKeyDown", () => {
+  test("fires the caller's handler without breaking typing", () => {
+    const onKeyDown = jest.fn()
+    const { getValues } = renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" onKeyDown={onKeyDown} />
+    ))
+    const textarea = screen.getByRole("textbox")
+
+    fireEvent.keyDown(textarea, { key: "Enter" })
+    expect(onKeyDown).toHaveBeenCalledTimes(1)
+
+    fireEvent.change(textarea, { target: { value: "Hello" } })
+    expect(getValues().f).toBe("Hello")
+  })
+})
+
+describe("TextArea - data-testid", () => {
+  test("lands on the textarea", () => {
+    renderStringField((control) => (
+      <TextArea name="f" control={control} label="Bio" data-testid="bio-field" />
+    ))
+    expect(screen.getByTestId("bio-field")).toBe(screen.getByRole("textbox", { name: "Bio" }))
   })
 })

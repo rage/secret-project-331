@@ -13,10 +13,15 @@ const VisibleBlockWrapper: React.FC<React.PropsWithChildren<VisibleBlockWrapperP
   return (
     <div
       className={css`
-        padding: 1rem 0.5rem;
-        padding-top: 0;
-        margin: 1rem 0;
-        border: 1px solid black;
+        padding: var(--space-4);
+        margin: var(--space-4) 0;
+        border: 1px solid var(--color-gray-300);
+
+        h2 {
+          margin: 0 0 var(--space-3);
+          font-size: 1rem;
+          font-weight: 600;
+        }
       `}
     >
       <h2>{blockName}</h2>

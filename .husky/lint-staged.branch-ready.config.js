@@ -32,7 +32,7 @@ export default {
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
     "cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings",
   ],
-  "**/models/**/*.rs": () => ["./bin/sqlx-prepare-check"],
+  "**/models/**/*.rs": () => ["./bin/sqlx-dev-database-check", "./bin/sqlx-prepare-check"],
   "system-tests/src/**/*.{js,jsx,ts,tsx}": () => [
     `./bin/check-no-test-only-in-system-tests`,
     "pnpm exec tsc -p system-tests --noEmit",

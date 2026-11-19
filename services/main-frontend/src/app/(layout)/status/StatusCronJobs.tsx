@@ -5,9 +5,21 @@ import { CheckCircle, Clock } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { DENSITY_COMPACT } from "@/components/credit-registration/constants"
 import { useStatusCronJobs } from "@/hooks/useStatusCronJobs"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { dateToString } from "@/shared-module/common/utils/time"
+import { QueryResult, Table } from "@/shared-module/components"
+
+const iconRowCss = css`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`
+
+const nowrapCss = css`
+  white-space: nowrap;
+`
 
 const StatusCronJobs: React.FC = () => {
   const { t } = useTranslation()
@@ -16,76 +28,43 @@ const StatusCronJobs: React.FC = () => {
   return (
     <QueryResult query={cronJobsQuery} emptyFallback={<p>{t("status-no-cronjobs-found")}</p>}>
       {(cronJobs) => (
-        <div
+        <Table
+          caption={t("status-cronjobs")}
+          density={DENSITY_COMPACT}
+          rowHover
+          rows={cronJobs}
+          rowKey={(cronJob) => cronJob.name}
           className={css`
-            overflow-x: auto;
+            margin-top: 1rem;
           `}
-        >
-          <table
-            className={css`
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 1rem;
-
-              th,
-              td {
-                padding: 0.5rem;
-                text-align: left;
-                border-bottom: 1px solid ${baseTheme.colors.clear[300]};
-              }
-
-              th {
-                background-color: ${baseTheme.colors.clear[100]};
-                font-weight: 600;
-              }
-
-              tr:hover {
-                background-color: ${baseTheme.colors.clear[200]};
-              }
-            `}
-          >
-            <thead>
-              <tr>
-                <th>{t("status-name")}</th>
-                <th>{t("status-schedule")}</th>
-                <th>{t("status-last-schedule-time")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cronJobs.map((cronJob) => (
-                <tr key={cronJob.name}>
-                  <td>{cronJob.name}</td>
-                  <td>
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                      `}
-                    >
-                      <Clock size={16} color={baseTheme.colors.blue[600]} />
-                      <span>{cronJob.schedule}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div
-                      className={css`
-                        display: flex;
-                        align-items: center;
-                        gap: 0.5rem;
-                      `}
-                    >
-                      {cronJob.last_schedule_time && (
-                        <CheckCircle size={16} color={baseTheme.colors.green[600]} />
-                      )}
-                      <span>{cronJob.last_schedule_time || t("status-never")}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          columns={[
+            { header: t("status-name"), cell: (cronJob) => cronJob.name },
+            {
+              header: t("status-schedule"),
+              cell: (cronJob) => (
+                <div className={iconRowCss}>
+                  <Clock size={16} color={baseTheme.colors.blue[600]} />
+                  <span>{cronJob.schedule}</span>
+                </div>
+              ),
+            },
+            {
+              header: t("status-last-schedule-time"),
+              cell: (cronJob) => (
+                <div className={iconRowCss}>
+                  {cronJob.last_schedule_time && (
+                    <CheckCircle size={16} color={baseTheme.colors.green[600]} />
+                  )}
+                  <span className={nowrapCss}>
+                    {cronJob.last_schedule_time
+                      ? dateToString(cronJob.last_schedule_time)
+                      : t("status-never")}
+                  </span>
+                </div>
+              ),
+            },
+          ]}
+        />
       )}
     </QueryResult>
   )

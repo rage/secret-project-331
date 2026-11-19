@@ -13,6 +13,7 @@ import { manageCoursePlanWorkspaceRoute } from "@/shared-module/common/utils/rou
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
+import { stageLabel as translateStageLabel } from "../../coursePlanStages"
 import ScheduleWizardProgress from "./components/ScheduleWizardProgress"
 import NameStep from "./components/steps/NameStep"
 import ScheduleEditorStep from "./components/steps/ScheduleEditorStep"
@@ -84,23 +85,7 @@ function ScheduleWizardPage() {
   const controller = useScheduleWizardController(planId)
   const reduceMotion = !!useReducedMotion()
 
-  const stageLabel = useCallback(
-    (stage: CourseDesignerStage) => {
-      switch (stage) {
-        case "Analysis":
-          return t("course-plans-stage-analysis")
-        case "Design":
-          return t("course-plans-stage-design")
-        case "Development":
-          return t("course-plans-stage-development")
-        case "Implementation":
-          return t("course-plans-stage-implementation")
-        case "Evaluation":
-          return t("course-plans-stage-evaluation")
-      }
-    },
-    [t],
-  )
+  const stageLabel = useCallback((stage: CourseDesignerStage) => translateStageLabel(stage, t), [t])
 
   const validationError = useMemo(() => {
     const issue = controller.ui.validationIssue

@@ -3,6 +3,8 @@ import { expect } from "@playwright/test"
 
 import { ensureRedirectServer } from "@/fixtures/oauth"
 
+import { escapeForRegExp } from "../regex"
+
 export class ConsentPage {
   private page: Page
   private scopes: string[]
@@ -11,7 +13,7 @@ export class ConsentPage {
     this.page = page
     this.scopes = scopes
   }
-  private esc = (s: string) => s.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  private esc = escapeForRegExp
   private get scopesRegex() {
     return new RegExp(`\\b(${this.scopes.map(this.esc).join("|")})\\b`, "i")
   }
@@ -28,6 +30,22 @@ export class ConsentPage {
     return this.container.locator("h2").first()
   }
 
+  public get clientId() {
+    return this.container.getByTestId("oauth-consent-client-id")
+  }
+
+  public get redirectUri() {
+    return this.container.getByTestId("oauth-consent-redirect-uri")
+  }
+
+  public get agentNote() {
+    return this.container.getByTestId("oauth-consent-agent-note")
+  }
+
+  public scopeCheckbox(scope: string) {
+    return this.container.getByTestId(`oauth-consent-scope-${scope}`).getByRole("checkbox")
+  }
+
   public async expectVisible(name: string | RegExp) {
     await expect(this.ul).toBeVisible()
     await expect(this.title).toBeVisible()
@@ -37,6 +55,11 @@ export class ConsentPage {
         this.ul.locator("li", { hasText: new RegExp(`\\b${this.esc(s)}\\b`, "i") }).first(),
       ).toBeVisible()
     }
+  }
+
+  /** Submits the consent without following the redirect, for tests that intercept it. */
+  public async approveWithoutRedirect() {
+    await this.page.getByTestId("oauth-consent-approve-button").click()
   }
 
   public async approve() {

@@ -1,5 +1,4 @@
-// These hrefs are used to link between different microservices. They should only be used with the
-// `<a>` element and not with `next/router`.
+// These are main-frontend's own `/org/...` routes; link to them with `Link`, not a plain `<a>`.
 
 export function courseMaterialFrontPageHref(organizationSlug: string, courseSlug: string): string {
   return `/org/${organizationSlug}/courses/${courseSlug}`

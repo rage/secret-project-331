@@ -1,8 +1,7 @@
 //! Per-request observability for calls to Suotar.
 //!
-//! Bodies must be scrubbed with [`crate::library::credit_registration::scrub::scrub_suotar_body`]
-//! before insert; `credit_registration_ids` ties a call to the rows it was for, which the scrubbed
-//! bodies no longer identify.
+//! `credit_registration_ids` ties a call to the rows it was for, which bodies sampled down to a few
+//! items no longer list in full.
 use async_trait::async_trait;
 use headless_lms_utils::services::suotar::{
     REFUSED_BEFORE_SENDING_CODE, SuotarCallAudit, SuotarCallFinished, SuotarCallStarted,
@@ -13,7 +12,7 @@ use utoipa::ToSchema;
 /// endpoints, which also stores it in the `suotar_endpoint` postgres enum.
 pub use headless_lms_utils::services::suotar::SuotarEndpoint;
 
-use crate::library::credit_registration::scrub::{scrub_suotar_body, scrub_text};
+use crate::library::credit_registration::scrub::scrub_text;
 use crate::prelude::*;
 
 /// How long call rows are kept.
@@ -68,9 +67,9 @@ pub struct NewSuotarApiCall {
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
-    /// Must already be scrubbed and sampled.
+    /// Must already be sampled.
     pub request_body_sample: Option<serde_json::Value>,
-    /// Must already be scrubbed and sampled.
+    /// Must already be sampled.
     pub response_body_sample: Option<serde_json::Value>,
     pub credit_registration_ids: Vec<Uuid>,
     pub worker_name: String,
@@ -153,7 +152,7 @@ pub struct FinishedSuotarApiCall {
     pub request_level_error_code: Option<String>,
     /// Scrub before passing.
     pub error_message: Option<String>,
-    /// Must already be scrubbed and sampled.
+    /// Must already be sampled.
     pub response_body_sample: Option<serde_json::Value>,
 }
 
@@ -193,7 +192,7 @@ WHERE id = $1
     Ok(())
 }
 
-/// Shortens an already-scrubbed body to what this table keeps: whole while the batch is small, then
+/// Shortens a body to what this table keeps: whole while the batch is small, then
 /// the leading items plus a count, then nothing but the measurements.
 fn sample_body(value: &serde_json::Value) -> serde_json::Value {
     let sampled = match value.as_array() {
@@ -246,7 +245,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             pending_item_count: 0,
             request_level_error_code: None,
             error_message: None,
-            request_body_sample: Some(sample_body(&scrub_suotar_body(&started.request_body))),
+            request_body_sample: Some(sample_body(&started.request_body)),
             response_body_sample: None,
             credit_registration_ids: started.credit_registration_ids,
             worker_name: started.worker_name,
@@ -290,9 +289,7 @@ impl SuotarCallAudit for PgSuotarCallAudit {
             pending_item_count: pending_item_count.try_into().unwrap_or(i32::MAX),
             request_level_error_code: finished.request_level_error_code,
             error_message: finished.error_message.map(|message| scrub_text(&message)),
-            response_body_sample: finished
-                .response_body
-                .map(|body| sample_body(&scrub_suotar_body(&body))),
+            response_body_sample: finished.response_body.map(|body| sample_body(&body)),
         };
         let mut conn = match self.pool.acquire().await {
             Ok(conn) => conn,
@@ -360,8 +357,8 @@ pub struct SuotarApiCallFilters {
     pub worker_name: Option<String>,
     pub started_after: Option<DateTime<Utc>>,
     pub started_before: Option<DateTime<Utc>>,
-    /// Searches the ledger rows a call covered, never the bodies: the bodies are scrubbed, so a
-    /// student number is not in them to find.
+    /// Searches the ledger rows a call covered, never the bodies: a sampled body may have dropped
+    /// the row's item.
     pub credit_registration_id: Option<Uuid>,
 }
 

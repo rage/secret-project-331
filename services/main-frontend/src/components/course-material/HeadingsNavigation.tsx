@@ -14,6 +14,7 @@ import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterF
 import useShouldHideStuffFromSystemTestScreenshots from "@/shared-module/common/hooks/useShouldHideStuffForSystemTestScreenshots"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import { isElementFullyInViewport } from "@/shared-module/common/utils/dom"
+import { focusProgrammatically } from "@/shared-module/components"
 import { currentPageIdAtom, examDataAtom } from "@/state/course-material/selectors"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
@@ -234,7 +235,8 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         <div
           className={css`
             width: ${WIDTH_PX}px;
-            max-height: 90vh;
+            /* Stay inside short viewports and above the feedback button. */
+            max-height: ${fixed ? `calc(100dvh - ${offsetpx}px - 5rem)` : "90vh"};
             overflow-y: auto;
             pointer-events: ${realCollapsed ? "none" : "auto"};
 
@@ -250,9 +252,10 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
             transition: transform 0.3s;
             transform: ${realCollapsed ? `translateX(${WIDTH_PX}px);` : "translateX(0px)"};
           `}
-          aria-hidden={Boolean(realCollapsed)}
+          aria-hidden={realCollapsed ? true : undefined}
+          {...(realCollapsed && { inert: true })}
         >
-          <div>
+          <div data-route-focus-skip>
             <h3
               className={css`
                 font-size: 16px;
@@ -266,8 +269,8 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
             >
               {t("in-this-page")}
             </h3>
-            {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- StyledTopics is styled.div; changing element type risks layout */}
-            <StyledTopics role="navigation">
+            {/* oxlint-disable-next-line i18next/no-literal-string */}
+            <StyledTopics as="nav" aria-label={t("in-this-page")}>
               <div>
                 {headings &&
                   headings.map(({ headingsNavigationIndex, title, element }) => {
@@ -283,12 +286,19 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
                         tabIndex={realCollapsed ? -1 : 0}
                         key={headingsNavigationIndex}
                         aria-label={title}
+                        {...(activeHeading === headingsNavigationIndex && {
+                          // oxlint-disable-next-line i18next/no-literal-string
+                          "aria-current": "location",
+                        })}
                         onClick={(e) => {
                           e.preventDefault()
                           try {
                             // Atomic, since Javascript is single-threaded
                             numberOfCallbacksScrollingTheDocument.current += 1
                             setActiveHeading(headingsNavigationIndex)
+
+                            // Move focus to the heading so screen readers announce it.
+                            focusProgrammatically(element, { preventScroll: true })
 
                             // Better to use to use the parent provided by the block -- it makes scrolling to hero section to reveal the whole block
                             const blockElement =
@@ -338,6 +348,7 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
         <button
           onClick={() => setUserHasCollapsed(!realCollapsed)}
           aria-label={realCollapsed ? t("open-heading-menu") : t("close-heading-menu")}
+          aria-expanded={!realCollapsed}
           className={css`
             position: ${fixed ? "fixed" : "absolute"};
             right: 0px;

@@ -1,21 +1,35 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { CourseInstance, CourseInstanceForm } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import TimePicker from "@/shared-module/common/components/InputFields/DateTimeLocal"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { includeIf } from "@/shared-module/common/utils/nullability"
+import type { CanonicalApiIssue } from "@/shared-module/common/errors/AppApiError"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
+import { DateTimeLocalField, TextField } from "@/shared-module/components"
+
+// Shared with NewCourseInstanceDialog.tsx, whose footer submit button targets this form by id.
+export const NEW_COURSE_INSTANCE_FORM_ID = "new-course-instance-form"
 
 interface FormProps {
   initialData: CourseInstance | null
   onSubmit: (form: CourseInstanceForm) => void
-  onCancel: () => void
+  /** Issues from a rejected save; those naming a field are shown on that field. */
+  serverIssues?: CanonicalApiIssue[] | undefined
 }
+
+const ISSUE_PATH_TO_FIELD = {
+  name: "name",
+  description: "description",
+  support_email: "supportEmail",
+  teacher_in_charge_name: "teacherName",
+  teacher_in_charge_email: "teacherEmail",
+  opening_time: "openingTime",
+  closing_time: "closingTime",
+} as const
 
 interface Fields {
   name: string
@@ -23,21 +37,36 @@ interface Fields {
   supportEmail: string
   teacherName: string
   teacherEmail: string
+  openingTime: string
+  closingTime: string
 }
 
 const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
   initialData,
   onSubmit,
-  onCancel: _onCancel,
+  serverIssues,
 }) => {
   const { t } = useTranslation()
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Fields>()
-  const [newOpeningTime, setNewOpeningTime] = useState(initialData?.starts_at || null)
-  const [newClosingTime, setNewClosingTime] = useState(initialData?.ends_at || null)
+  const { control, handleSubmit, setError } = useForm<Fields>({
+    defaultValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      supportEmail: initialData?.support_email || "",
+      teacherName: initialData?.teacher_in_charge_name || "",
+      teacherEmail: initialData?.teacher_in_charge_email || "",
+      openingTime: formatDateForDateTimeLocalInputs(initialData?.starts_at) ?? "",
+      closingTime: formatDateForDateTimeLocalInputs(initialData?.ends_at) ?? "",
+    },
+  })
+  useEffect(() => {
+    for (const issue of serverIssues ?? []) {
+      if (issue.path !== undefined && Object.hasOwn(ISSUE_PATH_TO_FIELD, issue.path)) {
+        const field = ISSUE_PATH_TO_FIELD[issue.path as keyof typeof ISSUE_PATH_TO_FIELD]
+        setError(field, { type: "server", message: issue.message })
+      }
+    }
+  }, [serverIssues, setError])
+
   const onSubmitWrapper = handleSubmit((data) => {
     onSubmit({
       name: data.name || null,
@@ -45,76 +74,51 @@ const NewCourseInstanceForm: React.FC<React.PropsWithChildren<FormProps>> = ({
       support_email: data.supportEmail || null,
       teacher_in_charge_name: data.teacherName,
       teacher_in_charge_email: data.teacherEmail,
-      opening_time: newOpeningTime,
-      closing_time: newClosingTime,
+      opening_time: data.openingTime ? new Date(data.openingTime).toISOString() : null,
+      closing_time: data.closingTime ? new Date(data.closingTime).toISOString() : null,
     })
   })
 
   return (
-    <form onSubmit={onSubmitWrapper}>
-      <TextField
-        label={t("text-field-label-name")}
-        id={"name"}
-        {...includeIf(errors["name"], { error: errors["name"] })}
-        defaultValue={initialData?.name || ""}
-        placeholder={t("text-field-label-name")}
-        {...register("name")}
-      />
-      <TextField
-        label={t("text-field-label-description")}
-        id={"description"}
-        {...includeIf(errors["description"], { error: errors["description"] })}
-        defaultValue={initialData?.description || ""}
-        placeholder={t("text-field-label-description")}
-        {...register("description")}
-      />
-      <TextField
-        label={t("support-email")}
-        id={"supportEmail"}
-        {...includeIf(errors["supportEmail"], { error: errors["supportEmail"] })}
-        defaultValue={initialData?.support_email || ""}
-        placeholder={t("support-email")}
-        {...register("supportEmail")}
-      />
-      <TextField
-        label={t("teacher-in-charge-name")}
-        id={"teacherName"}
-        {...includeIf(errors["teacherName"], { error: errors["teacherName"] })}
-        defaultValue={initialData?.teacher_in_charge_name}
-        placeholder={t("teacher-in-charge-name")}
-        {...register("teacherName")}
-      />
-      <TextField
-        label={t("teacher-in-charge-email")}
-        id={"teacherEmail"}
-        {...includeIf(errors["teacherEmail"], { error: errors["teacherEmail"] })}
-        defaultValue={initialData?.teacher_in_charge_email}
-        placeholder={t("teacher-in-charge-email")}
-        {...register("teacherEmail")}
-      />
-      <TimePicker
-        label={t("opening-time")}
-        onChangeByValue={(time) => setNewOpeningTime(new Date(time).toISOString())}
+    <form id={NEW_COURSE_INSTANCE_FORM_ID} onSubmit={onSubmitWrapper}>
+      <div
         className={css`
-          margin-bottom: 0.5rem;
+          display: grid;
+          gap: var(--space-4);
         `}
-      />
-      <TimePicker
-        label={t("closing-time")}
-        onChangeByValue={(time) => setNewClosingTime(new Date(time).toISOString())}
-        className={css`
-          margin-bottom: 0.5rem;
-        `}
-      />
-      <Button
-        variant="primary"
-        size="medium"
-        fullWidth
-        type="submit"
-        value={t("button-text-submit")}
       >
-        {t("button-text-submit")}
-      </Button>
+        <TextField name="name" control={control} label={t("text-field-label-name")} />
+        <TextField name="description" control={control} label={t("text-field-label-description")} />
+        <TextField
+          name="supportEmail"
+          control={control}
+          label={t("support-email")}
+          rules={{
+            pattern: { value: EMAIL_PATTERN, message: t("enter-a-valid-email") },
+          }}
+        />
+        <TextField name="teacherName" control={control} label={t("teacher-in-charge-name")} />
+        <TextField
+          name="teacherEmail"
+          control={control}
+          label={t("teacher-in-charge-email")}
+          rules={{
+            pattern: { value: EMAIL_PATTERN, message: t("enter-a-valid-email") },
+          }}
+        />
+        <DateTimeLocalField
+          name="openingTime"
+          control={control}
+          data-testid="course-instance-opening-time-field"
+          label={t("opening-time")}
+        />
+        <DateTimeLocalField
+          name="closingTime"
+          control={control}
+          data-testid="course-instance-closing-time-field"
+          label={t("closing-time")}
+        />
+      </div>
     </form>
   )
 }

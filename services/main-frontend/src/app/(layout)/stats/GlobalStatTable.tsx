@@ -1,22 +1,19 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { groupBy, mapValues, sortBy } from "lodash"
-import Link from "next/link"
 import { useMemo } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import type {
   GlobalCourseModuleStatEntry,
   GlobalStatEntry,
   TimeGranularity,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { Link, QueryResult, Table, type TableColumn } from "@/shared-module/components"
 
 interface RegularStatTableProps {
   query: UseQueryResult<GlobalStatEntry[]>
@@ -33,6 +30,15 @@ interface ModuleStatTableProps {
 type GlobalStatTableProps = RegularStatTableProps | ModuleStatTableProps
 
 type TransformedStatEntry = GlobalStatEntry & { course_module_id?: string }
+
+interface StatRow {
+  key: string
+  courseId: string
+  courseName: string
+  /** Set only on the first row of an organization, so the name is not repeated down the column. */
+  organizationName: string | null
+  entries: TransformedStatEntry[]
+}
 
 const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, granularity }) => {
   const { t } = useTranslation()
@@ -142,83 +148,70 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
     return []
   }, [query.data, granularity, moduleStats])
 
-  const tableShell = (
-    <FullWidthTable>
-      <thead>
-        <FullWidthTableRow>
-          <th>{t("organization")}</th>
-          <th>{t("course")}</th>
-          {timeColumns.map((column) => (
-            <th key={column.key}>{column.label}</th>
-          ))}
-          {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- actions/spacer column header intentionally has no text */}
-          <th></th>
-        </FullWidthTableRow>
-      </thead>
-      <tbody>
-        {Object.entries(data).map(([_organizationId, organizationCourses]) => {
-          const organizationCoursesCount = Object.entries(organizationCourses).length
-          return Object.entries(organizationCourses).map(([moduleId, entries], n) => {
-            const firstEntry = entries[0]
-            if (!firstEntry) {
-              return null
+  const rows: StatRow[] = useMemo(
+    () =>
+      Object.entries(data).flatMap(([organizationId, organizationCourses]) =>
+        Object.entries(organizationCourses).flatMap(([moduleId, entries], n) => {
+          const firstEntry = entries[0]
+          if (!firstEntry) {
+            return []
+          }
+          const sortedEntries = entries.toSorted((a, b) => {
+            if (a.year !== b.year) {
+              return Number(a.year) - Number(b.year)
             }
-            const courseId = firstEntry.course_id
-            entries.sort((a, b) => {
-              if (a.year !== b.year) {
-                return Number(a.year) - Number(b.year)
-              }
-              if (a.month && b.month) {
-                return Number(a.month) - Number(b.month)
-              }
-              return 0
-            })
-            return (
-              <FullWidthTableRow key={moduleId}>
-                {n === 0 && (
-                  <td
-                    className={css`
-                      vertical-align: top;
-                    `}
-                    rowSpan={organizationCoursesCount}
-                  >
-                    {firstEntry.organization_name}
-                  </td>
-                )}
-                <td>{firstEntry.course_name}</td>
-                {timeColumns.map((column) => {
-                  let entry
-                  if (column.isYear) {
-                    entry = entries.find((candidate) => candidate.year === Number(column.key))
-                  } else {
-                    const [year, month] = column.key.split("-")
-                    entry = entries.find(
-                      (candidate) =>
-                        candidate.year === Number(year) &&
-                        (moduleStats || String(candidate.month ?? "").padStart(2, "0") === month),
-                    )
-                  }
-                  return <td key={column.key}>{entry ? entry.value : "-"}</td>
-                })}
-                {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell contains a labeled Button/Link */}
-                <td>
-                  <Link href={courseStatsRoute(courseId)}>
-                    <Button variant="tertiary" size="small">
-                      {t("stats")}
-                    </Button>
-                  </Link>
-                </td>
-              </FullWidthTableRow>
-            )
+            if (a.month && b.month) {
+              return Number(a.month) - Number(b.month)
+            }
+            return 0
           })
-        })}
-      </tbody>
-    </FullWidthTable>
+          return [
+            {
+              key: `${organizationId}/${moduleId}`,
+              courseId: firstEntry.course_id,
+              courseName: firstEntry.course_name,
+              organizationName: n === 0 ? firstEntry.organization_name : null,
+              entries: sortedEntries,
+            },
+          ]
+        }),
+      ),
+    [data],
   )
+
+  const columns: TableColumn<StatRow>[] = [
+    { header: t("organization"), cell: (row) => row.organizationName },
+    { header: t("course"), cell: (row) => row.courseName },
+    ...timeColumns.map((column): TableColumn<StatRow> => ({
+      header: column.label,
+      cell: (row) => {
+        let entry
+        if (column.isYear) {
+          entry = row.entries.find((candidate) => candidate.year === Number(column.key))
+        } else {
+          const [year, month] = column.key.split("-")
+          entry = row.entries.find(
+            (candidate) =>
+              candidate.year === Number(year) &&
+              (moduleStats || String(candidate.month ?? "").padStart(2, "0") === month),
+          )
+        }
+        return entry ? entry.value : "-"
+      },
+    })),
+    {
+      header: <VisuallyHidden>{t("stats")}</VisuallyHidden>,
+      cell: (row) => (
+        <Link href={courseStatsRoute(row.courseId)} styledAsButton variant="tertiary" size="small">
+          {t("stats")}
+        </Link>
+      ),
+    },
+  ]
 
   return (
     <QueryResult<GlobalStatEntry[] | GlobalCourseModuleStatEntry[]> query={query} treatEmptyAsData>
-      {() => tableShell}
+      {() => <Table caption={t("stats")} columns={columns} rows={rows} rowKey={(row) => row.key} />}
     </QueryResult>
   )
 }

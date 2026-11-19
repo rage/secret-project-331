@@ -2,20 +2,24 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
 import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
 import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Checkbox } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  focusMainHeading,
+  TransLink,
+} from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -63,10 +67,9 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   })
   const agreed = watch("agreed")
 
-  // The link content is provided by the translation string via <Trans>, so the anchor has no
-  // static children here.
-  // oxlint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/control-has-associated-label -- link content provided by <Trans> translation string
-  const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+  const guidelinesLink = (
+    <TransLink href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+  )
 
   const paragraphStyle = css`
     margin: 0;
@@ -109,24 +112,37 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // encouraged, so it is hidden for the permissive policies.
   const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
 
+  const acknowledgedRef = useRef(false)
+
+  // On unmount, after the dialog's own focus handling has been torn down.
+  useEffect(
+    () => () => {
+      if (acknowledgedRef.current) {
+        focusMainHeading()
+      }
+    },
+    [],
+  )
+
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
       await acknowledgeAiUsageNotice({ path: { course_id: courseId } })
       await queryClient.invalidateQueries({
         queryKey: getAiUsageNoticeAcknowledgementQueryKey({ path: { course_id: courseId } }),
       })
+      acknowledgedRef.current = true
       onClose()
     },
     { notify: false },
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={true}
+      // Must be explicitly acknowledged: no close button, and closing on Escape is a no-op.
+      onClose={() => {}}
       title={t("ai-usage-notice-title")}
-      leftAlignTitle={true}
       showCloseButton={false}
-      closeable={false}
     >
       <div
         className={css`
@@ -136,9 +152,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
           line-height: 1.55;
         `}
       >
-        {acknowledgeMutation.isError && (
-          <ErrorBanner variant={"readOnly"} error={acknowledgeMutation.error} />
-        )}
+        {acknowledgeMutation.isError && <ErrorNotice error={acknowledgeMutation.error} />}
         {showsDefaultMessage ? (
           <p className={paragraphStyle}>
             <Trans
@@ -206,7 +220,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
           </Button>
         </div>
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

@@ -9,10 +9,32 @@ import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useFocusAfterRemoval } from "@/shared-module/components"
 
 import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"
+
+const pageCss = css`
+  display: grid;
+  gap: var(--space-5);
+`
+
+const listCss = css`
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--color-clear-300);
+  }
+
+  > li:first-of-type {
+    padding-top: 0;
+    border-top: none;
+  }
+`
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -28,9 +50,13 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
     }),
   )
 
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(glossary.data)
+
   return (
-    <>
+    <div className={pageCss} ref={containerRef}>
       <h1
+        ref={listHeadingRef}
+        tabIndex={-1}
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
@@ -42,24 +68,27 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       </h1>
       <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
       <QueryResult query={glossary}>
-        {(data) =>
-          [...data]
-            .toSorted((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
-            .map((term: GlossaryTerm) => (
-              <TermItem
-                key={term.id}
-                term={term}
-                isEditing={editingTerm === term.id}
-                onEdit={() => {
-                  setEditingTerm(term.id)
-                }}
-                onCancel={() => setEditingTerm(null)}
-                refetch={glossary.refetch}
-              />
-            ))
-        }
+        {(data) => (
+          <ul className={listCss}>
+            {[...data]
+              .toSorted((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
+              .map((term: GlossaryTerm) => (
+                <TermItem
+                  key={term.id}
+                  term={term}
+                  isEditing={editingTerm === term.id}
+                  onEdit={() => {
+                    setEditingTerm(term.id)
+                  }}
+                  onCancel={() => setEditingTerm(null)}
+                  refetch={glossary.refetch}
+                  onBeforeDelete={remember}
+                />
+              ))}
+          </ul>
+        )}
       </QueryResult>
-    </>
+    </div>
   )
 }
 

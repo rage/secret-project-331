@@ -4,6 +4,8 @@ import { css } from "@emotion/css"
 import type { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Link } from "@/shared-module/components"
+
 interface ChatbotAgreeProps {
   agreeButton?: ReactNode
   hideHeader?: boolean
@@ -20,7 +22,7 @@ const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeade
         padding: 20px;
         overflow: hidden;
 
-        h2 {
+        h4 {
           font-size: 24px;
           margin-bottom: 10px;
         }
@@ -47,18 +49,17 @@ const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeade
           overflow-y: auto;
         `}
       >
-        {!hideHeader && <h2>{t("about-the-chatbot")}</h2>}
+        {!hideHeader && <h4>{t("about-the-chatbot")}</h4>}
         <p>{t("chatbot-disclaimer-start")}</p>
         <ul>
           <li>{t("chatbot-discalimer-sensitive-information")}</li>
           <li>{t("chatbot-disclaimer-check")}</li>
           <li>
-            {t("chatbot-disclaimer-disclose-part-1")}
-            <a href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
-              {" "}
+            {t("chatbot-disclaimer-disclose-part-1")}{" "}
+            <Link href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
               {t("chatbot-disclaimer-disclose-part-2")}
-            </a>
-            .{" "}
+            </Link>
+            .
           </li>
         </ul>
       </div>

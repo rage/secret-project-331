@@ -187,6 +187,8 @@ export function useIframeProtocol() {
             void seed()
           } else if (messageData.view_type === "view-submission") {
             const publicSpec = messageData.data.public_spec as PublicSpec
+            const modelSolutionSpec = messageData.data
+              .model_solution_spec as ModelSolutionSpec | null
             const archive = messageData.data.user_answer_files?.[0]
             const requestToken = ++latestSubmissionRequestRef.current
             setState({
@@ -196,25 +198,30 @@ export function useIframeProtocol() {
               submitted_files: [],
               submitted_archive_url: archive?.url ?? null,
               public_spec: publicSpec,
-              model_solution_spec: messageData.data.model_solution_spec as ModelSolutionSpec,
+              model_solution_spec: modelSolutionSpec,
+              model_solution_files: [],
             })
-            if (archive) {
-              const showSubmittedFiles = async () => {
-                try {
-                  const submittedFiles = await fetchArchiveFiles(archive.url)
-                  if (requestToken !== latestSubmissionRequestRef.current) {
-                    return
-                  }
-                  setState((old) =>
-                    old?.view_type === "view-submission"
-                      ? { ...old, submitted_files: submittedFiles }
-                      : old,
-                  )
-                } catch (error) {
-                  logError("Failed to read the submitted archive", error)
+            const showArchiveFiles = async (
+              url: string,
+              field: "submitted_files" | "model_solution_files",
+            ) => {
+              try {
+                const files = await fetchArchiveFiles(url)
+                if (requestToken !== latestSubmissionRequestRef.current) {
+                  return
                 }
+                setState((old) =>
+                  old?.view_type === "view-submission" ? { ...old, [field]: files } : old,
+                )
+              } catch (error) {
+                logError(`Failed to read the archive for ${field}`, error)
               }
-              void showSubmittedFiles()
+            }
+            if (archive) {
+              void showArchiveFiles(archive.url, "submitted_files")
+            }
+            if (modelSolutionSpec) {
+              void showArchiveFiles(modelSolutionSpec.solution_download_url, "model_solution_files")
             }
           } else {
             logError("Unknown view type received from parent")
@@ -262,12 +269,8 @@ export function useIframeProtocol() {
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)
       } else if (messageData.message === "set-language") {
-        const language =
-          (messageData as { language?: string }).language ??
-          (messageData as { data?: { language?: string } }).data?.language
-        if (typeof language === "string") {
-          void changeLanguage(language)
-        }
+        document.documentElement.lang = messageData.data
+        void changeLanguage(messageData.data)
       } else {
         logError("Unexpected message from parent")
       }

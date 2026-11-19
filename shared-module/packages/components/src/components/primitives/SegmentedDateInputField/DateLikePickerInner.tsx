@@ -20,6 +20,7 @@ import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
 import { omitUndefined } from "../../../lib/utils/nullability"
+import { formatUtcOffset } from "../../../lib/utils/relativeTimeFormat"
 import { PickerSegmentedField } from "./PickerSegmentedField"
 import type { dayGranularity } from "./segmentedDateInputFieldConstants"
 import { minuteGranularity } from "./segmentedDateInputFieldConstants"
@@ -82,10 +83,19 @@ export function DateLikePickerInner({
   const canClear =
     currentValue !== null || pickerState.dateValue !== null || pickerState.timeValue !== null
 
+  const hiddenInputValue = serializeDateLikeInputValue(kind, state.value, minuteGranularity)
+  const valueDate = new Date(hiddenInputValue)
+  const zoneLabel =
+    kind === "datetime"
+      ? formatUtcOffset(Number.isNaN(valueDate.getTime()) ? new Date() : valueDate)
+      : undefined
+
   return (
     <PickerSegmentedField
+      zoneLabel={zoneLabel}
       canClear={canClear}
       className={base.className}
+      dataTestId={base.dataTestId}
       dateFieldAria={dateFieldAria}
       description={base.description}
       errorMessage={base.errorMessage}
@@ -93,7 +103,7 @@ export function DateLikePickerInner({
       fieldSize={base.fieldSize}
       groupRef={base.groupRef}
       hiddenInputRef={base.hiddenInputRef}
-      hiddenInputValue={serializeDateLikeInputValue(kind, state.value, minuteGranularity)}
+      hiddenInputValue={hiddenInputValue}
       inputRef={base.inputRef}
       iconEnd={base.iconEnd}
       iconStart={base.iconStart}

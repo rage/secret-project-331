@@ -3,6 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { headingFont } from "@/shared-module/common/styles"
@@ -70,9 +71,16 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
           <span aria-hidden="true">
             <CheckCircle size={16} weight="bold" color="#394F77" />
           </span>
-          <span data-testid={dataTestId} className={pointsScoreStyles}>
+          <span data-testid={dataTestId} className={pointsScoreStyles} aria-hidden="true">
             <sup>{score ?? "-"}</sup>/<sub>{maxScore}</sub>
           </span>
+          <VisuallyHidden>
+            {score === null
+              ? t("not-graded-out-of", {
+                  max: maxScore,
+                })
+              : t("points-of-max", { points: score, max: maxScore })}
+          </VisuallyHidden>
         </div>
       </div>
     </div>

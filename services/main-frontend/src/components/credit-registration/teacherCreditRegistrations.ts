@@ -34,6 +34,7 @@ import { CREDIT_REGISTRATION_NS } from "./constants"
 import type { CreditRegistrationTFunction } from "./constants"
 import { registrationErrorShortLabel } from "./creditRegistrationCopy"
 import { labelFrom, widenedLookup } from "./labelFrom"
+import { registersCredits } from "./registersCredits"
 import type { FailureOwner } from "./registrationFailures"
 import { failureOwner, retryableFailureCount } from "./registrationFailures"
 
@@ -64,6 +65,18 @@ const fetchInBatches = async (
   }
   return rows
 }
+
+/** The global permission that opens the credit registration admin pages. */
+export const ADMINISTRATE_CREDIT_REGISTRATIONS = [
+  {
+    action: { type: "administrate_credit_registrations" },
+    resource: { type: "global_permissions" },
+  },
+] as const
+
+/** Whether this user may open the credit registration admin pages. */
+export const useCanAdministrateCreditRegistrations = (): boolean =>
+  useAuthorizeMultiple([...ADMINISTRATE_CREDIT_REGISTRATIONS]).data?.[0] === true
 
 /**
  * Whether this user may read the course's registrations at all.
@@ -97,7 +110,7 @@ export const useCourseHasStudyRegistryModules = (courseId: string | null): boole
       build: (id) => getCourseCreditRegistrationModuleConfigsOptions({ path: { course_id: id } }),
     }),
   )
-  return (query.data ?? []).some((module) => module.enable_credit_registration_via_suotar)
+  return (query.data ?? []).some((module) => registersCredits(module))
 }
 
 /**
@@ -115,9 +128,12 @@ export const useTeacherCreditRegistrations = (
   userIds: string[],
 ): {
   data: CreditRegistrationIndex
+  /** Live rows by completion id: unlike `data`, keeps a pending grade improvement beside the registered row it follows. */
+  byCompletionId: Map<string, CourseCreditRegistration>
   isAuthorized: boolean
   isPending: boolean
   isFetching: boolean
+  error: Error | null
 } => {
   const isAuthorized = useCanViewCreditRegistrations(courseId)
 
@@ -130,17 +146,33 @@ export const useTeacherCreditRegistrations = (
         queryOptions({
           queryKey: [QUERY_KEY_PREFIX, id, ids],
           queryFn: () => fetchInBatches(id, ids),
-          select: indexLiveRegistrations,
           placeholderData: keepPreviousData,
         }),
     }),
   )
 
+  const rows = query.data
+  const data = useMemo(
+    () => (rows ? indexLiveRegistrations(rows) : EMPTY_CREDIT_REGISTRATIONS),
+    [rows],
+  )
+  const byCompletionId = useMemo(
+    () =>
+      new Map(
+        (rows ?? [])
+          .filter((row) => !row.superseded)
+          .map((row) => [row.course_module_completion_id, row]),
+      ),
+    [rows],
+  )
+
   return {
-    data: query.data ?? EMPTY_CREDIT_REGISTRATIONS,
+    data,
+    byCompletionId,
     isAuthorized,
     isPending: query.isPending,
     isFetching: query.isFetching,
+    error: query.error,
   }
 }
 

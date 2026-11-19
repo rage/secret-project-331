@@ -11,9 +11,8 @@ import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsYesOrNoText from "@/shared-module/common/components/BooleanAsYesOrNoText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResults, ErrorNotice } from "@/shared-module/components"
 
 import EndQuestionAnswerChip from "./EndQuestionAnswersAccordion"
 
@@ -190,7 +189,7 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
       }
       renderData={([courseInstanceProgressesData, courseStructureData]) => {
         if (!courseStructureData) {
-          return <ErrorBanner error={new Error("Course structure not found")} />
+          return <ErrorNotice error={new Error("Course structure not found")} />
         }
 
         const isSingleModule = courseInstanceProgressesData.length === 1

@@ -2,14 +2,15 @@
 
 import { cx } from "@emotion/css"
 import React, { useEffect, useId, useRef } from "react"
-import { mergeProps, useTextField } from "react-aria"
+import { mergeProps, useTextField, VisuallyHidden } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { ARIA_VALIDATION, joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -51,6 +52,8 @@ export type TextAreaProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   N
 > & {
   label: React.ReactNode
+  /** Keeps `label` as the accessible name but renders it visually hidden instead of floating. */
+  isLabelHidden?: boolean
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
@@ -66,9 +69,15 @@ export type TextAreaProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   autoComplete?: string
   maxLength?: number
   minLength?: number
+  /** Only shown when `isLabelHidden` is true; a visible label already serves as the hint otherwise. */
   placeholder?: string
   rows?: number
   className?: string
+  /** Composed with the field's own ref, so both receive the textarea node. */
+  inputRef?: React.Ref<HTMLTextAreaElement>
+  /** Chained with react-aria's own handler via `mergeProps`, not replacing it. */
+  onKeyDown?: React.KeyboardEventHandler<HTMLTextAreaElement>
+  "data-testid"?: string | undefined
 }
 
 export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -79,6 +88,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     control,
     rules,
     label,
+    isLabelHidden,
     description,
     errorMessage,
     fieldSize = "md",
@@ -94,8 +104,12 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     autoComplete,
     maxLength,
     minLength,
+    placeholder,
     rows,
     className,
+    inputRef,
+    onKeyDown,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
@@ -120,6 +134,7 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     isInvalid,
     inputElementType: textareaInputType,
     ...omitUndefined({ autoComplete, maxLength, minLength, isDisabled, isReadOnly, isRequired }),
+    validationBehavior: ARIA_VALIDATION,
   }
 
   const {
@@ -164,8 +179,9 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
     onChange: handleChange,
     onFocus: handleFocus,
     onBlur: handleBlur,
-    placeholder: resolveFloatingPlaceholder(),
+    placeholder: resolveFloatingPlaceholder(isLabelHidden ? placeholder : undefined),
     rows,
+    onKeyDown,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -192,17 +208,25 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
         data-filled={floatingState.hasValue ? "true" : "false"}
         data-floated={floatingState.isFloated ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
+        data-label-hidden={isLabelHidden ? "true" : undefined}
       >
         <textarea
           {...mergedTextareaProps}
-          ref={composeRefs(textareaRef, field.ref)}
+          ref={composeRefs(textareaRef, field.ref, inputRef)}
           className={resolveTextareaCss(fieldSize)}
           aria-describedby={resolvedAriaDescribedBy}
           aria-invalid={resolvedAriaInvalid}
+          data-testid={dataTestId}
         />
-        <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
-          {label}
-        </label>
+        {isLabelHidden ? (
+          <VisuallyHidden>
+            <label {...labelProps}>{label}</label>
+          </VisuallyHidden>
+        ) : (
+          <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
+            {label}
+          </label>
+        )}
         {iconStart ? (
           <span className={textareaIconSlotStartStyles[fieldSize]} aria-hidden="true">
             {iconStart}
@@ -216,9 +240,9 @@ export function TextArea<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

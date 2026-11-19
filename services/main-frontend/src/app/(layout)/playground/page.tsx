@@ -2,10 +2,11 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import type { ChangeEvent } from "react"
 import React, { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { pageTitleCss } from "@/components/credit-registration/styles"
 import {
   deletePlaygroundExampleMutation as deletePlaygroundExampleMutationOptions,
   getPlaygroundExamplesOptions,
@@ -13,16 +14,20 @@ import {
   updatePlaygroundExampleMutation as updatePlaygroundExampleMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlaygroundExample } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { QueryResult } from "@/shared-module/components"
+import {
+  Button,
+  QueryResult,
+  Select,
+  TextArea,
+  TextField,
+  useDialog,
+} from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -38,14 +43,31 @@ const Home: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-playground-exercise-iframe"))
   const dialog = useDialog()
-  const [exampleUrl, setExampleUrl] = useState<string>("")
-  const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
-  const [exampleData, setExampleData] = useState<string>("")
-  const [exampleName, setExampleName] = useState<string>("")
+  const { control, setValue, watch } = useForm<{
+    url: string
+    width: string
+    name: string
+    data: string
+    exampleId: string
+  }>({
+    defaultValues: {
+      url: "",
+      width: String(narrowContainerWidthPx),
+      name: "",
+      data: "",
+      exampleId: "",
+    },
+  })
+  const exampleUrl = watch("url")
+  const exampleWidth = Number(watch("width"))
+  const exampleName = watch("name")
+  const exampleData = watch("data")
+  const exampleId = watch("exampleId")
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
-  const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
   const getPlaygroundExamples = useQuery(getPlaygroundExamplesOptions())
+  const selectedExample: PlaygroundExample | null =
+    getPlaygroundExamples.data?.find((example) => example.id === exampleId) ?? null
   const saveMutation = useToastMutationOptions(
     savePlaygroundExampleMutationOptions(),
     {
@@ -93,7 +115,7 @@ const Home: React.FC = () => {
     {
       onSuccess: () => {
         getPlaygroundExamples.refetch()
-        setSelectedExample(null)
+        setValue("exampleId", "")
         setTimeout(() => deleteMutation.reset(), 5000)
       },
       onError: () => {
@@ -117,32 +139,17 @@ const Home: React.FC = () => {
     }
   }, [exampleUrl, exampleWidth])
 
-  const handleUrlChange = (value: string) => {
-    setExampleUrl(value)
-  }
-
-  const handleWidthChange = (value: string) => {
-    setExampleWidth(Number(value))
-  }
-
-  const handleNameChange = (value: string) => {
-    setExampleName(value)
-  }
-
-  const handleDataChange = (e: string) => {
-    if (e) {
-      setExampleData(e)
+  useEffect(() => {
+    if (!selectedExample) {
+      return
     }
-  }
-
-  const handleExampleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const example: PlaygroundExample = JSON.parse(event.target.value) as PlaygroundExample
-    setExampleUrl(example.url)
-    setExampleWidth(example.width)
-    setExampleData(JSON.stringify(example.data as unknown, undefined, 2))
-    setExampleName(example.name)
-    setSelectedExample(example)
-  }
+    setValue("url", selectedExample.url)
+    setValue("width", String(selectedExample.width))
+    setValue("data", JSON.stringify(selectedExample.data as unknown, undefined, 2))
+    setValue("name", selectedExample.name)
+    // Re-applying on refetch would overwrite unsaved edits.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [exampleId])
 
   const handleExampleSave = () => {
     saveMutation.mutate({
@@ -184,7 +191,7 @@ const Home: React.FC = () => {
   return (
     <>
       <div>
-        <h2>{t("title-playground-exercise-iframe")}</h2>
+        <h2 className={pageTitleCss}>{t("title-playground-exercise-iframe")}</h2>
         <QueryResult query={getPlaygroundExamples}>
           {(data) => (
             <div>
@@ -195,68 +202,53 @@ const Home: React.FC = () => {
                   margin-top: 0.5rem;
                 `}
               >
-                {}
-                <select
-                  onChange={handleExampleChange}
-                  name="playground-examples"
-                  aria-label={t("playground-examples")}
-                >
-                  {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name */}
-                  <option selected disabled label={t("label-examples")} />
-                  {data.map((example) => (
-                    // oxlint-disable-next-line jsx-a11y/control-has-associated-label -- label attr is the accessible name
-                    <option
-                      key={JSON.stringify(example)}
-                      value={JSON.stringify(example)}
-                      label={example.name}
-                    />
-                  ))}
-                </select>
+                <Select
+                  name="exampleId"
+                  control={control}
+                  label={t("playground-examples")}
+                  placeholder={t("label-examples")}
+                  options={data.map((example) => ({ value: example.id, label: example.name }))}
+                />
               </div>
             </div>
           )}
         </QueryResult>
         <TextField
-          value={exampleUrl || ""}
-          placeholder={invalidUrl ? t("invalid-url") : t("label-url")}
+          name="url"
+          control={control}
           label={t("label-url")}
-          onChangeByValue={(value) => handleUrlChange(value)}
-          {...includeIf(invalidUrl, { error: t("invalid-url") })}
+          {...includeIf(invalidUrl, { errorMessage: t("invalid-url") })}
           className={css`
             margin-bottom: 1rem !important;
           `}
         />
         <TextField
-          value={String(exampleWidth) || ""}
-          placeholder={t("label-width")}
+          name="width"
+          control={control}
           label={t("label-width")}
-          onChangeByValue={(value) => handleWidthChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
         />
         <TextField
-          value={exampleName}
-          placeholder={t("label-example-name")}
+          name="name"
+          control={control}
           label={t("label-example-name")}
-          onChangeByValue={(value) => handleNameChange(value)}
           className={css`
             margin-bottom: 1rem !important;
           `}
         />
         <br />
-        <label id="data-preview-label">{t("data-to-post-to-iframe")}</label>
-        <textarea
+        <TextArea
+          name="data"
+          control={control}
+          label={t("data-to-post-to-iframe")}
           rows={20}
-          spellCheck={false}
-          value={exampleData}
-          onChange={(e) => handleDataChange(e.target.value)}
-          aria-labelledby="data-preview-label"
           className={css`
-            border: 1px solid black;
             margin-bottom: 1rem;
-            width: 100%;
-            font-family: ${monospaceFont} !important;
+            textarea {
+              font-family: ${monospaceFont};
+            }
           `}
         />
         {exampleUrl && exampleWidth && exampleData && exampleName && (

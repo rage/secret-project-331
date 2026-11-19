@@ -84,6 +84,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            # The CMS's in-cluster address including its base path; agent writes are validated there.
+            - name: CMS_INTERNAL_URL
+              value: "http://cms:3000/cms"
           envFrom:
             - secretRef:
                 name: headless-lms-secrets

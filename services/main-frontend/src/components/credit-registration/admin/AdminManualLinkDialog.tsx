@@ -56,6 +56,7 @@ import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { candidateFullName } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import StudentCell from "./StudentCell"
@@ -104,25 +105,12 @@ const accountResultsCss = css`
   overflow-y: auto;
 `
 
-interface AccountSearchResults {
-  accounts: UserDetail[]
-  /** The name search ran out of time, so an empty `accounts` does not mean there is no match. */
-  hasTimedOut: boolean
-}
-
-const searchAccounts = async (query: string): Promise<AccountSearchResults> => {
-  const [exact, fuzzy] = await Promise.all([
-    searchUserDetailsExact({ body: { query } }),
-    searchUserDetailsFuzzy({ body: { query } }),
-  ])
+const mergeAccounts = (exact: UserDetail[], similar: UserDetail[]): UserDetail[] => {
   const byUserId = new Map<string, UserDetail>()
-  for (const user of [...exact, ...fuzzy.users]) {
+  for (const user of [...exact, ...similar]) {
     byUserId.set(user.user_id, user)
   }
-  return {
-    accounts: Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES),
-    hasTimedOut: fuzzy.timed_out,
-  }
+  return Array.from(byUserId.values()).slice(0, MAX_ACCOUNT_MATCHES)
 }
 
 interface SearchFields {
@@ -138,11 +126,21 @@ const AccountPicker: React.FC<{
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, handleSubmit } = useForm<SearchFields>({ defaultValues: { term: "" } })
   const [query, setQuery] = useState("")
-  const accountsQuery = useQuery({
-    queryKey: ["manualLinkAccountSearch", query],
-    queryFn: () => searchAccounts(query),
+  // Separate queries so an exact match shows without waiting for the slower similar-user search.
+  const exactQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchExact", query],
+    queryFn: () => searchUserDetailsExact({ body: { query } }),
     enabled: query !== "",
   })
+  const fuzzyQuery = useQuery({
+    queryKey: ["manualLinkAccountSearchFuzzy", query],
+    queryFn: () => searchUserDetailsFuzzy({ body: { query } }),
+    enabled: query !== "",
+  })
+  const accounts = exactQuery.data
+    ? mergeAccounts(exactQuery.data, fuzzyQuery.data?.users ?? [])
+    : null
+  const hasNoAccounts = accounts?.length === 0 && fuzzyQuery.isSuccess
 
   return (
     <div className={dialogFormCss}>
@@ -158,42 +156,37 @@ const AccountPicker: React.FC<{
           variant={isCurrentStep ? BUTTON_PRIMARY : BUTTON_SECONDARY}
           size="medium"
           className={fieldActionCss}
-          disabled={accountsQuery.isFetching}
+          disabled={exactQuery.isFetching}
         >
           {t("button-text-search")}
         </Button>
       </form>
-      {accountsQuery.data && accountsQuery.data.accounts.length === 0 && (
-        <p className={noteCss}>
-          {accountsQuery.data.hasTimedOut
-            ? t("credit-registration-admin-manual-link-search-timed-out")
-            : t("credit-registration-admin-manual-link-no-accounts")}
-        </p>
+      {hasNoAccounts && (
+        <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
       )}
-      {accountsQuery.data &&
-        accountsQuery.data.accounts.length > 0 && (
-          // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
-          <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accountsQuery.data.accounts.map((user) => (
-              <li key={user.user_id} className={spacedRowCss}>
-                <StudentCell row={user} />
-                <Button
-                  variant={BUTTON_TERTIARY}
-                  size="small"
-                  onClick={() =>
-                    onChoose({
-                      userId: user.user_id,
-                      name: formatUserName(user),
-                      email: user.email,
-                    })
-                  }
-                >
-                  {t("credit-registration-admin-manual-link-choose-account")}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+      {accounts && accounts.length > 0 && (
+        // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+        <ul className={cx(dividedListCss, accountResultsCss)} role="list">
+          {accounts.map((user) => (
+            <li key={user.user_id} className={spacedRowCss}>
+              <StudentCell row={user} />
+              <Button
+                variant={BUTTON_TERTIARY}
+                size="small"
+                onClick={() =>
+                  onChoose({
+                    userId: user.user_id,
+                    name: formatUserName(user),
+                    email: user.email,
+                  })
+                }
+              >
+                {t("credit-registration-admin-manual-link-choose-account")}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -409,6 +402,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.MANUAL_LINK_STUDENT_NUMBER}
             description={t("credit-registration-admin-manual-link-reason-description")}
           />
         </form>

@@ -1,5 +1,7 @@
 use futures::future::BoxFuture;
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::document_schema_processor::{
+    COURSE_OBJECTIVE_PLACEHOLDERS, GutenbergBlock,
+};
 use url::Url;
 
 use crate::{
@@ -9,7 +11,9 @@ use crate::{
     course_language_groups,
     course_modules::{CourseModule, NewCourseModule},
     courses::{self, Course, NewCourse},
+    entity_history::{self, HistoryAuthor},
     exercise_service_info::ExerciseServiceInfoApi,
+    library::entity_snapshots::ContentEntityType,
     pages::{self, NewPage, Page},
     peer_or_self_review_questions::CmsPeerOrSelfReviewQuestion,
     prelude::*,
@@ -19,6 +23,40 @@ use crate::{
 pub struct CreateNewCourseFixedIds {
     pub course_id: Uuid,
     pub default_course_instance_id: Uuid,
+}
+
+const FRONT_PAGE_TITLE_PLACEHOLDER: &str = "Welcome to...";
+const FRONT_PAGE_SUBTITLE_PLACEHOLDER: &str = "Subheading";
+const FRONT_PAGE_ABOUT_PLACEHOLDER: &str = "This course teaches you xxx.";
+
+/// Text in the default page content that the teacher is meant to replace; a page still holding
+/// one as a whole text attribute hasn't been written yet.
+pub const TEMPLATE_PLACEHOLDER_TEXTS: [&str; 9] = [
+    FRONT_PAGE_TITLE_PLACEHOLDER,
+    FRONT_PAGE_SUBTITLE_PLACEHOLDER,
+    FRONT_PAGE_ABOUT_PLACEHOLDER,
+    COURSE_OBJECTIVE_PLACEHOLDERS[0].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[0].1,
+    COURSE_OBJECTIVE_PLACEHOLDERS[1].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[1].1,
+    COURSE_OBJECTIVE_PLACEHOLDERS[2].0,
+    COURSE_OBJECTIVE_PLACEHOLDERS[2].1,
+];
+
+/// The content a new course's front page starts with.
+pub fn default_course_front_page_content() -> Vec<GutenbergBlock> {
+    vec![
+        GutenbergBlock::landing_page_hero_section(
+            FRONT_PAGE_TITLE_PLACEHOLDER,
+            FRONT_PAGE_SUBTITLE_PLACEHOLDER,
+        ),
+        GutenbergBlock::landing_page_copy_text("About this course", FRONT_PAGE_ABOUT_PLACEHOLDER),
+        GutenbergBlock::course_objective_section(),
+        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
+        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
+    ]
 }
 
 /// Creates a new course with a front page and default instances.
@@ -46,20 +84,9 @@ pub async fn create_new_course(
     .await?;
     let course = courses::get_course(&mut tx, course_id).await?;
 
-    // Create front page for course
-    let course_front_page_blocks = vec![
-        GutenbergBlock::landing_page_hero_section("Welcome to...", "Subheading"),
-        GutenbergBlock::landing_page_copy_text("About this course", "This course teaches you xxx."),
-        GutenbergBlock::course_objective_section(),
-        GutenbergBlock::empty_block_from_name("moocfi/course-chapter-grid".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/top-level-pages".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/congratulations".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/course-progress".to_string()),
-    ];
-
     let course_front_page = NewPage {
         chapter_id: None,
-        content: course_front_page_blocks,
+        content: default_course_front_page_content(),
         course_id: Some(course.id),
         exam_id: None,
         front_page_of_chapter_id: None,
@@ -152,6 +179,28 @@ pub async fn create_new_course(
     Ok((course, page, default_course_instance, default_module))
 }
 
+/// What a new chapter's front page starts as, whether a teacher or an agent creates the chapter.
+pub struct ChapterFrontPage {
+    pub title: String,
+    pub url_path: String,
+    pub content: Vec<GutenbergBlock>,
+}
+
+impl ChapterFrontPage {
+    /// The front page of chapter `chapter_number`, titled `chapter_name`, with the standard blocks.
+    pub fn new(chapter_name: &str, chapter_number: i32) -> Self {
+        Self {
+            title: chapter_name.to_string(),
+            url_path: chapters::front_page_path(chapter_number),
+            content: vec![
+                GutenbergBlock::hero_section(chapter_name, ""),
+                GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
+                GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
+            ],
+        }
+    }
+}
+
 /// Creates a new chapter with a front page.
 pub async fn create_new_chapter(
     conn: &mut PgConnection,
@@ -187,23 +236,15 @@ pub async fn create_new_chapter_with_content(
     let chapter_id = chapters::insert(&mut tx, pkey_policy.map_ref(|x| x.0), new_chapter).await?;
     let chapter = chapters::get_chapter(&mut tx, chapter_id).await?;
 
-    let default_front_page_content = vec![
-        GutenbergBlock::hero_section(&chapter.name, ""),
-        GutenbergBlock::empty_block_from_name("moocfi/pages-in-chapter".to_string()),
-        GutenbergBlock::empty_block_from_name("moocfi/exercises-in-chapter".to_string()),
-    ];
-
-    let front_page_blocks = custom_front_page_content.unwrap_or(default_front_page_content);
-    let chapter_frontpage_content = serde_json::to_value(front_page_blocks)?;
-    let frontpage_blocks: Vec<GutenbergBlock> = serde_json::from_value(chapter_frontpage_content)?;
+    let front_page = ChapterFrontPage::new(&chapter.name, chapter.chapter_number);
     let chapter_frontpage = NewPage {
         chapter_id: Some(chapter.id),
-        content: frontpage_blocks,
+        content: custom_front_page_content.unwrap_or(front_page.content),
         course_id: Some(chapter.course_id),
         exam_id: None,
         front_page_of_chapter_id: Some(chapter.id),
-        title: chapter.name.clone(),
-        url_path: format!("/chapter-{}", chapter.chapter_number),
+        title: front_page.title,
+        url_path: front_page.url_path,
         exercises: vec![],
         exercise_slides: vec![],
         exercise_tasks: vec![],
@@ -213,73 +254,25 @@ pub async fn create_new_chapter_with_content(
 
     let page = match pkey_policy {
         PKeyPolicy::Fixed((_, front_page_id)) => {
-            // Create page with fixed ID
-            let page_language_group_id = if let Some(course_id) = chapter_frontpage.course_id {
-                let course = crate::courses::get_course(&mut tx, course_id).await?;
-                let new_language_group_id = crate::page_language_groups::insert(
-                    &mut tx,
-                    crate::PKeyPolicy::Generate,
-                    course.course_language_group_id,
-                )
-                .await?;
-                Some(new_language_group_id)
-            } else {
-                None
-            };
-
-            let content_search_language = chapter_frontpage
-                .content_search_language
-                .unwrap_or_else(|| "simple".to_string());
-
-            let page = sqlx::query_as!(
-                Page,
-                r#"
-INSERT INTO pages(
-    id,
-    course_id,
-    exam_id,
-    content,
-    url_path,
-    title,
-    order_number,
-    chapter_id,
-    content_search_language,
-    page_language_group_id,
-    hidden
-  )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id,
-  created_at,
-  updated_at,
-  course_id,
-  exam_id,
-  chapter_id,
-  url_path,
-  title,
-  deleted_at,
-  content,
-  order_number,
-  copied_from,
-  hidden,
-  page_language_group_id
-"#,
-                front_page_id,
-                chapter_frontpage.course_id,
-                chapter_frontpage.exam_id,
-                serde_json::to_value(chapter_frontpage.content)?,
-                chapter_frontpage.url_path.trim(),
-                chapter_frontpage.title.trim(),
-                0i32,
-                chapter_frontpage.chapter_id,
-                content_search_language as _,
-                page_language_group_id,
-                chapter_frontpage.hidden
+            let course = crate::courses::get_course(&mut tx, chapter.course_id).await?;
+            let page = pages::insert_page_row(
+                &mut tx,
+                pages::PageRow {
+                    id: PKeyPolicy::Fixed(front_page_id),
+                    course: Some(&course),
+                    exam_id: None,
+                    chapter_id: Some(chapter.id),
+                    url_path: &chapter_frontpage.url_path,
+                    title: &chapter_frontpage.title,
+                    order_number: 0,
+                    hidden: chapter_frontpage.hidden,
+                    content_search_language: None,
+                    page_language_group_id: None,
+                },
+                &serde_json::to_value(&chapter_frontpage.content)?,
             )
-            .fetch_one(&mut *tx)
             .await?;
-
-            // Create page history
-            let _history_id = crate::page_history::insert(
+            crate::page_history::insert(
                 &mut tx,
                 PKeyPolicy::Generate,
                 page.id,
@@ -293,11 +286,10 @@ RETURNING id,
                     peer_or_self_review_questions: vec![],
                 },
                 crate::page_history::HistoryChangeReason::PageSaved,
-                user,
+                HistoryAuthor::user(user),
                 None,
             )
             .await?;
-
             page
         }
         PKeyPolicy::Generate => {
@@ -321,6 +313,13 @@ RETURNING id,
     .await?;
 
     let updated_chapter = chapters::get_chapter(&mut tx, chapter.id).await?;
+    entity_history::record_current(
+        &mut tx,
+        ContentEntityType::Chapter,
+        chapter.id,
+        HistoryAuthor::user(user),
+    )
+    .await?;
 
     tx.commit().await?;
     Ok((updated_chapter, page))

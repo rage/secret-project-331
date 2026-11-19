@@ -13,12 +13,6 @@ pub const FUZZY_SEARCH_RESULT_LIMIT: i64 = 50;
 /// Minimum `pg_trgm` word similarity (0..1) for a fuzzy match. Real typos score as low as ~0.35.
 const FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD: f32 = 0.3;
 
-const FUZZY_SEARCH_TIMEOUT: &str = "2s";
-
-/// Budget for the GiST attempt before falling back to the GIN filter. Common terms finish in ~10ms
-/// with a warm cache; the slack is for a cold one, where the GIN filter would be far slower.
-const DISTANCE_ORDERED_SEARCH_TIMEOUT: &str = "200ms";
-
 /// Search box filter for user lists: every word of the search appears in the name or email, in any
 /// order, or the whole search is a near match for a misspelled name or email. Queries apply it as
 /// `(ud.name_search_helper || ' ' || ud.email_search_helper) LIKE ALL ($word_patterns)` OR
@@ -76,6 +70,26 @@ pub struct UserDetail {
     pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
+/// How course design plans name a person: their full name, or their email when they have none.
+pub fn full_name_or_email(
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+    email: &str,
+) -> String {
+    let name = [first_name, last_name]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    if name.is_empty() {
+        email.to_string()
+    } else {
+        name
+    }
+}
+
 pub async fn get_user_details_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -95,6 +109,36 @@ SELECT user_id,
   email_verified_method
 FROM user_details
 WHERE user_id = $1 ",
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// [`get_user_details_by_user_id`] that also locks the row until the transaction ends, for a read
+/// that decides a later write.
+pub async fn get_user_details_by_user_id_for_update(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<UserDetail> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  country,
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
+FROM user_details
+WHERE user_id = $1
+FOR UPDATE
+",
         user_id
     )
     .fetch_one(conn)
@@ -186,7 +230,8 @@ pub async fn get_active_user_id_by_email_case_insensitive(
     Ok(id)
 }
 
-/// Users whose id or email equals the search term, ignoring case and surrounding whitespace.
+/// Users whose id, email or TMC id (`users.upstream_id`) equals the search term, ignoring case and
+/// surrounding whitespace.
 ///
 /// At most one row per kind, and cheap enough to answer before [`search_for_user_details_fuzzy`].
 pub async fn search_for_user_details_exact(
@@ -196,7 +241,12 @@ pub async fn search_for_user_details_exact(
     let search = search.trim();
     let user_id = search.parse::<Uuid>().ok();
     let email = (user_id.is_none() && search.contains('@')).then_some(search);
-    if user_id.is_none() && email.is_none() {
+    let upstream_id = search
+        .bytes()
+        .all(|b| b.is_ascii_digit())
+        .then(|| search.parse::<i32>().ok())
+        .flatten();
+    if user_id.is_none() && email.is_none() && upstream_id.is_none() {
         return Ok(Vec::new());
     }
     let res = sqlx::query_as!(
@@ -215,9 +265,16 @@ SELECT user_id,
 FROM user_details
 WHERE user_id = $1
   OR lower(email) = lower($2)
+  OR user_id = (
+    SELECT id
+    FROM users
+    WHERE upstream_id = $3
+      AND deleted_at IS NULL
+  )
 ",
         user_id,
         email,
+        upstream_id,
     )
     .fetch_all(conn)
     .await?;
@@ -230,137 +287,31 @@ pub struct FuzzyUserSearchResults {
     pub users: Vec<UserDetail>,
     /// More users matched than `users` holds.
     pub has_more: bool,
-    /// The search hit its time limit, so `users` is empty without meaning nobody matched.
-    pub timed_out: bool,
 }
 
 /// Users whose name or email local part resembles the search term, best match first, ties by id.
 ///
 /// A term containing `@` is matched by its local part. Terms shorter than three characters and
-/// user ids match nothing; [`search_for_user_details_exact`] covers ids and whole emails.
+/// user ids match nothing; [`search_for_user_details_exact`] covers ids and whole emails. A common
+/// term takes seconds on production, so callers should show the exact matches first.
 pub async fn search_for_user_details_fuzzy(
     conn: &mut PgConnection,
     search: &str,
 ) -> ModelResult<FuzzyUserSearchResults> {
-    let mut results = FuzzyUserSearchResults::default();
     let Some(term) = fuzzy_search_term(search) else {
-        return Ok(results);
+        return Ok(FuzzyUserSearchResults::default());
     };
-    let row_limit = FUZZY_SEARCH_RESULT_LIMIT + 1;
-
     let mut tx = conn.begin().await?;
     sqlx::query!(
-        "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true) AS threshold,
-  set_config('statement_timeout', $2, true) AS statement_timeout",
+        "SELECT set_config('pg_trgm.word_similarity_threshold', $1, true)",
         FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD.to_string(),
-        DISTANCE_ORDERED_SEARCH_TIMEOUT,
     )
     .fetch_one(&mut *tx)
     .await?;
-
-    let mut distance_attempt = tx.begin().await?;
-    let mut users = match fuzzy_search_by_distance(&mut distance_attempt, &term, row_limit).await {
-        Ok(users) => {
-            distance_attempt.commit().await?;
-            users
-        }
-        Err(err) if is_statement_timeout(&err) => {
-            distance_attempt.rollback().await?;
-            set_local_setting(&mut tx, "statement_timeout", FUZZY_SEARCH_TIMEOUT).await?;
-            match fuzzy_search_by_trigram_filter(&mut tx, &term, row_limit).await {
-                Ok(users) => users,
-                Err(err) if is_statement_timeout(&err) => {
-                    tx.rollback().await?;
-                    results.timed_out = true;
-                    return Ok(results);
-                }
-                Err(err) => return Err(err.into()),
-            }
-        }
-        Err(err) => return Err(err.into()),
-    };
-    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
-    // would keep the settings above for the rest of that transaction.
-    tx.rollback().await?;
-
-    results.has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
-    users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
-    results.users = users;
-    Ok(results)
-}
-
-/// Fast for common terms, but a rare or misspelled term makes the GiST scans read most of the
-/// index, which is why [`search_for_user_details_fuzzy`] gives this only a short time budget.
-async fn fuzzy_search_by_distance(
-    conn: &mut PgConnection,
-    term: &str,
-    row_limit: i64,
-) -> sqlx::Result<Vec<UserDetail>> {
-    // No tie-break inside the CTEs: anything after the distance stops the GiST indexes from
-    // serving the ordering.
-    sqlx::query_as!(
-        UserDetail,
-        r#"
-WITH name_matches AS (
-  SELECT user_id,
-    $1 <<-> name_search_helper AS distance
-  FROM user_details
-  ORDER BY distance
-  LIMIT $2
-),
-email_matches AS (
-  SELECT user_id,
-    $1 <<-> split_part(email_search_helper, '@', 1) AS distance
-  FROM user_details
-  ORDER BY distance
-  LIMIT $2
-),
-matches AS (
-  SELECT user_id,
-    min(distance) AS distance
-  FROM (
-      SELECT *
-      FROM name_matches
-      UNION ALL
-      SELECT *
-      FROM email_matches
-    ) candidates
-  WHERE distance < $3
-  GROUP BY user_id
-)
-SELECT ud.user_id,
-  ud.created_at,
-  ud.updated_at,
-  ud.email,
-  ud.first_name,
-  ud.last_name,
-  ud.country,
-  ud.email_communication_consent,
-  ud.email_verified_at,
-  ud.email_verified_method
-FROM matches
-  JOIN user_details ud ON ud.user_id = matches.user_id
-ORDER BY matches.distance,
-  ud.user_id
-LIMIT $2
-"#,
-        term,
-        row_limit,
-        1.0 - FUZZY_SEARCH_WORD_SIMILARITY_THRESHOLD,
-    )
-    .fetch_all(conn)
-    .await
-}
-
-/// Fast for rare and misspelled terms, slow for common ones. Needs
-/// `pg_trgm.word_similarity_threshold` set for `<%`.
-async fn fuzzy_search_by_trigram_filter(
-    conn: &mut PgConnection,
-    term: &str,
-    row_limit: i64,
-) -> sqlx::Result<Vec<UserDetail>> {
-    // The search text expression must stay identical to the user_details_search_text_gin index.
-    sqlx::query_as!(
+    // `<%` uses the threshold set above. The expression must stay identical to the
+    // user_details_search_text_gin index. Not ordered by GiST trigram distance: a term close to no
+    // name walks most of such an index, 14s on production.
+    let mut users = sqlx::query_as!(
         UserDetail,
         r#"
 SELECT user_id,
@@ -380,23 +331,17 @@ ORDER BY $1 <<-> (name_search_helper || ' ' || split_part(email_search_helper, '
 LIMIT $2
 "#,
         term,
-        row_limit,
+        FUZZY_SEARCH_RESULT_LIMIT + 1,
     )
-    .fetch_all(conn)
-    .await
-}
+    .fetch_all(&mut *tx)
+    .await?;
+    // Rolled back rather than committed: it only read, and a commit inside a caller's transaction
+    // would keep the threshold for the rest of that transaction.
+    tx.rollback().await?;
 
-/// Changes a Postgres setting until the transaction ends or is rolled back past this point.
-async fn set_local_setting(conn: &mut PgConnection, name: &str, value: &str) -> sqlx::Result<()> {
-    sqlx::query!("SELECT set_config($1, $2, true)", name, value)
-        .fetch_one(conn)
-        .await?;
-    Ok(())
-}
-
-fn is_statement_timeout(err: &sqlx::Error) -> bool {
-    const QUERY_CANCELED: &str = "57014";
-    matches!(err, sqlx::Error::Database(db_err) if db_err.code().as_deref() == Some(QUERY_CANCELED))
+    let has_more = users.len() > FUZZY_SEARCH_RESULT_LIMIT as usize;
+    users.truncate(FUZZY_SEARCH_RESULT_LIMIT as usize);
+    Ok(FuzzyUserSearchResults { users, has_more })
 }
 
 /// The lowercased local part of the search term, or `None` when it should match nothing.
@@ -561,6 +506,29 @@ WHERE user_id = $2
     Ok(())
 }
 
+/// Sets the name alone. The caller also pushes it to TMC, which otherwise keeps the old one.
+pub async fn update_user_name(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    first_name: &str,
+    last_name: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET first_name = $1,
+  last_name = $2
+WHERE user_id = $3
+"#,
+        first_name,
+        last_name,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_user_email_communication_consent(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -641,7 +609,8 @@ WHERE id = $2
     Ok(updated_user)
 }
 
-/// Records a proof of control over the address currently in `email`.
+/// Records a proof of control over the address currently in `email`, and grants the roles that were
+/// waiting for it (see [`crate::pending_roles`]).
 ///
 /// Must not also write `email`: the `clear_email_verification` trigger would null the flag in the
 /// same statement.
@@ -651,6 +620,7 @@ pub async fn set_email_verified(
     method: EmailVerificationMethod,
     verified_at: DateTime<Utc>,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
 UPDATE user_details
@@ -662,8 +632,48 @@ WHERE user_id = $1
         verified_at,
         method as EmailVerificationMethod,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+    crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Records a proof of control from a code mailed at `code_created_at`, and grants the roles that
+/// were waiting for it, unless the account already has a proof or its details changed since then.
+/// An admin's assertion is replaced, since it is not proof (see [`has_mailbox_proof`]).
+///
+/// One conditional write, so an address change committing alongside cannot slip between the check
+/// and the write. Compare [`set_email_verified`], which records unconditionally.
+pub async fn set_email_verified_unless_changed_since(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    method: EmailVerificationMethod,
+    code_created_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let result = sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = now(),
+  email_verified_method = $2
+WHERE user_id = $1
+  AND (
+    email_verified_at IS NULL
+    OR email_verified_method = 'admin_asserted'
+  )
+  AND updated_at <= $3
+"#,
+        user_id,
+        method as EmailVerificationMethod,
+        code_created_at,
+    )
+    .execute(&mut *tx)
+    .await?;
+    if result.rows_affected() > 0 {
+        crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    }
+    tx.commit().await?;
     Ok(())
 }
 
@@ -682,6 +692,14 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Whether the user has shown they control the address in `email`. An admin's say-so is not proof:
+/// it can attach any address to any account.
+pub async fn has_mailbox_proof(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    Ok(get_email_verification(conn, user_id)
+        .await?
+        .is_some_and(|(_, method)| method != EmailVerificationMethod::AdminAsserted))
 }
 
 /// Whether the address currently in `email` has a proof of control, and how it was obtained.

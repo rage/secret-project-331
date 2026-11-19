@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next"
 
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import {
   ThrottledChildRenderer,
   type ChildFactoryWithCallback,
@@ -14,9 +12,10 @@ import {
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
-  storedAnswerToViewSubmissionFields,
   exerciseTaskGradingToExerciseTaskGradingResult,
+  storedAnswerToViewSubmissionFields,
 } from "@/shared-module/common/utils/typeMappter"
+import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
@@ -29,6 +28,10 @@ const TITLE = "VIEW SUBMISSION"
 interface SubmissionIFrameProps {
   coursematerialExerciseTask: CourseMaterialExerciseTask
   throttled?: boolean
+  /** `false` for an ungraded answer snapshot, which has no grading to show. */
+  isGraded?: boolean
+  /** Accessible name of the frame, e.g. "Answer by <student>". */
+  title?: string
 }
 
 interface SubmissionState {
@@ -40,6 +43,8 @@ interface SubmissionState {
 const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>> = ({
   coursematerialExerciseTask,
   throttled = false,
+  isGraded = true,
+  title = TITLE,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -54,7 +59,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   const missingUrl =
     !coursematerialExerciseTask.exercise_iframe_url ||
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
-  const missingGrading = !coursematerialExerciseTask.previous_submission_grading
+  const missingGrading = isGraded && !coursematerialExerciseTask.previous_submission_grading
   const previousSubmission = coursematerialExerciseTask.previous_submission
   const missingSubmission = previousSubmission === null || previousSubmission === undefined
 
@@ -106,30 +111,21 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         url={url}
         onMessageFromIframe={handleMessageFromIframe}
         postThisStateToIFrame={postThisStateToIFrame}
-        title={TITLE}
+        title={title}
         onReady={onReady}
       />
     ),
-    [url, handleMessageFromIframe, postThisStateToIFrame, dialog],
+    [url, handleMessageFromIframe, postThisStateToIFrame, dialog, title],
   )
 
   if (missingUrl) {
-    return (
-      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
   if (missingGrading) {
-    return (
-      <ErrorBanner error={t("error-cannot-render-exercise-task-missing-url")} variant="readOnly" />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
   }
   if (missingSubmission) {
-    return (
-      <ErrorBanner
-        error={t("error-cannot-render-exercise-task-missing-submission")}
-        variant="readOnly"
-      />
-    )
+    return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-submission")} />
   }
 
   if (!state || !postThisStateToIFrame) {
@@ -154,7 +150,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       url={url}
       onMessageFromIframe={handleMessageFromIframe}
       postThisStateToIFrame={postThisStateToIFrame}
-      title={TITLE}
+      title={title}
     />
   )
 }

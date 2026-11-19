@@ -16,13 +16,18 @@ import { includeIf, omitUndefined } from "@/shared-module/common/utils/nullabili
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 import { useStageTimelineMeasurements } from "../hooks/useStageTimelineMeasurements"
-import type { StageTimelineTabItem } from "./stageTimelineShared"
+import MoocDesignTab from "./MoocDesignTab"
+import {
+  MOOC_DESIGN_TAB,
+  type StageTimelineTabItem,
+  type WorkspaceTab,
+} from "./stageTimelineShared"
 import StageTimelineTab from "./StageTimelineTab"
 
 const timelineShellStyles = css`
   position: relative;
   margin-top: 0.5rem;
-  padding-top: 2.3rem;
+  padding-top: 2.9rem;
   overflow-x: auto;
 `
 
@@ -71,12 +76,11 @@ const currentStageLabelStyles = css`
 
 const currentStageEditButtonStyles = css`
   background: transparent;
-  border: none;
-  padding: 0;
+  border: 1px solid ${baseTheme.colors.gray[300]};
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.1rem 0.45rem;
+  padding: 0.1rem 0.6rem;
   border-radius: 4px;
   color: ${baseTheme.colors.gray[700]};
   cursor: pointer;
@@ -85,8 +89,11 @@ const currentStageEditButtonStyles = css`
   &:focus-visible {
     background: ${baseTheme.colors.gray[100]};
     color: ${baseTheme.colors.gray[800]};
-    text-decoration: underline;
-    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.gray[700]};
+    outline-offset: 1px;
   }
 `
 
@@ -99,10 +106,11 @@ const todayIndicatorStyles = css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 5;
 `
 
 const todayLabelStyles = css`
+  position: relative;
+  z-index: 5;
   font-size: 0.68rem;
   font-weight: 600;
   color: ${baseTheme.colors.red[600]};
@@ -113,6 +121,8 @@ const todayLabelStyles = css`
 `
 
 const todayTriangleStyles = css`
+  position: relative;
+  z-index: 5;
   width: 0;
   height: 0;
   border-left: 4px solid transparent;
@@ -120,7 +130,10 @@ const todayTriangleStyles = css`
   border-top: 6px solid ${baseTheme.colors.red[600]};
 `
 
+// Behind the month tiles so it never crosses their text.
 const todayLineStyles = css`
+  position: relative;
+  z-index: 0;
   margin-top: 2px;
   flex: 1;
   width: 2px;
@@ -135,8 +148,8 @@ const todayLineStyles = css`
 interface StageTimelineTabStripProps {
   stages: CourseDesignerPlanStageWithTasks[]
   activeStage: CourseDesignerStage | null
-  selectedStage: CourseDesignerStage | null
-  onSelectedStageChange: (stage: CourseDesignerStage) => void
+  selectedTab: WorkspaceTab | null
+  onSelectedTabChange: (tab: WorkspaceTab) => void
   stageLabel: (stage: CourseDesignerStage) => string
   onOpenOverview?: () => void
   currentStageLabel?: string | null
@@ -144,12 +157,12 @@ interface StageTimelineTabStripProps {
   children: ReactNode
 }
 
-/** Unified timeline and tab strip for course plan stages. */
+/** Unified timeline and tab strip: the "MOOC design" overview tab, then one tab per stage. */
 export default function StageTimelineTabStrip({
   stages,
   activeStage,
-  selectedStage,
-  onSelectedStageChange,
+  selectedTab,
+  onSelectedTabChange,
   stageLabel,
   onOpenOverview,
   currentStageLabel,
@@ -186,23 +199,26 @@ export default function StageTimelineTabStrip({
   const { todayPositionPx, currentStagePosition, listRef, shellRef, currentStageCalloutRef } =
     useStageTimelineMeasurements({
       activeStage,
-      selectedStage,
+      selectedStage: selectedTab === MOOC_DESIGN_TAB ? null : selectedTab,
       stagesDependency: stages,
       ...omitUndefined({ currentStageLabel }),
     })
 
   const firstItemKey = items[0]?.key
   const state = useTabListState({
-    ...includeIf(selectedStage !== null, { selectedKey: selectedStage }),
+    ...includeIf(selectedTab !== null, { selectedKey: selectedTab }),
     ...omitUndefined({ defaultSelectedKey: firstItemKey }),
-    items: items.map((item) => ({
-      key: item.key,
-      id: item.key,
-      textValue: item.label,
-    })),
+    items: [
+      { key: MOOC_DESIGN_TAB, id: MOOC_DESIGN_TAB, textValue: t("course-plans-mooc-design-tab") },
+      ...items.map((item) => ({
+        key: item.key,
+        id: item.key,
+        textValue: item.label,
+      })),
+    ],
     onSelectionChange: (key: Key) => {
       if (typeof key === "string") {
-        onSelectedStageChange(key as CourseDesignerStage)
+        onSelectedTabChange(key as WorkspaceTab)
       }
     },
   })
@@ -263,13 +279,14 @@ export default function StageTimelineTabStrip({
                 <div className={todayLineStyles} />
               </div>
             )}
+            <MoocDesignTab state={state} onSelect={() => onSelectedTabChange(MOOC_DESIGN_TAB)} />
             {items.map((item) => (
               <StageTimelineTab
                 key={item.key}
                 item={item}
                 state={state}
                 activeStage={activeStage}
-                onSelectedStageChange={onSelectedStageChange}
+                onSelectedStageChange={onSelectedTabChange}
               />
             ))}
           </div>

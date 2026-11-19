@@ -22,7 +22,7 @@ Before you start: Run this: `pnpm install && bin/pnpm-install-all`
 > [!IMPORTANT]
 > This project uses **pnpm** as the package manager. Do not use `npm` or `yarn` for dependency management.
 
-One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix=update` so fixes prefer lockfile updates over adding overrides. Review any `minimumReleaseAgeExclude` entries it adds; those entries are allowed to bypass the one-week release-age delay for security patches.
+One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, run `pnpm audit --fix=override`. It overrides every vulnerable version with the fixed one, even across major versions, so narrow each override's selector to the fix's major (`bin/update-dependencies-part-1` does this automatically) and only cross a major by hand after testing it. Overrides with a comment above them are deliberate pins; the update script keeps them and removes the rest before auditing again. Review any `minimumReleaseAgeExclude` entries the audit adds; those entries are allowed to bypass the one-week release-age delay for security patches.
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules\|.next'`.
 

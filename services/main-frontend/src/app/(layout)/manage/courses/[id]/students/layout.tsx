@@ -27,11 +27,9 @@ import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
-import { Select } from "@/shared-module/components"
+import { Pagination, Select, Spinner, TextField } from "@/shared-module/components"
 
 import {
   StudentsContextProvider,
@@ -80,21 +78,20 @@ const KEY_CERTIFICATES = "certificates"
 // send oversized payloads.
 const ITEMS_PER_PAGE_OPTIONS = [100, 500, 1000]
 
+// Matches the inset of the centred header sections above it, which are 95vw (md) / 90vw (lg+) wide.
 const tableSection = css`
-  /* The roster keeps the page's gutter even while it scrolls sideways: a table running to x=0
-     under filters that are indented reads as a rendering fault. */
   padding-left: 16px;
   padding-right: 16px;
   width: 100%;
 
-  ${respondToOrLarger.lg} {
-    padding-left: 2vw;
-    padding-right: 2vw;
+  ${respondToOrLarger.md} {
+    padding-left: calc(2.5vw + 24px);
+    padding-right: calc(2.5vw + 24px);
   }
 
-  ${respondToOrLarger.xl} {
-    padding-left: 4vw;
-    padding-right: 4vw;
+  ${respondToOrLarger.lg} {
+    padding-left: 5vw;
+    padding-right: 5vw;
   }
 `
 
@@ -117,6 +114,7 @@ const rosterCaptionCss = css`
 `
 
 interface FilterFields {
+  search: string
   instance: string
   module: string
   grade: string
@@ -179,15 +177,17 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   // a count in the summary panel sets a view and the select has to move with it.
   const filterValues = useMemo(
     (): FilterFields => ({
+      search: searchInput,
       instance: courseInstanceId ?? ANY,
       module: moduleId ?? ANY,
       grade: grade ?? ANY,
       registration: registrationView,
     }),
-    [courseInstanceId, moduleId, grade, registrationView],
+    [searchInput, courseInstanceId, moduleId, grade, registrationView],
   )
   const { control, watch } = useForm<FilterFields>({ values: filterValues })
-  const [watchedInstance, watchedModule, watchedGrade, watchedRegistration] = watch([
+  const [watchedSearch, watchedInstance, watchedModule, watchedGrade, watchedRegistration] = watch([
+    "search",
     "instance",
     "module",
     "grade",
@@ -195,6 +195,9 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   ])
 
   useEffect(() => {
+    if (watchedSearch !== filterValues.search) {
+      setSearchInput(watchedSearch)
+    }
     if (watchedInstance !== filterValues.instance) {
       setCourseInstanceId(watchedInstance === ANY ? null : watchedInstance)
     }
@@ -208,6 +211,8 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
       setRegistrationView(watchedRegistration as RegistrationStatusView)
     }
   }, [
+    watchedSearch,
+    setSearchInput,
     watchedInstance,
     watchedModule,
     watchedGrade,
@@ -269,28 +274,24 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
             <RouteTabList tabs={tabs} className={styles.tabListCss} />
           </div>
           <div className={styles.controlsRow}>
-            <div className={styles.searchBoxWrap}>
-              <input
-                className={styles.searchInput}
+            <form
+              role="search"
+              className={styles.searchBoxWrap}
+              onSubmit={(event) => {
+                event.preventDefault()
+                runImmediateSearch()
+              }}
+            >
+              <TextField
+                name="search"
+                control={control}
+                label={t("search-students")}
+                isLabelHidden
                 placeholder={t("search-students")}
-                aria-label={t("search-students")}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    runImmediateSearch()
-                  }
-                }}
+                iconStart={<MagnifyingGlass size={18} />}
+                {...(isSearchPending ? { iconEnd: <Spinner size="sm" /> } : {})}
               />
-              <span className={styles.searchIcon} aria-hidden="true">
-                <MagnifyingGlass size={18} />
-              </span>
-              {isSearchPending && (
-                <span className={styles.searchPendingSpinner} aria-hidden="true">
-                  <Spinner variant="small" disableMargin />
-                </span>
-              )}
-            </div>
+            </form>
 
             <Select
               name="instance"
@@ -351,17 +352,22 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {studentCount > 0 && (
-          <p className={cx(noteCss, rosterCaptionCss)}>
-            {t("roster-student-count", { count: studentCount })}
-          </p>
-        )}
-        <div className={tableSection}>{children}</div>
+        <div className={tableSection}>
+          {studentCount > 0 && (
+            <p className={cx(noteCss, rosterCaptionCss)}>
+              {t("roster-student-count", { count: studentCount })}
+            </p>
+          )}
+          {children}
+        </div>
 
         {totalPages > 1 && (
           <Pagination
             totalPages={totalPages}
-            paginationInfo={{ page, setPage, limit, setLimit }}
+            page={page}
+            onPageChange={setPage}
+            itemsPerPage={limit}
+            onItemsPerPageChange={setLimit}
             itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
           />
         )}

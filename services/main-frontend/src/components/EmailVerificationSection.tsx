@@ -5,60 +5,42 @@ import type { QueryClient } from "@tanstack/react-query"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { Trans, useTranslation } from "react-i18next"
 
 import { getMyEmailVerificationStatusOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { requestEmailVerificationCode, verifyEmailOwnership } from "@/generated/api/sdk.generated"
 import type {
+  EmailVerificationMethod,
   EmailVerificationStatus,
   RequestEmailVerificationOutcome,
   VerifyEmailOwnershipResult,
 } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { Badge, Button, DescriptionList, Dialog } from "@/shared-module/components"
-import { settingsCardCss } from "@/styles/sharedStyles"
-
-import OneTimeCodeForm from "./forms/OneTimeCodeForm"
+import {
+  Badge,
+  Button,
+  DescriptionList,
+  Dialog,
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+  OneTimeCodeForm,
+} from "@/shared-module/components"
+import {
+  settingsCardCss,
+  settingsCardHeaderCss,
+  settingsCardIconChipCss,
+} from "@/styles/sharedStyles"
 
 const TONE_SUCCESS = "success"
 const TONE_WARNING = "warning"
+const ADMIN_ASSERTED: EmailVerificationMethod = "admin_asserted"
 
-/** The server refuses a resend for two minutes, so the button must not re-enable before then. */
-const RESEND_COOLDOWN_SECONDS = 120
-
+/** `queued` says nothing: the dialog opening, and its resend countdown, already confirm the send. */
 const OUTCOME_KEYS = {
-  queued: "message-email-verification-code-on-its-way",
+  queued: null,
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
-} as const satisfies Record<RequestEmailVerificationOutcome, string>
-
-const headerCss = css`
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: 1.25rem;
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-gray-100);
-
-  h3 {
-    margin: 0;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    color: var(--color-gray-700);
-  }
-`
-
-const iconChipCss = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-  border-radius: 6px;
-  background: var(--color-green-75);
-  color: var(--color-green-700);
-`
+  daily_limit_reached: "message-code-daily-limit-reached",
+} as const satisfies Record<RequestEmailVerificationOutcome, string | null>
 
 const bodyCss = css`
   display: flex;
@@ -73,13 +55,7 @@ const bodyCss = css`
 `
 
 const codeFormCss = css`
-  padding: 0;
   align-self: stretch;
-`
-
-const outcomeCss = css`
-  color: var(--color-gray-600);
-  font-size: var(--font-size-1);
 `
 
 /** Email changes clear verification server-side; callers must refetch after such an edit. */
@@ -104,11 +80,11 @@ const EmailVerificationSection: React.FC = () => {
 
   return (
     <div className={settingsCardCss} data-testid="email-verification-section">
-      <div className={headerCss}>
-        <div className={iconChipCss}>
+      <div className={settingsCardHeaderCss}>
+        <div className={settingsCardIconChipCss}>
           <Envelope size={16} />
         </div>
-        <h3>{t("heading-email-address-verification")}</h3>
+        <h2>{t("heading-email-address-verification")}</h2>
       </div>
       <Body status={status} />
     </div>
@@ -153,12 +129,22 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         if (result !== "invalid") {
           setCodeDialogOpen(false)
         }
+        if (result === "verified") {
+          // Verifying can grant pending roles, which changes permissions and the session check.
+          await queryClient.invalidateQueries()
+          return
+        }
         await invalidateStatus()
       },
     },
   )
 
-  const verified = status.email_verified_at !== null && status.email_verified_at !== undefined
+  // An admin's assertion proves nothing about the mailbox, so the user can still verify it with a
+  // code, which roles granted to the address wait for.
+  const verified =
+    status.email_verified_at !== null &&
+    status.email_verified_at !== undefined &&
+    status.email_verified_method !== ADMIN_ASSERTED
   const pendingCode = status.latest_verification_email
 
   const items = [{ label: t("label-email"), value: status.email }]
@@ -199,33 +185,55 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
         </Button>
       )}
 
+      {/* Without a pending code there is no dialog to carry the outcome. */}
+      {!verified && !pendingCode && outcome && OUTCOME_KEYS[outcome] ? (
+        <p data-testid="email-verification-request-outcome">{t(OUTCOME_KEYS[outcome])}</p>
+      ) : null}
+
       {verified || !pendingCode ? null : (
         <Dialog
           open={codeDialogOpen}
+          size="small"
           onClose={() => setCodeDialogOpen(false)}
-          title={t("button-enter-verification-code")}
+          title={t("heading-verify-your-email")}
         >
           <OneTimeCodeForm
             containerClassName={codeFormCss}
-            message={t("message-enter-the-verification-code-we-emailed-you")}
+            message={
+              <Trans
+                t={t}
+                i18nKey="message-we-sent-a-code-to-until"
+                values={{
+                  email: status.email,
+                  time: new Date(pendingCode.expires_at).toLocaleTimeString(i18n.language, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  }),
+                }}
+                components={{ email: <strong /> }}
+              />
+            }
             onSubmit={async (code) => {
               await submitCode.mutateAsync(code)
             }}
             submitLabel={t("button-text-verify")}
-            error={codeRefused ? t("incorrect-code") : null}
+            error={codeRefused ? t("message-code-did-not-work") : null}
             isSubmitting={submitCode.isPending}
+            submitOnComplete
             resend={{
               helperText: t("message-did-not-receive-the-verification-code"),
               label: t("resend"),
               onResend: () => requestCode.mutate(),
-              cooldownSeconds: RESEND_COOLDOWN_SECONDS,
+              cooldownSeconds: EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+              lastSentAt: pendingCode.sent_at,
+              statusMessage:
+                outcome && OUTCOME_KEYS[outcome] ? (
+                  <span data-testid="email-verification-request-outcome">
+                    {t(OUTCOME_KEYS[outcome])}
+                  </span>
+                ) : undefined,
             }}
           />
-          {outcome ? (
-            <p className={outcomeCss} data-testid="email-verification-request-outcome">
-              {t(OUTCOME_KEYS[outcome])}
-            </p>
-          ) : null}
         </Dialog>
       )}
     </div>

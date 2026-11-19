@@ -6,6 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 
+import { usePendingSaves } from "../../components/PendingSavesContext"
+import { MOOC_DESIGN_TAB, type WorkspaceTab } from "../components/stageTimelineShared"
+
 type StageBriefTranslationKey =
   | "course-plans-phase-brief-analysis"
   | "course-plans-phase-brief-design"
@@ -28,6 +31,8 @@ interface PlanQueryData {
 
 interface UseCoursePlanWorkspacePageStateOptions {
   planData: PlanQueryData | undefined
+  /** The `stage` search parameter (e.g. `design`), opened instead of the active stage. */
+  requestedStageSlug: string | null
   t: TFunction
   stageLabel: (stage: CourseDesignerStage) => string
   buildStageDescriptionItems: (stage: CourseDesignerStage | null, t: TFunction) => string[]
@@ -38,13 +43,15 @@ interface UseCoursePlanWorkspacePageStateOptions {
   welcomeDialogGoalsListStyles: string
   welcomeDialogGoalItemStyles: string
   welcomeDialogHintStyles: string
-  showDialogAlert: (body: ReactNode, title: string) => Promise<void>
+  showDialogAlert: (request: { message: ReactNode; title: string }) => Promise<void>
+  confirmDiscardUnsavedChanges: (message: string) => Promise<boolean>
   advanceStage: () => Promise<{ plan: { active_stage?: CourseDesignerStage | null } }>
 }
 
-/** Workspace chrome state: overview panel, viewed stage, and analysis dirty tracking. */
+/** Workspace chrome state: overview panel, viewed tab, and unsaved-form tracking. */
 export function useCoursePlanWorkspacePageState({
   planData,
+  requestedStageSlug,
   t,
   stageLabel,
   buildStageDescriptionItems,
@@ -56,27 +63,35 @@ export function useCoursePlanWorkspacePageState({
   welcomeDialogGoalItemStyles,
   welcomeDialogHintStyles,
   showDialogAlert,
+  confirmDiscardUnsavedChanges,
   advanceStage,
 }: UseCoursePlanWorkspacePageStateOptions) {
   const [isOverviewOpen, setIsOverviewOpen] = useState(false)
-  const [viewedStage, setViewedStage] = useState<CourseDesignerStage | null>(null)
-  const [analysisWorkspaceDirty, setAnalysisWorkspaceDirty] = useState(false)
+  const [viewedTab, setViewedTab] = useState<WorkspaceTab | null>(null)
+  const [workspaceDirty, setWorkspaceDirty] = useState(false)
+  const viewedStage = viewedTab === MOOC_DESIGN_TAB ? null : viewedTab
   const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
   const welcomedStageRef = useRef<string | null>(null)
+  const pendingSaves = usePendingSaves()
 
-  const handleSelectedStageChange = useCallback(
-    (stage: CourseDesignerStage) => {
-      if (
-        analysisWorkspaceDirty &&
-        viewedStage === "Analysis" &&
-        stage !== viewedStage &&
-        !window.confirm(t("course-plans-analysis-unsaved-confirm"))
-      ) {
+  const handleSelectedTabChange = useCallback(
+    async (tab: WorkspaceTab) => {
+      if (tab === viewedTab) {
         return
       }
-      setViewedStage(stage)
+      const isSaved = !workspaceDirty || (await pendingSaves?.saveAll()) === true
+      if (!isSaved) {
+        const discardUnsaved = await confirmDiscardUnsavedChanges(
+          t("course-plans-analysis-unsaved-confirm"),
+        )
+        if (!discardUnsaved) {
+          return
+        }
+      }
+      setWorkspaceDirty(false)
+      setViewedTab(tab)
     },
-    [analysisWorkspaceDirty, viewedStage, t],
+    [workspaceDirty, viewedTab, pendingSaves, confirmDiscardUnsavedChanges, t],
   )
 
   const handleAdvanceStage = useCallback(async () => {
@@ -133,10 +148,10 @@ export function useCoursePlanWorkspacePageState({
           </p>
         </div>
       )
-      await showDialogAlert(
-        dialogBody,
-        t("course-plans-welcome-dialog-title", { stage: stageName }),
-      )
+      await showDialogAlert({
+        message: dialogBody,
+        title: t("course-plans-welcome-dialog-title", { stage: stageName }),
+      })
       return
     }
 
@@ -146,7 +161,10 @@ export function useCoursePlanWorkspacePageState({
         <p className={welcomeDialogBriefStyles}>{t("course-plans-welcome-dialog-final-body")}</p>
       </div>
     )
-    await showDialogAlert(dialogBody, t("course-plans-welcome-dialog-final-title"))
+    await showDialogAlert({
+      message: dialogBody,
+      title: t("course-plans-welcome-dialog-final-title"),
+    })
   }, [
     advanceStage,
     buildStageDescriptionItems,
@@ -164,23 +182,21 @@ export function useCoursePlanWorkspacePageState({
   ])
 
   useEffect(() => {
-    if (viewedStage !== "Analysis") {
-      setAnalysisWorkspaceDirty(false)
-    }
-  }, [viewedStage])
-
-  useEffect(() => {
     if (!planData) {
       return
     }
 
     const nextActiveStage = planData.plan.active_stage ?? null
     const firstAvailableStage = planData.stages[0]?.stage ?? null
-    const hasViewedStage =
-      viewedStage !== null && planData.stages.some((stage) => stage.stage === viewedStage)
+    const hasViewedTab =
+      viewedTab === MOOC_DESIGN_TAB ||
+      (viewedTab !== null && planData.stages.some((stage) => stage.stage === viewedTab))
 
-    if (!hasViewedStage) {
-      setViewedStage(nextActiveStage ?? firstAvailableStage)
+    if (!hasViewedTab) {
+      const requestedStage =
+        planData.stages.find((stage) => stage.stage.toLowerCase() === requestedStageSlug)?.stage ??
+        null
+      setViewedTab(requestedStage ?? nextActiveStage ?? firstAvailableStage ?? MOOC_DESIGN_TAB)
       previousActiveStageRef.current = nextActiveStage
       return
     }
@@ -189,21 +205,21 @@ export function useCoursePlanWorkspacePageState({
       previousActiveStageRef.current &&
       nextActiveStage &&
       nextActiveStage !== previousActiveStageRef.current &&
-      viewedStage === previousActiveStageRef.current
+      viewedTab === previousActiveStageRef.current
     ) {
-      setViewedStage(nextActiveStage)
+      setViewedTab(nextActiveStage)
     }
 
     previousActiveStageRef.current = nextActiveStage
-  }, [planData, viewedStage])
+  }, [planData, requestedStageSlug, viewedTab])
 
   return {
     isOverviewOpen,
     setIsOverviewOpen,
+    viewedTab,
     viewedStage,
-    analysisWorkspaceDirty,
-    setAnalysisWorkspaceDirty,
-    handleSelectedStageChange,
+    setWorkspaceDirty,
+    handleSelectedTabChange,
     handleAdvanceStage,
   }
 }

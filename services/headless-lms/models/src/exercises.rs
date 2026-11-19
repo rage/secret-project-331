@@ -225,6 +225,30 @@ pub struct ExerciseStatus {
     pub reviewing_stage: ReviewingStage,
 }
 
+/// How many exercises of the course with peer or self reviews use its default review config.
+pub async fn count_using_course_default_review_config(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM exercises
+WHERE course_id = $1
+  AND use_course_default_peer_or_self_review_config
+  AND (
+    needs_peer_review
+    OR needs_self_review
+  )
+  AND deleted_at IS NULL
+        "#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 #[allow(clippy::too_many_arguments)]
 pub async fn insert(
     conn: &mut PgConnection,
@@ -346,6 +370,29 @@ WHERE course_id = $1
     Ok(exercises)
 }
 
+/// The course's exercises among `ids`, skipping deleted ones and other courses' exercises.
+pub async fn get_course_exercises_by_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        r#"
+SELECT *
+FROM exercises
+WHERE course_id = $1
+  AND id = ANY($2)
+  AND deleted_at IS NULL
+"#,
+        course_id,
+        ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercise_submissions_and_status_by_course_instance_id(
     conn: &mut PgConnection,
     course_instance_id: Uuid,
@@ -425,19 +472,20 @@ WHERE chapter_id = ANY($1)
     Ok(exercises)
 }
 
-pub async fn get_exercises_by_page_id(
+/// The undeleted exercises on the pages.
+pub async fn get_exercises_by_page_ids(
     conn: &mut PgConnection,
-    page_id: Uuid,
+    page_ids: &[Uuid],
 ) -> ModelResult<Vec<Exercise>> {
     let exercises = sqlx::query_as!(
         Exercise,
         r#"
 SELECT *
   FROM exercises
-WHERE page_id = $1
+WHERE page_id = ANY($1)
   AND deleted_at IS NULL;
 "#,
-        page_id,
+        page_ids,
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -461,6 +509,31 @@ WHERE exam_id = $1
     .fetch_all(&mut *conn)
     .await?;
     Ok(exercises)
+}
+
+/// Turns a course exercise into an exam exercise, since [`insert`] creates only course exercises.
+///
+/// Nothing in production moves an exercise into an exam; this exists for tests, and is not
+/// `#[cfg(test)]` because `bin/sqlx-prepare` caches only the library's queries.
+pub async fn move_to_exam_for_tests(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exam_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE exercises
+SET course_id = NULL,
+  exam_id = $2
+WHERE id = $1
+  AND deleted_at IS NULL
+",
+        exercise_id,
+        exam_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_course_or_exam_id(
@@ -641,7 +714,7 @@ async fn determine_can_post_submission(
 ) -> Result<bool, ModelError> {
     if let Some(user_exercise_state) = user_exercise_state {
         // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
-        if user_exercise_state.reviewing_stage != ReviewingStage::NotStarted {
+        if !user_exercise_state.reviewing_stage.accepts_submissions() {
             return Ok(false);
         }
     }
@@ -1133,6 +1206,13 @@ pub async fn reset_exercises_for_selected_users(
     let mut successful_resets = Vec::new();
     let mut tx = conn.begin().await?;
     for (user_id, exercise_ids) in users_and_exercises {
+        crate::exercise_slide_submission_shares::revoke_snapshot_shares_for_reset(
+            &mut tx,
+            *user_id,
+            course_id,
+            Some(exercise_ids),
+        )
+        .await?;
         sqlx::query!(
             r#"
 UPDATE exercise_slide_submissions
@@ -1547,6 +1627,8 @@ mod test {
                 public_url: "https://example.com".to_string(),
                 internal_url: None,
                 max_reprocessing_submissions_at_once: 1,
+                is_global_admin_only: false,
+                is_experimental: false,
             },
         )
         .await
@@ -1685,6 +1767,7 @@ mod test {
                 opens_at: chapter.opens_at,
                 course_module_id: Some(chapter.course_module_id),
             },
+            user_id,
         )
         .await
         .unwrap();
@@ -1726,24 +1809,12 @@ mod test {
             &app_config,
             course_id,
             courses::CourseUpdate {
-                name: existing_course.name,
-                description: existing_course.description,
-                is_draft: existing_course.is_draft,
-                is_test_mode: existing_course.is_test_mode,
-                can_add_chatbot: existing_course.can_add_chatbot,
-                is_unlisted: existing_course.is_unlisted,
-                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
-                ask_marketing_consent: existing_course.ask_marketing_consent,
                 flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
-                flagged_answers_skip_manual_review_and_allow_retry: existing_course
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: existing_course.closed_at,
-                closed_additional_message: existing_course.closed_additional_message,
-                closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
-                ai_policy: existing_course.ai_policy,
-                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+                ..courses::CourseUpdate::from(&existing_course)
             },
+            user_id,
+            false,
         )
         .await
         .unwrap();

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useSetAtom } from "jotai"
 import React, { memo, useEffect, useRef } from "react"
-import { useFocusRing, useFocusWithin } from "react-aria"
+import { useFocusWithin } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
@@ -41,25 +41,22 @@ const EditableParagraphContent = memo(
     initialContent: string | null
     ariaLabel: string
   }) => {
-    const { isFocusVisible, focusProps } = useFocusRing()
-
     return (
       <p
         ref={contentEditableRef}
         className={`${getEditingStyles(textColor, backgroundColor, fontSize)} ${getEditableHoverStyles(true)} ${css`
-          ${
-            isFocusVisible &&
-            `
+          padding: var(--space-1) var(--space-2);
+          border-radius: 4px;
+
+          &:focus {
             outline: 2px solid ${baseTheme.colors.green[500]};
             outline-offset: 2px;
-          `
           }
         `}`}
         contentEditable
         aria-label={ariaLabel}
         onInput={handleInput}
         suppressContentEditableWarning
-        {...focusProps}
       >
         {initialContent}
       </p>

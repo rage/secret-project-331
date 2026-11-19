@@ -1,7 +1,7 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
+import accessibilityCheck, { NO_H1 } from "@/utils/accessibilityCheck"
 
 import { answerExercise } from "../peer-reviews/peer_review_utils"
 
@@ -49,7 +49,9 @@ test.describe("Students should be able to navigate and select peer review radiob
     const strDisBut = student1Page.getByRole("radio", { name: "Strongly disagree" }).first()
     await expect(strDisBut).toBeVisible()
     await expect(strDisBut).toBeEnabled()
-    await student1Page.getByPlaceholder("Write a review").press("Tab")
+    await student1Page
+      .getByRole("textbox", { name: "What are your thoughts on the answer" })
+      .press("Tab")
     await student1Page.keyboard.press("ArrowRight")
     await expect(
       student1Page.getByRole("radio", { name: "Disagree", exact: true }).first(),
@@ -91,7 +93,7 @@ test.describe("Students should be able to navigate and select peer review radiob
         - paragraph: Strongly agree
     `)
 
-    await accessibilityCheck(student1Page, "Peer review answering view")
+    await accessibilityCheck(student1Page, "Peer review answering view", [NO_H1])
 
     await context1.close()
   })

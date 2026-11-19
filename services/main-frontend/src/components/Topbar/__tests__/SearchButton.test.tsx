@@ -36,9 +36,21 @@ jest.mock("next/link", () => ({
   ),
 }))
 
-jest.mock("@/shared-module/common/components/dialogs/Dialog", () => ({
-  __esModule: true,
-  default: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
+jest.mock("@/shared-module/components", () => ({
+  Button: ({
+    children,
+    onClick,
+    "aria-label": ariaLabel,
+  }: {
+    children: React.ReactNode
+    onClick?: () => void
+    "aria-label"?: string
+  }) => (
+    <button type="button" onClick={onClick} aria-label={ariaLabel}>
+      {children}
+    </button>
+  ),
+  Dialog: ({ open, children }: { open: boolean; children: React.ReactNode }) =>
     open ? <div role="dialog">{children}</div> : null,
 }))
 
@@ -90,5 +102,11 @@ describe("SearchButton search results", () => {
     expect(card).toBeTruthy()
     expect(within(card).getAllByRole("link")).toHaveLength(1)
     expect(screen.getAllByRole("link")).toHaveLength(1)
+  })
+
+  it("names the search input", () => {
+    render(<SearchButton courseId="course-id" organizationSlug="org-slug" />)
+    fireEvent.click(screen.getByRole("button", { name: "button-label-search-for-pages" }))
+    expect(screen.getByRole("textbox", { name: "button-label-search-for-pages" })).toBeTruthy()
   })
 })

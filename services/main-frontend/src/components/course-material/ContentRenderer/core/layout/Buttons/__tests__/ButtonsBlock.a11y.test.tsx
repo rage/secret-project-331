@@ -1,7 +1,12 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import { readFileSync } from "fs"
+import { join } from "path"
+
 import { fireEvent, render, screen, within } from "@testing-library/react"
+
+import { contrastRatio as contrast } from "@/shared-module/common/utils/color"
 
 import ButtonsBlock from "../ButtonsBlock"
 
@@ -61,5 +66,51 @@ describe("ButtonsBlock accessibility (issue #69)", () => {
     // Clicking must not trigger a navigation (default action is prevented).
     const clickNotPrevented = fireEvent.click(control as HTMLAnchorElement)
     expect(clickNotPrevented).toBe(false)
+  })
+})
+
+describe("ButtonsBlock variant colours", () => {
+  const tokenSource = readFileSync(
+    join(process.cwd(), "src/shared-module/components/styles/tokens.ts"),
+    "utf8",
+  )
+  const tokens = new Map(
+    Array.from(tokenSource.matchAll(/(--[\w-]+):\s*([^;]+);/g), (m) => [m[1], m[2]?.trim()]),
+  )
+  const resolve = (name: string): string => {
+    const value = tokens.get(name) ?? ""
+    const ref = /^var\((--[\w-]+)\)$/.exec(value)
+    return ref?.[1] ? resolve(ref[1]) : value
+  }
+
+  const variants = [
+    ["primary", "is-style-material-primary-button"],
+    ["secondary", "is-style-material-secondary-button"],
+    ["tertiary", "is-style-material-tertiary-button"],
+  ] as const
+
+  it.each(variants)("%s button is excluded from the content link colours", (variant, cls) => {
+    render(<ButtonsBlock {...makeProps({ text: "Go", url: "/x", className: cls })} />)
+    expect(screen.getByRole("link", { name: "Go" })).toHaveAttribute("data-button-variant", variant)
+    const wrapperSource = readFileSync(
+      join(process.cwd(), "src/components/course-material/ContentRenderer/index.tsx"),
+      "utf8",
+    )
+    expect(wrapperSource).toContain("a:not([data-button-variant]) {")
+  })
+
+  it.each(variants)("%s foreground and hover pairs meet 4.5:1", (variant) => {
+    const pageBackground = "#ffffff"
+    const bg = resolve(`--btn-${variant}-bg`)
+    const resting = contrast(
+      resolve(`--btn-${variant}-fg`),
+      bg.startsWith("#") ? bg : pageBackground,
+    )
+    const hover = contrast(
+      resolve(`--btn-${variant}-fg-hover`),
+      resolve(`--btn-${variant}-bg-hover`),
+    )
+    expect(resting).toBeGreaterThanOrEqual(4.5)
+    expect(hover).toBeGreaterThanOrEqual(4.5)
   })
 })

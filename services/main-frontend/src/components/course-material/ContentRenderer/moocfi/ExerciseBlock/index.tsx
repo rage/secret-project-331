@@ -2,19 +2,17 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
-import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
-import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
-import { VisuallyHidden } from "react-aria-components"
+import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
 import YellowBox from "@/components/course-material/YellowBox"
 import {
   ExerciseCardHeader,
+  ExerciseCardTitle,
   ExerciseCardPointsBadge,
   ExerciseCardTriesBadge,
   ExerciseCardWrapper,
@@ -25,29 +23,24 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import type {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "@/generated/course-material-api/types.generated"
-import useCourseMaterialExerciseQuery, {
-  courseMaterialExerciseQueryKey,
-} from "@/hooks/course-material/useCourseMaterialExerciseQuery"
+import type { StudentExerciseSlideSubmission } from "@/generated/course-material-api/types.generated"
+import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils/typeMappter"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, ErrorNotice } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
@@ -58,10 +51,12 @@ import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
 import ExerciseSubmitButton from "./ExerciseSubmitButton"
 import ExerciseTask from "./ExerciseTask"
+import { focusHeadingAndAnnounce } from "./focusHeadingAndAnnounce"
 import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+import { getSubmissionScore } from "./submissionScore"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -159,79 +154,6 @@ const DeadlineText = styled.div<DeadlineProps>`
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
 
-/** Smaller type on narrow viewports so longer exercise names fit without crowding the header. */
-function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
-  const long = exerciseNameIsLong
-  return {
-    heading: css`
-      font-size: ${long ? "1.03rem" : "1.08rem"};
-      font-weight: 500;
-      font-family: ${headingFont} !important;
-      overflow-wrap: anywhere;
-      min-width: 0;
-      margin-top: -2px;
-
-      /* Focused programmatically after grading, not via tab, so no focus ring needed. */
-      &:focus {
-        outline: none;
-      }
-
-      ${respondToOrLarger.xxxs} {
-        font-size: ${long ? "1.06rem" : "1.14rem"};
-      }
-      ${respondToOrLarger.xxs} {
-        font-size: ${long ? "1.09rem" : "1.2rem"};
-      }
-      ${respondToOrLarger.xs} {
-        font-size: ${long ? "1.12rem" : "1.28rem"};
-      }
-      ${respondToOrLarger.sm} {
-        font-size: ${long ? "1.16rem" : "1.36rem"};
-      }
-      ${respondToOrLarger.md} {
-        font-size: ${long ? "1.2rem" : "1.46rem"};
-      }
-      ${respondToOrLarger.lg} {
-        font-size: ${long ? "1.3rem" : "1.58rem"};
-      }
-      ${respondToOrLarger.xl} {
-        font-size: ${long ? "1.4rem" : "1.7rem"};
-      }
-    `,
-    label: css`
-      font-weight: 600;
-      font-size: 0.8125rem;
-      margin-bottom: 0.25rem;
-
-      ${respondToOrLarger.xxxs} {
-        font-size: 0.875rem;
-      }
-      ${respondToOrLarger.xxs} {
-        font-size: 0.90625rem;
-      }
-      ${respondToOrLarger.xs} {
-        font-size: 0.9375rem;
-      }
-      ${respondToOrLarger.sm} {
-        font-size: 0.96875rem;
-      }
-      ${respondToOrLarger.md} {
-        font-size: 1rem;
-      }
-      ${respondToOrLarger.lg} {
-        font-size: 1.0625rem;
-      }
-      ${respondToOrLarger.xl} {
-        font-size: 1.125rem;
-      }
-    `,
-    nameLine: css`
-      line-height: 1.38;
-      padding-bottom: 0.2rem;
-    `,
-  }
-}
-
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<
@@ -240,7 +162,6 @@ const ExerciseBlock: React.FC<
   const sectionRef = useRef<HTMLElement>(null)
   const exerciseTitleRef = useRef<HTMLHeadingElement>(null)
   const exerciseTitleId = useId()
-  const [submissionAnnouncement, setSubmissionAnnouncement] = useState<string | null>(null)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const returnTo = useCurrentPagePathForReturnTo(
@@ -248,8 +169,7 @@ const ExerciseBlock: React.FC<
   )
   const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
-  const queryClient = useQueryClient()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const showExercise =
@@ -328,9 +248,10 @@ const ExerciseBlock: React.FC<
           signedIn: Boolean(loginState.signedIn),
         })
         // Announce grading to screen readers and move focus to the exercise heading.
-        const scoreGiven = data.exercise_status?.score_given
+        const scoreGiven = getSubmissionScore(data)
         const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
-        setSubmissionAnnouncement(
+        focusHeadingAndAnnounce(
+          exerciseTitleRef.current,
           scoreGiven !== null &&
             scoreGiven !== undefined &&
             maxScore !== null &&
@@ -341,7 +262,6 @@ const ExerciseBlock: React.FC<
               })
             : t("answer-submitted-announcement"),
         )
-        exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
         queryClient.invalidateQueries({
@@ -378,7 +298,6 @@ const ExerciseBlock: React.FC<
         isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
-      setSubmissionAnnouncement(null)
 
       setAnswers(answers)
 
@@ -400,6 +319,11 @@ const ExerciseBlock: React.FC<
     },
     {
       notify: false,
+    },
+    {
+      onSuccess: () => {
+        exerciseTitleRef.current?.focus({ preventScroll: true })
+      },
     },
   )
   const exerciseDeadline = useDateStringAsDateNullable(
@@ -449,15 +373,6 @@ const ExerciseBlock: React.FC<
     },
   )
 
-  const exerciseNameIsLong = useMemo(() => {
-    if (!getCourseMaterialExercise.data) {
-      return false
-    }
-    return getCourseMaterialExercise.data.exercise.name.length > 35
-  }, [getCourseMaterialExercise.data])
-
-  const exerciseTitleStyles = exerciseBlockTitleHeadingStyles(exerciseNameIsLong)
-
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
@@ -467,7 +382,7 @@ const ExerciseBlock: React.FC<
       query={getCourseMaterialExercise}
       emptyFallback={
         <div>
-          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <ErrorNotice error={t("error-loading-exercise")} />
           <button
             className={cx(exerciseButtonStyles)}
             onClick={() => {
@@ -515,36 +430,7 @@ const ExerciseBlock: React.FC<
         const dateInTwoDays = new Date()
         dateInTwoDays.setDate(dateInTwoDays.getDate() + 2)
 
-        const lang = i18n.language
-
-        let deadlineAsString = ""
-        const DATESTYLE = "long"
-        const TIMESTYLE = "short"
-
-        if (exerciseDeadline) {
-          const sign = exerciseDeadline.getTimezoneOffset() > 0 ? "-" : "+"
-
-          deadlineAsString = exerciseDeadline.toLocaleString(lang, {
-            dateStyle: DATESTYLE,
-            timeStyle: TIMESTYLE,
-          })
-
-          const timezoneOffsetParts = (-exerciseDeadline.getTimezoneOffset() / 60)
-            .toString()
-            .split(".")
-          // split always yields at least one element, so the fallback never applies.
-          const start = (timezoneOffsetParts[0] ?? "").padStart(2, "0")
-          let end = ""
-          if (timezoneOffsetParts[1]) {
-            end = timezoneOffsetParts[1].padEnd(2, "0")
-          } else {
-            end = end.padEnd(2, "0")
-          }
-
-          // oxlint-disable-next-line i18next/no-literal-string
-          const timezoneOffset = `(UTC${sign}${start}:${end})`
-          deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
-        }
+        const deadlineAsString = exerciseDeadline ? dateToString(exerciseDeadline) : ""
 
         // These are now arrays so should be refactored
         const inSubmissionView =
@@ -592,17 +478,12 @@ const ExerciseBlock: React.FC<
           >
             <ExerciseCardHeader
               title={
-                <h2
+                <ExerciseCardTitle
                   id={exerciseTitleId}
                   ref={exerciseTitleRef}
                   tabIndex={-1}
-                  className={exerciseTitleStyles.heading}
-                >
-                  <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
-                  <div className={exerciseTitleStyles.nameLine}>
-                    {courseMaterialExercise.exercise.name}
-                  </div>
-                </h2>
+                  name={courseMaterialExercise.exercise.name}
+                />
               }
               rightContent={
                 <div
@@ -698,13 +579,6 @@ const ExerciseBlock: React.FC<
               }
             />
 
-            <VisuallyHidden>
-              {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> drops the VisuallyHidden styling */}
-              <div role="status" aria-live="polite">
-                {submissionAnnouncement}
-              </div>
-            </VisuallyHidden>
-
             {chapterLockingEnabled &&
               courseMaterialExercise &&
               !isChapterLocked &&
@@ -795,6 +669,7 @@ const ExerciseBlock: React.FC<
                       )}
                       canPostSubmission={courseMaterialExercise.can_post_submission}
                       exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                      exerciseName={courseMaterialExercise.exercise.name}
                       isChapterLocked={Boolean(isChapterLocked)}
                     />
                   ))}
@@ -885,38 +760,15 @@ const ExerciseBlock: React.FC<
                         },
                         {
                           onSuccess: (res) => {
-                            queryClient.setQueryData(
-                              courseMaterialExerciseQueryKey(id),
-                              (old: CourseMaterialExercise | undefined) => {
-                                if (!old) {
-                                  throw new Error("No CourseMaterialExercise found")
-                                }
-                                return produce(old, (draft: CourseMaterialExercise) => {
-                                  res.exercise_task_submission_results.forEach(
-                                    (et_submission_result) => {
-                                      // Set previous submission so that it can be restored if the user tries the exercise again without reloading the page first
-                                      const receivedExerciseTaskSubmission =
-                                        et_submission_result.submission
-                                      const draftExerciseTask =
-                                        draft.current_exercise_slide.exercise_tasks.find((et) => {
-                                          return (
-                                            et.id ===
-                                            et_submission_result.submission.exercise_task_id
-                                          )
-                                        })
-                                      if (draftExerciseTask) {
-                                        draftExerciseTask.previous_submission =
-                                          receivedExerciseTaskSubmission
-                                      }
-                                      // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
-                                      if (isExam && et_submission_result.grading !== null) {
-                                        throw new Error("Exams should have hidden gradings")
-                                      }
-                                    },
-                                  )
-                                })
-                              },
-                            )
+                            // Additional check to make sure we're not accidentally leaking gradings in exams from this endpoint
+                            if (
+                              isExam &&
+                              res.exercise_task_submission_results.some(
+                                (result) => result.grading !== null,
+                              )
+                            ) {
+                              throw new Error("Exams should have hidden gradings")
+                            }
                           },
                         },
                       )
@@ -1006,7 +858,7 @@ const ExerciseBlock: React.FC<
                     </div>
                   )}
                 {postSubmissionMutation.isError && (
-                  <ErrorBanner variant={"readOnly"} error={postSubmissionMutation.error} />
+                  <ErrorNotice error={postSubmissionMutation.error} />
                 )}
               </div>
             </div>

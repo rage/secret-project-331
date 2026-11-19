@@ -20,12 +20,14 @@ describe("Slider - accessibility wiring", () => {
     expect(screen.getByRole("slider")).toHaveAccessibleDescription("Out of 10.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderNumberField((control) => (
       <Slider name="f" control={control} label="Points" maxValue={10} errorMessage="Required." />
     ))
     expect(screen.getByRole("slider")).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required.")
+    expect(screen.getByRole("slider")).toHaveAccessibleDescription("Required.")
+    expect(screen.getByText("Required.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("isDisabled disables the slider", () => {
@@ -116,5 +118,16 @@ describe("Slider - value label", () => {
       4,
     )
     expect(screen.queryByText("4")).not.toBeInTheDocument()
+  })
+})
+
+describe("Slider - data-testid", () => {
+  test("lands on the range input and derives the thumb id", () => {
+    renderNumberField((control) => (
+      <Slider name="f" control={control} label="Points" maxValue={10} data-testid="points-field" />
+    ))
+    const input = screen.getByTestId("points-field")
+    expect(input).toBe(screen.getByRole("slider", { name: "Points" }))
+    expect(screen.getByTestId("points-field-thumb")).toContainElement(input)
   })
 })

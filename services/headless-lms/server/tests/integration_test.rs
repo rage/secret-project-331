@@ -14,6 +14,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
+    test_helper::test_database_url,
 };
 use headless_lms_server::{
     config::{
@@ -39,19 +40,6 @@ static SERVER_RUNTIME_CONFIG_INIT: Once = Once::new();
 const PRIVATE_COOKIE_KEY: &str =
     "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS";
 
-fn running_in_kubernetes() -> bool {
-    env::var_os("KUBERNETES_SERVICE_HOST").is_some()
-}
-
-fn default_database_url_test() -> String {
-    if running_in_kubernetes() {
-        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
-            .to_string()
-    } else {
-        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
-    }
-}
-
 /// Reinitializes the test database once per `cargo test` call.
 /// This is done because there's no good way to clean up the database after testing,
 /// so there may be leftover data.
@@ -60,7 +48,7 @@ pub async fn init_db() -> String {
         return db.clone();
     }
     dotenvy::dotenv().ok();
-    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| default_database_url_test());
+    let db = test_database_url();
     if Postgres::database_exists(&db)
         .await
         .expect("failed to check test db existence")
@@ -104,6 +92,9 @@ async fn test_runtime_config() -> &'static ServerRuntimeConfig {
             redis_url: SecretString::new("redis://example.com".into()),
             mock_suotar_redis_db_index: 2,
             private_cookie_key: SecretString::new(PRIVATE_COOKIE_KEY.into()),
+            altcha_hmac_secret: SecretString::new("integration-test-intentionally-public".into()),
+            form_context_secret: SecretString::new("integration-test-intentionally-public".into()),
+            altcha_cost: 1,
             test_mode: app_conf.test_mode,
             allow_no_https_for_development: true,
             host: "0.0.0.0".to_string(),

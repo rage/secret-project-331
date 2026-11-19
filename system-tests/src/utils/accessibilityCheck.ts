@@ -9,6 +9,9 @@ import type { Page } from "playwright"
 
 import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
 
+/** Skip for views with no h1, mostly seeded content pages that have no Hero block. */
+export const NO_H1 = "page-has-heading-one"
+
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
@@ -23,57 +26,50 @@ export default async function accessibilityCheck(
     const outputStream = new StoringStream()
     const customConsole = new Console(outputStream)
     const results = await new AxeBuilder({ page }).analyze()
-    let resultsFiltered: typeof results.violations
-
-    if (!axeSkip) {
-      axeSkip = []
-    }
-    axeSkip.push(
+    // A copy, so the caller's array is never mutated.
+    const skip = [
+      ...(axeSkip ?? []),
       // Getting false positives on this one
       "scrollable-region-focusable",
       // TODO: remove this
       "document-title",
-    )
+    ]
 
-    if (axeSkip && Array.isArray(axeSkip)) {
-      resultsFiltered = results.violations.filter((violation) => {
-        // For react-aria overlays (modals, popovers, etc.) the content is supposed not be directly inside landmarks
-        if (
-          violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
-          violation.id === "region"
-        ) {
-          return false
-        }
-        // Screen reader announcement elements are intentionally positioned off-screen and don't need to be in landmarks
-        if (
-          violation.nodes.some(
-            (node) =>
-              node.html.includes("a11y-speak-intro-text") ||
-              (node.target && node.target.some((t) => t.includes("a11y-speak-intro-text"))),
-          ) &&
-          violation.id === "region"
-        ) {
-          return false
-        }
-        // Gutenberg 16.2's empty-editor ghost block puts aria-multiline/aria-readonly on a
-        // role="document" element, which that role disallows. Upstream @wordpress/block-editor bug.
-        if (
-          violation.id === "aria-allowed-attr" &&
-          violation.nodes.every(
-            (node) =>
-              node.html.includes('role="document"') && node.html.includes('data-empty="true"'),
-          )
-        ) {
-          return false
-        }
-        if (axeSkip && axeSkip.some((skippable) => skippable === violation.id)) {
-          return false
-        }
-        return violation
-      })
-    } else {
-      resultsFiltered = results.violations
-    }
+    const resultsFiltered = results.violations.filter((violation) => {
+      // For react-aria overlays (modals, popovers, etc.) the content is supposed not be directly inside landmarks
+      if (
+        violation.nodes.some((node) => node.html.includes("data-overlay-container")) &&
+        violation.id === "region"
+      ) {
+        return false
+      }
+      // Screen reader announcement elements are intentionally positioned off-screen and don't need to be in landmarks
+      if (
+        violation.nodes.some(
+          (node) =>
+            node.html.includes("a11y-speak-intro-text") ||
+            (node.target && node.target.some((t) => t.includes("a11y-speak-intro-text"))),
+        ) &&
+        violation.id === "region"
+      ) {
+        return false
+      }
+      // Gutenberg 16.2's empty-editor ghost block puts aria-multiline/aria-readonly on a
+      // role="document" element, which that role disallows. Upstream @wordpress/block-editor bug.
+      if (
+        violation.id === "aria-allowed-attr" &&
+        violation.nodes.every(
+          (node) =>
+            node.html.includes('role="document"') && node.html.includes('data-empty="true"'),
+        )
+      ) {
+        return false
+      }
+      if (skip.includes(violation.id)) {
+        return false
+      }
+      return violation
+    })
     if (resultsFiltered.length === 0) {
       return
     }

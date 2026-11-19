@@ -1,6 +1,7 @@
 //! The account-linking actions a person sets off by hand, each over a study registry built for
 //! someone waiting on the answer.
 
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_utils::prelude::{DateTime, Utc};
 use headless_lms_utils::services::suotar::SuotarClient;
@@ -11,7 +12,7 @@ use uuid::Uuid;
 use super::suotar::InteractiveSuotar;
 use crate::error::CreditRegistrationResult;
 use crate::registry::{InteractiveStudyRegistry, PersonLookupError, RegistryPerson, StudentNumber};
-use crate::use_cases::account_linking::{self, RateCapOverride, ResendAttempt};
+use crate::use_cases::account_linking::{self, EnroleeListing, RateCapOverride, ResendAttempt};
 
 /// What a manual action needs from the controller that runs it.
 pub struct ManualActionContext<'a> {
@@ -37,7 +38,7 @@ impl<'a> ManualActionContext<'a> {
 /// `rate_cap_override`, if any, only once the registry has named an address to mail.
 pub async fn resend_linking_mail_for_target(
     ctx: &ManualActionContext<'_>,
-    course_id: Uuid,
+    source: LinkingMailSource,
     student_number: &SecretString,
     rate_cap_override: Option<RateCapOverride<'_>>,
 ) -> CreditRegistrationResult<ResendAttempt> {
@@ -45,7 +46,7 @@ pub async fn resend_linking_mail_for_target(
     account_linking::resend_for_target(
         ctx.pool,
         &registry,
-        course_id,
+        source,
         student_number,
         rate_cap_override,
     )
@@ -75,6 +76,16 @@ pub async fn list_unlinked_on_course_rosters(
 ) -> CreditRegistrationResult<Option<Vec<RosterPerson>>> {
     let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
     account_linking::unlinked_on_course_rosters(ctx.pool, &registry, course_id).await
+}
+
+/// Lists the rosters of every course code `source` mails about now, everyone on them once with
+/// their latest enrolment and linked account. Stores nothing.
+pub async fn list_enrolees(
+    ctx: &ManualActionContext<'_>,
+    source: LinkingMailSource,
+) -> CreditRegistrationResult<EnroleeListing> {
+    let registry = InteractiveSuotar::new(ctx.suotar_client, ctx.caller.to_string());
+    account_linking::enrolees_of_source(ctx.pool, &registry, source).await
 }
 
 /// Lists one course code's roster now and keeps the people linking mails skip: enrolled before

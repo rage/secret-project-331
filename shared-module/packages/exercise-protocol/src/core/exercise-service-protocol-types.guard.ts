@@ -539,7 +539,10 @@ export function isNonGenericGradingRequest(obj: unknown): obj is NonGenericGradi
             (e["size_bytes"] === null ||
                 typeof e["size_bytes"] === "number") &&
             typeof e["download_url"] === "string"
-        )
+        ) &&
+        (typeof typedObj["pseudonymous_user_id"] === "undefined" ||
+            typedObj["pseudonymous_user_id"] === null ||
+            typeof typedObj["pseudonymous_user_id"] === "string")
     )
 }
 

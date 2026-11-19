@@ -1,13 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
+import { InspectorControls } from "@wordpress/block-editor"
 import React from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { Checkbox } from "@/shared-module/components"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useAttributeForm } from "@/utils/useAttributeForm"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { InfoBoxComponentProps } from "."
@@ -20,6 +22,10 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
   setAttributes,
 }) => {
   const { t } = useTranslation()
+  const { control } = useAttributeForm(
+    { noPadding: Boolean(attributes.noPadding) },
+    ({ noPadding }) => setAttributes({ noPadding }),
+  )
   return (
     <BlockWrapper>
       <InspectorControls key="settings">
@@ -35,11 +41,7 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
             margin-bottom: 1.5rem;
           `}
         >
-          <CheckBox
-            checked={attributes.noPadding}
-            onChange={(event) => setAttributes({ noPadding: event.target.checked })}
-            label={t("label-no-padding")}
-          />
+          <Checkbox name="noPadding" control={control} label={t("label-no-padding")} />
         </div>
       </InspectorControls>
       <BreakFromCentered {...breakFromCenteredProps}>
@@ -55,7 +57,7 @@ const InfoBoxEditor: React.FC<React.PropsWithChildren<BlockEditProps<InfoBoxComp
                 padding: 10px;
               `}
             >
-              <InnerBlocks />
+              <RegisteredInnerBlocks />
             </div>
           </Centered>
         </div>

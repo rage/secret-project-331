@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -12,10 +12,8 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseMetadata } from "@/generated/api/types.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { QueryResults } from "@/shared-module/components"
+import { Dialog, QueryResults, ErrorNotice } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 import AIMetadataFormFields from "./AIMetadataFormFields"
@@ -34,6 +32,8 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   onClose,
 }) => {
   const { t } = useTranslation()
+  // QueryResults can hold its loading skeleton after the data arrives, so data alone doesn't mean the form exists
+  const [form, setForm] = useState<HTMLFormElement | null>(null)
 
   const courseQuery = useCourseQuery(courseId, open)
 
@@ -93,17 +93,19 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
   )
 
   return (
-    <StandardDialog
+    <Dialog
       open={open}
       onClose={onClose}
       title={t("ai-metadata-form-title")}
-      buttons={[
+      actions={[
         {
-          children: t("button-text-replace-metadata"),
+          label: t("button-text-replace-metadata"),
           variant: "primary",
+          type: "submit",
           // oxlint-disable-next-line i18next/no-literal-string
-          form: "ai-metadata-form",
+          domProps: { form: "ai-metadata-form" },
           disabled:
+            form === null ||
             courseQuery.isFetching ||
             courseQuery.isError ||
             sisuQuery.isFetching ||
@@ -128,6 +130,7 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
                 audiences={audiencesData}
                 hasPrerequisites={hasPrerequisites}
                 hasAudiences={hasAudiences}
+                formRef={setForm}
                 onSubmit={(data) =>
                   updateCourseMetadataMutation.mutate({
                     body: {
@@ -142,11 +145,11 @@ const AIMetadataForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             )
           }}
           renderBlockingError={({ error, retry: _retry }) => {
-            return <ErrorBanner variant={"readOnly"} error={error} />
+            return <ErrorNotice error={error} />
           }}
         />
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

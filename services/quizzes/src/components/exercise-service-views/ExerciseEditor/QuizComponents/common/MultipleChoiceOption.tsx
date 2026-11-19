@@ -11,10 +11,8 @@ import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
-import type {
-  QuizItemOption,
-  QuizOptionFeedbackMessage,
-} from "../../../../../../types/quizTypes/privateSpec"
+import type { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+import type { OptionChanges } from "./applyOptionChanges"
 import FeedbackMessagesEditor, {
   useOptionFeedbackVisibilityOptions,
 } from "./FeedbackMessagesEditor"
@@ -103,27 +101,17 @@ const MultipleChoiceMessageDialogContainer = styled.div`
 
 interface MultipleChoiceOptionProps {
   option: QuizItemOption
-  onUpdateValues: (
-    title: string | null,
-    feedbackMessages: QuizOptionFeedbackMessage[],
-    correct: boolean,
-  ) => void
+  onChange: (changes: OptionChanges) => void
   onDelete: () => void
 }
 
 const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
   option,
-  onUpdateValues,
+  onChange,
   onDelete,
 }) => {
   const [visible, setVisible] = useState(true)
   const [editMode, setEditMode] = useState(false)
-
-  const [title, setTitle] = useState(option.title)
-  const [feedbackMessages, setFeedbackMessages] = useState<QuizOptionFeedbackMessage[]>(
-    option.feedbackMessages,
-  )
-  const [correct, setCorrect] = useState(option.correct)
 
   const { t } = useTranslation()
   const optionFeedbackVisibilityOptions = useOptionFeedbackVisibilityOptions()
@@ -132,33 +120,24 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
     setVisible(!visible)
   }, [visible])
 
-  const toggleEditMode = useCallback(() => {
-    setEditMode(!editMode)
-  }, [editMode])
+  const title = option.title ?? ""
 
-  const startEditMode = useCallback(() => {
-    setFeedbackMessages(option.feedbackMessages)
-    setTitle(option.title)
-    setCorrect(option.correct)
-    toggleEditMode()
-  }, [option.correct, option.feedbackMessages, option.title, toggleEditMode])
-
-  const saveChanges = useCallback(() => {
-    onUpdateValues(title, feedbackMessages, correct)
-    toggleEditMode()
-  }, [correct, feedbackMessages, onUpdateValues, title, toggleEditMode])
+  const toggleEditMode = () => setEditMode((isEditing) => !isEditing)
 
   return (
     <>
       <OptionCard>
         {editMode ? (
           <CenteredContainer>
-            <TextField onChangeByValue={(value) => setTitle(value)} value={title ?? undefined} />
+            <TextField
+              onChangeByValue={(value) => onChange({ title: value })}
+              value={option.title ?? undefined}
+            />
             <CheckboxContainer>
               <CheckBox
                 label={t("label-correct")}
-                onChangeByValue={(checked) => setCorrect(checked)}
-                checked={correct}
+                onChangeByValue={(checked) => onChange({ correct: checked })}
+                checked={option.correct}
               />
             </CheckboxContainer>
           </CenteredContainer>
@@ -174,7 +153,8 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
-              onClick={saveChanges}
+              aria-label={t("finish-editing-option-named", { title })}
+              onClick={toggleEditMode}
             >
               <CheckCircle
                 size={16}
@@ -197,7 +177,8 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
-              onClick={startEditMode}
+              aria-label={t("edit-option-named", { title })}
+              onClick={toggleEditMode}
             >
               <Pencil
                 className={css`
@@ -228,6 +209,8 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             `}
             variant="icon"
             size="small"
+            aria-label={t("option-feedback-named", { title })}
+            aria-expanded={!visible}
             onClick={handleVisibility}
           >
             {visible ? (
@@ -258,6 +241,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             `}
             variant="icon"
             size="small"
+            aria-label={t("delete-option-named", { title })}
             onClick={onDelete}
           >
             <XmarkCircle size={16} color="#333d45" />
@@ -292,9 +276,10 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             <MessageDialogContainer>
               <MessageDialogTextFieldContainer>
                 <FeedbackMessagesEditor
-                  value={feedbackMessages}
+                  value={option.feedbackMessages}
                   visibilityOptions={optionFeedbackVisibilityOptions}
-                  onChange={setFeedbackMessages}
+                  optionTitle={title}
+                  onChange={(feedbackMessages) => onChange({ feedbackMessages })}
                 />
               </MessageDialogTextFieldContainer>
             </MessageDialogContainer>

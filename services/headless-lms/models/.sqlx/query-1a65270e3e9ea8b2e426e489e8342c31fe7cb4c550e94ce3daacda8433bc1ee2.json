@@ -1,0 +1,68 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT au.credit_unit_id AS \"credit_unit_id!\",\n  au.course_id,\n  au.external_credit_target_id,\n  TRIM(au.uh_course_code) AS \"uh_course_code!\",\n  COALESCE(co.language_code, target.language_code) AS \"language_code!\"\nFROM credit_registration_active_units au\n  LEFT JOIN courses co ON co.id = au.course_id\n  LEFT JOIN external_credit_targets target ON target.id = au.external_credit_target_id\nWHERE TRIM(au.uh_course_code) = ANY($2::text [])\n  AND co.deleted_at IS NULL\n  AND ($1::uuid IS NULL OR au.course_id = $1)\n  AND ($3::uuid IS NULL OR au.external_credit_target_id = $3)\nORDER BY au.credit_unit_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_unit_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_active_units",
+            "name": "credit_unit_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_active_units",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "external_credit_target_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_active_units",
+            "name": "external_credit_target_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "uh_course_code!",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "language_code!",
+        "type_info": "Varchar",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "TextArray",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      null,
+      null
+    ]
+  },
+  "hash": "1a65270e3e9ea8b2e426e489e8342c31fe7cb4c550e94ce3daacda8433bc1ee2"
+}

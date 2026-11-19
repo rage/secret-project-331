@@ -7,12 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import useOrganization from "@/hooks/course-material/useOrganization"
-import Button from "@/shared-module/common/components/Button"
-import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
+import { Dialog, Link, LoadingRegion, ErrorNotice } from "@/shared-module/components"
 import { materialCourseAtom } from "@/state/course-material/selectors"
 
 const ClosedCourseWarningDialog = () => {
@@ -25,7 +22,7 @@ const ClosedCourseWarningDialog = () => {
   const organization = useOrganization(successorCourse?.data?.organization_id)
 
   if (successorCourse.isError || organization.isError) {
-    return <ErrorBanner error={successorCourse.error || organization.error} />
+    return <ErrorNotice error={successorCourse.error || organization.error} />
   }
 
   if (!course) {
@@ -33,13 +30,7 @@ const ClosedCourseWarningDialog = () => {
   }
 
   return (
-    <StandardDialog
-      open={open}
-      closeable
-      showCloseButton
-      title={t("course-closed-warning-title")}
-      onClose={() => setOpen(false)}
-    >
+    <Dialog open={open} title={t("course-closed-warning-title")} onClose={() => setOpen(false)}>
       <div
         className={css`
           display: flex;
@@ -94,29 +85,29 @@ const ClosedCourseWarningDialog = () => {
         )}
 
         {(successorCourse.isLoading || organization.isLoading) && (
-          <div
+          <LoadingRegion
+            minHeight={56}
             className={css`
               margin: 1rem 0;
             `}
-          >
-            <Spinner />
-          </div>
+          />
         )}
 
         {successorCourse.data && organization.data && (
-          <a
+          <Link
             className={css`
               margin: 1rem 0;
             `}
             href={navigateToCourseRoute(organization.data?.slug, successorCourse.data.slug)}
+            styledAsButton
+            variant="primary"
+            size="medium"
           >
-            <Button variant="primary" size="medium">
-              {t("course-closed-warning-successor-button")}
-            </Button>
-          </a>
+            {t("course-closed-warning-successor-button")}
+          </Link>
         )}
       </div>
-    </StandardDialog>
+    </Dialog>
   )
 }
 

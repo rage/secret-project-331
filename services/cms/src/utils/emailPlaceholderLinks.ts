@@ -20,7 +20,7 @@ function normalizeValue(value: unknown, isPlainUrl: boolean): unknown {
     return normalizeValue(value.toJSON(), isPlainUrl)
   }
   if (typeof value === "string") {
-    const withoutHrefPrefix = value.replace(PREPENDED_PROTOCOL_IN_HREF, "$1")
+    const withoutHrefPrefix = value.replaceAll(PREPENDED_PROTOCOL_IN_HREF, "$1")
     return isPlainUrl
       ? withoutHrefPrefix.replace(PREPENDED_PROTOCOL_BEFORE_PLACEHOLDER, "")
       : withoutHrefPrefix

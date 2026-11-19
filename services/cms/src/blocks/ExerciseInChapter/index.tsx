@@ -5,8 +5,8 @@
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
+import EmptyBlockSave from "../EmptyBlockSave"
 import ExercisesInChapterEditor from "./ExercisesInChapterEditor"
-import ExercisesInChapterSave from "./ExercisesInChapterSave"
 
 const ExercisesInChapterConfiguration: BlockConfiguration = {
   apiVersion: 3,
@@ -15,7 +15,7 @@ const ExercisesInChapterConfiguration: BlockConfiguration = {
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   edit: ExercisesInChapterEditor,
-  save: ExercisesInChapterSave,
+  save: EmptyBlockSave,
 }
 
 export default ExercisesInChapterConfiguration

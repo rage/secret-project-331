@@ -7,16 +7,15 @@ import styled from "@emotion/styled"
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { isServer } from "@tanstack/react-query"
 import { useState } from "react"
-import type { UseFormReturn } from "react-hook-form"
+import { useForm, type UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type { PlaygroundSettings } from "@/app/(layout)/playground-tabs/page"
 import type { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
-import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, Checkbox } from "@/shared-module/components"
 import type {
   CurrentStateMessage,
   IframeViewType,
@@ -101,10 +100,14 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
   const [uploadedFiles, setUploadedFiles] = useState<PlaygroundUploadedFiles>({})
-  const [answerExerciseViewSendPreviousSubmission, setAnswerExerciseViewSendPreviousSubmission] =
-    useState(false)
-  const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
-    useState(false)
+  const { control: previewOptionsControl, watch: watchPreviewOptions } = useForm<{
+    sendPreviousSubmission: boolean
+    sendModelSolutionSpec: boolean
+  }>({
+    defaultValues: { sendPreviousSubmission: false, sendModelSolutionSpec: false },
+  })
+  const answerExerciseViewSendPreviousSubmission = watchPreviewOptions("sendPreviousSubmission")
+  const submissionViewSendModelsolutionSpec = watchPreviewOptions("sendModelSolutionSpec")
 
   return (
     <div>
@@ -244,14 +247,10 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                 {currentView === "answer-exercise" && (
                   <>
                     <CheckBoxWrapper>
-                      <CheckBox
+                      <Checkbox
+                        name="sendPreviousSubmission"
+                        control={previewOptionsControl}
                         label={t("label-send-previous-submission")}
-                        checked={answerExerciseViewSendPreviousSubmission}
-                        onChange={() => {
-                          setAnswerExerciseViewSendPreviousSubmission(
-                            !answerExerciseViewSendPreviousSubmission,
-                          )
-                        }}
                       />
                     </CheckBoxWrapper>
                     <PlaygroundExerciseIframe
@@ -293,14 +292,10 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                 {currentView === "view-submission" && (
                   <>
                     <CheckBoxWrapper>
-                      <CheckBox
+                      <Checkbox
+                        name="sendModelSolutionSpec"
+                        control={previewOptionsControl}
                         label={t("label-send-model-solution-spec")}
-                        checked={submissionViewSendModelsolutionSpec}
-                        onChange={() => {
-                          setSubmissionViewSendModelsolutionSpec(
-                            !submissionViewSendModelsolutionSpec,
-                          )
-                        }}
                       />
                     </CheckBoxWrapper>
                     <PlaygroundViewSubmissionIframe
@@ -337,6 +332,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
           <div
             className={css`
               display: flex;
+              flex-wrap: wrap;
               align-items: center;
               h3 {
                 margin-right: 0.5rem;

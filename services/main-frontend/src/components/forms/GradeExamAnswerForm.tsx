@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -17,13 +17,11 @@ import type {
   NewTeacherGradingDecision,
 } from "@/generated/api/types.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { assertNotNullOrUndefined, omitUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
+import { Button, TextArea, TextField } from "@/shared-module/components"
 
 interface GradeExamAnswerProps {
   submissionId: string
@@ -61,7 +59,7 @@ const LoadedGradeExamAnswerForm: React.FC<{
   const { t } = useTranslation()
   const router = useRouter()
 
-  const { register, handleSubmit } = useForm<NewTeacherGradingDecision>()
+  const { control, handleSubmit, reset } = useForm<NewTeacherGradingDecision>()
   const [nextSubmissionId, setNextSubmissionId] = useState("")
   const paginationInfo = usePaginationInfo()
 
@@ -87,6 +85,24 @@ const LoadedGradeExamAnswerForm: React.FC<{
   const currentSubmission = getSubmissions.data?.data.filter((submission) => {
     return submission.exercise_slide_submission.id === submissionId
   })[0]
+
+  useEffect(() => {
+    reset({ justification: null, manual_points: null })
+  }, [submissionId, reset])
+
+  // The submissions list can arrive after the teacher has started typing; keep what they typed.
+  useEffect(() => {
+    if (!currentSubmission) {
+      return
+    }
+    reset(
+      {
+        justification: currentSubmission.teacher_grading_decision?.justification ?? null,
+        manual_points: currentSubmission.teacher_grading_decision?.score_given ?? null,
+      },
+      { keepDirtyValues: true },
+    )
+  }, [currentSubmission, reset])
 
   // Get next submission
   if (getSubmissions.isSuccess && nextSubmissionId === "") {
@@ -167,15 +183,16 @@ const LoadedGradeExamAnswerForm: React.FC<{
           <h4>
             {t("label-justification")} / {t("label-feedback")}
           </h4>
-          <TextAreaField
+          <TextArea
+            name="justification"
+            control={control}
+            rules={{ required: t("required-field") }}
+            label={`${t("label-justification")} / ${t("label-feedback")}`}
             className={css`
               width: 100%;
               margin-bottom: 0.5rem;
               height: 100rem;
             `}
-            id={t("label-justification")}
-            defaultValue={currentSubmission?.teacher_grading_decision?.justification ?? ""}
-            {...register("justification", { required: t("required-field") })}
           />
         </div>
 
@@ -188,10 +205,11 @@ const LoadedGradeExamAnswerForm: React.FC<{
             {t("label-points")} / {submissionInfo.exercise.score_maximum}
           </h4>
           <TextField
-            id={t("score")}
+            name="manual_points"
+            control={control}
+            rules={{ required: t("required-field") }}
+            type="number"
             label={t("score")}
-            defaultValue={currentSubmission?.teacher_grading_decision?.score_given ?? ""}
-            {...register("manual_points", { required: t("required-field") })}
           />
         </div>
       </div>
@@ -206,21 +224,19 @@ const LoadedGradeExamAnswerForm: React.FC<{
           <Button
             variant={"primary"}
             size={"medium"}
-            transform="none"
             type="button"
-            onClick={handleSubmit(handleSubmitForm)}
+            onClick={() => void handleSubmit(handleSubmitForm)()}
           >
             {t("button-text-submit")}
           </Button>
         </div>
         <div>
           <Button
-            variant={"blue"}
+            variant={"secondary"}
             size={"medium"}
-            transform="none"
             type="button"
             disabled={nextSubmissionId === "lastAnswer"}
-            onClick={handleSubmit(handleSubmitAndNext)}
+            onClick={() => void handleSubmit(handleSubmitAndNext)()}
           >
             {t("button-text-save-and-next")}
           </Button>

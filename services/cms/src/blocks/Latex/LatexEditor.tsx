@@ -8,6 +8,7 @@ import React from "react"
 
 import "katex/dist/katex.min.css"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { TextAttributes } from "."
 
@@ -26,6 +27,7 @@ const Component = styled.div`
 
 const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttributes>>> = (props) => {
   const { attributes, setAttributes } = props
+  const { t } = useTranslation()
   const blockProps = useBlockProps()
 
   const update = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -53,6 +55,8 @@ const LatexEditor: React.FC<React.PropsWithChildren<BlockEditProps<TextAttribute
             margin: 4px;
             resize: none;
           `}
+          aria-label={t("latex-source")}
+          placeholder={t("latex-source")}
           value={attributes.text}
           onChange={update}
         />

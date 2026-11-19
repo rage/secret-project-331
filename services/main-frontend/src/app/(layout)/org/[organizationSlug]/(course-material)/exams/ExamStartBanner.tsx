@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { headingCss } from "@/components/credit-registration/styles"
 import type { ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, useDialog } from "@/shared-module/components"
 
 export interface ExamInstructionsProps {
   onStart: () => Promise<void>
@@ -30,7 +30,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
   const { confirm } = useDialog()
 
   const handleStart = async () => {
-    if (await confirm(t("exam-start-confirmation", { "time-minutes": timeMinutes }))) {
+    if (await confirm(t("exam-start-confirmation", { count: timeMinutes }))) {
       setDisabled(true)
       try {
         await onStart()
@@ -79,7 +79,7 @@ const ExamStartBanner: React.FC<React.PropsWithChildren<ExamInstructionsProps>> 
             text-align: center;
           `}
         >
-          <h2>{t("title-instructions")}</h2>
+          <h2 className={headingCss}>{t("title-instructions")}</h2>
         </div>
         <p
           className={css`

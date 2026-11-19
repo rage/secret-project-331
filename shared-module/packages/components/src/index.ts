@@ -16,12 +16,26 @@ export { NumberField } from "./components/NumberField"
 export type { NumberFieldProps } from "./components/NumberField"
 export { OtpField } from "./components/OtpField"
 export type { OtpFieldProps } from "./components/OtpField"
+export {
+  EMAIL_OWNERSHIP_RESEND_COOLDOWN_SECONDS,
+  ONE_TIME_CODE_LENGTH,
+  OneTimeCodeForm,
+} from "./components/OneTimeCodeForm"
+export type { OneTimeCodeFormProps, OneTimeCodeResendProps } from "./components/OneTimeCodeForm"
+export { FormSection, formSectionTitleCss } from "./components/FormSection"
+export type { FormSectionHeadingLevel, FormSectionProps } from "./components/FormSection"
 export { Radio } from "./components/Radio"
-export type { RadioProps } from "./components/Radio"
-export { RadioGroup } from "./components/RadioGroup"
+export type { RadioNestedContentVariant, RadioProps } from "./components/Radio"
+export { RadioGroup, questionLegendCss, radioListRevealCss } from "./components/RadioGroup"
 export type { RadioGroupProps, RadioGroupVariant } from "./components/RadioGroup"
-export { default as RouteFocusManager } from "./components/RouteFocusManager"
+export {
+  default as RouteFocusManager,
+  focusMainHeading,
+  focusProgrammatically,
+} from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
+export { itemHeadingProps, useFocusAfterRemoval } from "./lib/hooks/useFocusAfterRemoval"
+export { useToggleFocus } from "./lib/hooks/useToggleFocus"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"
 export { Slider } from "./components/Slider"
@@ -62,11 +76,39 @@ export type { ToggleInfo } from "./components/ToggleGroup/ToggleGroup"
 export { ConfirmDialog } from "./components/ConfirmDialog"
 export type { ConfirmDialogProps, ConfirmDialogReason } from "./components/ConfirmDialog"
 export { Dialog } from "./components/Dialog"
-export type { DialogAction, DialogProps, DialogSize } from "./components/Dialog"
+export type {
+  DialogAction,
+  DialogExit,
+  DialogPadding,
+  DialogProps,
+  DialogRole,
+  DialogSize,
+} from "./components/Dialog"
+export { PercentageCalculatorDialog } from "./components/PercentageCalculatorDialog"
+export type { PercentageCalculatorDialogProps } from "./components/PercentageCalculatorDialog"
+export { Reveal } from "./components/Reveal"
+export type { RevealProps } from "./components/Reveal"
 export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps, DisclosureVariant } from "./components/Disclosure"
 export { EmptyState } from "./components/EmptyState"
 export type { EmptyStateProps } from "./components/EmptyState"
+export { ErrorNotice, ErrorNoticeTitleContext } from "./components/ErrorNotice"
+export type {
+  ErrorNoticeAnnouncement,
+  ErrorNoticeDensity,
+  ErrorNoticeProps,
+} from "./components/ErrorNotice"
+export { normalizeErrorForDisplay } from "./lib/errors/normalizeErrorForDisplay"
+export type {
+  BackendMessageKey,
+  ErrorCategory,
+  ErrorSeverity,
+  ErrorViewIssue,
+  ErrorViewModel,
+  ErrorViewTechnicalDetails,
+} from "./lib/errors/normalizeErrorForDisplay"
+export { resolveErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
+export type { ResolvedErrorDisplayCopy } from "./lib/errors/resolveErrorDisplayCopy"
 export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Menu } from "./components/Menu"
@@ -101,6 +143,8 @@ export { StatTile } from "./components/StatTile"
 export type { StatTileDeltaTone, StatTileProps, StatTileTone } from "./components/StatTile"
 export { StatTileList } from "./components/StatTileList"
 export type { StatTileListProps, StatTileListSize } from "./components/StatTileList"
+export { ScrollRegion } from "./components/ScrollRegion"
+export type { ScrollOverflow, ScrollRegionProps } from "./components/ScrollRegion"
 export { Table } from "./components/Table"
 export type {
   TableAlign,
@@ -130,12 +174,7 @@ export {
 } from "./lib/utils/rhfAdapters"
 export { tokensGlobal } from "./styles/tokens"
 
-export {
-  AnimatedQueryFrame,
-  DefaultBlockingError,
-  DefaultStaleError,
-  useDelayedFlag,
-} from "./components/queryResult/AnimatedQueryFrame"
+export { AnimatedQueryFrame } from "./components/queryResult/AnimatedQueryFrame"
 export type {
   AnimatedQueryFrameProps,
   FallbackArgs,
@@ -160,3 +199,43 @@ export type {
   SingleQueryState,
   SuccessData,
 } from "./components/queryResult/queryResultState"
+
+export { LoadingRegion } from "./components/LoadingRegion"
+export type { LoadingRegionProps } from "./components/LoadingRegion"
+export { Spinner } from "./components/Spinner"
+export type { SpinnerProps } from "./components/Spinner"
+export { spinnerGlyphCss } from "./components/primitives/spinnerStyles"
+export type { SpinnerSize, SpinnerTone } from "./components/primitives/spinnerStyles"
+export { useLoadingAffordance } from "./lib/utils/loading"
+export type { UseLoadingAffordanceOptions } from "./lib/utils/loading"
+
+export { Breadcrumbs } from "./components/Breadcrumbs"
+export type { BreadcrumbItem, BreadcrumbsProps } from "./components/Breadcrumbs"
+
+export { DialogProvider, useDialog } from "./components/dialogProvider/DialogProvider"
+export type { DialogProviderProps } from "./components/dialogProvider/DialogProvider"
+export type {
+  AlertRequest,
+  ConfirmRequest,
+  CustomPromptRequest,
+  DialogApi,
+  PromptControls,
+  PromptResult,
+  TextPromptRequest,
+} from "./components/dialogProvider/dialogRequests"
+export {
+  ALERT_DIALOG_OK_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+  CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+  DIALOG_PROVIDER_DIALOG_TEST_ID,
+  PROMPT_DIALOG_CANCEL_BUTTON_TEST_ID,
+  PROMPT_DIALOG_INPUT_TEST_ID,
+  PROMPT_DIALOG_OK_BUTTON_TEST_ID,
+} from "./components/dialogProvider/testIds"
+export {
+  LOADING_REGION_TEST_ID,
+  QUERY_INITIAL_LOADING_TEST_ID,
+  QUERY_LOADING_SPINNER_TEST_ID,
+  QUERY_REFRESHING_TEST_ID,
+  SPINNER_TEST_ID,
+} from "./components/loadingTestIds"

@@ -1,9 +1,9 @@
 "use client"
 
-import { render } from "@testing-library/react"
+import { act, render } from "@testing-library/react"
 import React from "react"
 
-import RouteFocusManager from "../src/components/RouteFocusManager"
+import RouteFocusManager, { focusMainHeading } from "../src/components/RouteFocusManager"
 
 const mockState = { pathname: "/" }
 
@@ -22,6 +22,15 @@ function Page({
   )
 }
 
+function Shell({ children, pathname }: { children?: React.ReactNode; pathname: string }) {
+  return (
+    <>
+      <RouteFocusManager pathname={pathname} />
+      <main id="maincontent">{children}</main>
+    </>
+  )
+}
+
 function App({ heading, children }: { heading?: string | null; children?: React.ReactNode }) {
   return (
     <>
@@ -30,6 +39,35 @@ function App({ heading, children }: { heading?: string | null; children?: React.
     </>
   )
 }
+
+function Swap({ swapped, children }: { swapped: boolean; children?: React.ReactNode }) {
+  return swapped ? (
+    <div>
+      <main id="maincontent">{children}</main>
+    </div>
+  ) : (
+    <main id="maincontent">{children}</main>
+  )
+}
+
+const nextFrame = () =>
+  new Promise<void>((resolve) => {
+    requestAnimationFrame(() => {
+      resolve()
+    })
+  })
+
+const Layout = ({ gen, children }: { gen: number; children?: React.ReactNode }) => (
+  <div key={gen}>
+    <main id="maincontent">{children}</main>
+  </div>
+)
+const tree = (gen: number, children?: React.ReactNode) => (
+  <>
+    <RouteFocusManager pathname="/page" />
+    <Layout gen={gen}>{children}</Layout>
+  </>
+)
 
 describe("RouteFocusManager", () => {
   beforeEach(() => {
@@ -66,6 +104,34 @@ describe("RouteFocusManager", () => {
     const main = document.querySelector("#maincontent")
     expect(main).toHaveAttribute("tabindex", "-1")
     expect(document.activeElement).toBe(main)
+  })
+
+  test("falls back to the first heading when the page has no h1", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/h2-page"
+    rerender(
+      <App heading={null}>
+        <p>intro</p>
+        <h3 id="first">First</h3>
+        <h2>Second</h2>
+      </App>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector("#first"))
+  })
+
+  test("prefers the h1 over earlier headings", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/mixed"
+    rerender(
+      <App heading="Title">
+        <h2>Later</h2>
+      </App>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector("h1"))
   })
 
   test("does not move focus again on re-renders without navigation", () => {
@@ -117,6 +183,85 @@ describe("RouteFocusManager", () => {
     expect(document.activeElement).toBe(input)
   })
 
+  test("marks the focused heading so the injected rule can suppress its outline", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    expect(heading).toHaveAttribute("data-route-focus-manager-active", "")
+  })
+
+  test("clears the focus marker once the managed element loses focus", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    heading?.blur()
+    expect(heading).not.toHaveAttribute("data-route-focus-manager-active")
+  })
+
+  test("does not re-mark an element that regains focus after a real user tab", () => {
+    const { rerender } = render(<App heading="Home" />)
+
+    mockState.pathname = "/about"
+    rerender(<App heading="About" />)
+
+    const heading = document.querySelector("h1")
+    heading?.blur()
+    heading?.focus()
+    expect(heading).not.toHaveAttribute("data-route-focus-manager-active")
+  })
+
+  test("re-focuses when the focused h1 is replaced shortly after navigation", async () => {
+    const { rerender } = render(<Shell pathname="/" />)
+    rerender(
+      <Shell pathname="/chapter">
+        <h1 key="a">Chapter</h1>
+      </Shell>,
+    )
+    const first = document.querySelector("h1")
+    expect(document.activeElement).toBe(first)
+
+    // The page remounts its content after load, so the focused h1 is a new element.
+    await act(async () => {
+      rerender(
+        <Shell pathname="/chapter">
+          <h1 key="b">Chapter</h1>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    const second = document.querySelector("h1")
+    expect(second).not.toBe(first)
+    expect(document.activeElement).toBe(second)
+  })
+
+  test("leaves focus alone once the user moved it, even if the h1 is replaced", async () => {
+    const { rerender } = render(<Shell pathname="/" />)
+    rerender(
+      <Shell pathname="/chapter">
+        <h1 key="a">Chapter</h1>
+        <button type="button">Elsewhere</button>
+      </Shell>,
+    )
+    const button = document.querySelector("button")
+    button?.focus()
+    await act(async () => {
+      rerender(
+        <Shell pathname="/chapter">
+          <h1 key="b">Chapter</h1>
+          <button type="button">Elsewhere</button>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(button)
+  })
+
   test("respects a custom target selector", () => {
     function CustomApp() {
       return (
@@ -132,5 +277,184 @@ describe("RouteFocusManager", () => {
     mockState.pathname = "/custom"
     rerender(<CustomApp />)
     expect(document.activeElement).toBe(document.querySelector("#custom-root h1"))
+  })
+
+  test("a focused link inside main that unmounts hands focus to the h1 that arrives later", async () => {
+    const { rerender } = render(
+      <Shell pathname="/">
+        <button type="button">Course card</button>
+      </Shell>,
+    )
+    const link = document.querySelector("button")
+    link?.focus()
+    expect(document.activeElement).toBe(link)
+
+    // Route changes while the old page (and the focused link) is still mounted.
+    mockState.pathname = "/course"
+    rerender(
+      <Shell pathname="/course">
+        <button type="button">Course card</button>
+      </Shell>,
+    )
+    expect(document.activeElement).toBe(link)
+
+    await act(async () => {
+      rerender(<Shell pathname="/course" />)
+      await Promise.resolve()
+    })
+    const main = document.querySelector("#maincontent")
+    expect(document.activeElement).toBe(main)
+
+    await act(async () => {
+      rerender(
+        <Shell pathname="/course">
+          <h1>Course</h1>
+        </Shell>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("h1"))
+  })
+
+  test("finds a heading that arrives in a replaced main element", async () => {
+    const { rerender } = render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <Swap swapped={false} />
+      </>,
+    )
+    mockState.pathname = "/chapter"
+    rerender(
+      <>
+        <RouteFocusManager pathname="/chapter" />
+        <Swap swapped={false} />
+      </>,
+    )
+    await act(async () => {
+      rerender(
+        <>
+          <RouteFocusManager pathname="/chapter" />
+          <Swap swapped />
+        </>,
+      )
+      await Promise.resolve()
+    })
+    await act(async () => {
+      rerender(
+        <>
+          <RouteFocusManager pathname="/chapter" />
+          <Swap swapped>
+            <h3 id="late">Late</h3>
+          </Swap>
+        </>,
+      )
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("#late"))
+  })
+
+  test("ignores mutations outside main, so a toast does not refocus", async () => {
+    const { rerender } = render(<App heading="Home" />)
+    mockState.pathname = "/about"
+    rerender(<App heading={null} />)
+    const button = document.createElement("button")
+    document.body.append(button)
+    button.focus()
+    await act(async () => {
+      const toast = document.createElement("div")
+      toast.setAttribute("role", "status")
+      document.body.append(toast)
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(button)
+    button.remove()
+  })
+
+  test("finds a heading when the whole layout around main is replaced", async () => {
+    const { rerender } = render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <Layout gen={0} />
+      </>,
+    )
+    rerender(tree(0))
+    await act(async () => {
+      rerender(tree(1))
+      await Promise.resolve()
+    })
+    await act(async () => {
+      rerender(tree(1, <h3 id="late">Late</h3>))
+      await Promise.resolve()
+    })
+    expect(document.activeElement).toBe(document.querySelector("#late"))
+  })
+
+  test("skips headings in inert asides and navs, prefers page content", () => {
+    render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <main id="maincontent">
+          <aside inert>
+            <h3 id="toc">In this page</h3>
+          </aside>
+          <nav>
+            <h2 id="navh">Nav</h2>
+          </nav>
+          <h2 id="content">Content</h2>
+        </main>
+      </>,
+    )
+    mockState.pathname = "/next"
+    focusMainHeading()
+    expect(document.activeElement).toBe(document.querySelector("#content"))
+  })
+
+  test("skips headings inside a data-route-focus-skip wrapper", () => {
+    render(
+      <main id="maincontent">
+        <div data-route-focus-skip>
+          <h3>In this page</h3>
+        </div>
+        <h2 id="content">Content</h2>
+      </main>,
+    )
+    focusMainHeading()
+    expect(document.activeElement).toBe(document.querySelector("#content"))
+  })
+
+  test("retries when focus() does not take at first", async () => {
+    render(
+      <>
+        <RouteFocusManager pathname="/" />
+        <main id="maincontent">
+          <h1 id="h">Title</h1>
+        </main>
+      </>,
+    )
+    const heading = document.querySelector("#h") as HTMLElement
+    const realFocus = heading.focus.bind(heading)
+    let calls = 0
+    jest.spyOn(heading, "focus").mockImplementation((o) => {
+      calls += 1
+      if (calls > 1) {
+        realFocus(o)
+      }
+    })
+    await act(async () => {
+      focusMainHeading()
+      await nextFrame()
+      await nextFrame()
+    })
+    expect(calls).toBeGreaterThan(1)
+    expect(document.activeElement).toBe(heading)
+  })
+
+  test("focusMainHeading focuses without scrolling", () => {
+    render(<Page heading="Title" />)
+    const heading = document.querySelector("h1") as HTMLElement
+    const focus = jest.spyOn(heading, "focus")
+    focusMainHeading()
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    focus.mockRestore()
   })
 })

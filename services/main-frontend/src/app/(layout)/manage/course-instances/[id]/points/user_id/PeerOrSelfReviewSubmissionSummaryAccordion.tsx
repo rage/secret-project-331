@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import { UserDisplay } from "@/components/UserDisplay"
@@ -12,6 +11,7 @@ import type {
 } from "@/generated/api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Disclosure, Link } from "@/shared-module/components"
 
 export interface PeerOrSelfReviewSubmissionSummaryAccordionProps {
   peerOrSelfReviewSubmission: PeerOrSelfReviewSubmissionWithSubmissionOwner
@@ -46,59 +46,22 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
         margin: 0.3rem 0;
       `}
     >
-      <details
+      <Disclosure
         className={css`
-          border: 1px solid ${baseTheme.colors.green[200]};
-          border-left: 3px solid ${baseTheme.colors.green[200]};
-          border-radius: 4px;
+          border-color: ${baseTheme.colors.green[200]};
           background: ${baseTheme.colors.green[50]};
-          &[open] {
-            border-left-color: ${baseTheme.colors.green[500]};
-          }
-          & > summary {
-            padding: 0.45rem 0.75rem;
-            cursor: pointer;
-            list-style: none;
-            font-size: 0.8rem;
-            color: ${baseTheme.colors.gray[600]};
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            user-select: none;
-          }
-          & > summary:hover {
-            background: ${baseTheme.colors.green[75]};
-          }
-          & > summary::-webkit-details-marker {
-            display: none;
-          }
-          & > summary::after {
-            content: "\\203A";
-            font-size: 1.1rem;
-            line-height: 1;
-            color: ${baseTheme.colors.gray[500]};
-            transition: transform 0.15s ease;
-            display: inline-block;
-            flex-shrink: 0;
-          }
-          &[open] > summary::after {
-            transform: rotate(90deg);
-          }
-          &[open] > summary {
-            border-bottom: 1px solid ${baseTheme.colors.green[100]};
-          }
+          font-size: 0.8rem;
         `}
-      >
-        <summary>
-          <span>
+        title={
+          <>
             {t("peer-review-submission-id")}:{" "}
             <HideTextInSystemTests
               text={peerOrSelfReviewSubmission.id}
               testPlaceholder="00000000-0000-0000-0000-000000000000"
             />
-          </span>
-        </summary>
+          </>
+        }
+      >
         <div
           className={css`
             padding: 0.6rem 0.75rem;
@@ -228,7 +191,7 @@ const PeerOrSelfReviewSubmissionSummaryAccordion = ({
             })}
           </div>
         </div>
-      </details>
+      </Disclosure>
     </div>
   )
 }

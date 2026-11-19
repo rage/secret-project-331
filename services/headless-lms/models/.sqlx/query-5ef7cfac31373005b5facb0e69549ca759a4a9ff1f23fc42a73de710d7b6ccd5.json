@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE moocfi_registration_reports\nSET reported_at = COALESCE(reported_at, now()),\n  claimed_until = NULL,\n  last_error = NULL\nWHERE credit_registration_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5ef7cfac31373005b5facb0e69549ca759a4a9ff1f23fc42a73de710d7b6ccd5"
+}

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::error::missing_model_error;
 use crate::prelude::*;
 use utoipa::ToSchema;
@@ -229,69 +231,142 @@ pub async fn get_or_init_all_for_course(
     course_id: Uuid,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
     let course = crate::courses::get_course(conn, course_id).await?;
-    let course_locking_enabled = course.chapter_locking_enabled;
-
-    if course_locking_enabled {
-        sqlx::query!(
-            r#"
-INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
-SELECT $1, chapters.id, $2, 'not_unlocked_yet'::chapter_locking_status, NULL
-FROM chapters
-WHERE chapters.course_id = $2
-  AND chapters.deleted_at IS NULL
-  AND NOT EXISTS (
-    SELECT 1
-    FROM user_chapter_locking_statuses
-    WHERE user_chapter_locking_statuses.user_id = $1
-      AND user_chapter_locking_statuses.chapter_id = chapters.id
-      AND user_chapter_locking_statuses.deleted_at IS NULL
-  )
-ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
-            "#,
-            user_id,
-            course_id
-        )
-        .execute(&mut *conn)
-        .await?;
+    if course.chapter_locking_enabled {
+        init_for_users(conn, course_id, &[user_id]).await?;
     }
+    get_all_for_user_and_course(conn, user_id, course_id).await
+}
 
-    async fn get_statuses_for_user_and_course(
-        conn: &mut PgConnection,
-        user_id: Uuid,
-        course_id: Uuid,
-    ) -> ModelResult<Vec<UserChapterLockingStatus>> {
-        let rows = sqlx::query_as!(
-            UserChapterLockingStatus,
-            r#"
+/// The user's chapter statuses in the course as [`get_or_init_all_for_course`] would leave them,
+/// by chapter id, without storing anything: a chapter without a status reads as
+/// `not_unlocked_yet`, and a user with nothing past that gets the starting chapters unlocked. For
+/// read paths on a course with chapter locking on.
+pub async fn get_or_derive_all_for_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<HashMap<Uuid, ChapterLockingStatus>> {
+    let mut statuses: HashMap<Uuid, ChapterLockingStatus> =
+        get_all_for_user_and_course(conn, user_id, course_id)
+            .await?
+            .into_iter()
+            .map(|s| (s.chapter_id, s.status))
+            .collect();
+    for chapter in crate::chapters::get_course_chapters(conn, course_id).await? {
+        statuses
+            .entry(chapter.id)
+            .or_insert(ChapterLockingStatus::NotUnlockedYet);
+    }
+    if !statuses.is_empty()
+        && statuses
+            .values()
+            .all(|s| *s == ChapterLockingStatus::NotUnlockedYet)
+    {
+        for chapter_id in crate::chapters::first_chapters_to_unlock(conn, course_id).await? {
+            statuses.insert(chapter_id, ChapterLockingStatus::Unlocked);
+        }
+    }
+    Ok(statuses)
+}
+
+/// The statuses stored for the user in the course.
+async fn get_all_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    let statuses = sqlx::query_as!(
+        UserChapterLockingStatus,
+        r#"
 SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
   AND deleted_at IS NULL
-            "#,
-            user_id,
-            course_id
-        )
-        .fetch_all(&mut *conn)
-        .await?;
-
-        Ok(rows)
-    }
-
-    let mut statuses = get_statuses_for_user_and_course(conn, user_id, course_id).await?;
-
-    if course_locking_enabled
-        && !statuses.is_empty()
-        && statuses
-            .iter()
-            .all(|s| matches!(s.status, ChapterLockingStatus::NotUnlockedYet))
-    {
-        crate::chapters::unlock_first_chapters_for_user(conn, user_id, course_id).await?;
-
-        statuses = get_statuses_for_user_and_course(conn, user_id, course_id).await?;
-    }
-
+        "#,
+        user_id,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
     Ok(statuses)
+}
+
+/// Starts chapter locking in the course for the users: every chapter without a status gets
+/// `not_unlocked_yet`, and users whose chapters are all `not_unlocked_yet` get the starting
+/// chapters unlocked. For courses with chapter locking on.
+pub async fn init_for_users(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
+SELECT u.user_id,
+  chapters.id,
+  $2,
+  'not_unlocked_yet'::chapter_locking_status,
+  NULL
+FROM UNNEST($1::uuid []) AS u(user_id)
+  CROSS JOIN chapters
+WHERE chapters.course_id = $2
+  AND chapters.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM user_chapter_locking_statuses s
+    WHERE s.user_id = u.user_id
+      AND s.chapter_id = chapters.id
+      AND s.deleted_at IS NULL
+  )
+ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
+        "#,
+        user_ids,
+        course_id
+    )
+    .execute(&mut *conn)
+    .await?;
+    let starting_users = sqlx::query_scalar!(
+        r#"
+SELECT user_id
+FROM user_chapter_locking_statuses
+WHERE course_id = $1
+  AND user_id = ANY($2)
+  AND deleted_at IS NULL
+GROUP BY user_id
+HAVING bool_and(status = 'not_unlocked_yet')
+        "#,
+        course_id,
+        user_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    if starting_users.is_empty() {
+        return Ok(());
+    }
+    let chapters = crate::chapters::first_chapters_to_unlock(conn, course_id).await?;
+    sqlx::query!(
+        r#"
+INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
+SELECT u.user_id,
+  ch.chapter_id,
+  $3,
+  'unlocked'::chapter_locking_status,
+  NULL::timestamptz
+FROM UNNEST($1::uuid []) AS u(user_id)
+  CROSS JOIN UNNEST($2::uuid []) AS ch(chapter_id)
+ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO
+UPDATE
+SET status = 'unlocked'::chapter_locking_status,
+  deleted_at = NULL
+        "#,
+        &starting_users,
+        &chapters,
+        course_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn get_all_for_course(
@@ -487,33 +562,20 @@ mod tests {
         chapter_locking_enabled: bool,
     ) {
         let app_config = init_app_conf().expect("Application Configuration initialization failed");
-        let course_before_update = crate::courses::get_course(tx, course_id).await.unwrap();
-        crate::courses::update_course(
+        let course = crate::courses::get_course(tx, course_id).await.unwrap();
+        let live = crate::library::entity_snapshots::course_settings_of(tx, &course)
+            .await
+            .unwrap();
+        crate::courses::write_settings(
             tx,
             &app_config,
-            course_id,
-            crate::courses::CourseUpdate {
+            &crate::library::entity_snapshots::CourseSettingsSnapshot {
                 chapter_locking_enabled,
-                name: course_before_update.name,
-                description: course_before_update.description,
-                is_draft: course_before_update.is_draft,
-                is_test_mode: course_before_update.is_test_mode,
-                can_add_chatbot: course_before_update.can_add_chatbot,
-                is_unlisted: course_before_update.is_unlisted,
-                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
-                ask_marketing_consent: course_before_update.ask_marketing_consent,
-                flagged_answers_threshold: course_before_update
-                    .flagged_answers_threshold
-                    .unwrap_or_default(),
-                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: course_before_update.closed_at,
-                closed_additional_message: course_before_update.closed_additional_message,
-                closed_course_successor_id: course_before_update.closed_course_successor_id,
-                ai_policy: course_before_update.ai_policy,
-                course_material_ai_instructions: course_before_update
-                    .course_material_ai_instructions,
+                ..live.clone()
             },
+            &live,
+            false,
+            &crate::courses::TextEmbeddings::default(),
         )
         .await
         .unwrap();
@@ -643,24 +705,12 @@ mod tests {
             &app_config,
             course,
             crate::courses::CourseUpdate {
-                name: existing_course.name,
-                description: existing_course.description,
-                is_draft: existing_course.is_draft,
-                is_test_mode: existing_course.is_test_mode,
-                can_add_chatbot: existing_course.can_add_chatbot,
-                is_unlisted: existing_course.is_unlisted,
-                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
-                ask_marketing_consent: existing_course.ask_marketing_consent,
                 flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
-                flagged_answers_skip_manual_review_and_allow_retry: existing_course
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: existing_course.closed_at,
-                closed_additional_message: existing_course.closed_additional_message,
-                closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
-                ai_policy: existing_course.ai_policy,
-                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+                ..crate::courses::CourseUpdate::from(&existing_course)
             },
+            user,
+            false,
         )
         .await
         .unwrap();
@@ -808,24 +858,12 @@ mod tests {
             &app_config,
             course,
             crate::courses::CourseUpdate {
-                name: existing_course.name,
-                description: existing_course.description,
-                is_draft: existing_course.is_draft,
-                is_test_mode: existing_course.is_test_mode,
-                can_add_chatbot: existing_course.can_add_chatbot,
-                is_unlisted: existing_course.is_unlisted,
-                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
-                ask_marketing_consent: existing_course.ask_marketing_consent,
                 flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
-                flagged_answers_skip_manual_review_and_allow_retry: existing_course
-                    .flagged_answers_skip_manual_review_and_allow_retry,
-                closed_at: existing_course.closed_at,
-                closed_additional_message: existing_course.closed_additional_message,
-                closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
-                ai_policy: existing_course.ai_policy,
-                course_material_ai_instructions: existing_course.course_material_ai_instructions,
+                ..crate::courses::CourseUpdate::from(&existing_course)
             },
+            user,
+            false,
         )
         .await
         .unwrap();
@@ -847,6 +885,61 @@ mod tests {
             statuses
                 .iter()
                 .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
+        );
+    }
+
+    #[tokio::test]
+    async fn get_or_derive_all_for_course_matches_initializing_without_storing() {
+        insert_data!(:tx, :user, :org, course: course);
+        let base_module = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap()
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+        let mut chapters = vec![];
+        for chapter_number in [1, 2] {
+            let chapter = crate::chapters::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                &crate::chapters::NewChapter {
+                    name: format!("Chapter {chapter_number}"),
+                    color: None,
+                    course_id: course,
+                    chapter_number,
+                    front_page_id: None,
+                    opens_at: None,
+                    deadline: None,
+                    course_module_id: Some(base_module.id),
+                },
+            )
+            .await
+            .unwrap();
+            chapters.push(chapter);
+        }
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        let derived = get_or_derive_all_for_course(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        assert!(
+            get_all_for_user_and_course(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        let initialized: HashMap<Uuid, ChapterLockingStatus> =
+            get_or_init_all_for_course(tx.as_mut(), user, course)
+                .await
+                .unwrap()
+                .into_iter()
+                .map(|s| (s.chapter_id, s.status))
+                .collect();
+        assert_eq!(derived, initialized);
+        assert_eq!(derived.len(), chapters.len());
+        assert_eq!(
+            derived.get(&chapters[0]),
+            Some(&ChapterLockingStatus::Unlocked)
         );
     }
 

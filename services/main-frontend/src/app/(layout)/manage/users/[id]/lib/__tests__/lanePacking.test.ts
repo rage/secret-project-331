@@ -54,6 +54,11 @@ function packBoxes<T>(
   return { boxes, packed, laneCount }
 }
 
+const laneMap = (order: LaneBoxInput<string>[]) => {
+  const { packed } = packBoxes(order)
+  return Object.fromEntries(packed.map((p) => [p.key, p.lane]))
+}
+
 const point = <T>(key: string, ms: number, label: string, item: T): LaneBoxInput<T> => ({
   key,
   startMs: ms,
@@ -231,10 +236,6 @@ describe("lanePacking", () => {
     ]
 
     it("produces identical lane assignment regardless of input order", () => {
-      const laneMap = (order: LaneBoxInput<string>[]) => {
-        const { packed } = packBoxes(order)
-        return Object.fromEntries(packed.map((p) => [p.key, p.lane]))
-      }
       const reference = laneMap(inputs)
       const shuffled = [inputs[3]!, inputs[0]!, inputs[4]!, inputs[2]!, inputs[1]!]
       expect(laneMap(shuffled)).toEqual(reference)

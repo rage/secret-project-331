@@ -1,9 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { differenceInSeconds, formatDuration, parseISO } from "date-fns"
+import { differenceInSeconds, formatDuration } from "date-fns"
 import { useAtomValue } from "jotai"
-import { useTranslation } from "react-i18next"
 
 import Card from "@/components/Card"
 import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
@@ -19,6 +18,7 @@ import PixelSquare from "@/shared-module/common/img/card-defualt-bg/pixel-square
 import QuadrupleCircle from "@/shared-module/common/img/card-defualt-bg/quadruple-circle.svg"
 import Triangle from "@/shared-module/common/img/card-defualt-bg/triangle.svg"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { coursePageRoute } from "@/utils/course-material/routing"
@@ -34,8 +34,6 @@ interface ChapterProps {
   isLocked: boolean
 }
 
-const NUMERIC = "numeric"
-const LONG = "long"
 const OPEN = "open"
 
 const arr: string[] = [
@@ -61,7 +59,6 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   backgroundImage,
   isLocked,
 }) => {
-  const { i18n } = useTranslation()
   const courseInstance = useAtomValue(materialInstanceAtom)
 
   const getChapterPageUrl = useQuery({
@@ -100,15 +97,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
             })
           } else {
             // opens in over 10 minutes
-            date = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
-              year: NUMERIC,
-              month: LONG,
-              day: NUMERIC,
-            })
-            time = parseISO(chapter.opens_at).toLocaleString(i18n.language, {
-              hour: NUMERIC,
-              minute: NUMERIC,
-            })
+            date = dateToString(chapter.opens_at)
           }
         }
         const open = chapter.status === OPEN

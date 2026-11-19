@@ -2,16 +2,14 @@
 
 import { css, keyframes } from "@emotion/css"
 import { useOverlayTriggerState } from "@react-stately/overlays"
-import Link from "next/link"
 import React, { useRef } from "react"
 import { mergeProps, useButton, useOverlayTrigger } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { extractUserDetail, useUserDetails } from "@/hooks/useUserDetails"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { Link, QueryResult } from "@/shared-module/components"
 
 import { CourseProgressSection } from "./CourseProgressSection"
 import { UserDetailsContent } from "./UserDetailsContent"
@@ -164,13 +162,7 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedI
 
   const renderBadgeAndPopover = (displayText: string, initial: string) => (
     <>
-      <button
-        ref={triggerRef}
-        {...buttonProps}
-        type="button"
-        aria-label={t("view-details")}
-        className={badgeStyle}
-      >
+      <button ref={triggerRef} {...buttonProps} type="button" className={badgeStyle}>
         <span
           className={css`
             display: flex;
@@ -223,13 +215,11 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId, prefetchedI
           >
             <Link
               href={courseUserStatusSummaryRoute(courseId, userId)}
-              className={css`
-                text-decoration: none;
-              `}
+              styledAsButton
+              variant="tertiary"
+              size="small"
             >
-              <Button variant="tertiary" size="small">
-                {t("course-status-summary")}
-              </Button>
+              {t("course-status-summary")}
             </Link>
           </div>
         </UserDetailsPopover>

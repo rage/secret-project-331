@@ -5,14 +5,14 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import type { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
@@ -26,7 +26,14 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import { Button, Checkbox, ComboBox, TextField } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  ComboBox,
+  ErrorNotice,
+  focusProgrammatically,
+  TextField,
+} from "@/shared-module/components"
 
 interface CreateUserErrorResponse {
   message?: string
@@ -161,7 +168,15 @@ const CreateAccountForm: React.FC = () => {
   const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
 
   const { t, i18n } = useTranslation()
-  usePageTitle(t("title-sign-up"))
+  const confirmHeadingRef = useRef<HTMLHeadingElement>(null)
+  const altchaRef = useRef<AltchaWidgetHandle>(null)
+  usePageTitle(confirmEmailPageVisible ? t("confirm-email-title") : t("title-sign-up"))
+
+  useEffect(() => {
+    if (confirmEmailPageVisible && confirmHeadingRef.current) {
+      focusProgrammatically(confirmHeadingRef.current)
+    }
+  }, [confirmEmailPageVisible])
 
   const email = watch("email")
   const password = watch("password")
@@ -169,12 +184,13 @@ const CreateAccountForm: React.FC = () => {
 
   useEffect(() => {
     setEmailAlreadyTakenError(null)
-    // oxlint-disable-next-line i18next/no-literal-string
-    void trigger("email")
+    if (email) {
+      // oxlint-disable-next-line i18next/no-literal-string
+      void trigger("email")
+    }
   }, [email, trigger])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
-    // oxlint-disable-next-line eslint/require-await -- kept async for the mutationFn Promise<SignupResponse> contract
     async (data) => {
       const {
         first_name,
@@ -185,6 +201,7 @@ const CreateAccountForm: React.FC = () => {
         country,
         email_communication_consent,
       } = data
+      const altcha = (await altchaRef.current?.solve()) ?? ""
       return postAuthSignup({
         body: {
           email: emailValue,
@@ -195,6 +212,7 @@ const CreateAccountForm: React.FC = () => {
           password_confirmation: password_confirmation,
           country: country,
           email_communication_consent: Boolean(email_communication_consent),
+          altcha,
         },
       })
     },
@@ -259,7 +277,9 @@ const CreateAccountForm: React.FC = () => {
   if (confirmEmailPageVisible) {
     return (
       <Wrapper>
-        <h1>{t("message-please-confirm-your-email-address")}</h1>
+        <h1 ref={confirmHeadingRef} tabIndex={-1}>
+          {t("message-please-confirm-your-email-address")}
+        </h1>
         <div
           className={css`
             margin: 2rem 0;
@@ -306,6 +326,7 @@ const CreateAccountForm: React.FC = () => {
       <h1 id="create-account-heading">{t("create-new-account")}</h1>
       <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       <form
+        noValidate
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
@@ -342,7 +363,7 @@ const CreateAccountForm: React.FC = () => {
             margin-bottom: 1rem;
           `}
         >
-          {t("all-fields-are-required")}
+          {t("all-text-fields-required")}
         </p>
         <fieldset disabled={isSubmitting} aria-labelledby="create-account-heading">
           <div
@@ -376,6 +397,7 @@ const CreateAccountForm: React.FC = () => {
 
             <ComboBox
               name="country"
+              autoComplete="country-name"
               control={control}
               label={t("enter-country-question")}
               items={countriesNames}
@@ -398,7 +420,7 @@ const CreateAccountForm: React.FC = () => {
                 required: t("required-field"),
                 validate: {
                   isValidEmail: (value) =>
-                    value.split("").indexOf("@") !== -1 || t("enter-a-valid-email"),
+                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
                 },
               }}
             />
@@ -445,6 +467,8 @@ const CreateAccountForm: React.FC = () => {
             />
           </div>
         </fieldset>
+        {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
+        <AltchaWidget ref={altchaRef} purpose={"signup"} />
         <Button
           className="submit-button"
           variant="primary"
@@ -493,8 +517,10 @@ const CreateAccountForm: React.FC = () => {
           </a>
         </div>
       )}
+      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
       {createAccountMutation.isError && !emailAlreadyTakenError && (
-        <ErrorBanner variant={"text"} error={createAccountMutation.error} />
+        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+        <ErrorNotice error={createAccountMutation.error} announce="off" />
       )}
     </Wrapper>
   )

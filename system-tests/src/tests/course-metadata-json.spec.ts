@@ -42,7 +42,7 @@ test.describe("Course jsonLd generation", () => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Replace metadata" }).click()
     })
-    await page.getByRole("button", { name: "Open course front page" }).click()
+    await page.getByRole("link", { name: "Open course front page" }).click()
     await selectCourseInstanceIfPrompted(page)
     const jsonLdLocator = page.locator("script[type='application/ld+json']")
     const rawJSON = await jsonLdLocator.textContent()

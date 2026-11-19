@@ -4,6 +4,8 @@ import { css, cx } from "@emotion/css"
 import type { UseMutationResult } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
+import type { Control } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
@@ -14,20 +16,18 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import SendIcon from "@/imgs/send.svg"
 import StopIcon from "@/imgs/stop.svg"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, LoadingRegion, TextArea, ErrorNotice } from "@/shared-module/components"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import { useChatbotContext } from "./ChatbotContext"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import { hasStreamedAssistantContent } from "./chatbotReducer"
 import ChatbotStatusRow from "./ChatbotStatusRow"
-import type { ClosedClientToolAnswer } from "./clientToolRegistry"
-import { CLIENT_TOOL_REGISTRY } from "./clientToolRegistry"
+import type { ClientToolRegistry, ClosedClientToolAnswer } from "./clientToolRegistry"
 import ErrorDisplay from "./ErrorDisplay"
+import type { ChatbotComposerValues } from "./hooks/useChatbotStateAndData"
+import { MESSAGE_FIELD } from "./hooks/useChatbotStateAndData"
 import MessageBubble from "./MessageBubble"
 import type { MessageClassification } from "./messageClassification"
 import {
@@ -37,6 +37,8 @@ import {
 } from "./messageClassification"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
+
+const ERROR_DETAILS_MAX_HEIGHT = "35vh"
 
 export interface ChatbotConversationMessageWithStatus {
   message: ChatbotConversationMessage
@@ -57,6 +59,7 @@ interface ClientToolCallRow {
   isOpen: boolean
   closedAnswer: ClosedClientToolAnswer
   executionPayload: unknown
+  answerError: unknown
 }
 
 /// One row of the conversation list, with the tool call and reasoning `items` that precede its
@@ -205,21 +208,17 @@ const composerShellStyle = css`
   gap: 0.5rem;
   margin: 0 1rem;
   padding: 0.25rem 0.25rem 0.25rem 0.5rem;
-  /* gray[400] is the palest step still >= 3:1 against the field background (WCAG 1.4.11);
-     gray[300] measures 2.76:1. Matches the border the shared field picks for the same reason. */
-  border: 1.5px solid ${baseTheme.colors.gray[400]};
+  border: 1.5px solid var(--field-border-color);
   border-radius: 14px;
-  background-color: ${baseTheme.colors.clear[50]};
+  background-color: var(--field-bg);
   box-shadow: 0 1px 2px ${baseTheme.colors.gray[700]}14;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 
-  /* Mirrors the tokens shared fields focus with (--field-border-color-focus, --focus-ring-color);
-     restated here because packages/common has no token export the composer can import. */
   &:focus-within {
-    border-color: ${baseTheme.colors.green[500]};
-    box-shadow: 0 0 0 4px ${baseTheme.colors.green[600]}99;
+    border-color: var(--field-border-color-focus);
+    box-shadow: 0 0 0 4px var(--focus-ring-color);
   }
 `
 
@@ -228,18 +227,22 @@ const composerFieldStyle = css`
   min-width: 0;
   margin-bottom: 0;
 
-  /* Reaches into TextAreaField's own label textarea rules, which it renders and styles at the
-     same specificity; this wins only because cx puts the consumer class last. */
-  label textarea {
+  /* Matches [data-field-control][data-floated] specificity from the shared field's own
+     textarea styles so this wins regardless of stylesheet insertion order; the composer's
+     label is hidden, so the floated/rest padding split does not apply here. */
+  & [data-field-control] textarea,
+  & [data-field-control][data-floated="true"] textarea {
+    min-height: 0;
     padding: 0.6rem 0.25rem 0.4rem 0.4rem;
     border: none;
+    box-shadow: none;
     background: transparent;
     resize: none;
   }
 
   /* The shell already shows focus for the whole composer. */
-  label textarea:focus,
-  label textarea:focus-visible {
+  & [data-field-control] textarea:focus,
+  & [data-field-control] textarea:focus-visible {
     box-shadow: none;
   }
 `
@@ -308,6 +311,7 @@ const stopButtonClass = cx(composerButtonStyle, stopButtonStyle)
 
 interface ConversationRowProps {
   row: ConversationRowData
+  clientToolRegistry: ClientToolRegistry
   isTurnInFlight: boolean
   citations: Map<string, ChatbotConversationMessageCitation[]>
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
@@ -317,6 +321,7 @@ interface ConversationRowProps {
  * preceding tool-call and reasoning items, if any. */
 const ConversationRow: React.FC<ConversationRowProps> = ({
   row,
+  clientToolRegistry,
   isTurnInFlight,
   citations,
   onAnswer,
@@ -332,7 +337,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
   }
 
   if (row.kind === "clientToolCall") {
-    const entry = CLIENT_TOOL_REGISTRY[row.call.toolName]
+    const entry = clientToolRegistry[row.call.toolName]
     if (!entry) {
       // Classification only produces this kind once a registry entry has validated the call, so
       // this is unreachable outside a registry/classification drift.
@@ -350,6 +355,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
           isTurnInFlight,
           closedAnswer: row.call.closedAnswer,
           executionPayload: row.call.executionPayload,
+          answerError: row.call.answerError,
           onAnswer,
         })}
       </li>
@@ -375,6 +381,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
 
 interface ChatbotConversationViewProps {
   rows: ConversationRowData[]
+  clientToolRegistry: ClientToolRegistry
   citations: Map<string, ChatbotConversationMessageCitation[]>
   onAnswer: (toolCallId: string, toolName: ClientToolName, answer: ClientToolAnswer) => void
   isTurnInFlight: boolean
@@ -385,11 +392,9 @@ interface ChatbotConversationViewProps {
   scrollContainerRef: React.RefObject<HTMLUListElement | null>
   onScroll: () => void
   error: unknown
-  newMessage: string
-  setNewMessage: (message: string) => void
-  onSubmit: UseMutationResult<void, unknown, string, unknown>
+  control: Control<ChatbotComposerValues>
+  onSubmit: () => Promise<void>
   onStop: () => void
-  canSubmit: boolean
   composerRef: React.RefObject<HTMLTextAreaElement | null>
   onAutoResized: () => void
 }
@@ -397,6 +402,7 @@ interface ChatbotConversationViewProps {
 /** The conversation history, composer and suggestion chips, once a conversation exists to show. */
 const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   rows,
+  clientToolRegistry,
   citations,
   onAnswer,
   isTurnInFlight,
@@ -407,15 +413,16 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
   scrollContainerRef,
   onScroll,
   error,
-  newMessage,
-  setNewMessage,
+  control,
   onSubmit,
   onStop,
-  canSubmit,
   composerRef,
   onAutoResized,
 }) => {
   const { t } = useTranslation()
+
+  const message = useWatch({ control, name: MESSAGE_FIELD })
+  const canSubmit = Boolean(message && message.trim().length > 0 && !isTurnInFlight)
 
   const isQuestionWaiting = rows.some((row) => row.kind === "clientToolCall" && row.call.isOpen)
 
@@ -431,6 +438,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
           <ConversationRow
             key={row.messageId}
             row={row}
+            clientToolRegistry={clientToolRegistry}
             isTurnInFlight={isTurnInFlight}
             citations={citations}
             onAnswer={onAnswer}
@@ -461,16 +469,19 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
       </ul>
       {error !== null && error !== undefined ? <ErrorDisplay error={error} /> : null}
       <div className={composerShellStyle}>
-        <TextAreaField
-          ref={composerRef}
+        <TextArea
+          control={control}
+          name={MESSAGE_FIELD}
+          label={t("label-message")}
+          isLabelHidden
+          placeholder={t("label-message")}
+          inputRef={composerRef}
           className={composerFieldStyle}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
               if (canSubmit) {
-                onSubmit.mutate(newMessage)
+                onSubmit()
               }
             }
           }}
@@ -479,7 +490,6 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
           autoResize={true}
           onAutoResized={onAutoResized}
           autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
-          placeholder={t("label-message")}
         />
         {/* One button across both states, so focus and tab order survive a turn starting or
           ending. */}
@@ -491,7 +501,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
             if (isTurnInFlight) {
               onStop()
             } else {
-              onSubmit.mutate(newMessage)
+              onSubmit()
             }
           }}
         >
@@ -506,6 +516,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
 const ChatbotChatBody: React.FC = () => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
+  const agreedRef = useRef(false)
   const { t } = useTranslation()
 
   const {
@@ -513,14 +524,15 @@ const ChatbotChatBody: React.FC = () => {
     newConversationMutation,
     messageState,
     toolResponseMutation,
-    newMessage,
+    answerErrorByToolCallId,
+    control,
+    submitMessage,
     isTurnInFlight,
     error,
-    setNewMessage,
     stopTurn,
     chatbotMessageAnnouncement,
+    clientToolRegistry,
     handlePickSuggestionMutation,
-    handleSubmitMutation,
   } = useChatbotContext()
 
   const citations = useMemo(() => {
@@ -553,15 +565,18 @@ const ChatbotChatBody: React.FC = () => {
         finished: true,
         message,
         optimistic: false,
-        classification: classifyMessage(message),
+        classification: classifyMessage(message, clientToolRegistry),
       })),
-    [currentConversationInfo.data?.current_conversation_messages],
+    [currentConversationInfo.data?.current_conversation_messages, clientToolRegistry],
   )
 
   const classifiedStreamed = useMemo(
     (): ClassifiedMessage[] =>
-      messageState.messages.map((m) => ({ ...m, classification: classifyMessage(m.message) })),
-    [messageState.messages],
+      messageState.messages.map((m) => ({
+        ...m,
+        classification: classifyMessage(m.message, clientToolRegistry),
+      })),
+    [messageState.messages, clientToolRegistry],
   )
 
   const allClassifications = useMemo(
@@ -603,8 +618,14 @@ const ChatbotChatBody: React.FC = () => {
         ? { value: closedAnswerByToolCallId.get(toolCallId) }
         : undefined,
       executionPayload: messageState.executionPayloadByToolCallId[toolCallId],
+      answerError: answerErrorByToolCallId[toolCallId],
     }),
-    [openToolCallIds, closedAnswerByToolCallId, messageState.executionPayloadByToolCallId],
+    [
+      openToolCallIds,
+      closedAnswerByToolCallId,
+      messageState.executionPayloadByToolCallId,
+      answerErrorByToolCallId,
+    ],
   )
 
   const rows = useMemo(
@@ -619,6 +640,15 @@ const ChatbotChatBody: React.FC = () => {
       ).concat(conversationRows(classifiedStreamed, resolveClientToolCall)),
     [classifiedFetched, classifiedStreamed, resolveClientToolCall],
   )
+
+  // The Agree button unmounts with the disclaimer, so move focus to the message box.
+  const hasConversation = !!currentConversationInfo.data?.current_conversation
+  useEffect(() => {
+    if (hasConversation && agreedRef.current) {
+      agreedRef.current = false
+      composerRef.current?.focus()
+    }
+  }, [hasConversation])
 
   // Starts armed so the first paint of a conversation lands on its newest message.
   const isFollowingRef = useRef(true)
@@ -649,8 +679,6 @@ const ChatbotChatBody: React.FC = () => {
     scrollToBottomIfFollowing()
   }, [scrollToBottomIfFollowing, classifiedFetched, messageState.messages])
 
-  const canSubmit = Boolean(newMessage && newMessage.trim().length > 0 && !isTurnInFlight)
-
   return (
     <>
       {/* A live region has to already be mounted when its text changes, or the change is never
@@ -662,14 +690,13 @@ const ChatbotChatBody: React.FC = () => {
       {/* The previous conversation stays loaded while a new one is created; hide it so nothing
           is sent into it. */}
       {currentConversationInfo.isLoading || newConversationMutation.isPending ? (
-        <Spinner variant="medium" />
+        <LoadingRegion />
       ) : currentConversationInfo.isError ? (
         <div className={errorWrapperStyle}>
-          <ErrorBanner
+          <ErrorNotice
             error={currentConversationInfo.error}
-            variant="readOnly"
-            maxHeightVH={50}
-            listMaxHeightVH={35}
+            maxHeight="50vh"
+            detailsMaxHeight={ERROR_DETAILS_MAX_HEIGHT}
           />
           <Button
             onClick={() => currentConversationInfo.refetch()}
@@ -687,6 +714,7 @@ const ChatbotChatBody: React.FC = () => {
               size="medium"
               variant="secondary"
               onClick={() => {
+                agreedRef.current = true
                 newConversationMutation.mutate()
               }}
               disabled={newConversationMutation.isPending}
@@ -698,6 +726,7 @@ const ChatbotChatBody: React.FC = () => {
       ) : (
         <ChatbotConversationView
           rows={rows}
+          clientToolRegistry={clientToolRegistry}
           citations={citations}
           onAnswer={handleAnswer}
           isTurnInFlight={isTurnInFlight}
@@ -708,11 +737,9 @@ const ChatbotChatBody: React.FC = () => {
           scrollContainerRef={scrollContainerRef}
           onScroll={handleScroll}
           error={error}
-          newMessage={newMessage}
-          setNewMessage={setNewMessage}
-          onSubmit={handleSubmitMutation}
+          control={control}
+          onSubmit={submitMessage}
           onStop={stopTurn}
-          canSubmit={canSubmit}
           composerRef={composerRef}
           onAutoResized={scrollToBottomIfFollowing}
         />

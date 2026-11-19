@@ -157,8 +157,6 @@ pub async fn introspect(
     let client_bearer_allowed = resolve_gated_bearer_allowed(&client, &token_client);
 
     // Build response with token metadata
-    let base_url = app_conf.base_url.trim_end_matches('/');
-    let issuer = format!("{}/api/v0/main-frontend/oauth", base_url);
 
     let response = IntrospectResponse {
         active: true,
@@ -169,7 +167,7 @@ pub async fn introspect(
         iat: Some(access_token.created_at.timestamp()),
         sub: access_token.user_id.map(|id| id.to_string()),
         aud: access_token.audience.clone(),
-        iss: Some(issuer),
+        iss: Some(app_conf.oauth_issuer()),
         jti: Some(access_token.jti.to_string()),
         token_type: Some(match access_token.token_type {
             TokenType::Bearer => "Bearer".to_string(),

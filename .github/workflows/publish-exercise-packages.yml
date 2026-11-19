@@ -38,7 +38,7 @@ jobs:
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           # Keep in sync with package.json devEngines.runtime.
-          node-version: "24.19.0"
+          node-version: "26.13.0"
           registry-url: "https://registry.npmjs.org"
           # This tag-triggered publish job must never restore a cache that an earlier,
           # less-trusted job could have poisoned.
@@ -48,7 +48,7 @@ jobs:
         run: |
           corepack enable
           # Keep in sync with the root packageManager field (>= a fixed pnpm 11.x for OIDC publish).
-          corepack prepare pnpm@11.9.0 --activate
+          corepack prepare pnpm@12.17.0 --activate
           echo "node $(node -v), pnpm $(pnpm -v), npm $(npm -v)"
 
       - name: Derive release version from tag

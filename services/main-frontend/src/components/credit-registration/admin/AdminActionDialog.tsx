@@ -7,7 +7,7 @@ import type { Control, FieldValues } from "react-hook-form"
 import type { ButtonVariant, DialogAction } from "@/shared-module/components"
 import { Button, Dialog } from "@/shared-module/components"
 
-import { BUTTON_DESTRUCTIVE, BUTTON_PRIMARY } from "../constants"
+import { BUTTON_DANGER, BUTTON_PRIMARY } from "../constants"
 import { dialogFormCss, dialogFormStartCss, proseCss } from "../styles"
 import { useActionResult } from "../useActionResult"
 import { useReasonRequiredForm } from "./ReasonConfirmDialog"
@@ -90,7 +90,7 @@ export function AdminActionDialog<Fields extends FieldValues & WithReason, Resul
   const actions: readonly [DialogAction] = [
     {
       label: confirmLabel,
-      variant: isDestructive ? BUTTON_DESTRUCTIVE : BUTTON_PRIMARY,
+      variant: isDestructive ? BUTTON_DANGER : BUTTON_PRIMARY,
       isLoading: mutation.isPending,
       onPress: () => void submit(),
     },

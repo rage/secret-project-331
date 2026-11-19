@@ -27,6 +27,33 @@ const otpSlotsCss = css`
   display: flex;
   gap: var(--space-2);
   flex-wrap: wrap;
+
+  & > input[data-group-start="true"] {
+    margin-inline-start: var(--space-3);
+  }
+`
+
+/**
+ * Shares the row instead of wrapping, so a six-digit code stays on one line at 320px. Starts at the
+ * label's edge; a grouped six-digit row (6 × 56 + 4 × 8 + 48 = 416px) fills a small dialog exactly.
+ */
+const otpSlotsFullWidthCss = css`
+  flex-wrap: nowrap;
+  gap: var(--space-3);
+
+  & > input {
+    flex: 0 1 56px;
+    min-width: 0;
+  }
+
+  & > input[data-group-start="true"] {
+    margin-inline-start: var(--space-6);
+  }
+`
+
+/** Room between the label, the tall slots and the messages under them. */
+const otpFieldCss = css`
+  gap: var(--space-3);
 `
 
 const otpSlotCss = css`
@@ -37,6 +64,7 @@ const otpSlotCss = css`
   background: var(--field-bg);
   color: var(--field-fg);
   font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
   text-align: center;
   outline: none;
   transition:
@@ -120,7 +148,15 @@ export type OtpFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = 
   isRequired?: boolean
   id?: string
   autoComplete?: string
+  /** Stretches the slots across the field's width, centred, instead of wrapping fixed boxes. */
+  isFullWidth?: boolean
+  /** Slots per visual group, e.g. 3 shows a six-digit code as 3 + 3. Not announced. */
+  groupSize?: number
+  /** Focuses the first slot on mount. */
+  autoFocus?: boolean
   className?: string
+  /** Lands on the slot group, not the individual slot inputs. */
+  "data-testid"?: string | undefined
 }
 
 export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
@@ -144,6 +180,10 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
     isRequired = false,
     className,
     autoComplete,
+    isFullWidth = false,
+    groupSize,
+    autoFocus = false,
+    "data-testid": dataTestId,
   } = props
 
   const { field, resolvedError, isInvalid } = useRhfField({
@@ -203,6 +243,12 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
   const otpValue = typeof field.value === "string" ? field.value : ""
 
   useEffect(() => {
+    if (autoFocus) {
+      slotRefs.current[0]?.focus()
+    }
+  }, [autoFocus])
+
+  useEffect(() => {
     if (hiddenInputRef.current) {
       hiddenInputRef.current.value = otpValue
     }
@@ -229,7 +275,7 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
 
   return (
     <FieldShell
-      {...omitUndefined({ className })}
+      className={cx(otpFieldCss, className)}
       label={label}
       labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
       description={description}
@@ -261,11 +307,12 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
       <div
         {...groupFieldProps}
         ref={slotsContainerRef}
-        className={otpSlotsCss}
+        className={cx(otpSlotsCss, isFullWidth && otpSlotsFullWidthCss)}
         // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div typed HTMLDivElement; a native tag changes behavior
         role="group"
         aria-labelledby={groupAriaLabelledBy || undefined}
         aria-disabled={isDisabled ? "true" : undefined}
+        data-testid={dataTestId}
         onBlur={(event) => {
           if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
             return
@@ -297,6 +344,9 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
             value={slotValue}
             disabled={isDisabled}
             readOnly={isReadOnly}
+            data-group-start={
+              groupSize !== undefined && index > 0 && index % groupSize === 0 ? "true" : undefined
+            }
             data-invalid={isInvalid ? "true" : "false"}
             aria-invalid={isInvalid ? "true" : undefined}
             aria-required={index === 0 && isRequired ? "true" : undefined}
@@ -319,6 +369,8 @@ export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
               commitValue(nextValue)
               slotRefs.current[result.nextIndex]?.focus()
             }}
+            // Selected so typing over a filled slot replaces it; maxLength would otherwise drop the key.
+            onFocus={(event) => event.currentTarget.select()}
             onKeyDown={(event) => {
               if (event.key === "ArrowLeft") {
                 event.preventDefault()

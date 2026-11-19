@@ -1,12 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import React from "react"
 
+import { LINK_INHERIT } from "@/components/credit-registration/constants"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Link, type LinkProps } from "@/shared-module/components"
 
-interface PseudoContentLinkProps extends React.ComponentPropsWithoutRef<typeof Link> {
+type PseudoContentLinkProps = Omit<
+  Extract<LinkProps, { styledAsButton?: false | undefined }>,
+  "children" | "appearance"
+> & {
   children: React.ReactNode
 }
 
@@ -14,6 +18,7 @@ const PseudoContentLink: React.FC<PseudoContentLinkProps> = ({ children, ...link
   return (
     <Link
       {...linkProps}
+      appearance={LINK_INHERIT}
       className={css`
         text-decoration: none;
         color: inherit;

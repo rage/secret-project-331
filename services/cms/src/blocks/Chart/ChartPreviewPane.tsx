@@ -3,8 +3,8 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
+import { ErrorNotice } from "@/shared-module/components"
 import { Button } from "@/shared-module/components/components/Button"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -106,7 +106,7 @@ const ChartPreviewPane: React.FC<ChartPreviewPaneProps> = ({
                 margin-top: 0.5rem;
               `}
             >
-              <ErrorBanner error={aiError} />
+              <ErrorNotice error={aiError} />
             </div>
           )}
         </div>

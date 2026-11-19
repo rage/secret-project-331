@@ -1,5 +1,6 @@
 import { test } from "@playwright/test"
 
+import { createCoursePage, openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
@@ -24,14 +25,8 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
   await waitForSpinnersToDisappear(page)
-  await page.getByRole("button", { name: "New page" }).nth(1).click()
-  await page.getByLabel("Title  *").click()
-  await page.getByLabel("Title  *").fill("Iframe Page")
-  await page.getByRole("button", { name: "Create" }).click()
-  await page
-    .getByRole("row", { name: "Iframe Page /chapter-1/iframe-page Edit page Dropdown menu" })
-    .getByRole("button", { name: "Edit page" })
-    .click()
+  await createCoursePage(page, { chapterNumber: 1 }, "Iframe Page")
+  await openCoursePageInEditor(page, "Iframe Page", { chapterNumber: 1 })
   await page.getByRole("button", { name: "Add block" }).click()
   await page.getByPlaceholder("Search").fill("iframe")
   await page.getByRole("option", { name: "Iframe" }).click()
@@ -43,7 +38,7 @@ test("Custom iframe blocks work", async ({ page, headless }, testInfo) => {
     )
   await page.getByRole("button", { name: "Parse" }).click()
 
-  await page.getByRole("button", { name: "Edit" }).waitFor()
+  await page.getByRole("button", { name: "Edit", exact: true }).waitFor()
   await page.getByText("https://example.com/iframe").waitFor()
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()

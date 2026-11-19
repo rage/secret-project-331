@@ -31,9 +31,17 @@ export const switchRowCss = css`
   align-items: center;
 `
 
+/**
+ * The transparent input covering the whole row, which is what a press anywhere on it must hit.
+ *
+ * `z-index` because the indicator is a later positioned sibling and would otherwise paint over it,
+ * taking the press on a row that has no visible label — a selection checkbox in a table header or
+ * cell, where the indicator is the entire row.
+ */
 export const checkableInputCss = css`
   position: absolute;
   inset: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
   margin: 0;
@@ -52,6 +60,14 @@ export const checkableLabelCss = css`
   line-height: 1.35;
   min-width: 0;
   overflow-wrap: anywhere;
+`
+
+/** A badge trailing a checkable's label text, wrapping under it when the row runs out of room. */
+export const checkableBadgeCss = css`
+  display: inline-block;
+  margin-inline-start: var(--space-3);
+  font-weight: 400;
+  vertical-align: 1px;
 `
 
 export const switchTrackCss = css`
@@ -163,6 +179,11 @@ export const choiceIndicatorCss = css`
   &[data-disabled="true"] {
     background: var(--field-disabled-bg);
     border-color: var(--field-disabled-border);
+  }
+
+  &[data-disabled="true"][data-selected="true"] {
+    background: var(--field-disabled-fg);
+    border-color: var(--field-disabled-fg);
   }
 `
 

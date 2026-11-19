@@ -1,0 +1,61 @@
+import type { TFunction } from "i18next"
+
+import type { ErrorViewModel } from "./normalizeErrorForDisplay"
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null
+}
+
+export interface ResolvedErrorDisplayCopy {
+  title: string
+  message: string | null
+}
+
+function resolveIssueCodeMessage(error: ErrorViewModel, t: TFunction<"errors">): string | null {
+  const firstIssueCode = error.issues.find((issue) => typeof issue.code === "string")?.code
+  if (!firstIssueCode) {
+    return null
+  }
+  const localized = t(`error-issue-code.${firstIssueCode}.message`, { defaultValue: "" })
+  return localized.trim() === "" ? null : localized
+}
+
+/**
+ * Resolves localized user-facing title and message from normalized error data.
+ */
+export function resolveErrorDisplayCopy(
+  error: ErrorViewModel,
+  t: TFunction<"errors">,
+): ResolvedErrorDisplayCopy {
+  const localizedTitle = error.messageKey
+    ? t(`error-message-key.${error.messageKey}.title`, { defaultValue: error.title })
+    : error.title
+
+  const issueCodeMessage = resolveIssueCodeMessage(error, t)
+  if (issueCodeMessage) {
+    return {
+      title: localizedTitle,
+      message: issueCodeMessage,
+    }
+  }
+
+  const translationVariables = isRecord(error.metadata) ? error.metadata : null
+
+  if (error.messageKey) {
+    const localizedMessage = t(`error-message-key.${error.messageKey}.message`, {
+      defaultValue: "",
+      ...translationVariables,
+    })
+    if (localizedMessage.trim() !== "") {
+      return {
+        title: localizedTitle,
+        message: localizedMessage,
+      }
+    }
+  }
+
+  return {
+    title: localizedTitle,
+    message: error.message,
+  }
+}

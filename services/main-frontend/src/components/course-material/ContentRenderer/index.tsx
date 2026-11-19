@@ -4,7 +4,7 @@
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
-import React from "react"
+import React, { createContext, useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -26,6 +26,7 @@ import ListBlock from "./core/common/List/ListBlock"
 import ListItemBlock from "./core/common/List/ListItemBlock"
 import ParagraphBlock from "./core/common/Paragraph"
 import QuoteBlock from "./core/common/Quote/QuoteBlock"
+import VideoBlock from "./core/common/Video/VideoBlock"
 import EmbedBlock from "./core/embeds/EmbedBlock"
 import CodeBlock from "./core/formatting/CodeBlock"
 import CustomHTMLBlock from "./core/formatting/CustomHTMLBlock"
@@ -118,6 +119,7 @@ export const blockToRendererMap: Record<string, any> = {
   "core/list-item": ListItemBlock,
   "core/paragraph": ParagraphBlock,
   "core/quote": QuoteBlock,
+  "core/video": VideoBlock,
 
   // core / embeds
   "core/embed": EmbedBlock, // This is used by youtube, twitter etc.
@@ -188,6 +190,13 @@ export const blockToRendererMap: Record<string, any> = {
   "moocfi/aside-with-image": AsideWithImageBlock,
 }
 
+/**
+ * Renderers that replace the regular ones by block name in this subtree, e.g. read-only stand-ins
+ * for interactive blocks in a preview.
+ */
+// oxlint-disable-next-line typescript/no-explicit-any
+export const BlockRendererOverridesContext = createContext<Record<string, any>>({})
+
 const highlightedBlockStyles = css`
   outline: 2px solid ${baseTheme.colors.red[400]};
   outline-offset: 10px;
@@ -210,6 +219,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
     .split(",")
     .filter((id) => id !== "")
   const { t } = useTranslation()
+  const blockRendererOverrides = useContext(BlockRendererOverridesContext)
   if (data.constructor !== Array) {
     return (
       <div>
@@ -259,7 +269,8 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
   const content = (
     <>
       {data.map((block) => {
-        const Component = blockToRendererMap[block.name] ?? DefaultBlock
+        const Component =
+          blockRendererOverrides[block.name] ?? blockToRendererMap[block.name] ?? DefaultBlock
         const isHighlighted = highlightBlocks.includes(block.clientId)
         const dontUseDefaultBlockMargin = Component.dontUseDefaultBlockMargin === true
         const wrapperClassName = cx(
@@ -319,7 +330,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           font-size: 20px;
           text-underline-offset: 4.6px;
           text-decoration-thickness: 1.6px;
-          a {
+          a:not([data-button-variant]) {
             color: #1072ea;
             &:hover {
               color: #096df1;
@@ -337,6 +348,13 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             background: #e5e5e5;
             padding: 0 0.4rem 0.2rem 0.4rem;
             border-radius: 3px;
+          }
+
+          /* The grey fill is unreadable under a button's light text; keep the button's own contrast. */
+          a[data-button-variant] code:not(pre code) {
+            background: transparent;
+            color: inherit;
+            box-shadow: inset 0 0 0 1px currentColor;
           }
 
           /* Styling for highlighted text */

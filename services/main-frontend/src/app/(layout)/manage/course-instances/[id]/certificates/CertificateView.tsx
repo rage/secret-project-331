@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
+import { subheadingCss } from "@/components/credit-registration/styles"
 import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, Link } from "@/shared-module/components"
 
 interface Props {
   configurationAndRequirements: CertificateConfigurationAndRequirements
@@ -26,8 +26,19 @@ const CertificateView: React.FC<Props> = ({
   return (
     <div
       className={css`
+        display: grid;
+        gap: var(--space-2);
+        width: 100%;
+
         hr {
-          color: ${baseTheme.colors.clear[300]};
+          width: 100%;
+          margin: var(--space-2) 0;
+          border: none;
+          border-top: 1px solid ${baseTheme.colors.clear[300]};
+        }
+
+        h3 {
+          margin: 0 0 var(--space-2);
         }
       `}
     >
@@ -63,7 +74,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-owner-name")}</h3>
+        <h3 className={subheadingCss}>{t("certificate-owner-name")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_owner_name_x_pos}
         </div>
@@ -82,7 +93,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("certificate-validation-url")}</h3>
+        <h3 className={subheadingCss}>{t("certificate-validation-url")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_validate_url_x_pos}
         </div>
@@ -101,7 +112,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("date")}</h3>
+        <h3 className={subheadingCss}>{t("date")}</h3>
         <div>
           {t("position-x")}: {configuration.certificate_date_x_pos}
         </div>
@@ -120,7 +131,7 @@ const CertificateView: React.FC<Props> = ({
       </div>
       <hr />
       <div>
-        <h3>{t("label-grade")}</h3>
+        <h3 className={subheadingCss}>{t("label-grade")}</h3>
         <div>
           {t("label-show-grade-in-cerfiticate")}:{" "}
           {configuration.render_certificate_grade ? t("yes") : t("no")}
@@ -144,13 +155,15 @@ const CertificateView: React.FC<Props> = ({
       <div
         className={css`
           display: flex;
-          margin-top: 1rem;
+          flex-wrap: wrap;
+          gap: var(--space-3);
+          margin-top: var(--space-3);
         `}
       >
-        <Button variant="primary" size="medium" onClick={onClickEdit}>
+        <Button variant="secondary" size="medium" onClick={onClickEdit}>
           {t("edit")}
         </Button>
-        <Button variant="tertiary" size="medium" onClick={onClickDelete}>
+        <Button variant="secondary" size="medium" onClick={onClickDelete}>
           {t("delete")}
         </Button>
         <div
@@ -160,10 +173,11 @@ const CertificateView: React.FC<Props> = ({
         />
         <Link
           href={`/certificates/validate/test?test_certificate_configuration_id=${configurationAndRequirements.certificate_configuration.id}&debug=true`}
+          styledAsButton
+          variant="secondary"
+          size="medium"
         >
-          <Button variant="tertiary" size="medium">
-            {t("button-text-preview")}
-          </Button>
+          {t("button-text-preview")}
         </Link>
       </div>
     </div>

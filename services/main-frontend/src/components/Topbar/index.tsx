@@ -34,7 +34,7 @@ const needsToShowEndQuestionnaire = (progress: UserCourseProgress[] | undefined)
   if (!progress) {
     return null
   }
-  return progress.find((x) => x.needs_to_answer_ending_questionnaire)?.course_module_id ?? null
+  return progress.find((x) => x.ready_to_answer_ending_questionnaire)?.course_module_id ?? null
 }
 
 interface MenuOption {

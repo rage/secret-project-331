@@ -2,6 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
+import { useQueryClient } from "@tanstack/react-query"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -167,6 +168,7 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
+  const queryClient = useQueryClient()
   const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const { t } = useTranslation()
@@ -264,13 +266,15 @@ const ExerciseBlock: React.FC<
         )
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
-        queryClient.invalidateQueries({
-          queryKey: getCourseMaterialUserCourseProgressQueryKeyressQueryKey({
-            path: {
-              course_instance_id: courseInstanceId,
-            },
-          }),
-        })
+        if (courseMaterialState.instance?.id) {
+          queryClient.invalidateQueries({
+            queryKey: getCourseMaterialUserCourseProgressQueryKey({
+              path: {
+                course_instance_id: courseMaterialState.instance?.id,
+              },
+            }),
+          })
+        }
       },
     },
   )

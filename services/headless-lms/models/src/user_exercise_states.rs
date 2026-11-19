@@ -619,8 +619,8 @@ fn merge_modules_with_metrics(
                         false
                     } else {
                         // does the user meet the exercise requirements to pass?
-                        u_m.score_given.unwrap_or(0 as f32)
-                            >= req.number_of_points_treshold.unwrap_or(0 as i32) as f32
+                        u_m.score_given.unwrap_or(0_f32)
+                            >= req.number_of_points_treshold.unwrap_or(0_i32) as f32
                             && u_m.attempted_exercises.unwrap_or(0)
                                 >= req.number_of_exercises_attempted_treshold.unwrap_or(0) as i64
                     }

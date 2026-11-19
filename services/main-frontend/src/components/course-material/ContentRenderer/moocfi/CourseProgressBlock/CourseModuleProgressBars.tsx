@@ -67,7 +67,8 @@ const CourseModuleProgressBars: React.FC<CourseModuleProgressBarsProps> = ({
     requiresExam,
   )
 
-  const showEndQuestionnaire = courseModuleProgress.needs_to_answer_ending_questionnaire
+  const showEndQuestionnaire = courseModuleProgress.ready_to_answer_ending_questionnaire
+  console.log(courseModuleProgress)
 
   // todo: show the congratulations block and update text for course/module
   return (

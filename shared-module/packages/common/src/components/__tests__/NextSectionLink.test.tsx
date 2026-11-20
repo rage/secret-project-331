@@ -23,7 +23,15 @@ jest.mock("../../img/arrow.svg", () => () => null)
 jest.mock("../../img/backarrow.svg", () => () => null)
 jest.mock("../../img/up-arrow.svg", () => () => null)
 
-const base = { title: "Next", subtitle: "Sub", nextTitle: "Runestones", url: "/next" }
+const base = {
+  title: "Next",
+  subtitle: "Sub",
+  nextTitle: "Runestones",
+  url: "/next",
+  currentPageRead: false,
+  onPageReadChange: () => null,
+  isUpdatingPageReadStatus: false,
+}
 
 describe("NextSectionLink", () => {
   test("names the previous page when a title is given", () => {

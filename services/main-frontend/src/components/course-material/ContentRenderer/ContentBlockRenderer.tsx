@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 
-import { useBlockIntersectionObserver } from "@/shared-module/common/hooks/useBlockIntersectionObserver"
+import { useBlockIntersectionObserver } from "@/hooks/useBlockIntersectionObserver"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { Block } from "@/types/courseMaterialBlock"

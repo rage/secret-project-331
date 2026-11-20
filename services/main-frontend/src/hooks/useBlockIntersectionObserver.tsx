@@ -18,7 +18,7 @@ export function useBlockIntersectionObserver() {
         observer.unobserve(targetRef.current)
       }
       targetRef.current = node
-      if (observer && node) {
+      if (observer && node && pageId) {
         node.setAttribute("data-page-id", pageId)
         observer.observe(node)
       }

@@ -18,7 +18,6 @@ use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::domain::{
-    account_form_checks::FormCheck,
     authentication,
     authorization::skip_authorize,
     email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
@@ -94,15 +93,15 @@ pub struct SignupForm<'a> {
 
 /// Starts a signup: stores it as pending, replacing an earlier pending signup for the address,
 /// mails the code and remembers in the session what the code step confirms. Nothing is stored or
-/// mailed for an address that already has an account or when `check` forbids mail, and the session
+/// mailed for an address that already has an account or when `may_send_mail` is false, and the session
 /// then remembers a signup no code matches.
 pub async fn start(
     conn: &mut PgConnection,
     session: &Session,
     form: &SignupForm<'_>,
-    check: FormCheck,
+    may_send_mail: bool,
 ) -> anyhow::Result<()> {
-    if !check.should_send_mail {
+    if !may_send_mail {
         return remember_pending_id(session, None);
     }
     match models::users::get_by_email(conn, form.email).await {

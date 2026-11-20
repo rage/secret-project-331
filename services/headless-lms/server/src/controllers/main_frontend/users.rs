@@ -979,7 +979,7 @@ pub async fn send_reset_password_email(
     )
     .await?;
 
-    let check = account_form_checks::assess(
+    let may_send_mail = account_form_checks::may_send_mail(
         &mut conn,
         &ip_to_country_mapper,
         &account_form_checks::Submission {
@@ -1038,7 +1038,7 @@ pub async fn send_reset_password_email(
         }
     };
 
-    if let Some(user) = user.filter(|_| check.should_send_mail) {
+    if let Some(user) = user.filter(|_| may_send_mail) {
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
         let reset_mail_key = keyed_digest("reset_mail", &user.id.to_string());

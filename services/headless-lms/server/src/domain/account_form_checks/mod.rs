@@ -1,14 +1,13 @@
 //! The checks on the account forms that mail an address: signup, the signup code resend, password
-//! reset and email change. [`assess`] evaluates the admin-written [rules] on a submission and logs
-//! it in [`headless_lms_models::account_form_decisions`]. The handler then mails only when
-//! [`FormCheck::should_send_mail`] says so, and otherwise answers exactly as if it had.
+//! reset and email change. [`may_send_mail`] evaluates the admin-written [rules] on a submission and logs
+//! it in [`headless_lms_models::account_form_decisions`]. The handler then mails only when it
+//! returns true, and otherwise answers exactly as if it had.
 
 pub mod client_report;
 pub mod headers;
 pub mod rules;
 pub mod signals;
 
-use std::net::IpAddr;
 use std::sync::LazyLock;
 
 use chrono::Duration;
@@ -38,20 +37,6 @@ static LINK_LIKE: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)(://|www\.|[a-z0-9-]+\.[a-z]{2,}(/|\b))").expect("valid regex")
 });
 
-/// Whether a submission may mail.
-#[derive(Debug, Clone, Copy)]
-pub struct FormCheck {
-    /// False when the submission must be answered as if it succeeded without mailing anything.
-    pub should_send_mail: bool,
-}
-
-impl FormCheck {
-    /// For a submission the checks do not apply to.
-    pub const ALLOW: Self = Self {
-        should_send_mail: true,
-    };
-}
-
 /// What a signup typed about the person.
 pub struct Profile<'a> {
     pub first_name: &'a str,
@@ -72,20 +57,18 @@ pub struct Submission<'a> {
     pub profile: Option<Profile<'a>>,
 }
 
-/// Evaluates the rules on the submission and logs it. Never fails the request: on an error the
-/// submission may mail.
-pub async fn assess(
+/// Evaluates the rules on the submission, logs it and returns whether it may mail. When it may not,
+/// the handler must answer as if it succeeded. Never fails the request: on an error it may mail.
+pub async fn may_send_mail(
     conn: &mut PgConnection,
     ip_to_country: &IpToCountryMapper,
     submission: &Submission<'_>,
-) -> FormCheck {
+) -> bool {
     match try_assess(conn, ip_to_country, submission).await {
-        Ok(outcome) => FormCheck {
-            should_send_mail: outcome == AccountFormOutcome::Allow,
-        },
+        Ok(outcome) => outcome == AccountFormOutcome::Allow,
         Err(e) => {
             error!("Failed to check an account form submission: {e:#}");
-            FormCheck::ALLOW
+            true
         }
     }
 }
@@ -150,13 +133,8 @@ async fn add_signals(
 ) -> anyhow::Result<Option<Vec<u8>>> {
     let request = submission.request;
     let ip = client_ip(request);
-    let header = |name: &str| {
-        request
-            .headers()
-            .get(name)
-            .and_then(|value| value.to_str().ok())
-    };
-    headers::add_signals(signals, request, &expected_host());
+    let header = |name: &str| headers::header(request, name);
+    headers::add_signals(signals, request, &EXPECTED_HOST);
     client_report::add_signals(
         signals,
         submission.client_report,
@@ -173,7 +151,17 @@ async fn add_signals(
     let country = ip.and_then(|ip| ip_to_country.map_ip_to_country(&ip).map(str::to_string));
     signals.set("network", "country", country.clone().map(Value::from));
     if let Some(ip) = ip {
-        add_network_signals(conn, ip, since_hour, signals).await?;
+        let network = prefix(ip);
+        signals.set("network", "prefix", Value::from(network.clone()));
+        let same_prefix = DecisionFilter {
+            network_prefix: Some(&network),
+            ..Default::default()
+        };
+        signals.set(
+            "network",
+            "prefix_requests_1h",
+            requests_since(conn, since_hour, &same_prefix).await?,
+        );
     }
 
     if let (Some(domain), Some(digest)) = (&subject.domain, &subject.address_digest) {
@@ -190,12 +178,12 @@ async fn add_signals(
         signals.set(
             "recipient",
             "address_requests_1h",
-            count(account_form_decisions::count_since(conn, since_hour, &same_address).await?),
+            requests_since(conn, since_hour, &same_address).await?,
         );
         signals.set(
             "recipient",
             "address_requests_24h",
-            count(account_form_decisions::count_since(conn, since_day, &same_address).await?),
+            requests_since(conn, since_day, &same_address).await?,
         );
         let same_domain = DecisionFilter {
             recipient_domain: Some(domain),
@@ -204,7 +192,7 @@ async fn add_signals(
         signals.set(
             "recipient",
             "domain_requests_1h",
-            count(account_form_decisions::count_since(conn, since_hour, &same_domain).await?),
+            requests_since(conn, since_hour, &same_domain).await?,
         );
         if submission.action != AccountFormAction::Signup {
             let last_signup = account_form_decisions::latest_for_address(
@@ -261,34 +249,25 @@ async fn add_signals(
     signals.set(
         "profile",
         "same_values_1h",
-        count(account_form_decisions::count_since(conn, since_hour, &same_profile).await?),
+        requests_since(conn, since_hour, &same_profile).await?,
     );
     signals.set(
         "profile",
         "same_values_24h",
-        count(account_form_decisions::count_since(conn, since_day, &same_profile).await?),
+        requests_since(conn, since_day, &same_profile).await?,
     );
     Ok(Some(digest))
 }
 
-async fn add_network_signals(
+/// How many logged submissions since `since` match `filter`, as a signal value.
+async fn requests_since(
     conn: &mut PgConnection,
-    ip: IpAddr,
-    since_hour: DateTime<Utc>,
-    signals: &mut Signals,
-) -> ModelResult<()> {
-    let network = prefix(ip);
-    signals.set("network", "prefix", Value::from(network.clone()));
-    let same_prefix = DecisionFilter {
-        network_prefix: Some(&network),
-        ..Default::default()
-    };
-    signals.set(
-        "network",
-        "prefix_requests_1h",
-        count(account_form_decisions::count_since(conn, since_hour, &same_prefix).await?),
-    );
-    Ok(())
+    since: DateTime<Utc>,
+    filter: &DecisionFilter<'_>,
+) -> ModelResult<Option<Value>> {
+    Ok(count(
+        account_form_decisions::count_since(conn, since, filter).await?,
+    ))
 }
 
 /// The key the log stores `email` under.
@@ -315,12 +294,12 @@ fn domain_of(email: &str) -> Option<String> {
 }
 
 /// The host the forms are served from, which a same-site request's `Origin` names.
-fn expected_host() -> String {
+static EXPECTED_HOST: LazyLock<String> = LazyLock::new(|| {
     url::Url::parse(&server_runtime_config().app_conf.base_url)
         .ok()
         .and_then(|url| url.host_str().map(str::to_string))
         .unwrap_or_default()
-}
+});
 
 fn normalized(value: &str) -> String {
     value.trim().to_lowercase()

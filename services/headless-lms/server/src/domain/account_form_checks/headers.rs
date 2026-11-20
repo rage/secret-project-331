@@ -5,16 +5,19 @@ use serde_json::Value;
 
 use super::signals::Signals;
 
+/// The trimmed value of the header `name`, or `None` when it is absent, empty or not text.
+pub fn header<'a>(request: &'a HttpRequest, name: &str) -> Option<&'a str> {
+    request
+        .headers()
+        .get(name)
+        .and_then(|value| value.to_str().ok())
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+}
+
 /// Adds the `header` namespace.
 pub fn add_signals(signals: &mut Signals, request: &HttpRequest, expected_host: &str) {
-    let header = |name: &str| {
-        request
-            .headers()
-            .get(name)
-            .and_then(|value| value.to_str().ok())
-            .map(str::trim)
-            .filter(|value| !value.is_empty())
-    };
+    let header = |name: &str| header(request, name);
     let user_agent = header("user-agent").unwrap_or_default();
     let client_hints = header("sec-ch-ua");
 

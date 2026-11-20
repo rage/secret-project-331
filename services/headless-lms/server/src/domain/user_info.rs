@@ -7,10 +7,7 @@ use models::user_details::UserDetail;
 use utoipa::ToSchema;
 
 use crate::{
-    domain::{
-        account_form_checks::{self, FormCheck},
-        tmc_user_sync,
-    },
+    domain::{account_form_checks, tmc_user_sync},
     prelude::*,
 };
 
@@ -27,20 +24,20 @@ pub struct UserInfoPayload {
     pub client_info: Option<String>,
 }
 
-/// Runs the [account form checks](account_form_checks) on a payload that changes the address. One
-/// that keeps it mails as usual.
-pub async fn check_email_change(
+/// Whether the verification mail of a changed address may go out, from the
+/// [account form checks](account_form_checks). A payload that keeps the address may always mail.
+pub async fn may_mail_changed_email(
     conn: &mut PgConnection,
     ip_to_country: &IpToCountryMapper,
     request: &HttpRequest,
     user_id: Uuid,
     payload: &UserInfoPayload,
-) -> ModelResult<FormCheck> {
+) -> ModelResult<bool> {
     let current = models::user_details::get_user_details_by_user_id(conn, user_id).await?;
     if current.email == payload.email {
-        return Ok(FormCheck::ALLOW);
+        return Ok(true);
     }
-    Ok(account_form_checks::assess(
+    Ok(account_form_checks::may_send_mail(
         conn,
         ip_to_country,
         &account_form_checks::Submission {

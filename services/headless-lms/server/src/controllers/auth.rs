@@ -187,7 +187,7 @@ pub async fn signup(
             None,
         ));
     }
-    let check = account_form_checks::assess(
+    let may_send_mail = account_form_checks::may_send_mail(
         &mut conn,
         &ip_to_country_mapper,
         &account_form_checks::Submission {
@@ -218,7 +218,7 @@ pub async fn signup(
             password_hash: password_hash.expose_secret(),
             email_communication_consent: details.email_communication_consent,
         },
-        check,
+        may_send_mail,
     )
     .await?;
     skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::CodeMailed))
@@ -291,7 +291,7 @@ pub async fn resend_signup_code(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let email = signup::pending_email(&mut conn, &session).await?;
-    let check = account_form_checks::assess(
+    let may_send_mail = account_form_checks::may_send_mail(
         &mut conn,
         &ip_to_country_mapper,
         &account_form_checks::Submission {
@@ -304,7 +304,7 @@ pub async fn resend_signup_code(
         },
     )
     .await;
-    if check.should_send_mail {
+    if may_send_mail {
         signup::resend_code(&mut conn, &session).await?;
     }
     skip_authorize().authorized_ok(HttpResponse::Ok().finish())

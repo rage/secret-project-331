@@ -172,7 +172,7 @@ pub async fn request_email_verification_code(
     let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
         .await?
         .email;
-    let check = account_form_checks::assess(
+    let may_send_mail = account_form_checks::may_send_mail(
         &mut conn,
         &ip_to_country_mapper,
         &account_form_checks::Submission {
@@ -185,7 +185,7 @@ pub async fn request_email_verification_code(
         },
     )
     .await;
-    if !check.should_send_mail {
+    if !may_send_mail {
         return token.authorized_ok(web::Json(RequestEmailVerificationOutcome::Queued));
     }
 

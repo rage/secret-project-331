@@ -59,7 +59,7 @@ pub async fn update_user_info(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
-    let check = domain::user_info::check_email_change(
+    let may_send_mail = domain::user_info::may_mail_changed_email(
         &mut conn,
         &ip_to_country_mapper,
         &request,
@@ -71,7 +71,7 @@ pub async fn update_user_info(
         domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
             .await?;
 
-    if updated.email_changed && check.should_send_mail {
+    if updated.email_changed && may_send_mail {
         // A database trigger has already cleared `email_verified_at` for the old address.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,

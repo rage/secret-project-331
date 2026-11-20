@@ -10,52 +10,37 @@ import type { Block } from "@/types/courseMaterialBlock"
 import type { BlockRendererProps } from "../.."
 import ColumnBlock from "./ColumnBlock"
 
-const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = ({
-  data,
-  isExam,
-}) => {
-  const innerBlocks = data.innerBlocks as Block<ColumnAttributes>[]
-  const {
-    isStackedOnMobile,
-    // align,
-    // className,
-
-    // style,
-
-    verticalAlignment,
-  } = data.attributes
+const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsAttributes>>> = (
+  props,
+) => {
+  const innerBlocks = props.data.innerBlocks as Block<ColumnAttributes>[]
+  const { isStackedOnMobile, verticalAlignment } = props.data.attributes
 
   return (
     <div
       className={css`
-        /* This respondToOrLarger should be kept on top,
-          as this has some stylelint parsing error in pre-commit hook, probably related to:
-          https://github.com/stylelint/stylelint/issues/4401
-        */
-        ${respondToOrLarger.md} {
-          div:not(:first-child) {
-            margin-left: 2rem;
-          }
-          flex-wrap: nowrap;
-        }
-        ${verticalAlignment && `align-items: ${verticalAlignment};`}
         display: flex;
         flex-wrap: wrap;
+        gap: 1.5rem 2rem;
+        ${verticalAlignment && `align-items: ${verticalAlignment};`}
 
         ${
-          isStackedOnMobile &&
-          respondToOrLarger.md &&
-          "> div { width: 100%; }" /* Ensure width 100% for child divs */
+          isStackedOnMobile !== false &&
+          `> * {
+          flex-basis: 100%;
+        }`
         }
-        ${
-          !isStackedOnMobile &&
-          "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */
+
+        ${respondToOrLarger.md} {
+          > * {
+            flex-basis: 0;
+          }
         }
       `}
     >
-      {innerBlocks.map((block) => {
-        return <ColumnBlock key={block.clientId} data={block} id={block.clientId} isExam={isExam} />
-      })}
+      {innerBlocks.map((block) => (
+        <ColumnBlock key={block.clientId} data={block} id={block.clientId} isExam={props.isExam} />
+      ))}
     </div>
   )
 }

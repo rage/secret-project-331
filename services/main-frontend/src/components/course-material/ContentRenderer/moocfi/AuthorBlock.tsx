@@ -30,6 +30,11 @@ const Wrapper = styled.div`
     margin: 1.25rem 0 !important;
   }
 
+  /* The name, bio and image credit inside a column read as one card. */
+  .course-material-block .course-material-block {
+    margin: 0 !important;
+  }
+
   figure {
     margin: 0;
     img {

@@ -303,6 +303,23 @@ async function advanceClock(page: Page, ms: number) {
   }
 }
 
+/**
+ * Lets the held chapter-locks requests through and waits until the page has rendered their
+ * response, so later assertions see the state after it.
+ */
+async function releaseChapterLocks(page: Page, heldLocks: (() => Promise<void>)[]) {
+  const locksResponse = page.waitForResponse(CHAPTER_LOCKS_URL)
+  await Promise.all(heldLocks.map((release) => release()))
+  await (await locksResponse).finished()
+  // React Query notifies in a setTimeout batch; the answer merge runs in an effect after that render.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(() => resolve())), 0)
+      }),
+  )
+}
+
 function taskContainer(page: Page, title: string): Locator {
   return page
     .getByTestId(/^throttled-renderer-exercise-iframe-/)
@@ -444,9 +461,7 @@ test("answers survive the chapter locks arriving after them", async ({ page }) =
   await expectSubmittable(page)
   await expect.poll(() => heldLocks.length).toBeGreaterThan(0)
 
-  const locksResponse = page.waitForResponse(CHAPTER_LOCKS_URL)
-  await Promise.all(heldLocks.map((release) => release()))
-  await locksResponse
+  await releaseChapterLocks(page, heldLocks)
 
   await expectSubmittable(page)
 })
@@ -468,9 +483,7 @@ test("an empty answer sent on every set-state survives refetches but not a reloa
 
   // The locks re-run the state update, but a state equal to the posted one is not re-sent.
   await expect.poll(() => heldLocks.length).toBeGreaterThan(0)
-  const locksResponse = page.waitForResponse(CHAPTER_LOCKS_URL)
-  await Promise.all(heldLocks.map((release) => release()))
-  await locksResponse
+  await releaseChapterLocks(page, heldLocks)
   await expectSubmittable(page)
   expect(await setStatesReceived(page, TASK_2)).toHaveLength(1)
 

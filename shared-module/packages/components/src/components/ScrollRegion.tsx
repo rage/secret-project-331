@@ -1,5 +1,6 @@
 "use client"
 
+import { css, cx } from "@emotion/css"
 import React, { useEffect, useRef, useState } from "react"
 import { useObjectRef } from "react-aria"
 
@@ -21,9 +22,19 @@ export interface ScrollRegionProps extends Omit<
 
 const NO_OVERFLOW: ScrollOverflow = { start: false, end: false }
 
+const focusRingCss = css`
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+`
+
 /** A horizontal scroll container that is a tab stop and a named region only while it overflows. */
 export const ScrollRegion = React.forwardRef<HTMLDivElement, ScrollRegionProps>(
-  function ScrollRegion({ label, labelledBy, onOverflowChange, children, ...rest }, forwardedRef) {
+  function ScrollRegion(
+    { label, labelledBy, onOverflowChange, className, children, ...rest },
+    forwardedRef,
+  ) {
     const ref = useObjectRef(forwardedRef)
     const [overflow, setOverflow] = useState(NO_OVERFLOW)
     const onOverflowChangeRef = useRef(onOverflowChange)
@@ -79,6 +90,7 @@ export const ScrollRegion = React.forwardRef<HTMLDivElement, ScrollRegionProps>(
     return (
       <div
         {...rest}
+        className={cx(focusRingCss, className)}
         ref={ref}
         // Keyboard users need a tab stop to scroll sideways.
         // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex

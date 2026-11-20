@@ -14,11 +14,6 @@ export const getScrollerStyles = (allowFullWidth: boolean) => css`
   border-radius: 4px;
   background-color: #282c34;
   margin: ${allowFullWidth ? "calc(16px - 1.5rem) 16px" : "16px"};
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-  }
 `
 
 export const getPreStyles = (fontSizePx: number) => css`

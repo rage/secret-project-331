@@ -170,7 +170,12 @@ const GuidedLinking: React.FC<Props> = ({
       isAcknowledged: false,
     },
   })
-  const chosenMap = courseForm.watch("chosen")
+  // `watch` returns the form's own object, which is mutated in place, so memos keyed on it go stale.
+  const chosenMap = useWatch({
+    control: courseForm.control,
+    name: "chosen",
+    compute: (chosen) => ({ ...chosen }),
+  })
   const isAcknowledged = courseForm.watch("isAcknowledged")
   const debouncedSearch = useDebouncedValue(courseForm.watch("search"), SEARCH_DEBOUNCE_MS)
 

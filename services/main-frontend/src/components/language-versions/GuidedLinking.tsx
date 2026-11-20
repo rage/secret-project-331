@@ -16,9 +16,9 @@ import {
 import type { JoinCandidate, LanguageVersionCourse } from "@/generated/api/types.generated"
 import {
   useInvalidateLanguageVersions,
+  useLanguageVersionAiSuggestions,
   useLanguageVersionJoinCandidates,
   useLanguageVersionMutation,
-  useLanguageVersionSuggestions,
 } from "@/hooks/useLanguageVersions"
 import useDebouncedValue from "@/shared-module/common/hooks/useDebouncedValue"
 import useLanguageName from "@/shared-module/common/hooks/useLanguageName"
@@ -95,6 +95,7 @@ const PHASE_APPLIED = "applied"
 type Phase = typeof PHASE_EDITING | typeof PHASE_APPLYING | typeof PHASE_APPLIED
 
 const POST = "POST"
+const SCROLL_TO_START = "start"
 // The batch invalidates once after its last request instead of after each one.
 const NO_INVALIDATION = "none"
 
@@ -237,12 +238,14 @@ const GuidedLinking: React.FC<Props> = ({
     () => new Set(otherCourseIdsKey.split(",").filter((id) => id !== "")),
     [otherCourseIdsKey],
   )
-  const suggestionsQuery = useLanguageVersionSuggestions(
+  // Off while applying and after it, so the invalidation at the end doesn't wait for the AI again
+  // and reset the rows under the result.
+  const suggestionsQuery = useLanguageVersionAiSuggestions(
     courseId,
-    null,
     chosenIds,
-    step !== STEP_COURSES,
+    step !== STEP_COURSES && phase === PHASE_EDITING,
   )
+  const aiStatus = suggestionsQuery.data?.ai_status
   const pageRows = useMemo(
     () => pageMatchRows(t, languageName, suggestionsQuery.data?.pages ?? [], otherCourseIds),
     [suggestionsQuery.data, t, languageName, otherCourseIds],
@@ -298,7 +301,7 @@ const GuidedLinking: React.FC<Props> = ({
     isMatchStep && chapterIndex > 0 ? chapterKeys[chapterIndex - 1] : undefined
   const firstChapter = chapterKeys[0]
   const lastChapter = chapterKeys.at(-1)
-  const showTop = () => sectionRef.current?.scrollIntoView({ block: "start" })
+  const showTop = () => sectionRef.current?.scrollIntoView({ block: SCROLL_TO_START })
   // Continue and Back walk through every chapter tab so that no chapter is skipped unseen.
   const goForward = () => {
     if (step === STEP_REVIEW) {
@@ -503,8 +506,21 @@ const GuidedLinking: React.FC<Props> = ({
             (page) => chapterKey(page.chapter_number) === chapter,
           )
         : []
+    if (suggestionsQuery.isPending) {
+      return (
+        <p className={mutedCss} role="status">
+          {t("language-versions-ai-loading")}
+        </p>
+      )
+    }
     return (
       <>
+        {aiStatus === "unavailable" && (
+          <p className={mutedCss}>{t("language-versions-ai-unavailable")}</p>
+        )}
+        {aiStatus === "partly_unavailable" && (
+          <p className={mutedCss}>{t("language-versions-ai-partly-unavailable")}</p>
+        )}
         <div className={toolbarCss}>
           <ToggleButtonGroup
             name="chapter"
@@ -774,7 +790,10 @@ const GuidedLinking: React.FC<Props> = ({
           <Button
             variant="primary"
             size="medium"
-            disabled={step === STEP_COURSES && chosenCandidates.length === 0 && courses.length < 2}
+            disabled={
+              (step === STEP_COURSES && chosenCandidates.length === 0 && courses.length < 2) ||
+              (step !== STEP_COURSES && suggestionsQuery.isPending)
+            }
             onPress={goForward}
           >
             {step === STEP_REVIEW

@@ -629,6 +629,16 @@ export const zAgentPreviewLink = z.object({
   preview_path: z.string(),
 })
 
+/**
+ * Whether AI picks went into the suggestions.
+ */
+export const zAiSuggestionStatus = z.enum([
+  "not_requested",
+  "used",
+  "partly_unavailable",
+  "unavailable",
+])
+
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
 
 /**
@@ -7509,6 +7519,8 @@ export const zSuggestionReason = z.enum([
   "same_position_and_exercise_count",
   "same_position",
   "same_position_and_exercise_types",
+  "ai",
+  "ai_and_position",
 ])
 
 /**
@@ -7631,7 +7643,7 @@ export const zLanguageVersionReport = z.object({
 /**
  * How sure a suggestion is.
  */
-export const zSuggestionSureness = z.enum(["very_sure", "likely", "unsure"])
+export const zSuggestionSureness = z.enum(["very_sure", "likely", "unsure", "ai_suggestion"])
 
 /**
  * The current or suggested counterpart of an exercise in one course.
@@ -7678,6 +7690,7 @@ export const zPageLinkSuggestion = z.object({
  * Suggested counterparts for this course's pages and exercises (GET /suggestions).
  */
 export const zLinkSuggestions = z.object({
+  ai_status: zAiSuggestionStatus,
   courses: z.array(zLanguageVersionCourse),
   exercises: z.array(zExerciseLinkSuggestion),
   pages: z.array(zPageLinkSuggestion),
@@ -13228,6 +13241,24 @@ export const zUpdateGlossaryTermBody = zTermUpdate
 export const zUpdateGlossaryTermPath = z.object({
   term_id: z.uuid(),
 })
+
+export const zGetLanguageVersionAiSuggestionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zGetLanguageVersionAiSuggestionsQuery = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  candidate_course_ids: z.array(z.uuid()).optional(),
+})
+
+/**
+ * Suggested links
+ */
+export const zGetLanguageVersionAiSuggestionsResponse = zLinkSuggestions
 
 export const zGetMyMoocfiCreditRegistrationsPath = z.object({
   moocfi_course_id: z.uuid(),

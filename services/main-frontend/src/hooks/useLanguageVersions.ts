@@ -6,6 +6,7 @@ import { useCallback } from "react"
 
 import {
   deleteLanguageVersionProblemDismissalMutation,
+  getLanguageVersionAiSuggestionsOptions,
   getLanguageVersionJoinCandidatesOptions,
   getLanguageVersionJoinPreviewOptions,
   getLanguageVersionReportOptions,
@@ -115,6 +116,26 @@ export function useLanguageVersionSuggestions(
       },
     }),
     enabled,
+  })
+}
+
+/**
+ * Like `useLanguageVersionSuggestions` for all chapters, with AI picks. Refetches only when
+ * invalidated: a refetch waits for the AI again and can pick differently, which would reset the
+ * picks the teacher is working on.
+ */
+export function useLanguageVersionAiSuggestions(
+  courseId: string,
+  candidateCourseIds: string[],
+  enabled = true,
+) {
+  return useQuery({
+    ...getLanguageVersionAiSuggestionsOptions({
+      path: { course_id: courseId },
+      query: candidateCourseIds.length === 0 ? {} : { candidate_course_ids: candidateCourseIds },
+    }),
+    enabled,
+    staleTime: Infinity,
   })
 }
 

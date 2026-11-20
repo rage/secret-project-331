@@ -310,6 +310,8 @@ pub enum SuggestionSureness {
     VerySure,
     Likely,
     Unsure,
+    /// The AI's pick where the position heuristic disagreed or had none; needs accepting.
+    AiSuggestion,
 }
 
 /// Why the tool suggests a counterpart.
@@ -323,6 +325,24 @@ pub enum SuggestionReason {
     SamePosition,
     /// Exercises: same position on linked pages and the same exercise types.
     SamePositionAndExerciseTypes,
+    /// The AI picked it from titles, names and content.
+    Ai,
+    /// The AI and the position heuristic picked the same counterpart.
+    AiAndPosition,
+}
+
+/// Whether AI picks went into the suggestions.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AiSuggestionStatus {
+    /// Heuristic suggestions only, as asked.
+    NotRequested,
+    /// Every AI request answered, or nothing needed asking.
+    Used,
+    /// Some chapters fell back to the heuristic because their AI request failed.
+    PartlyUnavailable,
+    /// No AI model is configured or every AI request failed; heuristic suggestions only.
+    Unavailable,
 }
 
 /// Suggested counterparts for this course's pages and exercises (GET /suggestions).
@@ -338,6 +358,7 @@ pub struct LinkSuggestions {
     /// Pages of the other courses that no row links or suggests.
     pub unmatched_pages: Vec<LanguageVersionPage>,
     pub unmatched_exercises: Vec<LanguageVersionExercise>,
+    pub ai_status: AiSuggestionStatus,
 }
 
 /// A page of this course and its counterpart in each other course.

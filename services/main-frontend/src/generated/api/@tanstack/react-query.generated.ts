@@ -275,6 +275,7 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getLanguageVersionAiSuggestions,
   getLanguageVersionExerciseCounterparts,
   getLanguageVersionJoinCandidates,
   getLanguageVersionJoinPreview,
@@ -972,6 +973,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetLanguageVersionAiSuggestionsData,
+  GetLanguageVersionAiSuggestionsResponse,
   GetLanguageVersionExerciseCounterpartsData,
   GetLanguageVersionExerciseCounterpartsResponse,
   GetLanguageVersionJoinCandidatesData,
@@ -5587,7 +5590,8 @@ export const getLanguageVersionSuggestionsQueryKey = (
 /**
  * GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
  *
- * Candidate courses outside the language versions need `Edit` too.
+ * Candidate courses outside the language versions need `Edit` too. Heuristic only; see
+ * `/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.
  */
 export const getLanguageVersionSuggestionsOptions = (
   options: Options<GetLanguageVersionSuggestionsData>,
@@ -11369,6 +11373,35 @@ export const updateGlossaryTermMutation = (
   }
   return mutationOptions
 }
+
+export const getLanguageVersionAiSuggestionsQueryKey = (
+  options: Options<GetLanguageVersionAiSuggestionsData>,
+) => createQueryKey("getLanguageVersionAiSuggestions", options)
+
+/**
+ * GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.
+ *
+ * Outside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the
+ * AI is unavailable, the heuristic suggestions come back with `ai_status` saying so.
+ */
+export const getLanguageVersionAiSuggestionsOptions = (
+  options: Options<GetLanguageVersionAiSuggestionsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionAiSuggestionsResponse,
+    DefaultError,
+    GetLanguageVersionAiSuggestionsResponse,
+    ReturnType<typeof getLanguageVersionAiSuggestionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionAiSuggestions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionAiSuggestionsQueryKey(options),
+  })
 
 export const getMyMoocfiCreditRegistrationsQueryKey = (
   options: Options<GetMyMoocfiCreditRegistrationsData>,

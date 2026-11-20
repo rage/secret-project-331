@@ -1346,6 +1346,11 @@ export type AgentPreviewLink = {
   preview_path: string
 }
 
+/**
+ * Whether AI picks went into the suggestions.
+ */
+export type AiSuggestionStatus = "not_requested" | "used" | "partly_unavailable" | "unavailable"
+
 export type AnalysisCourseType = "compulsory" | "elective"
 
 /**
@@ -5984,6 +5989,7 @@ export type LegacyLedgerDivergenceRow = {
  * Suggested counterparts for this course's pages and exercises (GET /suggestions).
  */
 export type LinkSuggestions = {
+  ai_status: AiSuggestionStatus
   /**
    * The courses the suggestions cover: the language versions plus any requested candidates.
    */
@@ -8587,11 +8593,13 @@ export type SuggestionReason =
   | "same_position_and_exercise_count"
   | "same_position"
   | "same_position_and_exercise_types"
+  | "ai"
+  | "ai_and_position"
 
 /**
  * How sure a suggestion is.
  */
-export type SuggestionSureness = "very_sure" | "likely" | "unsure"
+export type SuggestionSureness = "very_sure" | "likely" | "unsure" | "ai_suggestion"
 
 /**
  * What Suotar did with one row of a request.
@@ -17842,6 +17850,37 @@ export type UpdateGlossaryTermResponses = {
    */
   200: unknown
 }
+
+export type GetLanguageVersionAiSuggestionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: {
+    /**
+     * Only this chapter number; all chapters when absent.
+     */
+    chapter_number?: number
+    /**
+     * Courses outside the language versions to include, for matching before a join.
+     */
+    candidate_course_ids?: Array<string>
+  }
+  url: "/api/v0/main-frontend/language-version-ai-suggestions/{course_id}"
+}
+
+export type GetLanguageVersionAiSuggestionsResponses = {
+  /**
+   * Suggested links
+   */
+  200: LinkSuggestions
+}
+
+export type GetLanguageVersionAiSuggestionsResponse =
+  GetLanguageVersionAiSuggestionsResponses[keyof GetLanguageVersionAiSuggestionsResponses]
 
 export type GetMyMoocfiCreditRegistrationsData = {
   body?: never

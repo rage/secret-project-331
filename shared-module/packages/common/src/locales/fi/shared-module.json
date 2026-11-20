@@ -221,6 +221,7 @@
   "table.noRows": "Ei mitään näytettävää",
   "table.selectAllRows": "Valitse kaikki tämän sivun rivit",
   "table.selectRow": "Valitse rivi",
+  "throttled-renderer.loading": "Ladataan…",
   "title-data-view": "Tietonäkymä",
   "title-debug-view": "Debuggaa näkymä",
   "title-references": "Lähteet",

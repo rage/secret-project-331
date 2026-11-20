@@ -219,6 +219,7 @@
   "table.noRows": "Inget att visa",
   "table.selectAllRows": "Markera alla rader på den här sidan",
   "table.selectRow": "Markera rad",
+  "throttled-renderer.loading": "Laddar…",
   "title-data-view": "Data Vy",
   "title-references": "Referenser",
   "to-complete-this-chapter": "För att slutföra detta kapitel",

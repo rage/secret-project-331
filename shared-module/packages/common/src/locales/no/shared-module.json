@@ -218,6 +218,7 @@
   "table.noRows": "Ingenting å vise",
   "table.selectAllRows": "Velg alle rader på denne siden",
   "table.selectRow": "Velg rad",
+  "throttled-renderer.loading": "Laster…",
   "title-data-view": "Datavisning",
   "title-references": "Referanser",
   "to-complete-this-chapter": "For å fullføre dette kapittelet",

@@ -220,6 +220,7 @@
   "table.noRows": "Немає що показати",
   "table.selectAllRows": "Вибрати всі рядки на цій сторінці",
   "table.selectRow": "Вибрати рядок",
+  "throttled-renderer.loading": "Завантаження…",
   "title-data-view": "Перегляд даних",
   "title-debug-view": "Перегляд налагодження",
   "title-references": "Література",

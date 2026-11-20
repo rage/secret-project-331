@@ -1737,6 +1737,7 @@
   "focus-dialog": "Focus this dialog",
   "font-size": "Font size",
   "forgot-password": "Forgot your password?",
+  "formula": "Formula",
   "frequency-penalty": "Frequency penalty",
   "gantt-timeline-caption": "Course engagement periods with module completions over time",
   "gap-since-previous-for-module": "Gap before {{module}}",

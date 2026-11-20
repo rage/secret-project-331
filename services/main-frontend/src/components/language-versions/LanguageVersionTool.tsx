@@ -141,24 +141,32 @@ export const LanguageVersionTool: React.FC<Props> = ({ courseId, mode, extraCour
                 courseId={courseId}
                 mode={mode}
                 courses={report.courses}
-                extraActions={extraCourseActions}
+                extraActions={
+                  <>
+                    {extraCourseActions}
+                    {/* Reopens every page and exercise link for checking, not only the missing ones. */}
+                    {report.courses.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="medium"
+                        disabledReason={readOnlyReason}
+                        onPress={() =>
+                          setFlow({ type: "guided", candidateCourseIds: [], startAtPages: true })
+                        }
+                      >
+                        {t("language-versions-link-step-by-step")}
+                      </Button>
+                    )}
+                  </>
+                }
+                onAddFirstVersion={() =>
+                  setFlow({ type: "guided", candidateCourseIds: [], startAtPages: false })
+                }
                 onJoined={setJoinedCourseId}
               />
               {report.courses.length === 1 && (
                 <Infobox heading={t("language-versions-no-other-versions-heading")}>
-                  <div className={joinedNoticeCss}>
-                    {t("language-versions-no-other-versions-body")}
-                    <Button
-                      variant="secondary"
-                      size="medium"
-                      disabledReason={readOnlyReason}
-                      onPress={() =>
-                        setFlow({ type: "guided", candidateCourseIds: [], startAtPages: false })
-                      }
-                    >
-                      {t("language-versions-find-step-by-step")}
-                    </Button>
-                  </div>
+                  {t("language-versions-no-other-versions-body")}
                 </Infobox>
               )}
               {joinedCourse && (

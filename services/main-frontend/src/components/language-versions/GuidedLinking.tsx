@@ -1,8 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Key } from "react-aria"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -16,9 +16,9 @@ import {
 import type { JoinCandidate, LanguageVersionCourse } from "@/generated/api/types.generated"
 import {
   useInvalidateLanguageVersions,
+  useLanguageVersionAiSuggestions,
   useLanguageVersionJoinCandidates,
   useLanguageVersionMutation,
-  useLanguageVersionSuggestions,
 } from "@/hooks/useLanguageVersions"
 import useDebouncedValue from "@/shared-module/common/hooks/useDebouncedValue"
 import useLanguageName from "@/shared-module/common/hooks/useLanguageName"
@@ -30,6 +30,7 @@ import {
   Infobox,
   LanguageChip,
   QueryResult,
+  Spinner,
   StatTile,
   StatTileList,
   Stepper,
@@ -61,6 +62,7 @@ import {
   summarizeMatches,
   useDefaultChapter,
 } from "./matchRows"
+import ReviewLinkTable from "./ReviewLinkTable"
 import {
   bulletsCss,
   cancelAction,
@@ -81,6 +83,12 @@ import {
   useBlockedReasonText,
 } from "./shared"
 
+const aiLoadingCss = css`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+`
+
 const CHAPTER_FIELD = "chapter"
 const STEP_COURSES = 0
 const STEP_PAGES = 1
@@ -94,6 +102,7 @@ const PHASE_APPLIED = "applied"
 type Phase = typeof PHASE_EDITING | typeof PHASE_APPLYING | typeof PHASE_APPLIED
 
 const POST = "POST"
+const SCROLL_TO_START = "start"
 // The batch invalidates once after its last request instead of after each one.
 const NO_INVALIDATION = "none"
 
@@ -170,7 +179,12 @@ const GuidedLinking: React.FC<Props> = ({
       isAcknowledged: false,
     },
   })
-  const chosenMap = courseForm.watch("chosen")
+  // `watch` returns the form's own object, which is mutated in place, so memos keyed on it go stale.
+  const chosenMap = useWatch({
+    control: courseForm.control,
+    name: "chosen",
+    compute: (chosen) => ({ ...chosen }),
+  })
   const isAcknowledged = courseForm.watch("isAcknowledged")
   const debouncedSearch = useDebouncedValue(courseForm.watch("search"), SEARCH_DEBOUNCE_MS)
 
@@ -231,12 +245,14 @@ const GuidedLinking: React.FC<Props> = ({
     () => new Set(otherCourseIdsKey.split(",").filter((id) => id !== "")),
     [otherCourseIdsKey],
   )
-  const suggestionsQuery = useLanguageVersionSuggestions(
+  // Off while applying and after it, so the invalidation at the end doesn't wait for the AI again
+  // and reset the rows under the result.
+  const suggestionsQuery = useLanguageVersionAiSuggestions(
     courseId,
-    null,
     chosenIds,
-    step !== STEP_COURSES,
+    step !== STEP_COURSES && phase === PHASE_EDITING,
   )
+  const aiStatus = suggestionsQuery.data?.ai_status
   const pageRows = useMemo(
     () => pageMatchRows(t, languageName, suggestionsQuery.data?.pages ?? [], otherCourseIds),
     [suggestionsQuery.data, t, languageName, otherCourseIds],
@@ -283,6 +299,48 @@ const GuidedLinking: React.FC<Props> = ({
   )
   const chapter =
     useDefaultChapter(courseForm.watch("chapter"), chapterKeys, pickChapter) ?? OUTSIDE_CHAPTERS
+
+  const sectionRef = useRef<HTMLElement>(null)
+  const chapterIndex = chapterKeys.indexOf(chapter)
+  const isMatchStep = step === STEP_PAGES || step === STEP_EXERCISES
+  const nextChapter = isMatchStep && chapterIndex >= 0 ? chapterKeys[chapterIndex + 1] : undefined
+  const previousChapter =
+    isMatchStep && chapterIndex > 0 ? chapterKeys[chapterIndex - 1] : undefined
+  const firstChapter = chapterKeys[0]
+  const lastChapter = chapterKeys.at(-1)
+  const showTop = () => sectionRef.current?.scrollIntoView({ block: SCROLL_TO_START })
+  // Continue and Back walk through every chapter tab so that no chapter is skipped unseen.
+  const goForward = () => {
+    if (step === STEP_REVIEW) {
+      setIsConfirmOpen(true)
+      return
+    }
+    if (nextChapter !== undefined) {
+      pickChapter(nextChapter)
+    } else {
+      if (step === STEP_PAGES && firstChapter !== undefined) {
+        pickChapter(firstChapter)
+      }
+      setStep(step + 1)
+    }
+    showTop()
+  }
+  const isFirstScreen =
+    step === STEP_COURSES || (startAtPages && step === STEP_PAGES && chapterIndex <= 0)
+  const goBack = () => {
+    if (previousChapter !== undefined) {
+      pickChapter(previousChapter)
+    } else if (isFirstScreen) {
+      onExit(false)
+      return
+    } else {
+      if (step === STEP_EXERCISES && lastChapter !== undefined) {
+        pickChapter(lastChapter)
+      }
+      setStep(step - 1)
+    }
+    showTop()
+  }
 
   const chapterLabel = (key: string) =>
     key === OUTSIDE_CHAPTERS
@@ -445,17 +503,32 @@ const GuidedLinking: React.FC<Props> = ({
 
   const renderMatchStep = (kind: typeof ITEM_KIND_PAGES | typeof ITEM_KIND_EXERCISES) => {
     const rows = kind === ITEM_KIND_PAGES ? pageRows : exerciseRows
-    const { pendingCount } = kind === ITEM_KIND_PAGES ? summary.pages : summary.exercises
     const chapterOf = kind === ITEM_KIND_PAGES ? pageChapterOf : exerciseChapterOf
     const chapterRows = rows.filter((row) => chapterOf.get(row.id) === chapter)
+    // `summary` re-renders on every match change, so the values read here are current.
+    const { pendingCount } = summarizeMatches(chapterRows, matchForm.getValues())
     const unmatched =
       kind === ITEM_KIND_PAGES
         ? (suggestionsQuery.data?.unmatched_pages ?? []).filter(
             (page) => chapterKey(page.chapter_number) === chapter,
           )
         : []
+    if (suggestionsQuery.isPending) {
+      return (
+        <p className={cx(mutedCss, aiLoadingCss)} role="status">
+          <Spinner size="sm" />
+          {t("language-versions-ai-loading")}
+        </p>
+      )
+    }
     return (
       <>
+        {aiStatus === "unavailable" && (
+          <p className={mutedCss}>{t("language-versions-ai-unavailable")}</p>
+        )}
+        {aiStatus === "partly_unavailable" && (
+          <p className={mutedCss}>{t("language-versions-ai-partly-unavailable")}</p>
+        )}
         <div className={toolbarCss}>
           <ToggleButtonGroup
             name="chapter"
@@ -469,7 +542,7 @@ const GuidedLinking: React.FC<Props> = ({
               </ToggleButtonGroupButton>
             ))}
           </ToggleButtonGroup>
-          <Button variant="secondary" size="medium" onPress={() => acceptAll(rows)}>
+          <Button variant="secondary" size="medium" onPress={() => acceptAll(chapterRows)}>
             {pendingCount > 0
               ? t("language-versions-accept-all")
               : t("language-versions-undo-accept-all")}
@@ -513,7 +586,7 @@ const GuidedLinking: React.FC<Props> = ({
   const versionCount = allCourses.length
 
   return (
-    <section className={sectionCss}>
+    <section className={sectionCss} ref={sectionRef}>
       <Stepper
         aria-label={t("language-versions-steps")}
         currentStep={isApplied ? STEP_REVIEW + 1 : step}
@@ -622,6 +695,40 @@ const GuidedLinking: React.FC<Props> = ({
               })}
             </p>
           )}
+          {thisCourse && (
+            <>
+              <ReviewLinkTable
+                title={t("language-versions-guided-step-pages")}
+                referenceCourse={thisCourse}
+                courses={otherCourses}
+                rows={pageRows}
+                fields={matchForm.getValues()}
+                rowGroup={(row) => {
+                  const key = pageChapterOf.get(row.id) ?? OUTSIDE_CHAPTERS
+                  return { key, label: chapterLabel(key) }
+                }}
+              />
+              <ReviewLinkTable
+                title={t("language-versions-guided-step-exercises")}
+                referenceCourse={thisCourse}
+                courses={otherCourses}
+                rows={exerciseRows}
+                fields={matchForm.getValues()}
+                rowGroup={(row) => {
+                  const key = exerciseChapterOf.get(row.id) ?? OUTSIDE_CHAPTERS
+                  return {
+                    key: `${key}/${row.group?.key ?? ""}`,
+                    label: row.group
+                      ? t("language-versions-page-in-chapter", {
+                          chapter: chapterLabel(key),
+                          title: row.group.label,
+                        })
+                      : chapterLabel(key),
+                  }
+                }}
+              />
+            </>
+          )}
           {(() => {
             const left = leftWithoutCounterpart()
             if (left.length === 0) {
@@ -685,24 +792,17 @@ const GuidedLinking: React.FC<Props> = ({
 
       {!isApplied && (
         <div className={footerCss}>
-          <Button
-            variant="secondary"
-            size="medium"
-            onPress={() =>
-              step === STEP_COURSES || (startAtPages && step === STEP_PAGES)
-                ? onExit(false)
-                : setStep(step - 1)
-            }
-          >
-            {step === STEP_COURSES || (startAtPages && step === STEP_PAGES)
-              ? t("button-text-cancel")
-              : t("language-versions-back")}
+          <Button variant="secondary" size="medium" onPress={goBack}>
+            {isFirstScreen ? t("button-text-cancel") : t("language-versions-back")}
           </Button>
           <Button
             variant="primary"
             size="medium"
-            disabled={step === STEP_COURSES && chosenCandidates.length === 0 && courses.length < 2}
-            onPress={() => (step === STEP_REVIEW ? setIsConfirmOpen(true) : setStep(step + 1))}
+            disabled={
+              (step === STEP_COURSES && chosenCandidates.length === 0 && courses.length < 2) ||
+              (step !== STEP_COURSES && suggestionsQuery.isPending)
+            }
+            onPress={goForward}
           >
             {step === STEP_REVIEW
               ? t("language-versions-apply-changes")

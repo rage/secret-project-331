@@ -5710,7 +5710,7 @@
     "/api/v0/main-frontend/courses/{course_id}/language-versions/suggestions": {
       "get": {
         "tags": ["course-language-versions"],
-        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.\n\nCandidate courses outside the language versions need `Edit` too.",
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.\n\nCandidate courses outside the language versions need `Edit` too. Heuristic only; see\n`/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.",
         "operationId": "getLanguageVersionSuggestions",
         "parameters": [
           {
@@ -13649,6 +13649,60 @@
         }
       }
     },
+    "/api/v0/main-frontend/language-version-ai-suggestions/{course_id}": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.\n\nOutside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the\nAI is unavailable, the heuristic suggestions come back with `ai_status` saying so.",
+        "operationId": "getLanguageVersionAiSuggestions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_number",
+            "in": "query",
+            "description": "Only this chapter number; all chapters when absent.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "candidate_course_ids",
+            "in": "query",
+            "description": "Courses outside the language versions to include, for matching before a join.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggested links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkSuggestions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}": {
       "get": {
         "tags": ["moocfi-credit-registrations"],
@@ -19960,6 +20014,11 @@
             "description": "Path of the preview page in the main frontend. It stops working after a few minutes."
           }
         }
+      },
+      "AiSuggestionStatus": {
+        "type": "string",
+        "description": "Whether AI picks went into the suggestions.",
+        "enum": ["not_requested", "used", "partly_unavailable", "unavailable"]
       },
       "AnalysisCourseType": {
         "type": "string",
@@ -31390,8 +31449,18 @@
       "LinkSuggestions": {
         "type": "object",
         "description": "Suggested counterparts for this course's pages and exercises (GET /suggestions).",
-        "required": ["courses", "pages", "exercises", "unmatched_pages", "unmatched_exercises"],
+        "required": [
+          "courses",
+          "pages",
+          "exercises",
+          "unmatched_pages",
+          "unmatched_exercises",
+          "ai_status"
+        ],
         "properties": {
+          "ai_status": {
+            "$ref": "#/components/schemas/AiSuggestionStatus"
+          },
           "courses": {
             "type": "array",
             "items": {
@@ -37753,13 +37822,15 @@
           "copy_history",
           "same_position_and_exercise_count",
           "same_position",
-          "same_position_and_exercise_types"
+          "same_position_and_exercise_types",
+          "ai",
+          "ai_and_position"
         ]
       },
       "SuggestionSureness": {
         "type": "string",
         "description": "How sure a suggestion is.",
-        "enum": ["very_sure", "likely", "unsure"]
+        "enum": ["very_sure", "likely", "unsure", "ai_suggestion"]
       },
       "SuotarAnswer": {
         "type": "string",

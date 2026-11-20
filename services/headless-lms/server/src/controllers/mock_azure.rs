@@ -17,6 +17,11 @@ use headless_lms_chatbot::{
     cms_ai_suggestion::RESPONSE_FORMAT_NAME as CMS_SUGGESTION_FORMAT,
     course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
     feedback_categorization::RESPONSE_FORMAT_NAME as FEEDBACK_CATEGORIZATION_FORMAT,
+    language_version_matching::{
+        HEURISTIC_PICK_PREFIX, ITEM_ID_PREFIX, OTHER_EXERCISES_HEADING, OTHER_PAGES_HEADING,
+        RESPONSE_FORMAT_NAME as LANGUAGE_VERSION_MATCHING_FORMAT, THIS_EXERCISES_HEADING,
+        THIS_PAGES_HEADING, VERY_SURE_LABEL,
+    },
     llm_utils::AzureCompletionRequest,
     message_suggestion::RESPONSE_FORMAT_NAME as MESSAGE_SUGGESTION_FORMAT,
     prompt_creation::RESPONSE_FORMAT_NAME as PROMPT_CREATION_FORMAT,
@@ -254,6 +259,12 @@ const SCENARIOS: &[Scenario] = &[
         matches: |request| request.wants_format(FEEDBACK_CATEGORIZATION_FORMAT),
         respond: |_, _| blocking_response(FEEDBACK_CATEGORIZATION_PAYLOAD),
         example: || MockRequest::structured_output(FEEDBACK_CATEGORIZATION_FORMAT),
+    },
+    Scenario {
+        name: "the language version matching",
+        matches: |request| request.wants_format(LANGUAGE_VERSION_MATCHING_FORMAT),
+        respond: |request, _| blocking_response(&language_version_matching_payload(request)),
+        example: || MockRequest::structured_output(LANGUAGE_VERSION_MATCHING_FORMAT),
     },
     Scenario {
         name: "the chart block specification",
@@ -1128,6 +1139,37 @@ const COURSE_DESCRIPTION_PAYLOAD: &str = r#"{"modules":[{"description":"Introduc
 
 const PROMPT_CREATION_PAYLOAD: &str = r#"{"prompt":"You are a helpful, clear, and concise chatbot for a course. Your purpose is to help learners understand and navigate the course, answer questions about its content when information is available, explain chatbot-related concepts at an appropriate level, and support learning with examples or step-by-step guidance. Do not invent course details, lessons, assignments, policies, or resources that have not been provided. If a question cannot be answered from the available information, say so plainly and ask the learner to provide more context or consult the course materials. Be friendly, professional, and focused. Keep responses relevant and avoid overwhelming the learner. When appropriate, suggest a practical next step or ask a clarifying question.","first_message":"Hi! I’m here to help you. Ask me about anything you’d like!","suggested_messages":["Can you pls help me?","Nice weather we're having.","Hello?"]}"#;
 
+/// The mock can't read titles, so it confirms the heuristic's very sure picks and leaves the rest
+/// unanswered, which keeps the seeded guided linking as the heuristic suggests it.
+fn language_version_matching_payload(request: &MockRequest) -> String {
+    let confirmed_picks = |heading: &str, next_heading: &str| -> Vec<Value> {
+        let mut picks = Vec::new();
+        let mut item: Option<&str> = None;
+        for line in request
+            .prompt_section(heading, next_heading)
+            .unwrap_or_default()
+            .lines()
+        {
+            if let Some(rest) = line.strip_prefix(ITEM_ID_PREFIX) {
+                item = rest.split_whitespace().next();
+            } else if let (Some(item), Some(pick)) = (
+                item,
+                line.trim()
+                    .strip_prefix(HEURISTIC_PICK_PREFIX)
+                    .and_then(|pick| pick.strip_suffix(&format!(" ({VERY_SURE_LABEL})"))),
+            ) {
+                picks.push(json!({ "item": item, "counterpart": pick }));
+            }
+        }
+        picks
+    };
+    json!({
+        "pages": confirmed_picks(THIS_PAGES_HEADING, OTHER_PAGES_HEADING),
+        "exercises": confirmed_picks(THIS_EXERCISES_HEADING, OTHER_EXERCISES_HEADING),
+    })
+    .to_string()
+}
+
 const FEEDBACK_CATEGORIZATION_PAYLOAD: &str = r#"{"category_name":"Useful feedback"}"#;
 
 // GET /api/v0/mock_azure/openai/v1/embeddings
@@ -1359,6 +1401,34 @@ mod tests {
             let content = parse_text_completion(completion).expect("the response has text content");
             assert_eq!(content, payload);
         }
+    }
+
+    /// The seeded guided linking relies on the mock confirming exactly the very sure hints.
+    #[test]
+    fn the_language_version_matching_mock_confirms_only_very_sure_hints() {
+        let item_a = Uuid::new_v4();
+        let item_b = Uuid::new_v4();
+        let counterpart = Uuid::new_v4();
+        let other = Uuid::new_v4();
+        let prompt = format!(
+            "{THIS_PAGES_HEADING}\n{ITEM_ID_PREFIX}{item_a} \"Silmukat\"\n  Text: x\n  \
+             {HEURISTIC_PICK_PREFIX}{counterpart} ({VERY_SURE_LABEL})\n\
+             {ITEM_ID_PREFIX}{item_b} \"Kertaus\"\n  {HEURISTIC_PICK_PREFIX}{other} (likely)\n\
+             {OTHER_PAGES_HEADING}\n{ITEM_ID_PREFIX}{counterpart} \"Loops\"\n"
+        );
+        let request = MockRequest {
+            conversation: vec![prompt],
+            ..MockRequest::structured_output(LANGUAGE_VERSION_MATCHING_FORMAT)
+        };
+        let answer: Value = serde_json::from_str(&language_version_matching_payload(&request))
+            .expect("the answer is JSON");
+        assert_eq!(
+            answer,
+            json!({
+                "pages": [{ "item": item_a.to_string(), "counterpart": counterpart.to_string() }],
+                "exercises": [],
+            })
+        );
     }
 
     /// A chart spec request whose prompt carries `sample` as the teacher's data file.

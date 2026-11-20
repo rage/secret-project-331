@@ -11,6 +11,7 @@ pub enum JSONType {
     Number,
     Integer,
     Boolean,
+    Null,
 }
 
 /// Defines the shape of a JSON object for the LLM, used both for structured output
@@ -62,6 +63,7 @@ pub enum SchemaPropertyType {
     ArrayProperty(ArrayProperty),
     Object(Schema),
     Item(JsonItem),
+    NullableItem(NullableJsonItem),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -87,6 +89,25 @@ pub struct JsonItem {
     pub type_field: JSONType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+}
+
+/// A scalar that may also be null. Strict mode requires every property, so this is how a value
+/// becomes optional there.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct NullableJsonItem {
+    /// The scalar type and [JSONType::Null].
+    #[serde(rename = "type")]
+    pub type_field: [JSONType; 2],
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+}
+
+/// A string property that may be null.
+pub fn nullable_string_property(description: Option<&str>) -> SchemaPropertyType {
+    SchemaPropertyType::NullableItem(NullableJsonItem {
+        type_field: [JSONType::String, JSONType::Null],
+        description: description.map(str::to_string),
+    })
 }
 
 /// An array of plain strings, the one composite property that tool parameter and structured output

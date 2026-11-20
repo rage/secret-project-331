@@ -39,10 +39,10 @@ test.describe("The teacher", () => {
     headless,
   }, testInfo) => {
     await page.goto(languageVersionsTabUrl(JOIN_SET.finnishCourseId))
-    await page.getByRole("button", { name: "Add an existing course" }).click()
+    await page.getByRole("button", { name: "Make an existing course a language version" }).click()
 
     const dialog = page.getByRole("dialog", {
-      name: "Add an existing course as a language version",
+      name: "Make an existing course a language version",
     })
     await dialog.getByRole("radio", { name: JOIN_SET.englishName }).check()
     await dialog.getByRole("button", { name: "Continue" }).click()
@@ -81,7 +81,6 @@ test.describe("The teacher", () => {
 
     await page.getByRole("button", { name: "Check the suggested links" }).click()
     await expect(page.getByRole("heading", { name: "Chapters and pages" })).toBeVisible()
-    await page.getByRole("button", { name: "Accept all suggestions" }).click()
     await expect(page.getByRole("button", { name: "Undo accept all" })).toBeVisible()
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -91,10 +90,26 @@ test.describe("The teacher", () => {
       waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "Undo accept all" })],
       beforeScreenshot: () => hideToasts(page),
     })
-    await page.getByRole("button", { name: "Continue" }).click()
+    // Continue opens each chapter tab in turn; Accept all only covers the tab on screen.
+    const chapterTab = (name: string) => page.getByRole("radio", { name, exact: true })
+    const continueButton = page.getByRole("button", { name: "Continue" })
+    await continueButton.click()
+    await expect(chapterTab("Chapter 1")).toBeChecked()
+    await expect(page.getByRole("button", { name: "Undo accept all" })).toBeVisible()
+    await continueButton.click()
+    // Chapter 2 pairs the Finnish-only "Kertaus" with the English-only "Review" by position.
+    await expect(chapterTab("Chapter 2")).toBeChecked()
+    await page.getByRole("button", { name: "Accept all suggestions" }).click()
+    await expect(page.getByRole("button", { name: "Undo accept all" })).toBeVisible()
+    await continueButton.click()
 
     await expect(page.getByRole("heading", { name: "Exercises", exact: true })).toBeVisible()
-    await page.getByRole("button", { name: "Continue" }).click()
+    await expect(chapterTab("Outside chapters")).toBeChecked()
+    await continueButton.click()
+    await expect(chapterTab("Chapter 1")).toBeChecked()
+    await continueButton.click()
+    await expect(chapterTab("Chapter 2")).toBeChecked()
+    await continueButton.click()
 
     await expect(page.getByRole("heading", { name: "Review and apply" })).toBeVisible()
     await page.getByRole("button", { name: "Apply changes" }).click()

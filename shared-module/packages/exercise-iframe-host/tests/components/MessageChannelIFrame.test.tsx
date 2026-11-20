@@ -2127,4 +2127,39 @@ describe("MessageChannelIFrame", () => {
       expect(focusFirstInvalidMessages()).toEqual([])
     })
   })
+
+  describe("onReloadRequested", () => {
+    afterEach(() => {
+      jest.useRealTimers()
+      jest.restoreAllMocks()
+    })
+
+    it("is called when the iframe requests a reload", () => {
+      jest.useFakeTimers()
+      const mockChannels: ReturnType<typeof createMockMessageChannel>[] = []
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        const channel = createMockMessageChannel()
+        mockChannels.push(channel)
+        return channel
+      })
+      jest.spyOn(console, "warn").mockImplementation(() => {})
+      const onReloadRequested = jest.fn()
+
+      render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            dialog={mockDialog}
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+            onReloadRequested={onReloadRequested}
+          />
+        </I18nextProvider>,
+      )
+      requestReload(mockChannels[0]!)
+
+      expect(onReloadRequested).toHaveBeenCalledTimes(1)
+    })
+  })
 })

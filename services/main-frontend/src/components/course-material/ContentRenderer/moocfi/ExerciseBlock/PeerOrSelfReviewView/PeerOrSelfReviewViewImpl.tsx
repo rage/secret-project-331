@@ -321,6 +321,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                 <ExerciseTaskIframe
                   exerciseTaskId={course_material_exercise_task.id}
                   key={course_material_exercise_task.id}
+                  exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                   postThisStateToIFrame={{
                     // oxlint-disable-next-line i18next/no-literal-string
                     view_type: "view-submission",

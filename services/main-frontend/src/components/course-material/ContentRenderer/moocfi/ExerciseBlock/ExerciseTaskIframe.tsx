@@ -1,5 +1,6 @@
 "use client"
 
+import { useAtomValue } from "jotai"
 import React, { useCallback, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -7,6 +8,7 @@ import {
   ThrottledChildRenderer,
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame, {
@@ -18,6 +20,7 @@ import type {
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import { courseMaterialAtom } from "@/state/course-material"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
@@ -27,6 +30,7 @@ import { uploadFilesForExerciseTaskAnswer } from "@/utils/uploadFilesFromExercis
 
 interface ExerciseTaskIframeProps {
   exerciseTaskId: string
+  exerciseServiceSlug: string
   url: string
   postThisStateToIFrame: ExerciseIframeState | null
   setAnswer: ((answer: CapturedExerciseTaskAnswer) => void) | null
@@ -47,6 +51,7 @@ interface ExerciseTaskIframeProps {
  */
 const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframeProps>> = ({
   exerciseTaskId,
+  exerciseServiceSlug,
   url,
   postThisStateToIFrame,
   setAnswer,
@@ -61,6 +66,16 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   const dialog = useDialog()
   const lastAnswerDataRef = useRef<unknown>(undefined)
   const getAnswerDraft = useCallback(() => lastAnswerDataRef.current, [])
+  const courseMaterialState = useAtomValue(courseMaterialAtom)
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url,
+    exerciseServiceSlug,
+    viewType: postThisStateToIFrame?.view_type,
+    courseId: courseMaterialState.course?.id,
+    examId: courseMaterialState.examData?.id,
+    pageId: courseMaterialState.page?.id,
+    exerciseTaskId,
+  })
 
   const handleMessageFromIframe = useCallback(
     async (messageContainer: unknown, responsePort: MessagePort) => {
@@ -124,10 +139,12 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
             if (state.status === "failed") {
               onReady()
             }
+            failureReportHandlers.onConnectionStateChange(state)
             onConnectionStateChange?.(state)
           }}
           getAnswerDraft={getAnswerDraft}
           title={title}
+          onReloadRequested={failureReportHandlers.onReloadRequested}
         />
       )
     },
@@ -143,6 +160,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       onConnectionStateChange,
       getAnswerDraft,
       ref,
+      failureReportHandlers,
     ],
   )
 

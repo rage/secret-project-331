@@ -10,6 +10,7 @@ import {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
   exerciseTaskGradingToExerciseTaskGradingResult,
@@ -103,6 +104,12 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   }, [state, previousSubmission, coursematerialExerciseTask, loginStateContext.signedIn])
 
   const url = `${coursematerialExerciseTask.exercise_iframe_url ?? ""}`
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url,
+    exerciseServiceSlug: coursematerialExerciseTask.exercise_service_slug,
+    viewType: VIEW_SUBMISSION,
+    exerciseTaskId: coursematerialExerciseTask.id,
+  })
 
   const throttledChildFactory = useCallback<ChildFactoryWithCallback>(
     (onReady) => (
@@ -113,9 +120,10 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         postThisStateToIFrame={postThisStateToIFrame}
         title={title}
         onReady={onReady}
+        {...failureReportHandlers}
       />
     ),
-    [url, handleMessageFromIframe, postThisStateToIFrame, dialog, title],
+    [url, handleMessageFromIframe, postThisStateToIFrame, dialog, title, failureReportHandlers],
   )
 
   if (missingUrl) {
@@ -151,6 +159,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       onMessageFromIframe={handleMessageFromIframe}
       postThisStateToIFrame={postThisStateToIFrame}
       title={title}
+      {...failureReportHandlers}
     />
   )
 }

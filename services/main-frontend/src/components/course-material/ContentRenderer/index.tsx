@@ -330,6 +330,14 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           font-size: 20px;
           text-underline-offset: 4.6px;
           text-decoration-thickness: 1.6px;
+          /* Long Finnish compounds and URLs would otherwise run out of the column on phones. */
+          overflow-wrap: break-word;
+
+          a[data-button-variant] {
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+          }
           a:not([data-button-variant]) {
             color: #1072ea;
             &:hover {

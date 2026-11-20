@@ -50,7 +50,7 @@ const PreviewableParagraph: React.FC<PreviewableParagraphProps> = ({
 
   return (
     <p
-      className={`${getParagraphStyles(textColor, backgroundColor, fontSize, true, false, align)} ${getEditableHoverStyles(false)}`}
+      className={`${getParagraphStyles(textColor, backgroundColor, fontSize, false, align)} ${getEditableHoverStyles(false)}`}
     >
       {diffChanges.length > 0 ? <DiffFormatter changes={diffChanges} /> : content}
     </p>

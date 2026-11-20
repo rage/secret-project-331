@@ -206,7 +206,6 @@ const EditingParagraph: React.FC<React.PropsWithChildren<EditingParagraphProps>>
           textColor,
           backgroundColor,
           fontSize,
-          true,
           dropCap,
           align,
         )} ${getEditableHoverStyles(false)} ${css`

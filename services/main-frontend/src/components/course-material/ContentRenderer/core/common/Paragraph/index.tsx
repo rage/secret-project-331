@@ -32,17 +32,8 @@ const ParagraphBlock: React.FC<
   const isEditing = type === "proposed-edits"
 
   const renderFunction = useCallback(
-    ({
-      ref,
-      count,
-      hasCitationsOrGlossary,
-    }: {
-      ref: (node: HTMLElement | null) => void
-      count: number
-      hasCitationsOrGlossary: boolean
-    }) => {
+    ({ ref, count }: { ref: (node: HTMLElement | null) => void; count: number }) => {
       const ParagraphComponent = count > 0 ? LatexParagraph : P
-      const hideOverflow = !hasCitationsOrGlossary
       return (
         <ParagraphComponent
           ref={ref}
@@ -50,7 +41,6 @@ const ParagraphBlock: React.FC<
             textColor,
             backgroundColor,
             fontSize,
-            hideOverflow,
             dropCap,
             align,
             fitText,

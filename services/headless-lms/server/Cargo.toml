@@ -65,6 +65,8 @@ derive_more = { version = "2.1.1", features = ["full"] }
 bytes = "1.12.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.15.0"
+# Provides types and useful methods for working with IPv4 and IPv6 network addresses.
+ipnet = "2.12.2"
 # Insertion-ordered map.
 indexmap = "2.14.2"
 # the BLAKE3 hash function

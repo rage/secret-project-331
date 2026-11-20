@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM shared_rate_counts\n-- Implied by the next condition, but lets the window_start index narrow the scan.\nWHERE window_start < now() - INTERVAL '1 day'\n  AND window_start + make_interval(secs => window_seconds) < now() - INTERVAL '1 day'\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "b577313f61e8079dfe3a93af2d31924476ed29f6345cd34b85afcd29e5947f2e"
+}

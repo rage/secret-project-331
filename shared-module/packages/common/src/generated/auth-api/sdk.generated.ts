@@ -7,6 +7,7 @@ import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape
 import { client } from "./client.generated"
 import type {
   GetAuthAltchaChallengeData,
+  GetAuthAltchaChallengeErrors,
   GetAuthAltchaChallengeResponses,
   GetAuthLoggedInData,
   GetAuthLoggedInResponses,
@@ -75,8 +76,18 @@ export type Options<
  */
 export const getAuthAltchaChallenge = <ThrowOnError extends boolean = true>(
   options: Options<GetAuthAltchaChallengeData, ThrowOnError>,
-): RequestResult<GetAuthAltchaChallengeResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetAuthAltchaChallengeResponses, unknown, ThrowOnError, "data">({
+): RequestResult<
+  GetAuthAltchaChallengeResponses,
+  GetAuthAltchaChallengeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetAuthAltchaChallengeResponses,
+    GetAuthAltchaChallengeErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseStyle: "data",
     url: "/api/v0/auth/altcha-challenge",
     ...options,

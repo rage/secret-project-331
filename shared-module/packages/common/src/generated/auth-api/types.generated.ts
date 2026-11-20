@@ -385,6 +385,13 @@ export type GetAuthAltchaChallengeData = {
   url: "/api/v0/auth/altcha-challenge"
 }
 
+export type GetAuthAltchaChallengeErrors = {
+  /**
+   * Too many attempts; see Retry-After
+   */
+  429: unknown
+}
+
 export type GetAuthAltchaChallengeResponses = {
   /**
    * A signed ALTCHA challenge
@@ -437,6 +444,10 @@ export type PostAuthSignupErrors = {
    * Cannot sign up (e.g. already signed in or validation error)
    */
   400: unknown
+  /**
+   * Too many attempts; see Retry-After
+   */
+  429: unknown
 }
 
 export type PostAuthSignupResponses = {

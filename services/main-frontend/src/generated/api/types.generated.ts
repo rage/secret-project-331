@@ -19958,6 +19958,13 @@ export type SendResetPasswordEmailData = {
   url: "/api/v0/main-frontend/users/request-password-reset"
 }
 
+export type SendResetPasswordEmailErrors = {
+  /**
+   * Too many attempts; see Retry-After
+   */
+  429: unknown
+}
+
 export type SendResetPasswordEmailResponses = {
   /**
    * Reset password email accepted

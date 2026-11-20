@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
@@ -216,7 +217,7 @@ const CreateAccountForm: React.FC = () => {
         },
       })
     },
-    { notify: true, method: "POST" },
+    { notify: true, method: "POST", isErrorHandledByCaller: isTooManyAttempts },
   )
 
   useEffect(() => {
@@ -518,10 +519,15 @@ const CreateAccountForm: React.FC = () => {
         </div>
       )}
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
-      {createAccountMutation.isError && !emailAlreadyTakenError && (
-        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorNotice error={createAccountMutation.error} announce="off" />
-      )}
+      {createAccountMutation.isError &&
+        (isTooManyAttempts(createAccountMutation.error) ? (
+          <TooManyAttemptsNotice error={createAccountMutation.error} />
+        ) : (
+          !emailAlreadyTakenError && (
+            // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+            <ErrorNotice error={createAccountMutation.error} announce="off" />
+          )
+        ))}
     </Wrapper>
   )
 }

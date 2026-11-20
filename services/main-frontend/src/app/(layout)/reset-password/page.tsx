@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
+import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
@@ -53,7 +54,7 @@ const ResetPassword: React.FC = () => {
         isBoolean,
       )
     },
-    { method: "POST", notify: true },
+    { method: "POST", notify: true, isErrorHandledByCaller: isTooManyAttempts },
     {
       onSuccess: (_, variables) => {
         setSentEmail(variables.email)
@@ -92,10 +93,13 @@ const ResetPassword: React.FC = () => {
         {t("enter-email-for-password-reset-link")}
       </p>
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
-      {postResetPassword.isError && (
-        // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-        <ErrorNotice error={postResetPassword.error} announce="off" />
-      )}
+      {postResetPassword.isError &&
+        (isTooManyAttempts(postResetPassword.error) ? (
+          <TooManyAttemptsNotice error={postResetPassword.error} />
+        ) : (
+          // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
+          <ErrorNotice error={postResetPassword.error} announce="off" />
+        ))}
 
       <form
         noValidate

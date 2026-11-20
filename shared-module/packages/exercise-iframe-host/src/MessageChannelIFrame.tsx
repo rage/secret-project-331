@@ -110,6 +110,8 @@ interface MessageChannelIFrameProps {
   detectLoadFailure?: boolean
   /** Called with `loading` on mount, every reload and `url` change, then on each status change. */
   onConnectionStateChange?: (state: IframeConnectionState) => void
+  /** Called when the iframe sends `request-iframe-reload`, which plugins send after a crash. */
+  onReloadRequested?: () => void
   /**
    * Returns the task's last captured answer, sent as `answer_draft` in the first `answer-exercise`
    * `set-state` after the iframe reloads. Return `undefined` to send none.
@@ -152,6 +154,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   overrideDownloadFilename,
   detectLoadFailure = false,
   onConnectionStateChange,
+  onReloadRequested,
   getAnswerDraft,
 }) => {
   const { t, i18n } = useTranslation()
@@ -450,6 +453,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.info(`The iframe wants to download a file: ${data.url}`)
         downloadFileOnRequest(data.url, data.filename)
       } else if (isRequestIframeReloadMessage(data)) {
+        onReloadRequested?.()
         scheduleIframeReload()
       } else if (isOpenDialogMessage(data)) {
         const responsePort = currentMessageChannel.port1

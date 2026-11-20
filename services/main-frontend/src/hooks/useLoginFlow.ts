@@ -13,8 +13,9 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import "@/shared-module/common/init/registerAuthApiClients"
 
 export type LoginStep =
-  | { step: "credentials" }
+  | { step: "credentials"; email?: string }
   | { step: "verification"; token: string }
+  | { step: "must_change_password"; email: string }
   | { step: "awaiting_consent_check" }
   | { step: "consent_form" }
   | { step: "complete" }
@@ -30,6 +31,7 @@ export interface UseLoginFlowReturn {
   submitVerification: (code: string) => Promise<void>
   cancelVerification: () => void
   onConsentSubmitted: () => void
+  backToCredentials: () => void
 }
 
 /**
@@ -60,6 +62,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
       } else if (response.type === "requires_email_verification") {
         setVerificationToken(response.email_verification_token)
         setStep({ step: "verification", token: response.email_verification_token })
+        return false
+      } else if (response.type === "must_change_password") {
+        setStep({ step: "must_change_password", email: credentials.email.trim() })
         return false
       }
       setCredentialsError(true)
@@ -141,6 +146,16 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     setStep({ step: "complete" })
   }
 
+  const backToCredentials = () => {
+    setError(null)
+    setCredentialsError(false)
+    setStep(
+      step.step === "must_change_password"
+        ? { step: "credentials", email: step.email }
+        : { step: "credentials" },
+    )
+  }
+
   return {
     step,
     credentialsError,
@@ -152,5 +167,6 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     submitVerification,
     cancelVerification,
     onConsentSubmitted,
+    backToCredentials,
   }
 }

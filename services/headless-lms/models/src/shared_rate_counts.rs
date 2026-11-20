@@ -9,7 +9,7 @@ pub async fn increment(
     key: &[u8],
     windows: &[i64],
 ) -> ModelResult<Vec<i64>> {
-    let lengths = window_lengths(windows);
+    let lengths = window_lengths(windows)?;
     let rows = sqlx::query!(
         r#"
 INSERT INTO shared_rate_counts AS t (key_digest, window_seconds, window_start, count)
@@ -54,7 +54,7 @@ FROM unnest($2::integer []) WITH ORDINALITY AS w(seconds, position)
 ORDER BY w.position
 "#,
         key,
-        &window_lengths(windows),
+        &window_lengths(windows)?,
     )
     .fetch_all(conn)
     .await?;
@@ -76,6 +76,16 @@ WHERE window_start < now() - INTERVAL '1 day'
     Ok(result.rows_affected())
 }
 
-fn window_lengths(windows: &[i64]) -> Vec<i32> {
-    windows.iter().map(|window| *window as i32).collect()
+fn window_lengths(windows: &[i64]) -> ModelResult<Vec<i32>> {
+    windows
+        .iter()
+        .map(|window| {
+            i32::try_from(*window).map_err(|_| {
+                model_err!(
+                    InvalidRequest,
+                    format!("Window length {window} is out of range")
+                )
+            })
+        })
+        .collect()
 }

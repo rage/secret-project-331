@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
@@ -19,14 +19,16 @@ export function isTooManyAttempts(error: unknown): boolean {
 /** Tells the user to wait before trying an account form again; shown for [`isTooManyAttempts`]. */
 const TooManyAttemptsNotice: React.FC<{ error: unknown }> = ({ error }) => {
   const { t, i18n } = useTranslation()
-  const retryAfterSeconds = isAppApiError(error) ? error.retryAfterSeconds : null
-  const time =
-    retryAfterSeconds !== null && retryAfterSeconds > 0
+  // Computed once per error so that rerenders do not move the deadline.
+  const time = useMemo(() => {
+    const retryAfterSeconds = isAppApiError(error) ? error.retryAfterSeconds : null
+    return retryAfterSeconds !== null && retryAfterSeconds > 0
       ? new Date(Date.now() + retryAfterSeconds * MILLISECONDS_PER_SECOND).toLocaleTimeString(
           i18n.language,
           TIME_FORMAT,
         )
       : null
+  }, [error, i18n.language])
   return (
     <Infobox tone={WARNING_TONE} heading={t("too-many-attempts-heading")} announce>
       {time === null

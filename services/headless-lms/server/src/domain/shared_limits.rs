@@ -83,12 +83,11 @@ pub async fn check_and_count(
 pub fn too_many_requests(length: i64) -> ControllerError {
     // Windows are fixed and aligned to the epoch, so the current one ends at the next multiple.
     let remaining = length - Utc::now().timestamp().rem_euclid(length);
-    ControllerError::new(
-        ControllerErrorType::TooManyRequests(Some(StdDuration::from_secs(
+    controller_err!(
+        TooManyRequests(Some(StdDuration::from_secs(
             u64::try_from(remaining).unwrap_or(60),
         ))),
-        "Too many requests. Please try again later.".to_string(),
-        None,
+        "Too many requests. Please try again later.".to_string()
     )
 }
 
@@ -126,7 +125,9 @@ pub fn windows_from_env(name: &str, default: &Windows) -> Vec<(i64, i64)> {
             let (length, max) = window.trim().split_once(':')?;
             Some((length.trim().parse().ok()?, max.trim().parse().ok()?))
         })
-        .filter(|(length, max): &(i64, i64)| *length > 0 && *max >= 0)
+        .filter(|(length, max): &(i64, i64)| {
+            (1..=i64::from(i32::MAX)).contains(length) && *max >= 0
+        })
         .collect();
     if windows.is_empty() {
         default.to_vec()

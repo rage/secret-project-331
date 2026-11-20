@@ -55,20 +55,18 @@ pub fn validate_form(
     password_confirmation: &SecretString,
 ) -> Result<(), ControllerError> {
     if !is_plausible_email(email) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid email address.".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid email address.".to_string()
         ));
     }
     let password = password.expose_secret();
     if password.encode_utf16().count() < MIN_PASSWORD_LENGTH
         || password != password_confirmation.expose_secret()
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid password or password confirmation.".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid password or password confirmation.".to_string()
         ));
     }
     Ok(())
@@ -98,15 +96,18 @@ pub async fn check_may_reveal_existing_account(
         ));
     };
     let (address_key, range_key) = existing_account_keys(ip);
+    let mut longest_full_window = None;
     for (key, windows) in [
         (&address_key, &*EXISTING_ACCOUNT_LIMITS),
         (&range_key, &*EXISTING_ACCOUNT_RANGE_LIMITS),
     ] {
-        if let Some(length) = shared_limits::full_window(conn, key, windows).await? {
-            return Err(shared_limits::too_many_requests(length));
-        }
+        let full = shared_limits::full_window(conn, key, windows).await?;
+        longest_full_window = longest_full_window.max(full);
     }
-    Ok(())
+    match longest_full_window {
+        Some(length) => Err(shared_limits::too_many_requests(length)),
+        None => Ok(()),
+    }
 }
 
 /// Counts that `client_ip` was told an address has an account. See

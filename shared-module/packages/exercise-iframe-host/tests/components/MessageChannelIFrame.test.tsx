@@ -1,6 +1,6 @@
 "use client"
 
-import { act, fireEvent, render, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
 import { createRef } from "react"
@@ -44,7 +44,7 @@ const renderDetectingIframe = ({
   onConnectionStateChange?: (state: IframeConnectionState) => void
   onReady?: () => void
 } = {}) => {
-  const element = (iframeUrl: string) => (
+  const element = (iframeUrl: string, isDetecting: boolean) => (
     <I18nextProvider i18n={i18nTest}>
       <MessageChannelIFrame
         dialog={mockDialog}
@@ -52,17 +52,26 @@ const renderDetectingIframe = ({
         postThisStateToIFrame={null}
         onMessageFromIframe={jest.fn()}
         title="test"
-        detectLoadFailure={detectLoadFailure}
+        detectLoadFailure={isDetecting}
         {...(onConnectionStateChange ? { onConnectionStateChange } : {})}
         {...(onReady ? { onReady } : {})}
       />
     </I18nextProvider>
   )
-  const result = render(element(url))
+  let currentUrl = url
+  let isDetecting = detectLoadFailure
+  const result = render(element(currentUrl, isDetecting))
   return {
     ...result,
     currentIframe: () => result.container.querySelector("iframe") as HTMLIFrameElement,
-    changeUrl: (nextUrl: string) => result.rerender(element(nextUrl)),
+    changeUrl: (nextUrl: string) => {
+      currentUrl = nextUrl
+      result.rerender(element(currentUrl, isDetecting))
+    },
+    setDetectLoadFailure: (next: boolean) => {
+      isDetecting = next
+      result.rerender(element(currentUrl, isDetecting))
+    },
   }
 }
 
@@ -1443,6 +1452,9 @@ describe("MessageChannelIFrame", () => {
       })
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining("Max recovery attempts"))
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        i18nTest.t("exercise-iframe-reload-exhausted-message"),
+      )
 
       consoleErrorSpy.mockRestore()
     })
@@ -1915,6 +1927,37 @@ describe("MessageChannelIFrame", () => {
       advance(6000)
       changeUrl("http://example.com/other")
       advance(EXERCISE_IFRAME_LOAD_TIMING.failureMs - 1)
+      expect(queryByRole("alert")).toBeNull()
+
+      advance(1)
+      expect(getByRole("alert")).toHaveTextContent(i18nTest.t(NOT_LOADED_MESSAGE))
+    })
+
+    it("keeps a connected iframe connected when detection is turned on", () => {
+      const onConnectionStateChange = jest.fn()
+      const { queryByRole, currentIframe, setDetectLoadFailure } = renderDetectingIframe({
+        detectLoadFailure: false,
+        onConnectionStateChange,
+      })
+      dispatchReady(attachContentWindow(currentIframe()))
+
+      setDetectLoadFailure(true)
+      advance(EXERCISE_IFRAME_LOAD_TIMING.failureMs * 2)
+
+      expect(queryByRole("alert")).toBeNull()
+      expect(onConnectionStateChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({ status: "connected" }),
+      )
+    })
+
+    it("keeps the deadline from the load start when detection is turned on later", () => {
+      const { queryByRole, getByRole, setDetectLoadFailure } = renderDetectingIframe({
+        detectLoadFailure: false,
+      })
+
+      advance(6000)
+      setDetectLoadFailure(true)
+      advance(EXERCISE_IFRAME_LOAD_TIMING.failureMs - 6000 - 1)
       expect(queryByRole("alert")).toBeNull()
 
       advance(1)

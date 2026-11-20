@@ -363,22 +363,34 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     connectionStageRef.current = "mounted"
     // oxlint-disable-next-line i18next/no-literal-string
     reportConnectionState("loading")
-
-    if (detectLoadFailure) {
-      const elapsedMs = Date.now() - loadStartedAtRef.current
-      failureTimeoutRef.current = window.setTimeout(
-        () => {
-          failureTimeoutRef.current = null
-          if (!isConnectedRef.current) {
-            console.error("[MessageChannelIFrame] Iframe did not connect in time")
-            failLoad("not-loaded")
-          }
-        },
-        Math.max(0, EXERCISE_IFRAME_LOAD_TIMING.failureMs - elapsedMs),
-      )
-    }
     return clearLoadTimers
-  }, [url, reloadNonce, detectLoadFailure, clearLoadTimers, failLoad, reportConnectionState])
+  }, [url, reloadNonce, clearLoadTimers, reportConnectionState])
+
+  // Separate from the effect above so turning detection on for a connected document (e.g. try
+  // again switches to answer-exercise) doesn't reset its connection.
+  useEffect(() => {
+    if (!detectLoadFailure || isConnectedRef.current) {
+      return
+    }
+    const elapsedMs = Date.now() - loadStartedAtRef.current
+    const timeoutId = window.setTimeout(
+      () => {
+        failureTimeoutRef.current = null
+        if (!isConnectedRef.current) {
+          console.error("[MessageChannelIFrame] Iframe did not connect in time")
+          failLoad("not-loaded")
+        }
+      },
+      Math.max(0, EXERCISE_IFRAME_LOAD_TIMING.failureMs - elapsedMs),
+    )
+    failureTimeoutRef.current = timeoutId
+    return () => {
+      clearTimeout(timeoutId)
+      if (failureTimeoutRef.current === timeoutId) {
+        failureTimeoutRef.current = null
+      }
+    }
+  }, [url, reloadNonce, detectLoadFailure, failLoad])
 
   // A document that loaded without sending `ready` has likely lost a script and holds no answer
   // yet, so one reload is safe. A load still in progress is left alone; it may just be slow.
@@ -636,6 +648,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.error(
           `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
         )
+        if (loadError === null) {
+          // oxlint-disable-next-line i18next/no-literal-string
+          failLoad("reload-exhausted")
+        }
       }
       return
     }

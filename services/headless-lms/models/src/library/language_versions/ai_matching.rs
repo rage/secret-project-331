@@ -18,7 +18,6 @@ const PAGE_EXCERPT_CHARS: usize = 400;
 const EXERCISE_EXCERPT_CHARS: usize = 250;
 /// Bounds one prompt: a chapter with many exercises gets shorter excerpts.
 const MAX_EXCERPT_CHARS_PER_TASK: usize = 30_000;
-const MIN_EXCERPT_CHARS: usize = 60;
 /// Read from the database per item; the excerpt is cut from this.
 const MAX_SOURCE_TEXT_CHARS: i32 = 2_000;
 
@@ -342,6 +341,7 @@ SELECT p.id,
   left(p.content_search_original_text, $2) AS text
 FROM pages p
 WHERE p.id = ANY($1)
+  AND p.deleted_at IS NULL
         "#,
         &page_ids,
         MAX_SOURCE_TEXT_CHARS
@@ -397,7 +397,7 @@ GROUP BY es.exercise_id
             if wanted <= MAX_EXCERPT_CHARS_PER_TASK {
                 chars
             } else {
-                (chars * MAX_EXCERPT_CHARS_PER_TASK / wanted).max(MIN_EXCERPT_CHARS)
+                chars * MAX_EXCERPT_CHARS_PER_TASK / wanted
             }
         };
         let (page_chars, exercise_chars) =

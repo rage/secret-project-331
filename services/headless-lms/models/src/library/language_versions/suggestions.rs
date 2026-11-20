@@ -497,12 +497,25 @@ pub(crate) fn match_exercises<'a>(
     res
 }
 
+/// Each item's matched counterpart id, keyed by this course's item id.
+fn picked_ids<T>(
+    matches: &HashMap<Uuid, Match<'_, T>>,
+    id_of: impl Fn(&T) -> Uuid,
+) -> HashMap<Uuid, Uuid> {
+    matches
+        .iter()
+        .map(|(this, m)| (*this, id_of(m.item)))
+        .collect()
+}
+
 /// Puts the AI's picks for one other course over the heuristic `matches`, keyed by this course's
-/// item id. Links and copy history stay. An AI pick that agrees with the heuristic becomes very
-/// sure; any other pick replaces the heuristic match as an AI suggestion. Picks of items that are
-/// not live in the other course are ignored. Returns the items the AI says have no counterpart.
+/// item id. Links and copy history stay. An AI pick that agrees with `heuristic` (this item id →
+/// other item id, from heuristics alone, never shaped by AI picks) becomes very sure; any other
+/// pick replaces the match as an AI suggestion. Picks of items that are not live in the other
+/// course are ignored. Returns the items the AI says have no counterpart.
 fn apply_ai_picks<'a, T>(
     matches: &mut HashMap<Uuid, Match<'a, T>>,
+    heuristic: &HashMap<Uuid, Uuid>,
     picks: &HashMap<Uuid, Option<Uuid>>,
     other_items: &HashMap<Uuid, &'a T>,
     id_of: impl Fn(&T) -> Uuid,
@@ -533,7 +546,7 @@ fn apply_ai_picks<'a, T>(
                 if fixed_other.contains(other) || !picked_other.insert(*other) {
                     continue;
                 }
-                let agrees = matches.get(this).is_some_and(|m| id_of(m.item) == *other);
+                let agrees = heuristic.get(this) == Some(other);
                 let (sureness, reason) = if agrees {
                     (
                         SuggestionSureness::VerySure,
@@ -595,20 +608,39 @@ pub fn suggest_links(
     for other in &other_courses {
         let picks = ai.and_then(|ai| ai.get(other));
         let mut pages = match_pages(&index, lineage, course_id, *other);
+        // Agreement is judged against heuristics alone: exercises matched within AI-picked pages
+        // would otherwise "agree" with the AI and get accepted without review.
+        let heuristic_pages = picked_ids(&pages, |p| p.page.id);
+        let heuristic_exercises = picks.map(|_| {
+            picked_ids(
+                &match_exercises(&index, lineage, course_id, *other, &pages),
+                |e| e.exercise.id,
+            )
+        });
         if let Some(picks) = picks {
             let other_pages = index.live_pages(*other).map(|p| (p.page.id, p)).collect();
-            let none = apply_ai_picks(&mut pages, &picks.pages, &other_pages, |p| p.page.id);
+            let none = apply_ai_picks(
+                &mut pages,
+                &heuristic_pages,
+                &picks.pages,
+                &other_pages,
+                |p| p.page.id,
+            );
             ai_no_counterpart.extend(none.into_iter().map(|id| (id, *other)));
         }
         let mut exercises = match_exercises(&index, lineage, course_id, *other, &pages);
-        if let Some(picks) = picks {
+        if let (Some(picks), Some(heuristic_exercises)) = (picks, &heuristic_exercises) {
             let other_exercises = index
                 .live_exercises(*other)
                 .map(|e| (e.exercise.id, e))
                 .collect();
-            let none = apply_ai_picks(&mut exercises, &picks.exercises, &other_exercises, |e| {
-                e.exercise.id
-            });
+            let none = apply_ai_picks(
+                &mut exercises,
+                heuristic_exercises,
+                &picks.exercises,
+                &other_exercises,
+                |e| e.exercise.id,
+            );
             ai_no_counterpart.extend(none.into_iter().map(|id| (id, *other)));
         }
         page_matches.push(pages);

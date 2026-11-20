@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Key } from "react-aria"
@@ -30,6 +30,7 @@ import {
   Infobox,
   LanguageChip,
   QueryResult,
+  Spinner,
   StatTile,
   StatTileList,
   Stepper,
@@ -81,6 +82,12 @@ import {
   toolbarCss,
   useBlockedReasonText,
 } from "./shared"
+
+const aiLoadingCss = css`
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+`
 
 const CHAPTER_FIELD = "chapter"
 const STEP_COURSES = 0
@@ -508,7 +515,8 @@ const GuidedLinking: React.FC<Props> = ({
         : []
     if (suggestionsQuery.isPending) {
       return (
-        <p className={mutedCss} role="status">
+        <p className={cx(mutedCss, aiLoadingCss)} role="status">
+          <Spinner size="sm" />
           {t("language-versions-ai-loading")}
         </p>
       )

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT p.id,\n  left(p.content_search_original_text, $2) AS text\nFROM pages p\nWHERE p.id = ANY($1)\n        ",
+  "query": "\nSELECT p.id,\n  left(p.content_search_original_text, $2) AS text\nFROM pages p\nWHERE p.id = ANY($1)\n  AND p.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -32,5 +32,5 @@
       null
     ]
   },
-  "hash": "fc6eec81140f545c4f43247f86d1919b9e797f89a163a09c624bcae38d09ab97"
+  "hash": "785e3d3dbab85dde6b22b641c30bb8b4253235ae2c12cc69caf215d840151309"
 }

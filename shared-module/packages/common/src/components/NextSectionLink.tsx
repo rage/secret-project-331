@@ -134,22 +134,6 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
         >
           {title}
         </h2>
-        {/* <p
-          className={css`
-            font-size: 18px;
-            color: ${baseTheme.colors.gray[700]};
-            font-weight: 500;
-            margin: 0.3rem 0;
-            padding: 0;
-            display: flex;
-
-            ${respondToOrLarger.md} {
-              font-size: 20px;
-            }
-          `}
-        >
-          {subtitle}
-        </p> */}
         <Button
           variant="tertiary"
           icon={pageRead ? <StrikedBook /> : <OpenBook />}

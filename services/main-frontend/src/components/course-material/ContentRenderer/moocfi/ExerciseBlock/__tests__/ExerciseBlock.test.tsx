@@ -22,6 +22,7 @@ interface FakeIframeProps {
   postThisStateToIFrame: ExerciseIframeState
   onMessageFromIframe: (message: unknown, port: MessagePort) => Promise<void> | void
   onConnectionStateChange?: (state: IframeConnectionState) => void
+  onReloadRequested?: () => void
   getAnswerDraft?: () => unknown
   detectLoadFailure?: boolean
   onReady?: () => void
@@ -49,7 +50,7 @@ jest.mock("jotai", () => ({
   useAtomValue: () => ({
     status: "ready",
     error: null,
-    page: null,
+    page: { id: "page-1" },
     course: { id: "course-1", chapter_locking_enabled: false },
     instance: { id: "instance-1" },
     settings: {
@@ -237,13 +238,18 @@ const iframeOf = (taskId: string): FakeIframeProps => {
   return props
 }
 
-const reportConnection = (taskId: string, status: IframeConnectionState["status"]) => {
+const reportConnection = (
+  taskId: string,
+  status: IframeConnectionState["status"],
+  details: Partial<IframeConnectionState> = {},
+) => {
   act(() => {
     iframeOf(taskId).onConnectionStateChange?.({
       status,
       stage: status === "connected" ? "ready-received" : "mounted",
       elapsedMs: 0,
       reloadCount: 0,
+      ...details,
     })
   })
 }
@@ -273,6 +279,16 @@ const refetchQueries = () =>
     await flushQueryNotifications()
   })
 
+const mockFetch = jest.fn((_url: string, _init: RequestInit) =>
+  Promise.resolve({ ok: true, status: 204 } as Response),
+)
+
+const sentFailureReports = () =>
+  mockFetch.mock.calls.map(([url, init]) => {
+    expect(url).toBe("/api/v0/errors")
+    return JSON.parse(init.body as string)
+  })
+
 const submitButton = () => screen.getByRole("button", { name: "submit-button" })
 
 const expectSubmittable = () => expect(submitButton()).toHaveAttribute("aria-disabled", "false")
@@ -292,6 +308,8 @@ beforeEach(() => {
   mockFetchExercise.mockReset()
   mockFetchLocks.mockReset().mockResolvedValue([])
   mockPostSubmission.mockReset()
+  mockFetch.mockClear()
+  global.fetch = mockFetch as unknown as typeof fetch
   jest.mocked(announce).mockClear()
 })
 
@@ -568,5 +586,112 @@ describe("ExerciseBlock try again", () => {
       previous_submission: { a: 1 },
     })
     expectSubmittable()
+  })
+})
+
+describe("ExerciseBlock iframe failure reporting", () => {
+  const SECRET_ANSWER = "secret-answer-text"
+
+  it("sends exactly one event with the load context and no answer data", async () => {
+    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
+    await reportAnswer("task-1", { data: { a: SECRET_ANSWER }, valid: true })
+
+    reportConnection("task-1", "loading")
+    reportConnection("task-1", "failed", {
+      stage: "document-loaded",
+      elapsedMs: 10000,
+      reloadCount: 1,
+    })
+
+    const reports = sentFailureReports()
+    expect(reports).toHaveLength(1)
+    expect(reports[0]).toMatchObject({
+      error_source: "frontend",
+      message: "Exercise iframe failed to load (survey)",
+      details: {
+        kind: "exercise-iframe-failure",
+        failure: "load-failed",
+        exercise_service_slug: "survey",
+        iframe_origin: "https://plugin.example",
+        view_type: "answer-exercise",
+        stage: "document-loaded",
+        elapsed_ms: 10000,
+        reload_count: 1,
+        user_agent: navigator.userAgent,
+        course_id: "course-1",
+        page_id: "page-1",
+        exam_id: null,
+        exercise_task_id: "task-1",
+      },
+    })
+    const body = mockFetch.mock.calls[0]![1].body as string // safe: one call asserted above
+    expect(body).not.toContain(SECRET_ANSWER)
+    expect(body).not.toContain("public_spec")
+  })
+
+  it("sends nothing for an iframe that connects", async () => {
+    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
+    reportConnection("task-1", "loading")
+    reportConnection("task-1", "connected", { elapsedMs: 800 })
+    reportConnection("task-1", "loading", { reloadCount: 1 })
+    reportConnection("task-1", "connected", { reloadCount: 1 })
+
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it("does not duplicate the event across reloads and re-renders", async () => {
+    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
+    reportConnection("task-1", "failed", { elapsedMs: 10000 })
+    reportConnection("task-1", "loading", { reloadCount: 1 })
+    reportConnection("task-1", "failed", {
+      stage: "document-loaded",
+      elapsedMs: 10000,
+      reloadCount: 1,
+    })
+
+    mockFetchExercise.mockResolvedValue(
+      makeExercise([makeTask("task-1", 0)], {
+        exercise: { ...makeExercise([]).exercise, name: "Renamed" },
+      }),
+    )
+    await refetchQueries()
+    reportConnection("task-1", "failed", { elapsedMs: 10000, reloadCount: 2 })
+
+    expect(mockFetchExercise).toHaveBeenCalledTimes(2)
+    expect(sentFailureReports()).toHaveLength(1)
+  })
+
+  it("reports again once the task points to another url", async () => {
+    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
+    reportConnection("task-1", "failed", { elapsedMs: 10000 })
+
+    mockFetchExercise.mockResolvedValue(
+      makeExercise([
+        { ...makeTask("task-1", 0), exercise_iframe_url: "https://other.example/iframe" },
+      ]),
+    )
+    await refetchQueries()
+    reportConnection("task-1", "failed", { elapsedMs: 10000 })
+
+    expect(sentFailureReports().map((report) => report.details.iframe_origin)).toEqual([
+      "https://plugin.example",
+      "https://other.example",
+    ])
+  })
+
+  it("reports a plugin's reload request once, with the last connection state", async () => {
+    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
+    reportConnection("task-1", "connected", { stage: "state-sent", elapsedMs: 900 })
+    act(() => {
+      iframeOf("task-1").onReloadRequested?.()
+      iframeOf("task-1").onReloadRequested?.()
+    })
+
+    const reports = sentFailureReports()
+    expect(reports).toHaveLength(1)
+    expect(reports[0]).toMatchObject({
+      message: "Exercise iframe requested a reload (survey)",
+      details: { failure: "reload-requested", stage: "state-sent", elapsed_ms: 900 },
+    })
   })
 })

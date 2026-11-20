@@ -141,7 +141,24 @@ export const LanguageVersionTool: React.FC<Props> = ({ courseId, mode, extraCour
                 courseId={courseId}
                 mode={mode}
                 courses={report.courses}
-                extraActions={extraCourseActions}
+                extraActions={
+                  <>
+                    {extraCourseActions}
+                    {/* Reopens every page and exercise link for checking, not only the missing ones. */}
+                    {report.courses.length > 1 && (
+                      <Button
+                        variant="secondary"
+                        size="medium"
+                        disabledReason={readOnlyReason}
+                        onPress={() =>
+                          setFlow({ type: "guided", candidateCourseIds: [], startAtPages: true })
+                        }
+                      >
+                        {t("language-versions-link-step-by-step")}
+                      </Button>
+                    )}
+                  </>
+                }
                 onJoined={setJoinedCourseId}
               />
               {report.courses.length === 1 && (

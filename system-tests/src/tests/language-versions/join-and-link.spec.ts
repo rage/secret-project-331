@@ -91,12 +91,11 @@ test.describe("The teacher", () => {
       waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "Undo accept all" })],
       beforeScreenshot: () => hideToasts(page),
     })
-    await page.getByRole("button", { name: "Continue" }).click()
-
-    await expect(page.getByRole("heading", { name: "Exercises", exact: true })).toBeVisible()
-    await page.getByRole("button", { name: "Continue" }).click()
-
-    await expect(page.getByRole("heading", { name: "Review and apply" })).toBeVisible()
+    // Continue opens each chapter tab in turn before moving on to the next step.
+    const reviewHeading = page.getByRole("heading", { name: "Review and apply" })
+    while (!(await reviewHeading.isVisible())) {
+      await page.getByRole("button", { name: "Continue" }).click()
+    }
     await page.getByRole("button", { name: "Apply changes" }).click()
     const applyDialog = page.getByRole("dialog", { name: "Apply the changes" })
     await applyDialog.getByRole("button", { name: "Apply changes" }).click()

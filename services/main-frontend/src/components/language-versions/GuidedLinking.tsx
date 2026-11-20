@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueries, useQueryClient } from "@tanstack/react-query"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Key } from "react-aria"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -289,6 +289,48 @@ const GuidedLinking: React.FC<Props> = ({
   const chapter =
     useDefaultChapter(courseForm.watch("chapter"), chapterKeys, pickChapter) ?? OUTSIDE_CHAPTERS
 
+  const sectionRef = useRef<HTMLElement>(null)
+  const chapterIndex = chapterKeys.indexOf(chapter)
+  const isMatchStep = step === STEP_PAGES || step === STEP_EXERCISES
+  const nextChapter = isMatchStep && chapterIndex >= 0 ? chapterKeys[chapterIndex + 1] : undefined
+  const previousChapter =
+    isMatchStep && chapterIndex > 0 ? chapterKeys[chapterIndex - 1] : undefined
+  const firstChapter = chapterKeys[0]
+  const lastChapter = chapterKeys.at(-1)
+  const showTop = () => sectionRef.current?.scrollIntoView({ block: "start" })
+  // Continue and Back walk through every chapter tab so that no chapter is skipped unseen.
+  const goForward = () => {
+    if (step === STEP_REVIEW) {
+      setIsConfirmOpen(true)
+      return
+    }
+    if (nextChapter !== undefined) {
+      pickChapter(nextChapter)
+    } else {
+      if (step === STEP_PAGES && firstChapter !== undefined) {
+        pickChapter(firstChapter)
+      }
+      setStep(step + 1)
+    }
+    showTop()
+  }
+  const isFirstScreen =
+    step === STEP_COURSES || (startAtPages && step === STEP_PAGES && chapterIndex <= 0)
+  const goBack = () => {
+    if (previousChapter !== undefined) {
+      pickChapter(previousChapter)
+    } else if (isFirstScreen) {
+      onExit(false)
+      return
+    } else {
+      if (step === STEP_EXERCISES && lastChapter !== undefined) {
+        pickChapter(lastChapter)
+      }
+      setStep(step - 1)
+    }
+    showTop()
+  }
+
   const chapterLabel = (key: string) =>
     key === OUTSIDE_CHAPTERS
       ? t("language-versions-no-chapter")
@@ -450,9 +492,10 @@ const GuidedLinking: React.FC<Props> = ({
 
   const renderMatchStep = (kind: typeof ITEM_KIND_PAGES | typeof ITEM_KIND_EXERCISES) => {
     const rows = kind === ITEM_KIND_PAGES ? pageRows : exerciseRows
-    const { pendingCount } = kind === ITEM_KIND_PAGES ? summary.pages : summary.exercises
     const chapterOf = kind === ITEM_KIND_PAGES ? pageChapterOf : exerciseChapterOf
     const chapterRows = rows.filter((row) => chapterOf.get(row.id) === chapter)
+    // `summary` re-renders on every match change, so the values read here are current.
+    const { pendingCount } = summarizeMatches(chapterRows, matchForm.getValues())
     const unmatched =
       kind === ITEM_KIND_PAGES
         ? (suggestionsQuery.data?.unmatched_pages ?? []).filter(
@@ -474,7 +517,7 @@ const GuidedLinking: React.FC<Props> = ({
               </ToggleButtonGroupButton>
             ))}
           </ToggleButtonGroup>
-          <Button variant="secondary" size="medium" onPress={() => acceptAll(rows)}>
+          <Button variant="secondary" size="medium" onPress={() => acceptAll(chapterRows)}>
             {pendingCount > 0
               ? t("language-versions-accept-all")
               : t("language-versions-undo-accept-all")}
@@ -518,7 +561,7 @@ const GuidedLinking: React.FC<Props> = ({
   const versionCount = allCourses.length
 
   return (
-    <section className={sectionCss}>
+    <section className={sectionCss} ref={sectionRef}>
       <Stepper
         aria-label={t("language-versions-steps")}
         currentStep={isApplied ? STEP_REVIEW + 1 : step}
@@ -690,24 +733,14 @@ const GuidedLinking: React.FC<Props> = ({
 
       {!isApplied && (
         <div className={footerCss}>
-          <Button
-            variant="secondary"
-            size="medium"
-            onPress={() =>
-              step === STEP_COURSES || (startAtPages && step === STEP_PAGES)
-                ? onExit(false)
-                : setStep(step - 1)
-            }
-          >
-            {step === STEP_COURSES || (startAtPages && step === STEP_PAGES)
-              ? t("button-text-cancel")
-              : t("language-versions-back")}
+          <Button variant="secondary" size="medium" onPress={goBack}>
+            {isFirstScreen ? t("button-text-cancel") : t("language-versions-back")}
           </Button>
           <Button
             variant="primary"
             size="medium"
             disabled={step === STEP_COURSES && chosenCandidates.length === 0 && courses.length < 2}
-            onPress={() => (step === STEP_REVIEW ? setIsConfirmOpen(true) : setStep(step + 1))}
+            onPress={goForward}
           >
             {step === STEP_REVIEW
               ? t("language-versions-apply-changes")

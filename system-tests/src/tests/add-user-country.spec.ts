@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test"
 import { Topbar } from "@/utils/components/Topbar"
 import { UserSettingsPage } from "@/utils/components/UserSettings/UserSettingsPage"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import { selectSignupCountry } from "@/utils/flows/signup.flow"
+import { confirmSignupWithMailedCode, selectSignupCountry } from "@/utils/flows/signup.flow"
 import { logoutViaTopbar } from "@/utils/flows/topbar.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
@@ -65,6 +65,7 @@ test("User can add missing country information", async ({ page }) => {
     await page.getByRole("button", { name: "Create an account" }).click()
 
     await expect(page.getByText("Success", { exact: true })).toBeVisible()
+    await confirmSignupWithMailedCode(page)
 
     const researchConsentDialog = page.getByTestId("research-consent-dialog")
     await researchConsentDialog
@@ -73,7 +74,6 @@ test("User can add missing country information", async ({ page }) => {
     await researchConsentDialog.getByRole("radio", { name: "I want to participate in the" }).check()
     await researchConsentDialog.getByRole("button", { name: "Save" }).click()
 
-    await page.getByText("Please confirm your email address.").waitFor()
     await page.getByRole("button", { name: "Done" }).click()
   })
 })

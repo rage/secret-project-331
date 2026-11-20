@@ -5,7 +5,7 @@ use std::net::IpAddr;
 use std::sync::LazyLock;
 use std::time::Duration as StdDuration;
 
-use headless_lms_models::shared_rate_counts;
+use headless_lms_models::{pending_signups, shared_rate_counts};
 use ipnet::IpNet;
 use sqlx::PgPool;
 
@@ -42,7 +42,7 @@ pub static CHALLENGE_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|
 
 static EXEMPT_NETWORKS: LazyLock<Vec<IpNet>> = LazyLock::new(network_limit_exempt_networks);
 
-const OLD_WINDOW_CLEANUP_PROBABILITY: f64 = 0.01;
+const CLEANUP_PROBABILITY: f64 = 0.01;
 
 /// Counts a request from `ip` for `name` and returns the length of the longest window it is over,
 /// if any. Requests without a known address, from an exempt network or in test mode are never
@@ -127,8 +127,9 @@ pub async fn count(
 /// Counts one event for `key` in each of `window_lengths` (seconds) and returns the counts after
 /// it, in the same order. Every count in `shared_rate_counts` goes through here.
 ///
-/// On a small fraction of calls it also deletes old windows in the background, on a connection from
-/// `pool` rather than `conn`, so the caller's transaction and response never wait for it.
+/// On a small fraction of calls it also deletes the account forms' expired data in the background,
+/// on a connection from `pool` rather than `conn`, so the caller's transaction and response never
+/// wait for it.
 pub async fn increment(
     conn: &mut PgConnection,
     pool: &PgPool,
@@ -136,21 +137,23 @@ pub async fn increment(
     window_lengths: &[i64],
 ) -> ModelResult<Vec<i64>> {
     let counts = shared_rate_counts::increment(conn, key, window_lengths).await?;
-    if rand::rng().random_bool(OLD_WINDOW_CLEANUP_PROBABILITY) {
+    if rand::rng().random_bool(CLEANUP_PROBABILITY) {
         let pool = pool.clone();
         tokio::spawn(async move {
-            let deleted: ModelResult<u64> = async {
-                let mut cleanup_conn = pool.acquire().await?;
-                shared_rate_counts::delete_old(&mut cleanup_conn).await
-            }
-            .await;
-            match deleted {
-                Ok(deleted) => info!("Deleted {deleted} old shared counts"),
-                Err(error) => warn!("Deleting old shared counts failed: {error}"),
+            if let Err(error) = delete_expired_form_data(&pool).await {
+                warn!("Deleting expired account form data failed: {error}");
             }
         });
     }
     Ok(counts)
+}
+
+async fn delete_expired_form_data(pool: &PgPool) -> ModelResult<()> {
+    let mut conn = pool.acquire().await?;
+    let counts = shared_rate_counts::delete_old(&mut conn).await?;
+    let pending = pending_signups::delete_expired(&mut conn).await?;
+    info!("Deleted {counts} old shared counts and {pending} expired pending signups");
+    Ok(())
 }
 
 fn lengths(windows: &Windows) -> Vec<i64> {

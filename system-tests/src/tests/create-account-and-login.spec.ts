@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import { selectSignupCountry } from "@/utils/flows/signup.flow"
+import { confirmSignupWithMailedCode, selectSignupCountry } from "@/utils/flows/signup.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 import { logoutViaTopbar } from "../utils/flows/topbar.flow"
@@ -20,13 +20,14 @@ test("User can create an account and log in", async ({ page }) => {
       await page.getByRole("button", { name: "Create an account" }).click()
     })
 
+    await confirmSignupWithMailedCode(page)
+
     await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
     await page.getByRole("radio", { name: "I do not want to participate" }).check()
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
 
-    await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
     await page.getByRole("button", { name: "Done" }).click()
     await logoutViaTopbar(page)
   })

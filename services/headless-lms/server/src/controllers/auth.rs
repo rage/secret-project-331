@@ -21,7 +21,6 @@ use actix_session::Session;
 use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::anyhow;
 use chrono::Duration;
-use headless_lms_models::ModelErrorType;
 use headless_lms_models::{
     email_templates::EmailTemplateType,
     email_verification_tokens, user_email_codes,
@@ -32,7 +31,7 @@ use headless_lms_utils::{
     cache::Cache,
     ip_to_country::IpToCountryMapper,
     prelude::{UtilError, UtilErrorType},
-    services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
+    services::tmc::{TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use utoipa::{IntoParams, OpenApi, ToSchema};
@@ -58,8 +57,9 @@ pub enum LoginResponse {
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SignupResponse {
-    Success,
-    EmailAlreadyExists,
+    /// The same for every accepted signup, also when nothing was mailed; [`confirm_signup`]
+    /// takes the code.
+    CodeMailed,
 }
 
 /**
@@ -117,7 +117,8 @@ pub struct CreateAccountDetails {
 }
 
 /**
-POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+POST `/api/v0/auth/create-account` Starts a signup: mails a code to the address, which
+[`confirm_signup`] takes to create the account and sign in. See [`crate::domain::signup`].
 
 # Example
 ```http
@@ -149,200 +150,147 @@ Content-Type: application/json
         (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
-#[instrument(skip(request, session, pool, payload, app_conf))]
+#[instrument(skip(request, session, pool, payload))]
 pub async fn signup(
     request: HttpRequest,
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
-    app_conf: web::Data<ApplicationConfiguration>,
-    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<HttpResponse> {
-    let mut user_details = payload.0;
-    user_details.email = user_details.email.trim().to_string();
+    let mut details = payload.0;
+    details.email = details.email.trim().to_string();
     signup::validate_form(
-        &user_details.email,
-        &user_details.password,
-        &user_details.password_confirmation,
+        &details.email,
+        &details.password,
+        &details.password_confirmation,
     )?;
     let mut conn = pool.acquire().await?;
-    let client_ip = session_verification::client_ip(&request);
     form_volume::count(&mut conn, &pool, ChallengePurpose::Signup).await?;
-    proof_of_work::verify_and_spend(&mut conn, &user_details.altcha, ChallengePurpose::Signup)
-        .await?;
+    proof_of_work::verify_and_spend(&mut conn, &details.altcha, ChallengePurpose::Signup).await?;
     shared_limits::check_and_count(
         &mut conn,
         &pool,
         "signup",
-        client_ip,
+        session_verification::client_ip(&request),
         &shared_limits::SIGNUP_NETWORK_LIMITS,
     )
     .await?;
-
-    if app_conf.test_mode {
-        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
-    }
-    if user.is_none() {
-        signup::check_may_reveal_existing_account(&mut conn, client_ip).await?;
-        match models::users::get_by_email(&mut conn, &user_details.email).await {
-            Ok(_) => {
-                return email_already_exists(&mut conn, &pool, client_ip).await;
-            }
-            Err(error)
-                if matches!(
-                    error.error_type(),
-                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound
-                ) => {}
-            Err(error) => return Err(error.into()),
-        }
-
-        let upstream_id = match tmc_client
-            .post_new_user_to_tmc(
-                NewUserInfo {
-                    first_name: user_details.first_name.clone(),
-                    last_name: user_details.last_name.clone(),
-                    email: user_details.email.clone(),
-                    password: user_details.password.clone(),
-                    password_confirmation: user_details.password_confirmation.clone(),
-                    language: user_details.language.clone(),
-                },
-                app_conf.as_ref(),
-            )
-            .await
-        {
-            Ok(upstream_id) => upstream_id,
-            Err(error) => {
-                let error_message = error.message().to_string();
-                if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
-                    && is_duplicate_email_error_message(&error_message)
-                {
-                    return email_already_exists(&mut conn, &pool, client_ip).await;
-                }
-                return match error.error_type() {
-                    UtilErrorType::TmcErrorResponse => {
-                        Err(controller_err!(BadRequest, error_message, anyhow!(error)))
-                    }
-                    UtilErrorType::TmcHttpError => Err(controller_err!(
-                        InternalServerError,
-                        error_message,
-                        anyhow!(error)
-                    )),
-                    _ => Err(controller_err!(
-                        InternalServerError,
-                        error_message,
-                        anyhow!(error)
-                    )),
-                };
-            }
-        };
-        let password_secret = user_details.password;
-
-        let user = models::users::insert_with_upstream_id_and_moocfi_id(
-            &mut conn,
-            &user_details.email,
-            Some(&user_details.first_name),
-            Some(&user_details.last_name),
-            upstream_id,
-            PKeyPolicy::Generate.into_uuid(),
-        )
-        .await;
-        let user = match user {
-            Ok(user) => user,
-            Err(error)
-                if matches!(
-                    error.error_type(),
-                    ModelErrorType::DatabaseConstraint { constraint, .. }
-                        if constraint == "users_email"
-                ) =>
-            {
-                return email_already_exists(&mut conn, &pool, client_ip).await;
-            }
-            // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
-            // while post_new_user_to_tmc is still in flight, so that callback has usually
-            // already created the user; continue with the existing row.
-            Err(error)
-                if matches!(
-                    error.error_type(),
-                    ModelErrorType::DatabaseConstraint { constraint, .. }
-                        if constraint == "users_upstream_id_active_uniq_idx"
-                ) =>
-            {
-                models::users::find_by_upstream_id(&mut conn, upstream_id)
-                    .await?
-                    .ok_or(error)?
-            }
-            Err(error) => {
-                return Err(controller_err!(
-                    InternalServerError,
-                    "Failed to insert user.".to_string(),
-                    anyhow!(error)
-                ));
-            }
-        };
-
-        let country = user_details.country.clone();
-        models::user_details::update_user_country(&mut conn, user.id, &country).await?;
-        models::user_details::update_user_email_communication_consent(
-            &mut conn,
-            user.id,
-            user_details.email_communication_consent,
-        )
-        .await?;
-
-        // Hash and save password to local database
-        let password_hash = models::user_passwords::hash_password(&password_secret)
-            .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
-
-        models::user_passwords::upsert_user_password(&mut conn, user.id, &password_hash)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to add password to database".to_string(),
-                    anyhow!(e),
-                )
-            })?;
-
-        // Notify TMC that the password is now managed by courses.mooc.fi. Best-effort and retried
-        // in the background: the password is already stored locally, so a transient TMC outage
-        // must not fail an otherwise-successful signup.
-        crate::controllers::tmc_server::notify_password_managed_with_retry(
-            &tmc_client,
-            upstream_id.to_string(),
-            user.id,
-        )
-        .await;
-
-        // tmc.mooc.fi mails its own confirmation link but never tells us the outcome.
-        domain::email_ownership_verification::queue_verification_email_best_effort(
-            &mut conn,
-            app_conf.enable_email_ownership_verification,
-            user.id,
-        )
-        .await;
-
-        let token = skip_authorize();
-        authentication::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
-    } else {
-        Err(ControllerError::new(
+    if user.is_some() {
+        return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "Cannot create a new account when signed in.".to_string(),
             None,
-        ))
+        ));
     }
+    let password_hash = models::user_passwords::hash_password(&details.password)
+        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+    signup::start(
+        &mut conn,
+        &session,
+        &signup::SignupForm {
+            email: &details.email,
+            first_name: &details.first_name,
+            last_name: &details.last_name,
+            country: &details.country,
+            language: &details.language,
+            password_hash: password_hash.expose_secret(),
+            email_communication_consent: details.email_communication_consent,
+        },
+    )
+    .await?;
+    skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::CodeMailed))
 }
 
-/// Answers that the address has an account, counting the answer for
-/// [`signup::check_may_reveal_existing_account`].
-async fn email_already_exists(
-    conn: &mut PgConnection,
-    pool: &PgPool,
-    client_ip: Option<std::net::IpAddr>,
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ConfirmSignupRequest {
+    #[schema(value_type = String)]
+    pub code: DbSecret,
+}
+
+/**
+POST `/api/v0/auth/create-account/confirm` Creates the account of the session's pending signup when
+`code` is the one mailed to its address, and signs in.
+*/
+#[utoipa::path(
+    post,
+    path = "/create-account/confirm",
+    tag = "auth",
+    operation_id = "postAuthConfirmSignup",
+    request_body = ConfirmSignupRequest,
+    responses(
+        (status = 200, description = "Whether the code confirmed the signup", body = signup::SignupConfirmationResult)
+    )
+)]
+#[instrument(skip(session, pool, payload, app_conf, tmc_client))]
+pub async fn confirm_signup(
+    session: Session,
+    pool: web::Data<PgPool>,
+    payload: web::Json<ConfirmSignupRequest>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    tmc_client: web::Data<TmcClient>,
+) -> ControllerResult<web::Json<signup::SignupConfirmationResult>> {
+    let mut conn = pool.acquire().await?;
+    signup::confirm(
+        &mut conn,
+        &session,
+        payload.code.expose_secret(),
+        &app_conf,
+        &tmc_client,
+    )
+    .await
+}
+
+/**
+POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,
+subject to the resend interval and the address's mail budget. Answers the same whatever happened.
+*/
+#[utoipa::path(
+    post,
+    path = "/create-account/resend-code",
+    tag = "auth",
+    operation_id = "postAuthResendSignupCode",
+    responses((status = 200, description = "The request was received"))
+)]
+#[instrument(skip(session, pool))]
+pub async fn resend_signup_code(
+    session: Session,
+    pool: web::Data<PgPool>,
 ) -> ControllerResult<HttpResponse> {
-    signup::count_revealed_existing_account(conn, pool, client_ip).await?;
-    skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists))
+    let mut conn = pool.acquire().await?;
+    signup::resend_code(&mut conn, &session).await?;
+    skip_authorize().authorized_ok(HttpResponse::Ok().finish())
+}
+
+/**
+GET `/api/v0/auth/create-account/test-mode-code` The pending signup's mailed code, for the system tests,
+which have no mail capture. 404 unless `TEST_MODE` is on.
+*/
+#[utoipa::path(
+    get,
+    path = "/create-account/test-mode-code",
+    tag = "auth",
+    operation_id = "getAuthSignupCodeForTestMode",
+    responses(
+        (status = 200, description = "The pending signup's code", body = String),
+        (status = 404, description = "Not in test mode, or no pending code")
+    )
+)]
+#[instrument(skip(session, pool, app_conf))]
+pub async fn signup_code_for_test_mode(
+    session: Session,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+) -> ControllerResult<web::Json<String>> {
+    let token = skip_authorize();
+    if !app_conf.test_mode {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
+    let mut conn = pool.acquire().await?;
+    let code = signup::mailed_code_for_test_mode(&mut conn, &session)
+        .await?
+        .ok_or_else(|| controller_err!(NotFound, "No pending code.".to_string()))?;
+    token.authorized_ok(web::Json(code))
 }
 
 #[derive(Debug, Deserialize, IntoParams)]
@@ -395,93 +343,6 @@ pub async fn altcha_challenge(
     )
 }
 
-async fn handle_test_mode_signup(
-    conn: &mut PgConnection,
-    session: &Session,
-    user_details: &CreateAccountDetails,
-    app_conf: &ApplicationConfiguration,
-) -> ControllerResult<HttpResponse> {
-    assert!(
-        app_conf.test_mode,
-        "handle_test_mode_signup called outside test mode"
-    );
-
-    warn!("Handling signup in test mode. No real account is created.");
-
-    match models::users::get_by_email(conn, &user_details.email).await {
-        Ok(_) => {
-            let token = skip_authorize();
-            return token
-                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
-        }
-        Err(error)
-            if matches!(
-                error.error_type(),
-                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
-            ) => {}
-        Err(error) => return Err(error.into()),
-    }
-
-    let user_id = models::users::insert(
-        conn,
-        PKeyPolicy::Generate,
-        &user_details.email,
-        Some(&user_details.first_name),
-        Some(&user_details.last_name),
-    )
-    .await;
-    let user_id = match user_id {
-        Ok(user_id) => user_id,
-        Err(error) => match error.error_type() {
-            ModelErrorType::DatabaseConstraint { constraint, .. }
-                if constraint == "users_email" =>
-            {
-                let token = skip_authorize();
-                return token
-                    .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
-            }
-            _ => {
-                return Err(controller_err!(
-                    InternalServerError,
-                    "Failed to insert test user.".to_string(),
-                    anyhow!(error)
-                ));
-            }
-        },
-    };
-
-    models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
-    models::user_details::update_user_email_communication_consent(
-        conn,
-        user_id,
-        user_details.email_communication_consent,
-    )
-    .await?;
-
-    let user = models::users::get_by_email(conn, &user_details.email).await?;
-
-    let password_hash = models::user_passwords::hash_password(&user_details.password)
-        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
-
-    models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to add password to database".to_string(),
-                anyhow!(e),
-            )
-        })?;
-    domain::email_ownership_verification::queue_verification_email_best_effort(
-        conn,
-        app_conf.enable_email_ownership_verification,
-        user.id,
-    )
-    .await;
-
-    sign_in_test_mode(conn, session, user, SignupResponse::Success).await
-}
-
 /// Signs `user` in for a test-mode or UUID login, remembering the browser so that the session
 /// check passes without a mailed code.
 async fn sign_in_test_mode(
@@ -493,18 +354,6 @@ async fn sign_in_test_mode(
     let cookie = session_verification::remember_test_mode_browser(conn, user.id).await?;
     authentication::remember(session, user)?;
     skip_authorize().authorized_ok(HttpResponse::Ok().cookie(cookie).json(body))
-}
-
-fn is_duplicate_email_error_message(message: &str) -> bool {
-    let normalized = message.to_lowercase();
-    normalized.contains("email already exists")
-        || normalized.contains("email is already registered")
-        || normalized.contains("email already in use")
-        || normalized.contains("duplicate email")
-        || normalized.contains("unique constraint")
-        || normalized.contains("duplicate key")
-        || normalized.contains("users_email")
-        || normalized.contains("email_key")
 }
 
 /**
@@ -1675,6 +1524,9 @@ pub async fn verify_session(
 #[openapi(
     paths(
         signup,
+        confirm_signup,
+        resend_signup_code,
+        signup_code_for_test_mode,
         altcha_challenge,
         login,
         logout,
@@ -1695,6 +1547,8 @@ pub async fn verify_session(
         CreateAccountDetails,
         SignupResponse,
         ChallengePurpose,
+        ConfirmSignupRequest,
+        signup::SignupConfirmationResult,
         UserInfo,
         headless_lms_authorization::ActionOnResource,
         headless_lms_authorization::Action,
@@ -1743,6 +1597,32 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 ..Default::default()
             }))
             .to(signup),
+    )
+    .service(
+        web::resource("/create-account/confirm")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(20),
+                per_hour: Some(200),
+                per_day: Some(1000),
+                per_month: None,
+                ..Default::default()
+            }))
+            .route(web::post().to(confirm_signup)),
+    )
+    .service(
+        web::resource("/create-account/resend-code")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(5),
+                per_hour: Some(30),
+                per_day: Some(100),
+                per_month: None,
+                ..Default::default()
+            }))
+            .route(web::post().to(resend_signup_code)),
+    )
+    .route(
+        "/create-account/test-mode-code",
+        web::get().to(signup_code_for_test_mode),
     )
     .service(
         web::resource("/altcha-challenge")

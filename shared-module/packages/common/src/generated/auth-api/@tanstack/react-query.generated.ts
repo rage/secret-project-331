@@ -10,13 +10,16 @@ import {
   getAuthAltchaChallenge,
   getAuthLoggedIn,
   getAuthSessionStatus,
+  getAuthSignupCodeForTestMode,
   getAuthUserInfo,
   type Options,
   postAuthAuthorize,
   postAuthAuthorizeMultiple,
+  postAuthConfirmSignup,
   postAuthDeleteUserAccount,
   postAuthLogin,
   postAuthLogout,
+  postAuthResendSignupCode,
   postAuthSendEmailCode,
   postAuthSessionStatusEmailCode,
   postAuthSessionStatusVerify,
@@ -29,17 +32,22 @@ import type {
   GetAuthLoggedInResponse,
   GetAuthSessionStatusData,
   GetAuthSessionStatusResponse,
+  GetAuthSignupCodeForTestModeData,
+  GetAuthSignupCodeForTestModeResponse,
   GetAuthUserInfoData,
   GetAuthUserInfoResponse,
   PostAuthAuthorizeData,
   PostAuthAuthorizeMultipleData,
   PostAuthAuthorizeMultipleResponse,
   PostAuthAuthorizeResponse,
+  PostAuthConfirmSignupData,
+  PostAuthConfirmSignupResponse,
   PostAuthDeleteUserAccountData,
   PostAuthDeleteUserAccountResponse,
   PostAuthLoginData,
   PostAuthLoginResponse,
   PostAuthLogoutData,
+  PostAuthResendSignupCodeData,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponse,
   PostAuthSessionStatusEmailCodeData,
@@ -160,7 +168,8 @@ export const postAuthAuthorizeMultipleMutation = (
 }
 
 /**
- * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ * POST `/api/v0/auth/create-account` Starts a signup: mails a code to the address, which
+ * [`confirm_signup`] takes to create the account and sign in. See [`crate::domain::signup`].
  *
  * # Example
  * ```http
@@ -197,6 +206,81 @@ export const postAuthSignupMutation = (
   }
   return mutationOptions
 }
+
+/**
+ * POST `/api/v0/auth/create-account/confirm` Creates the account of the session's pending signup when
+ * `code` is the one mailed to its address, and signs in.
+ */
+export const postAuthConfirmSignupMutation = (
+  options?: Partial<Options<PostAuthConfirmSignupData>>,
+): UseMutationOptions<
+  PostAuthConfirmSignupResponse,
+  DefaultError,
+  Options<PostAuthConfirmSignupData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthConfirmSignupResponse,
+    DefaultError,
+    Options<PostAuthConfirmSignupData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthConfirmSignup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,
+ * subject to the resend interval and the address's mail budget. Answers the same whatever happened.
+ */
+export const postAuthResendSignupCodeMutation = (
+  options?: Partial<Options<PostAuthResendSignupCodeData>>,
+): UseMutationOptions<unknown, DefaultError, Options<PostAuthResendSignupCodeData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<PostAuthResendSignupCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthResendSignupCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAuthSignupCodeForTestModeQueryKey = (
+  options?: Options<GetAuthSignupCodeForTestModeData>,
+) => createQueryKey("getAuthSignupCodeForTestMode", options)
+
+/**
+ * GET `/api/v0/auth/create-account/test-mode-code` The pending signup's mailed code, for the system tests,
+ * which have no mail capture. 404 unless `TEST_MODE` is on.
+ */
+export const getAuthSignupCodeForTestModeOptions = (
+  options?: Options<GetAuthSignupCodeForTestModeData>,
+) =>
+  queryOptions<
+    GetAuthSignupCodeForTestModeResponse,
+    DefaultError,
+    GetAuthSignupCodeForTestModeResponse,
+    ReturnType<typeof getAuthSignupCodeForTestModeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthSignupCodeForTestMode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthSignupCodeForTestModeQueryKey(options),
+  })
 
 /**
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account

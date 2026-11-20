@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useSyncExternalStore } from "react"
 
+import { omitUndefined } from "../utils/nullability"
 import { useInView } from "./useInView"
 
 export interface LoadSlotConfig {
@@ -245,10 +246,7 @@ export function useLoadSlot(
   const capacity = config?.capacity
   const maxHoldMs = config?.maxHoldMs
   useEffect(() => {
-    scheduler.configure({
-      ...(capacity !== undefined && { capacity }),
-      ...(maxHoldMs !== undefined && { maxHoldMs }),
-    })
+    scheduler.configure(omitUndefined({ capacity, maxHoldMs }))
   }, [scheduler, capacity, maxHoldMs])
 
   useEffect(() => {

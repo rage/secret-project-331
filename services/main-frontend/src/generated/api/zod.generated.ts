@@ -25,6 +25,9 @@ export const zAccountFormListKind = z.enum(["address", "mailbox", "account", "do
  */
 export const zAccountFormOutcome = z.enum(["allow", "drop"])
 
+/**
+ * A logged submission, as the admin page shows it.
+ */
 export const zAccountFormDecision = z.object({
   action: zAccountFormAction,
   created_at: z.iso.datetime(),
@@ -37,6 +40,9 @@ export const zAccountFormDecision = z.object({
   user_id: z.uuid().nullish(),
 })
 
+/**
+ * A rule as it is now. Matches by `expression` or by the list, never both.
+ */
 export const zAccountFormRule = z.object({
   created_at: z.iso.datetime(),
   description: z.string(),
@@ -83,6 +89,9 @@ export const zAccountFormRuleVersion = z.object({
   outcome: zAccountFormOutcome,
 })
 
+/**
+ * The admin settings, with defaults for a deployment where none are saved.
+ */
 export const zAccountFormSettings = z.object({
   rules_log_only: z.boolean(),
 })
@@ -2893,6 +2902,9 @@ export const zDatabaseOrganization = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * The address whose logged submissions to list.
+ */
 export const zDecisionLookupRequest = z.object({
   email: z.string(),
 })

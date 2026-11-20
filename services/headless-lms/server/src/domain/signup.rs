@@ -118,7 +118,14 @@ pub async fn start(
     let mut tx = conn.begin().await?;
     // Without budget the earlier pending signup stays, as its code may already be in the inbox.
     if !mail_budget::try_consume_for_address(&mut tx, form.email).await? {
-        return remember_pending_id(session, None);
+        let is_same_address = pending_email(&mut tx, session)
+            .await?
+            .is_some_and(|email| email.eq_ignore_ascii_case(form.email));
+        return if is_same_address {
+            Ok(())
+        } else {
+            remember_pending_id(session, None)
+        };
     }
     let code = user_email_codes::generate_code();
     let id = pending_signups::replace(

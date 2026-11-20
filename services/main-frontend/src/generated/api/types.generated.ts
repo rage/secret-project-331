@@ -12,6 +12,9 @@ export type ClientOptions = {
  */
 export type AccountFormAction = "signup" | "signup_code_resend" | "password_reset" | "email_change"
 
+/**
+ * A logged submission, as the admin page shows it.
+ */
 export type AccountFormDecision = {
   action: AccountFormAction
   created_at: string
@@ -34,6 +37,9 @@ export type AccountFormListKind = "address" | "mailbox" | "account" | "domain"
  */
 export type AccountFormOutcome = "allow" | "drop"
 
+/**
+ * A rule as it is now. Matches by `expression` or by the list, never both.
+ */
 export type AccountFormRule = {
   created_at: string
   description: string
@@ -101,6 +107,9 @@ export type AccountFormRuleVersion = {
   outcome: AccountFormOutcome
 }
 
+/**
+ * The admin settings, with defaults for a deployment where none are saved.
+ */
 export type AccountFormSettings = {
   /**
    * Makes every account form rule log-only.
@@ -4431,6 +4440,9 @@ export type DatabaseOrganization = {
   updated_at: string
 }
 
+/**
+ * The address whose logged submissions to list.
+ */
 export type DecisionLookupRequest = {
   email: string
 }

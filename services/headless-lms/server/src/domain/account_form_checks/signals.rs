@@ -38,6 +38,7 @@ impl Signals {
         Self { namespaces }
     }
 
+    /// Each namespace with its object of values.
     pub fn namespaces(&self) -> impl Iterator<Item = (&String, &Value)> {
         self.namespaces.iter()
     }

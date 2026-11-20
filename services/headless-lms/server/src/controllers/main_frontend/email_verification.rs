@@ -6,6 +6,7 @@ and the OIDC discovery document advertises an `email_verified` claim.
 */
 
 use headless_lms_models::{
+    account_form_decisions::AccountFormAction,
     email_templates::{self, EmailTemplateType},
     user_details::{self, EmailVerificationMethod},
     user_email_codes::{self, CodeCheck, UserEmailCodePurpose},
@@ -15,6 +16,7 @@ use secrecy::ExposeSecret;
 use utoipa::{IntoParams, OpenApi, ToSchema};
 
 use crate::domain::{
+    account_form_checks,
     email_ownership_verification::{
         MAX_CODE_ATTEMPTS, VerificationEmailOutcome, queue_verification_email,
     },
@@ -141,7 +143,7 @@ pub async fn get_my_email_verification_status(
 POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
 signed-in account's current address.
 */
-#[instrument(skip(pool, payload, app_conf))]
+#[instrument(skip(request, pool, payload, app_conf, ip_to_country_mapper))]
 #[utoipa::path(
     post,
     path = "/request",
@@ -154,16 +156,37 @@ signed-in account's current address.
     )
 )]
 pub async fn request_email_verification_code(
+    request: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<RequestEmailVerificationPayload>,
     app_conf: web::Data<ApplicationConfiguration>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<RequestEmailVerificationOutcome>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
     if !app_conf.enable_email_ownership_verification {
         return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
+    let email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
+        .await?
+        .email;
+    let check = account_form_checks::assess(
+        &mut conn,
+        &ip_to_country_mapper,
+        &account_form_checks::Submission {
+            action: AccountFormAction::EmailChange,
+            request: &request,
+            client_report: None,
+            email: Some(&email),
+            user_id: Some(user.id),
+            profile: None,
+        },
+    )
+    .await;
+    if !check.should_send_mail {
+        return token.authorized_ok(web::Json(RequestEmailVerificationOutcome::Queued));
     }
 
     let outcome = queue_verification_email(&mut conn, user.id, &payload.language).await?;

@@ -5,6 +5,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
+/// The admin settings, with defaults for a deployment where none are saved.
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountFormSettings {
     /// Makes every account form rule log-only.
@@ -25,6 +26,7 @@ FROM account_form_settings
     Ok(settings.unwrap_or_default())
 }
 
+/// Saves the settings, replacing the saved ones.
 pub async fn upsert(conn: &mut PgConnection, settings: &AccountFormSettings) -> ModelResult<()> {
     sqlx::query!(
         r#"

@@ -94,6 +94,7 @@ async fn update_settings(
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
+/// Paging of the log.
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct DecisionsQuery {
@@ -131,6 +132,7 @@ async fn get_decisions(
     token.authorized_ok(web::Json(decisions))
 }
 
+/// The address whose logged submissions to list.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct DecisionLookupRequest {
     pub email: String,
@@ -433,7 +435,10 @@ async fn dry_run_rule(
     .await?;
     let matcher = match (&payload.expression, payload.list_kind) {
         (Some(expression), None) => Ok(compile_expression(expression)?),
-        (None, Some(kind)) => Err((kind, normalized_entries(kind, &payload.list_entries)?)),
+        (None, Some(kind)) => Err(rules::ListMatcher::new(
+            kind,
+            &normalized_entries(kind, &payload.list_entries)?,
+        )),
         _ => {
             return Err(controller_err!(
                 BadRequest,
@@ -457,16 +462,12 @@ async fn dry_run_rule(
                 decision.action,
                 &Signals::from_json(&decision.signals),
             ),
-            Err((kind, entries)) => Ok(rules::list_matches(
-                *kind,
-                entries,
-                &RuleSubject {
-                    address_digest: decision.address_digest.clone(),
-                    mailbox_digest: decision.mailbox_digest.clone(),
-                    user_id: decision.user_id,
-                    domain: decision.recipient_domain.clone(),
-                },
-            )),
+            Err(list) => Ok(list.matches(&RuleSubject {
+                address_digest: decision.address_digest.clone(),
+                mailbox_digest: decision.mailbox_digest.clone(),
+                user_id: decision.user_id,
+                domain: decision.recipient_domain.clone(),
+            })),
         };
         match matched {
             Ok(true) => {

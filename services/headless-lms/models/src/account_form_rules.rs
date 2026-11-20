@@ -22,6 +22,7 @@ pub enum AccountFormListKind {
     Domain,
 }
 
+/// A rule as it is now. Matches by `expression` or by the list, never both.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountFormRule {
     pub id: Uuid,

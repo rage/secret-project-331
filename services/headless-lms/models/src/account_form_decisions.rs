@@ -44,6 +44,7 @@ pub struct NewAccountFormDecision {
     pub network_prefix: Option<String>,
 }
 
+/// A logged submission, as the admin page shows it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountFormDecision {
     pub id: Uuid,
@@ -62,6 +63,7 @@ pub struct AccountFormDecision {
     pub mailbox_digest: Option<Vec<u8>>,
 }
 
+/// Logs a submission and returns the row's id.
 pub async fn insert(
     conn: &mut PgConnection,
     decision: &NewAccountFormDecision,

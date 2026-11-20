@@ -16848,6 +16848,7 @@
       },
       "AccountFormDecision": {
         "type": "object",
+        "description": "A logged submission, as the admin page shows it.",
         "required": ["id", "created_at", "action", "outcome", "matched_rule_ids", "signals"],
         "properties": {
           "action": {
@@ -16896,6 +16897,7 @@
       },
       "AccountFormRule": {
         "type": "object",
+        "description": "A rule as it is now. Matches by `expression` or by the list, never both.",
         "required": [
           "id",
           "created_at",
@@ -17076,6 +17078,7 @@
       },
       "AccountFormSettings": {
         "type": "object",
+        "description": "The admin settings, with defaults for a deployment where none are saved.",
         "required": ["rules_log_only"],
         "properties": {
           "rules_log_only": {
@@ -27112,6 +27115,7 @@
       },
       "DecisionLookupRequest": {
         "type": "object",
+        "description": "The address whose logged submissions to list.",
         "required": ["email"],
         "properties": {
           "email": {

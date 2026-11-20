@@ -3,6 +3,7 @@
 //! submission's action as `action`, e.g. `"signup"`. A list rule matches the address, mailbox,
 //! account or domain the submission is about.
 
+use std::collections::HashSet;
 use std::sync::{Arc, LazyLock};
 use std::time::Duration;
 
@@ -61,26 +62,67 @@ pub struct RuleSubject {
     pub domain: Option<String>,
 }
 
-/// Whether any of `entries` names the subject. Entries are stored normalised; see
-/// [`normalize_list_entry`].
-pub fn list_matches(kind: AccountFormListKind, entries: &[String], subject: &RuleSubject) -> bool {
-    entries.iter().any(|entry| match kind {
-        AccountFormListKind::Address => {
-            subject.address_digest.as_deref() == Some(address_digest(entry).as_slice())
+/// A list rule's entries in the forms [`RuleSubject`] holds. Build it once per evaluation of many
+/// subjects: address and mailbox entries are hashed when it is built.
+pub enum ListMatcher {
+    Digests {
+        is_mailbox: bool,
+        digests: HashSet<Vec<u8>>,
+    },
+    Accounts(HashSet<Uuid>),
+    /// Matched with their subdomains.
+    Domains(Vec<String>),
+}
+
+impl ListMatcher {
+    /// `entries` must be stored normalised; see [`normalize_list_entry`].
+    pub fn new(kind: AccountFormListKind, entries: &[String]) -> Self {
+        match kind {
+            AccountFormListKind::Address => Self::Digests {
+                is_mailbox: false,
+                digests: entries.iter().map(|entry| address_digest(entry)).collect(),
+            },
+            AccountFormListKind::Mailbox => Self::Digests {
+                is_mailbox: true,
+                digests: entries.iter().map(|entry| mailbox_digest(entry)).collect(),
+            },
+            AccountFormListKind::Account => Self::Accounts(
+                entries
+                    .iter()
+                    .filter_map(|entry| Uuid::parse_str(entry).ok())
+                    .collect(),
+            ),
+            AccountFormListKind::Domain => Self::Domains(entries.to_vec()),
         }
-        AccountFormListKind::Mailbox => {
-            subject.mailbox_digest.as_deref() == Some(mailbox_digest(entry).as_slice())
+    }
+
+    /// Whether any entry names the subject.
+    pub fn matches(&self, subject: &RuleSubject) -> bool {
+        match self {
+            Self::Digests {
+                is_mailbox,
+                digests,
+            } => {
+                let digest = if *is_mailbox {
+                    &subject.mailbox_digest
+                } else {
+                    &subject.address_digest
+                };
+                digest
+                    .as_ref()
+                    .is_some_and(|digest| digests.contains(digest))
+            }
+            Self::Accounts(ids) => subject.user_id.is_some_and(|id| ids.contains(&id)),
+            Self::Domains(domains) => subject.domain.as_deref().is_some_and(|domain| {
+                domains.iter().any(|entry| {
+                    domain == entry
+                        || domain
+                            .strip_suffix(entry.as_str())
+                            .is_some_and(|rest| rest.ends_with('.'))
+                })
+            }),
         }
-        AccountFormListKind::Account => Uuid::parse_str(entry)
-            .ok()
-            .is_some_and(|id| subject.user_id == Some(id)),
-        AccountFormListKind::Domain => subject.domain.as_deref().is_some_and(|domain| {
-            domain == entry
-                || domain
-                    .strip_suffix(entry.as_str())
-                    .is_some_and(|rest| rest.ends_with('.'))
-        }),
-    })
+    }
 }
 
 /// `entry` as stored, or `None` when it cannot name anything of `kind`.
@@ -110,7 +152,7 @@ pub fn rule_matches(
 ) -> Result<bool, String> {
     match (&rule.expression, rule.list_kind) {
         (Some(expression), _) => evaluate(&compile(expression)?, action, signals),
-        (None, Some(kind)) => Ok(list_matches(kind, &rule.list_entries, subject)),
+        (None, Some(kind)) => Ok(ListMatcher::new(kind, &rule.list_entries).matches(subject)),
         (None, None) => Err("the rule has neither an expression nor a list".to_string()),
     }
 }

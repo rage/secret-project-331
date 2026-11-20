@@ -238,13 +238,16 @@ function loadCount(page: Page, title: string): Promise<number> {
   return page.evaluate((taskTitle) => window.fakePlugins?.loadCounts[taskTitle] ?? 0, title)
 }
 
-async function waitForConnection(page: Page, title: string, loadNumber = 1, timeout?: number) {
+/** Waits until load `loadNumber` of the task's document connects; by default its latest load. */
+async function waitForConnection(page: Page, title: string, loadNumber?: number, timeout?: number) {
   await expect
     .poll(
-      async () =>
-        (await fakePluginEvents(page, title)).some(
-          (event) => event.kind === "connected" && event.loadNumber === loadNumber,
-        ),
+      async () => {
+        const expectedLoadNumber = loadNumber ?? Math.max(1, await loadCount(page, title))
+        return (await fakePluginEvents(page, title)).some(
+          (event) => event.kind === "connected" && event.loadNumber === expectedLoadNumber,
+        )
+      },
       timeout === undefined ? {} : { timeout },
     )
     .toBe(true)
@@ -527,7 +530,8 @@ test("a blocked submit focuses the first failing task", async ({ page }) => {
   await advanceClockSinceLoaded(page, TASK_3, FAILURE_MS + 1000)
   await expect(taskContainer(page, TASK_3).getByText(NOT_LOADED_MESSAGE)).toBeVisible()
 
-  await submitButton(page).click()
+  // Playwright refuses to click an aria-disabled button; a blocked submit must still respond.
+  await submitButton(page).press("Enter")
 
   await expect(page.locator(`iframe[title="${TASK_2}"]`)).toBeFocused()
   await expect(page.locator(`iframe[title="${TASK_2}"]`)).toBeInViewport()
@@ -541,7 +545,7 @@ test("a blocked submit focuses the first failing task", async ({ page }) => {
   await expect(getExerciseRegion(page, MULTI_TASK_EXERCISE)).toContainText("Answer question 2.")
 
   await answerTask(page, TASK_2)
-  await submitButton(page).click()
+  await submitButton(page).press("Enter")
 
   await expect(
     taskContainer(page, TASK_3).getByRole("button", { name: RELOAD_PART_BUTTON }),

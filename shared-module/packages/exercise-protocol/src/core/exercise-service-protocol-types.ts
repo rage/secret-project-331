@@ -172,6 +172,7 @@ export type MessageToIframe =
   | RepositoryExercisesMessage
   | TestResultsMessage
   | DialogResponseMessage
+  | FocusFirstInvalidMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
@@ -219,6 +220,15 @@ export interface DialogResponseMessage {
   requestId: string
   /** For "confirm": whether the user confirmed. For "warning": always `true` (acknowledged). */
   confirmed: boolean
+}
+
+/**
+ * Asks the exercise to scroll to and focus its first required item that is still unanswered, sent
+ * when the student tries to submit an answer the exercise reported as invalid. Exercises that don't
+ * support it can ignore it.
+ */
+export interface FocusFirstInvalidMessage {
+  message: "focus-first-invalid"
 }
 
 /**
@@ -277,6 +287,12 @@ export interface AnswerExerciseIframeState {
     previous_submission: unknown | null
     previous_submission_files?: AnswerFileRef[]
   }
+  /**
+   * The last answer this exercise reported (`CurrentStateMessage.data`) before the parent reloaded
+   * its iframe, so the exercise can restore the unsubmitted form. Only sent after a reload; an
+   * exercise that doesn't support it can ignore it.
+   */
+  answer_draft?: unknown
 }
 
 export interface ViewSubmissionIframeState {

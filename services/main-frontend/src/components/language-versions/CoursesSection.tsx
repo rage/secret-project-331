@@ -28,14 +28,26 @@ interface Props {
   courseId: string
   mode: LanguageVersionToolMode
   courses: LanguageVersionCourse[]
-  /** Extra buttons beside "Add an existing course", e.g. creating a new language version. */
+  /** Extra buttons beside the add button, e.g. creating a new language version. */
   extraActions?: React.ReactNode
+  /**
+   * Replaces the add dialog while the course has no other language versions, so the first course
+   * is added in the flow that also links pages and exercises.
+   */
+  onAddFirstVersion: () => void
   /** Called after a course joined, so the tool can offer to link its pages and exercises. */
   onJoined: (joinedCourseId: string) => void
 }
 
 /** The courses of the language versions, with joining and removing courses. */
-const CoursesSection: React.FC<Props> = ({ courseId, mode, courses, extraActions, onJoined }) => {
+const CoursesSection: React.FC<Props> = ({
+  courseId,
+  mode,
+  courses,
+  extraActions,
+  onAddFirstVersion,
+  onJoined,
+}) => {
   const { t } = useTranslation()
   const [isJoinOpen, setIsJoinOpen] = useState(false)
   const [splitCourseId, setSplitCourseId] = useState<string | null>(null)
@@ -52,7 +64,7 @@ const CoursesSection: React.FC<Props> = ({ courseId, mode, courses, extraActions
             variant="secondary"
             size="medium"
             disabledReason={readOnlyReason}
-            onPress={() => setIsJoinOpen(true)}
+            onPress={() => (courses.length > 1 ? setIsJoinOpen(true) : onAddFirstVersion())}
           >
             {t("language-versions-add-existing-course")}
           </Button>

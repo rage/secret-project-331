@@ -39,10 +39,10 @@ test.describe("The teacher", () => {
     headless,
   }, testInfo) => {
     await page.goto(languageVersionsTabUrl(JOIN_SET.finnishCourseId))
-    await page.getByRole("button", { name: "Add an existing course" }).click()
+    await page.getByRole("button", { name: "Make an existing course a language version" }).click()
 
     const dialog = page.getByRole("dialog", {
-      name: "Add an existing course as a language version",
+      name: "Make an existing course a language version",
     })
     await dialog.getByRole("radio", { name: JOIN_SET.englishName }).check()
     await dialog.getByRole("button", { name: "Continue" }).click()

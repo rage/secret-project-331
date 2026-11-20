@@ -159,23 +159,14 @@ export const LanguageVersionTool: React.FC<Props> = ({ courseId, mode, extraCour
                     )}
                   </>
                 }
+                onAddFirstVersion={() =>
+                  setFlow({ type: "guided", candidateCourseIds: [], startAtPages: false })
+                }
                 onJoined={setJoinedCourseId}
               />
               {report.courses.length === 1 && (
                 <Infobox heading={t("language-versions-no-other-versions-heading")}>
-                  <div className={joinedNoticeCss}>
-                    {t("language-versions-no-other-versions-body")}
-                    <Button
-                      variant="secondary"
-                      size="medium"
-                      disabledReason={readOnlyReason}
-                      onPress={() =>
-                        setFlow({ type: "guided", candidateCourseIds: [], startAtPages: false })
-                      }
-                    >
-                      {t("language-versions-find-step-by-step")}
-                    </Button>
-                  </div>
+                  {t("language-versions-no-other-versions-body")}
                 </Infobox>
               )}
               {joinedCourse && (

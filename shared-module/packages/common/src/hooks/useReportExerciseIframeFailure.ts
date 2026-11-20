@@ -32,7 +32,6 @@ const FAILURE_MESSAGES = {
 
 type FailureKind = keyof typeof FAILURE_MESSAGES
 
-// docs/datagrip-operations.md queries filter on this `details.kind`.
 const EXERCISE_IFRAME_FAILURE_REPORT_KIND = "exercise-iframe-failure"
 
 /**

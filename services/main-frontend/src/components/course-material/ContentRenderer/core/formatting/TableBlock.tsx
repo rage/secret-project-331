@@ -117,6 +117,7 @@ const TableBlock: React.FC<
               ${!isStriped && `border: 1px solid currentColor;`}
               white-space: pre-wrap;
               padding: 0.5rem;
+              font-variant-numeric: tabular-nums;
               ${hasFixedLayout && "overflow-wrap: break-word;"}
             }
             /* stylelint-disable-next-line block-no-empty */

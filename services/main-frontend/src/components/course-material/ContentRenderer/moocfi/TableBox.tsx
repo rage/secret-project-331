@@ -41,7 +41,6 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
           margin: 1rem 0;
           min-height: 100%;
           padding-bottom: 6px;
-          overflow-x: auto;
 
           table {
             border-collapse: unset !important;

@@ -23,9 +23,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_agent_changesets, seed_cs_course_material,
-            seed_exercise_iframe_resilience, seed_glossary, seed_graded_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_agent_changesets, seed_cs_course_material, seed_glossary,
+            seed_graded_course, seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
@@ -262,16 +261,6 @@ pub async fn seed_organization_uh_cs(
             cs_data.clone(),
             seed_users_result,
         )),
-        run_parallelly(
-            seed_exercise_iframe_resilience::seed_exercise_iframe_resilience_course(
-                app_config.clone(),
-                Uuid::parse_str("aff9acac-a4c6-4e24-a7b7-cd9aa0f47f8d")?,
-                "Exercise iframe resilience",
-                "exercise-iframe-resilience",
-                cs_data.clone(),
-                seed_users_result,
-            )
-        ),
         run_parallelly(seed_glossary::seed_glossary_course(
             app_config.clone(),
             Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,

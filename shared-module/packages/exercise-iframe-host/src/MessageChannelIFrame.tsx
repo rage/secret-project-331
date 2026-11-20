@@ -101,6 +101,7 @@ interface MessageChannelIFrameProps {
   showBorders?: boolean
   disableSandbox?: boolean
   headingBeforeIframe?: string
+  /** Called when the iframe connects (sends `ready` or any port message), again after each reload. */
   onReady?: () => void
   /**
    * Host-provided dialog controller used to answer the iframe's `open-dialog` requests and to confirm
@@ -205,6 +206,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const reloadAttemptsRef = useRef(0)
   const reloadTimeoutRef = useRef<number | null>(null)
   const shouldSendAnswerDraftRef = useRef(false)
+  const didLastSetStateCarryDraftRef = useRef(false)
 
   const isConnectedRef = useRef(false)
   // oxlint-disable-next-line i18next/no-literal-string
@@ -259,11 +261,18 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
     isConnectedRef.current = true
     clearLoadTimers()
+    // An automatic or button reload may still be pending; the document it would replace works.
+    if (reloadTimeoutRef.current !== null) {
+      clearTimeout(reloadTimeoutRef.current)
+      reloadTimeoutRef.current = null
+      shouldKeepLoadStartRef.current = false
+    }
     // oxlint-disable-next-line i18next/no-literal-string
     advanceConnectionStage("ready-received")
     setLoadError((current) => (current === "not-loaded" ? null : current))
     // oxlint-disable-next-line i18next/no-literal-string
     reportConnectionState("connected")
+    onReady?.()
   })
 
   const resetIframeConnectionState = useCallback(
@@ -305,6 +314,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     resetIframeConnectionState()
     reloadAttemptsRef.current = 0
     shouldSendAnswerDraftRef.current = false
+    didLastSetStateCarryDraftRef.current = false
     shouldKeepLoadStartRef.current = false
     clearReloadTimeout()
     setReloadNonce(0)
@@ -547,7 +557,6 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
             clearTimeout(reloadTimeoutRef.current)
             reloadTimeoutRef.current = null
           }
-          onReady?.()
         }
         try {
           onMessageFromIframe(data, currentMessageChannel.port1)
@@ -624,6 +633,8 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           recoveryAttemptsRef.current += 1
 
           resetIframeConnectionState({ resetRecoveryAttempts: false })
+          // The reposted set-state replaces one the iframe may never have received.
+          shouldSendAnswerDraftRef.current = didLastSetStateCarryDraftRef.current
           readyMessageQueueRef.current.push(e)
           recreateMessageChannel()
           return
@@ -703,13 +714,16 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       ...postThisStateToIFrame,
       message: "set-state",
     }
+    let hasAnswerDraft = false
     if (shouldSendAnswerDraftRef.current && postData.view_type === "answer-exercise") {
       const answerDraft = readAnswerDraft()
       if (answerDraft !== undefined) {
         postData.answer_draft = answerDraft
+        hasAnswerDraft = true
       }
     }
     shouldSendAnswerDraftRef.current = false
+    didLastSetStateCarryDraftRef.current = hasAnswerDraft
 
     console.groupCollapsed(`Parent posting set-state message to iframe`)
     console.info(JSON.stringify(postData, undefined, 2))

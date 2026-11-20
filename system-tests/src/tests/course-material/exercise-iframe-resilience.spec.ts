@@ -18,7 +18,7 @@ test.use({
   storageState: USER_STORAGE_STATE,
 })
 
-const COURSE_URL = "http://project-331.local/org/uh-cs/courses/exercise-iframe-resilience"
+const COURSE_URL = "http://project-331.local/org/uh-mathstat/courses/exercise-iframe-resilience"
 const MULTI_TASK_PAGE = `${COURSE_URL}/chapter-1/multi-task-exercise`
 const MANY_EXERCISES_PAGE = `${COURSE_URL}/chapter-1/many-exercises`
 const MULTI_TASK_EXERCISE = "Multi-task exercise"

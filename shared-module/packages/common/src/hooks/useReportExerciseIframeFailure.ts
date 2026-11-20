@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 
 import { reportErrorOccurrence } from "../errors/reportErrorOccurrence"
 
@@ -101,7 +101,10 @@ export function useReportExerciseIframeFailure(context: ExerciseIframeReportCont
 
   const onReloadRequested = useCallback(() => report("reload-requested"), [report])
 
-  return { onConnectionStateChange, onReloadRequested }
+  return useMemo(
+    () => ({ onConnectionStateChange, onReloadRequested }),
+    [onConnectionStateChange, onReloadRequested],
+  )
 }
 
 function originOf(url: string): string | null {

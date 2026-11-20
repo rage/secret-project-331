@@ -174,7 +174,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
               postThisStateToIFrame={postThisStateToIFrame}
               url={url}
               setAnswer={setAnswer}
-              detectLoadFailure
+              detectLoadFailure={postThisStateToIFrame.view_type === "answer-exercise"}
               ref={iframeRef}
               {...omitUndefined({ onConnectionStateChange })}
               title={

@@ -37,10 +37,12 @@ const renderDetectingIframe = ({
   detectLoadFailure = true,
   url = "http://example.com/test",
   onConnectionStateChange,
+  onReady,
 }: {
   detectLoadFailure?: boolean
   url?: string
   onConnectionStateChange?: (state: IframeConnectionState) => void
+  onReady?: () => void
 } = {}) => {
   const element = (iframeUrl: string) => (
     <I18nextProvider i18n={i18nTest}>
@@ -52,6 +54,7 @@ const renderDetectingIframe = ({
         title="test"
         detectLoadFailure={detectLoadFailure}
         {...(onConnectionStateChange ? { onConnectionStateChange } : {})}
+        {...(onReady ? { onReady } : {})}
       />
     </I18nextProvider>
   )
@@ -1828,6 +1831,21 @@ describe("MessageChannelIFrame", () => {
       expect(getByRole("button", { name: i18nTest.t(NOT_LOADED_BUTTON) })).toBeInTheDocument()
     })
 
+    it("cancels the automatic reload when ready arrives during its delay", () => {
+      const { queryByRole, currentIframe } = renderDetectingIframe()
+      const iframe = currentIframe()
+      const contentWindow = attachContentWindow(iframe)
+
+      fireLoad(iframe)
+      advance(EXERCISE_IFRAME_LOAD_TIMING.autoReloadAfterLoadWithoutReadyMs + 100)
+      dispatchReady(contentWindow)
+      advance(30000)
+
+      expect(currentIframe()).toBe(iframe)
+      expect(window.MessageChannel).toHaveBeenCalledTimes(1)
+      expect(queryByRole("alert")).toBeNull()
+    })
+
     it("does not auto-reload when ready follows the load event", () => {
       const { currentIframe } = renderDetectingIframe()
       const iframe = currentIframe()
@@ -1975,6 +1993,20 @@ describe("MessageChannelIFrame", () => {
       ])
     })
 
+    it("calls onReady once when the iframe sends ready", () => {
+      const onReady = jest.fn()
+      const { currentIframe } = renderDetectingIframe({ onReady })
+      dispatchReady(attachContentWindow(currentIframe()))
+
+      act(() => {
+        mockChannels[0]!.port1.onmessage?.({
+          data: { message: "current-state", data: {}, valid: true },
+        } as MessageEvent)
+      })
+
+      expect(onReady).toHaveBeenCalledTimes(1)
+    })
+
     it("still calls onReady on the first message from the iframe", () => {
       const onReady = jest.fn()
       render(
@@ -2053,6 +2085,20 @@ describe("MessageChannelIFrame", () => {
       const messages = setStateMessages(mockChannels[1]!)
       expect(messages).toHaveLength(2)
       expect(messages[1]).not.toHaveProperty("answer_draft")
+    })
+
+    it("re-sends the draft when handshake recovery reposts the state", () => {
+      const { container } = renderWithAnswerDraft(answerState)
+      requestReload(mockChannels[0]!)
+      const contentWindow = attachContentWindow(container.querySelector("iframe")!)
+
+      dispatchReady(contentWindow)
+      advance(5001)
+      dispatchReady(contentWindow)
+
+      expect(setStateMessages(mockChannels[2]!)).toEqual([
+        { ...answerState, message: "set-state", answer_draft: { answer: "draft" } },
+      ])
     })
 
     it("omits the field when there is no draft", () => {

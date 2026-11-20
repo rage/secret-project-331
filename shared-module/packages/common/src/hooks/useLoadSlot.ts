@@ -17,6 +17,7 @@ export interface LoadSlotConfig {
  */
 export type LoadSlotStatus = "waiting" | "holding" | "released"
 
+/** Used for any setting a queue's participants don't configure. */
 export const DEFAULT_LOAD_SLOT_CONFIG: LoadSlotConfig = { capacity: 3, maxHoldMs: 8000 }
 
 /** Roughly one screen above and below, so what the student is about to see loads first. */
@@ -219,6 +220,7 @@ export function getLoadSlotScheduler(qid: string): LoadSlotScheduler {
   return scheduler
 }
 
+/** A participant's place in a load slot queue, returned by `useLoadSlot`. */
 export interface LoadSlot {
   /** Attach to the participant's outermost element; used for viewport and document order. */
   ref: (node: Element | null) => void

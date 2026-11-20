@@ -208,18 +208,19 @@ export const postAuthConfirmSignup = <ThrowOnError extends boolean = true>(
  * subject to the resend interval and the address's mail budget. Answers the same whatever happened.
  */
 export const postAuthResendSignupCode = <ThrowOnError extends boolean = true>(
-  options?: Options<PostAuthResendSignupCodeData, ThrowOnError>,
+  options: Options<PostAuthResendSignupCodeData, ThrowOnError>,
 ): RequestResult<PostAuthResendSignupCodeResponses, unknown, ThrowOnError, "data"> =>
-  (options?.client ?? client).post<
-    PostAuthResendSignupCodeResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseStyle: "data",
-    url: "/api/v0/auth/create-account/resend-code",
-    ...options,
-  })
+  (options.client ?? client).post<PostAuthResendSignupCodeResponses, unknown, ThrowOnError, "data">(
+    {
+      responseStyle: "data",
+      url: "/api/v0/auth/create-account/resend-code",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
 
 /**
  * GET `/api/v0/auth/create-account/test-mode-code` The pending signup's mailed code, for the system tests,

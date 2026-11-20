@@ -8,6 +8,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
@@ -150,6 +151,7 @@ const CreateAccountForm: React.FC = () => {
 
   const { t, i18n } = useTranslation()
   const altchaRef = useRef<AltchaWidgetHandle>(null)
+  const accountFormReport = useAccountFormReport()
   usePageTitle(
     submittedEmail !== null && !confirmed ? t("confirm-email-title") : t("title-sign-up"),
   )
@@ -189,6 +191,7 @@ const CreateAccountForm: React.FC = () => {
           country: country,
           email_communication_consent: Boolean(email_communication_consent),
           altcha,
+          client_info: accountFormReport.report(),
         },
       })
     },
@@ -257,6 +260,7 @@ const CreateAccountForm: React.FC = () => {
       <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
       <form
         noValidate
+        ref={accountFormReport.formRef}
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {

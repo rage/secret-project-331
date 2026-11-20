@@ -3,6 +3,7 @@
 import React, { useState } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import {
   postAuthConfirmSignup,
   postAuthResendSignupCode,
@@ -30,6 +31,7 @@ const SignupConfirmationForm: React.FC<SignupConfirmationFormProps> = ({
   onAccountExists,
 }) => {
   const { t } = useTranslation()
+  const accountFormReport = useAccountFormReport()
   const [codeRefused, setCodeRefused] = useState(false)
   const [sentAt, setSentAt] = useState(() => new Date().toISOString())
 
@@ -49,7 +51,8 @@ const SignupConfirmationForm: React.FC<SignupConfirmationFormProps> = ({
   )
 
   const resend = useToastMutation(
-    async () => await postAuthResendSignupCode(),
+    async () =>
+      await postAuthResendSignupCode({ body: { client_info: accountFormReport.report() } }),
     { notify: false },
     {
       onSuccess: () => {

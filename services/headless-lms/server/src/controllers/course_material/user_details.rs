@@ -48,20 +48,30 @@ POST `/api/v0/course-material/user-details/update-user-info` - Updates the users
         (status = 200, description = "Updated user details", body = UserDetail)
     )
 )]
-#[instrument(skip(pool, app_conf, tmc_client))]
+#[instrument(skip(request, pool, app_conf, tmc_client, ip_to_country_mapper))]
 pub async fn update_user_info(
+    request: HttpRequest,
     user: AuthUser,
     pool: web::Data<PgPool>,
     payload: web::Json<UserInfoPayload>,
     tmc_client: web::Data<TmcClient>,
     app_conf: web::Data<ApplicationConfiguration>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
+    let check = domain::user_info::check_email_change(
+        &mut conn,
+        &ip_to_country_mapper,
+        &request,
+        user.id,
+        &payload,
+    )
+    .await?;
     let updated =
         domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
             .await?;
 
-    if updated.email_changed {
+    if updated.email_changed && check.should_send_mail {
         // A database trigger has already cleared `email_verified_at` for the old address.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,

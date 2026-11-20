@@ -7224,6 +7224,10 @@
         "description": "The profile form as both frontends submit it.",
         "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
         "properties": {
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
+          },
           "country": {
             "type": "string"
           },

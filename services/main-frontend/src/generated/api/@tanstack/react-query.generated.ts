@@ -55,6 +55,7 @@ import {
   confirmMyEnrolment,
   confirmMyExternalCompletionEnrolment,
   continueMoocfiHandoff,
+  createAccountFormRule,
   createAgentChangesetPreviewLink,
   createChapter,
   createChatbot,
@@ -84,6 +85,7 @@ import {
   createRegrading,
   createTeacherGradingDecision,
   createUserResearchConsent,
+  deleteAccountFormRule,
   deleteCertificateConfiguration,
   deleteChapter,
   deleteChapterImage,
@@ -112,6 +114,7 @@ import {
   dismissCreditRegistrationEnrolmentBanner,
   downloadCodeGiveawayCodesCsv,
   downloadExerciseAnswerFiles,
+  dryRunAccountFormRule,
   duplicateExam,
   editCourseInstance,
   editExam,
@@ -133,6 +136,10 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountFormDecisions,
+  getAccountFormRules,
+  getAccountFormRuleVersions,
+  getAccountFormSettings,
   getAccountLinkingCourseEnrolees,
   getAccountLinkingCourses,
   getAccountLinkingStats,
@@ -381,6 +388,7 @@ import {
   listOwnSubmissionShares,
   listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
+  lookupAccountFormDecisions,
   markFeedbackAsRead,
   newCourseDesignerAssistantConversation,
   type Options,
@@ -439,6 +447,8 @@ import {
   unhideCourseFromMyCourses,
   unlinkMyStudentNumber,
   unsetExamCourse,
+  updateAccountFormRule,
+  updateAccountFormSettings,
   updateCertificateConfiguration,
   updateChapter,
   updateChapterImage,
@@ -545,6 +555,8 @@ import type {
   ConfirmMyExternalCompletionEnrolmentResponse,
   ContinueMoocfiHandoffData,
   ContinueMoocfiHandoffResponse,
+  CreateAccountFormRuleData,
+  CreateAccountFormRuleResponse,
   CreateAgentChangesetPreviewLinkData,
   CreateAgentChangesetPreviewLinkResponse,
   CreateChapterData,
@@ -598,6 +610,7 @@ import type {
   CreateTeacherGradingDecisionResponse,
   CreateUserResearchConsentData,
   CreateUserResearchConsentResponse,
+  DeleteAccountFormRuleData,
   DeleteCertificateConfigurationData,
   DeleteCertificateConfigurationResponse,
   DeleteChapterData,
@@ -641,6 +654,8 @@ import type {
   DownloadCodeGiveawayCodesCsvResponse,
   DownloadExerciseAnswerFilesData,
   DownloadExerciseAnswerFilesResponse,
+  DryRunAccountFormRuleData,
+  DryRunAccountFormRuleResponse,
   DuplicateExamData,
   DuplicateExamResponse,
   EditCourseInstanceData,
@@ -680,6 +695,14 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountFormDecisionsData,
+  GetAccountFormDecisionsResponse,
+  GetAccountFormRulesData,
+  GetAccountFormRulesResponse,
+  GetAccountFormRuleVersionsData,
+  GetAccountFormRuleVersionsResponse,
+  GetAccountFormSettingsData,
+  GetAccountFormSettingsResponse,
   GetAccountLinkingCourseEnroleesData,
   GetAccountLinkingCourseEnroleesResponse,
   GetAccountLinkingCoursesData,
@@ -1164,6 +1187,8 @@ import type {
   ListSuotarApiCallsResponse,
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
+  LookupAccountFormDecisionsData,
+  LookupAccountFormDecisionsResponse,
   MarkFeedbackAsReadData,
   NewCourseDesignerAssistantConversationData,
   NewCourseDesignerAssistantConversationResponse,
@@ -1264,6 +1289,8 @@ import type {
   UnlinkMyStudentNumberData,
   UnlinkMyStudentNumberResponse,
   UnsetExamCourseData,
+  UpdateAccountFormRuleData,
+  UpdateAccountFormSettingsData,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponse,
   UpdateChapterData,
@@ -1421,6 +1448,324 @@ const createQueryKey = <TOptions extends Options>(
     params.query = options.query
   }
   return [params]
+}
+
+export const getAccountFormDecisionsQueryKey = (options?: Options<GetAccountFormDecisionsData>) =>
+  createQueryKey("getAccountFormDecisions", options)
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/decisions` The latest logged submissions, newest first.
+ */
+export const getAccountFormDecisionsOptions = (options?: Options<GetAccountFormDecisionsData>) =>
+  queryOptions<
+    GetAccountFormDecisionsResponse,
+    DefaultError,
+    GetAccountFormDecisionsResponse,
+    ReturnType<typeof getAccountFormDecisionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountFormDecisions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountFormDecisionsQueryKey(options),
+  })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getAccountFormDecisionsInfiniteQueryKey = (
+  options?: Options<GetAccountFormDecisionsData>,
+): QueryKey<Options<GetAccountFormDecisionsData>> =>
+  createQueryKey("getAccountFormDecisions", options, true)
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/decisions` The latest logged submissions, newest first.
+ */
+export const getAccountFormDecisionsInfiniteOptions = (
+  options?: Options<GetAccountFormDecisionsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    GetAccountFormDecisionsResponse,
+    DefaultError,
+    InfiniteData<GetAccountFormDecisionsResponse>,
+    QueryKey<Options<GetAccountFormDecisionsData>>,
+    | string
+    | Pick<QueryKey<Options<GetAccountFormDecisionsData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetAccountFormDecisionsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  before: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getAccountFormDecisions({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getAccountFormDecisionsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/decisions/lookup` The logged submissions about one
+ * address, for helping a person who did not get their mail.
+ */
+export const lookupAccountFormDecisionsMutation = (
+  options?: Partial<Options<LookupAccountFormDecisionsData>>,
+): UseMutationOptions<
+  LookupAccountFormDecisionsResponse,
+  DefaultError,
+  Options<LookupAccountFormDecisionsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LookupAccountFormDecisionsResponse,
+    DefaultError,
+    Options<LookupAccountFormDecisionsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await lookupAccountFormDecisions({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAccountFormRulesQueryKey = (options?: Options<GetAccountFormRulesData>) =>
+  createQueryKey("getAccountFormRules", options)
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/rules`
+ */
+export const getAccountFormRulesOptions = (options?: Options<GetAccountFormRulesData>) =>
+  queryOptions<
+    GetAccountFormRulesResponse,
+    DefaultError,
+    GetAccountFormRulesResponse,
+    ReturnType<typeof getAccountFormRulesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountFormRules({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountFormRulesQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/rules` Creates a rule.
+ */
+export const createAccountFormRuleMutation = (
+  options?: Partial<Options<CreateAccountFormRuleData>>,
+): UseMutationOptions<
+  CreateAccountFormRuleResponse,
+  DefaultError,
+  Options<CreateAccountFormRuleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateAccountFormRuleResponse,
+    DefaultError,
+    Options<CreateAccountFormRuleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createAccountFormRule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/rules/dry-run` Evaluates a rule's matcher on the latest
+ * logged submissions without saving anything.
+ */
+export const dryRunAccountFormRuleMutation = (
+  options?: Partial<Options<DryRunAccountFormRuleData>>,
+): UseMutationOptions<
+  DryRunAccountFormRuleResponse,
+  DefaultError,
+  Options<DryRunAccountFormRuleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DryRunAccountFormRuleResponse,
+    DefaultError,
+    Options<DryRunAccountFormRuleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await dryRunAccountFormRule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * DELETE `/api/v0/main-frontend/account-forms/rules/{id}` Deletes a rule; its versions stay.
+ */
+export const deleteAccountFormRuleMutation = (
+  options?: Partial<Options<DeleteAccountFormRuleData>>,
+): UseMutationOptions<unknown, DefaultError, Options<DeleteAccountFormRuleData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DeleteAccountFormRuleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteAccountFormRule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * PUT `/api/v0/main-frontend/account-forms/rules/{id}`
+ */
+export const updateAccountFormRuleMutation = (
+  options?: Partial<Options<UpdateAccountFormRuleData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UpdateAccountFormRuleData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<UpdateAccountFormRuleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateAccountFormRule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAccountFormRuleVersionsQueryKey = (
+  options: Options<GetAccountFormRuleVersionsData>,
+) => createQueryKey("getAccountFormRuleVersions", options)
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/rules/{id}/versions` Every saved version of a rule, newest
+ * first.
+ */
+export const getAccountFormRuleVersionsOptions = (
+  options: Options<GetAccountFormRuleVersionsData>,
+) =>
+  queryOptions<
+    GetAccountFormRuleVersionsResponse,
+    DefaultError,
+    GetAccountFormRuleVersionsResponse,
+    ReturnType<typeof getAccountFormRuleVersionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountFormRuleVersions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountFormRuleVersionsQueryKey(options),
+  })
+
+export const getAccountFormSettingsQueryKey = (options?: Options<GetAccountFormSettingsData>) =>
+  createQueryKey("getAccountFormSettings", options)
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/settings`
+ */
+export const getAccountFormSettingsOptions = (options?: Options<GetAccountFormSettingsData>) =>
+  queryOptions<
+    GetAccountFormSettingsResponse,
+    DefaultError,
+    GetAccountFormSettingsResponse,
+    ReturnType<typeof getAccountFormSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountFormSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountFormSettingsQueryKey(options),
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/account-forms/settings`
+ */
+export const updateAccountFormSettingsMutation = (
+  options?: Partial<Options<UpdateAccountFormSettingsData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UpdateAccountFormSettingsData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<UpdateAccountFormSettingsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateAccountFormSettings({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
 }
 
 export const getAgentChangesetsQueryKey = (options: Options<GetAgentChangesetsData>) =>
@@ -1603,40 +1948,6 @@ export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewD
       }),
     queryKey: getAgentPagePreviewQueryKey(options),
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const getAgentPagePreviewInfiniteQueryKey = (
   options: Options<GetAgentPagePreviewData>,

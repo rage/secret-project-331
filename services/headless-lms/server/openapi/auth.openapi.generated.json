@@ -178,6 +178,16 @@
         "tags": ["auth"],
         "summary": "POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,\nsubject to the resend interval and the address's mail budget. Answers the same whatever happened.",
         "operationId": "postAuthResendSignupCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendSignupCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "The request was received"
@@ -706,6 +716,10 @@
             "type": "string",
             "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
           },
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
+          },
           "country": {
             "type": "string"
           },
@@ -914,6 +928,15 @@
             }
           }
         ]
+      },
+      "ResendSignupCodeRequest": {
+        "type": "object",
+        "properties": {
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
+          }
+        }
       },
       "Resource": {
         "oneOf": [

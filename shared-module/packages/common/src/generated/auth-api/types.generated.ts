@@ -89,6 +89,10 @@ export type CreateAccountDetails = {
    * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
    */
   altcha: string
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   country: string
   email: string
   email_communication_consent: boolean
@@ -161,6 +165,13 @@ export type LoginResponse =
   | {
       type: "failed"
     }
+
+export type ResendSignupCodeRequest = {
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
+}
 
 /**
  * The target of an action.
@@ -483,7 +494,7 @@ export type PostAuthConfirmSignupResponse =
   PostAuthConfirmSignupResponses[keyof PostAuthConfirmSignupResponses]
 
 export type PostAuthResendSignupCodeData = {
-  body?: never
+  body: ResendSignupCodeRequest
   path?: never
   query?: never
   url: "/api/v0/auth/create-account/resend-code"

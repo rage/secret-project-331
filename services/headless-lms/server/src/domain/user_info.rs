@@ -1,10 +1,18 @@
 //! The profile form shared by the main frontend and the course material.
 
+use headless_lms_models::account_form_decisions::AccountFormAction;
+use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use headless_lms_utils::services::tmc::{TmcClient, email_change_reaches_tmc_now};
 use models::user_details::UserDetail;
 use utoipa::ToSchema;
 
-use crate::{domain::tmc_user_sync, prelude::*};
+use crate::{
+    domain::{
+        account_form_checks::{self, FormCheck},
+        tmc_user_sync,
+    },
+    prelude::*,
+};
 
 /// The profile form as both frontends submit it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -14,6 +22,37 @@ pub struct UserInfoPayload {
     pub last_name: String,
     pub country: String,
     pub email_communication_consent: bool,
+    /// The form's opaque report about the browser, for the account form log.
+    #[serde(default)]
+    pub client_info: Option<String>,
+}
+
+/// Runs the [account form checks](account_form_checks) on a payload that changes the address. One
+/// that keeps it mails as usual.
+pub async fn check_email_change(
+    conn: &mut PgConnection,
+    ip_to_country: &IpToCountryMapper,
+    request: &HttpRequest,
+    user_id: Uuid,
+    payload: &UserInfoPayload,
+) -> ModelResult<FormCheck> {
+    let current = models::user_details::get_user_details_by_user_id(conn, user_id).await?;
+    if current.email == payload.email {
+        return Ok(FormCheck::ALLOW);
+    }
+    Ok(account_form_checks::assess(
+        conn,
+        ip_to_country,
+        &account_form_checks::Submission {
+            action: AccountFormAction::EmailChange,
+            request,
+            client_report: payload.client_info.as_deref(),
+            email: Some(payload.email.trim()),
+            user_id: Some(user_id),
+            profile: None,
+        },
+    )
+    .await)
 }
 
 /// A saved profile form.

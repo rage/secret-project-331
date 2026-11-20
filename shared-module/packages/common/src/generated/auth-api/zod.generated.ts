@@ -16,6 +16,7 @@ export const zConfirmSignupRequest = z.object({
 
 export const zCreateAccountDetails = z.object({
   altcha: z.string(),
+  client_info: z.string().nullish(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),
@@ -98,6 +99,10 @@ export const zLoginResponse = z.union([
     type: z.enum(["failed"]),
   }),
 ])
+
+export const zResendSignupCodeRequest = z.object({
+  client_info: z.string().nullish(),
+})
 
 /**
  * The target of an action.
@@ -414,6 +419,8 @@ export const zPostAuthConfirmSignupBody = zConfirmSignupRequest
  * Whether the code confirmed the signup
  */
 export const zPostAuthConfirmSignupResponse = zSignupConfirmationResult
+
+export const zPostAuthResendSignupCodeBody = zResendSignupCodeRequest
 
 /**
  * The pending signup's code

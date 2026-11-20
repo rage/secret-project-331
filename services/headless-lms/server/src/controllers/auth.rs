@@ -6,7 +6,7 @@ use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_t
 use crate::{
     OAuthClient,
     domain::{
-        authentication,
+        account_form_checks, authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         form_volume, mail_budget,
@@ -21,6 +21,7 @@ use actix_session::Session;
 use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::anyhow;
 use chrono::Duration;
+use headless_lms_models::account_form_decisions::AccountFormAction;
 use headless_lms_models::{
     email_templates::EmailTemplateType,
     email_verification_tokens, user_email_codes,
@@ -114,6 +115,8 @@ pub struct CreateAccountDetails {
     pub email_communication_consent: bool,
     /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
     pub altcha: String,
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
 }
 
 /**
@@ -150,12 +153,13 @@ Content-Type: application/json
         (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
-#[instrument(skip(request, session, pool, payload))]
+#[instrument(skip(request, session, pool, ip_to_country_mapper, payload))]
 pub async fn signup(
     request: HttpRequest,
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     user: Option<AuthUser>,
 ) -> ControllerResult<HttpResponse> {
     let mut details = payload.0;
@@ -183,6 +187,23 @@ pub async fn signup(
             None,
         ));
     }
+    let check = account_form_checks::assess(
+        &mut conn,
+        &ip_to_country_mapper,
+        &account_form_checks::Submission {
+            action: AccountFormAction::Signup,
+            request: &request,
+            client_report: details.client_info.as_deref(),
+            email: Some(&details.email),
+            user_id: None,
+            profile: Some(account_form_checks::Profile {
+                first_name: &details.first_name,
+                last_name: &details.last_name,
+                country: &details.country,
+            }),
+        },
+    )
+    .await;
     let password_hash = models::user_passwords::hash_password(&details.password)
         .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
     signup::start(
@@ -197,6 +218,7 @@ pub async fn signup(
             password_hash: password_hash.expose_secret(),
             email_communication_consent: details.email_communication_consent,
         },
+        check,
     )
     .await?;
     skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::CodeMailed))
@@ -241,6 +263,12 @@ pub async fn confirm_signup(
     .await
 }
 
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct ResendSignupCodeRequest {
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
+}
+
 /**
 POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,
 subject to the resend interval and the address's mail budget. Answers the same whatever happened.
@@ -250,15 +278,35 @@ subject to the resend interval and the address's mail budget. Answers the same w
     path = "/create-account/resend-code",
     tag = "auth",
     operation_id = "postAuthResendSignupCode",
+    request_body = ResendSignupCodeRequest,
     responses((status = 200, description = "The request was received"))
 )]
-#[instrument(skip(session, pool))]
+#[instrument(skip(request, session, pool, ip_to_country_mapper, payload))]
 pub async fn resend_signup_code(
+    request: HttpRequest,
     session: Session,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
+    payload: web::Json<ResendSignupCodeRequest>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    signup::resend_code(&mut conn, &session).await?;
+    let email = signup::pending_email(&mut conn, &session).await?;
+    let check = account_form_checks::assess(
+        &mut conn,
+        &ip_to_country_mapper,
+        &account_form_checks::Submission {
+            action: AccountFormAction::SignupCodeResend,
+            request: &request,
+            client_report: payload.client_info.as_deref(),
+            email: email.as_deref(),
+            user_id: None,
+            profile: None,
+        },
+    )
+    .await;
+    if check.should_send_mail {
+        signup::resend_code(&mut conn, &session).await?;
+    }
     skip_authorize().authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -1548,6 +1596,7 @@ pub async fn verify_session(
         SignupResponse,
         ChallengePurpose,
         ConfirmSignupRequest,
+        ResendSignupCodeRequest,
         signup::SignupConfirmationResult,
         UserInfo,
         headless_lms_authorization::ActionOnResource,

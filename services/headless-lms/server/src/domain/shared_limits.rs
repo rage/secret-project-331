@@ -5,12 +5,14 @@ use std::net::IpAddr;
 use std::sync::LazyLock;
 use std::time::Duration as StdDuration;
 
-use headless_lms_models::{pending_signups, shared_rate_counts};
+use chrono::Duration;
+use headless_lms_models::{account_form_decisions, pending_signups, shared_rate_counts};
 use ipnet::IpNet;
 use sqlx::PgPool;
 
 use crate::config::form_safety_config::{form_safety_env, network_limit_exempt_networks};
 use crate::config::server_runtime_config;
+use crate::domain::account_form_checks;
 use crate::domain::request_network::{fine_prefix, keyed_digest};
 use crate::prelude::*;
 
@@ -152,7 +154,14 @@ async fn delete_expired_form_data(pool: &PgPool) -> ModelResult<()> {
     let mut conn = pool.acquire().await?;
     let counts = shared_rate_counts::delete_old(&mut conn).await?;
     let pending = pending_signups::delete_expired(&mut conn).await?;
-    info!("Deleted {counts} old shared counts and {pending} expired pending signups");
+    let decisions = account_form_decisions::delete_older_than(
+        &mut conn,
+        Utc::now() - Duration::days(account_form_checks::RETENTION_DAYS),
+    )
+    .await?;
+    info!(
+        "Deleted {counts} old shared counts, {pending} expired pending signups and {decisions} logged submissions"
+    );
     Ok(())
 }
 

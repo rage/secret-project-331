@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE account_form_rules\nSET name = $2,\n  description = $3,\n  expression = $4,\n  list_kind = $5,\n  list_entries = $6,\n  outcome = $7,\n  enabled = $8,\n  log_only = $9\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "account_form_rules",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "account_form_list_kind",
+            "kind": {
+              "Enum": [
+                "address",
+                "mailbox",
+                "account",
+                "domain"
+              ]
+            }
+          }
+        },
+        "TextArray",
+        {
+          "Custom": {
+            "name": "account_form_outcome",
+            "kind": {
+              "Enum": [
+                "allow",
+                "drop"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e0450eff111df2b14b897b1d70c93e154867363337549264b5a844fddc30a434"
+}

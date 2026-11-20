@@ -18,6 +18,7 @@ use secrecy::{ExposeSecret, SecretString};
 use utoipa::ToSchema;
 
 use crate::domain::{
+    account_form_checks::FormCheck,
     authentication,
     authorization::skip_authorize,
     email_ownership_verification::{MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
@@ -92,13 +93,18 @@ pub struct SignupForm<'a> {
 }
 
 /// Starts a signup: stores it as pending, replacing an earlier pending signup for the address,
-/// mails the code and remembers in the session what the code step confirms. An address that already
-/// has an account is mailed nothing, and the answer is the same as for a new one.
+/// mails the code and remembers in the session what the code step confirms. Nothing is stored or
+/// mailed for an address that already has an account or when `check` forbids mail, and the session
+/// then remembers a signup no code matches.
 pub async fn start(
     conn: &mut PgConnection,
     session: &Session,
     form: &SignupForm<'_>,
+    check: FormCheck,
 ) -> anyhow::Result<()> {
+    if !check.should_send_mail {
+        return remember_pending_id(session, None);
+    }
     match models::users::get_by_email(conn, form.email).await {
         Ok(_) => return remember_pending_id(session, None),
         Err(e)
@@ -133,6 +139,19 @@ pub async fn start(
     queue_code_mail(&mut tx, id, form.email, template.id, code.expose_secret()).await?;
     tx.commit().await?;
     remember_pending_id(session, Some(id))
+}
+
+/// The address of the session's unexpired pending signup.
+pub async fn pending_email(
+    conn: &mut PgConnection,
+    session: &Session,
+) -> ModelResult<Option<String>> {
+    let Some(id) = pending_id(session) else {
+        return Ok(None);
+    };
+    Ok(pending_signups::get_unexpired_for_update(conn, id)
+        .await?
+        .map(|signup| signup.email))
 }
 
 /// Mails a fresh code for the session's pending signup, unless one went out moments ago. Does

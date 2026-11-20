@@ -3,6 +3,7 @@
 import { act, fireEvent, render, waitFor } from "@testing-library/react"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
+import { createRef } from "react"
 import { I18nextProvider } from "react-i18next"
 
 import type { ExtendedIframeState } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -10,6 +11,7 @@ import type { ExtendedIframeState } from "@/shared-module/exercise-protocol/core
 import MessageChannelIFrame, {
   EXERCISE_IFRAME_LOAD_TIMING,
   type IframeConnectionState,
+  type MessageChannelIFrameHandle,
 } from "../../src/MessageChannelIFrame"
 import i18nTest from "../testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
@@ -115,6 +117,25 @@ const setStateMessages = (channel: ReturnType<typeof createMockMessageChannel>) 
   channel.port1.postMessage.mock.calls
     .map(([message]) => message as Record<string, unknown>)
     .filter((message) => message.message === "set-state")
+
+const renderWithHandle = () => {
+  const handleRef = createRef<MessageChannelIFrameHandle>()
+  const result = render(
+    <I18nextProvider i18n={i18nTest}>
+      <MessageChannelIFrame
+        ref={handleRef}
+        dialog={mockDialog}
+        url="http://example.com/test"
+        postThisStateToIFrame={null}
+        onMessageFromIframe={jest.fn()}
+        title="test"
+        detectLoadFailure
+      />
+    </I18nextProvider>,
+  )
+  const iframe = result.container.querySelector("iframe") as HTMLIFrameElement
+  return { ...result, iframe, focusFirstInvalid: () => handleRef.current!.focusFirstInvalid() }
+}
 
 describe("MessageChannelIFrame", () => {
   let messageListeners: ((event: MessageEvent) => void)[]
@@ -2048,6 +2069,62 @@ describe("MessageChannelIFrame", () => {
       expect(setStateMessages(mockChannels[1]!)).toEqual([
         { ...submissionState, message: "set-state" },
       ])
+    })
+  })
+
+  describe("focusFirstInvalid", () => {
+    let mockChannels: ReturnType<typeof createMockMessageChannel>[]
+
+    beforeEach(() => {
+      jest.useFakeTimers()
+      mockChannels = []
+      window.MessageChannel = jest.fn().mockImplementation(function () {
+        const channel = createMockMessageChannel()
+        mockChannels.push(channel)
+        return channel
+      })
+      jest.spyOn(console, "error").mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      jest.useRealTimers()
+      jest.restoreAllMocks()
+    })
+
+    const focusFirstInvalidMessages = () =>
+      mockChannels[0]!.port1.postMessage.mock.calls.filter(
+        ([message]) => (message as { message: string }).message === "focus-first-invalid",
+      )
+
+    it("focuses a connected iframe and asks it to focus its first invalid field", () => {
+      const { iframe, focusFirstInvalid } = renderWithHandle()
+      dispatchReady(attachContentWindow(iframe))
+
+      focusFirstInvalid()
+
+      expect(iframe).toHaveFocus()
+      expect(focusFirstInvalidMessages()).toEqual([[{ message: "focus-first-invalid" }]])
+    })
+
+    it("only focuses an iframe that has not connected", () => {
+      const { iframe, focusFirstInvalid } = renderWithHandle()
+
+      focusFirstInvalid()
+
+      expect(iframe).toHaveFocus()
+      expect(focusFirstInvalidMessages()).toEqual([])
+    })
+
+    it("focuses the reload button after the load failed", () => {
+      const { getByRole, focusFirstInvalid } = renderWithHandle()
+      advance(EXERCISE_IFRAME_LOAD_TIMING.failureMs)
+
+      focusFirstInvalid()
+
+      expect(
+        getByRole("button", { name: i18nTest.t("exercise-iframe-not-loaded-reload-button") }),
+      ).toHaveFocus()
+      expect(focusFirstInvalidMessages()).toEqual([])
     })
   })
 })

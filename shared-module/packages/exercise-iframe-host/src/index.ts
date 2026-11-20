@@ -6,4 +6,8 @@ export {
   default as MessageChannelIFrame,
   EXERCISE_IFRAME_LOAD_TIMING,
 } from "./MessageChannelIFrame"
-export type { ExerciseDialogApi, IframeConnectionState } from "./MessageChannelIFrame"
+export type {
+  ExerciseDialogApi,
+  IframeConnectionState,
+  MessageChannelIFrameHandle,
+} from "./MessageChannelIFrame"

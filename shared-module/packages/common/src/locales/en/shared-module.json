@@ -89,6 +89,8 @@
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
   "error-title": "Error",
   "essay": "Essay",
+  "exercise-iframe-not-loaded-message": "This part of the exercise did not load.",
+  "exercise-iframe-not-loaded-reload-button": "Reload this part",
   "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",
   "exercise-iframe-reload-exhausted-reload-button": "Reload exercise",
   "exercise-wants-to-download-a-file-explanation": "The exercise wants to download a file from {{origin}}.",

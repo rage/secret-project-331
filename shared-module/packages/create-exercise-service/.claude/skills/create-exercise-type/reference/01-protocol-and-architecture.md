@@ -55,9 +55,10 @@ this; a plugin never hand-rolls it.
 
 - Envelope types live in `exercise-protocol/core/exercise-service-protocol-types.ts` —
   `MessageToIframe` (parent → iframe: `set-state`, `set-language`, `upload-result`,
-  `dialog-response`, `repository-exercises`, `test-results`) and `MessageFromIframe` (iframe →
-  parent: `current-state`, `height-changed`, `open-link`, `download-file`, `open-dialog`,
-  `file-upload`, `request-iframe-reload`, `request-repository-exercises`).
+  `dialog-response`, `focus-first-invalid`, `repository-exercises`, `test-results`) and
+  `MessageFromIframe` (iframe → parent: `current-state`, `height-changed`, `open-link`,
+  `download-file`, `open-dialog`, `file-upload`, `request-iframe-reload`,
+  `request-repository-exercises`).
 - The mandatory four for any plugin: `set-state`, `current-state`, `height-changed`, `set-language`.
   `current-state`'s **`valid`** flag gates whether the host allows save/submit. `height-changed` is
   auto-sent by the vendored `HeightTrackingContainer`. Request/response pairs (`open-dialog`/

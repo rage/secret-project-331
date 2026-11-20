@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useCallback } from "react"
+import React, { useCallback, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -9,7 +9,10 @@ import {
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { useDialog, ErrorNotice } from "@/shared-module/components"
-import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
+import MessageChannelIFrame, {
+  type IframeConnectionState,
+  type MessageChannelIFrameHandle,
+} from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import type {
   ExerciseIframeState,
   MessageToIframe,
@@ -31,6 +34,10 @@ interface ExerciseTaskIframeProps {
   headingBeforeIframe?: string
   /** Names the files the iframe asks to download; see `MessageChannelIFrame`. */
   overrideDownloadFilename?: (url: string) => string
+  /** See `MessageChannelIFrame`; enable only for views whose iframe always sends `ready`. */
+  detectLoadFailure?: boolean
+  onConnectionStateChange?: (state: IframeConnectionState) => void
+  ref?: React.Ref<MessageChannelIFrameHandle>
 }
 
 /**
@@ -46,9 +53,14 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
   title,
   headingBeforeIframe,
   overrideDownloadFilename,
+  detectLoadFailure,
+  onConnectionStateChange,
+  ref,
 }) => {
   const { t } = useTranslation()
   const dialog = useDialog()
+  const lastAnswerDataRef = useRef<unknown>(undefined)
+  const getAnswerDraft = useCallback(() => lastAnswerDataRef.current, [])
 
   const handleMessageFromIframe = useCallback(
     async (messageContainer: unknown, responsePort: MessagePort) => {
@@ -58,6 +70,7 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
 
       if (messageContainer.message === "current-state") {
         const { data, valid, files, validityMessages } = messageContainer
+        lastAnswerDataRef.current = data
         if (setAnswer) {
           setAnswer({ data, valid, ...omitUndefined({ files, validityMessages }) })
         }
@@ -96,11 +109,24 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       return (
         <MessageChannelIFrame
           dialog={dialog}
-          {...omitUndefined({ headingBeforeIframe, overrideDownloadFilename })}
+          {...omitUndefined({
+            headingBeforeIframe,
+            overrideDownloadFilename,
+            detectLoadFailure,
+            ref,
+          })}
           url={url}
           postThisStateToIFrame={postThisStateToIFrame}
           onMessageFromIframe={handleMessageFromIframe}
           onReady={onReady}
+          onConnectionStateChange={(state) => {
+            // A failed iframe never connects, so free its load slot for the others.
+            if (state.status === "failed") {
+              onReady()
+            }
+            onConnectionStateChange?.(state)
+          }}
+          getAnswerDraft={getAnswerDraft}
           title={title}
         />
       )
@@ -113,6 +139,10 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
       title,
       dialog,
       overrideDownloadFilename,
+      detectLoadFailure,
+      onConnectionStateChange,
+      getAnswerDraft,
+      ref,
     ],
   )
 

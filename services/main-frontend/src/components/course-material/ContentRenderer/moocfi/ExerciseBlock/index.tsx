@@ -43,6 +43,7 @@ import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult, ErrorNotice } from "@/shared-module/components"
+import type { IframeConnectionState } from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
@@ -51,8 +52,8 @@ import {
 
 import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
-import ExerciseSubmitButton from "./ExerciseSubmitButton"
-import ExerciseTask from "./ExerciseTask"
+import ExerciseSubmitButton, { type SubmissionBlocker } from "./ExerciseSubmitButton"
+import ExerciseTask, { type ExerciseTaskHandle, showsExerciseTaskIframe } from "./ExerciseTask"
 import { focusHeadingAndAnnounce } from "./focusHeadingAndAnnounce"
 import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
@@ -198,6 +199,10 @@ const ExerciseBlock: React.FC<
   )
   const [answers, setAnswers] = useState<CapturedAnswers>(new Map())
   const previousSubmissionIdsRef = useRef<Map<string, string>>(new Map())
+  const [connectionStatuses, setConnectionStatuses] = useState<
+    Map<string, IframeConnectionState["status"]>
+  >(new Map())
+  const taskHandlesRef = useRef<Map<string, ExerciseTaskHandle>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
@@ -463,35 +468,63 @@ const ExerciseBlock: React.FC<
         const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
         const gradingState = courseMaterialExercise.exercise_status?.grading_progress
 
+        const sortedTasks = courseMaterialExercise.current_exercise_slide.exercise_tasks.toSorted(
+          (a, b) => a.order_number - b.order_number,
+        )
+
+        const getTaskBlockerMessages = (task: CourseMaterialExerciseTask): string[] => {
+          const answer = answers.get(task.id)
+          if (answer?.valid) {
+            return []
+          }
+          const answerRequest = t("answer-the-exercise-before-submitting")
+          const showsIframe = showsExerciseTaskIframe({
+            exerciseTask: task,
+            canPostSubmission: courseMaterialExercise.can_post_submission,
+            isChapterLocked: Boolean(isChapterLocked),
+            signedIn: loginState.signedIn,
+          })
+          if (!showsIframe) {
+            return [answerRequest]
+          }
+          const connectionStatus = connectionStatuses.get(task.id)
+          if (connectionStatus === "failed") {
+            return [t("submission-blocked-task-not-loaded")]
+          }
+          if (answer) {
+            return answer.validityMessages?.length ? answer.validityMessages : [answerRequest]
+          }
+          if (connectionStatus === "connected") {
+            return [answerRequest]
+          }
+          return [t("submission-blocked-task-loading")]
+        }
+
         // Already-localized reasons the submit button is disabled, shown next to it so students
         // understand why (course-improvements-issues#161). Answer-specific reasons come from the
         // exercise iframe (e.g. a Timeline duplicate); host-side ones (deadline, language version,
         // cannot post) are added here.
-        const answerValues = Array.from(answers.values())
-        const answersIncomplete = courseMaterialExercise.current_exercise_slide.exercise_tasks.some(
-          (task) => !answers.get(task.id)?.valid,
+        const submissionBlockers: SubmissionBlocker[] = sortedTasks.flatMap((task) =>
+          getTaskBlockerMessages(task).map((message) => ({
+            message,
+            show: () => taskHandlesRef.current.get(task.id)?.focusFirstInvalid(),
+          })),
         )
-        const answerValidityMessages = answerValues.flatMap((a) => a.validityMessages ?? [])
-        const submissionBlockers: string[] = []
-        if (answersIncomplete) {
-          if (answerValidityMessages.length > 0) {
-            submissionBlockers.push(...answerValidityMessages)
-          } else {
-            submissionBlockers.push(t("answer-the-exercise-before-submitting"))
-          }
-        }
         if (exerciseDeadline && exerciseDeadline.getTime() < Date.now()) {
-          submissionBlockers.push(
-            t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
-          )
+          submissionBlockers.push({
+            message: t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
+          })
         }
         if (userOnWrongLanguageVersion) {
-          submissionBlockers.push(t("submission-blocked-wrong-language"))
+          submissionBlockers.push({ message: t("submission-blocked-wrong-language") })
         }
         if (!courseMaterialExercise.can_post_submission) {
-          submissionBlockers.push(t("submission-blocked-cannot-submit"))
+          submissionBlockers.push({ message: t("submission-blocked-cannot-submit") })
         }
-        const uniqueSubmissionBlockers = [...new Set(submissionBlockers)]
+        const uniqueSubmissionBlockers = submissionBlockers.filter(
+          (blocker, index) =>
+            submissionBlockers.findIndex((other) => other.message === blocker.message) === index,
+        )
 
         return (
           <ExerciseCardWrapper
@@ -677,25 +710,35 @@ const ExerciseBlock: React.FC<
               {/* Reviewing stage seems to be undefined at least for exams */}
               {reviewingStage !== "PeerReview" &&
                 reviewingStage !== "SelfReview" &&
-                courseMaterialExercise.current_exercise_slide.exercise_tasks
-                  .toSorted((a, b) => a.order_number - b.order_number)
-                  .map((task) => (
-                    <ExerciseTask
-                      key={task.id}
-                      exerciseTask={task}
-                      isExam={isExam}
-                      setAnswer={(answer) =>
-                        setAnswers((prev) => new Map([...prev, [task.id, answer]]))
+                sortedTasks.map((task) => (
+                  <ExerciseTask
+                    key={task.id}
+                    ref={(handle) => {
+                      if (handle) {
+                        taskHandlesRef.current.set(task.id, handle)
+                      } else {
+                        taskHandlesRef.current.delete(task.id)
                       }
-                      postThisStateToIFrame={postThisStateToIFrame?.find(
-                        (x) => x.exercise_task_id === task.id,
-                      )}
-                      canPostSubmission={courseMaterialExercise.can_post_submission}
-                      exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
-                      exerciseName={courseMaterialExercise.exercise.name}
-                      isChapterLocked={Boolean(isChapterLocked)}
-                    />
-                  ))}
+                    }}
+                    onConnectionStateChange={({ status }) =>
+                      setConnectionStatuses((prev) =>
+                        prev.get(task.id) === status ? prev : new Map(prev).set(task.id, status),
+                      )
+                    }
+                    exerciseTask={task}
+                    isExam={isExam}
+                    setAnswer={(answer) =>
+                      setAnswers((prev) => new Map([...prev, [task.id, answer]]))
+                    }
+                    postThisStateToIFrame={postThisStateToIFrame?.find(
+                      (x) => x.exercise_task_id === task.id,
+                    )}
+                    canPostSubmission={courseMaterialExercise.can_post_submission}
+                    exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                    exerciseName={courseMaterialExercise.exercise.name}
+                    isChapterLocked={Boolean(isChapterLocked)}
+                  />
+                ))}
               {reviewingStage === "PeerReview" && (
                 <PeerOrSelfReviewView
                   exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}

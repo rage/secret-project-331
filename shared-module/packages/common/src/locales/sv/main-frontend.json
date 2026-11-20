@@ -3351,6 +3351,8 @@
   "submission": "Inskickning",
   "submission-blocked-cannot-submit": "Du kan inte skicka in den här övningen just nu.",
   "submission-blocked-deadline-passed": "Deadlinen har passerat ({{deadline}}).",
+  "submission-blocked-task-loading": "Övningen laddas fortfarande.",
+  "submission-blocked-task-not-loaded": "En del av övningen laddades inte.",
   "submission-blocked-wrong-language": "Du tittar på en annan språkversion av den här kursen. Byt till din egen språkversion för att skicka in.",
   "submission-created": "Inskickning skapad",
   "submission-details": "Inskickningsdetaljer",

@@ -3355,6 +3355,8 @@
   "submission": "Lähetys",
   "submission-blocked-cannot-submit": "Et voi palauttaa tätä tehtävää juuri nyt.",
   "submission-blocked-deadline-passed": "Määräaika on umpeutunut ({{deadline}}).",
+  "submission-blocked-task-loading": "Tehtävä latautuu vielä.",
+  "submission-blocked-task-not-loaded": "Osa tehtävästä ei latautunut.",
   "submission-blocked-wrong-language": "Tarkastelet kurssin toista kieliversiota. Vaihda omaan kieliversioosi palauttaaksesi tehtävän.",
   "submission-created": "Lähetys luotu",
   "submission-details": "Lähetyksen tiedot",

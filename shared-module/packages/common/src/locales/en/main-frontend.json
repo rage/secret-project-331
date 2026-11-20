@@ -3355,6 +3355,8 @@
   "submission": "Submission",
   "submission-blocked-cannot-submit": "You cannot submit this exercise right now.",
   "submission-blocked-deadline-passed": "The deadline has passed ({{deadline}}).",
+  "submission-blocked-task-loading": "The exercise is still loading.",
+  "submission-blocked-task-not-loaded": "A part of the exercise did not load.",
   "submission-blocked-wrong-language": "You are viewing a different language version of this course. Switch to your own language version to submit.",
   "submission-created": "Submission created",
   "submission-details": "Submission details",

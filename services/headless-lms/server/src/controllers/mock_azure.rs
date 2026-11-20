@@ -18,7 +18,7 @@ use headless_lms_chatbot::{
     course_description_summary::RESPONSE_FORMAT_NAME as COURSE_DESCRIPTION_FORMAT,
     feedback_categorization::RESPONSE_FORMAT_NAME as FEEDBACK_CATEGORIZATION_FORMAT,
     language_version_matching::{
-        HEURISTIC_PICK_PREFIX, OTHER_EXERCISES_HEADING, OTHER_PAGES_HEADING,
+        HEURISTIC_PICK_PREFIX, ITEM_ID_PREFIX, OTHER_EXERCISES_HEADING, OTHER_PAGES_HEADING,
         RESPONSE_FORMAT_NAME as LANGUAGE_VERSION_MATCHING_FORMAT, THIS_EXERCISES_HEADING,
         THIS_PAGES_HEADING, VERY_SURE_LABEL,
     },
@@ -1144,22 +1144,19 @@ const PROMPT_CREATION_PAYLOAD: &str = r#"{"prompt":"You are a helpful, clear, an
 fn language_version_matching_payload(request: &MockRequest) -> String {
     let confirmed_picks = |heading: &str, next_heading: &str| -> Vec<Value> {
         let mut picks = Vec::new();
-        let mut item: Option<i64> = None;
+        let mut item: Option<&str> = None;
         for line in request
             .prompt_section(heading, next_heading)
             .unwrap_or_default()
             .lines()
         {
-            if let Some((number, _)) = line.split_once(". ")
-                && let Ok(number) = number.parse()
-            {
-                item = Some(number);
+            if let Some(rest) = line.strip_prefix(ITEM_ID_PREFIX) {
+                item = rest.split_whitespace().next();
             } else if let (Some(item), Some(pick)) = (
                 item,
                 line.trim()
                     .strip_prefix(HEURISTIC_PICK_PREFIX)
-                    .and_then(|pick| pick.strip_suffix(&format!(" ({VERY_SURE_LABEL})")))
-                    .and_then(|pick| pick.parse::<i64>().ok()),
+                    .and_then(|pick| pick.strip_suffix(&format!(" ({VERY_SURE_LABEL})"))),
             ) {
                 picks.push(json!({ "item": item, "counterpart": pick }));
             }
@@ -1404,6 +1401,34 @@ mod tests {
             let content = parse_text_completion(completion).expect("the response has text content");
             assert_eq!(content, payload);
         }
+    }
+
+    /// The seeded guided linking relies on the mock confirming exactly the very sure hints.
+    #[test]
+    fn the_language_version_matching_mock_confirms_only_very_sure_hints() {
+        let item_a = Uuid::new_v4();
+        let item_b = Uuid::new_v4();
+        let counterpart = Uuid::new_v4();
+        let other = Uuid::new_v4();
+        let prompt = format!(
+            "{THIS_PAGES_HEADING}\n{ITEM_ID_PREFIX}{item_a} \"Silmukat\"\n  Text: x\n  \
+             {HEURISTIC_PICK_PREFIX}{counterpart} ({VERY_SURE_LABEL})\n\
+             {ITEM_ID_PREFIX}{item_b} \"Kertaus\"\n  {HEURISTIC_PICK_PREFIX}{other} (likely)\n\
+             {OTHER_PAGES_HEADING}\n{ITEM_ID_PREFIX}{counterpart} \"Loops\"\n"
+        );
+        let request = MockRequest {
+            conversation: vec![prompt],
+            ..MockRequest::structured_output(LANGUAGE_VERSION_MATCHING_FORMAT)
+        };
+        let answer: Value = serde_json::from_str(&language_version_matching_payload(&request))
+            .expect("the answer is JSON");
+        assert_eq!(
+            answer,
+            json!({
+                "pages": [{ "item": item_a.to_string(), "counterpart": counterpart.to_string() }],
+                "exercises": [],
+            })
+        );
     }
 
     /// A chart spec request whose prompt carries `sample` as the teacher's data file.

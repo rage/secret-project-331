@@ -32,9 +32,9 @@ pub struct AiMatchingItem {
     /// Plain text from the start of the page or exercise assignment; empty until
     /// [fill_excerpts].
     pub excerpt: String,
-    /// The heuristic's pick among the other course's items of the task, 1-based. Only on this
-    /// course's items.
-    pub heuristic_pick: Option<(usize, SuggestionSureness)>,
+    /// The heuristic's pick among the other course's items of the task. Only on this course's
+    /// items.
+    pub heuristic_pick: Option<(Uuid, SuggestionSureness)>,
 }
 
 /// Pages or exercises of the two courses that are fixed already: linked or copies of each other.
@@ -62,13 +62,14 @@ pub struct AiMatchingTask {
     pub known_exercise_pairs: Vec<AiKnownPair>,
 }
 
-/// One pick in the AI's answer, by 1-based numbers of the task's lists.
-#[derive(Debug, Clone, Copy, Deserialize, Serialize)]
+/// One pick in the AI's answer. Ids are strings so that a mistyped id is caught here rather
+/// than failing the whole answer.
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AiPick {
-    /// Number of this course's item.
-    pub item: i64,
-    /// Number of the other course's item, 0 for no counterpart.
-    pub counterpart: i64,
+    /// Id of this course's item.
+    pub item: String,
+    /// Id of the other course's item, `None` for no counterpart.
+    pub counterpart: Option<String>,
 }
 
 /// The AI's answer to one [AiMatchingTask].
@@ -89,55 +90,84 @@ pub struct AiPicks {
 /// [AiPicks] by the other course's id.
 pub type AiPicksByCourse = HashMap<Uuid, AiPicks>;
 
+/// Picks of an answer that [AiPicks::add_answer] dropped.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct DroppedPicks {
+    /// `item` is not an id of this course's items of the task and kind.
+    pub unknown_items: usize,
+    /// `counterpart` is not an id of the other course's items of the task and kind.
+    pub unknown_counterparts: usize,
+    /// A second pick of the same item or counterpart.
+    pub duplicates: usize,
+}
+
+impl DroppedPicks {
+    /// All dropped picks.
+    pub fn total(&self) -> usize {
+        self.unknown_items + self.unknown_counterparts + self.duplicates
+    }
+}
+
 impl AiPicks {
-    /// Adds the valid picks of `answer`: numbers outside the task's lists are dropped, and so is
-    /// every pick after the first of an item or of a counterpart, keeping the picks one-to-one.
-    pub fn add_answer(&mut self, task: &AiMatchingTask, answer: &AiMatchingAnswer) {
+    /// Adds the valid picks of `answer`. A pick is dropped when its ids are not among the task's
+    /// items of that kind, or when an earlier pick has its item or counterpart, keeping the picks
+    /// one-to-one.
+    pub fn add_answer(&mut self, task: &AiMatchingTask, answer: &AiMatchingAnswer) -> DroppedPicks {
+        let mut dropped = DroppedPicks::default();
         add_picks(
             &mut self.pages,
+            &mut dropped,
             &task.this_pages,
             &task.other_pages,
             &answer.pages,
         );
         add_picks(
             &mut self.exercises,
+            &mut dropped,
             &task.this_exercises,
             &task.other_exercises,
             &answer.exercises,
         );
+        dropped
     }
 }
 
 fn add_picks(
     res: &mut HashMap<Uuid, Option<Uuid>>,
+    dropped: &mut DroppedPicks,
     this: &[AiMatchingItem],
     other: &[AiMatchingItem],
     picks: &[AiPick],
 ) {
+    let find = |items: &[AiMatchingItem], id: &str| {
+        let id = Uuid::parse_str(id.trim()).ok()?;
+        items.iter().any(|item| item.id == id).then_some(id)
+    };
     let mut used_other = HashSet::new();
     let mut answered = HashSet::new();
     for pick in picks {
-        let Some(item) = numbered(this, pick.item) else {
+        let Some(item) = find(this, &pick.item) else {
+            dropped.unknown_items += 1;
             continue;
         };
-        if !answered.insert(item.id) {
+        let counterpart = match &pick.counterpart {
+            None => None,
+            Some(id) => match find(other, id) {
+                Some(id) => Some(id),
+                None => {
+                    dropped.unknown_counterparts += 1;
+                    continue;
+                }
+            },
+        };
+        if answered.contains(&item) || counterpart.is_some_and(|id| used_other.contains(&id)) {
+            dropped.duplicates += 1;
             continue;
         }
-        let counterpart = if pick.counterpart == 0 {
-            None
-        } else {
-            match numbered(other, pick.counterpart) {
-                Some(o) if used_other.insert(o.id) => Some(o.id),
-                _ => continue,
-            }
-        };
-        res.insert(item.id, counterpart);
+        answered.insert(item);
+        used_other.extend(counterpart);
+        res.insert(item, counterpart);
     }
-}
-
-fn numbered(items: &[AiMatchingItem], number: i64) -> Option<&AiMatchingItem> {
-    let index = usize::try_from(number).ok()?.checked_sub(1)?;
-    items.get(index)
 }
 
 /// Linked counterparts and copies stay as they are, so the AI is not asked about them.
@@ -242,9 +272,8 @@ pub fn ai_matching_tasks(
                     heuristic_pick: None,
                 })
                 .collect();
-            let pick_number = |items: &[AiMatchingItem], id: Uuid| {
-                items.iter().position(|o| o.id == id).map(|i| i + 1)
-            };
+            let listed_pick =
+                |items: &[AiMatchingItem], id: Uuid| items.iter().any(|o| o.id == id).then_some(id);
             let this_pages: Vec<AiMatchingItem> = free_this_pages
                 .iter()
                 .filter(|p| p.page.chapter_number == chapter_number)
@@ -254,7 +283,7 @@ pub fn ai_matching_tasks(
                     page_title: None,
                     excerpt: String::new(),
                     heuristic_pick: page_matches.get(&p.page.id).and_then(|m| {
-                        pick_number(&other_pages, m.item.page.id).map(|n| (n, m.sureness))
+                        listed_pick(&other_pages, m.item.page.id).map(|n| (n, m.sureness))
                     }),
                 })
                 .collect();
@@ -267,7 +296,7 @@ pub fn ai_matching_tasks(
                     page_title: Some(e.exercise.page_title.clone()),
                     excerpt: String::new(),
                     heuristic_pick: exercise_matches.get(&e.exercise.id).and_then(|m| {
-                        pick_number(&other_exercises, m.item.exercise.id).map(|n| (n, m.sureness))
+                        listed_pick(&other_exercises, m.item.exercise.id).map(|n| (n, m.sureness))
                     }),
                 })
                 .collect();

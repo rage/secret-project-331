@@ -18,6 +18,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::json_schema_types::{
     ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
+    nullable_string_property,
 };
 use indexmap::IndexMap;
 use tokio::time::{Duration, Instant};
@@ -35,15 +36,16 @@ use crate::{
 /// answer for this feature by this name.
 pub const RESPONSE_FORMAT_NAME: &str = "LanguageVersionMatchingResponse";
 
-/// Headings and line prefixes of the prompt. The test-mode mock Azure API reads the heuristic's
-/// picks back out of the prompt by these.
+/// Headings and line prefixes of the prompt, which lists items as `- id: <uuid> "title"`.
+/// The test-mode mock Azure API reads the heuristic's picks back out of the prompt by these.
 pub const THIS_PAGES_HEADING: &str = "## Pages of course A";
 pub const OTHER_PAGES_HEADING: &str = "## Pages of course B";
 pub const THIS_EXERCISES_HEADING: &str = "## Exercises of course A";
 pub const OTHER_EXERCISES_HEADING: &str = "## Exercises of course B";
-pub const HEURISTIC_PICK_PREFIX: &str = "Position heuristic suggests: B";
+pub const HEURISTIC_PICK_PREFIX: &str = "Position heuristic suggests: ";
 /// How the prompt names [SuggestionSureness::VerySure] after a heuristic pick.
 pub const VERY_SURE_LABEL: &str = "very sure";
+pub const ITEM_ID_PREFIX: &str = "- id: ";
 
 /// Requests in flight at once; one per chapter and other course.
 const MAX_CONCURRENT_REQUESTS: usize = 8;
@@ -52,15 +54,23 @@ const DEADLINE: Duration = Duration::from_secs(150);
 
 const SYSTEM_PROMPT: &str = r#"You match the pages and exercises of two language versions of the same online course: course A and its translation, course B. You get one chapter at a time, or the pages outside chapters.
 
-For each page of course A, pick the page of course B that is its translation. Do the same for the exercises. Base the decision on what the titles, names and text excerpts mean, not on their order or position: translations are often reordered, and some pages or exercises exist in only one language (for example review quizzes or feedback surveys added to one version only). When nothing in course B corresponds, answer 0 as the counterpart.
+For each page of course A, pick the page of course B that is its translation. Do the same for the exercises. Base the decision on what the titles, names and text excerpts mean, not on their order or position: translations are often reordered, and some pages or exercises exist in only one language (for example review quizzes or feedback surveys added to one version only). When nothing in course B corresponds, answer null as the counterpart.
+
+Answer every item of course A by copying its id exactly; the counterpart is the exact id of an item of the same kind in course B, or null.
 
 Rules:
-- Answer every page and exercise of course A exactly once, by its number.
+- Answer every page and exercise of course A exactly once.
 - Each page or exercise of course B can be the counterpart of at most one item of course A.
 - Pages match only pages and exercises only exercises.
 - An exercise's counterpart is usually on the counterpart of its page, but not always.
 - "Known pairs" are already linked; they show how the courses correspond, and their items are not listed for matching.
-- Some items come with the suggestion of a position heuristic. It only compares positions and exercise counts, so it is imprecise and often wrong when the versions differ. Treat it as a weak hint and overrule it whenever the titles or texts say otherwise."#;
+- Some items come with the suggestion of a position heuristic. It only compares positions and exercise counts, so it is imprecise and often wrong when the versions differ. Treat it as a weak hint and overrule it whenever the titles or texts say otherwise.
+
+Example (made-up course, by title; your answer uses the ids):
+Pages of course A: "Silmukat", "Ehtolauseet", "Kertaus", "Palautekysely"
+Pages of course B: "Conditional statements", "Loops", "Feedback survey"
+Matches: "Silmukat" -> "Loops" and "Ehtolauseet" -> "Conditional statements" (the order differs, the meaning matches); "Kertaus" -> null (a review quiz that course B does not have); "Palautekysely" -> "Feedback survey".
+Names can differ in wording too: "Kertaus" means "Review", and "Tehtävä: summa" can be the counterpart of "Exercise: Sum of numbers"."#;
 
 /// The structured output the matching request answers in; mirrors [AiMatchingAnswer].
 fn response_format() -> LLMRequestResponseFormatParam {
@@ -72,18 +82,15 @@ fn response_format() -> LLMRequestResponseFormatParam {
                     (
                         "item".to_string(),
                         SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::Integer,
-                            description: Some("Number of the item in course A.".to_string()),
+                            type_field: JSONType::String,
+                            description: Some("Id of the item in course A.".to_string()),
                         }),
                     ),
                     (
                         "counterpart".to_string(),
-                        SchemaPropertyType::Item(JsonItem {
-                            type_field: JSONType::Integer,
-                            description: Some(
-                                "Number of its counterpart in course B, or 0 for none.".to_string(),
-                            ),
-                        }),
+                        nullable_string_property(Some(
+                            "Id of its counterpart in course B, or null for none.",
+                        )),
                     ),
                 ]),
                 None,
@@ -123,19 +130,19 @@ fn write_items(prompt: &mut String, heading: &str, items: &[AiMatchingItem]) {
     if items.is_empty() {
         let _ = writeln!(prompt, "(none)");
     }
-    for (i, item) in items.iter().enumerate() {
-        let _ = write!(prompt, "{}. \"{}\"", i + 1, item.title);
+    for item in items {
+        let _ = write!(prompt, "{ITEM_ID_PREFIX}{} \"{}\"", item.id, item.title);
         if let Some(page_title) = &item.page_title {
             let _ = write!(prompt, " on page \"{page_title}\"");
         }
         let _ = writeln!(prompt);
         if !item.excerpt.is_empty() {
-            let _ = writeln!(prompt, "   Text: {}", item.excerpt);
+            let _ = writeln!(prompt, "  Text: {}", item.excerpt);
         }
-        if let Some((number, sureness)) = item.heuristic_pick {
+        if let Some((id, sureness)) = item.heuristic_pick {
             let _ = writeln!(
                 prompt,
-                "   {HEURISTIC_PICK_PREFIX}{number} ({})",
+                "  {HEURISTIC_PICK_PREFIX}{id} ({})",
                 sureness_label(sureness)
             );
         }
@@ -270,12 +277,23 @@ pub async fn suggest_counterparts(
     let mut picks = AiPicksByCourse::new();
     let mut failed_count = 0;
     for (task, answer) in answers {
-        match answer {
-            Some(answer) => picks
-                .entry(task.other_course_id)
-                .or_default()
-                .add_answer(task, &answer),
-            None => failed_count += 1,
+        let Some(answer) = answer else {
+            failed_count += 1;
+            continue;
+        };
+        let dropped = picks
+            .entry(task.other_course_id)
+            .or_default()
+            .add_answer(task, &answer);
+        if dropped.total() > 0 {
+            warn!(
+                other_course_id = %task.other_course_id,
+                chapter_number = ?task.chapter_number,
+                unknown_items = dropped.unknown_items,
+                unknown_counterparts = dropped.unknown_counterparts,
+                duplicates = dropped.duplicates,
+                "Dropped invalid picks from a language version matching answer"
+            );
         }
     }
     (picks, failed_count)

@@ -61,6 +61,7 @@ import {
   summarizeMatches,
   useDefaultChapter,
 } from "./matchRows"
+import ReviewLinkTable from "./ReviewLinkTable"
 import {
   bulletsCss,
   cancelAction,
@@ -669,6 +670,40 @@ const GuidedLinking: React.FC<Props> = ({
                 count: summary.exercises.pendingCount,
               })}
             </p>
+          )}
+          {thisCourse && (
+            <>
+              <ReviewLinkTable
+                title={t("language-versions-guided-step-pages")}
+                referenceCourse={thisCourse}
+                courses={otherCourses}
+                rows={pageRows}
+                fields={matchForm.getValues()}
+                rowGroup={(row) => {
+                  const key = pageChapterOf.get(row.id) ?? OUTSIDE_CHAPTERS
+                  return { key, label: chapterLabel(key) }
+                }}
+              />
+              <ReviewLinkTable
+                title={t("language-versions-guided-step-exercises")}
+                referenceCourse={thisCourse}
+                courses={otherCourses}
+                rows={exerciseRows}
+                fields={matchForm.getValues()}
+                rowGroup={(row) => {
+                  const key = exerciseChapterOf.get(row.id) ?? OUTSIDE_CHAPTERS
+                  return {
+                    key: `${key}/${row.group?.key ?? ""}`,
+                    label: row.group
+                      ? t("language-versions-page-in-chapter", {
+                          chapter: chapterLabel(key),
+                          title: row.group.label,
+                        })
+                      : chapterLabel(key),
+                  }
+                }}
+              />
+            </>
           )}
           {(() => {
             const left = leftWithoutCounterpart()

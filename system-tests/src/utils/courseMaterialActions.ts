@@ -97,7 +97,7 @@ export async function navigateToNextPageInMaterial(page: Page) {
     "Navigate to next page",
     async () => {
       // Find the next page link
-      const nextPageLink = page.getByRole("link", { name: /Next page:/ })
+      const nextPageLink = page.getByRole("link", { name: /Proceed to the next/ })
 
       // Get the current URL before navigation
       const originalUrl = page.url()

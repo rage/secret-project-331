@@ -8,6 +8,7 @@ import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
@@ -47,10 +48,19 @@ const ExerciseTaskIFrameEditor: React.FC<
   const loginStateContext = useContext(LoginStateContext)
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
-  const courseId = useContext(PageContext)?.page.course_id
+  const page = useContext(PageContext)?.page
+  const courseId = page?.course_id
   const courseContext = useContext(CourseContext)
 
   const largeScreen = useMedia(respondToOrLarger.xl)
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url: url ?? "",
+    exerciseServiceSlug,
+    viewType: VIEW_TYPE,
+    courseId,
+    pageId: page?.id,
+    exerciseTaskId,
+  })
 
   const postThisStateToIFrame: ExerciseIframeState = useMemoOne(() => {
     return {
@@ -168,6 +178,7 @@ const ExerciseTaskIFrameEditor: React.FC<
         },
       })}
       title={title}
+      {...failureReportHandlers}
     />
   )
 }

@@ -18,9 +18,10 @@ const FlexWrapper: React.FC<React.PropsWithChildren<FlexWrapperProps>> = ({
         column-gap: 1rem;
         display: flex;
         flex-direction: column;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
 
         ${respondToOrLarger.sm} {
+          flex-wrap: wrap;
           flex-direction: ${wideScreenDirection};
         }
       `}

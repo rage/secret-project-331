@@ -32,3 +32,8 @@ export function mapLanguageCandidateToSupportedLanguage(
 
   return null
 }
+
+/** The primary subtag of a language tag: "fi" for `fi-FI`. Language versions treat both as one language. */
+export function primaryLanguage(code: string): string {
+  return code.split("-")[0] ?? code
+}

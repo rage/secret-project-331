@@ -407,6 +407,8 @@ pub async fn send_email_code(
         return Ok(EmailCodeOutcome::DailyLimitReached);
     }
 
+    // Not budgeted: only a correct password reaches this, and a budget others can drain must never
+    // hold back sign-in.
     mail_new_code(
         &mut tx,
         user_id,

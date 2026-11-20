@@ -1,0 +1,10 @@
+DROP INDEX IF EXISTS exercises_exercise_language_group_id_idx;
+DROP TABLE language_version_operation_logs;
+DROP TABLE language_version_problem_dismissals;
+DROP TYPE language_version_operation;
+
+ALTER TABLE user_course_settings
+ALTER CONSTRAINT user_course_settings_current_course_group_fkey NOT DEFERRABLE;
+COMMENT ON CONSTRAINT user_course_settings_current_course_group_fkey ON user_course_settings IS NULL;
+ALTER TABLE user_course_settings
+RENAME CONSTRAINT user_course_settings_current_course_group_fkey TO user_course_settings_current_course_id_course_language_gro_fkey;

@@ -84,6 +84,7 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
                 `}
               >
                 <Echarts
+                  label={t("header-utm-sources")}
                   height={chartHeight}
                   options={{
                     grid: {

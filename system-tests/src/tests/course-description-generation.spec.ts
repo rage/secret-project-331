@@ -47,7 +47,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "1. Another module" })
-        .getByRole("button", { name: "Edit", exact: true })
+        .getByRole("button", { name: "Edit module Another module", exact: true })
         .click()
       await expect(
         page
@@ -63,7 +63,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default module" })
-        .getByRole("button", { name: "Edit", exact: true })
+        .getByRole("button", { name: "Edit module Default module", exact: true })
         .click()
       await expect(
         page
@@ -85,7 +85,7 @@ test.describe("Course metadata generation", () => {
       await page
         .locator("form")
         .filter({ hasText: "Default module" })
-        .getByRole("button", { name: "Edit", exact: true })
+        .getByRole("button", { name: "Edit module Default module", exact: true })
         .click()
       await page
         .locator("form")

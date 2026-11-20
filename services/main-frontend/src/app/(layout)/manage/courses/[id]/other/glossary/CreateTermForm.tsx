@@ -36,6 +36,7 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
     handleSubmit,
     formState: { isValid },
     reset,
+    setFocus,
     // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<NewTermForm>({ mode: "onChange" })
 
@@ -48,6 +49,8 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
     {
       onSuccess: () => {
         reset()
+        // oxlint-disable-next-line i18next/no-literal-string
+        setFocus("newTerm")
         refetch()
       },
     },

@@ -63,7 +63,7 @@ const TextWrapper = styled.div`
   }
 
   details summary:after {
-    content: "+";
+    content: "+" / "";
     color: ${baseTheme.colors.blue[400]};
     position: absolute;
     font-size: 3rem;
@@ -220,11 +220,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
           // visible marker so the broken citation is noticeable instead of collapsing into an
           // invisible gap; the tooltip names the unresolved key to help authors fix it.
           return createPortal(
-            <TooltipNTrigger
-              variant="references"
-              href={`#ref-${citationId}`}
-              tooltipContent={citationId}
-            >
+            <TooltipNTrigger variant="references" tooltipContent={citationId}>
               {UNRESOLVED_CITATION_MARKER}
             </TooltipNTrigger>,
             node,
@@ -267,8 +263,14 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
               <li
                 key={id}
                 id={`ref-${index + 1}`}
+                tabIndex={-1}
                 className={css`
                   ${active === `ref-${index + 1}` && `background: ${baseTheme.colors.blue[100]};`}
+
+                  &:focus-visible {
+                    outline: 3px solid ${baseTheme.colors.green[500]};
+                    outline-offset: 2px;
+                  }
                 `}
               >
                 {text}

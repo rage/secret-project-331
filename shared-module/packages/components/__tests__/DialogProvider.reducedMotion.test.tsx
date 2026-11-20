@@ -4,6 +4,7 @@ import { render, screen, waitFor, within } from "@testing-library/react"
 
 import { DialogProvider, useDialog } from "../src/components/dialogProvider/DialogProvider"
 import {
+  CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
   CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
   DIALOG_PROVIDER_DIALOG_TEST_ID,
 } from "../src/components/dialogProvider/testIds"
@@ -65,15 +66,19 @@ describe("the dialog queue under prefers-reduced-motion", () => {
     trigger.focus()
     domClick(trigger)
 
-    const first = screen.getByRole("alertdialog", { name: "First?" })
-    await waitFor(() => expect(first).toHaveFocus())
+    const first = screen.getByRole("alertdialog", { description: "First?" })
+    await waitFor(() =>
+      expect(within(first).getByTestId(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveFocus(),
+    )
     domClick(within(first).getByTestId(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
 
     // The overlap exists for focus continuity, not for looks, so reduced motion shortens the
     // animation without letting focus fall back to the page in between.
     expect(getDialogs()).toHaveLength(2)
-    const second = screen.getByRole("alertdialog", { name: "Second?" })
-    await waitFor(() => expect(second).toHaveFocus())
+    const second = screen.getByRole("alertdialog", { description: "Second?" })
+    await waitFor(() =>
+      expect(within(second).getByTestId(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveFocus(),
+    )
     expect(trigger).not.toHaveFocus()
 
     domClick(within(second).getByTestId(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))

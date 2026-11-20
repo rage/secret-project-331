@@ -79,6 +79,10 @@ secrecy.workspace = true
 argon2 = "0.6.0"
 # Unicode normalization (NFC) so passwords hash to identical bytes regardless of input form
 unicode-normalization = "0.1.26"
+# IDNA (punycode) conversion of internationalized domain names
+idna = "1.1.0"
+# Compiled-in public suffix list for finding a domain's registrable part
+psl = "=2.1.250"
 
 [features]
 # Compiles `test_helper` and its `insert_data!` macro for dependent crates' tests. Off otherwise.

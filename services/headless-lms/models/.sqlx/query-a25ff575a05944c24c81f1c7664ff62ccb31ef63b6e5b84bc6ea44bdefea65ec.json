@@ -1,0 +1,69 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT m.user_id,\n  t.current_course_id AS target_course_id,\n  (m.deleted_at IS NULL) AS \"moved_is_live!\",\n  (t.deleted_at IS NULL) AS \"target_is_live!\",\n  GREATEST(\n    m.updated_at,\n    (\n      SELECT MAX(s.updated_at)\n      FROM user_exercise_states s\n      WHERE s.user_id = m.user_id\n        AND s.course_id = m.current_course_id\n        AND s.deleted_at IS NULL\n    )\n  ) AS \"moved_activity_at!\",\n  GREATEST(\n    t.updated_at,\n    (\n      SELECT MAX(s.updated_at)\n      FROM user_exercise_states s\n      WHERE s.user_id = t.user_id\n        AND s.course_id = t.current_course_id\n        AND s.deleted_at IS NULL\n    )\n  ) AS \"target_activity_at!\"\nFROM user_course_settings m\n  JOIN user_course_settings t ON t.user_id = m.user_id\n  AND t.course_language_group_id = $2\nWHERE m.current_course_id = $1\n  AND t.current_course_id <> $1\nORDER BY m.user_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_settings",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "target_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_course_settings",
+            "name": "current_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "moved_is_live!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 3,
+        "name": "target_is_live!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 4,
+        "name": "moved_activity_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 5,
+        "name": "target_activity_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "a25ff575a05944c24c81f1c7664ff62ccb31ef63b6e5b84bc6ea44bdefea65ec"
+}

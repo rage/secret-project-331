@@ -31,6 +31,7 @@ export type BackendMessageKey =
   | "generic_sisu_error"
   | "sisu_resource_not_found"
   | "foreign_key_violation"
+  | "form_verification_failed"
 
 export interface ErrorViewIssue {
   path?: string | undefined
@@ -148,7 +149,8 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
     value === "invalid_course_code" ||
     value === "generic_sisu_error" ||
     value === "sisu_resource_not_found" ||
-    value === "foreign_key_violation"
+    value === "foreign_key_violation" ||
+    value === "form_verification_failed"
   )
 }
 

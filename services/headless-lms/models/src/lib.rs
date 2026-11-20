@@ -8,6 +8,7 @@ Each submodule corresponds to a database table.
 pub mod agent_changeset_calls;
 pub mod agent_changeset_entities;
 pub mod agent_changesets;
+pub mod altcha_spent_challenges;
 pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
@@ -60,6 +61,7 @@ pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registration_roster_schedules;
 pub mod credit_registrations;
+pub mod email_address_mail_budgets;
 pub mod email_deliveries;
 pub mod email_layouts;
 pub mod email_templates;

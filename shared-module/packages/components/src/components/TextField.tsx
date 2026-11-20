@@ -7,7 +7,7 @@ import type { AriaTextFieldProps } from "react-aria"
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
-import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { ARIA_VALIDATION, joinAriaDescribedBy } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import {
   isVisuallyHiddenLabel,
@@ -15,6 +15,7 @@ import {
   resolveRenderedErrorMessage,
 } from "../lib/utils/floatingField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -135,6 +136,7 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
     }),
   }
 
@@ -229,9 +231,9 @@ export function TextField<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description && isDescriptionHidden ? (
         <VisuallyHidden>
           <p {...descriptionProps}>{description}</p>

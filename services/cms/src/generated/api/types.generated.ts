@@ -544,6 +544,38 @@ export type GutenbergBlock = {
   name: string
 }
 
+/**
+ * A page as the tool shows and matches it. Deleted pages appear only in leftover links.
+ */
+export type LanguageVersionPage = {
+  chapter_id?: string | null
+  chapter_name?: string | null
+  /**
+   * `None` for pages outside chapters (e.g. the course front page).
+   */
+  chapter_number?: number | null
+  course_id: string
+  exercise_count: number
+  id: string
+  is_chapter_front_page: boolean
+  is_deleted: boolean
+  language_code: string
+  page_language_group_id?: string | null
+  /**
+   * 1-based position among the live pages of the chapter (or of the pages outside chapters).
+   */
+  position: number
+  title: string
+  url_path: string
+}
+
+/**
+ * Body of CMS POST /pages/{page_id}/language-versions/link.
+ */
+export type LinkPageCounterpartRequest = {
+  counterpart_page_id: string
+}
+
 export type NewResearchForm = {
   content: unknown
   course_id: string
@@ -573,6 +605,45 @@ export type PageInfo = {
   organization_slug?: string | null
   page_id: string
   page_title: string
+}
+
+/**
+ * The page's counterpart in one other language version.
+ */
+export type PageLanguageVersion = {
+  can_edit: boolean
+  counterpart?: LanguageVersionPage | null
+  course_id: string
+  course_name: string
+  language_code: string
+  /**
+   * When `counterpart` is `None`: the course's pages, for "Link an existing page".
+   */
+  link_candidates: Array<PageLinkCandidate>
+}
+
+/**
+ * A page's counterparts in the other language versions (CMS GET /pages/{page_id}/language-versions).
+ */
+export type PageLanguageVersions = {
+  /**
+   * Linking and creating counterparts need edit rights on every course in the group.
+   */
+  can_edit_all_courses: boolean
+  page: LanguageVersionPage
+  /**
+   * One entry per other language version.
+   */
+  versions: Array<PageLanguageVersion>
+}
+
+export type PageLinkCandidate = {
+  /**
+   * Already has a counterpart in the page's language; linking it moves that link.
+   */
+  is_linked: boolean
+  is_suggested: boolean
+  page: LanguageVersionPage
 }
 
 export type PageNavigationInformation = {
@@ -1495,6 +1566,50 @@ export type GetCmsPageInfoResponses = {
 }
 
 export type GetCmsPageInfoResponse = GetCmsPageInfoResponses[keyof GetCmsPageInfoResponses]
+
+export type GetCmsPageLanguageVersionsData = {
+  body?: never
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/language-versions"
+}
+
+export type GetCmsPageLanguageVersionsResponses = {
+  /**
+   * The page's counterparts
+   */
+  200: PageLanguageVersions
+}
+
+export type GetCmsPageLanguageVersionsResponse =
+  GetCmsPageLanguageVersionsResponses[keyof GetCmsPageLanguageVersionsResponses]
+
+export type LinkCmsPageCounterpartData = {
+  body: LinkPageCounterpartRequest
+  path: {
+    /**
+     * Page id
+     */
+    page_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/pages/{page_id}/language-versions/link"
+}
+
+export type LinkCmsPageCounterpartResponses = {
+  /**
+   * The page's counterparts after linking
+   */
+  200: PageLanguageVersions
+}
+
+export type LinkCmsPageCounterpartResponse =
+  LinkCmsPageCounterpartResponses[keyof LinkCmsPageCounterpartResponses]
 
 export type GetCmsPageNavigationData = {
   body?: never

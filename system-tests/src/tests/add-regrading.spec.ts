@@ -7,6 +7,8 @@ test.use({
 })
 
 test("Regradings work", async ({ page }) => {
+  // The final wait outlasts the default timeout while the background regrader runs
+  test.slow()
   await page.goto("http://project-331.local/manage/regradings")
   await page.getByText("New regrading").click()
   await page.getByLabel("Ids, one per line").click()

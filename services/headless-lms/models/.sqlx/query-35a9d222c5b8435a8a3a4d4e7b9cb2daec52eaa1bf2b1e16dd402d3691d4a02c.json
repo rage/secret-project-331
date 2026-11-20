@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM pages p\n      JOIN courses c ON c.id = p.course_id\n    WHERE p.page_language_group_id = $1\n      AND c.course_language_group_id = $2\n      AND p.deleted_at IS NULL\n      AND c.deleted_at IS NULL\n  ) AS \"exists!\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "35a9d222c5b8435a8a3a4d4e7b9cb2daec52eaa1bf2b1e16dd402d3691d4a02c"
+}

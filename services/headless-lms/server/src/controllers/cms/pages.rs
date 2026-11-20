@@ -10,12 +10,30 @@ use models::{
     },
 };
 
+use std::collections::HashSet;
+
 use crate::{
+    controllers::main_frontend::courses::language_versions::{
+        authorize_edit_on_language_versions, load_snapshot,
+    },
     domain::{
+        authorization::{authorize_with_fetched_list_of_roles, fetch_user_roles},
         models_requests::{self, JwtKey},
         request_id::RequestId,
     },
     prelude::*,
+};
+use models::{
+    library::language_versions::{
+        linking::{self, LinkedItemKind},
+        snapshot::{self, LanguageGroupSnapshot, StudentCounts},
+        suggestions,
+        types::{
+            CounterpartLinkChange, LanguageVersionPage, LinkPageCounterpartRequest,
+            PageLanguageVersion, PageLanguageVersions, PageLinkCandidate, SuggestionSureness,
+        },
+    },
+    roles::Role,
 };
 use utoipa::OpenApi;
 
@@ -26,7 +44,9 @@ use utoipa::OpenApi;
     update_page,
     get_page_navigation,
     get_exercises_with_submissions,
-    get_pending_agent_changes
+    get_pending_agent_changes,
+    get_page_language_versions,
+    link_page_counterpart
 ))]
 pub(crate) struct CmsPagesApiDoc;
 
@@ -281,6 +301,209 @@ async fn get_pending_agent_changes(
 }
 
 /**
+GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}/language-versions",
+    operation_id = "getCmsPageLanguageVersions",
+    tag = "cms_pages",
+    params(("page_id" = Uuid, Path, description = "Page id")),
+    responses((status = 200, description = "The page's counterparts", body = PageLanguageVersions))
+)]
+async fn get_page_language_versions(
+    page_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageLanguageVersions>> {
+    let mut conn = pool.acquire().await?;
+    let roles = fetch_user_roles(&mut conn, Some(user.id)).await?;
+    let token =
+        authorize_with_fetched_list_of_roles(&mut conn, Act::Edit, Res::Page(*page_id), &roles)
+            .await?;
+    let course_id = get_course_id_of_page(&mut conn, *page_id).await?;
+    let course_language_group_id =
+        models::courses::get_course_language_group_id(&mut conn, course_id).await?;
+    let res = get_language_versions_of_page(&mut conn, &roles, course_language_group_id, *page_id)
+        .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{page_id}/language-versions/link",
+    operation_id = "linkCmsPageCounterpart",
+    tag = "cms_pages",
+    params(("page_id" = Uuid, Path, description = "Page id")),
+    request_body = LinkPageCounterpartRequest,
+    responses((status = 200, description = "The page's counterparts after linking", body = PageLanguageVersions))
+)]
+async fn link_page_counterpart(
+    page_id: web::Path<Uuid>,
+    payload: web::Json<LinkPageCounterpartRequest>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<PageLanguageVersions>> {
+    let mut conn = pool.acquire().await?;
+    let roles = fetch_user_roles(&mut conn, Some(user.id)).await?;
+    authorize_with_fetched_list_of_roles(&mut conn, Act::Edit, Res::Page(*page_id), &roles).await?;
+    authorize_with_fetched_list_of_roles(
+        &mut conn,
+        Act::Edit,
+        Res::Page(payload.counterpart_page_id),
+        &roles,
+    )
+    .await?;
+    let course_id = get_course_id_of_page(&mut conn, *page_id).await?;
+    // Linking can replace counterpart links in any course of the group, as /page-links can.
+    let (token, course_language_group_id) =
+        authorize_edit_on_language_versions(&mut conn, &roles, course_id, None).await?;
+    let snapshot = snapshot::load(&mut conn, course_language_group_id, StudentCounts::Omit).await?;
+    let counterpart_course_id = snapshot
+        .pages
+        .iter()
+        .find(|p| p.page.id == payload.counterpart_page_id)
+        .map(|p| p.page.course_id);
+    // Keeps the page's counterparts in the other languages; one in the counterpart's language
+    // is replaced.
+    let ids: Vec<Uuid> = [*page_id, payload.counterpart_page_id]
+        .into_iter()
+        .chain(
+            linked_counterparts(&snapshot, *page_id)
+                .filter(|p| Some(p.course_id) != counterpart_course_id)
+                .map(|p| p.id),
+        )
+        .collect();
+    linking::apply_link_changes(
+        &mut conn,
+        LinkedItemKind::Page,
+        course_language_group_id,
+        user.id,
+        &[CounterpartLinkChange::Link { ids }],
+    )
+    .await?;
+    let res = get_language_versions_of_page(&mut conn, &roles, course_language_group_id, *page_id)
+        .await?;
+    token.authorized_ok(web::Json(res))
+}
+
+async fn get_course_id_of_page(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+) -> Result<Uuid, ControllerError> {
+    match models::pages::get_course_and_exam_id(conn, page_id).await? {
+        CourseOrExamId::Course(course_id) => Ok(course_id),
+        CourseOrExamId::Exam(_) => Err(controller_err!(
+            BadRequest,
+            "Only course pages have language versions."
+        )),
+    }
+}
+
+fn live_pages(snapshot: &LanguageGroupSnapshot) -> impl Iterator<Item = &LanguageVersionPage> {
+    snapshot
+        .pages
+        .iter()
+        .filter(|p| !p.is_foreign && !p.page.is_deleted)
+        .map(|p| &p.page)
+}
+
+/// The page's live counterpart in each other course of the group; the first one where a course
+/// has several.
+fn linked_counterparts(
+    snapshot: &LanguageGroupSnapshot,
+    page_id: Uuid,
+) -> impl Iterator<Item = &LanguageVersionPage> {
+    let page = live_pages(snapshot).find(|p| p.id == page_id);
+    snapshot
+        .courses
+        .iter()
+        .filter(move |c| page.is_some_and(|page| c.id != page.course_id))
+        .filter_map(move |course| {
+            let group_id = page?.page_language_group_id?;
+            live_pages(snapshot)
+                .find(|p| p.course_id == course.id && p.page_language_group_id == Some(group_id))
+        })
+}
+
+/// The page's counterpart in each other live course of its language group, as the user with
+/// `roles` sees them.
+async fn get_language_versions_of_page(
+    conn: &mut PgConnection,
+    roles: &[Role],
+    course_language_group_id: Uuid,
+    page_id: Uuid,
+) -> Result<PageLanguageVersions, ControllerError> {
+    let (snapshot, can_edit_all_courses) = load_snapshot(
+        conn,
+        roles,
+        course_language_group_id,
+        &[],
+        StudentCounts::Omit,
+    )
+    .await?;
+    let lineage = suggestions::get_copy_lineage(conn, &snapshot).await?;
+
+    let Some(page) = live_pages(&snapshot).find(|p| p.id == page_id) else {
+        return Err(controller_err!(NotFound, "The page is deleted."));
+    };
+    let suggested_counterparts = suggestions::suggest_page_counterparts(&snapshot, &lineage, page);
+    let counterparts: Vec<&LanguageVersionPage> = linked_counterparts(&snapshot, page_id).collect();
+    let groups_in_page_language: HashSet<Uuid> = live_pages(&snapshot)
+        .filter(|p| p.course_id == page.course_id)
+        .filter_map(|p| p.page_language_group_id)
+        .collect();
+
+    let versions = snapshot
+        .courses
+        .iter()
+        .filter(|c| c.id != page.course_id)
+        .map(|course| {
+            let counterpart = counterparts
+                .iter()
+                .find(|p| p.course_id == course.id)
+                .map(|p| (*p).clone());
+            let link_candidates = if counterpart.is_some() {
+                Vec::new()
+            } else {
+                let suggested_page_id = suggested_counterparts
+                    .get(&course.id)
+                    .filter(|(_, sureness)| *sureness != SuggestionSureness::Unsure)
+                    .map(|(p, _)| p.id);
+                live_pages(&snapshot)
+                    .filter(|p| p.course_id == course.id)
+                    .map(|p| PageLinkCandidate {
+                        page: p.clone(),
+                        is_linked: p
+                            .page_language_group_id
+                            .is_some_and(|g| groups_in_page_language.contains(&g)),
+                        is_suggested: Some(p.id) == suggested_page_id,
+                    })
+                    .collect()
+            };
+            PageLanguageVersion {
+                course_id: course.id,
+                course_name: course.name.clone(),
+                language_code: course.language_code.clone(),
+                can_edit: course.can_edit,
+                counterpart,
+                link_candidates,
+            }
+        })
+        .collect();
+    Ok(PageLanguageVersions {
+        page: page.clone(),
+        versions,
+        can_edit_all_courses,
+    })
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -302,5 +525,13 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{page_id}/pending-agent-changes",
             web::get().to(get_pending_agent_changes),
+        )
+        .route(
+            "/{page_id}/language-versions",
+            web::get().to(get_page_language_versions),
+        )
+        .route(
+            "/{page_id}/language-versions/link",
+            web::post().to(link_page_counterpart),
         );
 }

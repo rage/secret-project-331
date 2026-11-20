@@ -28,8 +28,14 @@ export { Radio } from "./components/Radio"
 export type { RadioNestedContentVariant, RadioProps } from "./components/Radio"
 export { RadioGroup, questionLegendCss, radioListRevealCss } from "./components/RadioGroup"
 export type { RadioGroupProps, RadioGroupVariant } from "./components/RadioGroup"
-export { default as RouteFocusManager } from "./components/RouteFocusManager"
+export {
+  default as RouteFocusManager,
+  focusMainHeading,
+  focusProgrammatically,
+} from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
+export { itemHeadingProps, useFocusAfterRemoval } from "./lib/hooks/useFocusAfterRemoval"
+export { useToggleFocus } from "./lib/hooks/useToggleFocus"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"
 export { Slider } from "./components/Slider"
@@ -61,6 +67,8 @@ export { Badge } from "./components/Badge"
 export type { BadgeProps, BadgeSize, BadgeTone } from "./components/Badge"
 export { Chip } from "./components/Chip"
 export type { ChipProps } from "./components/Chip"
+export { LanguageChip } from "./components/LanguageChip"
+export type { LanguageChipProps } from "./components/LanguageChip"
 export { CopyButton } from "./components/CopyButton"
 export type { CopyButtonProps } from "./components/CopyButton"
 export { DescriptionList } from "./components/DescriptionList"
@@ -86,7 +94,7 @@ export { Disclosure } from "./components/Disclosure"
 export type { DisclosureProps, DisclosureVariant } from "./components/Disclosure"
 export { EmptyState } from "./components/EmptyState"
 export type { EmptyStateProps } from "./components/EmptyState"
-export { ErrorNotice } from "./components/ErrorNotice"
+export { ErrorNotice, ErrorNoticeTitleContext } from "./components/ErrorNotice"
 export type {
   ErrorNoticeAnnouncement,
   ErrorNoticeDensity,
@@ -107,6 +115,8 @@ export { Infobox } from "./components/Infobox"
 export type { InfoboxProps, InfoboxTone } from "./components/Infobox"
 export { Menu } from "./components/Menu"
 export type { MenuItemDescriptor, MenuProps } from "./components/Menu"
+export { Stepper } from "./components/Stepper"
+export type { StepperProps, StepperStep, StepState } from "./components/Stepper"
 export { Meter, MeterInline } from "./components/Meter"
 export type {
   MeterInlineProps,
@@ -137,6 +147,8 @@ export { StatTile } from "./components/StatTile"
 export type { StatTileDeltaTone, StatTileProps, StatTileTone } from "./components/StatTile"
 export { StatTileList } from "./components/StatTileList"
 export type { StatTileListProps, StatTileListSize } from "./components/StatTileList"
+export { ScrollRegion } from "./components/ScrollRegion"
+export type { ScrollOverflow, ScrollRegionProps } from "./components/ScrollRegion"
 export { Table } from "./components/Table"
 export type {
   TableAlign,

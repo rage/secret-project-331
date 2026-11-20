@@ -25,7 +25,7 @@
     "test-ui": "pnpm run test-nohtml -- --ui",
     "test-video": "env RECORD_VIDEO=1 pnpm run test-nohtml",
     "test-without-database-reset": "pnpm exec playwright test",
-    "update-snapshots": "pnpm run test-nohtml --update-snapshots",
+    "update-snapshots": "pnpm run test-nohtml --update-snapshots=changed",
     "view-trace": "pnpm exec playwright show-trace"
   },
   "dependencies": {

@@ -1,4 +1,6 @@
+use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
+use crate::domain::proof_of_work::{self, ChallengePurpose};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
@@ -926,6 +928,8 @@ const MAX_RESET_MAILS_PER_DAY: usize = 3;
 pub struct EmailData {
     pub email: String,
     pub language: String,
+    /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+    pub altcha: String,
 }
 
 #[instrument(skip(pool))]
@@ -946,6 +950,8 @@ pub async fn send_reset_password_email(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
+        .await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -1012,7 +1018,13 @@ pub async fn send_reset_password_email(
             && sent_today.is_empty()
             && models::user_passwords::check_if_users_password_is_stored(&mut tx, user.id).await?;
         // Every outcome gets the same answer, so the response never tells whether an account exists.
-        if !is_new_account && !sent_recently && sent_today.len() < MAX_RESET_MAILS_PER_DAY {
+        // Other accounts reaching the same inbox share its budget, so it must not hold back a proven
+        // owner's own resets.
+        if !is_new_account
+            && !sent_recently
+            && sent_today.len() < MAX_RESET_MAILS_PER_DAY
+            && mail_budget::may_mail_user(&mut tx, user.id).await?
+        {
             models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
             models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)

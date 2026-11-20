@@ -180,7 +180,6 @@ export function FieldShell({
               {...errorMessageProps}
               className={cx(errorCss, errorMessageProps?.className)}
               id={errorMessageId ?? errorMessageProps?.id}
-              role={errorMessageProps?.role ?? "alert"}
             >
               {errorMessage}
             </div>

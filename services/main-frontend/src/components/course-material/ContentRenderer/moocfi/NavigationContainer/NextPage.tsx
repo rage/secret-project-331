@@ -262,6 +262,7 @@ function deriveNextpageProps(
 
   if (info.previous_page !== null && info.previous_page !== undefined) {
     res.previous = coursePageRoute(organizationSlug, courseSlug, info.previous_page.url_path)
+    res.previousTitle = info.previous_page.title
   }
   if (info.next_page !== null && info.next_page !== undefined) {
     res.nextTitle = info.next_page.title

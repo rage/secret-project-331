@@ -40,7 +40,7 @@ const InstructionBlock: React.FC<
             padding: 0rem 1.375rem;
           }
 
-          span {
+          div {
             font-size: 18px;
             color: ${baseTheme.colors.gray[600]};
 
@@ -50,7 +50,7 @@ const InstructionBlock: React.FC<
           }
         `}
       >
-        <ParsedText text={props.data.attributes.content} tag="span" useWrapperElement={true} />
+        <ParsedText text={props.data.attributes.content} tag="div" useWrapperElement={true} />
       </div>
     </div>
   )

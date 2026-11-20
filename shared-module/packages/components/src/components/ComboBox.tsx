@@ -9,10 +9,12 @@ import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { composeRefs } from "../lib/utils/compositeField"
 import { omitUndefined } from "../lib/utils/nullability"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -84,6 +86,8 @@ export type ComboBoxProps<
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
   placeholder?: string
+  /** HTML autocomplete token for the input, e.g. `country-name`. */
+  autoComplete?: string
   "aria-label"?: string
   className?: string
   /** Lands on the text input; the listbox is reachable from its `aria-controls` while open. */
@@ -124,6 +128,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     onKeyDown,
     onKeyUp,
     placeholder,
+    autoComplete,
     "aria-label": ariaLabel,
     "data-testid": dataTestId,
   } = props
@@ -187,6 +192,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     isDisabled,
     isReadOnly,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -218,6 +224,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       isDisabled,
       isReadOnly,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,
@@ -303,6 +310,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
             !isEditable && comboBoxInputReadonlyCss,
           )}
           data-testid={dataTestId}
+          {...omitUndefined({ autoComplete })}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}
@@ -330,9 +338,9 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

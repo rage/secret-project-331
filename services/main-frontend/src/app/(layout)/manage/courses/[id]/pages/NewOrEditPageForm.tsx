@@ -44,6 +44,8 @@ interface PageDetailsFields {
   path: string
 }
 
+const NEW_OR_EDIT_PAGE_FORM_ID = "new-or-edit-page-form"
+
 const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps>> = ({
   courseId,
   onSubmitForm,
@@ -62,7 +64,14 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     }
     return prevPath.replace(prefix, "")
   }, [prefix, savedPage?.url_path])
-  const { control, watch, setValue, getValues } = useForm<PageDetailsFields>({
+  const {
+    control,
+    reset,
+    watch,
+    setValue,
+    getValues,
+    handleSubmit: handleFormSubmit,
+  } = useForm<PageDetailsFields>({
     defaultValues: { title: savedPage?.title ?? "", path: initialPath },
   })
   const title = watch("title")
@@ -138,6 +147,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
     await createPageMutation.mutateAsync({
       body: newPage,
     })
+    reset({ title: "", path: "" })
   }
 
   return (
@@ -149,20 +159,20 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
         {
           disabled: isPending,
           variant: "primary",
-          onClick: () => {
-            void handleSubmit()
-          },
+          type: "submit",
+          domProps: { form: NEW_OR_EDIT_PAGE_FORM_ID },
           label: isUpdate ? t("button-text-update") : t("button-text-create"),
         },
       ]}
     >
-      <div>
+      <form id={NEW_OR_EDIT_PAGE_FORM_ID} onSubmit={handleFormSubmit(handleSubmit)}>
         <div>
           <FieldContainer>
             <TextField
               isRequired
               name="title"
               control={control}
+              rules={{ required: t("required-field") }}
               label={t("text-field-label-title")}
             />
           </FieldContainer>
@@ -191,13 +201,14 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                   isRequired
                   name="path"
                   control={control}
+                  rules={{ required: t("required-field") }}
                   label={t("text-field-label-path")}
                 />
               </div>
             </PathFieldWithPrefixElement>
           </FieldContainer>
         </div>
-      </div>
+      </form>
     </Dialog>
   )
 }

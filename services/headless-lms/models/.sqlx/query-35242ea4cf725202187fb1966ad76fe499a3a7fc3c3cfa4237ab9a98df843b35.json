@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM user_marketing_consents\nWHERE id = ANY($1)\nRETURNING to_jsonb(user_marketing_consents.*) AS \"row!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "row!",
+        "type_info": "Jsonb",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "35242ea4cf725202187fb1966ad76fe499a3a7fc3c3cfa4237ab9a98df843b35"
+}

@@ -492,8 +492,17 @@ impl<'a> ContentRewrite<'a> {
     }
 }
 
-/// Rewrites `/courses/<source_slug>` link targets in `value`: whole `url`/`href` attributes, and
+/// Rewrites `/courses/<source_slug>` link targets in content: whole `url`/`href` attributes, and
 /// `href` values inside HTML strings. Visible text is left alone.
+pub(crate) fn rewrite_course_links_in_content(
+    content: &mut Value,
+    source_slug: &str,
+    copy_slug: &str,
+) {
+    rewrite_course_links(content, None, source_slug, copy_slug);
+}
+
+/// [rewrite_course_links_in_content] for `value` found under the attribute `key`.
 fn rewrite_course_links(value: &mut Value, key: Option<&str>, source_slug: &str, copy_slug: &str) {
     match value {
         Value::String(text) => {

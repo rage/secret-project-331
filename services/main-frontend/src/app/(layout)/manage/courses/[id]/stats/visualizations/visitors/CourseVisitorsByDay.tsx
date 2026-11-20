@@ -80,6 +80,7 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
               <NoDataMessage />
             ) : (
               <Echarts
+                label={t("stats-heading-visitor-metrics")}
                 height={200 * Object.keys(data).length}
                 options={{
                   tooltip: {

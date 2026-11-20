@@ -68,18 +68,22 @@ const PullquoteBlock: React.FC<
           `}
           dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(value ?? "") }}
         />
-        <cite
-          className={css`
-            font-size: 20px;
-            display: inline-block;
-            font-family: ${headingFont};
-            font-style: normal;
-            text-transform: capitalize !important;
-            margin-top: 1.2rem;
-            color: ${baseTheme.colors.green[700]};
-          `}
-          dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
-        ></cite>
+        {citation && (
+          <figcaption>
+            <cite
+              className={css`
+                font-size: 20px;
+                display: inline-block;
+                font-family: ${headingFont};
+                font-style: normal;
+                text-transform: capitalize !important;
+                margin-top: 1.2rem;
+                color: ${baseTheme.colors.green[700]};
+              `}
+              dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(citation) }}
+            ></cite>
+          </figcaption>
+        )}
       </figure>
     </div>
   )

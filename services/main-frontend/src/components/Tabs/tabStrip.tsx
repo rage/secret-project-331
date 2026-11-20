@@ -123,10 +123,12 @@ export function tabPillCss({
 const tabStripClassName = (
   orientation: "horizontal" | "vertical",
   className: string | undefined,
+  wrapOnPhone: boolean,
 ): string =>
   cx(
     tabStripCss,
-    orientation === "vertical" ? tabStripVerticalCss : tabStripScrollOnPhoneCss,
+    orientation === "vertical" || wrapOnPhone ? undefined : tabStripScrollOnPhoneCss,
+    orientation === "vertical" ? tabStripVerticalCss : undefined,
     className,
   )
 
@@ -134,6 +136,8 @@ export interface TabStripProps {
   state: TabListState<object>
   orientation: "horizontal" | "vertical"
   className?: string | undefined
+  /** Wraps onto more rows on phones instead of scrolling sideways, so every tab stays visible. */
+  wrapOnPhone?: boolean
   children: React.ReactNode
 }
 
@@ -142,7 +146,13 @@ export interface TabStripProps {
  * `RouteTabList` variants render one of these around their tabs rather than repeating the hooks
  * and the class list each.
  */
-export const TabStrip: React.FC<TabStripProps> = ({ state, orientation, className, children }) => {
+export const TabStrip: React.FC<TabStripProps> = ({
+  state,
+  orientation,
+  className,
+  wrapOnPhone = false,
+  children,
+}) => {
   const { t } = useTranslation()
   const stripRef = useRef<HTMLDivElement>(null)
   const { tabListProps } = useTabList(
@@ -152,7 +162,11 @@ export const TabStrip: React.FC<TabStripProps> = ({ state, orientation, classNam
   )
 
   return (
-    <div {...tabListProps} ref={stripRef} className={tabStripClassName(orientation, className)}>
+    <div
+      {...tabListProps}
+      ref={stripRef}
+      className={tabStripClassName(orientation, className, wrapOnPhone)}
+    >
       {children}
     </div>
   )

@@ -55,6 +55,7 @@ const HeroSectionBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Hero
         {...omitUndefined({ backgroundColor: props.data.attributes.backgroundColor })}
         {...omitUndefined({ backgroundRepeatX: props.data.attributes.backgroundRepeatX })}
         alignBottom={props.data.attributes.alignBottom}
+        isExam={props.isExam}
       />
     </BreakFromCentered>
   )

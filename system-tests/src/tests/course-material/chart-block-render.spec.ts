@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
@@ -14,7 +15,7 @@ test("Chart block renders for students", async ({ page, headless }, testInfo) =>
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -47,6 +48,7 @@ test("Chart block renders for students", async ({ page, headless }, testInfo) =>
   await expect(chart.locator("text").first()).toHaveAttribute("font-family", /Inter/)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

@@ -20,12 +20,14 @@ describe("Slider - accessibility wiring", () => {
     expect(screen.getByRole("slider")).toHaveAccessibleDescription("Out of 10.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is not an alert and sets aria-invalid", () => {
     renderNumberField((control) => (
       <Slider name="f" control={control} label="Points" maxValue={10} errorMessage="Required." />
     ))
     expect(screen.getByRole("slider")).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required.")
+    expect(screen.getByRole("slider")).toHaveAccessibleDescription("Required.")
+    expect(screen.getByText("Required.")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("isDisabled disables the slider", () => {

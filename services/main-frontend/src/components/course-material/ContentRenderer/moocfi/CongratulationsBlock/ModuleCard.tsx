@@ -113,6 +113,8 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
           font-size: ${typography.h5};
           color: #04312e;
           font-weight: 600;
+          /* Keep the title clear of the absolutely positioned badge */
+          ${prerequisite_modules_completed && "padding-right: 4.5rem;"}
         `}
       >
         {module.name}

@@ -298,6 +298,29 @@ describe("ComboBox", () => {
     const input = screen.getByRole("combobox", { name: "Framework" })
     expect(input).toHaveAttribute("aria-describedby")
     expect(input).toHaveAttribute("aria-invalid", "true")
+    expect(input).toHaveAccessibleDescription(/Required/)
+    expect(screen.queryByRole("alert")).toBeNull()
+  })
+
+  test("forwards autoComplete to the input", () => {
+    renderWithForm<{ c: string | number | null }>((control) => (
+      <ComboBox<Item, { c: string | number | null }>
+        name="c"
+        control={control}
+        autoComplete="country-name"
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Country"
+        items={items}
+      >
+        {(item) => item.label}
+      </ComboBox>
+    ))
+
+    expect(screen.getByRole("combobox", { name: "Country" })).toHaveAttribute(
+      "autocomplete",
+      "country-name",
+    )
   })
 
   test("data-testid lands on the combobox input", () => {

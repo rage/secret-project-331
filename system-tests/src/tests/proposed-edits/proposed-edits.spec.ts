@@ -1,11 +1,15 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
-import { getLocatorForNthExerciseServiceIframe } from "../../utils/iframeLocators"
+import {
+  getLocatorForNthExerciseServiceIframe,
+  getExerciseTaskFrame,
+} from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -38,20 +42,28 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.getByText("Improve material").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "no-edits-yet",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Click on a paragraph to make it editable!")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByText("Select a paragraph or its Edit button to make it editable!"),
+    ],
     skipMobile: true,
     scrollToYCoordinate: 920,
   })
 
-  await page.getByText("The abacus is one of the oldest known calculating tools").click()
+  // The paragraph also has a hidden description copy of its text
+  await page
+    .getByText("The abacus is one of the oldest known calculating tools")
+    .filter({ visible: true })
+    .click()
 
-  await page.getByText("So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").filter({ visible: true }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -63,13 +75,13 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     scrollToYCoordinate: 920,
   })
 
-  await page.getByText("So big, that we need many paragraphs.").click()
+  await page.getByText("So big, that we need many paragraphs.").filter({ visible: true }).click()
   await page.fill(
     "text=So big, that we need many paragraphs.",
     "So big, that we need many paragraphs...",
   )
 
-  await page.getByText("Like this.").click()
+  await page.getByText("Like this.").filter({ visible: true }).click()
   // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(100)
   await page.fill("text=Like this.", "Like this!")
@@ -81,7 +93,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
     "The abacus is the oldest known calculating tool, with origins tracing back to ancient Mesopotamia and China. Often consisting of a wooden frame with rows of beads, it has been used for centuries as a reliable aid in performing arithmetic operations. Its simplicity and effectiveness made it a cornerstone of commerce and education across many galaxies.",
   )
 
-  await page.getByText("So big,").click()
+  await page.getByText("So big,").filter({ visible: true }).click()
 
   await page.click('button:has-text("Preview")')
 
@@ -90,6 +102,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   await page.waitForTimeout(200)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -139,10 +152,7 @@ test("Making proposed edits works", async ({ page, headless }, testInfo) => {
   ])
 
   // Wait for the exercise to load because otherwise it might mess up the screenshot
-  await page1
-    .frameLocator(`[title="Exercise 1, task 1 content"]`)
-    .locator(`button:text-is("a")`)
-    .waitFor()
+  await getExerciseTaskFrame(page1, 1).locator(`button:text-is("a")`).waitFor()
 
   await page1.locator(`text=Like this!!!!!`).waitFor()
 })

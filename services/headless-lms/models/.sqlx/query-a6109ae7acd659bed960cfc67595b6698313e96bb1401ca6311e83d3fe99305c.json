@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO marketing_mailing_list_access_tokens (\n    id,\n    course_id,\n    course_language_group_id,\n    server_prefix,\n    access_token,\n    mailchimp_mailing_list_id\n  )\nSELECT m.new_id,\n  $3,\n  $4,\n  t.server_prefix,\n  t.access_token,\n  t.mailchimp_mailing_list_id\nFROM UNNEST($1::uuid [], $2::uuid []) AS m(old_id, new_id)\n  JOIN marketing_mailing_list_access_tokens t ON t.id = m.old_id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a6109ae7acd659bed960cfc67595b6698313e96bb1401ca6311e83d3fe99305c"
+}

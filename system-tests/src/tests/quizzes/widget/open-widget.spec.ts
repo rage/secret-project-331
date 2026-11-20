@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
@@ -17,6 +19,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
   const iframeLocator = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-empty",
@@ -37,6 +40,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-invalid",
@@ -60,6 +64,7 @@ test("widget, open", async ({ page, headless }, testInfo) => {
     .fill("2024-02-29")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-open-valid",

@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH RECURSIVE chain AS (\n  SELECT e.id AS descendant_id,\n    e.copied_from AS ancestor_id,\n    1 AS depth\n  FROM exercises e\n  WHERE e.id = ANY($1)\n    AND e.copied_from IS NOT NULL\n  UNION ALL\n  SELECT chain.descendant_id,\n    e.copied_from,\n    chain.depth + 1\n  FROM chain\n    JOIN exercises e ON e.id = chain.ancestor_id\n  WHERE e.copied_from IS NOT NULL\n    AND chain.depth < $2\n)\nSELECT descendant_id AS \"descendant_id!\",\n  ancestor_id AS \"ancestor_id!\"\nFROM chain\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "descendant_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "ancestor_id!",
+        "type_info": "Uuid",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "a3a461b2b852ace02f2706a7ad094ae962e813eb4ae73051e836871a708c90af"
+}

@@ -21,7 +21,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
   const { buttonProps: closeButtonProps } = useButton(
     {
       onPress: onClose,
-      "aria-label": t("close-heading-menu"),
+      "aria-label": t("close-menu"),
     },
     closeButtonRef,
   )
@@ -44,6 +44,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
         <>
           <button
             type="button"
+            data-submenu-back
             onClick={onBack}
             className={css`
               display: inline-flex;
@@ -70,6 +71,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
             `}
           >
             <ArrowLeft
+              aria-hidden="true"
               size={20}
               className={css`
                 color: #111827;
@@ -123,7 +125,9 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
         </>
       ) : (
         <>
-          <h3
+          {/* The dialog is already named "Navigation menu"; its hidden h2 is the only heading. */}
+          <span
+            aria-hidden="true"
             className={css`
               font-size: 18px;
               font-weight: 600;
@@ -132,7 +136,7 @@ export const MenuHeader: React.FC<MenuHeaderProps> = ({ currentSubmenu, onBack, 
             `}
           >
             {t("navigation-menu")}
-          </h3>
+          </span>
           <button
             {...closeButtonProps}
             ref={closeButtonRef}

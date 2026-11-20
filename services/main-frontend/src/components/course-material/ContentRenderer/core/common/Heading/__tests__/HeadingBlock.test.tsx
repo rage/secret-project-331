@@ -10,16 +10,16 @@ import HeadingBlock from "../HeadingBlock"
 const CLIENT_ID_A = "3f2b8c1a-0000-4000-8000-000000000000"
 const CLIENT_ID_B = "9a7d4e2b-0000-4000-8000-000000000000"
 
-const renderHeading = (clientId: string, content: string, anchor?: string) =>
+const renderHeading = (clientId: string, content: string, anchor?: string, isExam = false) =>
   render(
     <HeadingBlock
       id={clientId}
-      isExam={false}
+      isExam={isExam}
       data={{
         name: "core/heading",
         isValid: true,
         clientId,
-        attributes: { content, level: 2, ...(anchor === undefined ? {} : { anchor }) },
+        attributes: { content, level: isExam ? 1 : 2, ...(anchor === undefined ? {} : { anchor }) },
         innerBlocks: [],
       }}
     />,
@@ -65,5 +65,10 @@ describe("HeadingBlock", () => {
   it("keeps the anchor link out of the heading's accessible name", () => {
     renderHeading(CLIENT_ID_A, "When <em>connection</em> is opened")
     expect(screen.getByRole("heading", { name: "When connection is opened" })).toBeInTheDocument()
+  })
+
+  it("renders a level-1 heading as h2 in exams", () => {
+    renderHeading(CLIENT_ID_A, "Title", undefined, true)
+    expect(screen.getByRole("heading")).toHaveProperty("tagName", "H2")
   })
 })

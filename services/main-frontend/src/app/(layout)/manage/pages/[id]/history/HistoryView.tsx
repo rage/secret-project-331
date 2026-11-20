@@ -101,7 +101,11 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
               language="json"
               original={currentRevision || t("loading-text")}
               modified={selectedRevision || t("loading-text")}
-              options={{ readOnly: true }}
+              options={{
+                readOnly: true,
+                originalAriaLabel: t("previous-version"),
+                modifiedAriaLabel: t("current-version"),
+              }}
             />
             <HistoryList
               pageId={pageId}

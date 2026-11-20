@@ -52,7 +52,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
   const {
     control,
     handleSubmit,
-    formState: { isValid, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -87,7 +87,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
     { onSuccess: () => onSubmitForm() },
   )
   const isPending = createChapterMutation.isPending || updateChapterMutation.isPending
-  const canSubmit = isValid && !isSubmitting && !isPending
+  const canSubmit = !isSubmitting && !isPending
 
   useEffect(() => {
     onCanSubmitChange(canSubmit)
@@ -148,6 +148,7 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         `}
       >
         <TextField
+          isRequired
           name="name"
           control={control}
           label={t("text-field-label-name")}

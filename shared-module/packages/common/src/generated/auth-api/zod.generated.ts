@@ -5,7 +5,13 @@
 
 import * as z from "zod"
 
+/**
+ * What a challenge may be redeemed for.
+ */
+export const zChallengePurpose = z.enum(["signup", "password_reset"])
+
 export const zCreateAccountDetails = z.object({
+  altcha: z.string(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),
@@ -370,6 +376,10 @@ export const zActionOnResource = z.object({
 export const zVerifyEmailRequest = z.object({
   code: z.string(),
   email_verification_token: z.string(),
+})
+
+export const zGetAuthAltchaChallengeQuery = z.object({
+  purpose: zChallengePurpose,
 })
 
 export const zPostAuthAuthorizeBody = zActionOnResource

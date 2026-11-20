@@ -238,6 +238,26 @@ ORDER BY created_at DESC,
         .collect())
 }
 
+/// Those of `course_ids` with an open changeset, whoever owns it.
+pub async fn get_course_ids_with_open_changesets(
+    conn: &mut PgConnection,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Uuid>> {
+    let res = sqlx::query_scalar!(
+        r#"
+SELECT DISTINCT course_id
+FROM agent_changesets
+WHERE course_id = ANY($1)
+  AND status = 'open'
+  AND expires_at > now()
+        "#,
+        course_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// The courses the user has changesets in.
 pub async fn get_course_ids_by_user(
     conn: &mut PgConnection,

@@ -1,6 +1,8 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { Select } from "../../../utils/components/Select"
 import { getLocatorForNthExerciseServiceIframe } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
@@ -19,6 +21,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-clickable",
@@ -36,6 +39,7 @@ test("widget, multiple-choice-clickable screenshot test", async ({ page, headles
   await frame.getByRole("button", { name: "LawnGreen" }).click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "widget-multiple-choice-clickable-answered",

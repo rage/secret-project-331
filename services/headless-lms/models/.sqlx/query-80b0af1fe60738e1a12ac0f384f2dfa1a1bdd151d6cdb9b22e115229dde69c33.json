@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT g.id\nFROM mailchimp_course_tags g\nWHERE g.marketing_mailing_list_access_token_id = ANY($1)\n  AND g.course_language_group_id = $2\n  AND g.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM mailchimp_course_tags t\n    WHERE t.course_language_group_id = $3\n      AND t.tag_name = g.tag_name\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "80b0af1fe60738e1a12ac0f384f2dfa1a1bdd151d6cdb9b22e115229dde69c33"
+}

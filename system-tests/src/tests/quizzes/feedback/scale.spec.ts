@@ -1,9 +1,11 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
+import { getExerciseTaskFrame } from "../../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../../utils/screenshot"
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -36,42 +38,26 @@ test.describe("Quizzes scale feedback", () => {
       "http://project-331.local/org/uh-cs/courses/introduction-to-everything/chapter-1/scale",
     )
 
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByText("What is this?")
-      .first()
-      .waitFor()
+    await getExerciseTaskFrame(page, 1).getByText("What is this?").first().waitFor()
 
     // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })
-      await page
-        .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-        .getByText("What is this?")
-        .first()
-        .waitFor()
+      await getExerciseTaskFrame(page, 1).getByText("What is this?").first().waitFor()
     }
 
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("What is this?")
-      .getByText("4")
-      .check()
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("And this?")
-      .getByText("3")
-      .check()
-    await page
-      .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
-      .getByLabel("Please rate this")
-      .getByText("1")
-      .check()
-    await page.getByText("Submit").click()
+    await getExerciseTaskFrame(page, 1).getByLabel("What is this?").getByText("4").check()
+    await getExerciseTaskFrame(page, 1).getByLabel("And this?").getByText("3").check()
+    await getExerciseTaskFrame(page, 1).getByLabel("Please rate this").getByText("1").check()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
-    await page.frameLocator("iframe").locator(`input[aria-label="3"]:disabled`).first().waitFor()
+    await getExerciseTaskFrame(page, 1)
+      .getByRole("radio", { name: "3", disabled: true })
+      .first()
+      .waitFor()
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

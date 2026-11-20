@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO altcha_spent_challenges (signature_digest, expires_at)\nVALUES ($1, $2)\nON CONFLICT (signature_digest) DO NOTHING\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f75e54ea86163678f0d5dc459848a0f45e08dd3ad0a872c758cf3f46d67765a8"
+}

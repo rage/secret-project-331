@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
@@ -12,7 +12,14 @@ import type { CourseAiPolicy } from "@/generated/course-material-api/types.gener
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, Checkbox, Dialog, ErrorNotice, TransLink } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  Dialog,
+  ErrorNotice,
+  focusMainHeading,
+  TransLink,
+} from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
 // Only fi/sv/en versions are published; other languages fall back to the English page.
@@ -105,12 +112,25 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // encouraged, so it is hidden for the permissive policies.
   const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
 
+  const acknowledgedRef = useRef(false)
+
+  // On unmount, after the dialog's own focus handling has been torn down.
+  useEffect(
+    () => () => {
+      if (acknowledgedRef.current) {
+        focusMainHeading()
+      }
+    },
+    [],
+  )
+
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
       await acknowledgeAiUsageNotice({ path: { course_id: courseId } })
       await queryClient.invalidateQueries({
         queryKey: getAiUsageNoticeAcknowledgementQueryKey({ path: { course_id: courseId } }),
       })
+      acknowledgedRef.current = true
       onClose()
     },
     { notify: false },

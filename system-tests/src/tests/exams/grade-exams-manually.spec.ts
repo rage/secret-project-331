@@ -1,10 +1,12 @@
 import type { BrowserContext } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { getExerciseRegion } from "@/utils/courseMaterialActions"
 import { respondToConfirmDialog } from "@/utils/dialogs"
 import {
   scrollLocatorsParentIframeToViewIfNeeded,
   waitForMessageChannelIframesToBeReady,
+  getExerciseTaskFrame,
 } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
@@ -44,8 +46,7 @@ test("Grade exams manually", async ({}) => {
   await respondToConfirmDialog(student1Page, true)
   await waitForMessageChannelIframesToBeReady(student1Page)
 
-  await student1Page
-    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+  await getExerciseTaskFrame(getExerciseRegion(student1Page, "Multiple choice with feedback"), 1)
     .getByRole("button", { name: "cargo" })
     .click()
   await student1Page
@@ -54,12 +55,12 @@ test("Grade exams manually", async ({}) => {
     .click()
   await student1Page.getByRole("button", { name: "Try again" }).waitFor()
   await scrollLocatorsParentIframeToViewIfNeeded(
-    student1Page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByRole("checkbox", { name: "b" }),
+    getExerciseTaskFrame(getExerciseRegion(student1Page, "Best exercise"), 1).getByRole(
+      "checkbox",
+      { name: "b" },
+    ),
   )
-  await student1Page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskFrame(getExerciseRegion(student1Page, "Best exercise"), 1)
     .getByRole("checkbox", { name: "b" })
     .click()
   await student1Page.getByRole("button", { name: "Submit" }).click()
@@ -79,8 +80,7 @@ test("Grade exams manually", async ({}) => {
   await respondToConfirmDialog(student2Page, true)
   await waitForMessageChannelIframesToBeReady(student2Page)
 
-  await student2Page
-    .frameLocator('iframe[title="Exercise 2\\, task 1 content"]')
+  await getExerciseTaskFrame(getExerciseRegion(student2Page, "Multiple choice with feedback"), 1)
     .getByRole("button", { name: "npm" })
     .click()
   await student2Page
@@ -89,12 +89,12 @@ test("Grade exams manually", async ({}) => {
     .click()
   await student2Page.getByRole("button", { name: "Try again" }).waitFor()
   await scrollLocatorsParentIframeToViewIfNeeded(
-    student2Page
-      .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-      .getByRole("checkbox", { name: "b" }),
+    getExerciseTaskFrame(getExerciseRegion(student2Page, "Best exercise"), 1).getByRole(
+      "checkbox",
+      { name: "b" },
+    ),
   )
-  await student2Page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+  await getExerciseTaskFrame(getExerciseRegion(student2Page, "Best exercise"), 1)
     .getByRole("checkbox", { name: "b" })
     .click()
   await student2Page.getByRole("button", { name: "Submit" }).click()

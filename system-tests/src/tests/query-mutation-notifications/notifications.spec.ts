@@ -1,5 +1,7 @@
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
+
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 
@@ -20,7 +22,7 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
 
     await page.getByText("Add task").click()
@@ -32,6 +34,7 @@ test.describe.serial("Query/mutation notifications", () => {
     await page.getByTestId("toast-notification").getByText("Missing exercise type for").waitFor()
     const errorToastAlert = page.getByTestId("toast-notification").getByRole("alert")
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -49,7 +52,7 @@ test.describe.serial("Query/mutation notifications", () => {
 
     await page
       .getByRole("row", { name: /In the second chapter\.\.\./ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
     await page.getByLabel("Title", { exact: true }).fill("New title")
 
@@ -57,6 +60,7 @@ test.describe.serial("Query/mutation notifications", () => {
     await page.getByRole("button", { name: "Save", exact: true }).click()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

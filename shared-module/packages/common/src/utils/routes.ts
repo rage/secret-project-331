@@ -56,6 +56,20 @@ export function manageCourseLanguageVersionsRoute(courseId: string) {
   return `/manage/courses/${courseId}/language-versions`
 }
 
+export function manageLanguageVersionsRoute(courseId?: string) {
+  return courseId
+    ? `/manage/language-versions?course=${encodeURIComponent(courseId)}`
+    : "/manage/language-versions"
+}
+
+export function manageCreateCounterpartRoute(
+  courseId: string,
+  pageId: string,
+  languageCode: string,
+) {
+  return `/manage/courses/${courseId}/pages/${pageId}/create-counterpart?language=${encodeURIComponent(languageCode)}`
+}
+
 export function manageCoursePermissionsRoute(courseId: string) {
   return `/manage/courses/${courseId}/permissions`
 }

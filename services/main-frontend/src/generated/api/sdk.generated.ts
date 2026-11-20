@@ -213,6 +213,8 @@ import type {
   DeleteGlossaryTermData,
   DeleteGlossaryTermErrors,
   DeleteGlossaryTermResponses,
+  DeleteLanguageVersionProblemDismissalData,
+  DeleteLanguageVersionProblemDismissalResponses,
   DeleteOrganizationImageData,
   DeleteOrganizationImageResponses,
   DeletePageAudioFileData,
@@ -313,6 +315,8 @@ import type {
   GetCertificateByConfigurationIdResponses,
   GetCertificateByVerificationIdData,
   GetCertificateByVerificationIdResponses,
+  GetCertificateDetailsByVerificationIdData,
+  GetCertificateDetailsByVerificationIdResponses,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponses,
   GetChatbotEmbedConfData,
@@ -571,6 +575,20 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetLanguageVersionExerciseCounterpartsData,
+  GetLanguageVersionExerciseCounterpartsResponses,
+  GetLanguageVersionJoinCandidatesData,
+  GetLanguageVersionJoinCandidatesResponses,
+  GetLanguageVersionJoinPreviewData,
+  GetLanguageVersionJoinPreviewResponses,
+  GetLanguageVersionReportData,
+  GetLanguageVersionReportResponses,
+  GetLanguageVersionSplitPreviewData,
+  GetLanguageVersionSplitPreviewResponses,
+  GetLanguageVersionStructureData,
+  GetLanguageVersionStructureResponses,
+  GetLanguageVersionSuggestionsData,
+  GetLanguageVersionSuggestionsResponses,
   GetMoocfiCourseLinkData,
   GetMoocfiCourseLinkResponses,
   GetMyCertificatesData,
@@ -794,6 +812,20 @@ import type {
   MarkFeedbackAsReadResponses,
   NewCourseDesignerAssistantConversationData,
   NewCourseDesignerAssistantConversationResponses,
+  PostLanguageVersionCounterpartData,
+  PostLanguageVersionCounterpartResponses,
+  PostLanguageVersionExerciseLinksData,
+  PostLanguageVersionExerciseLinksResponses,
+  PostLanguageVersionJoinData,
+  PostLanguageVersionJoinResponses,
+  PostLanguageVersionPageLinksData,
+  PostLanguageVersionPageLinksResponses,
+  PostLanguageVersionProblemDismissalData,
+  PostLanguageVersionProblemDismissalResponses,
+  PostLanguageVersionRemoveLeftoverLinksData,
+  PostLanguageVersionRemoveLeftoverLinksResponses,
+  PostLanguageVersionSplitData,
+  PostLanguageVersionSplitResponses,
   PostOauthUserInfoData,
   PostOauthUserInfoErrors,
   PostOauthUserInfoResponses,
@@ -1087,6 +1119,7 @@ import {
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
+  zGetCertificateDetailsByVerificationIdResponse,
   zGetChatbotConfigurationResponse,
   zGetChatbotEmbedConfResponse,
   zGetChatbotModelResponse,
@@ -1208,6 +1241,13 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetLanguageVersionExerciseCounterpartsResponse,
+  zGetLanguageVersionJoinCandidatesResponse,
+  zGetLanguageVersionJoinPreviewResponse,
+  zGetLanguageVersionReportResponse,
+  zGetLanguageVersionSplitPreviewResponse,
+  zGetLanguageVersionStructureResponse,
+  zGetLanguageVersionSuggestionsResponse,
   zGetMoocfiCourseLinkResponse,
   zGetMyCertificatesResponse,
   zGetMyCoursesResponse,
@@ -1310,6 +1350,13 @@ import {
   zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
   zNewCourseDesignerAssistantConversationResponse,
+  zPostLanguageVersionCounterpartResponse,
+  zPostLanguageVersionExerciseLinksResponse,
+  zPostLanguageVersionJoinResponse,
+  zPostLanguageVersionPageLinksResponse,
+  zPostLanguageVersionProblemDismissalResponse,
+  zPostLanguageVersionRemoveLeftoverLinksResponse,
+  zPostLanguageVersionSplitResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
   zPublishAgentChangesetResponse,
@@ -1700,6 +1747,27 @@ export const getCertificateByVerificationId = <ThrowOnError extends boolean = tr
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/certificates/{certificate_verification_id}",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
+ *
+ * The certificate's holder, course, module, completion date and printed grade as JSON.
+ */
+export const getCertificateDetailsByVerificationId = <ThrowOnError extends boolean = true>(
+  options: Options<GetCertificateDetailsByVerificationIdData, ThrowOnError>,
+): RequestResult<GetCertificateDetailsByVerificationIdResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCertificateDetailsByVerificationIdResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCertificateDetailsByVerificationIdResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/certificates/{certificate_verification_id}/details",
     ...options,
   })
 
@@ -4098,14 +4166,6 @@ export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(
 
 /**
  * GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
- *
- * # Example
- *
- * Request:
- * ```http
- * GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
- * Content-Type: application/json
- * ```
  */
 export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseLanguageVersionsData, ThrowOnError>,
@@ -4118,6 +4178,305 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/counterparts` - Copies a page into another language version and links the copy.
+ */
+export const postLanguageVersionCounterpart = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionCounterpartData, ThrowOnError>,
+): RequestResult<PostLanguageVersionCounterpartResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostLanguageVersionCounterpartResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPostLanguageVersionCounterpartResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/counterparts",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * DELETE `/api/v0/main-frontend/courses/:id/language-versions/dismissals?problem_key=...` - Reports a dismissed problem again.
+ */
+export const deleteLanguageVersionProblemDismissal = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteLanguageVersionProblemDismissalData, ThrowOnError>,
+): RequestResult<DeleteLanguageVersionProblemDismissalResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<
+    DeleteLanguageVersionProblemDismissalResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/dismissals",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/dismissals` - Marks a problem as intended.
+ */
+export const postLanguageVersionProblemDismissal = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionProblemDismissalData, ThrowOnError>,
+): RequestResult<PostLanguageVersionProblemDismissalResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostLanguageVersionProblemDismissalResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPostLanguageVersionProblemDismissalResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/dismissals",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/exercise-counterparts` - Which exercises of this course lack counterparts.
+ */
+export const getLanguageVersionExerciseCounterparts = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionExerciseCounterpartsData, ThrowOnError>,
+): RequestResult<GetLanguageVersionExerciseCounterpartsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionExerciseCounterpartsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionExerciseCounterpartsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-counterparts",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/exercise-links` - Links or unlinks exercises across the language versions.
+ */
+export const postLanguageVersionExerciseLinks = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionExerciseLinksData, ThrowOnError>,
+): RequestResult<PostLanguageVersionExerciseLinksResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostLanguageVersionExerciseLinksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPostLanguageVersionExerciseLinksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-links",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/join` - Joins a course into the language versions, moving its students' data.
+ */
+export const postLanguageVersionJoin = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionJoinData, ThrowOnError>,
+): RequestResult<PostLanguageVersionJoinResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PostLanguageVersionJoinResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zPostLanguageVersionJoinResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-candidates` - Courses that could join the language versions.
+ *
+ * Only courses the user can edit are returned.
+ */
+export const getLanguageVersionJoinCandidates = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionJoinCandidatesData, ThrowOnError>,
+): RequestResult<GetLanguageVersionJoinCandidatesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionJoinCandidatesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionJoinCandidatesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join-candidates",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-preview/:joined_course_id` - What joining the course would change.
+ */
+export const getLanguageVersionJoinPreview = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionJoinPreviewData, ThrowOnError>,
+): RequestResult<GetLanguageVersionJoinPreviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionJoinPreviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionJoinPreviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join-preview/{joined_course_id}",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/page-links` - Links or unlinks pages across the language versions.
+ */
+export const postLanguageVersionPageLinks = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionPageLinksData, ThrowOnError>,
+): RequestResult<PostLanguageVersionPageLinksResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostLanguageVersionPageLinksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zPostLanguageVersionPageLinksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/page-links",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/remove-leftover-links` - Removes links to deleted pages and exercises.
+ */
+export const postLanguageVersionRemoveLeftoverLinks = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionRemoveLeftoverLinksData, ThrowOnError>,
+): RequestResult<PostLanguageVersionRemoveLeftoverLinksResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    PostLanguageVersionRemoveLeftoverLinksResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zPostLanguageVersionRemoveLeftoverLinksResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/remove-leftover-links",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/report` - Checks the language versions for problems.
+ *
+ * Needs `Edit` on this course only; `can_edit` per course tells which fixes the user may apply.
+ */
+export const getLanguageVersionReport = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionReportData, ThrowOnError>,
+): RequestResult<GetLanguageVersionReportResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetLanguageVersionReportResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetLanguageVersionReportResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/report",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/split` - Removes a course from the language versions, moving its students' data with it.
+ */
+export const postLanguageVersionSplit = <ThrowOnError extends boolean = true>(
+  options: Options<PostLanguageVersionSplitData, ThrowOnError>,
+): RequestResult<PostLanguageVersionSplitResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PostLanguageVersionSplitResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zPostLanguageVersionSplitResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/courses/{course_id}/language-versions/split",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/split-preview/:split_course_id` - What removing the course from the language versions would change.
+ */
+export const getLanguageVersionSplitPreview = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionSplitPreviewData, ThrowOnError>,
+): RequestResult<GetLanguageVersionSplitPreviewResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionSplitPreviewResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionSplitPreviewResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/split-preview/{split_course_id}",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/structure` - The language versions' chapters, pages and exercises side by side.
+ */
+export const getLanguageVersionStructure = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionStructureData, ThrowOnError>,
+): RequestResult<GetLanguageVersionStructureResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionStructureResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetLanguageVersionStructureResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/structure",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
+ *
+ * Candidate courses outside the language versions need `Edit` too.
+ */
+export const getLanguageVersionSuggestions = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionSuggestionsData, ThrowOnError>,
+): RequestResult<GetLanguageVersionSuggestionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionSuggestionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionSuggestionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/language-versions/suggestions",
+    ...options,
+  })
 
 /**
  * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.

@@ -46,7 +46,7 @@ const Ingress: React.FC<React.PropsWithChildren<BlockRendererProps<IngressBlockA
       )}
       <ParsedText
         text={props.data.attributes.subtitle}
-        tag="h3"
+        tag="p"
         tagProps={{
           className: css`
             color: ${textColor};

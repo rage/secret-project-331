@@ -291,6 +291,9 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         className: rootClassName,
         tabIndex: finalTabIndex,
         "data-pressed": isPressed,
+        // Lets content wrappers exclude button-styled links from their plain link colours.
+        // oxlint-disable-next-line i18next/no-literal-string
+        "data-button-variant": styledAsButtonResolved ? (variant ?? "primary") : undefined,
         "data-disabled-reason": disabledReason,
         "data-testid": dataTestId,
         "aria-busy": isLoading || undefined,

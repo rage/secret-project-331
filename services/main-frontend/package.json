@@ -54,6 +54,7 @@
     "@tsparticles/engine": "^4.5.0",
     "@tsparticles/react": "^4.5.0",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
+    "altcha": "^3.5.0",
     "citation-js": "^0.9.0",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",

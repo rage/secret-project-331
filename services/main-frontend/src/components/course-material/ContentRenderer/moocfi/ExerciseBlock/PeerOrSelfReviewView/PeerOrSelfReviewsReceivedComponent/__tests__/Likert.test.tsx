@@ -14,8 +14,16 @@ describe("Likert (peer/self review results view)", () => {
 
     const image = screen.getByRole("img")
     expect(image).toBeInTheDocument()
-    expect(image).toHaveAccessibleName(expect.stringContaining("question 1: Was the answer good?"))
     expect(image).toHaveAccessibleName(expect.stringContaining("likert-scale-selected-answer"))
+  })
+
+  it("shows the question once, as a heading, and not again in the img label", () => {
+    render(<Likert question="Was the answer good?" index={0} content={4} />)
+
+    expect(
+      screen.getByRole("heading", { level: 4, name: "question 1: Was the answer good?" }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole("img").getAttribute("aria-label")).not.toContain("Was the answer good?")
   })
 
   it("communicates when no option was selected", () => {

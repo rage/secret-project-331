@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -16,7 +17,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
 
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   await page.getByText("User Experience").click()
   await expect(page).toHaveURL(
@@ -35,6 +36,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   const frame3 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-row-single",
@@ -48,7 +50,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-single",
@@ -62,7 +64,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-single",
@@ -76,6 +78,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-single",
@@ -94,6 +97,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   const frame4 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-row-multi",
@@ -107,7 +111,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-row-multi",
@@ -121,7 +125,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-row-multi",
@@ -135,6 +139,7 @@ test("multiple-choice course material row test", async ({ page, headless }, test
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-row-multi",

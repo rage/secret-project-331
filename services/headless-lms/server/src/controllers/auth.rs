@@ -168,11 +168,12 @@ pub async fn signup(
     )?;
     let mut conn = pool.acquire().await?;
     let client_ip = session_verification::client_ip(&request);
-    form_volume::count(&mut conn, ChallengePurpose::Signup).await?;
+    form_volume::count(&mut conn, &pool, ChallengePurpose::Signup).await?;
     proof_of_work::verify_and_spend(&mut conn, &user_details.altcha, ChallengePurpose::Signup)
         .await?;
     shared_limits::check_and_count(
         &mut conn,
+        &pool,
         "signup",
         client_ip,
         &shared_limits::SIGNUP_NETWORK_LIMITS,
@@ -186,7 +187,7 @@ pub async fn signup(
         signup::check_may_reveal_existing_account(&mut conn, client_ip).await?;
         match models::users::get_by_email(&mut conn, &user_details.email).await {
             Ok(_) => {
-                return email_already_exists(&mut conn, client_ip).await;
+                return email_already_exists(&mut conn, &pool, client_ip).await;
             }
             Err(error)
                 if matches!(
@@ -216,7 +217,7 @@ pub async fn signup(
                 if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
                     && is_duplicate_email_error_message(&error_message)
                 {
-                    return email_already_exists(&mut conn, client_ip).await;
+                    return email_already_exists(&mut conn, &pool, client_ip).await;
                 }
                 return match error.error_type() {
                     UtilErrorType::TmcErrorResponse => {
@@ -255,7 +256,7 @@ pub async fn signup(
                         if constraint == "users_email"
                 ) =>
             {
-                return email_already_exists(&mut conn, client_ip).await;
+                return email_already_exists(&mut conn, &pool, client_ip).await;
             }
             // TMC synchronously posts the new user back to /api/v0/tmc-server/users/create
             // while post_new_user_to_tmc is still in flight, so that callback has usually
@@ -337,9 +338,10 @@ pub async fn signup(
 /// [`signup::check_may_reveal_existing_account`].
 async fn email_already_exists(
     conn: &mut PgConnection,
+    pool: &PgPool,
     client_ip: Option<std::net::IpAddr>,
 ) -> ControllerResult<HttpResponse> {
-    signup::count_revealed_existing_account(conn, client_ip).await?;
+    signup::count_revealed_existing_account(conn, pool, client_ip).await?;
     skip_authorize().authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists))
 }
 
@@ -375,6 +377,7 @@ pub async fn altcha_challenge(
     let mut conn = pool.acquire().await?;
     shared_limits::check_and_count(
         &mut conn,
+        &pool,
         "challenge",
         session_verification::client_ip(&request),
         &shared_limits::CHALLENGE_NETWORK_LIMITS,

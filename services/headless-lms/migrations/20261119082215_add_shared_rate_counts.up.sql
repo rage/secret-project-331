@@ -10,7 +10,7 @@ CREATE TABLE shared_rate_counts (
 CREATE INDEX shared_rate_counts_window_start ON shared_rate_counts (window_start);
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON shared_rate_counts FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-COMMENT ON TABLE shared_rate_counts IS 'Fixed-window event counts shared by every server instance, for limits that must hold across them. Windows that ended over a day ago are hard-deleted.';
+COMMENT ON TABLE shared_rate_counts IS 'Fixed-window event counts shared by every server instance, for limits that must hold across them. Windows that ended over a day ago get hard-deleted during later counting, so there is no deleted_at.';
 COMMENT ON COLUMN shared_rate_counts.key_digest IS 'HMAC of what is counted, e.g. a form and a network.';
 COMMENT ON COLUMN shared_rate_counts.window_seconds IS 'Length of the window.';
 COMMENT ON COLUMN shared_rate_counts.window_start IS 'Start of the window, a multiple of its length since the epoch.';

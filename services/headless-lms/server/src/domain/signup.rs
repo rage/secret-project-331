@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use std::sync::LazyLock;
 
 use secrecy::{ExposeSecret, SecretString};
+use sqlx::PgPool;
 
 use crate::config::server_runtime_config;
 use crate::domain::{
@@ -111,15 +112,16 @@ pub async fn check_may_reveal_existing_account(
 }
 
 /// Counts that `client_ip` was told an address has an account. See
-/// [`check_may_reveal_existing_account`].
+/// [`check_may_reveal_existing_account`], and [`shared_limits::increment`] for `pool`.
 pub async fn count_revealed_existing_account(
     conn: &mut PgConnection,
+    pool: &PgPool,
     client_ip: Option<IpAddr>,
 ) -> ModelResult<()> {
     let Some(ip) = client_ip.filter(|_| !server_runtime_config().test_mode) else {
         return Ok(());
     };
     let (address_key, range_key) = existing_account_keys(ip);
-    shared_limits::count(conn, &address_key, &EXISTING_ACCOUNT_LIMITS).await?;
-    shared_limits::count(conn, &range_key, &EXISTING_ACCOUNT_RANGE_LIMITS).await
+    shared_limits::count(conn, pool, &address_key, &EXISTING_ACCOUNT_LIMITS).await?;
+    shared_limits::count(conn, pool, &range_key, &EXISTING_ACCOUNT_RANGE_LIMITS).await
 }

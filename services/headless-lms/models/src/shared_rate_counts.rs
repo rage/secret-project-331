@@ -3,7 +3,8 @@
 use crate::prelude::*;
 
 /// Counts one more event for `key` in each of `windows` (window length in seconds) and returns the
-/// counts after counting, in the same order. Keys are keyed hashes; see the callers.
+/// counts after counting, in the same order. Keys are keyed hashes; see the callers. The server
+/// counts through `shared_limits::increment`, which also deletes old windows.
 pub async fn increment(
     conn: &mut PgConnection,
     key: &[u8],

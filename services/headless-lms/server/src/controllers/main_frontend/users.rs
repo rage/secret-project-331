@@ -962,11 +962,12 @@ pub async fn send_reset_password_email(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    form_volume::count(&mut conn, ChallengePurpose::PasswordReset).await?;
+    form_volume::count(&mut conn, &pool, ChallengePurpose::PasswordReset).await?;
     proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
         .await?;
     shared_limits::check_and_count(
         &mut conn,
+        &pool,
         "password_reset",
         session_verification::client_ip(&request),
         &shared_limits::PASSWORD_RESET_NETWORK_LIMITS,
@@ -1049,7 +1050,7 @@ pub async fn send_reset_password_email(
                 .is_none()
             && mail_budget::may_mail_user(&mut tx, user.id).await?
         {
-            shared_limits::count(&mut tx, &reset_mail_key, &RESET_MAIL_WINDOWS).await?;
+            shared_limits::count(&mut tx, &pool, &reset_mail_key, &RESET_MAIL_WINDOWS).await?;
             // Replacing a link still valid would break the one the owner may be about to use.
             let live_link = models::user_passwords::get_unused_reset_password_token_with_user_id(
                 &mut tx, user.id,

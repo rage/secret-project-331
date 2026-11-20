@@ -5,10 +5,12 @@
 use std::sync::LazyLock;
 
 use headless_lms_models::shared_rate_counts;
+use sqlx::PgPool;
 
 use crate::config::form_safety_config::form_safety_env;
 use crate::domain::proof_of_work::ChallengePurpose;
 use crate::domain::request_network::keyed_digest;
+use crate::domain::shared_limits;
 use crate::prelude::*;
 
 const VOLUME_WINDOW_SECONDS: i64 = 900;
@@ -75,9 +77,13 @@ fn config_for(purpose: ChallengePurpose) -> &'static VolumeConfig {
     }
 }
 
-/// Counts a submission of the form for `purpose`.
-pub async fn count(conn: &mut PgConnection, purpose: ChallengePurpose) -> ModelResult<()> {
-    shared_rate_counts::increment(conn, &volume_key(purpose), &[VOLUME_WINDOW_SECONDS]).await?;
+/// Counts a submission of the form for `purpose`. See [`shared_limits::increment`] for `pool`.
+pub async fn count(
+    conn: &mut PgConnection,
+    pool: &PgPool,
+    purpose: ChallengePurpose,
+) -> ModelResult<()> {
+    shared_limits::increment(conn, pool, &volume_key(purpose), &[VOLUME_WINDOW_SECONDS]).await?;
     Ok(())
 }
 

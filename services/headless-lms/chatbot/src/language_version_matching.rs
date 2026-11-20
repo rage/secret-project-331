@@ -56,7 +56,16 @@ const SYSTEM_PROMPT: &str = r#"You match the pages and exercises of two language
 
 For each page of course A, pick the page of course B that is its translation. Do the same for the exercises. Base the decision on what the titles, names and text excerpts mean, not on their order or position: translations are often reordered, and some pages or exercises exist in only one language (for example review quizzes or feedback surveys added to one version only). When nothing in course B corresponds, answer null as the counterpart.
 
-Answer every item of course A by copying its id exactly; the counterpart is the exact id of an item of the same kind in course B, or null.
+Answer in this JSON format, with one entry per page and one per exercise of course A, and an empty list when course A has none of that kind. Copy every id exactly as listed; a counterpart is the id of an item of the same kind in course B, or null:
+{
+  "pages": [
+    {"item": "<id of a page of course A>", "counterpart": "<id of a page of course B>"},
+    {"item": "<id of another page of course A>", "counterpart": null}
+  ],
+  "exercises": [
+    {"item": "<id of an exercise of course A>", "counterpart": "<id of an exercise of course B>"}
+  ]
+}
 
 Rules:
 - Answer every page and exercise of course A exactly once.

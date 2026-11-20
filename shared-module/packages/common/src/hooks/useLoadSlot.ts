@@ -17,7 +17,7 @@ export interface LoadSlotConfig {
  */
 export type LoadSlotStatus = "waiting" | "holding" | "released"
 
-/** Used for any setting a queue's participants don't configure. */
+/** Used for any setting a queue's participants don't configure; mirrored in `exercise-iframe-resilience.spec.ts`. */
 export const DEFAULT_LOAD_SLOT_CONFIG: LoadSlotConfig = { capacity: 3, maxHoldMs: 8000 }
 
 /** Roughly one screen above and below, so what the student is about to see loads first. */
@@ -99,15 +99,12 @@ export function createLoadSlotScheduler(config: Partial<LoadSlotConfig> = {}): L
     participant.holdTimer = setTimeout(() => release(participant.id), maxHoldMs)
   }
 
-  const fillInBackground = () => {
-    isIdleFillRequested = false
-    if (isNearViewportBusy()) {
-      return
-    }
+  const grantWaiting = (limit: number, isEligible: (participant: Participant) => boolean) => {
     let holdingCount = countHolding()
     let hasGranted = false
-    for (const participant of waitingInDocumentOrder()) {
-      if (holdingCount >= capacity) {
+    const eligible = waitingInDocumentOrder().filter((candidate) => isEligible(candidate))
+    for (const participant of eligible) {
+      if (holdingCount >= limit) {
         break
       }
       grant(participant)
@@ -117,24 +114,18 @@ export function createLoadSlotScheduler(config: Partial<LoadSlotConfig> = {}): L
     if (hasGranted) {
       notify()
     }
+    return holdingCount
+  }
+
+  const fillInBackground = () => {
+    isIdleFillRequested = false
+    if (!isNearViewportBusy()) {
+      grantWaiting(capacity, () => true)
+    }
   }
 
   const schedule = () => {
-    let holdingCount = countHolding()
-    let hasGranted = false
-    for (const participant of waitingInDocumentOrder()) {
-      if (holdingCount >= capacity + 1) {
-        break
-      }
-      if (participant.isNearViewport) {
-        grant(participant)
-        holdingCount++
-        hasGranted = true
-      }
-    }
-    if (hasGranted) {
-      notify()
-    }
+    const holdingCount = grantWaiting(capacity + 1, (participant) => participant.isNearViewport)
     const hasWaiting = [...participants.values()].some((p) => p.status === "waiting")
     if (hasWaiting && !isIdleFillRequested && holdingCount < capacity && !isNearViewportBusy()) {
       isIdleFillRequested = true

@@ -57,13 +57,7 @@ export const EXERCISE_IFRAME_LOAD_TIMING = {
   failureMs: 10000,
 } as const
 
-const CONNECTION_STAGES = [
-  "mounted",
-  "document-loaded",
-  "ready-received",
-  "port-sent",
-  "state-sent",
-] as const
+const CONNECTION_STAGES = ["mounted", "document-loaded", "ready-received", "port-sent"] as const
 
 /**
  * Progress of the iframe's handshake, reported through `onConnectionStateChange`.
@@ -733,10 +727,8 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       // oxlint-disable-next-line i18next/no-literal-string
       iframeRef.current.dataset.stateSent = "true"
     }
-    // oxlint-disable-next-line i18next/no-literal-string
-    advanceConnectionStage("state-sent")
     lastThingPostedRef.current = postThisStateToIFrame
-  }, [advanceConnectionStage, messageChannel, postThisStateToIFrame, readAnswerDraft])
+  }, [messageChannel, postThisStateToIFrame, readAnswerDraft])
 
   if (!messageChannel) {
     return null

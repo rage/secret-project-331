@@ -279,25 +279,13 @@ describe("ThrottledChildRenderer", () => {
     expect(screen.getByText("child b")).toBeInTheDocument()
   })
 
-  test("children stay rendered after the slot is released and the status is reported", () => {
-    const onStatusChange = jest.fn()
-    render(
-      <ThrottledChildRenderer
-        qid={qid}
-        id="a"
-        queueConfig={{ capacity: 1, maxHoldMs: MAX_HOLD_MS }}
-        onLoadSlotStatusChange={onStatusChange}
-      >
-        <div>child a</div>
-      </ThrottledChildRenderer>,
-    )
+  test("children stay rendered after the hold timeout releases the slot", () => {
+    render(renderTasks(["a", "b"], (id) => <div>child {id}</div>))
     advance(IDLE_MS)
+    expect(screen.queryByText("child b")).not.toBeInTheDocument()
     advance(MAX_HOLD_MS)
+    advance(IDLE_MS)
     expect(screen.getByText("child a")).toBeInTheDocument()
-    expect(onStatusChange.mock.calls.map(([status]) => status)).toEqual([
-      "waiting",
-      "holding",
-      "released",
-    ])
+    expect(screen.getByText("child b")).toBeInTheDocument()
   })
 })

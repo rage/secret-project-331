@@ -159,4 +159,4 @@ ORDER BY occurrences DESC;
 To see where they happened, select `o.path`, `o.details->>'course_id'`, `o.details->>'page_id'`,
 `o.details->>'exercise_task_id'` and `o.details->>'elapsed_ms'` instead of grouping. `stage` is how
 far the handshake got: `mounted` (the iframe document never loaded), `document-loaded` (its scripts
-never sent `ready`), `ready-received`, `port-sent` or `state-sent`.
+never sent `ready`), `ready-received` or `port-sent`.

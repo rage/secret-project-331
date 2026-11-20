@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
+import { uniqBy } from "lodash"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -521,10 +522,7 @@ const ExerciseBlock: React.FC<
         if (!courseMaterialExercise.can_post_submission) {
           submissionBlockers.push({ message: t("submission-blocked-cannot-submit") })
         }
-        const uniqueSubmissionBlockers = submissionBlockers.filter(
-          (blocker, index) =>
-            submissionBlockers.findIndex((other) => other.message === blocker.message) === index,
-        )
+        const uniqueSubmissionBlockers = uniqBy(submissionBlockers, (blocker) => blocker.message)
 
         return (
           <ExerciseCardWrapper

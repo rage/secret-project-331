@@ -32,7 +32,6 @@ interface FakeIframeProps {
 
 const mockIframeProps = new Map<string, FakeIframeProps>()
 const mockFocusFirstInvalid = jest.fn<void, [string]>()
-const mockReleaseLoadSlot = jest.fn<void, [string]>()
 const mockFetchExercise = jest.fn<Promise<CourseMaterialExercise>, []>()
 const mockFetchLocks = jest.fn<Promise<unknown[]>, []>()
 const mockPostSubmission = jest.fn()
@@ -101,12 +100,10 @@ jest.mock("@/components/course-material/ContentRenderer", () => ({
 
 jest.mock("@/shared-module/common/components/ThrottledChildRenderer", () => ({
   ThrottledChildRenderer: ({
-    id,
     children,
   }: {
-    id: string
     children: React.ReactNode | ((onReady: () => void) => React.ReactNode)
-  }) => (typeof children === "function" ? children(() => mockReleaseLoadSlot(id)) : children),
+  }) => (typeof children === "function" ? children(() => {}) : children),
 }))
 
 jest.mock("@/shared-module/exercise-iframe-host/MessageChannelIFrame", () => {
@@ -304,7 +301,6 @@ beforeEach(() => {
   })
   mockIframeProps.clear()
   mockFocusFirstInvalid.mockReset()
-  mockReleaseLoadSlot.mockReset()
   mockFetchExercise.mockReset()
   mockFetchLocks.mockReset().mockResolvedValue([])
   mockPostSubmission.mockReset()
@@ -475,16 +471,6 @@ describe("ExerciseBlock iframe wiring", () => {
     expect(iframeOf("task-1").detectLoadFailure).toBe(true)
   })
 
-  it("frees the load slot of a task whose iframe failed", async () => {
-    await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
-    reportConnection("task-1", "loading")
-    expect(mockReleaseLoadSlot).not.toHaveBeenCalled()
-
-    reportConnection("task-1", "failed")
-
-    expect(mockReleaseLoadSlot).toHaveBeenCalledWith("exercise-iframe-task-1")
-  })
-
   it("offers the last captured answer as the draft after a reload", async () => {
     await renderExerciseBlock(makeExercise([makeTask("task-1", 0), makeTask("task-2", 1)]))
     expect(iframeOf("task-1").getAnswerDraft?.()).toBeUndefined()
@@ -576,6 +562,8 @@ describe("ExerciseBlock try again", () => {
     fireEvent.click(submitButton())
     const tryAgain = await screen.findByRole("button", { name: "try-again" })
     expect(iframeOf("task-1").postThisStateToIFrame.view_type).toBe("view-submission")
+    // Some services' submission views never message the parent.
+    expect(iframeOf("task-1").detectLoadFailure).toBe(false)
 
     fireEvent.click(tryAgain)
 
@@ -681,7 +669,7 @@ describe("ExerciseBlock iframe failure reporting", () => {
 
   it("reports a plugin's reload request once, with the last connection state", async () => {
     await renderExerciseBlock(makeExercise([makeTask("task-1", 0)]))
-    reportConnection("task-1", "connected", { stage: "state-sent", elapsedMs: 900 })
+    reportConnection("task-1", "connected", { stage: "port-sent", elapsedMs: 900 })
     act(() => {
       iframeOf("task-1").onReloadRequested?.()
       iframeOf("task-1").onReloadRequested?.()
@@ -691,7 +679,7 @@ describe("ExerciseBlock iframe failure reporting", () => {
     expect(reports).toHaveLength(1)
     expect(reports[0]).toMatchObject({
       message: "Exercise iframe requested a reload (survey)",
-      details: { failure: "reload-requested", stage: "state-sent", elapsed_ms: 900 },
+      details: { failure: "reload-requested", stage: "port-sent", elapsed_ms: 900 },
     })
   })
 })

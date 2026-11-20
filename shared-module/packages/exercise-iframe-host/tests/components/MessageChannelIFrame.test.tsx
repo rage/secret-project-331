@@ -2009,19 +2009,7 @@ describe("MessageChannelIFrame", () => {
 
     it("still calls onReady on the first message from the iframe", () => {
       const onReady = jest.fn()
-      render(
-        <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            dialog={mockDialog}
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-            detectLoadFailure
-            onReady={onReady}
-          />
-        </I18nextProvider>,
-      )
+      renderDetectingIframe({ onReady })
 
       act(() => {
         mockChannels[0]!.port1.onmessage?.({

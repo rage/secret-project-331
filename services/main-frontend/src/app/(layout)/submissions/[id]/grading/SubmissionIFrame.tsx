@@ -18,10 +18,7 @@ import {
 } from "@/shared-module/common/utils/typeMappter"
 import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
-  EXERCISE_IFRAME_QUEUE_CONFIG,
-  EXERCISE_IFRAME_QUEUE_ID,
-} from "@/stores/course-material/throttledRendererStore"
+import { EXERCISE_IFRAME_QUEUE_ID } from "@/stores/course-material/throttledRendererStore"
 
 const VIEW_SUBMISSION = "view-submission" as const
 const TITLE = "VIEW SUBMISSION"
@@ -145,7 +142,6 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       <ThrottledChildRenderer
         qid={EXERCISE_IFRAME_QUEUE_ID}
         id={`submission-iframe-${coursematerialExerciseTask.id}`}
-        queueConfig={EXERCISE_IFRAME_QUEUE_CONFIG}
       >
         {throttledChildFactory}
       </ThrottledChildRenderer>

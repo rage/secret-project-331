@@ -34,8 +34,8 @@ const MANY_EXERCISE_NAMES = Array.from({ length: 16 }, (_, index) => `Exercise $
 const PLUGIN_IFRAME_URL = "**/example-exercise/iframe*"
 const CHAPTER_LOCKS_URL = "**/api/v0/course-material/courses/*/user-chapter-locks"
 
-// Mirror EXERCISE_IFRAME_LOAD_TIMING (exercise-iframe-host) and EXERCISE_IFRAME_QUEUE_CONFIG
-// (main-frontend), which system-tests can't import.
+// Mirror EXERCISE_IFRAME_LOAD_TIMING (exercise-iframe-host) and DEFAULT_LOAD_SLOT_CONFIG
+// (common), which system-tests can't import.
 const FAILURE_MS = 10_000
 const LOAD_CAPACITY = 3
 const LOAD_SLOT_MAX_HOLD_MS = 8_000

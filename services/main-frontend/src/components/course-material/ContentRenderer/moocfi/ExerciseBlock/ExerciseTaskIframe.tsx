@@ -21,10 +21,7 @@ import type {
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import { courseMaterialAtom } from "@/state/course-material"
-import {
-  EXERCISE_IFRAME_QUEUE_CONFIG,
-  EXERCISE_IFRAME_QUEUE_ID,
-} from "@/stores/course-material/throttledRendererStore"
+import { EXERCISE_IFRAME_QUEUE_ID } from "@/stores/course-material/throttledRendererStore"
 import type { CapturedExerciseTaskAnswer } from "@/utils/course-material/exerciseTaskAnswer"
 import { uploadFilesForExerciseTaskAnswer } from "@/utils/uploadFilesFromExerciseIframe"
 
@@ -135,10 +132,6 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
           onMessageFromIframe={handleMessageFromIframe}
           onReady={onReady}
           onConnectionStateChange={(state) => {
-            // A failed iframe never connects, so free its load slot for the others.
-            if (state.status === "failed") {
-              onReady()
-            }
             failureReportHandlers.onConnectionStateChange(state)
             onConnectionStateChange?.(state)
           }}
@@ -172,7 +165,6 @@ const ExerciseTaskIframe: React.FC<React.PropsWithChildren<ExerciseTaskIframePro
     <ThrottledChildRenderer
       qid={EXERCISE_IFRAME_QUEUE_ID}
       id={`exercise-iframe-${String(exerciseTaskId)}`}
-      queueConfig={EXERCISE_IFRAME_QUEUE_CONFIG}
     >
       {childFactory}
     </ThrottledChildRenderer>

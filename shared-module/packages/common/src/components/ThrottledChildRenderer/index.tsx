@@ -1,19 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect, useMemo } from "react"
+import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useEverTrue } from "../../hooks/useEverTrue"
 import {
   type LoadSlotConfig,
-  type LoadSlotStatus,
   NEAR_VIEWPORT_ROOT_MARGIN,
   useLoadSlot,
 } from "../../hooks/useLoadSlot"
 import { baseTheme } from "../../styles"
 
-/** Call `onReady` once the child has loaded or failed; until then it holds a load slot. */
+/** Call `onReady` once the child has loaded; until then, or until the hold timeout, it holds a load slot. */
 export type ChildFactoryWithCallback = (onReady: () => void) => React.ReactNode
 
 interface ThrottledChildRendererProps {
@@ -25,7 +24,6 @@ interface ThrottledChildRendererProps {
   placeholder?: React.ReactNode
   minPlaceholderHeight?: number
   queueConfig?: Partial<LoadSlotConfig>
-  onLoadSlotStatusChange?: (status: LoadSlotStatus) => void
 }
 
 /**
@@ -40,15 +38,10 @@ export function ThrottledChildRenderer({
   placeholder,
   minPlaceholderHeight = 200,
   queueConfig,
-  onLoadSlotStatusChange,
 }: ThrottledChildRendererProps) {
   const { t } = useTranslation()
   const { ref, status, release } = useLoadSlot(qid, queueConfig, rootMargin)
   const hasStarted = useEverTrue(status !== "waiting")
-
-  useEffect(() => {
-    onLoadSlotStatusChange?.(status)
-  }, [status, onLoadSlotStatusChange])
 
   const content = useMemo(
     () => (typeof children === "function" ? children(release) : children),

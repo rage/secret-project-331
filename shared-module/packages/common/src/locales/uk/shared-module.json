@@ -92,6 +92,8 @@
   "error-cannot-render-dynamic-content-missing-url": "Неможливо відобразити динамічний вміст: відсутня URL-адреса",
   "error-title": "Помилка",
   "essay": "Есе",
+  "exercise-iframe-not-loaded-message": "Ця частина вправи не завантажилася.",
+  "exercise-iframe-not-loaded-reload-button": "Перезавантажити цю частину",
   "exercise-iframe-reload-exhausted-message": "Спроби автоматичного перезавантаження вичерпано. Ви можете спробувати перезавантажити вправу вручну.",
   "exercise-iframe-reload-exhausted-reload-button": "Перезавантажити вправу",
   "exercise-wants-to-download-a-file-explanation": "Вправа хоче завантажити файл із {{origin}}.",

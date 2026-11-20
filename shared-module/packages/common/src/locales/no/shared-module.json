@@ -91,6 +91,8 @@
   "error-cannot-render-dynamic-content-missing-url": "Kan ikke vise dynamisk innhold fordi URL mangler",
   "error-title": "Feil",
   "essay": "Essay",
+  "exercise-iframe-not-loaded-message": "Denne delen av øvelsen ble ikke lastet inn.",
+  "exercise-iframe-not-loaded-reload-button": "Last inn denne delen på nytt",
   "exercise-iframe-reload-exhausted-message": "Automatiske forsøk på å laste inn på nytt ble brukt opp. Du kan prøve å laste øvelsen inn manuelt.",
   "exercise-iframe-reload-exhausted-reload-button": "Last øvelsen inn på nytt",
   "exercise-wants-to-download-a-file-explanation": "Oppgaven vil laste ned en fil fra {{origin}}.",

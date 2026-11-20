@@ -16,7 +16,7 @@ export function isTooManyAttempts(error: unknown): boolean {
   return isAppApiError(error) && error.status === TOO_MANY_REQUESTS
 }
 
-/** Tells the user to wait before trying an account form again; shown for [`isTooManyAttempts`]. */
+/** Tells the user to wait before trying an account form again; shown for {@link isTooManyAttempts}. */
 const TooManyAttemptsNotice: React.FC<{ error: unknown }> = ({ error }) => {
   const { t, i18n } = useTranslation()
   // Computed once per error so that rerenders do not move the deadline.

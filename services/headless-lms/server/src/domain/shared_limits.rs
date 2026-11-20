@@ -17,20 +17,22 @@ use crate::prelude::*;
 /// Window lengths in seconds with the most events each allows.
 pub type Windows = [(i64, i64)];
 
-/// Per-network limits of the anonymous account forms, from `<NAME>_NETWORK_LIMITS`, with defaults
-/// for deployments that set none.
+/// Per-network limits of the signup form, from `SIGNUP_NETWORK_LIMITS`, with defaults for
+/// deployments that set none.
 pub static SIGNUP_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|| {
     windows_from_env(
         "SIGNUP_NETWORK_LIMITS",
         &[(60, 6), (3600, 40), (86_400, 120)],
     )
 });
+/// Per-network limits of the password reset form, from `PASSWORD_RESET_NETWORK_LIMITS`.
 pub static PASSWORD_RESET_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|| {
     windows_from_env(
         "PASSWORD_RESET_NETWORK_LIMITS",
         &[(60, 4), (3600, 20), (86_400, 60)],
     )
 });
+/// Per-network limits of fetching proof-of-work challenges, from `CHALLENGE_NETWORK_LIMITS`.
 pub static CHALLENGE_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|| {
     windows_from_env(
         "CHALLENGE_NETWORK_LIMITS",

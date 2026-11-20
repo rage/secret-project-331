@@ -19,7 +19,7 @@ const VOLUME_WINDOW_SECONDS: i64 = 900;
 pub struct LevelSteps(Vec<(f64, u32)>);
 
 impl LevelSteps {
-    /// Malformed entries are skipped.
+    /// Parses steps in the format above, skipping malformed entries.
     pub fn parse(value: &str) -> Self {
         let mut steps: Vec<(f64, u32)> = value
             .split(',')

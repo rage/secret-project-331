@@ -50,7 +50,7 @@ export function coursePageActionsMenu(
   const scope = section === undefined ? page : coursePageSection(page, section)
   return new Menu(
     page,
-    tableRowByCell(scope, title).getByRole("button", { name: "Dropdown menu" }),
+    tableRowByCell(scope, title).getByRole("button", { name: `Page actions for ${title}` }),
     { name: `Page "${title}" actions` },
   )
 }
@@ -107,7 +107,7 @@ export async function openCoursePageInEditor(
 
   await test.step(`Open page "${title}" in the editor`, async () => {
     await tableRowByCell(scope, title)
-      .getByRole("button", { name: "Edit page", exact: true })
+      .getByRole("link", { name: `Edit page ${title}`, exact: true })
       .click()
     await page.waitForURL(/\/cms\/pages\//)
   })

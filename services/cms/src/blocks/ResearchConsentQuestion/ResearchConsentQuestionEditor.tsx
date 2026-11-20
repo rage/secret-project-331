@@ -10,6 +10,7 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 
 import type { ResearchConsentQuestionAttributes } from "."
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
+import { isResearchQuestionTooShort } from "./questionLength"
 
 const ResearchConsentCheckBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ResearchConsentQuestionAttributes>>
@@ -39,11 +40,12 @@ const ResearchConsentCheckBoxEditor: React.FC<
           // RichText spreads unknown props onto the editable element, so `label` would land as a
           // bare attribute and leave the field without an accessible name.
           aria-label={t("title-research-form-question")}
+          placeholder={t("research-form-question-placeholder")}
           value={content}
           onChange={(value: string) => setAttributes({ content: value })}
         />
       </div>
-      {(attributes.content ?? "").split(/\s+/).length < 3 && (
+      {(content ?? "").trim() !== "" && isResearchQuestionTooShort(content) && (
         <ErrorNotice error={t("error-question-too-short")} />
       )}
     </BlockPlaceholderWrapper>

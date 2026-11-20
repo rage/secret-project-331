@@ -56,6 +56,7 @@ import { useActionResult } from "../useActionResult"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { manualLinkOutcomeLabel, sendStatusLabel } from "./adminCreditRegistrationCopy"
 import { useInvalidateAfterLinkingChange } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { candidateFullName } from "./linkingCandidate"
 import { ReasonField, useReasonRequiredForm } from "./ReasonConfirmDialog"
 import StudentCell from "./StudentCell"
@@ -163,30 +164,29 @@ const AccountPicker: React.FC<{
       {hasNoAccounts && (
         <p className={noteCss}>{t("credit-registration-admin-manual-link-no-accounts")}</p>
       )}
-      {accounts &&
-        accounts.length > 0 && (
-          // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
-          <ul className={cx(dividedListCss, accountResultsCss)} role="list">
-            {accounts.map((user) => (
-              <li key={user.user_id} className={spacedRowCss}>
-                <StudentCell row={user} />
-                <Button
-                  variant={BUTTON_TERTIARY}
-                  size="small"
-                  onClick={() =>
-                    onChoose({
-                      userId: user.user_id,
-                      name: formatUserName(user),
-                      email: user.email,
-                    })
-                  }
-                >
-                  {t("credit-registration-admin-manual-link-choose-account")}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        )}
+      {accounts && accounts.length > 0 && (
+        // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role
+        <ul className={cx(dividedListCss, accountResultsCss)} role="list">
+          {accounts.map((user) => (
+            <li key={user.user_id} className={spacedRowCss}>
+              <StudentCell row={user} />
+              <Button
+                variant={BUTTON_TERTIARY}
+                size="small"
+                onClick={() =>
+                  onChoose({
+                    userId: user.user_id,
+                    name: formatUserName(user),
+                    email: user.email,
+                  })
+                }
+              >
+                {t("credit-registration-admin-manual-link-choose-account")}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
@@ -402,6 +402,7 @@ const AdminManualLinkDialog: React.FC<Props> = ({ isOpen, onClose, studentNumber
           />
           <ReasonField
             control={control}
+            auditAction={AUDIT_ACTION.MANUAL_LINK_STUDENT_NUMBER}
             description={t("credit-registration-admin-manual-link-reason-description")}
           />
         </form>

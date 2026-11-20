@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO credit_registration_enrolment_check_signals (\n    course_module_completion_id,\n    external_completion_id,\n    last_visited_at,\n    visit_ladder_anchor_at\n  )\nVALUES ($1, $3, now(), now()) ON CONFLICT (\n    (COALESCE(course_module_completion_id, external_completion_id)),\n    deleted_at\n  ) DO\nUPDATE\nSET last_visited_at = now(),\n  visit_ladder_anchor_at = restarted_ladder_anchor(\n    credit_registration_enrolment_check_signals.visit_ladder_anchor_at,\n    $2::bigint * INTERVAL '1 second'\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int8",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e129f5f7d3686063ce7dbc9021b282b301c4d4eaeb7e0475b20db252709e38e0"
+}

@@ -8,6 +8,13 @@ use crate::{
             update_cheating_status::UpdateCheatingStatusTool,
         },
         client_tools::ask_multiple_choice_question::AskMultipleChoiceQuestionTool,
+        course_plan_tools::{
+            get_course_plan::GetCoursePlanTool, propose_add_task::ProposeAddTaskTool,
+            propose_schedule_adjustment::ProposeScheduleAdjustmentTool,
+            propose_section_status::ProposeSectionStatusTool,
+            propose_update_task::ProposeUpdateTaskTool, propose_vision_edit::ProposeVisionEditTool,
+            propose_workspace_edit::ProposeWorkspaceEditTool,
+        },
         custom_tools::{
             certificate_lookup::CertificateLookupTool,
             course_configuration::CourseConfigurationTool, course_finder::CourseFinderTool,
@@ -32,6 +39,7 @@ use utoipa::ToSchema;
 pub mod action_tools;
 pub mod argument_parsing;
 pub mod client_tools;
+pub mod course_plan_tools;
 pub mod course_scope;
 pub mod custom_tools;
 pub mod output_limits;
@@ -163,6 +171,12 @@ pub enum ClientToolName {
     UpdateCheatingStatus,
     EditUserAccount,
     UpdateCertificate,
+    ProposeWorkspaceEdit,
+    ProposeAddTask,
+    ProposeUpdateTask,
+    ProposeScheduleAdjustment,
+    ProposeSectionStatus,
+    ProposeVisionEdit,
 }
 
 impl ClientToolName {
@@ -175,6 +189,12 @@ impl ClientToolName {
             Self::UpdateCheatingStatus => "update_cheating_status",
             Self::EditUserAccount => "edit_user_account",
             Self::UpdateCertificate => "update_certificate",
+            Self::ProposeWorkspaceEdit => "propose_workspace_edit",
+            Self::ProposeAddTask => "propose_add_task",
+            Self::ProposeUpdateTask => "propose_update_task",
+            Self::ProposeScheduleAdjustment => "propose_schedule_adjustment",
+            Self::ProposeSectionStatus => "propose_section_status",
+            Self::ProposeVisionEdit => "propose_vision_edit",
         }
     }
 }
@@ -338,6 +358,8 @@ pub struct ActionToolOutcome {
     ///
     /// [ActionExecuted]: crate::azure_chatbot::events::ChatbotChatStreamEvent::ActionExecuted
     pub client_payload: Option<serde_json::Value>,
+    /// Applied by the caller last before it commits. `None` for a decline.
+    pub tmc_email_sync: Option<action_tools::TmcEmailSync>,
 }
 
 /// One page reference a tool call's output cites, ready to become a
@@ -631,6 +653,7 @@ macro_rules! chatbot_tool_registry {
                                 instructions.as_deref(),
                             ),
                             client_payload: None,
+                            tmc_email_sync: None,
                         });
                     }
 
@@ -679,6 +702,7 @@ macro_rules! chatbot_tool_registry {
                     return Ok(ActionToolOutcome {
                         output: delimited_tool_output(&executed.output, instructions.as_deref()),
                         client_payload: executed.client_payload,
+                        tmc_email_sync: <$action_tool as ConfirmableActionTool>::tmc_email_sync(&facts),
                     });
                 }
             )*
@@ -727,6 +751,7 @@ chatbot_tool_registry!(
         CourseConfigurationTool,
         CourseMaterialSearchTool,
         CertificateLookupTool,
+        GetCoursePlanTool,
     ],
     client_tools: [AskMultipleChoiceQuestionTool],
     action_tools: [
@@ -735,6 +760,12 @@ chatbot_tool_registry!(
         UpdateCheatingStatusTool,
         EditUserAccountTool,
         UpdateCertificateTool,
+        ProposeWorkspaceEditTool,
+        ProposeAddTaskTool,
+        ProposeUpdateTaskTool,
+        ProposeScheduleAdjustmentTool,
+        ProposeSectionStatusTool,
+        ProposeVisionEditTool,
     ],
 );
 
@@ -1063,6 +1094,12 @@ mod tests {
             <UpdateCheatingStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
             <EditUserAccountTool as ChatbotToolDeclaration>::get_tool_definition(),
             <UpdateCertificateTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeWorkspaceEditTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeAddTaskTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeUpdateTaskTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeScheduleAdjustmentTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeSectionStatusTool as ChatbotToolDeclaration>::get_tool_definition(),
+            <ProposeVisionEditTool as ChatbotToolDeclaration>::get_tool_definition(),
         ];
         definitions.extend(function_definitions(get_chatbot_tool_definitions()));
         definitions

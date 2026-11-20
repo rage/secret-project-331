@@ -16,17 +16,18 @@ interface ExtraAttributes {
 const VerseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<VerseAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { content, fontSize, textAlign } = data.attributes
+  const { content, fontSize, textAlign, fitText } = data.attributes
 
   return (
     <pre
       className={css`
         ${textAlign && `text-align: ${textAlign};`}
-        ${fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
+        ${fitText && `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "1.5rem"});`}
+        ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
         white-space: pre-wrap;
       `}
     >
-      <div dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
+      <code dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(content) }} />
     </pre>
   )
 }

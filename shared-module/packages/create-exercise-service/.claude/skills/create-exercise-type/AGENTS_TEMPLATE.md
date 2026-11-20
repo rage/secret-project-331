@@ -81,11 +81,11 @@ Design **one master type (the private spec) and two projections**, not three ind
 **Don't attempt what the plugin contract forbids.** Some asks aren't hard, they're impossible here —
 name why and redesign around them rather than trying. Impossible under this contract: grading that
 needs a live DB, a session, or a call to another course service (grade runs from `private_spec +
-answer` alone, save the one client-URL-fetch exception above); storing uploaded files or minting
-their IDs (the plugin only receives host-assigned IDs and URLs); changing a stored blob's shape in
-place without a version bump +
-a migration step (see "your specs are stored forever" below); making view-submission depend on
-server-only data it is never sent; or anything that would require the host to migrate its database.
+answer` alone, save the one client-URL-fetch exception above); storing files in the plugin itself or
+minting their IDs (the host stores answer and spec uploads and hands back IDs and URLs, so files are
+available); changing a stored blob's shape in place without a version bump + a migration step
+(see "your specs are stored forever" below); making view-submission depend on server-only data it
+is never sent; or anything that would require the host to migrate its database.
 
 ---
 
@@ -99,16 +99,22 @@ an old private spec. **The private spec is your database schema — you just don
 
 Consequences, all enforced in this template already (`src/util/stateInterfaces.ts`):
 
-- **Version every stored type from day one.** A `version` discriminant costs nothing today and is
-  the difference between a controlled migration layer and guessing shapes off `any` later. This
-  template ships `SPEC_VERSION` + `Versioned*` shapes.
-- **Migrate-on-read at every entry door, persist-on-save.** Old blobs enter through _four_ doors and
-  all must normalize old → current: the editor's `set-state` handler (`IframeView.tsx`), the
-  public-spec endpoint, the model-solution endpoint, and grade. You can't rewrite stored blobs, but
-  the upgraded shape you return gets persisted on the next save. Parsers must actually **read the
-  incoming `version`** and dispatch on it — a parser that stamps the current version onto whatever
-  arrives silently *relabels* future blobs instead of migrating them.
-- **Route all four doors through ONE migration chain, built for extension.** Keep a per-blob-kind
+- **Version every stored type from day one** — both specs, the model solution, the answer _and_
+  `feedback_json`, which the host stores and view-submission renders for years. A `version`
+  discriminant costs nothing today and is the difference between a controlled migration layer and
+  guessing shapes off `any` later. This template ships `SPEC_VERSION` + `Versioned*` shapes.
+- **Reject a blob with no known version.** Everything this service writes carries one, so "missing
+  means v1" only lets junk through. `detectVersion` throws `MalformedBlobError`, which spec
+  endpoints answer `400` and the views replace with a default (grade: see "Trust boundary" below);
+  delete `src/util/migration/legacyBlobs.ts`, which lifts the template's own pre-versioning data.
+- **Migrate-on-read at every entry door, persist-on-save.** Old blobs enter through every door that
+  reads them, and all must normalize old → current: each view's `set-state` handler
+  (`IframeView.tsx`), the public-spec and model-solution endpoints, grade, and the CSV exports. You
+  can't rewrite stored blobs, but the upgraded shape you return gets persisted on the next save.
+  Parsers must actually **read the incoming `version`** and dispatch on it — a parser that stamps
+  the current version onto whatever arrives silently *relabels* future blobs instead of migrating
+  them.
+- **Route every door through ONE migration chain, built for extension.** Keep a per-blob-kind
   registry keyed by the version each step accepts and a loop that runs steps up to the latest
   version; each door calls one `migrate*ToLatest`. Adding the next version must be a _one-line
   registry addition_ + a type snapshot — no door changes. **This template ships the chain at
@@ -178,11 +184,12 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 ### `answer` — the student's submission (also rendered to peer reviewers)
 
 - **May contain:** the student's choices/inputs **by id** (store `selectedOptionId`, not the option
-  text — copies go stale and bloat every row), plus whatever is needed to reconstruct their variant
-  (a seed) if the exercise is randomized. Grade is normally a pure function of `private_spec + answer`
-  alone — no session, no DB, no fetches; **if yours fetches a client-supplied URL** (e.g. downloading
-  an uploaded file to scan it) **treat it as hostile input — SSRF-guard the fetch, and expect async
-  delivery** (see the file-upload gotcha and the grade note under "How the plugin system works").
+  text — copies go stale and bloat every row), plus the variant seed view-submission needs to render
+  a randomized exercise, which grading re-derives rather than trusts (see "Other decisions").
+  Grade is normally a pure function of `private_spec + answer` alone — no session, no DB, no
+  fetches; **if yours fetches a client-supplied URL** (e.g. downloading an uploaded file to scan it)
+  **treat it as hostile input — SSRF-guard the fetch, and expect async delivery** (see the
+  file-upload gotcha and the grade note under "How the plugin system works").
 - **Must NOT contain:** client-computed correctness (never trusted, and it leaks grading paths);
   copied spec content; PII or hidden fields — **peer reviewers render this object**, so anything in
   it is shown to another student.
@@ -235,7 +242,8 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 2. **Server-only grading discipline.** Grading and derivation live under `src/server/` and **no view
    file imports them.** This project ships **public source maps** (open source) — importing your
    grader into an iframe view "for a client-side preview" ships the entire acceptance logic,
-   readably, to every student.
+   readably, to every student. (A generic grader whose every secret lives in the private spec, such
+   as a wrapped engine's scorer, may run in the editor's preview: the code is not the secret.)
 3. **Feedback ≤ submission.** Feedback may only describe the submitted answer; full reveals go in the
    model solution.
 4. **Assume peer review is on** when classifying the answer, feedback, and model solution.
@@ -252,7 +260,12 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
    peer reviewers render it, so treat every answer field as untrusted *in the view*: scheme-check any
    URL before using it as `href`/`src` (`http(s)` only — a `javascript:` URL rendered as an `<a href>`
    executes in a peer reviewer's iframe), never `dangerouslySetInnerHTML` answer content, and
-   sanitize at the answer parse boundary so every render site is safe by construction.
+   sanitize at the answer parse boundary so every render site is safe by construction. Strip C0/C1
+   controls and bidi overrides/isolates from text shown to teachers and reviewers, and pass every
+   CSV text cell through `csvText` (the host writes cells verbatim, so `=…` runs as a formula).
+8. **Errors carry no detail.** The host copies every non-2xx body into its own logs and error
+   messages: `jsonRoute` answers from the fixed `ERROR_MESSAGES` and logs the detail here, and that
+   detail never includes a secret (a leak guard says a value leaked, not which).
 
 ---
 
@@ -276,8 +289,17 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   ids, orphaning stored answers. This does **not** apply to uploaded-file IDs: the host, not the
   editor or iframe, creates those after receiving `File[]`.
 - **Derivation is pure, total, and deterministic** — same private spec in → same public spec out, no
-  I/O, no `Math.random()`, and defined for _every_ spec the editor can emit (including drafts). If
-  you shuffle for anti-cheating, shuffle in the _view_ or from a stored seed, not in the generator.
+  I/O, no `Math.random()`, and defined for _every_ spec the editor can emit (including drafts). To
+  shuffle, shuffle in the derivation from a seed minted in the editor and kept in the private spec.
+  A shuffle in the view hides nothing: the public spec still carries the authored order and any
+  position-derived id, and a shuffle from a public seed is reversible.
+- **Per-student variants: never trust a client-recorded seed** (a student can shop for an easy
+  variant). Grading derives the seed from the submitter's pseudonymous id plus a per-exercise salt
+  minted in the editor and kept in the private spec; check that the host's grading request carries
+  `pseudonymous_user_id`, and if not, propose that platform change first. The views derive the same
+  seed from `user_information.pseudonymous_id`, which is per service, so recreating the service's
+  registration reassigns variants. A peer reviewer's id is their own: show a variant-dependent model
+  solution only when the viewer's seed equals the answer's.
 - **Parseable ≠ valid.** The editor emits `current-state` on every keystroke, so the private spec
   type must represent half-finished exercises. "Safe to save/derive/grade" is a _separate_ judgement
   reported as the `valid` flag. Encode all invariants in one `validatePrivateSpec()` (this template
@@ -288,7 +310,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   value past the editor.
 - **The `valid` flag must reflect seeded state.** If AnswerExercise seeds itself from
   `previous_submission` on a retry, emit a `current-state` for the seeded answer — emitting only on
-  user interaction leaves `valid` unset and silently blocks resubmitting unchanged prior work.
+  user interaction leaves `valid` unset and silently blocks resubmitting unchanged prior work. Merge
+  the stored answer over the view's default state rather than replacing it: an answer from an
+  earlier spec version can lack parts or name removed ones. And `valid` must reject whatever the
+  grader would find unparseable, not just emptiness.
 - **Decide the regrade-after-narrowing policy explicitly.** A regrade replays an answer that was
   valid when submitted against the _current_ private spec; if grading re-checks answering-time
   constraints (allowed types, counts, limits), a teacher tightening the spec retroactively fails
@@ -299,8 +324,26 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   bodies arrive as `unknown`, but parse `set-state` _forgivingly_ (a student mid-exam must not lose
   work to a strict guard — return empty/default on malformed fields) and validate server endpoints
   _strictly_ (`400` on a malformed envelope). Nuance for grade: distinguish a malformed request
-  envelope (`400`) from an unexpected-but-old spec/answer shape (migrate, then grade) — a `500`
-  mid-regrade is your bug.
+  envelope (`400`) from an unexpected-but-old spec/answer shape (migrate, then grade). The host
+  never retries a non-2xx grade — a first submission is rolled back and a regrade stored as
+  failed — so an unreadable blob gets a `Failed` result, `503` means only "temporarily
+  unavailable", and each part of a multi-part answer is graded in its own `try`/`catch` (a bad part
+  scores 0, logged without its content).
+- **Every endpoint is effectively unauthenticated**: the plugin cannot verify the host's calls. Cap
+  every body as it streams (`readJsonBody`, `413`), rate-limit and bound the concurrency of expensive
+  endpoints per client, and give grading a wall-clock budget with a test that grades a max-size
+  answer inside it. Size the worst case against the host's 2 MiB JSON limit.
+- **Grading gets no locale.** Anything it needs beyond spec and answer (the locale for a decimal
+  comma, the language of server-built text) must be stored in one of them. Text the server
+  builds goes out as codes plus params that the views render from the locale files;
+  `src/locales/locales.test.ts` checks every code has a key and every language the same keys and
+  `{{params}}`.
+- **State survives only through submissions.** The host keeps no drafts and gives the iframe no exit
+  hook: emit `current-state` continuously, and tell students only submitting saves.
+- **Wrapping a third-party engine or format:** its public/strip functions are deny-lists — project
+  through an allowlisting parser and fail closed. Pin anything that grades or derives specs exactly,
+  guard upgrades with a golden corpus (fixtures × correct/empty/garbage → points), and record the
+  engine version in `feedback_json`.
 - **The slug is forever.** It's the DB routing key baked into every stored exercise task; renaming
   later means data surgery in the _host_ DB. Pick it like a public API name.
 - **Content strings vs UI strings.** Teacher-authored text (prompts, labels, per-option feedback)
@@ -312,7 +355,7 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 ## Practical gotchas (each has cost a real session a debugging round-trip)
 
 - **Locales** live at `src/locales/<lang>/<slug>.json` — per-language directories, file named after
-  the service slug. Keep the language files' key sets identical.
+  the service slug. Keep the language files' key sets identical (`locales.test.ts` checks).
 - **This project is ESM** (`type: module`): in Playwright/test files use
   `path.dirname(fileURLToPath(import.meta.url))`, never `__dirname`.
 - **The tsconfig has `noUncheckedIndexedAccess`**: `array[0]` is `T | undefined` — index with
@@ -376,17 +419,40 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
   stream with a byte cap, and fail closed when the variable is unset. The file-submission plugin's
   `src/server/fileProxy.ts` (`ALLOWED_FILE_ORIGINS`) is the worked shape.
 - **Browser callers need a real CORS preflight.** The Playground POSTs your spec endpoints as JSON
-  from the browser; `Access-Control-Allow-Origin: *` alone fails that preflight. The template ships
-  only `Allow-Origin` and no `OPTIONS` handler, so add `Access-Control-Allow-Methods` /
-  `-Allow-Headers: Content-Type` / `-Max-Age` to `iframe-headers.mjs` and answer `OPTIONS` with
-  `204` in `server.mjs` before routing (otherwise it falls through to the SPA shell as a `200` HTML
-  body, which the browser reports as a CORS error). A real course never hits this — headless-lms
-  calls server-to-server — so only the Playground and browser tests reveal it.
+  from the browser. `answerPreflight()` (`iframe-headers.mjs`) answers it in `server.mjs` and in
+  the rsbuild dev server's `server.setup`; keep it ahead of routing in both, or the `OPTIONS`
+  reaches the SPA shell or rsbuild's localhost-only CORS and the browser blocks the POST. A real
+  course never hits this — headless-lms calls server-to-server — so only the Playground and browser
+  tests reveal it.
+- **Bundle browser libraries; load nothing from a CDN.** Libraries hard-code CDN URLs in their CSS
+  and at runtime; the plugin-contract test "loads nothing from outside this service" catches them, so
+  keep it pushing every view with representative content.
+- **A library that touches `window`/`document` as its module loads** needs `ssr: false` on the
+  `/iframe` route (`src/routes/iframe.tsx`); `withNoSsr` only guards rendering, not imports.
+- **Third-party widget CSS assumes its home site's globals** (the root font size, `box-sizing:
+  border-box`): scope those to the widget's container, and size your own chrome in `px` so the
+  widget's `rem` rules don't move it.
+- **Legacy React libraries** (class widgets, `findDOMNode`, string refs) log errors on every render
+  under the default client entry's `StrictMode`: add a `src/client.tsx` that hydrates without it.
+- **Height tracking measures the view's own element**, so popovers, tooltips and dialogs rendered in
+  a portal outside it get clipped by the iframe: reserve height for them while they are open.
+- **The host's `open-dialog` answers asynchronously**, so a file picker opened after the dialog
+  loses the user gesture and the browser blocks it: confirm inline instead. `useFileUpload` reports
+  no progress — show an indeterminate bar and ask the student to keep the page open.
+- **Rich content inside a choice row** (block HTML, maths, code): make the whole row a visually
+  hidden input named with `aria-labelledby` pointing at a `div`, never wrap the content in a
+  `<label>` or `<span>`, which only allow phrasing content; raise links in it above the input so
+  they stay clickable.
 - **Crash reports go to this service's own origin.** The template's `withErrorBoundary` only logs.
   If you switch to `exercise-react`'s reporting boundary, its reporter POSTs to `/api/v0/errors`
   relative to the iframe — this service — so add that route and forward to the platform
   (`ERRORS_BASE_URL`; the default is an in-cluster hostname). Keep it out of service-info: the host
   never calls it.
+- **The production image** comes from `Dockerfile`. Every module `server.mjs` imports must be in its
+  runtime `COPY` (`src/lib/dockerfiles.test.ts` checks), and anything the browser bundle reads is a
+  build arg, not a runtime env var. `server.mjs` drains in-flight requests on `SIGTERM` and exits
+  within 8 s, before Cloud Run's kill at 10 s, so every request and engine timeout must fit inside
+  that.
 - **Formatting and linting**: the platform standardized on `oxfmt` + `oxlint`; a standalone scaffold
   ships neither, so copy the monorepo root's `.oxfmtrc.json` / `.oxlintrc.json` and wire
   `format:check` + `lint:ci` into CI. Two autofixes are wrong and need a disable comment:
@@ -399,6 +465,10 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 | Concern                                             | File(s)                                                                                 |
 | --------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | The five types, parsers, versioning, validity       | `src/util/stateInterfaces.ts`                                                           |
+| Version detection and the migration chain           | `src/util/migration/{versions,migrateToLatest}.ts`                                      |
+| Error bodies, body caps                             | `src/lib/apiRoutes.ts`                                                                  |
+| Production server, SIGTERM drain, image             | `server.mjs`, `graceful-shutdown.mjs`, `iframe-headers.mjs`, `Dockerfile`               |
+| Locale key and code coverage                        | `src/locales/locales.test.ts`                                                           |
 | The three server transforms (grade **server-only**) | `src/server/{publicSpec,modelSolution,grade}.ts`                                        |
 | service-info (path contract), CSV export            | `src/server/serviceInfo.ts`, `src/server/export{Definitions,Answers}.ts`                |
 | The state machine / dispatcher / three views        | `src/components/{IframeView,Renderer,ExerciseEditor,AnswerExercise,ViewSubmission}.tsx` |
@@ -408,18 +478,22 @@ On an open MOOC "every student" ≈ **the whole internet**. Derive it as if publ
 | Real-host Playground system coverage                 | `playwright/system/`                                                                    |
 | Browser fixture bytes                                | `playwright/fixtures/`                                                                  |
 
+Extend this table with this exercise type's own modules, environment variables and fixture rules as
+you add them, so the next session finds them without a search.
+
 ## When you change the data model
 
 Before writing editor UI, be able to answer: (1) the **versioned** private-spec type and where
 `version` lives; (2) what the two projections drop, checked against the derivable-answer leaks, built
 by explicit pick; (3) every field classified by visibility, surviving peer-review-on and exam mode;
 (4) `feedback_json` safe assuming retries remain; (5) domain ids minted in the editor and upload IDs
-minted only by the host; (6) derivation pure & deterministic; (7) answer gradeable from private
-spec alone, versioned, safe to show a peer reviewer;
+minted only by the host; (6) derivation pure & deterministic, every seed private or derived
+server-side; (7) answer gradeable from private spec alone, versioned, safe to show a peer reviewer;
 (8) the single `validate()` and its invariants; (9) sync vs async grading + partial-credit policy;
-(10) all four doors migrate old versions through one chain where a new version is a one-line
-registry addition; (11) every editor control that affects the saved result writes to a spec field
-(not local state), and each mode/strategy is a tagged union — no field with two meanings;
+(10) all five stored kinds versioned, and every door migrates old versions through one chain where
+a new version is a one-line registry addition; (11) every editor control that affects the saved
+result writes to a spec field (not local state), and each mode/strategy is a tagged union — no field
+with two meanings;
 (12) a readable model-solution answer exists even when correctness is an opaque matcher; (13) tests
 for envelopes, leaks, round-trips, grading tables, migrations (old→latest chaining + fail-loud on
 unknown item types), and the editor's emitted `current-state`.

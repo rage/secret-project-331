@@ -44,7 +44,7 @@ pub(super) async fn claim_import_candidates(
         conn,
         &claimed
             .iter()
-            .map(|row| row.course_module_completion_id)
+            .filter_map(|row| row.course_module_completion_id)
             .collect::<Vec<_>>(),
     )
     .await?;
@@ -102,7 +102,10 @@ enum Preflight {
 }
 
 fn preflight_submission(row: &CreditRegistration, already_registered: &[Uuid]) -> Preflight {
-    if already_registered.contains(&row.course_module_completion_id) {
+    if row
+        .course_module_completion_id
+        .is_some_and(|id| already_registered.contains(&id))
+    {
         debug!(
             credit_registration_id = %row.id,
             "Another registrar already registered this completion; marking duplicate"

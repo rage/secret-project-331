@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { ALIGN_CENTER } from "@/components/credit-registration/constants"
 import type { ExerciseSlideSubmission, UserDetail } from "@/generated/api/types.generated"
-import { useBulkUserDetails } from "@/hooks/useUserDetails"
+import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { EmptyState, Link, Table } from "@/shared-module/components"
 
@@ -61,8 +61,15 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
           header: t("label-link"),
           align: ALIGN_CENTER,
           cell: (submission) => (
-            <Link href={`/submissions/${submission.id}`}>
+            <Link
+              href={`/submissions/${submission.id}`}
+              aria-label={t("view-submission-by", {
+                name: formatUserName(userOf(submission)) || submission.user_id,
+                time: dateToString(submission.created_at),
+              })}
+            >
               <LinkIcon
+                aria-hidden
                 size={20}
                 className={css`
                   color: #868b93;

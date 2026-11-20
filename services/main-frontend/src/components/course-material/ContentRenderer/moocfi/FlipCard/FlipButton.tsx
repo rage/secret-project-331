@@ -12,9 +12,11 @@ interface FlipButtonProps {
   onPress: () => void
   ariaLabel: string
   ref?: React.Ref<HTMLButtonElement>
+  // Overlay on image cards; otherwise in flow so it never covers text.
+  overlay?: boolean
 }
 
-const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
+const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref, overlay = false }) => {
   const { t } = useTranslation()
   const internalRef = React.useRef<HTMLButtonElement>(null)
   const buttonRef = (ref as React.RefObject<HTMLButtonElement>) || internalRef
@@ -30,14 +32,16 @@ const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
       ref={buttonRef}
       {...buttonProps}
       className={css`
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
+        ${
+          overlay
+            ? `position: absolute; bottom: 10px; right: 10px;`
+            : `position: relative; flex-shrink: 0; align-self: flex-end; margin: 10px;`
+        }
         z-index: 1;
         backface-visibility: hidden;
         border-radius: 10px;
         width: 54px;
-        height: 42px;
+        height: 48px;
         background: ${baseTheme.colors.clear[100]};
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         display: flex;
@@ -48,7 +52,7 @@ const FlipButton: React.FC<FlipButtonProps> = ({ onPress, ariaLabel, ref }) => {
         border: 2px solid ${baseTheme.colors.gray[600]};
         cursor: pointer;
         padding: 0;
-        font-size: 9px;
+        font-size: 12px;
 
         &::after {
           content: "";

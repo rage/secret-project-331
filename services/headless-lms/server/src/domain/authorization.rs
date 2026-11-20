@@ -6,8 +6,9 @@ use actix_web::{HttpRequest, Responder};
 pub use headless_lms_authorization::error::{AuthorizationError, AuthorizationErrorType};
 pub use headless_lms_authorization::{
     Action, ActionOnResource, AuthorizationToken, Resource, authorize, authorize_access_to_chatbot,
-    authorize_access_to_course_material, authorize_with_fetched_list_of_roles,
-    can_user_view_chapter, is_permitted, is_user_global_admin, skip_authorize,
+    authorize_access_to_course_exercise, authorize_access_to_course_material,
+    authorize_with_fetched_list_of_roles, can_user_view_chapter, fetch_user_roles, is_permitted,
+    is_permitted_on_course, is_permitted_on_exam, is_user_global_admin, skip_authorize,
 };
 
 /// A controller's response payload. Only [AuthorizedOk::authorized_ok] can build one, so
@@ -36,6 +37,33 @@ impl AuthorizedOk for AuthorizationToken {
     fn authorized_ok<T>(self, t: T) -> ControllerResult<T> {
         Ok(AuthorizedResponse { data: t })
     }
+}
+
+/// Rejects saving `exercise_tasks` on a page when that would add a task of a type only global
+/// admins can add and the user is not one. `page_id` is `None` for a page that does not exist yet.
+pub async fn ensure_user_can_add_exercise_tasks(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    page_id: Option<Uuid>,
+    exercise_tasks: &[models::pages::CmsPageExerciseTask],
+) -> Result<(), ControllerError> {
+    let added_service_names =
+        models::pages::get_global_admin_only_exercise_service_names_added_by_tasks(
+            conn,
+            models::pages::ExistingTasks::OnPage(page_id),
+            exercise_tasks,
+        )
+        .await?;
+    let Some(service_name) = added_service_names.first() else {
+        return Ok(());
+    };
+    if is_user_global_admin(conn, user_id).await? {
+        return Ok(());
+    }
+    Err(controller_err!(
+        BadRequest,
+        format!("Only global admins can add exercises of type “{service_name}”.")
+    ))
 }
 
 #[cfg(test)]

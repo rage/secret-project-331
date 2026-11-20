@@ -261,7 +261,7 @@ describe("confirm", () => {
     expect(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveAccessibleName("Keep it")
   })
 
-  test("isDestructive renders the danger fill without arming it with focus", async () => {
+  test("isDestructive renders the danger fill and focuses the safe decline action", async () => {
     renderWithProvider(
       <ConfirmButton
         request={{
@@ -279,9 +279,9 @@ describe("confirm", () => {
     const destructiveAction = partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID)
     expect(getComputedStyle(destructiveAction).background).toContain("var(--btn-danger-bg)")
 
-    await waitFor(() => expect(dialog).toHaveFocus())
+    await waitFor(() => expect(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveFocus())
     expect(destructiveAction).not.toHaveFocus()
-    expect(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).not.toHaveFocus()
+    expect(dialog).toBeInTheDocument()
   })
 
   test("renders the title as the name, the message, and the description", () => {
@@ -304,14 +304,19 @@ describe("confirm", () => {
 })
 
 describe("role selection", () => {
-  test("a string message with nothing else announces itself once, not twice", () => {
-    renderWithProvider(<ConfirmButton request="End the exam?" label="Ask" />)
+  test("a confirm with only a message is named generically, described by the message, and focuses a button", async () => {
+    renderWithProvider(
+      <ConfirmButton request="Do you really want to end the exam now?" label="Ask" />,
+    )
 
     domClick(screen.getByRole("button", { name: "Ask" }))
-    const dialog = screen.getByRole("alertdialog", { name: "End the exam?" })
-    // The content is the same "End the exam?" text as the name above: wiring it up as the
-    // description too would make a screen reader announce it twice back to back.
-    expect(dialog).not.toHaveAttribute("aria-describedby")
+    const dialog = screen.getByRole("alertdialog", {
+      description: "Do you really want to end the exam now?",
+    })
+    expect(dialog).not.toHaveAccessibleName("Do you really want to end the exam now?")
+    expect(dialog).toHaveAccessibleName("Confirmation required")
+    await waitFor(() => expect(document.activeElement?.tagName).toBe("BUTTON"))
+    expect(dialog).toContainElement(document.activeElement as HTMLElement)
   })
 
   test("a separate description is still announced alongside a string message", () => {
@@ -323,7 +328,7 @@ describe("role selection", () => {
     )
 
     domClick(screen.getByRole("button", { name: "Ask" }))
-    const dialog = screen.getByRole("alertdialog", { name: "End the exam?" })
+    const dialog = screen.getByRole("alertdialog", { name: "Confirmation required" })
     const describedBy = dialog.getAttribute("aria-describedby")
     expect(describedBy).toBeTruthy()
     expect(document.querySelector(`[id="${describedBy}"]`)).toHaveTextContent(
@@ -461,7 +466,9 @@ describe("prompt", () => {
     fireEvent.change(input, { target: { value: "ab" } })
     domClick(partOfCurrentDialog(PROMPT_DIALOG_OK_BUTTON_TEST_ID))
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Too short")
+    expect(screen.getByText("Too short")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
+    expect(input).toHaveAccessibleDescription("Too short")
     expect(input).toBeInvalid()
     expect(results).toEqual([])
 
@@ -523,37 +530,74 @@ describe("prompt", () => {
   })
 })
 
-describe("the queue", () => {
-  function TwoConfirms() {
-    const { confirm } = useDialog()
-    const run = async () => {
-      const [first, second] = await Promise.all([confirm("First?"), confirm("Second?")])
-      record(`first:${String(first)}`)
-      record(`second:${String(second)}`)
-    }
-    return (
-      <button
-        type="button"
-        onClick={() => {
-          void run()
-        }}
-      >
-        Ask twice
-      </button>
-    )
+function TwoConfirms() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    const [first, second] = await Promise.all([confirm("First?"), confirm("Second?")])
+    record(`first:${String(first)}`)
+    record(`second:${String(second)}`)
   }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask twice
+    </button>
+  )
+}
 
+function SequentialConfirms() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    const first = await confirm("First?")
+    record(`first:${String(first)}`)
+    const second = await confirm("Second?")
+    record(`second:${String(second)}`)
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask sequentially
+    </button>
+  )
+}
+
+function NestedConfirm() {
+  const { confirm } = useDialog()
+  const run = async () => {
+    record(`nested:${String(await confirm("Discard the draft?"))}`)
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask from inside
+    </button>
+  )
+}
+
+describe("the queue", () => {
   test("shows depth-0 requests one at a time, in call order", async () => {
     renderWithProvider(<TwoConfirms />)
 
     domClick(screen.getByRole("button", { name: "Ask twice" }))
     expect(getDialogs()).toHaveLength(1)
-    expect(screen.getByRole("alertdialog", { name: "First?" })).toBeInTheDocument()
-    expect(screen.queryByRole("alertdialog", { name: "Second?" })).not.toBeInTheDocument()
+    expect(screen.getByRole("alertdialog", { description: "First?" })).toBeInTheDocument()
+    expect(screen.queryByRole("alertdialog", { description: "Second?" })).not.toBeInTheDocument()
 
     domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
     await waitFor(() =>
-      expect(screen.getByRole("alertdialog", { name: "Second?" })).toBeInTheDocument(),
+      expect(screen.getByRole("alertdialog", { description: "Second?" })).toBeInTheDocument(),
     )
 
     domClick(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID))
@@ -569,32 +613,12 @@ describe("the queue", () => {
     // Both are mounted in the same commit, so focus moves straight from one to the other rather
     // than bouncing back to the trigger in between.
     expect(getDialogs()).toHaveLength(2)
-    expect(screen.getByRole("alertdialog", { name: "Second?" })).toBeInTheDocument()
+    expect(screen.getByRole("alertdialog", { description: "Second?" })).toBeInTheDocument()
 
     await waitFor(() => expect(getDialogs()).toHaveLength(1))
   })
 
   test("hands off to a dialog requested from the resolved promise's own continuation", async () => {
-    function SequentialConfirms() {
-      const { confirm } = useDialog()
-      const run = async () => {
-        const first = await confirm("First?")
-        record(`first:${String(first)}`)
-        const second = await confirm("Second?")
-        record(`second:${String(second)}`)
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask sequentially
-        </button>
-      )
-    }
-
     renderWithProvider(<SequentialConfirms />)
 
     domClick(screen.getByRole("button", { name: "Ask sequentially" }))
@@ -603,7 +627,7 @@ describe("the queue", () => {
     // Second? is only requested from the microtask after First? resolves, unlike TwoConfirms
     // above where both are queued up front — so it lands one tick behind, not in the same commit.
     await waitFor(() =>
-      expect(screen.getByRole("alertdialog", { name: "Second?" })).toBeInTheDocument(),
+      expect(screen.getByRole("alertdialog", { description: "Second?" })).toBeInTheDocument(),
     )
 
     domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
@@ -618,12 +642,12 @@ describe("the queue", () => {
     trigger.focus()
     domClick(trigger)
 
-    await waitFor(() => expect(screen.getByRole("alertdialog", { name: "First?" })).toHaveFocus())
+    await waitFor(() => expect(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveFocus())
     domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
 
     await waitFor(() => expect(getDialogs()).toHaveLength(1))
     expect(trigger).not.toHaveFocus()
-    await waitFor(() => expect(screen.getByRole("alertdialog", { name: "Second?" })).toHaveFocus())
+    await waitFor(() => expect(partOfCurrentDialog(CONFIRM_DIALOG_NO_BUTTON_TEST_ID)).toHaveFocus())
 
     domClick(partOfCurrentDialog(CONFIRM_DIALOG_YES_BUTTON_TEST_ID))
     await waitForNoDialogs()
@@ -631,23 +655,6 @@ describe("the queue", () => {
   })
 
   test("a request made from inside an open dialog stacks instead of queueing behind it", async () => {
-    function NestedConfirm() {
-      const { confirm } = useDialog()
-      const run = async () => {
-        record(`nested:${String(await confirm("Discard the draft?"))}`)
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask from inside
-        </button>
-      )
-    }
-
     renderWithProvider(
       <CustomPromptButton<string>
         request={{
@@ -677,7 +684,9 @@ describe("the queue", () => {
     // Pure FIFO would deadlock here: the nested request would wait for a dialog that is itself
     // waiting on the answer to the nested request.
     expect(getDialogs()).toHaveLength(2)
-    expect(screen.getByRole("alertdialog", { name: "Discard the draft?" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("alertdialog", { description: "Discard the draft?" }),
+    ).toBeInTheDocument()
     // The outer dialog stays mounted below, hidden from assistive technology while the nested one
     // is on top, so it is not reachable by role until that one closes.
     expect(screen.getByText("Outer body")).toBeInTheDocument()
@@ -731,27 +740,27 @@ describe("useDialog", () => {
   })
 })
 
+function ThreeRequests() {
+  const { alert, confirm, prompt } = useDialog()
+  const run = () => {
+    void alert("Notice").then(() => record("alert"))
+    void confirm("Sure?").then((answer) => record(`confirm:${String(answer)}`))
+    void prompt({ message: "Name" }).then((result) => record(result))
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        void run()
+      }}
+    >
+      Ask
+    </button>
+  )
+}
+
 describe("teardown", () => {
   test("resolves every outstanding promise as dismissed when the provider unmounts", async () => {
-    function ThreeRequests() {
-      const { alert, confirm, prompt } = useDialog()
-      const run = () => {
-        void alert("Notice").then(() => record("alert"))
-        void confirm("Sure?").then((answer) => record(`confirm:${String(answer)}`))
-        void prompt({ message: "Name" }).then((result) => record(result))
-      }
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            void run()
-          }}
-        >
-          Ask
-        </button>
-      )
-    }
-
     const { unmount } = renderWithProvider(<ThreeRequests />)
     domClick(screen.getByRole("button", { name: "Ask" }))
     expect(getDialogs()).toHaveLength(1)

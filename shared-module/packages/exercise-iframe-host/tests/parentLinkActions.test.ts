@@ -86,16 +86,16 @@ describe("startFileDownload", () => {
 
   beforeEach(() => {
     clicked.length = 0
-    clickSpy = jest
-      .spyOn(HTMLAnchorElement.prototype, "click")
-      .mockImplementation(function (this: HTMLAnchorElement) {
-        clicked.push({
-          href: this.href,
-          download: this.download,
-          target: this.target,
-          rel: this.rel,
-        })
+    clickSpy = jest.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      clicked.push({
+        href: this.href,
+        download: this.download,
+        target: this.target,
+        rel: this.rel,
       })
+    })
     URL.createObjectURL = jest.fn(() => "blob:mock-url")
     URL.revokeObjectURL = jest.fn()
   })

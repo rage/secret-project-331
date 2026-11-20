@@ -284,6 +284,14 @@ async fn duplicate_exam(
         Res::Organization(organization_id),
     )
     .await?;
+    // The copy includes the source exam's questions and model solutions.
+    authorize(
+        &mut conn,
+        Act::Duplicate,
+        Some(user.id),
+        Res::Exam(*exam_id),
+    )
+    .await?;
 
     let mut tx = conn.begin().await?;
     let new_exam =

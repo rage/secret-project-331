@@ -5,8 +5,10 @@ import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useRadio } from "react-aria"
 
 import { joinAriaDescribedBy } from "../../lib/utils/field"
+import { atLeast } from "../../styles/breakpoints"
 import { resolveButtonRootCss } from "../primitives/buttonStyles"
 import {
+  checkableBadgeCss,
   checkableContentCss,
   checkableInputCss,
   checkableLabelCss,
@@ -17,7 +19,11 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
+import { CheckIcon } from "../primitives/CheckIcon"
+import { FieldError } from "../primitives/FieldError"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
+import { radioListRevealCss } from "../RadioGroup"
+import { Reveal } from "../Reveal"
 import type { RadioContextValue, RadioInnerProps } from "./radioTypes"
 
 // oxlint-disable-next-line i18next/no-literal-string
@@ -48,7 +54,35 @@ const segmentedContentCss = css`
 
 /** `RadioGroup`'s `fillWidth`: splits the row evenly instead of each option hugging its own text. */
 const segmentedFillWidthCss = css`
-  flex: 1 1 0;
+  flex: 1 1 15rem;
+  justify-content: center;
+  text-align: center;
+`
+
+const segmentedCheckedLabelCss = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+`
+
+/** Lines `nestedContent` up with the label text: the 20px indicator plus the row's gap. */
+const nestedContentCss = css`
+  margin-inline-start: var(--space-3-5);
+  padding-top: var(--space-3-5);
+  padding-bottom: var(--space-2);
+
+  ${atLeast("sm")} {
+    margin-inline-start: calc(20px + var(--space-3));
+  }
+`
+
+const nestedContentRuleCss = css`
+  padding: var(--space-2) 0 var(--space-2) var(--space-3-5);
+  border-inline-start: 2px solid var(--color-green-600);
+
+  ${atLeast("sm")} {
+    padding-inline-start: var(--space-4);
+  }
 `
 
 /** The option's own description and error, which both variants hang under the label. */
@@ -65,9 +99,9 @@ const RadioNotes: React.FC<{
       </span>
     ) : null}
     {errorMessage ? (
-      <span className={errorCss} id={errorMessageId} role="alert">
+      <FieldError inline className={errorCss} id={errorMessageId}>
         {errorMessage}
-      </span>
+      </FieldError>
     ) : null}
   </>
 )
@@ -80,6 +114,7 @@ export function RadioInGroup({
 }: RadioInnerProps & { group: RadioContextValue }) {
   const {
     label,
+    badge,
     description,
     errorMessage,
     fieldSize,
@@ -92,6 +127,9 @@ export function RadioInGroup({
     "aria-describedby": ariaDescribedBy,
     onChange,
     required: _required,
+    nestedContent,
+    nestedContentVariant = "rule",
+    isHidden,
     ...rest
   } = props
 
@@ -116,8 +154,8 @@ export function RadioInGroup({
     inputRef,
   )
 
+  // The group's own description is wired to the radiogroup; react-aria's copy on every radio is dropped.
   const describedBy = joinAriaDescribedBy(
-    typeof inputProps["aria-describedby"] === "string" ? inputProps["aria-describedby"] : undefined,
     ariaDescribedBy,
     description ? descriptionId : undefined,
     errorMessage ? errorMessageId : undefined,
@@ -154,7 +192,14 @@ export function RadioInGroup({
           aria-describedby={describedBy}
         />
         <span className={segmentedContentCss}>
-          <span>{label}</span>
+          {group.showCheckMark && isSelected ? (
+            <span className={segmentedCheckedLabelCss}>
+              <CheckIcon />
+              {label}
+            </span>
+          ) : (
+            <span>{label}</span>
+          )}
           <RadioNotes
             description={description}
             descriptionId={descriptionId}
@@ -166,7 +211,7 @@ export function RadioInGroup({
     )
   }
 
-  return (
+  const option = (
     <label
       {...labelProps}
       className={cx(checkableRowCss, resolveCheckableSizeCss(resolvedFieldSize), className)}
@@ -191,7 +236,10 @@ export function RadioInGroup({
         ) : null}
       </span>
       <span className={checkableContentCss}>
-        <span className={checkableLabelCss}>{label}</span>
+        <span className={checkableLabelCss}>
+          {label}
+          {badge ? <span className={checkableBadgeCss}>{badge}</span> : null}
+        </span>
         <RadioNotes
           description={description}
           descriptionId={descriptionId}
@@ -200,5 +248,29 @@ export function RadioInGroup({
         />
       </span>
     </label>
+  )
+
+  const optionWithNestedContent =
+    nestedContent === undefined || nestedContent === null ? (
+      option
+    ) : (
+      <div>
+        {option}
+        <Reveal isOpen={isSelected} className={nestedContentCss}>
+          <div className={nestedContentVariant === "rule" ? nestedContentRuleCss : undefined}>
+            {nestedContent}
+          </div>
+        </Reveal>
+      </div>
+    )
+
+  if (isHidden === undefined) {
+    return optionWithNestedContent
+  }
+
+  return (
+    <Reveal isOpen={!isHidden} rootClassName={radioListRevealCss}>
+      {optionWithNestedContent}
+    </Reveal>
   )
 }

@@ -22,18 +22,19 @@ import {
 import type {
   AccountLinkingCourseCode,
   AccountLinkingPresser,
-  AccountLinkingRecentEmail,
   AccountLinkingStaleAddress,
   AccountLinkingStats,
   CreditRegistrationAttentionReason,
-  EmailSendStatus,
   StudentNumberVerificationMethod,
   StudyRegistryStudentNumberConflict,
   TimelinePhase,
   TimelineStep,
 } from "@/generated/api/types.generated"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import { creditRegistrationItemRoute } from "@/shared-module/common/utils/routes"
+import {
+  creditRegistrationItemRoute,
+  creditRegistrationLinkingEmailsRoute,
+} from "@/shared-module/common/utils/routes"
 import type { MenuItemDescriptor, StatTileDeltaTone, TableColumn } from "@/shared-module/components"
 import {
   Badge,
@@ -57,6 +58,7 @@ import {
   DENSITY_COMPACT,
   PLAIN_DISCLOSURE,
   QUIET_REFRESH,
+  SEND_FAILED,
   TABLE_STACK,
   TONE,
 } from "../constants"
@@ -101,8 +103,10 @@ import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminManualLinkDialog from "./AdminManualLinkDialog"
 import AdminResendLinkingEmailDialog from "./AdminResendLinkingEmailDialog"
 import AdminSendLinkingEmailButton from "./AdminSendLinkingEmailButton"
+import { AUDIT_ACTION } from "./auditActions"
 import FacetChip from "./FacetChip"
 import FetchEnrolmentListNowButton from "./FetchEnrolmentListNowButton"
+import LinkingEmailSendStatus from "./LinkingEmailSendStatus"
 import { moduleSubtitleParts } from "./moduleSubtitle"
 import { isUnhealthyPhase, phaseHealth, phaseHealthLabel } from "./phaseStatus"
 import { registrationsListHref } from "./registrationsListUrl"
@@ -115,8 +119,6 @@ const CLAIMS_PER_PAGE = 25
 const DAY_SECS = 86_400
 const ARROW_SIZE = 14
 
-const SEND_FAILED: EmailSendStatus = "send_failed"
-const QUEUED: EmailSendStatus = "queued"
 const RESEND_ITEM = "resend"
 const LINK_BY_HAND_ITEM = "link-by-hand"
 
@@ -461,6 +463,11 @@ const UnusedLinksBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) =
           },
         ]}
       />
+      <div className={rowCss}>
+        <Link href={creditRegistrationLinkingEmailsRoute()} prefetch={false}>
+          {t("credit-registration-admin-show-all-unused-links")}
+        </Link>
+      </div>
     </div>
   )
 }
@@ -618,7 +625,7 @@ const CourseCodeCell: React.FC<{ row: AccountLinkingCourseCode }> = ({ row }) =>
       <code className={codeValueCss}>{row.course_code}</code>
       {row.modules.map((module) => (
         <InlineParts
-          key={module.course_module_id}
+          key={module.credit_unit_id}
           className={noteCss}
           parts={[module.course_name, module.course_module_name]}
         />
@@ -852,38 +859,6 @@ const OtherWaitingStudentsSection: React.FC<{ stats: AccountLinkingStats }> = ({
   )
 }
 
-/** Where one linking email stands on our side: queued by which process, sent, or failing. */
-const RecentEmailStatus: React.FC<{ row: AccountLinkingRecentEmail }> = ({ row }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const report = row.send_status
-  if (!report) {
-    return (
-      <span className={noteCss}>
-        {t("credit-registration-admin-send-status-waiting-for-link-emails")}
-      </span>
-    )
-  }
-  if (report.email_send_status === QUEUED) {
-    return (
-      <span className={noteCss}>
-        {t("credit-registration-admin-send-status-waiting-for-email-worker")}
-      </span>
-    )
-  }
-  return (
-    <span className={stackedCellCss}>
-      {report.email_send_status === SEND_FAILED ? (
-        <Badge tone={TONE.DANGER} size={BADGE_COMPACT}>
-          {sendStatusLabel(t, report.email_send_status)}
-        </Badge>
-      ) : (
-        <span>{sendStatusLabel(t, report.email_send_status)}</span>
-      )}
-      <ZonedTimestamp at={report.sent_at ?? report.last_attempt_at} />
-    </span>
-  )
-}
-
 /** The newest linking emails one by one, collapsed behind the totals. */
 const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
@@ -930,7 +905,7 @@ const RecentLinkingEmailsBlock: React.FC<{ stats: AccountLinkingStats }> = ({ st
             {
               header: t("credit-registration-admin-send-status-header"),
               minWidth: "10rem",
-              cell: (row) => <RecentEmailStatus row={row} />,
+              cell: (row) => <LinkingEmailSendStatus report={row.send_status} />,
             },
             {
               header: t("label-credit-registration-last-error"),
@@ -978,7 +953,7 @@ const StaleAddressActions: React.FC<{
         isOpen={isResendOpen}
         onClose={() => setResendOpen(false)}
         studentNumber={row.student_number}
-        courseId={row.course_id}
+        courseOrTargetId={row.course_or_target_id}
         courseName={row.course_name}
       />
       {isLinkOpen && (
@@ -1042,7 +1017,7 @@ const StaleAddressBlock: React.FC<{ stats: AccountLinkingStats }> = ({ stats }) 
           labelledBy={headingId}
           density={DENSITY_COMPACT}
           responsive={TABLE_STACK}
-          rowKey={(row) => `${row.student_number}:${row.course_id}`}
+          rowKey={(row) => `${row.student_number}:${row.course_or_target_id}`}
           rows={stats.stale_addresses}
           emptyState={t("credit-registration-admin-no-stale-addresses")}
           expandableRow={(row) => <StaleAddressSends row={row} />}
@@ -1106,6 +1081,7 @@ const DismissConflictAction: React.FC<{ row: StudyRegistryStudentNumberConflict 
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const queryClient = useQueryClient()
   const { item, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.DISMISS_STUDY_REGISTRY_CONFLICT,
     mutationFn: (fields) =>
       adminDismissStudyRegistryConflict({
         path: { conflict_id: row.id },
@@ -1207,6 +1183,7 @@ const UnlinkAction: React.FC<{ verifiedStudentNumberId: string; number: string }
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateAfterLinkingChange = useInvalidateAfterLinkingChange()
   const { item, dialog } = useReasonConfirmAction({
+    auditAction: AUDIT_ACTION.UNLINK_STUDENT_NUMBER,
     mutationFn: (fields) =>
       adminUnlinkStudentNumber({
         path: { verified_student_number_id: verifiedStudentNumberId },

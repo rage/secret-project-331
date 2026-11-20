@@ -11,7 +11,7 @@ use headless_lms_models::{
     user_email_codes::UserEmailCodePurpose,
 };
 
-use crate::prelude::*;
+use crate::{domain::mail_budget, prelude::*};
 
 /// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
@@ -19,10 +19,36 @@ pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
 /// Mail-bomb guard, not a quota: how soon after mailing a code we refuse another.
 pub const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
 
+const MAX_CODES_PER_DAY: i64 = 5;
+
 /// Wrong guesses one code tolerates before it is retired. Six digits are only safe with a cap.
 pub const MAX_CODE_ATTEMPTS: i32 = 5;
 
 const PURPOSE: UserEmailCodePurpose = UserEmailCodePurpose::EmailOwnershipVerification;
+
+/// Records that the user proved control of their address by typing the code for `purpose` just
+/// accepted, whatever the code was for. Keeps an earlier proof.
+///
+/// Skipped when the user's details changed after the code was mailed: the address may have changed
+/// since, and a code that went to the old one must not prove the new one.
+pub async fn record_code_as_mailbox_proof(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+) -> ModelResult<()> {
+    let Some(code) = user_email_codes::get_latest_user_email_code(conn, user_id, purpose).await?
+    else {
+        return Ok(());
+    };
+    user_details::set_email_verified_unless_changed_since(
+        conn,
+        user_id,
+        user_details::EmailVerificationMethod::EmailedCode,
+        code.created_at,
+    )
+    .await?;
+    Ok(())
+}
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum VerificationEmailOutcome {
@@ -30,6 +56,7 @@ pub enum VerificationEmailOutcome {
     AlreadyVerified,
     /// A code was mailed to this address less than the resend interval ago.
     RecentlySent,
+    DailyLimitReached,
 }
 
 /// Mails a fresh verification code to the address the account holds now.
@@ -41,46 +68,82 @@ pub async fn queue_verification_email(
     user_id: Uuid,
     language: &str,
 ) -> anyhow::Result<VerificationEmailOutcome> {
-    if user_details::get_email_verification(conn, user_id)
-        .await?
-        .is_some()
-    {
+    if user_details::has_mailbox_proof(conn, user_id).await? {
         return Ok(VerificationEmailOutcome::AlreadyVerified);
     }
 
     // The live code is the record of the last send to the current address: an address change retires
     // it in the database trigger, so a genuine change can be mailed immediately.
+    let mut tx = conn.begin().await?;
+    user_email_codes::lock_for_user_and_purpose(&mut tx, user_id, PURPOSE).await?;
     let live_code =
-        user_email_codes::get_unused_user_email_code_with_user_id(conn, user_id, PURPOSE).await?;
+        user_email_codes::get_unused_user_email_code_with_user_id(&mut tx, user_id, PURPOSE)
+            .await?;
     if let Some(live_code) = live_code
         && Utc::now() - live_code.created_at < Duration::minutes(MIN_RESEND_INTERVAL_MINUTES)
     {
         return Ok(VerificationEmailOutcome::RecentlySent);
     }
+    // Per account rather than per address, so address changes share the allowance.
+    let sent_today = user_email_codes::count_created_since(
+        &mut tx,
+        user_id,
+        PURPOSE,
+        Utc::now() - Duration::days(1),
+    )
+    .await?;
+    if sent_today >= MAX_CODES_PER_DAY {
+        return Ok(VerificationEmailOutcome::DailyLimitReached);
+    }
 
-    // The lookup falls back to English, so no row means the deployment has no template at all.
+    // Queued also when the inbox budget refuses the mail, so the outcome does not depend on mails
+    // other accounts caused to the inbox. Checked before minting: minting retires the live code.
+    if mail_budget::try_consume_for_user(&mut tx, user_id).await? {
+        mail_new_code(
+            &mut tx,
+            user_id,
+            PURPOSE,
+            EmailTemplateType::VerifyEmailAddress,
+            language,
+        )
+        .await?;
+    }
+    tx.commit().await?;
+    Ok(VerificationEmailOutcome::Queued)
+}
+
+/// Mints a code for `purpose` and queues the `template_type` mail that carries it. Does not check the
+/// [daily mail budget](crate::domain::mail_budget); callers must first.
+///
+/// Errors when the deployment has no such template: the lookup falls back to English, so no row
+/// means none at all.
+pub async fn mail_new_code(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    purpose: UserEmailCodePurpose,
+    template_type: EmailTemplateType,
+    language: &str,
+) -> anyhow::Result<()> {
     let template = email_templates::get_generic_email_template_by_type_and_language(
         conn,
-        EmailTemplateType::VerifyEmailAddress,
+        template_type,
         language,
     )
     .await
     .map_err(|e| {
         anyhow::anyhow!(
-            "Email ownership verification is enabled but the verify_email_address email template is missing: {}",
+            "The {template_type:?} email template is missing: {}",
             e.message()
         )
     })?;
-
     let mut tx = conn.begin().await?;
     let code = user_email_codes::generate_code();
-    user_email_codes::insert_user_email_code(&mut tx, user_id, PURPOSE, &code).await?;
+    user_email_codes::insert_user_email_code(&mut tx, user_id, purpose, &code).await?;
     // To the account, not to a stored address: the sender resolves the address and looks the code up
     // at send time, so nothing here holds a copy of either.
     email_deliveries::insert_email_delivery(&mut tx, user_id, template.id).await?;
     tx.commit().await?;
-
-    Ok(VerificationEmailOutcome::Queued)
+    Ok(())
 }
 
 /// Queues the mail without letting a failure propagate: no signup or email change may be rolled back

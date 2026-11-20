@@ -22,36 +22,36 @@ test.afterAll(async () => {
 
 const BEARER_USER = getOAuthTestUser("bearer")
 
-test.describe("/userinfo endpoint - Bearer Token Validation", () => {
-  async function getBearerToken(page: Page): Promise<string> {
-    const codeVerifier = generateCodeVerifier()
-    const codeChallenge = generateCodeChallenge(codeVerifier)
-    const { url, state } = await oauthUrl(["openid", "profile", "email"], {
-      codeChallenge,
-      codeChallengeMethod: "S256",
-    })
-    await page.goto(url)
+async function getBearerToken(page: Page): Promise<string> {
+  const codeVerifier = generateCodeVerifier()
+  const codeChallenge = generateCodeChallenge(codeVerifier)
+  const { url, state } = await oauthUrl(["openid", "profile", "email"], {
+    codeChallenge,
+    codeChallengeMethod: "S256",
+  })
+  await page.goto(url)
 
-    try {
-      await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
-      await performLogin(page, BEARER_USER.email, BEARER_USER.password)
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    try {
-      await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
-      const consent = new ConsentPage(page, ["openid", "profile", "email"])
-      await consent.approve()
-    } catch {
-      // Already logged in or consent already granted
-    }
-
-    const code = await assertAndExtractCodeFromCallbackUrl(page, state)
-    const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
-    return tok.access_token
+  try {
+    await page.waitForURL(/\/login\?return_to=.*/, { timeout: 2000 })
+    await performLogin(page, BEARER_USER.email, BEARER_USER.password)
+  } catch {
+    // Already logged in or consent already granted
   }
 
+  try {
+    await page.waitForURL(/\/oauth_authorize_scopes/, { timeout: 2000 })
+    const consent = new ConsentPage(page, ["openid", "profile", "email"])
+    await consent.approve()
+  } catch {
+    // Already logged in or consent already granted
+  }
+
+  const code = await assertAndExtractCodeFromCallbackUrl(page, state)
+  const tok = await exchangeCodeForToken(code, { kind: "bearer" }, codeVerifier)
+  return tok.access_token
+}
+
+test.describe("/userinfo endpoint - Bearer Token Validation", () => {
   test("missing Authorization header -> invalid_token error (401)", async () => {
     const response = await fetch(USERINFO, {
       method: "GET",

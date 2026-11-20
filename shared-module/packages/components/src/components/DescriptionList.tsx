@@ -6,6 +6,8 @@ import React from "react"
 export interface DescriptionListItem {
   label: React.ReactNode
   value: React.ReactNode
+  /** A muted line under `value` that qualifies it, e.g. dates behind a count. */
+  secondary?: React.ReactNode
 }
 
 export interface DescriptionListProps {
@@ -64,6 +66,12 @@ const ddCss = css`
   overflow-wrap: anywhere;
 `
 
+const secondaryCss = css`
+  display: block;
+  color: var(--color-gray-500);
+  font-size: var(--font-size-1);
+`
+
 /** Semantic key/value list (`<dl>`); associates each label with its value for assistive tech. Use instead of `<p>label: value</p>` rows. */
 export const DescriptionList: React.FC<DescriptionListProps> = ({
   items,
@@ -78,7 +86,10 @@ export const DescriptionList: React.FC<DescriptionListProps> = ({
     {items.map((item, i) => (
       <div key={i} className={layout === "inline" ? inlineItemCss : undefined}>
         <dt className={dtCss}>{item.label}</dt>
-        <dd className={ddCss}>{item.value}</dd>
+        <dd className={ddCss}>
+          {item.value}
+          {item.secondary ? <span className={secondaryCss}>{item.secondary}</span> : null}
+        </dd>
       </div>
     ))}
   </dl>

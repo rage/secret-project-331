@@ -22,7 +22,7 @@ const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeade
         padding: 20px;
         overflow: hidden;
 
-        h2 {
+        h4 {
           font-size: 24px;
           margin-bottom: 10px;
         }
@@ -49,7 +49,7 @@ const ChatbotDisclaimer: React.FC<ChatbotAgreeProps> = ({ agreeButton, hideHeade
           overflow-y: auto;
         `}
       >
-        {!hideHeader && <h2>{t("about-the-chatbot")}</h2>}
+        {!hideHeader && <h4>{t("about-the-chatbot")}</h4>}
         <p>{t("chatbot-disclaimer-start")}</p>
         <ul>
           <li>{t("chatbot-discalimer-sensitive-information")}</li>

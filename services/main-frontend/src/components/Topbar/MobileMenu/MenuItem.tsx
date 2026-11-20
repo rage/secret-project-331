@@ -40,6 +40,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, onAction, onSubmenuOpe
       <button
         type="button"
         className={menuItemClass}
+        data-submenu-id={item.id}
         onClick={() => onSubmenuOpen(item)}
         lang={item.lang}
         dir={item.dir}

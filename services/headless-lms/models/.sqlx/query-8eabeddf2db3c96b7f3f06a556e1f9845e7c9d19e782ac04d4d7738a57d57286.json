@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM moocfi_handoff_continuations\nWHERE expires_at < now() - INTERVAL '1 day'\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "8eabeddf2db3c96b7f3f06a556e1f9845e7c9d19e782ac04d4d7738a57d57286"
+}

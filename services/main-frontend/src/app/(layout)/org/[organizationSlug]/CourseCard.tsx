@@ -16,16 +16,16 @@ import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/iet
 const CourseGrid = styled.div`
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   padding-bottom: 10px;
 
   ${respondToOrLarger.md} {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   ${respondToOrLarger.xxl} {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 `
 
@@ -65,13 +65,14 @@ const CourseContent = styled.div`
   padding: 2rem 1.5rem 4.5rem;
 `
 
-const CourseHeading = styled.div`
+const CourseHeading = styled.h3`
   font-family: ${headingFont};
   font-weight: 550;
   font-size: 24px;
   line-height: 120%;
   color: #1a2333;
-  margin-bottom: 13px;
+  margin: 0 0 13px;
+  overflow-wrap: anywhere;
 `
 
 const CourseDescription = styled.div`
@@ -87,7 +88,8 @@ const CourseDescription = styled.div`
   font-family: ${primaryFont};
   font-weight: 400;
   font-size: 18px;
-  line-height: 24px;
+  /* Unitless so the clamp tracks user text-spacing overrides (1.4.12); full text is on the course page. */
+  line-height: 1.34;
   color: #1a2333;
   opacity: 0.75;
 `
@@ -210,13 +212,13 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
 
       <CourseWrapper>
         <CourseContent>
-          <PseudoContentLink href={navigateToCourseHref}>
-            <CourseHeading>
+          <CourseHeading>
+            <PseudoContentLink href={navigateToCourseHref}>
               {title}
               {isDraft && ` (${t("draft")})`}
               {isUnlisted && ` (${t("unlisted")})`}
-            </CourseHeading>
-          </PseudoContentLink>
+            </PseudoContentLink>
+          </CourseHeading>
           <CourseDescription>{description}</CourseDescription>
         </CourseContent>
         <CourseLanguageContent>

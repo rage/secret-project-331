@@ -11,7 +11,7 @@ use crate::{
         self, CourseModuleCompletion, CourseModuleCompletionGranter,
         CourseModuleCompletionWithRegistrationInfo, NewCourseModuleCompletion,
     },
-    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
+    course_modules::{self, CompletionPolicy, CompletionRequirements, CourseModule},
     courses, exams,
     library::credit_registration::StudentFacingCreditRegistrationStatus,
     open_university_registration_links,
@@ -211,7 +211,7 @@ async fn user_is_eligible_for_automatic_completion(
     user_id: Uuid,
 ) -> ModelResult<bool> {
     match &course_module.completion_policy {
-        CompletionPolicy::Automatic(requirements) => {
+        CompletionPolicy::ByRequirements(requirements) | CompletionPolicy::ByExam(requirements) => {
             let eligible = user_passes_automatic_completion_exercise_tresholds(
                 conn,
                 user_id,
@@ -235,7 +235,7 @@ async fn user_is_eligible_for_automatic_completion(
                     );
                     return Ok(false);
                 }
-                if requirements.requires_exam {
+                if matches!(course_module.completion_policy, CompletionPolicy::ByExam(_)) {
                     info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course_based_on_points(
                         conn,
@@ -250,7 +250,7 @@ async fn user_is_eligible_for_automatic_completion(
                 Ok(false)
             }
         }
-        CompletionPolicy::Manual => Ok(false),
+        CompletionPolicy::NotDecided | CompletionPolicy::TeacherAdds => Ok(false),
     }
 }
 
@@ -259,8 +259,8 @@ async fn user_is_eligible_for_automatic_completion(
 /// The result of this process depends on the configuration for the exam. If the exam is not linked
 /// to any course, the user will always be able to take it by default. Otherwise the student
 /// progress in their current selected instances is compared against any of the linked courses, and
-/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses have
-/// automatic completion configuration, the exam is once again allowed to be taken by default.
+/// checked whether any pass the exercise completion tresholds. Finally, if none of the courses'
+/// default modules have thresholds, the exam is once again allowed to be taken by default.
 #[instrument(skip(conn))]
 pub async fn user_can_take_exam(
     conn: &mut PgConnection,
@@ -278,7 +278,9 @@ pub async fn user_can_take_exam(
     let mut can_take_exam = true;
     for course_id in course_ids {
         let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
-        if let CompletionPolicy::Automatic(requirements) = &default_module.completion_policy {
+        if let Some(requirements) = default_module.completion_policy.requirements()
+            && requirements.has_any_threshold()
+        {
             if let Some(s) = settings.iter().find(|x| x.current_course_id == course_id) {
                 let eligible = user_passes_automatic_completion_exercise_tresholds(
                     conn,
@@ -312,15 +314,14 @@ pub async fn user_has_passed_exam_for_the_course_based_on_points(
     let exam_ids = course_exams::get_exam_ids_by_course_id(conn, course_id).await?;
     for exam_id in exam_ids {
         let exam = exams::get(conn, exam_id).await?;
-        // A minimum points threshold of 0 indicates that the "Related courses can be completed automatically" option has not been enabled by the teacher. If you wish to remove this condition, please first store this information in a separate column in the exams table.
-        if exam.minimum_points_treshold == 0 || exam.grade_manually {
+        let Some(pass_mark) = exam.pass_mark() else {
             continue;
-        }
+        };
         if exam.ended_at_or(now, false) {
             let points =
                 user_exercise_states::get_user_total_exam_points(conn, user_id, exam_id).await?;
             if let Some(points) = points
-                && points >= exam.minimum_points_treshold as f32
+                && points >= pass_mark as f32
             {
                 return Ok(true);
             }
@@ -332,7 +333,7 @@ pub async fn user_has_passed_exam_for_the_course_based_on_points(
 async fn user_passes_automatic_completion_exercise_tresholds(
     conn: &mut PgConnection,
     user_id: Uuid,
-    requirements: &AutomaticCompletionRequirements,
+    requirements: &CompletionRequirements,
     course_id: Uuid,
 ) -> ModelResult<bool> {
     let user_metrics = user_exercise_states::get_single_module_metrics(
@@ -757,14 +758,15 @@ pub struct UserCompletionInformation {
     pub course_name: String,
     /// The module's own name, `None` on a course's default module.
     pub course_module_name: Option<String>,
-    /// `None` only on a module registering through credit registration.
     pub uh_course_code: Option<String>,
+    /// The module's open university enrolment page: the same link the credit registration carries,
+    /// here so the page has it before the registration exists.
+    pub enrolment_link: Option<String>,
     pub email: String,
     pub ects_credits: Option<f32>,
-    pub enable_registering_completion_to_uh_open_university: bool,
-    pub enable_credit_registration_via_suotar: bool,
-    /// Whether this completion in particular goes through the push path. Decides which flow the
-    /// page shows: the module flag above only says the module takes part.
+    /// Whether the module has a course code, without which its completions are never registered.
+    pub registers_credits: bool,
+    /// Whether this completion goes through the push path, which decides the flow the page shows.
     pub register_credits_via_suotar: bool,
     /// What the student is told while the completion has no credit registration: `sending` when
     /// the push path will create one, `not_registering` when it never will.
@@ -817,19 +819,6 @@ pub async fn get_user_completion_information(
             course_module.id,
         )
         .await?;
-    let credit_registration_config =
-        course_modules::get_credit_registration_config(conn, course_module.id).await?;
-    // The push path explains a missing course code on its own status page, so failing here would
-    // hide the error instead of showing it.
-    if course_module.uh_course_code.is_none()
-        && !course_module_completion.register_credits_via_suotar
-    {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Course module is missing uh_course_code.".to_string(),
-            None,
-        ));
-    }
     // A completion still awaiting review is treated as if it were not there, so a flagged student
     // cannot read their own flag off the certificate the page would otherwise offer them.
     let certificate_configuration_id = if course_module.certification_enabled
@@ -877,12 +866,18 @@ pub async fn get_user_completion_information(
         course_name: course.name.clone(),
         course_module_name: course_module.name.clone(),
         uh_course_code: course_module.uh_course_code.clone(),
+        enrolment_link: course_module
+            .completion_registration_link_override
+            .as_deref()
+            .map(str::trim)
+            .filter(|link| !link.is_empty())
+            .map(str::to_owned),
         ects_credits: course_module.ects_credits,
         email: course_module_completion.email,
-        enable_registering_completion_to_uh_open_university: course_module
-            .enable_registering_completion_to_uh_open_university,
-        enable_credit_registration_via_suotar: credit_registration_config
-            .enable_credit_registration_via_suotar,
+        registers_credits: course_modules::registers_credits(
+            course_module.uh_course_code.as_deref(),
+            course_module.credit_registration_route,
+        ),
         register_credits_via_suotar: course_module_completion.register_credits_via_suotar,
         status_before_registration,
         certificate_configuration_id,
@@ -901,8 +896,8 @@ pub struct UserModuleCompletionStatus {
     pub prerequisite_modules_completed: bool,
     pub grade: Option<i32>,
     pub passed: Option<bool>,
-    pub enable_registering_completion_to_uh_open_university: bool,
-    pub enable_credit_registration_via_suotar: bool,
+    /// Whether the module has a course code, without which its completions are never registered.
+    pub registers_credits: bool,
     /// Whether the module's registration flow is the push path, decided by
     /// [`course_module_completions::select_registration_completion`] rather than by the shown
     /// completion. False when no completion is shown.
@@ -951,12 +946,6 @@ pub async fn get_user_module_completion_statuses_for_course(
 
     let all_default_certificate_configurations = crate::certificate_configurations::get_default_certificate_configurations_and_requirements_by_course(conn, course_id).await?;
 
-    let credit_registration_enabled_module_ids: HashSet<Uuid> =
-        course_modules::get_credit_registration_enabled_ids_for_course(conn, course_id)
-            .await?
-            .into_iter()
-            .collect();
-
     let course_module_completion_statuses = course_modules
         .into_iter()
         .map(|module| {
@@ -981,10 +970,10 @@ pub async fn get_user_module_completion_statuses_for_course(
                 grade: completion.and_then(|x| x.grade),
                 prerequisite_modules_completed: completion
                     .is_some_and(|x| x.prerequisite_modules_completed),
-                enable_registering_completion_to_uh_open_university: module
-                    .enable_registering_completion_to_uh_open_university,
-                enable_credit_registration_via_suotar: credit_registration_enabled_module_ids
-                    .contains(&module.id),
+                registers_credits: course_modules::registers_credits(
+                    module.uh_course_code.as_deref(),
+                    module.credit_registration_route,
+                ),
                 register_credits_via_suotar: completion.is_some()
                     && registers_via_suotar_module_ids.contains(&module.id),
                 certification_enabled: module.certification_enabled,
@@ -1006,7 +995,10 @@ pub async fn get_completion_registration_link_and_save_attempt(
     user_id: Uuid,
     course_module: &CourseModule,
 ) -> ModelResult<CompletionRegistrationLink> {
-    if !course_module.enable_registering_completion_to_uh_open_university {
+    if !course_modules::registers_credits(
+        course_module.uh_course_code.as_deref(),
+        course_module.credit_registration_route,
+    ) {
         return Err(ModelError::new(
             ModelErrorType::InvalidRequest,
             "Completion registration is not enabled for this course module.".to_string(),
@@ -1023,9 +1015,7 @@ pub async fn get_completion_registration_link_and_save_attempt(
         )
         .await?;
     // Same condition as the registration page's choice of flow.
-    if course_module.enable_credit_registration_via_suotar
-        && course_module_completion.register_credits_via_suotar
-    {
+    if course_module_completion.register_credits_via_suotar {
         return Err(model_err!(
             InvalidRequest,
             "This completion is registered through the study registry.".to_string()
@@ -1090,11 +1080,13 @@ mod tests {
             conn: &mut PgConnection,
             course_module_id: Uuid,
             certification_enabled: bool,
+            user_id: Uuid,
         ) -> CourseModule {
             course_modules::update_certification_enabled(
                 conn,
                 course_module_id,
                 certification_enabled,
+                user_id,
             )
             .await
             .unwrap();
@@ -1201,7 +1193,7 @@ mod tests {
         #[tokio::test]
         async fn offers_the_certificate_a_passed_completion_has_earned() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             let configuration_id =
                 certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
@@ -1219,7 +1211,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_when_the_module_has_certification_off() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, false).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, false, user).await;
             complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1233,7 +1225,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_for_a_failed_completion() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             complete(tx.as_mut(), course, module.id, user, false).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
 
@@ -1247,7 +1239,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_while_the_completion_is_under_review() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             certificate_configuration_requiring(tx.as_mut(), &[module.id]).await;
             course_module_completions::update_needs_to_be_reviewed(
@@ -1268,7 +1260,7 @@ mod tests {
         #[tokio::test]
         async fn offers_no_certificate_this_module_alone_does_not_earn() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let other_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
                 .await
                 .unwrap();
@@ -1285,7 +1277,7 @@ mod tests {
         #[tokio::test]
         async fn carries_back_the_answer_the_student_already_gave() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
-            let module = registrable_module(tx.as_mut(), course_module.id, true).await;
+            let module = registrable_module(tx.as_mut(), course_module.id, true, user).await;
             let completion = complete(tx.as_mut(), course, module.id, user, true).await;
             crate::completion_registration_credit_justifications::upsert(
                 tx.as_mut(),
@@ -1312,7 +1304,7 @@ mod tests {
         use crate::{
             chapters::NewChapter,
             course_modules::{
-                self, AutomaticCompletionRequirements, CompletionPolicy, NewCourseModule,
+                self, CompletionPolicy, CompletionRequirements, ExamRequirement, NewCourseModule,
             },
             exercises::{self, ActivityProgress, GradingProgress},
             library::content_management,
@@ -1423,11 +1415,10 @@ mod tests {
                 .await
                 .unwrap();
             let automatic_completion_policy =
-                CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+                CompletionPolicy::ByRequirements(CompletionRequirements {
                     course_module_id: course_module.id,
                     number_of_exercises_attempted_treshold: Some(0),
                     number_of_points_treshold: Some(0),
-                    requires_exam: false,
                 });
             courses::update_course_base_module_completion_count_requirement(tx.as_mut(), course, 1)
                 .await
@@ -1515,24 +1506,27 @@ mod tests {
             let default_module = course_modules::get_default_by_course_id(tx.as_mut(), course)
                 .await
                 .unwrap();
-            let default_module = course_modules::update_automatic_completion_status(
+            let default_module = course_modules::update_completion_policy(
                 tx.as_mut(),
                 default_module.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();
-            let course_module = course_modules::update_automatic_completion_status(
+            let course_module = course_modules::update_completion_policy(
                 tx.as_mut(),
                 course_module.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();
-            let course_module_2 = course_modules::update_automatic_completion_status(
+            let course_module_2 = course_modules::update_completion_policy(
                 tx.as_mut(),
                 course_module_2.id,
                 &automatic_completion_policy,
+                ExamRequirement::None,
             )
             .await
             .unwrap();

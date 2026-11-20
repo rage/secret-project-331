@@ -30,6 +30,8 @@ import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
 
 import ContentArea from "./ContentArea"
+import ExerciseServiceBadges from "./ExerciseServiceBadges"
+import ExerciseServiceFlagFields, { type ExerciseServiceFlags } from "./ExerciseServiceFlagFields"
 
 interface ExerciseServiceCardProps {
   id: string
@@ -56,8 +58,14 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false)
   const [status, setStatus] = useState<UpdateStatus>(UpdateStatus.none)
 
-  const toggleEdit = () => {
-    setEditing(!editing)
+  const startEditing = () => {
+    setEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setService(exerciseService)
+    setStatus(UpdateStatus.none)
+    setEditing(false)
   }
 
   const onChange = (key: string) => (value: string) => {
@@ -65,6 +73,10 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
       ...service,
       [key]: key === "max_reprocessing_submissions_at_once" ? Number(value) : value,
     })
+  }
+
+  const onChangeFlags = (flags: ExerciseServiceFlags) => {
+    setService((previous) => ({ ...previous, ...flags }))
   }
 
   const onChangeName = (value: string) => {
@@ -183,7 +195,14 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 font-size: 1.5rem;
               `}
             >
-              {editing ? t("edit") : service.name}
+              {editing ? (
+                t("edit")
+              ) : (
+                <>
+                  {service.name}
+                  <ExerciseServiceBadges exerciseService={service} />
+                </>
+              )}
             </h2>
             <div
               className={css`
@@ -221,7 +240,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               </Button>
               <Button
                 aria-label={t("button-text-cancel")}
-                onClick={toggleEdit}
+                onClick={cancelEditing}
                 variant={"icon"}
                 size={"small"}
               >
@@ -244,7 +263,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
               >
                 <Trash size={20} />
               </Button>
-              <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
+              <Button aria-label={t("edit")} onClick={startEditing} variant={"icon"} size={"small"}>
                 <Pencil size={20} />
               </Button>
             </div>
@@ -268,6 +287,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
                 onChange={onChange("slug")}
                 type={"text"}
               />
+              <ExerciseServiceFlagFields flags={service} onChange={onChangeFlags} />
             </>
           )}
           <ContentArea

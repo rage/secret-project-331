@@ -12,7 +12,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
 import { useExercises } from "@/hooks/useExercises"
-import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, fontWeights, secondaryFont, typography } from "@/shared-module/common/styles"
 import { Button, Checkbox, QueryResults, Table } from "@/shared-module/components"
 
 import type { ResetFormFields } from "./ResetExercises"
@@ -69,14 +69,14 @@ const ExerciseList: React.FC<Props> = ({
     }, {})
   }, [exercises, t])
 
+  const selectNone = () => {
+    setSelectedExerciseIds([])
+  }
+
   const renderContent = (allExercises: Exercise[], chapters: DatabaseChapter[], pages: Page[]) => {
     const selectAll = () => {
       const allIds = allExercises.map((ex) => ex.id)
       setSelectedExerciseIds(allIds)
-    }
-
-    const selectNone = () => {
-      setSelectedExerciseIds([])
     }
 
     const invertSelection = () => {
@@ -100,8 +100,9 @@ const ExerciseList: React.FC<Props> = ({
 
     return (
       <div>
-        <h6
+        <h2
           className={css`
+            font-size: ${typography.h6};
             font-weight: ${fontWeights.medium};
             font-family: ${secondaryFont};
             padding-bottom: 20px;
@@ -109,7 +110,7 @@ const ExerciseList: React.FC<Props> = ({
           `}
         >
           {t("title-all-exercises")}
-        </h6>
+        </h2>
 
         <div
           className={css`

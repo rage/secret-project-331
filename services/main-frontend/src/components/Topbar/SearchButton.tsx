@@ -20,6 +20,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
 import { Button, Dialog, Spinner } from "@/shared-module/components"
+import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 import useSearchPagesLiveRegion from "./useSearchPagesLiveRegion"
 
@@ -341,7 +342,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         variant="icon"
         onClick={openModal}
       >
-        <MagnifyingGlass size={16} weight="bold" />
+        <MagnifyingGlass size={16} weight="bold" aria-hidden="true" />
       </Button>
       <Dialog open={open} onClose={closeModal} padding="none" aria-label={t("title-search-dialog")}>
         <SearchContainer $hasContent={hasContent}>
@@ -359,6 +360,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                   setError(null)
                   setQuery(e.target.value)
                 }}
+                aria-label={t("button-label-search-for-pages")}
                 placeholder={t("search-field-placeholder")}
               />
             </HeaderBar>
@@ -418,7 +420,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                         href={coursePageRoute(organizationSlug, courseSlug, relativePathWithSlash)}
                         onClick={handleResultClick}
                         dangerouslySetInnerHTML={{
-                          __html: result.title_headline ?? "",
+                          __html: sanitizeCourseMaterialHtml(result.title_headline ?? ""),
                         }}
                       />
                     </h2>
@@ -442,7 +444,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
                           color: #5a5757;
                         `}
                         dangerouslySetInnerHTML={{
-                          __html: result.content_headline,
+                          __html: sanitizeCourseMaterialHtml(result.content_headline),
                         }}
                       />
                     )}

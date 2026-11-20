@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  COUNT(*)::BIGINT AS \"stage_count!\",\n  COUNT(*) FILTER (WHERE status = 'completed')::BIGINT AS \"completed_stage_count!\"\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "stage_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "completed_stage_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "df7e69507108aad4ef98ddc05f389b687ccb6019d99548e3d64a282de2fa2336"
+}

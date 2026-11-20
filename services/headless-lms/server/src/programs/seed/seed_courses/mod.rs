@@ -1,7 +1,9 @@
 pub mod seed_accessibility_course;
+pub mod seed_agent_changesets;
 use headless_lms_base::config::ApplicationConfiguration;
 pub use seed_accessibility_course::seed_accessibility_course;
 pub mod seed_chatbot;
+pub mod seed_course_design_guide;
 pub mod seed_lock_chapter_course;
 pub use seed_lock_chapter_course::seed_lock_chapter_course;
 pub mod seed_material_reference_course;
@@ -18,6 +20,7 @@ pub use seed_generated_description::seed_generated_description;
 pub mod seed_introduction_to_codes;
 pub use seed_introduction_to_codes::seed_introduction_to_codes;
 pub mod seed_introduction_to_course_auditing;
+pub mod seed_language_versions;
 pub use seed_introduction_to_course_auditing::seed_introduction_to_course_auditing;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
@@ -151,12 +154,6 @@ pub async fn seed_sample_course(
     // and break the suite, so disable cheater detection. Callers that need detection on (e.g. the
     // dedicated suspected-cheaters course) re-enable it after seeding.
     courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
-    course_modules::update_enable_registering_completion_to_uh_open_university(
-        &mut conn,
-        default_module.id,
-        true,
-    )
-    .await?;
     course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::new_v5(
@@ -341,8 +338,7 @@ pub async fn seed_sample_course(
     let module = course_modules::insert(
         &mut conn,
         PKeyPolicy::Generate,
-        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2)
-            .set_enable_registering_completion_to_uh_open_university(true),
+        &NewCourseModule::new(course.id, Some("Bonus module".to_string()), 2),
     )
     .await?;
     let new_chapter = NewChapter {
@@ -1667,7 +1663,6 @@ pub async fn seed_sample_course(
                                 client_id: Uuid::parse_str("f700cf35-0c8e-4905-88ed-475ad60bdf82").unwrap(),
                                 attributes: attributes! {
                                     "alt": "Add alt",
-                                    "anchor": "author-photo",
                                     "blurDataUrl": "",
                                     "href": "http://project-331.local/api/v0/files/uploads/jpgs/lilo-and-stitch.jpg",
                                     "linkDestination": "media",
@@ -2382,7 +2377,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 title: "Introduction to Course Material".to_string(),
                 url_path: "/".to_string(),
@@ -2448,7 +2443,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page_ch_1.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 title: "User Interface".to_string(),
                 url_path: "/chapter-1".to_string(),
@@ -2617,7 +2612,7 @@ pub async fn seed_cs_course_material(
         &mut conn,
         PageUpdateArgs {
             page_id: front_page_ch_2.id,
-            author: teacher_user_id,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(teacher_user_id),
             cms_page_update: CmsPageUpdate {
                 url_path: "/chapter-2".to_string(),
                 title: "User Experience".to_string(),

@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT rr.credit_registration_id AS \"credit_registration_id!\",\n  rr.moocfi_completion_id AS \"moocfi_completion_id!\"\nFROM moocfi_reportable_registrations rr\n  JOIN credit_registrations cr ON cr.id = rr.credit_registration_id\n  LEFT JOIN moocfi_registration_reports report ON report.credit_registration_id = rr.credit_registration_id\n  AND report.deleted_at IS NULL\nWHERE (\n    report.id IS NULL\n    OR (\n      report.reported_at IS NULL\n      AND report.next_attempt_at <= now()\n      AND (\n        report.claimed_until IS NULL\n        OR report.claimed_until <= now()\n      )\n    )\n  )\n  AND ($1::uuid IS NULL OR cr.course_id = $1)\n  AND ($2::uuid IS NULL OR cr.external_credit_target_id = $2)\n  AND ($3::uuid IS NULL OR cr.user_id = $3)\n  AND (\n    cardinality($4::uuid []) = 0\n    OR cr.id = ANY($4::uuid [])\n  )\nORDER BY COALESCE(report.next_attempt_at, rr.registration_date)\nLIMIT 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "credit_registration_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "moocfi_reportable_registrations",
+            "name": "credit_registration_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "moocfi_completion_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "moocfi_reportable_registrations",
+            "name": "moocfi_completion_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true,
+      true
+    ]
+  },
+  "hash": "fca31e069887f8067cef69a74c3c37f8f67e8884babdabe4d9972b1ecf1b773f"
+}

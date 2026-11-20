@@ -9,6 +9,12 @@ use utoipa::{
         (path = "/api/v0/cms", api = crate::controllers::cms::CmsRoutesApiDoc),
         (path = "/api/v0/files", api = crate::controllers::files::CmsFilesApiDoc)
     ),
+    // The CMS serves the block validator that headless-lms calls; its types come from here.
+    components(schemas(
+        headless_lms_mcp::validator::ValidateBlocksRequest,
+        headless_lms_mcp::validator::ValidateBlocksResponse,
+        headless_lms_mcp::validator::BlockSchemas
+    )),
     info(
         title = "CMS API",
         version = "0.1.0"

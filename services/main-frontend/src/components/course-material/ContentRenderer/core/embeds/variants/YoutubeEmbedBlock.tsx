@@ -8,6 +8,7 @@ import type { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles/theme"
 import aspectRatioFromClassName from "@/utils/course-material/aspectRatioFromClassName"
+import { richTextToPlainText } from "@/utils/course-material/richTextToPlainText"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const YOUTUBE_EMBED_BASE_URL = "https://www.youtube-nocookie.com/embed/"
@@ -428,7 +429,11 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
                 transition: opacity 0.3s ease;
               `}
               src={embedUrl}
-              title={t("title-youtube-video-player")}
+              title={
+                caption
+                  ? `${t("title-youtube-video-player")}: ${richTextToPlainText(caption)}`
+                  : t("title-youtube-video-player")
+              }
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               // Cross-origin YouTube player; both flags are required and the frame runs under youtube.com, not our origin.
               // oxlint-disable-next-line react/iframe-missing-sandbox
@@ -446,7 +451,7 @@ export const YoutubeEmbedBlock: React.FC<EmbedAttributes> = (props) => {
               font-size: ${baseTheme.fontSizes[0]}px;
               margin-top: 0.5em;
               margin-bottom: 1em;
-              color: ${baseTheme.colors.gray[400]};
+              color: ${baseTheme.colors.gray[500]};
             `}
             dangerouslySetInnerHTML={{ __html: sanitizeCourseMaterialHtml(caption) }}
           ></figcaption>

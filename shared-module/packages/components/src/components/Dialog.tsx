@@ -8,11 +8,12 @@ import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../lib/utils/nullability"
+import { registerOpenModal } from "../lib/utils/openModals"
 import { below } from "../styles/breakpoints"
 import { DURATION_MS } from "../styles/motion"
 import { Button, type ButtonProps } from "./Button"
 
-export type DialogSize = "normal" | "wide"
+export type DialogSize = "small" | "normal" | "wide"
 export type DialogPadding = "normal" | "none"
 export type DialogRole = "dialog" | "alertdialog"
 export type DialogExit = "fade" | "handoff"
@@ -93,6 +94,8 @@ export type DialogProps = DialogLabelling &
     onExitComplete?: () => void
     /** Whether clicking the underlay closes the dialog. */
     isDismissable?: boolean
+    /** Whether Escape is ignored instead of closing the dialog. */
+    isKeyboardDismissDisabled?: boolean
     /** Hides the visible close button in the top corner. */
     showCloseButton?: boolean
     className?: string
@@ -147,6 +150,12 @@ const surfaceCss = css`
 `
 
 const sizeCss: Record<DialogSize, string> = {
+  /* For a short form such as a one-time code; full padding under so little body detaches its last
+     line from the footer. */
+  small: css`
+    --dialog-width-cap: 480px;
+    --dialog-body-padding-bottom: var(--space-4);
+  `,
   normal: css`
     --dialog-width-cap: 700px;
   `,
@@ -257,6 +266,7 @@ const contentCss = css`
   overflow-x: hidden;
   overflow-wrap: break-word;
   padding: var(--dialog-padding);
+  padding-bottom: var(--dialog-body-padding-bottom, var(--dialog-padding));
 
   &[data-below-header="true"] {
     padding-top: var(--dialog-gap-below-header);
@@ -333,6 +343,7 @@ const OpenDialog: React.FC<DialogProps> = ({
   hasDescription = true,
   exit = "fade",
   isDismissable = false,
+  isKeyboardDismissDisabled = false,
   showCloseButton = true,
   footer,
   actions,
@@ -349,15 +360,21 @@ const OpenDialog: React.FC<DialogProps> = ({
   // that replaces this one can take focus while both are briefly mounted. Restoration stays armed.
   const isExiting = !useIsPresent()
 
+  // Closed as soon as the exit starts: that lifts the inert outside, so focus moved to the page
+  // meanwhile (see runWhenNoModalOpen) lands.
   const state = useOverlayTriggerState({
-    isOpen: true,
+    isOpen: !isExiting,
     onOpenChange: (isOpen) => {
       if (!isOpen) {
         onClose()
       }
     },
   })
-  const { modalProps, underlayProps } = useModalOverlay({ isDismissable }, state, ref)
+  const { modalProps, underlayProps } = useModalOverlay(
+    { isDismissable, isKeyboardDismissDisabled },
+    state,
+    ref,
+  )
   const { dialogProps: dialogPropsFromHook, contentProps } = useDialog(
     hasTitle
       ? { role, "aria-labelledby": titleId }
@@ -369,6 +386,15 @@ const OpenDialog: React.FC<DialogProps> = ({
   const dialogProps = hasDescription
     ? dialogPropsFromHook
     : omitUndefined({ ...dialogPropsFromHook, "aria-describedby": undefined })
+
+  // Declared after the modal hooks so their cleanup (lifting the inert) runs first.
+  React.useEffect(() => {
+    const surface = ref.current
+    if (isExiting || surface === null) {
+      return
+    }
+    return registerOpenModal(surface)
+  }, [isExiting])
 
   const underlayTransition = shouldReduceMotion ? reducedTransition : exitTransition
 
@@ -394,7 +420,8 @@ const OpenDialog: React.FC<DialogProps> = ({
   } = mergeProps(modalProps, dialogProps)
 
   return (
-    <Overlay isExiting={isExiting}>
+    // The hooks above run outside the Overlay, so its own containment is never switched on by them.
+    <Overlay isExiting={isExiting} shouldContainFocus>
       <motion.div
         {...motionSafeUnderlayProps}
         className={underlayCss}

@@ -1,3 +1,5 @@
+import type { APIRequestContext } from "@playwright/test"
+
 import accessibilityCheck from "@/utils/accessibilityCheck"
 import {
   completionRegistrationUrl,
@@ -7,7 +9,9 @@ import {
   myRegistrationOnCourse,
   seededStudentStorageState,
   STUDENT_8,
+  SUOTAR_B_COURSE_ID,
   SUOTAR_B_COURSE_SLUG,
+  SUOTAR_COURSE_ID,
   SUOTAR_COURSE_SLUG,
   waitForRegistrationState,
 } from "@/utils/creditRegistration"
@@ -25,20 +29,25 @@ import {
   runPreconditionsTick,
   runStudentNotificationsTick,
   runVerifyPollTick,
+  setTestExclusiveHold,
+  type TickScope,
 } from "@/utils/suotarControl"
+import { pollUntil } from "@/utils/waitingUtils"
 
 /**
  * The only two emails a student ever gets about credit registration: the registration waits for
  * their enrolment, and the registration succeeded. Owns `credit-registration-student-2` on
  * `via-suotar` and `student8` on `via-suotar-b`.
  *
- * The workers tick every phase unscoped in the test deployment, so a mail can already be queued
- * before this file asks for one. Every assertion is therefore "exactly one of this kind exists",
- * which is what idempotency by `{action_needed,registered}_email_delivery_id` actually promises.
+ * Each test first holds its row from the live worker: while a worker tick has the row locked, this
+ * file's scoped tick skips it, and the next one can move the row past the state its mail is owed in.
+ * Every assertion is "exactly one of this kind exists", which is what idempotency by
+ * `{action_needed,registered}_email_delivery_id` actually promises.
  */
 const REGISTERED_EMAIL = CREDIT_REGISTRATION_STUDENT_2.email
 const REGISTERED_STUDENT_NUMBER = CREDIT_REGISTRATION_STUDENT_2.studentNumber
 const NO_ENROLMENT_EMAIL = STUDENT_8.email
+const HOLD_SECS = 60
 
 /**
  * Every value `email_send_status` may take. We can see our own queue, not the recipient's inbox, so
@@ -61,6 +70,33 @@ const mailsOfKind = (
 const mailIdentities = (mails: AdminNotificationEmail[]): string[] =>
   mails.map((mail) => `${mail.kind}:${mail.email_delivery_id}`).toSorted()
 
+/**
+ * Materializes the student's completion and parks the row for its first enrolment check. A tick
+ * claims nothing while the live worker has the row locked, and the hold then keeps the worker from
+ * finishing it, so both ticks repeat until the row parks.
+ */
+const parkRegistration = async (
+  request: APIRequestContext,
+  adminApi: APIRequestContext,
+  scope: TickScope & { courseSlug: string },
+) => {
+  let lastSeen = "no row"
+  try {
+    return await pollUntil(
+      async () => {
+        await runMaterializeTick(request, scope)
+        await runPreconditionsTick(request, scope)
+        const row = await myRegistrationOnCourse(request, adminApi, scope.courseSlug)
+        lastSeen = JSON.stringify(row)
+        return row.state === "no_usable_enrolment" ? row : null
+      },
+      { description: `the registration on ${scope.courseSlug} to park at no_usable_enrolment` },
+    )
+  } catch (error) {
+    throw new Error(`${error} Last seen: ${lastSeen}`, { cause: error })
+  }
+}
+
 test.describe("A student whose credits reach the study registry", () => {
   test.use({ storageState: seededStudentStorageState(REGISTERED_EMAIL) })
 
@@ -69,13 +105,22 @@ test.describe("A student whose credits reach the study registry", () => {
     adminApi,
   }) => {
     const scope = { userEmail: REGISTERED_EMAIL, courseSlug: SUOTAR_COURSE_SLUG }
+    await setTestExclusiveHold(page.request, REGISTERED_EMAIL, HOLD_SECS, SUOTAR_COURSE_ID)
 
     const registration = await test.step("Drive the completion to registered", async () => {
-      await runMaterializeTick(page.request, scope)
-      await runPreconditionsTick(page.request, scope)
-      // Parked for its first enrolment check, which the student is mailed about at once. Ticked
-      // here so the mail exists whether or not the workers got to the row first.
+      // The action-needed mail is owed only while parked, so it must exist before the check moves
+      // the row on.
+      const parked = await parkRegistration(page.request, adminApi, scope)
       await runStudentNotificationsTick(page.request, scope)
+      await expect
+        .poll(
+          async () =>
+            mailsOfKind(
+              (await adminRegistrationDetails(adminApi, parked.id)).notification_emails,
+              "action_needed",
+            ).length,
+        )
+        .toBe(1)
       await runEnrolmentCheckNow(page.request, scope)
       await runImportSubmissionTick(page.request, scope)
       const submitted = await waitForRegistrationState(page.request, adminApi, SUOTAR_COURSE_SLUG, [
@@ -114,7 +159,9 @@ test.describe("A student whose credits reach the study registry", () => {
         expect(SEND_STATUSES).toContain(mail.send_status.email_send_status)
       }
       await page.goto(completionRegistrationUrl(registration.course_module_id))
-      await expect(page.getByText("Registered in Sisu").first()).toBeVisible()
+      await expect(
+        page.getByRole("heading", { name: "Your completion is registered" }),
+      ).toBeVisible()
       await expect(page.getByText("delivered")).toHaveCount(0)
     })
 
@@ -132,13 +179,10 @@ test.describe("A student the study registry has no enrolment for", () => {
     adminApi,
   }) => {
     const scope = { userEmail: NO_ENROLMENT_EMAIL, courseSlug: SUOTAR_B_COURSE_SLUG }
+    await setTestExclusiveHold(page.request, NO_ENROLMENT_EMAIL, HOLD_SECS, SUOTAR_B_COURSE_ID)
 
     // The row waits a day for its first check, and the student is told what to do meanwhile.
-    await runMaterializeTick(page.request, scope)
-    await runPreconditionsTick(page.request, scope)
-    const parked = await waitForRegistrationState(page.request, adminApi, SUOTAR_B_COURSE_SLUG, [
-      "no_usable_enrolment",
-    ])
+    const parked = await parkRegistration(page.request, adminApi, scope)
     expect(parked.student_facing_status).toBe("needs_enrolment")
 
     await runStudentNotificationsTick(page.request, scope)

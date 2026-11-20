@@ -31,6 +31,7 @@ pub enum ToolCategoryGroup {
     CourseDiscovery,
     Interaction,
     AdminSupport,
+    CoursePlanning,
 }
 
 /// A category of chatbot tools a configuration can choose to offer the LLM. Independent of the
@@ -48,12 +49,15 @@ pub enum ToolCategory {
     AdminSupportCourses,
     AdminSupportLearningProgress,
     AdminSupportAcademicIntegrity,
+    /// Reading and proposing changes to the course design plan the conversation is about. Offered
+    /// only on course design plan pages, where the turn names a plan.
+    CoursePlanning,
 }
 
 impl ToolCategory {
     /// Canonical order for the UI, seeds, and normalization -- keep in sync with the enum
     /// definition above and with the `chatbot_tool_category` Postgres enum's value order.
-    pub const ALL: [ToolCategory; 8] = [
+    pub const ALL: [ToolCategory; 9] = [
         ToolCategory::CourseMaterial,
         ToolCategory::CourseInfo,
         ToolCategory::CourseCatalog,
@@ -62,6 +66,7 @@ impl ToolCategory {
         ToolCategory::AdminSupportCourses,
         ToolCategory::AdminSupportLearningProgress,
         ToolCategory::AdminSupportAcademicIntegrity,
+        ToolCategory::CoursePlanning,
     ];
 
     pub const fn group(self) -> ToolCategoryGroup {
@@ -75,6 +80,7 @@ impl ToolCategory {
             | ToolCategory::AdminSupportCourses
             | ToolCategory::AdminSupportLearningProgress
             | ToolCategory::AdminSupportAcademicIntegrity => ToolCategoryGroup::AdminSupport,
+            ToolCategory::CoursePlanning => ToolCategoryGroup::CoursePlanning,
         }
     }
 
@@ -121,6 +127,9 @@ pub struct ChatbotConfiguration {
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
     pub publicly_accessible: bool,
+    pub embeddable: bool,
+    /// Answers on course design plan pages; at most one live configuration has this set.
+    pub course_designer_assistant: bool,
 }
 
 impl Default for ChatbotConfiguration {
@@ -159,6 +168,8 @@ impl Default for ChatbotConfiguration {
             suggest_next_messages: true,
             initial_suggested_messages: None,
             publicly_accessible: false,
+            embeddable: false,
+            course_designer_assistant: false,
         }
     }
 }
@@ -191,6 +202,8 @@ pub struct NewChatbotConf {
     pub suggest_next_messages: bool,
     pub initial_suggested_messages: Option<Vec<String>>,
     pub publicly_accessible: bool,
+    #[serde(default)]
+    pub embeddable: bool,
 }
 
 impl Default for NewChatbotConf {
@@ -222,6 +235,7 @@ impl Default for NewChatbotConf {
             suggest_next_messages: chatbot_conf.suggest_next_messages,
             initial_suggested_messages: chatbot_conf.initial_suggested_messages,
             publicly_accessible: chatbot_conf.publicly_accessible,
+            embeddable: chatbot_conf.embeddable,
         }
     }
 }
@@ -254,6 +268,7 @@ impl From<ChatbotConfiguration> for NewChatbotConf {
             suggest_next_messages: v.suggest_next_messages,
             initial_suggested_messages: v.initial_suggested_messages,
             publicly_accessible: v.publicly_accessible,
+            embeddable: v.embeddable,
         }
     }
 }
@@ -342,9 +357,10 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     suggest_next_messages,
     initial_suggested_messages,
-    publicly_accessible
+    publicly_accessible,
+    embeddable
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
 RETURNING *
         "#,
         pkey_policy.into_uuid(),
@@ -370,7 +386,8 @@ RETURNING *
         input.default_chatbot,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
-        input.publicly_accessible
+        input.publicly_accessible,
+        input.embeddable
     )
     .fetch_one(conn)
     .await?;
@@ -415,8 +432,9 @@ SET
     enabled_tool_categories = $20,
     suggest_next_messages = $21,
     initial_suggested_messages = $22,
-    publicly_accessible = $23
-WHERE id = $24
+    publicly_accessible = $23,
+    embeddable = $24
+WHERE id = $25
     AND deleted_at IS NULL
 RETURNING *
 "#,
@@ -443,6 +461,7 @@ RETURNING *
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
         input.publicly_accessible,
+        input.embeddable,
         chatbot_configuration_id,
     )
     .fetch_one(conn)
@@ -571,6 +590,110 @@ pub async fn get_all_chatbots(conn: &mut PgConnection) -> ModelResult<Vec<Chatbo
     "#,
     )
     .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// A course's chatbot as offered when choosing the course design assistant.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+pub struct CourseChatbotOption {
+    pub id: Uuid,
+    pub chatbot_name: String,
+    pub course_id: Uuid,
+    pub course_name: String,
+    pub course_designer_assistant: bool,
+}
+
+/// Every live chatbot that belongs to a live course, ordered by course name and then chatbot name.
+pub async fn list_course_chatbot_options(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseChatbotOption>> {
+    let res = sqlx::query_as!(
+        CourseChatbotOption,
+        r#"
+SELECT cc.id,
+  cc.chatbot_name,
+  c.id AS course_id,
+  c.name AS course_name,
+  cc.course_designer_assistant
+FROM chatbot_configurations cc
+  JOIN courses c ON c.id = cc.course_id
+WHERE cc.deleted_at IS NULL
+  AND c.deleted_at IS NULL
+ORDER BY c.name,
+  cc.chatbot_name
+"#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Makes this configuration the course design assistant, taking the role from any other.
+pub async fn set_course_designer_assistant(
+    conn: &mut PgConnection,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = FALSE
+WHERE course_designer_assistant
+  AND id <> $1
+"#,
+        chatbot_configuration_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = TRUE
+WHERE id = $1
+  AND deleted_at IS NULL
+"#,
+        chatbot_configuration_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Removes the course design assistant role from this configuration. Plan pages then show no
+/// assistant until another configuration is chosen.
+pub async fn clear_course_designer_assistant(
+    conn: &mut PgConnection,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE chatbot_configurations
+SET course_designer_assistant = FALSE
+WHERE id = $1
+"#,
+        chatbot_configuration_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// The live configuration flagged as the course design assistant, if any.
+pub async fn get_course_designer_assistant(
+    conn: &mut PgConnection,
+) -> ModelResult<Option<ChatbotConfiguration>> {
+    let res = sqlx::query_as!(
+        ChatbotConfiguration,
+        r#"
+SELECT *
+FROM chatbot_configurations
+WHERE course_designer_assistant
+  AND deleted_at IS NULL
+"#
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

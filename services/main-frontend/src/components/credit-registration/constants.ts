@@ -1,6 +1,9 @@
 // The i18next literal-string lint only runs on .tsx, so these presentational literals live here.
 
+import type { DateFormatter } from "@internationalized/date"
 import type { TFunction } from "i18next"
+
+import type { EmailSendStatus } from "@/generated/api/types.generated"
 
 export { TONE } from "@/shared-module/components"
 
@@ -10,6 +13,9 @@ export { TONE } from "@/shared-module/components"
  * page. Labels shared with the rest of the app still resolve, through `fallbackNS`.
  */
 export const CREDIT_REGISTRATION_NS = "credit-registration" as const
+
+/** `usePageTitle` order for a page under a tab: above the layout's tab title (20), which would win. */
+export const TITLE_ORDER = 30
 
 /** The `t` that namespace gives: helpers that build labels take this, not the service-wide one. */
 export type CreditRegistrationTFunction = TFunction<typeof CREDIT_REGISTRATION_NS>
@@ -66,12 +72,18 @@ export const STATE_SUPERSEDED = "superseded" as const
 /** `Badge.size` for a badge that is a dense table cell's content rather than a chip in a row. */
 export const BADGE_COMPACT = "compact" as const
 
+/** The `EmailSendStatus` a send cell badges as a danger. */
+export const SEND_FAILED: EmailSendStatus = "send_failed"
+
 /** `Button.variant` for the one action a surface leads with, and for the rest beside it. */
 export const BUTTON_PRIMARY = "primary" as const
 export const BUTTON_SECONDARY = "secondary" as const
 
 /** `Button.size` for an action that sits inside a card or a row rather than under a form. */
 export const BUTTON_SMALL = "small" as const
+
+/** `Button.iconPosition` for an icon after the label, like the arrow on a link that leaves the site. */
+export const ICON_AT_END = "end" as const
 
 /** `Button.variant` for a control that reads as a link but changes what is on screen. */
 export const BUTTON_TERTIARY = "tertiary" as const
@@ -91,8 +103,39 @@ export const ADMIN_PAGE_SIZE_OPTIONS = [25, 50, 100]
 /** `useDateFormatter` options for a chart axis, where the year is in the heading and not the tick. */
 export const DAY_AND_MONTH_FORMAT = { day: "numeric", month: "short" } as const
 
+/** A start and end as one range, or whichever of them is known; `null` when neither is. */
+export const formatDateWindow = (
+  formatter: DateFormatter,
+  starts: string | null | undefined,
+  ends: string | null | undefined,
+): string | null => {
+  if (starts && ends) {
+    return formatter.formatRange(new Date(starts), new Date(ends))
+  }
+  const only = starts || ends
+  return only ? formatter.format(new Date(only)) : null
+}
+
 /** Where a student can check that credits actually arrived. */
 export const SISU_URL = "https://sisu.helsinki.fi/student/frontpage"
+
+/** Where a student sees all their registered studies, a couple of days after Sisu has them. */
+export const OMA_OPINTOPOLKU_URL = "https://opintopolku.fi/oma-opintopolku/"
+
+const SISU_ENROLMENT_INSTRUCTIONS_URL_FI =
+  "https://studies.helsinki.fi/ohjeet/artikkeli/sisu-ohje-ilmoittautuminen-opetukseen-ja-tentteihin"
+const SISU_ENROLMENT_INSTRUCTIONS_URL_SV =
+  "https://studies.helsinki.fi/instruktioner/artikel/sisu-instruktion-anmalning-till-undervisning-och-tentamen"
+const SISU_ENROLMENT_INSTRUCTIONS_URL_EN =
+  "https://studies.helsinki.fi/instructions/article/sisu-instructions-registering-teaching-and-exams"
+
+/** How a University of Helsinki student enrols on a course in Sisu, which has no per-course link. */
+export const sisuEnrolmentInstructionsUrl = (language: string): string =>
+  /^fi(?:-|$)/.test(language)
+    ? SISU_ENROLMENT_INSTRUCTIONS_URL_FI
+    : /^sv(?:-|$)/.test(language)
+      ? SISU_ENROLMENT_INSTRUCTIONS_URL_SV
+      : SISU_ENROLMENT_INSTRUCTIONS_URL_EN
 
 /** What Suomi.fi says about identifying with a token issued by another European country. */
 export const SUOMI_FI_EIDAS_URL =
@@ -108,9 +151,6 @@ export const SEGMENTED = "segmented" as const
 /** The two answers to which university relationship a student has; the wire values of the enum. */
 export const UNIVERSITY_OF_HELSINKI = "university_of_helsinki" as const
 export const OPEN_UNIVERSITY = "open_university" as const
-
-/** The form field the answer is entered in. */
-export const ROUTE_FIELD = "enrolmentRoute" as const
 
 // The Open University only publishes this page in Finnish and English; other languages fall back to
 // the English version.

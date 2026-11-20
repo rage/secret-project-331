@@ -62,6 +62,14 @@ export const checkableLabelCss = css`
   overflow-wrap: anywhere;
 `
 
+/** A badge trailing a checkable's label text, wrapping under it when the row runs out of room. */
+export const checkableBadgeCss = css`
+  display: inline-block;
+  margin-inline-start: var(--space-3);
+  font-weight: 400;
+  vertical-align: 1px;
+`
+
 export const switchTrackCss = css`
   display: inline-flex;
   align-items: center;
@@ -171,6 +179,11 @@ export const choiceIndicatorCss = css`
   &[data-disabled="true"] {
     background: var(--field-disabled-bg);
     border-color: var(--field-disabled-border);
+  }
+
+  &[data-disabled="true"][data-selected="true"] {
+    background: var(--field-disabled-fg);
+    border-color: var(--field-disabled-fg);
   }
 `
 

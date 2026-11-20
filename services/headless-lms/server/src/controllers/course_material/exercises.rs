@@ -2,7 +2,7 @@
 
 use crate::{
     domain::{
-        authorization::skip_authorize,
+        authorization::{AuthorizationToken, authorize_access_to_course_exercise, skip_authorize},
         exercises::process_submission,
         models_requests::{self, GivePeerReviewClaim, JwtKey},
     },
@@ -73,6 +73,9 @@ async fn get_exercise(
 ) -> ControllerResult<web::Json<CourseMaterialExercise>> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
+    // Checked before loading: loading picks a slide and records state for the user.
+    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, user_id, &exercise).await?;
     let mut course_material_exercise = models::exercises::get_course_material_exercise(
         &mut conn,
         user_id,
@@ -141,8 +144,40 @@ async fn get_exercise(
     if !has_received_full_points && !out_of_tries {
         course_material_exercise.clear_model_solution_specs();
     }
-    let token = skip_authorize();
     token.authorized_ok(web::Json(course_material_exercise))
+}
+
+/// Authorizes viewing or answering an exercise from the course material: a course exercise needs
+/// the material and its chapter open to the user, an exam exercise needs the exam started.
+async fn authorize_exercise_access(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    exercise: &models::exercises::Exercise,
+) -> Result<AuthorizationToken, ControllerError> {
+    match (exercise.course_id, exercise.exam_id) {
+        (Some(course_id), _) => {
+            Ok(
+                authorize_access_to_course_exercise(conn, user_id, course_id, exercise.chapter_id)
+                    .await?,
+            )
+        }
+        (None, Some(exam_id)) => {
+            let user_id = user_id.ok_or_else(|| {
+                ControllerError::new(
+                    ControllerErrorType::UnauthorizedWithReason(
+                        crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
+                    ),
+                    "User must be authenticated to view exam exercises".to_string(),
+                    None,
+                )
+            })?;
+            super::exams::authorize_exam_content_access(conn, exam_id, user_id).await
+        }
+        (None, None) => Err(controller_err!(
+            NotFound,
+            "The exercise belongs to neither a course nor an exam".to_string()
+        )),
+    }
 }
 
 /**
@@ -176,6 +211,8 @@ async fn get_peer_review_for_exercise(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<CourseMaterialPeerOrSelfReviewDataWithToken>> {
     let mut conn = pool.acquire().await?;
+    let exercise = models::exercises::get_non_deleted_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     let course_material_peer_or_self_review_data =
         models::peer_or_self_review_configs::get_course_material_peer_or_self_review_data(
             &mut conn,
@@ -186,13 +223,6 @@ async fn get_peer_review_for_exercise(
             app_conf.as_ref(),
         )
         .await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
     let give_peer_review_claim =
         if let Some(to_review) = &course_material_peer_or_self_review_data.answer_to_review {
             Some(
@@ -304,41 +334,7 @@ async fn post_submission(
     let mut conn = pool.acquire().await?;
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
 
-    if let Some(chapter_id) = exercise.chapter_id {
-        let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
-        let is_accessible = user_chapter_locking_statuses::is_chapter_accessible(
-            &mut conn, user.id, chapter_id, course_id,
-        )
-        .await?;
-        if !is_accessible {
-            return Err(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                "Complete and lock the previous chapter to unlock exercises in this chapter."
-                    .to_string(),
-                None,
-            ));
-        }
-        let exercises_locked = user_chapter_locking_statuses::is_chapter_exercises_locked(
-            &mut conn, user.id, chapter_id, course_id,
-        )
-        .await?;
-        if exercises_locked {
-            return Err(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                "The current chapter is locked, and you can no longer submit exercises."
-                    .to_string(),
-                None,
-            ));
-        }
-    }
-
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(exercise.id),
-    )
-    .await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     let result = process_submission(
         &mut conn,
         user.id,
@@ -411,13 +407,7 @@ async fn start_peer_or_self_review(
 
     let user_exercise_state =
         user_exercise_states::get_users_current_by_exercise(&mut conn, user.id, &exercise).await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::Exercise(*exercise_id),
-    )
-    .await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
     models::library::peer_or_self_reviewing::start_peer_or_self_review_for_user(
         &mut conn,
         user_exercise_state,
@@ -456,6 +446,7 @@ async fn submit_peer_or_self_review(
     let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
     let exercise = models::exercises::get_non_deleted_by_id(&mut conn, *exercise_id).await?;
+    let token = authorize_exercise_access(&mut conn, Some(user.id), &exercise).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
@@ -594,7 +585,6 @@ async fn submit_peer_or_self_review(
             None,
         ));
     }
-    let token = skip_authorize();
     token.authorized_ok(web::Json(true))
 }
 

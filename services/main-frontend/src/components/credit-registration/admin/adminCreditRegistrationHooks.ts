@@ -1,12 +1,14 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+  getAccountLinkingCourseEnroleesOptions,
   getAccountLinkingCoursesOptions,
   getAccountLinkingStatsOptions,
   getAccountLinkingUnlinkedEnroleesOptions,
   getAccountLinkingStatsQueryKey,
   getCreditRegistrationAttentionItemsOptions,
   getCreditRegistrationAttentionItemsQueryKey,
+  getCreditRegistrationEarlierReasonsOptions,
   getCreditRegistrationEnrolmentChecksOptions,
   getCreditRegistrationErrorsByCodeOptions,
   getCreditRegistrationForAdminOptions,
@@ -16,9 +18,11 @@ import {
   getCreditRegistrationPipelineHistoryOptions,
   getCreditRegistrationReconciliationOptions,
   getCreditRegistrationReconciliationQueryKey,
+  getCreditRegistrationCourseSummaryOptions,
   getCreditRegistrationStatsByCourseOptions,
   getCreditRegistrationStatsByCourseQueryKey,
   getSuotarHealthOptions,
+  listAccountLinkingEmailsOptions,
   listCreditRegistrationAdminActionsOptions,
   listCreditRegistrationPhasesOptions,
   listCreditRegistrationsForAdminOptions,
@@ -28,20 +32,24 @@ import {
   listVerifiedStudentNumbersForAdminQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
+  CreditRegistrationAdminAction,
   CreditRegistrationAlertId,
   CreditRegistrationOverview,
   CreditRegistrationStatsByCourse,
   GetCreditRegistrationAttentionItemsData,
+  ListAccountLinkingEmailsData,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationsForAdminData,
   ListSuotarApiCallsData,
   ListVerifiedStudentNumbersForAdminData,
 } from "@/generated/api/types.generated"
+import { useIsDocumentHidden } from "@/shared-module/common/hooks/useIsDocumentHidden"
 
 /** Group-bys over the ledger, so not a cheap read. */
 const OVERVIEW_REFETCH_INTERVAL_MS = 30_000
 const LIST_REFETCH_INTERVAL_MS = 60_000
 const LIVE_ITEM_REFETCH_INTERVAL_MS = 5_000
+const HIDDEN_ITEM_REFETCH_INTERVAL_MS = 60_000
 /** Matches the other pod views in the repo: a wedged phase should show within seconds. */
 const PHASE_REFETCH_INTERVAL_MS = 10_000
 const ATTENTION_REFETCH_INTERVAL_MS = 20_000
@@ -103,16 +111,29 @@ export const useAdminCreditRegistrations = (
     gcTime: GC_TIME_MS,
   })
 
-export const useAdminCreditRegistration = (creditRegistrationId: string) =>
-  useQuery({
+/**
+ * One registration, polled until it is terminal: often while the tab is in view, now and then
+ * while it is hidden, and at once when it is shown again.
+ */
+export const useAdminCreditRegistration = (creditRegistrationId: string) => {
+  const isHidden = useIsDocumentHidden()
+  return useQuery({
     ...getCreditRegistrationForAdminOptions({
       path: { credit_registration_id: creditRegistrationId },
     }),
-    refetchInterval: (query) =>
-      query.state.data?.registration.terminal_at ? false : LIVE_ITEM_REFETCH_INTERVAL_MS,
+    refetchInterval: (observed) => {
+      if (observed.state.data?.registration.terminal_at) {
+        return false
+      }
+      return isHidden ? HIDDEN_ITEM_REFETCH_INTERVAL_MS : LIVE_ITEM_REFETCH_INTERVAL_MS
+    },
+    // The detail page marks its title when the registration changes in a hidden tab.
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
     staleTime: LIVE_ITEM_REFETCH_INTERVAL_MS,
     gcTime: GC_TIME_MS,
   })
+}
 
 /**
  * Fetches the code's enrolment list live from Sisu on every open; nothing is cached past the dialog.
@@ -145,9 +166,33 @@ export const useUnlinkedEnrolees = (courseId: string | null, isEnabled: boolean)
     refetchOnWindowFocus: false,
   })
 
+/**
+ * Fetches everyone on the course's or mooc.fi target's enrolment lists live from Sisu while the
+ * dialog is open; nothing is cached past it.
+ */
+export const useCourseEnrolees = (courseOrTargetId: string, isEnabled: boolean) =>
+  useQuery({
+    ...getAccountLinkingCourseEnroleesOptions({
+      path: { course_or_target_id: courseOrTargetId },
+    }),
+    enabled: isEnabled,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
+  })
+
 export const useAccountLinkingStats = (windowDays: number) =>
   useQuery({
     ...getAccountLinkingStatsOptions({ query: { window_days: windowDays } }),
+    ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
+
+/** One page of every linking email; `status` is ignored when `address` is set. */
+export const useAccountLinkingEmails = (
+  query: NonNullable<ListAccountLinkingEmailsData["query"]>,
+) =>
+  useQuery({
+    ...listAccountLinkingEmailsOptions({ query }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
   })
 
@@ -173,6 +218,10 @@ export const useCreditRegistrationAttentionItems = (
     ...getCreditRegistrationAttentionItemsOptions({ query }),
     ...polled(ATTENTION_REFETCH_INTERVAL_MS),
   })
+
+/** The reasons given before for one audited action, newest first, to pick from instead of retyping. */
+export const useEarlierReasons = (action: CreditRegistrationAdminAction) =>
+  useQuery(getCreditRegistrationEarlierReasonsOptions({ query: { action } }))
 
 export const useInvalidateAttentionItems = () => {
   const queryClient = useQueryClient()
@@ -215,7 +264,7 @@ const useOverviewCount = (select: (overview: CreditRegistrationOverview) => numb
 export const useCreditRegistrationAttentionCount = () => useOverviewCount(selectNeedsAttention)
 
 /**
- * Course modules whose current facts fail the configuration check.
+ * Course modules and mooc.fi courses whose current facts fail the configuration check.
  *
  * The same field the Courses page leads with, not the alert rule's count: a badge that disagrees
  * with the page it opens costs the reader more than it tells them.
@@ -310,6 +359,15 @@ export const useCreditRegistrationEnrolmentChecks = (windowSecs: number) =>
   useQuery({
     ...getCreditRegistrationEnrolmentChecksOptions({ query: { window_secs: windowSecs } }),
     ...polled(LIST_REFETCH_INTERVAL_MS),
+  })
+
+/** One course's or mooc.fi target's name and course codes, loaded once: they change only on edits. */
+export const useCreditRegistrationCourseSummary = (courseOrTargetId: string) =>
+  useQuery({
+    ...getCreditRegistrationCourseSummaryOptions({
+      path: { course_or_target_id: courseOrTargetId },
+    }),
+    staleTime: Infinity,
   })
 
 export const useCreditRegistrationCourseStats = () =>

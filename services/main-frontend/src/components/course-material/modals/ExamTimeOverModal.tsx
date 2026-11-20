@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Dialog } from "@/shared-module/components"
@@ -17,17 +17,13 @@ const ExamTimeOverModal: React.FC<React.PropsWithChildren<ExamTimeOverModalProps
   onClose,
   secondsLeft,
 }) => {
-  const [open, setOpen] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
   const { t } = useTranslation()
+  const open = !disabled && secondsLeft <= 0 && !dismissed
 
-  useEffect(() => {
-    if (!disabled && secondsLeft <= 0) {
-      setOpen(true)
-    }
-  }, [disabled, secondsLeft])
-
+  // Dismissal is permanent: secondsLeft keeps changing while the time is over.
   const handleClose = async () => {
-    setOpen(false)
+    setDismissed(true)
     await onClose()
   }
 

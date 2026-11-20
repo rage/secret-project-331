@@ -5,6 +5,7 @@ import { selectOrganization } from "@/utils/organizationUtils"
 
 import { ChapterSelector } from "../../utils/components/ChapterSelector"
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getExerciseTaskFrame } from "../../utils/iframeLocators"
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 test.use({
   storageState: "src/states/user@example.com.json",
@@ -20,10 +21,7 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
   await page.getByRole("link", { name: "1 Page One" }).click()
-  await page
-    .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-    .getByRole("checkbox", { name: "b" })
-    .click()
+  await getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "b" }).click()
   await page.getByRole("button", { name: "Submit" }).click()
   await page.getByText("Try again").waitFor()
   await page.getByRole("link", { name: "Certificates" }).click()
@@ -35,6 +33,28 @@ test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await expect(page).toHaveURL(/.*\/certificates\/.*/)
   await page.getByText("Save as png").waitFor()
   const currentUrl = page.url()
+  await expect(page.getByRole("heading", { name: "Certificate details" })).toBeVisible()
+  await expectScreenshotsToMatchSnapshots({
+    screenshotTarget: page,
+    headless,
+    testInfo,
+    snapshotName: "certificate-details",
+    // The verification id is random and the issue date is the day of the run
+    screenshotOptions: {
+      fullPage: true,
+      mask: [
+        // The parent also holds the copy button, which moves with the id width
+        page.getByText(currentUrl.split("/").pop() ?? "", { exact: true }).locator(".."),
+        page.getByText("Issued", { exact: true }).locator("xpath=following-sibling::dd[1]"),
+        page.getByRole("img", { name: "Certificate image" }),
+      ],
+    },
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("img", { name: "Certificate image" }),
+      page.getByRole("heading", { name: "Certificate details" }),
+    ],
+    scrollToYCoordinate: 0,
+  })
   await page.goto(`${currentUrl}?debug=true`)
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

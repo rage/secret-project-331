@@ -86,3 +86,62 @@ viewpoints:
         tables:
           - study_registry_registrars
           - course_module_completion_registered_to_study_registries
+  - id: agent-changesets
+    name: AI agent changesets
+    desc: >-
+      How a teacher's AI agent edits course material through the MCP server without touching what
+      students see. Every agent write is staged in the teacher's open changeset for the course and
+      reaches students only when the changeset is published; each call is logged with what it
+      changed so that it can be reverted, and saves from the web UI and agents alike leave history.
+    tables:
+      - agent_changesets
+      - agent_changeset_entities
+      - agent_changeset_calls
+      - agent_changeset_call_entities
+      - agent_changeset_preview_links
+      - entity_history
+      - page_history
+      - oauth_clients
+      - oauth_user_client_scopes
+      - oauth_auth_codes
+      - oauth_access_tokens
+      - oauth_refresh_tokens
+      # Shared hubs, deliberately in no group: a table may appear in only one group of a viewpoint,
+      # and each of these belongs to every one of them.
+      - users
+      - courses
+      - pages
+    groups:
+      - name: Staging
+        desc: >-
+          One open changeset per teacher and course holds the full staged state of every entity it
+          changes. Reads overlay these rows on the live content, and publishing writes them back.
+        tables:
+          - agent_changesets
+          - agent_changeset_entities
+          - agent_changeset_preview_links
+      - name: Call audit log
+        desc: >-
+          One row per agent write call, with each touched entity's snapshot before the call. A call
+          is the unit an agent reverts, and published changes point back to the call that staged
+          them.
+        tables:
+          - agent_changeset_calls
+          - agent_changeset_call_entities
+      - name: Content history
+        desc: >-
+          A snapshot after every save, from the web UI and agents alike, so any entity can be
+          restored: pages in page_history, everything else in entity_history.
+        tables:
+          - entity_history
+          - page_history
+      - name: Agent sign-in
+        desc: >-
+          OAuth for MCP clients. Clients register through a metadata document at their client id
+          URL, the user grants scopes per client, and tokens are bound to the MCP endpoint.
+        tables:
+          - oauth_clients
+          - oauth_user_client_scopes
+          - oauth_auth_codes
+          - oauth_access_tokens
+          - oauth_refresh_tokens

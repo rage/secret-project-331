@@ -62,7 +62,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   await page.getByLabel("Exercise name", { exact: true }).click()
   await page.getByLabel("Exercise name", { exact: true }).fill("What is system testing")
 
-  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit task"]')
 
   // Gutenberg 16.2's empty state is a ghost block whose placeholder is CSS-generated content,
   // which getByText cannot match. Match the block by role instead.
@@ -115,7 +115,7 @@ test("Creating a course an returning an exercise works", async ({ page }) => {
   })
 
   // Check that the assignment still displays after saving
-  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit"]')
+  await page.click('[aria-label="Block: ExerciseTask"] [aria-label="Edit task"]')
   await page.getByText(`Please select the most correct alternative.`).waitFor()
 
   await page.goto(`http://project-331.local/org/uh-cs/courses/introduction-to-system-level-testing`)

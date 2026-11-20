@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exercise_id,\n  COUNT(*) AS \"count!\"\nFROM peer_or_self_review_submissions\nWHERE exercise_id = ANY($1)\n  AND deleted_at IS NULL\nGROUP BY exercise_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "peer_or_self_review_submissions",
+            "name": "exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "885653de6c6ab11fc628c5d70fb55dfd5c74943d7a248538f830f35d1f90ddb4"
+}

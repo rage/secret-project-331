@@ -2,10 +2,12 @@
 
 import { css } from "@emotion/css"
 import { useDialog } from "@react-aria/dialog"
+import { FocusScope } from "@react-aria/focus"
 import { DismissButton, useModalOverlay } from "@react-aria/overlays"
 import { mergeProps } from "@react-aria/utils"
 import { LanguageTranslation, MagnifyingGlass } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -18,6 +20,8 @@ import { useUserMenuItems } from "../hooks/useUserMenuItems"
 import { MenuContent } from "./MenuContent"
 import { MenuHeader } from "./MenuHeader"
 import type { MobileMenuOverlayProps } from "./types"
+
+const TITLE_ELEMENT = "h2"
 
 export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
   state,
@@ -76,7 +80,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
-        icon: <MagnifyingGlass />,
+        icon: <MagnifyingGlass aria-hidden="true" />,
         onAction: () => {
           const searchButton = document.querySelector<HTMLElement>("#search-for-pages-button")
           if (searchButton) {
@@ -98,7 +102,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
-        icon: <LanguageTranslation />,
+        icon: <LanguageTranslation aria-hidden="true" />,
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {
@@ -172,6 +176,20 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     onClose,
   ])
 
+  const lastSubmenuIdRef = useRef<string | null>(null)
+  const currentSubmenuId = currentSubmenu?.id ?? null
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (currentSubmenuId) {
+      lastSubmenuIdRef.current = currentSubmenuId
+      dialog?.querySelector<HTMLElement>("[data-submenu-back]")?.focus()
+    } else if (lastSubmenuIdRef.current) {
+      const parentId = lastSubmenuIdRef.current
+      lastSubmenuIdRef.current = null
+      dialog?.querySelector<HTMLElement>(`[data-submenu-id="${CSS.escape(parentId)}"]`)?.focus()
+    }
+  }, [currentSubmenuId])
+
   // Determine which items to display (main menu or submenu)
   const itemsToDisplay = currentSubmenu ? currentSubmenu.submenuItems || [] : mainMenuItems
 
@@ -197,87 +215,81 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
   )
 
   return (
-    <div
-      {...underlayProps}
-      className={css`
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-        z-index: 1000;
-        ${respondToOrLarger.md} {
-          display: none !important;
-        }
-      `}
-    >
+    // Keeps Tab inside and returns focus to the menu button when the menu closes.
+    <FocusScope contain restoreFocus>
       <div
-        {...modalProps}
-        ref={overlayRef}
+        {...underlayProps}
         className={css`
           position: fixed;
           top: 0;
+          left: 0;
           right: 0;
           bottom: 0;
-          width: 100%;
-          max-width: 400px;
-          background: #ffffff;
-          box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          z-index: 1001;
-          transform: translateX(0);
-          transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          z-index: 1000;
           ${respondToOrLarger.md} {
             display: none !important;
           }
         `}
       >
         <div
-          {...mergeProps(dialogProps)}
-          ref={dialogRef}
+          {...modalProps}
+          ref={overlayRef}
           className={css`
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            z-index: 1001;
+            transform: translateX(0);
+            transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            ${respondToOrLarger.md} {
+              display: none !important;
+            }
           `}
         >
-          {/* Helps screen reader users dismiss easily when tabbing */}
-          <DismissButton onDismiss={handleClose} />
-
-          <h2
-            {...titleProps}
+          <div
+            {...mergeProps(dialogProps)}
+            ref={dialogRef}
             className={css`
-              position: absolute;
-              left: -10000px;
-              width: 1px;
-              height: 1px;
-              overflow: hidden;
+              display: flex;
+              flex-direction: column;
+              height: 100%;
             `}
           >
-            {t("navigation-menu")}
-          </h2>
+            {/* Helps screen reader users dismiss easily when tabbing */}
+            <DismissButton onDismiss={handleClose} />
 
-          <MenuHeader
-            currentSubmenu={currentSubmenu}
-            onBack={() => setCurrentSubmenu(null)}
-            onClose={handleClose}
-          />
+            <VisuallyHidden elementType={TITLE_ELEMENT} {...titleProps}>
+              {t("navigation-menu")}
+            </VisuallyHidden>
 
-          <MenuContent
-            primaryNavChildren={primaryNavChildren}
-            items={itemsToDisplay}
-            onItemClick={handleClose}
-            onSubmenuOpen={setCurrentSubmenu}
-          />
+            <MenuHeader
+              currentSubmenu={currentSubmenu}
+              onBack={() => setCurrentSubmenu(null)}
+              onClose={handleClose}
+            />
 
-          {/* Helps screen reader users dismiss easily when tabbing */}
-          <DismissButton onDismiss={handleClose} />
+            <MenuContent
+              primaryNavChildren={primaryNavChildren}
+              items={itemsToDisplay}
+              onItemClick={handleClose}
+              onSubmenuOpen={setCurrentSubmenu}
+            />
+
+            {/* Helps screen reader users dismiss easily when tabbing */}
+            <DismissButton onDismiss={handleClose} />
+          </div>
         </div>
       </div>
-    </div>
+    </FocusScope>
   )
 }

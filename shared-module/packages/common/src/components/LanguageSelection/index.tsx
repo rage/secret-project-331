@@ -90,6 +90,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       >
         <LanguageTranslation
           size={18}
+          aria-hidden="true"
           className={css`
             margin-right: 0.6rem;
           `}

@@ -3,6 +3,7 @@
 /* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { animated, useSpring } from "@react-spring/web"
+import { useReducedMotion } from "motion/react"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,43 +11,29 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { parseSentenceDifference } from "@/utils/course-material/typingDemoSentenceUtils"
 
-type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing"
+type Phase = "initial" | "mouseMove" | "mouseClick" | "showCaret" | "deleting" | "typing" | "done"
 
 interface AnimationState {
   phase: Phase
   displayWord: string
   mouseClicked: boolean
   caretVisible: boolean
-  cursorStartPosition: { x: number; y: number }
   cursorTargetPosition: { x: number; y: number }
 }
 
 const useImprovementAnimation = (incorrectPart: string, correctPart: string) => {
+  const reduceMotion = !!useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const wrongWordRef = useRef<HTMLSpanElement>(null)
 
-  const [state, setState] = useState<AnimationState>({
-    phase: "initial",
-    displayWord: incorrectPart,
+  // Under reduced motion the demo is never played, only its end state is shown.
+  const [state, setState] = useState<AnimationState>(() => ({
+    phase: reduceMotion ? "done" : "initial",
+    displayWord: reduceMotion ? correctPart : incorrectPart,
     mouseClicked: false,
     caretVisible: false,
-    cursorStartPosition: { x: 0, y: 0 },
     cursorTargetPosition: { x: 0, y: 0 },
-  })
-
-  const resetAnimation = useCallback(() => {
-    if (containerRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect()
-      setState({
-        phase: "initial",
-        displayWord: incorrectPart,
-        mouseClicked: false,
-        caretVisible: false,
-        cursorStartPosition: { x: containerRect.width + 20, y: -20 },
-        cursorTargetPosition: { x: 0, y: 0 },
-      })
-    }
-  }, [incorrectPart])
+  }))
 
   const updateState = useCallback(
     (updates: Partial<AnimationState> | ((prev: AnimationState) => Partial<AnimationState>)) => {
@@ -64,10 +51,7 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
   })
 
   const mouseMoveSpring = useSpring({
-    from:
-      state.phase === "mouseMove"
-        ? { left: state.cursorStartPosition.x, top: state.cursorStartPosition.y }
-        : {},
+    from: state.phase === "mouseMove" ? { left: 0, top: 0 } : {},
     to: { left: state.cursorTargetPosition.x, top: state.cursorTargetPosition.y },
     config: { tension: 80, friction: 12 },
     immediate: state.phase !== "mouseMove",
@@ -164,13 +148,11 @@ const useImprovementAnimation = (incorrectPart: string, correctPart: string) => 
         }, 100)
         return () => clearInterval(interval)
       }
-      const timeout = setTimeout(() => {
-        resetAnimation()
-      }, 2000)
-      return () => clearTimeout(timeout)
+      // Plays once: stop on the corrected sentence instead of looping.
+      updateState({ phase: "done", caretVisible: false })
     }
     return undefined
-  }, [state.phase, state.displayWord, correctPart, resetAnimation, updateState])
+  }, [state.phase, state.displayWord, correctPart, updateState])
 
   return {
     state,

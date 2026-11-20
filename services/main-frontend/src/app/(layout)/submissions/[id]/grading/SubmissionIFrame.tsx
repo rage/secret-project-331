@@ -28,6 +28,10 @@ const TITLE = "VIEW SUBMISSION"
 interface SubmissionIFrameProps {
   coursematerialExerciseTask: CourseMaterialExerciseTask
   throttled?: boolean
+  /** `false` for an ungraded answer snapshot, which has no grading to show. */
+  isGraded?: boolean
+  /** Accessible name of the frame, e.g. "Answer by <student>". */
+  title?: string
 }
 
 interface SubmissionState {
@@ -39,6 +43,8 @@ interface SubmissionState {
 const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>> = ({
   coursematerialExerciseTask,
   throttled = false,
+  isGraded = true,
+  title = TITLE,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -53,7 +59,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   const missingUrl =
     !coursematerialExerciseTask.exercise_iframe_url ||
     coursematerialExerciseTask.exercise_iframe_url.trim() === ""
-  const missingGrading = !coursematerialExerciseTask.previous_submission_grading
+  const missingGrading = isGraded && !coursematerialExerciseTask.previous_submission_grading
   const previousSubmission = coursematerialExerciseTask.previous_submission
   const missingSubmission = previousSubmission === null || previousSubmission === undefined
 
@@ -105,11 +111,11 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         url={url}
         onMessageFromIframe={handleMessageFromIframe}
         postThisStateToIFrame={postThisStateToIFrame}
-        title={TITLE}
+        title={title}
         onReady={onReady}
       />
     ),
-    [url, handleMessageFromIframe, postThisStateToIFrame, dialog],
+    [url, handleMessageFromIframe, postThisStateToIFrame, dialog, title],
   )
 
   if (missingUrl) {
@@ -144,7 +150,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       url={url}
       onMessageFromIframe={handleMessageFromIframe}
       postThisStateToIFrame={postThisStateToIFrame}
-      title={TITLE}
+      title={title}
     />
   )
 }

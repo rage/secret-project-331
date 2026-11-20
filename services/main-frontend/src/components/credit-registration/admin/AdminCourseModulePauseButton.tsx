@@ -13,6 +13,7 @@ import { Menu } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
+import { AUDIT_ACTION } from "./auditActions"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
 interface Props {
@@ -34,6 +35,7 @@ const AdminCourseModulePauseButton: React.FC<Props> = ({
   const invalidateCourseStats = useInvalidateCourseStats()
 
   const { pauseItem, resumeItem, dialog } = usePauseResumeAction({
+    pauseAuditAction: AUDIT_ACTION.PAUSE_COURSE_MODULE,
     pause: (fields) =>
       adminPauseCourseModuleCreditRegistration({
         path: { course_module_id: courseModuleId },

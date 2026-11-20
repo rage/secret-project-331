@@ -137,7 +137,6 @@ const CreditRegistrationStatusCell: React.FC<Props> = ({ registration, isCourseW
         data-has-reason={reason ? "true" : "false"}
         onClick={() => setOpen(true)}
         aria-haspopup={OPENS_A_DIALOG}
-        aria-label={t("button-text-show-credit-registration-details", { status: label })}
       >
         <span className={badgeRowCss}>
           <RegistrationStatusBadge

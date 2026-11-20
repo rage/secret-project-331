@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test"
-import type { Locator, Page } from "playwright"
+import type { FrameLocator, Locator, Page } from "playwright"
 
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 
@@ -54,6 +54,15 @@ export function getLocatorForNthExerciseServiceIframeElement(
   n: number,
 ): Locator {
   return page.locator(exerciseServiceIframeSelector(exerciseServiceSlug, n))
+}
+
+/** Frame of the nth (1-based) task iframe in `scope`, by position since its title is the exercise name.
+ * Scope to `getExerciseRegion` on pages with several exercises. */
+export function getExerciseTaskFrame(scope: Page | Locator, task: number): FrameLocator {
+  return scope
+    .getByTestId("message-channel-iframe")
+    .nth(task - 1)
+    .contentFrame()
 }
 
 /**

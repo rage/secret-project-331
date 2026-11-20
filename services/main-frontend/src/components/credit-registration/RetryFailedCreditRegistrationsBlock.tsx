@@ -20,7 +20,7 @@ interface Props {
    * sending those again fails them the same way.
    */
   retryableCount: number
-  /** Whether any enabled module is paused, in which case nothing this button sends will move. */
+  /** Whether any module is paused, in which case nothing this button sends will move. */
   isAnyModulePaused: boolean
 }
 

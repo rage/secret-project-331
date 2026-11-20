@@ -342,7 +342,6 @@ export const getCourseMaterialChapterPagesWithExercisesQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterPagesWithExercises", options)
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
  */
 export const getCourseMaterialChapterPagesWithExercisesOptions = (
@@ -365,7 +364,6 @@ export const getCourseMaterialChapterPagesWithExercisesOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)
  *
  * Completes a chapter for the authenticated user (marks it as done).
@@ -405,7 +403,6 @@ export const getCourseMaterialChapterLockPreviewQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterLockPreview", options)
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter
  *
  * Returns information about unreturned exercises in the chapter before locking.
@@ -435,7 +432,6 @@ export const getCourseMaterialChapterPagesQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterPages", options)
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
  */
 export const getCourseMaterialChapterPagesOptions = (
@@ -462,7 +458,6 @@ export const getCourseMaterialChapterPagesExcludingFrontPageQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterPagesExcludingFrontPage", options)
 
 /**
- *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
  */
 export const getCourseMaterialChapterPagesExcludingFrontPageOptions = (
@@ -488,7 +483,6 @@ export const allUserConversationsQueryKey = (options?: Options<AllUserConversati
   createQueryKey("allUserConversations", options)
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/conversations/all`
  *
  * Returns all conversations that a user has.
@@ -515,7 +509,6 @@ export const getDefaultChatbotConfigurationForCourseQueryKey = (
 ) => createQueryKey("getDefaultChatbotConfigurationForCourse", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
  *
  * Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
@@ -543,7 +536,6 @@ export const getConversationInfoQueryKey = (options: Options<GetConversationInfo
   createQueryKey("getConversationInfo", options)
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations`
  *
  * Returns a chatbot conversation for the user. If conversation id is not provided as a query parameter then latest conversation is returned.
@@ -569,7 +561,6 @@ export const getCurrentConversationIdQueryKey = (options: Options<GetCurrentConv
   createQueryKey("getCurrentConversationId", options)
 
 /**
- *
  * GET `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/current/id`
  *
  * Returns current chatbot conversation id.
@@ -592,7 +583,6 @@ export const getCurrentConversationIdOptions = (options: Options<GetCurrentConve
   })
 
 /**
- *
  * POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/new`
  *
  * Sends a new chat message to the chatbot.
@@ -620,7 +610,6 @@ export const newChatbotConversationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
  *
  * Sends a new chat message to the chatbot.
@@ -648,7 +637,6 @@ export const sendChatbotMessageMutation = (
 }
 
 /**
- *
  * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/tool-response`
  *
  * Answers a tool call the chatbot suspended its turn on, which resumes the turn once nothing else
@@ -678,7 +666,6 @@ export const sendChatbotToolResponseMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/update-title`
  *
  * Updates the title of a chatbot conversation.
@@ -698,7 +685,6 @@ export const updateTitleMutation = (
 }
 
 /**
- *
  * POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.
  */
 export const claimCodeFromCodeGiveawayMutation = (
@@ -727,7 +713,6 @@ export const getCodeGiveawayStatusQueryKey = (options: Options<GetCodeGiveawaySt
   createQueryKey("getCodeGiveawayStatus", options)
 
 /**
- *
  * GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
  */
 export const getCodeGiveawayStatusOptions = (options: Options<GetCodeGiveawayStatusData>) =>
@@ -752,7 +737,6 @@ export const getCourseMaterialBackgroundQuestionsAndAnswersQueryKey = (
 ) => createQueryKey("getCourseMaterialBackgroundQuestionsAndAnswers", options)
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
  */
 export const getCourseMaterialBackgroundQuestionsAndAnswersOptions = (
@@ -779,7 +763,6 @@ export const getCourseMaterialChapterExerciseProgressQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterExerciseProgress", options)
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
  */
 export const getCourseMaterialChapterExerciseProgressOptions = (
@@ -806,7 +789,6 @@ export const getCourseMaterialChapterProgressQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterProgress", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
  */
 export const getCourseMaterialChapterProgressOptions = (
@@ -833,7 +815,6 @@ export const getCourseMaterialCourseModuleCompletionsForUserQueryKey = (
 ) => createQueryKey("getCourseMaterialCourseModuleCompletionsForUser", options)
 
 /**
- *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
 export const getCourseMaterialCourseModuleCompletionsForUserOptions = (
@@ -860,7 +841,6 @@ export const getCourseMaterialCourseModulePointsBreakdownQueryKey = (
 ) => createQueryKey("getCourseMaterialCourseModulePointsBreakdown", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-instances/:course_instance_id/course-modules/:course_module_id/points-breakdown` - Returns the user's points in the module's opened chapters, exercise by exercise.
  */
 export const getCourseMaterialCourseModulePointsBreakdownOptions = (
@@ -887,7 +867,6 @@ export const getCourseMaterialUserModuleCompletionsQueryKey = (
 ) => createQueryKey("getCourseMaterialUserModuleCompletions", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
 export const getCourseMaterialUserModuleCompletionsOptions = (
@@ -914,7 +893,6 @@ export const getCourseMaterialUserCourseProgressQueryKey = (
 ) => createQueryKey("getCourseMaterialUserCourseProgress", options)
 
 /**
- *
  * GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
  */
 export const getCourseMaterialUserCourseProgressOptions = (
@@ -937,7 +915,6 @@ export const getCourseMaterialUserCourseProgressOptions = (
   })
 
 /**
- *
  * POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
  */
 export const saveCourseMaterialCourseSettingsMutation = (
@@ -967,7 +944,6 @@ export const getCourseMaterialModuleIdByChapterIdQueryKey = (
 ) => createQueryKey("getCourseMaterialModuleIdByChapterId", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
  *
  * Returns course module id based on chapter.
@@ -996,7 +972,6 @@ export const getCourseMaterialDefaultModuleIdByCourseIdQueryKey = (
 ) => createQueryKey("getCourseMaterialDefaultModuleIdByCourseId", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/course/:course_instance_id`
  *
  * Returns course module id based on chapter.
@@ -1025,7 +1000,6 @@ export const getCourseMaterialExerciseTasksByModuleAndTypeQueryKey = (
 ) => createQueryKey("getCourseMaterialExerciseTasksByModuleAndType", options)
 
 /**
- *
  * GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`
  *
  * Returns exercise submissions for user to be used in en exercise service Custom view.
@@ -1053,7 +1027,6 @@ export const getCourseMaterialCourseQueryKey = (options: Options<GetCourseMateri
   createQueryKey("getCourseMaterialCourse", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id` - Get course.
  */
 export const getCourseMaterialCourseOptions = (options: Options<GetCourseMaterialCourseData>) =>
@@ -1078,7 +1051,6 @@ export const getAiUsageNoticeAcknowledgementQueryKey = (
 ) => createQueryKey("getAiUsageNoticeAcknowledgement", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the
  * current user has acknowledged the AI-usage / academic-integrity notice for this course.
  */
@@ -1102,7 +1074,6 @@ export const getAiUsageNoticeAcknowledgementOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that
  * the current user has acknowledged the AI-usage / academic-integrity notice for this course.
  */
@@ -1133,7 +1104,6 @@ export const getCourseMaterialChaptersQueryKey = (
 ) => createQueryKey("getCourseMaterialChapters", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
  */
 export const getCourseMaterialChaptersOptions = (options: Options<GetCourseMaterialChaptersData>) =>
@@ -1158,7 +1128,6 @@ export const getCourseMaterialCourseInstancesQueryKey = (
 ) => createQueryKey("getCourseMaterialCourseInstances", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseMaterialCourseInstancesOptions = (
@@ -1185,7 +1154,6 @@ export const getCourseMaterialStudentCountriesQueryKey = (
 ) => createQueryKey("getCourseMaterialStudentCountries", options)
 
 /**
- *
  * GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
 export const getCourseMaterialStudentCountriesOptions = (
@@ -1208,7 +1176,6 @@ export const getCourseMaterialStudentCountriesOptions = (
   })
 
 /**
- *
  * POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
  */
 export const postCourseMaterialStudentCountryMutation = (
@@ -1238,7 +1205,6 @@ export const getCurrentCourseMaterialCourseInstanceQueryKey = (
 ) => createQueryKey("getCurrentCourseMaterialCourseInstance", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
  */
 export const getCurrentCourseMaterialCourseInstanceOptions = (
@@ -1265,7 +1231,6 @@ export const getCourseMaterialCustomPrivacyPolicyCheckboxTextsQueryKey = (
 ) => createQueryKey("getCourseMaterialCustomPrivacyPolicyCheckboxTexts", options)
 
 /**
- *
  * GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
  */
 export const getCourseMaterialCustomPrivacyPolicyCheckboxTextsOptions = (
@@ -1288,7 +1253,6 @@ export const getCourseMaterialCustomPrivacyPolicyCheckboxTextsOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
  */
 export const postFeedbackMutation = (
@@ -1314,7 +1278,6 @@ export const getCourseMaterialUserMarketingConsentQueryKey = (
 ) => createQueryKey("getCourseMaterialUserMarketingConsent", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
  */
 export const getCourseMaterialUserMarketingConsentOptions = (
@@ -1362,7 +1325,6 @@ export const getCourseMaterialLanguageVersionNavigationInfosQueryKey = (
 ) => createQueryKey("getCourseMaterialLanguageVersionNavigationInfos", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
  */
 export const getCourseMaterialLanguageVersionNavigationInfosOptions = (
@@ -1389,7 +1351,6 @@ export const getCourseMaterialCoursePagesQueryKey = (
 ) => createQueryKey("getCourseMaterialCoursePages", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.
  *
  * Since anyone can access this endpoint, any unlisted pages are omited from these results.
@@ -1418,7 +1379,6 @@ export const getCourseMaterialPageByCourseIdAndLanguageGroupIdQueryKey = (
 ) => createQueryKey("getCourseMaterialPageByCourseIdAndLanguageGroupId", options)
 
 /**
- *
  * GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
 export const getCourseMaterialPageByCourseIdAndLanguageGroupIdOptions = (
@@ -1445,7 +1405,6 @@ export const getCourseMaterialPartnersBlockQueryKey = (
 ) => createQueryKey("getCourseMaterialPartnersBlock", options)
 
 /**
- *
  * GET /courses/:course_id/partners-block - Gets a partners block related to a course
  */
 export const getCourseMaterialPartnersBlockOptions = (
@@ -1472,7 +1431,6 @@ export const getCourseMaterialPrivacyLinkQueryKey = (
 ) => createQueryKey("getCourseMaterialPrivacyLink", options)
 
 /**
- *
  * GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
  */
 export const getCourseMaterialPrivacyLinkOptions = (
@@ -1522,7 +1480,6 @@ export const getCourseMaterialResearchConsentFormQueryKey = (
 ) => createQueryKey("getCourseMaterialResearchConsentForm", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
  */
 export const getCourseMaterialResearchConsentFormOptions = (
@@ -1549,7 +1506,6 @@ export const getCourseMaterialResearchConsentFormQuestionsQueryKey = (
 ) => createQueryKey("getCourseMaterialResearchConsentFormQuestions", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
  */
 export const getCourseMaterialResearchConsentFormQuestionsOptions = (
@@ -1572,7 +1528,6 @@ export const getCourseMaterialResearchConsentFormQuestionsOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
  */
 export const postCourseMaterialResearchConsentFormAnswerMutation = (
@@ -1602,7 +1557,6 @@ export const getCourseMaterialResearchConsentFormAnswersQueryKey = (
 ) => createQueryKey("getCourseMaterialResearchConsentFormAnswers", options)
 
 /**
- *
  * GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
  */
 export const getCourseMaterialResearchConsentFormAnswersOptions = (
@@ -1625,7 +1579,6 @@ export const getCourseMaterialResearchConsentFormAnswersOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.
  *
  * Provided words are supposed to appear right after each other in the source document.
@@ -1666,7 +1619,6 @@ export const searchPagesWithPhraseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.
  *
  * Provided words can appear in any order in the source document.
@@ -1711,7 +1663,6 @@ export const getCourseMaterialTopLevelPagesQueryKey = (
 ) => createQueryKey("getCourseMaterialTopLevelPages", options)
 
 /**
- *
  * GET /api/v0/course-material/courses/:course_id/top-level-pages
  */
 export const getCourseMaterialTopLevelPagesOptions = (
@@ -1738,7 +1689,6 @@ export const getCourseMaterialUserChapterLocksQueryKey = (
 ) => createQueryKey("getCourseMaterialUserChapterLocks", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locking statuses for course
  *
  * Returns all chapters that the authenticated user has unlocked or completed for the specified course.
@@ -1764,7 +1714,6 @@ export const getCourseMaterialUserChapterLocksOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
  */
 export const updateMarketingConsentMutation = (
@@ -1794,7 +1743,6 @@ export const getCourseMaterialUserCourseSettingsQueryKey = (
 ) => createQueryKey("getCourseMaterialUserCourseSettings", options)
 
 /**
- *
  * GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
  */
 export const getCourseMaterialUserCourseSettingsOptions = (
@@ -1821,7 +1769,6 @@ export const getCourseMaterialStudentCountryQueryKey = (
 ) => createQueryKey("getCourseMaterialStudentCountry", options)
 
 /**
- *
  * GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
 export const getCourseMaterialStudentCountryOptions = (
@@ -1848,7 +1795,6 @@ export const getCourseMaterialCoursePageByPathQueryKey = (
 ) => createQueryKey("getCourseMaterialCoursePageByPath", options)
 
 /**
- *
  * GET `/:course_slug/page-by-path/...` - Returns a course page by path
  *
  * If the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.
@@ -1876,7 +1822,6 @@ export const getCourseMaterialCoursePageByPathOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
  */
 export const postCourseMaterialCourseEditProposalMutation = (
@@ -1905,7 +1850,6 @@ export const fetchExamForTestingQueryKey = (options: Options<FetchExamForTesting
   createQueryKey("fetchExamForTesting", options)
 
 /**
- *
  * GET /api/v0/course-material/exams/:id/fetch-exam-for-testing
  *
  * Fetches an exam for testing.
@@ -1928,7 +1872,6 @@ export const fetchExamForTestingOptions = (options: Options<FetchExamForTestingD
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/reset-exam-progress
  *
  * Used for testing an exam, resets exercise submissions and restarts the exam time.
@@ -1952,7 +1895,6 @@ export const resetExamProgressMutation = (
 }
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/update-show-exercise-answers
  *
  * Used for testing an exam, updates wheter exercise answers are shown.
@@ -1979,7 +1921,6 @@ export const fetchExamQueryKey = (options: Options<FetchExamData>) =>
   createQueryKey("fetchExam", options)
 
 /**
- *
  * GET /api/v0/course-material/exams/:id
  */
 export const fetchExamOptions = (options: Options<FetchExamData>) =>
@@ -2000,7 +1941,6 @@ export const fetchExamOptions = (options: Options<FetchExamData>) =>
   })
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/end-exam-time
  *
  * Used for marking the students exam as ended in the exam enrollment
@@ -2020,7 +1960,6 @@ export const endExamTimeMutation = (
 }
 
 /**
- *
  * POST /api/v0/course-material/exams/:id/enroll
  */
 export const enrollInExamMutation = (
@@ -2041,7 +1980,6 @@ export const fetchExamEnrollmentQueryKey = (options: Options<FetchExamEnrollment
   createQueryKey("fetchExamEnrollment", options)
 
 /**
- *
  * GET /api/v0/course-material/exams/:id/enrollment
  */
 export const fetchExamEnrollmentOptions = (options: Options<FetchExamEnrollmentData>) =>
@@ -2066,7 +2004,6 @@ export const getCourseMaterialExerciseQueryKey = (
 ) => createQueryKey("getCourseMaterialExercise", options)
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes
  * relevant context so that doing the exercise is possible based on the response.
  *
@@ -2095,7 +2032,6 @@ export const fetchPeerReviewDataReceivedByExerciseIdQueryKey = (
 ) => createQueryKey("fetchPeerReviewDataReceivedByExerciseId", options)
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
  */
 export const fetchPeerReviewDataReceivedByExerciseIdOptions = (
@@ -2118,7 +2054,6 @@ export const fetchPeerReviewDataReceivedByExerciseIdOptions = (
   })
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
  */
 export const postFlagAnswerInPeerReviewMutation = (
@@ -2144,7 +2079,6 @@ export const postFlagAnswerInPeerReviewMutation = (
 }
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * * exercise submission.
  */
@@ -2171,7 +2105,6 @@ export const postPeerOrSelfReviewSubmissionMutation = (
 }
 
 /**
- *
  * * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that
  * * the user will start the peer or self reviewing process.
  * *
@@ -2205,7 +2138,6 @@ export const fetchPeerOrSelfReviewDataByExerciseIdQueryKey = (
 ) => createQueryKey("fetchPeerOrSelfReviewDataByExerciseId", options)
 
 /**
- *
  * GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER
  *
  * This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
@@ -2230,7 +2162,6 @@ export const fetchPeerOrSelfReviewDataByExerciseIdOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an
  * exercise.
  *
@@ -2276,7 +2207,6 @@ export const getCourseMaterialMentimeterOembedQueryKey = (
 ) => createQueryKey("getCourseMaterialMentimeterOembed", options)
 
 /**
- *
  * GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
  */
 export const getCourseMaterialMentimeterOembedOptions = (
@@ -2303,7 +2233,6 @@ export const getCourseMaterialOrganizationQueryKey = (
 ) => createQueryKey("getCourseMaterialOrganization", options)
 
 /**
- *
  * GET /organizations/:organization_id - Get organization.
  */
 export const getCourseMaterialOrganizationOptions = (
@@ -2353,7 +2282,6 @@ export const getCourseMaterialPageByExamIdQueryKey = (
 ) => createQueryKey("getCourseMaterialPageByExamId", options)
 
 /**
- *
  * GET /api/v0/course-material/pages/exam/{page_id}
  */
 export const getCourseMaterialPageByExamIdOptions = (
@@ -2380,7 +2308,6 @@ export const getCourseMaterialPageChapterAndCourseInformationQueryKey = (
 ) => createQueryKey("getCourseMaterialPageChapterAndCourseInformation", options)
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs
  */
 export const getCourseMaterialPageChapterAndCourseInformationOptions = (
@@ -2407,7 +2334,6 @@ export const getCourseMaterialChapterFrontPageQueryKey = (
 ) => createQueryKey("getCourseMaterialChapterFrontPage", options)
 
 /**
- *
  * GET /api/v0/course-material/page/{page_id}
  */
 export const getCourseMaterialChapterFrontPageOptions = (
@@ -2457,7 +2383,6 @@ export const getCourseMaterialPageNavigationQueryKey = (
 ) => createQueryKey("getCourseMaterialPageNavigation", options)
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
 export const getCourseMaterialPageNavigationOptions = (
@@ -2484,7 +2409,6 @@ export const getCourseMaterialPageUrlPathQueryKey = (
 ) => createQueryKey("getCourseMaterialPageUrlPath", options)
 
 /**
- *
  * GET /api/v0/course-material/pages/:page_id/url-path - returns the page's URL path.
  * # Example
  * ```json
@@ -2511,7 +2435,6 @@ export const getCourseMaterialPageUrlPathOptions = (
   })
 
 /**
- *
  * POST `/api/v0/course-material/proposed-edits/:course-id`
  */
 export const postCourseMaterialProposedEditsMutation = (
@@ -2533,7 +2456,6 @@ export const postCourseMaterialProposedEditsMutation = (
 }
 
 /**
- *
  * POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
  */
 export const updateCourseMaterialUserInfoMutation = (
@@ -2563,7 +2485,6 @@ export const getCourseMaterialAuthenticatedUserDetailsQueryKey = (
 ) => createQueryKey("getCourseMaterialAuthenticatedUserDetails", options)
 
 /**
- *
  * GET `/api/v0/course-material/user-details/user` - Find user details by user id
  */
 export const getCourseMaterialAuthenticatedUserDetailsOptions = (
@@ -2590,7 +2511,6 @@ export const getCourseMaterialCountryFromIpQueryKey = (
 ) => createQueryKey("getCourseMaterialCountryFromIp", options)
 
 /**
- *
  * GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address
  */
 export const getCourseMaterialCountryFromIpOptions = (

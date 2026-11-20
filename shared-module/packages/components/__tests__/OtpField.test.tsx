@@ -135,7 +135,8 @@ describe("OtpField", () => {
     expect(screen.getByRole("group", { name: /Verification code/ })).toBeInTheDocument()
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-required", "true")
     expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-invalid", "true")
-    expect(screen.getByRole("alert")).toHaveTextContent("Required")
+    expect(screen.getByText("Required")).toBeInTheDocument()
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("data-testid lands on the slot group", () => {

@@ -13,7 +13,7 @@ test("Can get and accept paragraph AI suggestions", async ({ page }) => {
   await page.goto(COURSE_PAGES_URL)
   await page
     .getByRole("row", { name: /Page One/ })
-    .getByRole("button", { name: "Edit page" })
+    .getByRole("link", { name: "Edit page" })
     .click()
 
   await page.getByText("Everything is a big topic.").click()

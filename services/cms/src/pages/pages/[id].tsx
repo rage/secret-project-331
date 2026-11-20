@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 
-import type { CmsPageUpdate, Page } from "@/generated/api"
+import type { Page } from "@/generated/api"
 import {
   getCmsCourseOptions,
   getCmsPageOptions,
@@ -21,8 +21,10 @@ import { QueryResult } from "@/shared-module/components/components/queryResult/Q
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+import type { PageSaveVariables } from "../../components/editors/PageEditor"
 import PageContext from "../../contexts/PageContext"
 import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
+import { isStaleVersionError } from "../../utils/staleSave"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -33,6 +35,8 @@ const PageEditor = dynamicImport(() => import("../../components/editors/PageEdit
 const Pages = ({ query }: PagesProps) => {
   const { id } = query
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
+  // Changing the key reloads the editor from the freshly fetched page.
+  const [editorKey, setEditorKey] = useState(0)
   const queryClient = useQueryClient()
   const getPage = useQuery({
     ...optionalGeneratedQueryOptions({
@@ -86,18 +90,22 @@ const Pages = ({ query }: PagesProps) => {
   )
 
   const mutate = useToastMutation(
-    (newPage: CmsPageUpdate) =>
+    ({ page, overwrite }: PageSaveVariables) =>
       updateCmsPage({
         path: {
           page_id: id,
         },
-        body: newPage,
+        body: {
+          ...page,
+          expected_updated_at: overwrite ? null : (getPage.data?.updated_at ?? null),
+        },
       }),
     {
       notify: true,
       dismissable: true,
       method: "PUT",
       toastOptions: { duration: 5000 },
+      isErrorHandledByCaller: isStaleVersionError,
     },
     {
       onSuccess: (newData) => {
@@ -115,7 +123,14 @@ const Pages = ({ query }: PagesProps) => {
           <PageEditor
             data={page}
             courseCanAddChatbot={!!course.data?.can_add_chatbot}
+            key={editorKey}
             saveMutation={mutate}
+            onDiscardChanges={() => {
+              void getPage.refetch().then(() => {
+                setNeedToRunMigrationsAndValidations(true)
+                setEditorKey((key) => key + 1)
+              })
+            }}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
           />

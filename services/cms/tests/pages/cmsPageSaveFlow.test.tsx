@@ -11,13 +11,18 @@ import { isEqual } from "lodash"
 import { act, createElement, useReducer } from "react"
 import { createRoot } from "react-dom/client"
 
-import type { CmsPageUpdate, ContentManagementPage, Page, UpdateCmsPageData } from "@/generated/api"
+import type { CmsPageSave, ContentManagementPage, Page, UpdateCmsPageData } from "@/generated/api"
+
+import type { PageSaveVariables } from "../../src/components/editors/PageEditor"
 
 const PAGE_ID = "77777777-7777-4777-8777-777777777777"
 const EXERCISE_ID = "11111111-1111-4111-8111-111111111111"
 const SLIDE_ID = "22222222-2222-4222-8222-222222222222"
 const TASK_ID = "33333333-3333-4333-8333-333333333333"
 const EDITED_EXERCISE_NAME = "Renamed exercise"
+const SAVED_UPDATED_AT = "2020-01-02T00:00:00Z"
+
+const sentBodies: CmsPageSave[] = []
 
 /**
  * Block names PageEditor treats as supported on a chapter page, as far as this fixture needs. The
@@ -108,20 +113,24 @@ const savedPageResponse = (): ContentManagementPage => ({
 })
 
 /** Stands in for the backend: echoes the PUT body back in the endpoint's response shape. */
-const savePageOnFakeBackend = (body: CmsPageUpdate): ContentManagementPage => ({
-  ...savedPageResponse(),
-  page: {
-    ...savedPage,
-    content: body.content,
-    title: body.title,
-    url_path: body.url_path,
-    hidden: body.hidden,
-    chapter_id: body.chapter_id ?? null,
-  },
-  exercises: body.exercises,
-  exercise_slides: body.exercise_slides,
-  exercise_tasks: body.exercise_tasks,
-})
+const savePageOnFakeBackend = (body: CmsPageSave): ContentManagementPage => {
+  sentBodies.push(body)
+  return {
+    ...savedPageResponse(),
+    page: {
+      ...savedPage,
+      updated_at: SAVED_UPDATED_AT,
+      content: body.content,
+      title: body.title,
+      url_path: body.url_path,
+      hidden: body.hidden,
+      chapter_id: body.chapter_id ?? null,
+    },
+    exercises: body.exercises,
+    exercise_slides: body.exercise_slides,
+    exercise_tasks: body.exercise_tasks,
+  }
+}
 
 await jest.unstable_mockModule("next/router", () => ({
   useRouter: () => ({
@@ -151,7 +160,7 @@ await jest.unstable_mockModule("../../src/components/editors/PageEditor", () => 
 const realSdk = await import("@/generated/api/sdk.generated")
 await jest.unstable_mockModule("@/generated/api/sdk.generated", () => ({
   ...realSdk,
-  updateCmsPage: ({ body }: { body: CmsPageUpdate } & UpdateCmsPageData) =>
+  updateCmsPage: ({ body }: { body: CmsPageSave } & UpdateCmsPageData) =>
     Promise.resolve(savePageOnFakeBackend(body)),
 }))
 
@@ -169,7 +178,7 @@ type Blocks = Parameters<typeof modifyBlocks>[0]
 
 interface SaveStateProbeProps {
   data: Page
-  saveMutation: UseMutationResult<ContentManagementPage, unknown, CmsPageUpdate, unknown>
+  saveMutation: UseMutationResult<ContentManagementPage, unknown, PageSaveVariables, unknown>
 }
 
 /** Returns `content` with the exercise renamed, standing in for a teacher editing the page. */
@@ -194,13 +203,16 @@ function SaveStateProbe({ data, saveMutation }: SaveStateProbeProps) {
 
   const handleSave = () => {
     saveMutation.mutate(
-      normalizeDocument({
-        chapterId: data.chapter_id ?? null,
-        content: removeUnsupportedBlockType(content),
-        title: data.title,
-        urlPath: data.url_path,
-        hidden: data.hidden,
-      }),
+      {
+        page: normalizeDocument({
+          chapterId: data.chapter_id ?? null,
+          content: removeUnsupportedBlockType(content),
+          title: data.title,
+          urlPath: data.url_path,
+          hidden: data.hidden,
+        }),
+        overwrite: false,
+      },
       {
         onSuccess: (saveResult) => {
           if (!isGutenbergBlockArray(saveResult.page.content)) {
@@ -297,11 +309,19 @@ it("reports the page as saved again once a save has gone through", async () => {
   })
 
   expect(saveState()).toBe("saved")
+  expect(sentBodies[0]?.expected_updated_at).toBe(savedPage.updated_at)
   expect(
     queryClient.getQueryData<ContentManagementPage>(
       getCmsPageQueryKey({ path: { page_id: PAGE_ID } }),
     )?.exercises[0]?.name,
   ).toBe(EDITED_EXERCISE_NAME)
+
+  // A second save has to expect the version the first one wrote, not conflict with it.
+  await click("save")
+  await act(async () => {
+    await Promise.resolve()
+  })
+  expect(sentBodies[1]?.expected_updated_at).toBe(SAVED_UPDATED_AT)
 
   await act(() => {
     root.unmount()

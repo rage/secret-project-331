@@ -39,7 +39,7 @@ pub fn get_azure_ai_search_tool_definition(
         "vector_simple_hybrid"
     };
 
-    let semantic_configuration = format!("{}-semantic-configuration", &index_name);
+    let semantic_configuration = format!("{}-semantic-configuration", index_name);
 
     Ok(AzureAISearchToolDefinition {
         data_type: "azure_ai_search".to_string(),

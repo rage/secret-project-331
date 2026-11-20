@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react"
+import { useState } from "react"
 import { vi } from "vitest"
 
 import type { UserItemAnswerTimeline } from "../../../../../../types/quizTypes/answer"
@@ -45,6 +46,20 @@ const renderTimeline = (answer: UserItemAnswerTimeline | null = null) => {
     />,
   )
   return { ...utils, setQuizItemAnswerState }
+}
+
+const Stateful = () => {
+  const [answer, setAnswer] = useState<UserItemAnswerTimeline | null>(null)
+  return (
+    <Timeline
+      quizDirection="column"
+      quizItem={baseItem}
+      quizItemAnswerState={answer}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      user_information={{} as any}
+      setQuizItemAnswerState={(a) => setAnswer(a as UserItemAnswerTimeline)}
+    />
+  )
 }
 
 describe("Timeline accessibility", () => {
@@ -118,5 +133,14 @@ describe("Timeline accessibility", () => {
     expect(setQuizItemAnswerState).toHaveBeenCalledWith(
       expect.objectContaining({ timelineChoices: [] }),
     )
+  })
+
+  it("moves focus to Remove after choosing and back to the select after removing", () => {
+    render(<Stateful />)
+    fireEvent.change(screen.getByLabelText("1984"), { target: { value: "event-a" } })
+    const remove = screen.getByRole("button", { name: /year=1984/ })
+    expect(remove).toHaveFocus()
+    fireEvent.click(remove)
+    expect(screen.getByLabelText("1984")).toHaveFocus()
   })
 })

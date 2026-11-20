@@ -1,4 +1,5 @@
 import type {
+  CreditRegistrationErrorCode,
   MyCreditRegistration,
   MyEnrolmentRoute,
   MyVerifiedStudentNumber,
@@ -18,8 +19,8 @@ export interface TrackerViewInput {
  * Doubles as proof that they enrolled: the mail is minted from the study registry's own roster for
  * the course, so it cannot exist for someone the registry has never listed.
  */
-const wasListedByTheRegistry = (registration: MyCreditRegistration): boolean =>
-  registration.linking_email !== null && registration.linking_email !== undefined
+export const wasListedByTheRegistry = (registration: MyCreditRegistration | null): boolean =>
+  registration?.linking_email !== null && registration?.linking_email !== undefined
 
 /**
  * Whether the enrolment question still decides anything, judged from the ledger row alone.
@@ -32,7 +33,7 @@ const wasListedByTheRegistry = (registration: MyCreditRegistration): boolean =>
  * has not gotten past to start looking for an enrolment, so asking would be premature, not helpful.
  * `sending` and `waiting_for_sisu` only follow a settled enrolment.
  */
-const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolean => {
+export const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolean => {
   if (registration.enrolment_found) {
     return false
   }
@@ -50,52 +51,6 @@ const stillNeedsAnEnrolmentAnswer = (registration: MyCreditRegistration): boolea
 }
 
 /**
- * Whether the student is still being asked where they enrol.
- *
- * Never without the stored answer in hand: the question band cannot be drawn without it, and a page
- * that counted as asking anyway would suppress the status band too and show an empty card.
- */
-export const asksWhereYouEnrolled = ({ registration, enrolmentRoute }: TrackerViewInput): boolean =>
-  registration !== null &&
-  enrolmentRoute !== null &&
-  enrolmentRoute.can_change !== false &&
-  stillNeedsAnEnrolmentAnswer(registration)
-
-/** The two stages that both mean the same thing to a student: it is not in the records yet. */
-const ENROLMENT_WAIT = ["looking_for_enrolment", "needs_enrolment"]
-
-/**
- * Whether the page is waiting for the enrolment to turn up.
- *
- * One band covers both stages on purpose. `needs_enrolment` is entered on the very first look,
- * minutes after the student says they enrolled, so treating it as a verdict of its own would
- * report a routine "nothing there yet" as something having gone wrong. The only honest difference
- * is that we will look again on request, which is a button rather than a diagnosis.
- */
-export const isWaitingForEnrolment = (input: TrackerViewInput): boolean =>
-  input.registration !== null &&
-  !input.registration.enrolment_found &&
-  input.enrolmentRoute?.enrolment_confirmed_at !== null &&
-  input.enrolmentRoute?.enrolment_confirmed_at !== undefined &&
-  ENROLMENT_WAIT.includes(input.registration.student_facing_status)
-
-/**
- * Whether the state needs saying in its own words.
- *
- * Silent through the enrolment wait, through `needs_student_number` and, while the enrolment
- * question is asked, through the stages it is about: each has a band of its own, and the question
- * with its button is the last thing the student should read. Every other state says something none
- * of those can.
- */
-export const saysWhatIsHappening = (input: TrackerViewInput): boolean =>
-  input.registration !== null &&
-  input.registration.student_facing_status !== "needs_student_number" &&
-  !isWaitingForEnrolment(input) &&
-  !(
-    asksWhereYouEnrolled(input) && ENROLMENT_WAIT.includes(input.registration.student_facing_status)
-  )
-
-/**
  * Whether the registration's own facts — when it was registered, the grade, the credits — belong on
  * the page. Only once there are any: before that the page is about what happens next.
  */
@@ -111,15 +66,14 @@ export const showsRegistrationFacts = (registration: MyCreditRegistration | null
  * nobody is registering has no number to name.
  *
  * `awaiting-email` replaces the enrol step once the student has said they enrolled, or once a mail
- * is queued: either way enrolling is behind them. `waitingSince` is `null` when we only know of the
- * queued mail. `contact-support` is for when no mail can come any more: the latest link was used,
- * or it expired with the caps spent.
+ * is queued: either way enrolling is behind them. `contact-support` is for when no mail can come
+ * any more: the latest link was used, or it expired with the caps spent.
  */
 export type StudentNumberLinkBand =
   | { kind: "registering"; studentNumber: string }
   | { kind: "linked"; studentNumber: string }
   | { kind: "awaiting-enrolment" }
-  | { kind: "awaiting-email"; isOpenUniversity: boolean; waitingSince: string | null }
+  | { kind: "awaiting-email"; isOpenUniversity: boolean }
   | { kind: "staff-links" }
   | { kind: "mailed"; emailMasked: string; sentAt: string }
   | { kind: "link-expired"; emailMasked: string; sentAt: string }
@@ -170,20 +124,58 @@ export const studentNumberLinkBand = (
   if (mail?.link_state === "used" || mail?.link_state === "expired_no_resend") {
     return { kind: "contact-support" }
   }
-  const confirmedAt = enrolmentRoute?.enrolment_confirmed_at ?? null
-  if (confirmedAt !== null || usableMail !== null) {
-    return {
-      kind: "awaiting-email",
-      isOpenUniversity: enrolmentRoute?.route === OPEN_UNIVERSITY,
-      waitingSince: confirmedAt,
-    }
+  if (enrolmentRoute?.enrolment_confirmed_at || usableMail !== null) {
+    return { kind: "awaiting-email", isOpenUniversity: enrolmentRoute?.route === OPEN_UNIVERSITY }
   }
   return { kind: "awaiting-enrolment" }
 }
 
-/** How long after "I have enrolled" a missing linking email is worth a mail to support. */
-const LINKING_EMAIL_OVERDUE_AFTER_MS = 2 * 24 * 60 * 60 * 1000
+/** How long after "I have enrolled" a student is asked to check, when nothing else has said why. */
+const ENROLMENT_CHECK_AFTER_MS = 2 * 60 * 60 * 1000
 
-export const isLinkingEmailOverdue = (waitingSince: string | null, nowMs: number): boolean =>
-  waitingSince !== null &&
-  nowMs - new Date(waitingSince).getTime() >= LINKING_EMAIL_OVERDUE_AFTER_MS
+/** The registry verdicts that say why a linked student's enrolment is still not seen. */
+const ENROLMENT_CHECK_ERRORS = [
+  "enrolment_not_found",
+  "enrolment_not_accepted",
+  "study_right_not_valid",
+] as const satisfies readonly CreditRegistrationErrorCode[]
+
+export type EnrolmentCheckErrorCode = (typeof ENROLMENT_CHECK_ERRORS)[number]
+
+/** Why the "Check your enrolment" box opens. */
+export type EnrolmentCheckOpening =
+  | { kind: "registry-verdict"; errorCode: EnrolmentCheckErrorCode }
+  | { kind: "still-not-seen" }
+
+/** Whether the error code is one the enrolment check box explains. */
+const isEnrolmentCheckError = (
+  errorCode: CreditRegistrationErrorCode | null | undefined,
+): errorCode is EnrolmentCheckErrorCode => ENROLMENT_CHECK_ERRORS.some((code) => code === errorCode)
+
+/**
+ * Why a student who said they enrolled is asked to check their enrolment; `null` hides the box.
+ *
+ * A registry verdict opens it at once, but only reaches a student with a linked number: without
+ * one the registry cannot be asked about them.
+ */
+export const enrolmentCheckOpening = (
+  { registration, enrolmentRoute }: TrackerViewInput,
+  hasLinkedStudentNumber: boolean,
+  nowMs: number,
+): EnrolmentCheckOpening | null => {
+  const confirmedAt = enrolmentRoute?.enrolment_confirmed_at
+  if (
+    !confirmedAt ||
+    enrolmentRoute?.can_change === false ||
+    (registration !== null && !stillNeedsAnEnrolmentAnswer(registration))
+  ) {
+    return null
+  }
+  const errorCode = registration?.error_code
+  if (hasLinkedStudentNumber && isEnrolmentCheckError(errorCode)) {
+    return { kind: "registry-verdict", errorCode }
+  }
+  return nowMs - new Date(confirmedAt).getTime() >= ENROLMENT_CHECK_AFTER_MS
+    ? { kind: "still-not-seen" }
+    : null
+}

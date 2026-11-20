@@ -1,5 +1,15 @@
+.git
 node_modules
-.env
-.vscode
+dist
+.tanstack
 .next
+coverage
+test-results
+playwright-report
+blob-report
 .playwright-cli
+playwright/.cache
+.vscode
+.env
+*.log
+*.tsbuildinfo

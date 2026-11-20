@@ -46,16 +46,24 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
   await emailField.click()
   await emailField.fill("teacher@example.com")
   await roleToAdd.chooseOption("Admin")
-  await waitForSuccessNotification(page, async () => {
-    await page.getByText("Add user").click()
-  })
+  await waitForSuccessNotification(
+    page,
+    async () => {
+      await page.getByText("Add user").click()
+    },
+    "Role added for teacher@example.com",
+  )
 
   await emailField.click()
   await emailField.fill("admin@example.com")
   await roleToAdd.chooseOption("Teacher")
-  await waitForSuccessNotification(page, async () => {
-    await page.getByText("Add user").click()
-  })
+  await waitForSuccessNotification(
+    page,
+    async () => {
+      await page.getByText("Add user").click()
+    },
+    "Role added for admin@example.com",
+  )
 
   await page.getByRole("columnheader", { name: "Email" }).getByRole("button").click()
   await expect(page).toHaveURL(
@@ -87,7 +95,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     .filter({ hasText: "teacher@example.com" })
     .filter({ hasText: "Teacher Example" })
     .filter({ has: page.getByText("Admin", { exact: true }) })
-  await teacherRowWithAdminRole.locator('[aria-label="Edit role"]').click()
+  await teacherRowWithAdminRole.locator('[aria-label^="Edit role"]').click()
 
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
@@ -118,7 +126,7 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     .locator("tr")
     .filter({ hasText: "teacher@example.com" })
     .filter({ hasText: "Reviewer" })
-  await teacherRowToRemove.locator('[aria-label="Remove role"]').click()
+  await teacherRowToRemove.locator('[aria-label^="Remove role"]').click()
   await page.getByText("Success").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({

@@ -7,6 +7,9 @@ import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
 import { pressArrowDown, renderWithForm } from "./testUtils"
 
+const tabIndexes = () =>
+  screen.getAllByRole("radio").map((radio) => (radio as HTMLInputElement).tabIndex)
+
 describe("RadioGroup", () => {
   test("supports single selection semantics", () => {
     const { getValues } = renderWithForm<{ r: string }>(
@@ -23,6 +26,41 @@ describe("RadioGroup", () => {
     expect(screen.getByRole("radio", { name: "Dark" })).toBeChecked()
     expect(screen.getByRole("radio", { name: "Light" })).not.toBeChecked()
     expect(getValues().r).toBe("dark")
+  })
+
+  test("empty-string value keeps the group tabbable, then only the checked radio is", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Reason">
+          <Radio label="First" value="a" />
+          <Radio label="Second" value="b" />
+          <Radio label="Third" value="c" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(tabIndexes()).toEqual([0, 0, 0])
+
+    fireEvent.click(screen.getByRole("radio", { name: "Second" }))
+    expect(tabIndexes()).toEqual([-1, 0, -1])
+  })
+
+  test("the group description is wired to the group, not to every radio", () => {
+    renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Plan" description="Pick one plan">
+          <Radio label="Monthly" value="monthly" />
+          <Radio label="Yearly" value="yearly" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
+    )
+
+    expect(screen.getByRole("radiogroup", { name: "Plan" })).toHaveAccessibleDescription(
+      "Pick one plan",
+    )
+    expect(screen.getByRole("radio", { name: "Monthly" })).not.toHaveAccessibleDescription()
   })
 
   test("supports arrow key navigation", () => {
@@ -55,6 +93,8 @@ describe("RadioGroup", () => {
     const group = screen.getByRole("radiogroup", { name: "Plan" })
     expect(group).toHaveAttribute("aria-invalid", "true")
     expect(group).toHaveAttribute("aria-required", "true")
+    expect(group).toHaveAccessibleDescription("Choose one")
+    expect(screen.queryByRole("alert")).toBeNull()
   })
 
   test("supports disabled item and disabled group behavior", () => {

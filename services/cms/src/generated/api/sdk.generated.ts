@@ -50,13 +50,19 @@ import type {
   GetCmsPageData,
   GetCmsPageInfoData,
   GetCmsPageInfoResponses,
+  GetCmsPageLanguageVersionsData,
+  GetCmsPageLanguageVersionsResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
+  GetCmsPagePendingAgentChangesData,
+  GetCmsPagePendingAgentChangesResponses,
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
+  LinkCmsPageCounterpartData,
+  LinkCmsPageCounterpartResponses,
   PreviewCmsEmailTemplateData,
   PreviewCmsEmailTemplateResponses,
   RequestChartSpecGenerationData,
@@ -66,12 +72,14 @@ import type {
   SendCmsEmailTemplateTestData,
   SendCmsEmailTemplateTestResponses,
   UpdateCmsCourseDefaultPeerReviewData,
+  UpdateCmsCourseDefaultPeerReviewErrors,
   UpdateCmsCourseDefaultPeerReviewResponses,
   UpdateCmsEmailTemplateData,
   UpdateCmsEmailTemplateResponses,
   UpdateCmsExamInstructionsData,
   UpdateCmsExamInstructionsResponses,
   UpdateCmsPageData,
+  UpdateCmsPageErrors,
   UpdateCmsPageResponses,
   UploadCmsCourseMediaData,
   UploadCmsCourseMediaResponses,
@@ -82,8 +90,6 @@ import type {
   UpsertCmsCoursePartnersBlockData,
   UpsertCmsCoursePartnersBlockResponses,
   UpsertCmsCourseResearchFormData,
-  UpsertCmsCourseResearchFormQuestionsData,
-  UpsertCmsCourseResearchFormQuestionsResponses,
   UpsertCmsCourseResearchFormResponses,
 } from "./types.generated"
 import {
@@ -105,10 +111,13 @@ import {
   zGetCmsExamInstructionsResponse,
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
+  zGetCmsPageLanguageVersionsResponse,
   zGetCmsPageNavigationResponse,
+  zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
+  zLinkCmsPageCounterpartResponse,
   zPreviewCmsEmailTemplateResponse,
   zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
@@ -120,7 +129,6 @@ import {
   zUploadCmsCourseMediaResponse,
   zUploadCmsExamMediaResponse,
   zUploadFilesFromExerciseServiceResponse,
-  zUpsertCmsCourseResearchFormQuestionsResponse,
   zUpsertCmsCourseResearchFormResponse,
 } from "./zod.generated"
 
@@ -143,7 +151,6 @@ export type Options<
 }
 
 /**
- *
  * POST `/api/v0/cms/ai-suggestions/chart-spec` - Generate a Vega-Lite chart specification from a prompt.
  *
  * This endpoint is intended for the CMS chart block editor. It requires the user to have
@@ -170,7 +177,6 @@ export const requestChartSpecGeneration = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/cms/ai-suggestions/paragraph` - Generate AI suggestions for a CMS paragraph.
  *
  * This endpoint is intended for CMS editors. It requires the user to have edit access
@@ -197,7 +203,6 @@ export const requestParagraphSuggestions = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/cms/chapters/{course_id}/all-chapters-for-course` - Gets all chapters with a course_id
  */
 export const getAllChaptersByCourseId = <ThrowOnError extends boolean = true>(
@@ -211,7 +216,6 @@ export const getAllChaptersByCourseId = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/cms/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
 export const getCmsCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>(
@@ -230,7 +234,6 @@ export const getCmsCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/cms/course-instances/:course_instance` - Gets a course instance by id.
  */
 export const getCmsCourseInstance = <ThrowOnError extends boolean = true>(
@@ -244,7 +247,6 @@ export const getCmsCourseInstance = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v8/course-instances/:course_instance` - Gets a course instance by id.
  *
  * # Example
@@ -267,7 +269,6 @@ export const getCmsCourseInstanceOrganizationId = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * GET /api/v0/cms/courses/:course_id - Get the course.
  */
 export const getCmsCourse = <ThrowOnError extends boolean = true>(
@@ -281,7 +282,6 @@ export const getCmsCourse = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/course-instances` - Returns all course instances for given course id.
  */
 export const getCmsCourseInstances = <ThrowOnError extends boolean = true>(
@@ -312,10 +312,15 @@ export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = tru
 
 export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsCourseDefaultPeerReviewData, ThrowOnError>,
-): RequestResult<UpdateCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
+): RequestResult<
+  UpdateCmsCourseDefaultPeerReviewResponses,
+  UpdateCmsCourseDefaultPeerReviewErrors,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).put<
     UpdateCmsCourseDefaultPeerReviewResponses,
-    unknown,
+    UpdateCmsCourseDefaultPeerReviewErrors,
     ThrowOnError,
     "data"
   >({
@@ -331,7 +336,6 @@ export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = 
   })
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/modules`
  * Returns modules in the course.
  */
@@ -346,7 +350,6 @@ export const getCmsCourseModules = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET /api/v0/cms/courses/:course_id/nondefault-chatbot-configurations - Get all nondefault, enabled-to-students chatbot configurations of this course.
  */
 export const getCmsCourseNondefaultChatbotConfigurations = <ThrowOnError extends boolean = true>(
@@ -371,7 +374,6 @@ export const getCmsCourseNondefaultChatbotConfigurations = <ThrowOnError extends
   })
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/pages` - Gets all pages for a course.
  */
 export const getCmsCoursePages = <ThrowOnError extends boolean = true>(
@@ -385,7 +387,6 @@ export const getCmsCoursePages = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
  */
 export const deleteCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -404,7 +405,6 @@ export const deleteCmsCoursePartnersBlock = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
  */
 export const getCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -420,7 +420,6 @@ export const getCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
  */
 export const upsertCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
@@ -442,7 +441,6 @@ export const upsertCmsCoursePartnersBlock = <ThrowOnError extends boolean = true
   })
 
 /**
- *
  * GET `/api/v0/cms/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
  */
 export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
@@ -456,8 +454,7 @@ export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Upserts courses research form from Gutenberg research form edit.
+ * PUT `/api/v0/cms/courses/:course_id/research-consent-form` - Saves the course's research form and syncs its questions from the question blocks.
  */
 export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCourseResearchFormData, ThrowOnError>,
@@ -479,31 +476,6 @@ export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
- * PUT `/api/v0/cms/courses/:course_id/research-consent-form-questions` - Upserts questions for the courses research form from Gutenberg research form edit.
- */
-export const upsertCmsCourseResearchFormQuestions = <ThrowOnError extends boolean = true>(
-  options: Options<UpsertCmsCourseResearchFormQuestionsData, ThrowOnError>,
-): RequestResult<UpsertCmsCourseResearchFormQuestionsResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<
-    UpsertCmsCourseResearchFormQuestionsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zUpsertCmsCourseResearchFormQuestionsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/courses/{course_id}/research-consent-form-questions",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  })
-
-/**
- *
  * POST `/api/v0/cms/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -533,7 +505,6 @@ export const uploadCmsCourseMedia = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * DELETE `/api/v0/cms/email-templates/:id`
  */
 export const deleteCmsEmailTemplate = <ThrowOnError extends boolean = true>(
@@ -549,7 +520,6 @@ export const deleteCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/cms/email-templates/:id`
  */
 export const getCmsEmailTemplate = <ThrowOnError extends boolean = true>(
@@ -563,7 +533,6 @@ export const getCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/cms/email-templates/:id
  */
 export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
@@ -581,7 +550,6 @@ export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/cms/email-templates/:id/preview`
  *
  * Renders the editor's unsaved state exactly as the sender would, with sample placeholder values.
@@ -601,7 +569,6 @@ export const previewCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * POST `/api/v0/cms/email-templates/:id/send-test`
  *
  * Queues the editor's unsaved state, with sample placeholder values, to the requesting user's own
@@ -624,7 +591,6 @@ export const sendCmsEmailTemplateTest = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
  */
 export const getCmsExamInstructions = <ThrowOnError extends boolean = true>(
@@ -638,7 +604,6 @@ export const getCmsExamInstructions = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/cms/exams/:exam_id/edit` - Insert new instructions from Gutenberg editor.
  *
  * # Example
@@ -665,7 +630,6 @@ export const updateCmsExamInstructions = <ThrowOnError extends boolean = true>(
   )
 
 /**
- *
  * POST `/api/v0/cms/exams/:exam_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -695,7 +659,6 @@ export const uploadCmsExamMedia = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/cms/exercise-services` - List all exercise services configured in the system.
  */
 export const getCmsExerciseServices = <ThrowOnError extends boolean = true>(
@@ -709,7 +672,6 @@ export const getCmsExerciseServices = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
@@ -725,7 +687,6 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
  * PUT `/api/v0/cms/pages/:page_id` - Update a page by id.
  *
  * Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
@@ -750,20 +711,21 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsPageData, ThrowOnError>,
-): RequestResult<UpdateCmsPageResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).put<UpdateCmsPageResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/cms/pages/{page_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
+): RequestResult<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateCmsPageResponses, UpdateCmsPageErrors, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/cms/pages/{page_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
     },
-  })
+  )
 
 /**
- *
  * POST `/api/v0/cms/pages/:page_id/exercises-with-submissions` - Given a set of exercise ids, returns
  * the subset that has at least one existing submission. Used by the editor to warn the teacher before
  * saving a page edit that would remove one of these exercises, since that soft-deletes it and orphans
@@ -789,7 +751,6 @@ export const getExercisesWithSubmissions = <ThrowOnError extends boolean = true>
   })
 
 /**
- *
  * GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -805,7 +766,41 @@ export const getCmsPageInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
- *
+ * GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.
+ */
+export const getCmsPageLanguageVersions = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPageLanguageVersionsData, ThrowOnError>,
+): RequestResult<GetCmsPageLanguageVersionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPageLanguageVersionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCmsPageLanguageVersionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.
+ */
+export const linkCmsPageCounterpart = <ThrowOnError extends boolean = true>(
+  options: Options<LinkCmsPageCounterpartData, ThrowOnError>,
+): RequestResult<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zLinkCmsPageCounterpartResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions/link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
 export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
@@ -815,6 +810,26 @@ export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCmsPageNavigationResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/page-navigation",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/cms/pages/:page_id/pending-agent-changes` - Whether the signed-in user has
+ * unpublished AI agent changes on the page, for the notice in the page editor. `null` if not.
+ */
+export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPagePendingAgentChangesData, ThrowOnError>,
+): RequestResult<GetCmsPagePendingAgentChangesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPagePendingAgentChangesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
     ...options,
   })
 
@@ -835,7 +850,6 @@ export const getCmsRepositoryExercisesForCourse = <ThrowOnError extends boolean 
   })
 
 /**
- *
  * POST `/api/v0/files/:exercise_service_slug`
  * Used to upload data from exercise service iframes.
  *

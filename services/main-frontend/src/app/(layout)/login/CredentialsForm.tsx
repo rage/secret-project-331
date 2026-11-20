@@ -34,7 +34,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   const { t } = useTranslation()
   const pathname = usePathname()
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
-  const { control, handleSubmit, watch, setFocus } = useForm<CredentialsFields>({
+  const { control, handleSubmit, setFocus } = useForm<CredentialsFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: { email: initialEmail ?? "", password: "" },
@@ -44,9 +44,6 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
     // oxlint-disable-next-line i18next/no-literal-string
     setFocus("email")
   }, [setFocus])
-
-  const email = watch("email")
-  const password = watch("password")
 
   return (
     <form
@@ -101,7 +98,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
             padding: 1rem;
             border: 2px solid ${baseTheme.colors.red[500]};
             font-weight: bold;
-            color: ${baseTheme.colors.red[500]};
+            color: ${baseTheme.colors.red[700]};
           }
         `}
       >
@@ -117,7 +114,6 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         // oxlint-disable-next-line i18next/no-literal-string
         domProps={{ id: "login-button" }}
         isLoading={isSubmitting}
-        disabled={!email || !password}
       >
         {t("login")}
       </Button>

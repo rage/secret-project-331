@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE credit_registration_events AS e\nSET details = redacted.details,\n  details_redacted_at = now()\nFROM UNNEST($1::uuid [], $2::jsonb []) AS redacted(id, details)\nWHERE e.id = redacted.id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "JsonbArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d91492f44e65843c24c8ba1971c34b61684992fc898112a3234a952d24cf0da9"
+}

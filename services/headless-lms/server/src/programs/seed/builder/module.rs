@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 
 use headless_lms_models::course_module_suotar_configurations::{self, SuotarPause};
 use headless_lms_models::course_modules::{
-    self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule, NewCourseModule,
+    self, CompletionPolicy, CompletionRequirements, CourseModule, ExamRequirement, NewCourseModule,
 };
 use sqlx::PgConnection;
 
@@ -128,6 +128,7 @@ impl CompletionBuilder {
         course_id: Uuid,
         course_module_id: Uuid,
         default_registrar_id: Option<Uuid>,
+        register_credits_via_suotar: bool,
     ) -> anyhow::Result<()> {
         let seed = NewCourseModuleCompletionSeed {
             course_id,
@@ -141,6 +142,7 @@ impl CompletionBuilder {
             passed: self.passed,
             prerequisite_modules_completed: self.prerequisite_modules_completed,
             needs_to_be_reviewed: self.needs_to_be_reviewed,
+            register_credits_via_suotar,
         };
 
         let completion_id = course_module_completions::insert_seed_row(conn, &seed).await?;
@@ -184,7 +186,7 @@ impl CompletionBuilder {
     }
 }
 
-/// Turns `enable_credit_registration_via_suotar` on and writes the module's Suotar configuration.
+/// Writes the module's Suotar configuration.
 #[derive(Debug, Clone, Default)]
 pub struct CreditRegistrationSeed {
     /// Stored as the module's `completion_registration_link_override`.
@@ -192,19 +194,18 @@ pub struct CreditRegistrationSeed {
     /// Pauses the module, which every phase's claim query skips: without it the workers running in
     /// the test deployment walk read-only fixtures onwards.
     pub paused_reason: Option<String>,
-    /// Sets `register_eligible_new_completions_via_suotar`, so completions seeded here go through
-    /// Suotar.
-    pub register_eligible_new_completions: bool,
+    /// Whether completions seeded here go through Suotar. Without it they are seeded as from before
+    /// the push path, which the pull path registers.
+    pub registers_seeded_completions: bool,
 }
 
-/// Builder for course modules that group chapters with ECTS credits and Open University registration.
+/// Builder for course modules that group chapters with ECTS credits and credit registration.
 #[derive(Debug, Clone)]
 pub struct ModuleBuilder {
     pub name: Option<String>,
     pub order: Option<i32>,
     pub ects: Option<f32>,
     pub chapters: Vec<ChapterBuilder>,
-    pub register_to_open_university: bool,
     pub completion_policy: CompletionPolicy,
     pub completions: Vec<CompletionBuilder>,
     pub default_registrar_id: Option<Uuid>,
@@ -225,8 +226,7 @@ impl ModuleBuilder {
             order: None,
             ects: None,
             chapters: vec![],
-            register_to_open_university: false,
-            completion_policy: CompletionPolicy::Manual,
+            completion_policy: CompletionPolicy::TeacherAdds,
             completions: vec![],
             default_registrar_id: None,
             uh_course_code: None,
@@ -267,10 +267,6 @@ impl ModuleBuilder {
         self.uh_course_code = Some(c);
         self
     }
-    pub fn register_to_open_university(mut self, v: bool) -> Self {
-        self.register_to_open_university = v;
-        self
-    }
     pub fn chapter(mut self, c: ChapterBuilder) -> Self {
         self.chapters.push(c);
         self
@@ -284,7 +280,7 @@ impl ModuleBuilder {
         self
     }
     pub fn manual_completion(mut self) -> Self {
-        self.completion_policy = CompletionPolicy::Manual;
+        self.completion_policy = CompletionPolicy::TeacherAdds;
         self
     }
     pub fn automatic_completion(
@@ -293,13 +289,17 @@ impl ModuleBuilder {
         points_threshold: Option<i32>,
         requires_exam: bool,
     ) -> Self {
-        // We'll set the course_module_id when seeding
-        self.completion_policy = CompletionPolicy::Automatic(AutomaticCompletionRequirements {
-            course_module_id: uuid::Uuid::new_v4(), // Temporary, will be updated during seeding
+        // The module id is not stored; reading the module back fills in the real one.
+        let requirements = CompletionRequirements {
+            course_module_id: uuid::Uuid::new_v4(),
             number_of_exercises_attempted_treshold: exercises_threshold,
             number_of_points_treshold: points_threshold,
-            requires_exam,
-        });
+        };
+        self.completion_policy = if requires_exam {
+            CompletionPolicy::ByExam(requirements)
+        } else {
+            CompletionPolicy::ByRequirements(requirements)
+        };
         self
     }
 
@@ -311,44 +311,32 @@ impl ModuleBuilder {
         fallback_order: i32,
     ) -> Result<CourseModule> {
         let order = self.order.unwrap_or(fallback_order);
+        let exam_requirement = match self.completion_policy {
+            CompletionPolicy::ByExam(_) => ExamRequirement::Platform,
+            _ => ExamRequirement::None,
+        };
 
         let module = course_modules::insert(
             conn,
             headless_lms_models::PKeyPolicy::Generate,
             &NewCourseModule::new(course_id, self.name, order)
                 .set_ects_credits(self.ects)
-                .set_completion_policy(self.completion_policy.clone())
+                .set_exam_requirement(exam_requirement, None)
+                .set_completion_policy(self.completion_policy)
                 .set_uh_course_code(self.uh_course_code)
                 .set_completion_registration_link_override(
                     self.credit_registration
                         .as_ref()
                         .and_then(|seed| seed.enrolment_link.clone()),
-                )
-                .set_enable_credit_registration_via_suotar(self.credit_registration.is_some()),
+                ),
         )
         .await
         .with_context(|| format!("inserting module (order {:?})", order))?;
-
-        // Update completion policy if it's automatic to set the correct module ID
-        if let CompletionPolicy::Automatic(mut requirements) = self.completion_policy {
-            requirements.course_module_id = module.id;
-            let updated_policy = CompletionPolicy::Automatic(requirements);
-            course_modules::update_automatic_completion_status(conn, module.id, &updated_policy)
-                .await
-                .context("updating automatic completion policy")?;
-        }
 
         if let Some(credit_registration) = &self.credit_registration {
             course_module_suotar_configurations::ensure_exists(conn, module.id)
                 .await
                 .context("writing the module's credit registration configuration")?;
-            if credit_registration.register_eligible_new_completions {
-                course_modules::set_register_eligible_new_completions_via_suotar(
-                    conn, module.id, true,
-                )
-                .await
-                .context("opting the module's new completions into Suotar")?;
-            }
             if let Some(reason) = &credit_registration.paused_reason {
                 course_module_suotar_configurations::set_paused(
                     conn,
@@ -364,17 +352,19 @@ impl ModuleBuilder {
             }
         }
 
-        if self.register_to_open_university {
-            course_modules::update_enable_registering_completion_to_uh_open_university(
-                conn, module.id, true,
-            )
-            .await
-            .context("enabling OU registration for module")?;
-        }
-
+        let registers_seeded_completions = self
+            .credit_registration
+            .as_ref()
+            .is_some_and(|seed| seed.registers_seeded_completions);
         for comp in &self.completions {
-            comp.seed(conn, course_id, module.id, self.default_registrar_id)
-                .await?;
+            comp.seed(
+                conn,
+                course_id,
+                module.id,
+                self.default_registrar_id,
+                registers_seeded_completions,
+            )
+            .await?;
         }
 
         for ch in self.chapters {
@@ -399,8 +389,7 @@ mod tests {
         assert!(module.name.is_none());
         assert!(module.ects.is_none());
         assert!(module.chapters.is_empty());
-        assert!(!module.register_to_open_university);
-        assert_eq!(module.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module.completion_policy, CompletionPolicy::TeacherAdds);
     }
 
     #[test]
@@ -441,20 +430,6 @@ mod tests {
     }
 
     #[test]
-    fn module_builder_register_to_open_university_true() {
-        let module = ModuleBuilder::new().register_to_open_university(true);
-
-        assert!(module.register_to_open_university);
-    }
-
-    #[test]
-    fn module_builder_register_to_open_university_false() {
-        let module = ModuleBuilder::new().register_to_open_university(false);
-
-        assert!(!module.register_to_open_university);
-    }
-
-    #[test]
     fn module_builder_chapter() {
         let chapter = ChapterBuilder::new(1, "Test Chapter");
         let module = ModuleBuilder::new().chapter(chapter);
@@ -486,14 +461,12 @@ mod tests {
             .order(1)
             .name("Advanced Module")
             .ects(3.5)
-            .register_to_open_university(true)
             .chapter(chapter1)
             .chapter(chapter2);
 
         assert_eq!(module.order, Some(1));
         assert_eq!(module.name, Some("Advanced Module".to_string()));
         assert_eq!(module.ects, Some(3.5));
-        assert!(module.register_to_open_university);
         assert_eq!(module.chapters.len(), 2);
     }
 
@@ -506,11 +479,9 @@ mod tests {
             .order(1)
             .name("Module 1")
             .ects(2.0)
-            .register_to_open_university(true)
             .chapter(chapter1);
 
         let module2 = ModuleBuilder::new()
-            .register_to_open_university(true)
             .chapter(chapter2)
             .ects(2.0)
             .name("Module 1")
@@ -518,10 +489,6 @@ mod tests {
 
         assert_eq!(module1.name, module2.name);
         assert_eq!(module1.ects, module2.ects);
-        assert_eq!(
-            module1.register_to_open_university,
-            module2.register_to_open_university
-        );
         assert_eq!(module1.chapters.len(), module2.chapters.len());
         assert_eq!(module1.order, module2.order);
     }
@@ -534,7 +501,6 @@ mod tests {
         assert!(module.name.is_none());
         assert!(module.ects.is_none());
         assert!(module.chapters.is_empty());
-        assert!(!module.register_to_open_university);
     }
 
     #[test]
@@ -548,7 +514,7 @@ mod tests {
     fn module_builder_manual_completion() {
         let module = ModuleBuilder::new().manual_completion();
 
-        assert_eq!(module.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module.completion_policy, CompletionPolicy::TeacherAdds);
     }
 
     #[test]
@@ -556,12 +522,11 @@ mod tests {
         let module = ModuleBuilder::new().automatic_completion(Some(5), Some(100), true);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByExam(requirements) => {
                 assert_eq!(requirements.number_of_exercises_attempted_treshold, Some(5));
                 assert_eq!(requirements.number_of_points_treshold, Some(100));
-                assert!(requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -570,12 +535,11 @@ mod tests {
         let module = ModuleBuilder::new().automatic_completion(None, None, false);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByRequirements(requirements) => {
                 assert_eq!(requirements.number_of_exercises_attempted_treshold, None);
                 assert_eq!(requirements.number_of_points_treshold, None);
-                assert!(!requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -588,7 +552,6 @@ mod tests {
             .order(1)
             .name("Advanced Module")
             .ects(3.5)
-            .register_to_open_university(true)
             .automatic_completion(Some(10), Some(200), true)
             .chapter(chapter1)
             .chapter(chapter2);
@@ -596,19 +559,17 @@ mod tests {
         assert_eq!(module.order, Some(1));
         assert_eq!(module.name, Some("Advanced Module".to_string()));
         assert_eq!(module.ects, Some(3.5));
-        assert!(module.register_to_open_university);
         assert_eq!(module.chapters.len(), 2);
 
         match module.completion_policy {
-            CompletionPolicy::Automatic(requirements) => {
+            CompletionPolicy::ByExam(requirements) => {
                 assert_eq!(
                     requirements.number_of_exercises_attempted_treshold,
                     Some(10)
                 );
                 assert_eq!(requirements.number_of_points_treshold, Some(200));
-                assert!(requirements.requires_exam);
             }
-            CompletionPolicy::Manual => panic!("Expected automatic completion policy"),
+            _ => panic!("Expected a policy with requirements"),
         }
     }
 
@@ -619,7 +580,7 @@ mod tests {
             .automatic_completion(Some(5), Some(100), false)
             .manual_completion();
 
-        assert_eq!(module1.completion_policy, CompletionPolicy::Manual);
-        assert_eq!(module2.completion_policy, CompletionPolicy::Manual);
+        assert_eq!(module1.completion_policy, CompletionPolicy::TeacherAdds);
+        assert_eq!(module2.completion_policy, CompletionPolicy::TeacherAdds);
     }
 }

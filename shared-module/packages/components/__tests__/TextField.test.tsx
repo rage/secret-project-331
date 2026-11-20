@@ -22,7 +22,7 @@ describe("TextField - accessibility wiring", () => {
     expect(input).toHaveAccessibleDescription("Enter your work email.")
   })
 
-  test("errorMessage renders an alert and sets aria-invalid", () => {
+  test("errorMessage is the description, not a per-field alert, and sets aria-invalid", () => {
     renderStringField((control) => (
       <TextField name="f" control={control} label="Email" errorMessage="Invalid address." />
     ))
@@ -31,8 +31,8 @@ describe("TextField - accessibility wiring", () => {
     expect(input).toHaveAttribute("aria-invalid", "true")
     expect(input).toHaveAccessibleDescription("Invalid address.")
 
-    const alert = screen.getByRole("alert")
-    expect(alert).toHaveTextContent("Invalid address.")
+    expect(screen.queryByRole("alert")).toBeNull()
+    expect(screen.getByText("Invalid address.")).toBeInTheDocument()
   })
 
   test("errorMessage takes precedence over description", () => {
@@ -45,7 +45,7 @@ describe("TextField - accessibility wiring", () => {
         errorMessage="Invalid address."
       />
     ))
-    expect(screen.getByRole("alert")).toHaveTextContent("Invalid address.")
+    expect(screen.getByText("Invalid address.")).toBeInTheDocument()
     expect(screen.queryByText("Enter your email.")).not.toBeInTheDocument()
   })
 
@@ -276,5 +276,14 @@ describe("TextField - data-testid", () => {
       <TextField name="f" control={control} label="Email" data-testid="email-field" />
     ))
     expect(screen.getByTestId("email-field")).toBe(screen.getByRole("textbox", { name: "Email" }))
+  })
+
+  test("isRequired is aria-required, not native required (no browser validation bubble)", () => {
+    renderStringField((control) => (
+      <TextField name="f" control={control} label="Email" isRequired />
+    ))
+    const input = screen.getByRole("textbox")
+    expect(input).toHaveAttribute("aria-required", "true")
+    expect(input).not.toHaveAttribute("required")
   })
 })

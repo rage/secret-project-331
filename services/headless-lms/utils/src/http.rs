@@ -25,12 +25,18 @@ fn in_http_test_mode() -> bool {
         || bool_env_false_by_default("TEST_MODE")
 }
 
-/// The settings both clients share, timeouts other than the connect one left to the caller.
-pub(crate) fn base_client_builder() -> reqwest::ClientBuilder {
+/// The settings every HTTP client shares: rustls, https only outside test mode, and the connect
+/// timeout. Other timeouts are left to the caller.
+pub fn base_client_builder() -> reqwest::ClientBuilder {
     reqwest::Client::builder()
         .use_rustls_tls()
         .https_only(!in_http_test_mode())
         .connect_timeout(CONNECT_TIMEOUT)
+}
+
+/// Escapes a value for a quoted-string auth-param of a `WWW-Authenticate` header (RFC 9110 §11.2).
+pub fn escape_auth_param(value: &str) -> String {
+    value.replace('\\', "\\\\").replace('"', "\\\"")
 }
 
 pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
@@ -48,6 +54,16 @@ pub static REQWEST_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
         .expect("Failed to build Client")
 });
 
+/// [`REQWEST_CLIENT`] that answers a redirect as the response itself. For calls carrying a credential
+/// to mooc.fi or TMC, whose bearer tokens and secrets a followed redirect could take elsewhere.
+pub static REQWEST_CLIENT_WITHOUT_REDIRECTS: Lazy<reqwest::Client> = Lazy::new(|| {
+    base_client_builder()
+        .timeout(NON_STREAMING_REQUEST_TIMEOUT)
+        .redirect(reqwest::redirect::Policy::none())
+        .build()
+        .expect("Failed to build Client")
+});
+
 /// For responses whose body is consumed as a stream. Carries no total or read timeout, because both
 /// would cut off a healthy but slow stream; callers must instead bound the header wait with
 /// [`STREAM_RESPONSE_HEADERS_TIMEOUT`] and each chunk with [`STREAM_IDLE_TIMEOUT`].
@@ -56,3 +72,10 @@ pub static REQWEST_STREAMING_CLIENT: Lazy<reqwest::Client> = Lazy::new(|| {
         .build()
         .expect("Failed to build streaming Client")
 });
+
+/// `candidate` trimmed when it is an absolute http(s) URL with a host, safe to render as a link.
+pub fn web_link(candidate: &str) -> Option<String> {
+    let candidate = candidate.trim();
+    let url = url::Url::parse(candidate).ok()?;
+    (matches!(url.scheme(), "http" | "https") && url.has_host()).then(|| candidate.to_string())
+}

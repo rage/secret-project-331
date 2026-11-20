@@ -9,6 +9,7 @@ export const INTROSPECT = `${BASE}/api/v0/main-frontend/oauth/introspect`
 export const DEVICE_AUTHORIZATION = `${BASE}/api/v0/main-frontend/oauth/device_authorization`
 
 export const EXERCISE_SERVICES_CLIENT = `${BASE}/api/v0/exercise-services/client`
+export const MCP_RESOURCE = `${BASE}/api/v0/mcp`
 
 export const DEVICE_CODE_GRANT_TYPE = "urn:ietf:params:oauth:grant-type:device_code"
 export const EXERCISE_SERVICES_SCOPE = "exercise-services"

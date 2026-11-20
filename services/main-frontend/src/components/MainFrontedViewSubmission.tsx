@@ -15,13 +15,16 @@ import { headingFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 
 interface MainFrontedViewSubmissionProps {
-  submissionData: ExerciseSlideSubmissionInfo
+  submissionData: Pick<ExerciseSlideSubmissionInfo, "exercise" | "tasks">
   totalScoreGiven: number | null | undefined
+  /** `false` for an ungraded answer snapshot: no points badge, and tasks render without a grading. */
+  isGraded?: boolean
 }
 
 const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
   submissionData,
   totalScoreGiven,
+  isGraded = true,
 }) => {
   const { t } = useTranslation()
 
@@ -53,7 +56,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                   margin-bottom: 0.25rem;
                 `}
               >
-                {t("submission")}:
+                {t(isGraded ? "submission" : "saved-copy")}:
               </div>
               <div
                 className={css`
@@ -66,12 +69,14 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
             </h2>
           }
           rightContent={
-            <ExerciseCardPointsBadge
-              score={totalScoreGiven ?? null}
-              maxScore={submissionData.exercise.score_maximum}
-              // oxlint-disable-next-line i18next/no-literal-string
-              dataTestId="submission-points"
-            />
+            isGraded ? (
+              <ExerciseCardPointsBadge
+                score={totalScoreGiven ?? null}
+                maxScore={submissionData.exercise.score_maximum}
+                // oxlint-disable-next-line i18next/no-literal-string
+                dataTestId="submission-points"
+              />
+            ) : undefined
           }
         />
         <div
@@ -82,7 +87,11 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
           {submissionData.tasks
             .toSorted((a, b) => a.order_number - b.order_number)
             .map((task) => (
-              <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+              <SubmissionIFrame
+                key={task.id}
+                coursematerialExerciseTask={task}
+                isGraded={isGraded}
+              />
             ))}
         </div>
       </ExerciseCardWrapper>

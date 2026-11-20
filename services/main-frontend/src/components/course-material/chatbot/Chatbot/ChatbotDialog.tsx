@@ -11,6 +11,8 @@ import {
   usePopover,
 } from "react-aria"
 
+import { useToggleFocus } from "@/shared-module/components"
+
 import OpenChatbotButton from "../Chatbot/OpenChatbotButton"
 import ChatbotChatBody from "../shared/ChatbotChatBody"
 import ChatbotChatHeader from "../shared/ChatbotChatHeader"
@@ -44,8 +46,10 @@ const closeAnimation = keyframes`
 const ChatbotDialog: React.FC = () => {
   const chatbotTitleId = useId()
   const [shouldRender, setShouldRender] = useState(false)
-  const buttonRef = useRef<HTMLButtonElement | null>(null)
   const popoverRef = useRef(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  // Focus the dialog once mounted; on close, wait until the trigger is visible again.
+  const buttonRef = useToggleFocus(shouldRender, () => dialogRef.current?.focus())
 
   const { isOpen, setDialogOpen } = useChatbotContext()
 
@@ -53,9 +57,6 @@ const ChatbotDialog: React.FC = () => {
     isOpen,
     setOpen: (o: boolean) => {
       setDialogOpen?.(o)
-      if (!o) {
-        buttonRef.current?.focus()
-      }
     },
     open: () => {
       setDialogOpen?.(true)
@@ -65,9 +66,6 @@ const ChatbotDialog: React.FC = () => {
     },
     toggle: () => {
       setDialogOpen?.(!isOpen)
-      if (isOpen) {
-        buttonRef.current?.focus()
-      }
     },
     // The dialog is anchored to the button, so OverlayTriggerState's cursor position goes unused.
     point: null,
@@ -99,7 +97,6 @@ const ChatbotDialog: React.FC = () => {
     popoverRef,
   )
 
-  const dialogRef = useRef(null)
   // oxlint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }

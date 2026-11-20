@@ -89,6 +89,18 @@ async fn get_all_organizations(
     token.authorized_ok(web::Json(organizations))
 }
 
+/// Blanks join codes from a public course listing: the code is what admits a user to a
+/// code-only course.
+fn without_join_codes(courses: Vec<Course>) -> Vec<Course> {
+    courses
+        .into_iter()
+        .map(|course| Course {
+            join_code: None,
+            ..course
+        })
+        .collect()
+}
+
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
@@ -125,7 +137,7 @@ async fn get_organization_courses(
     .await?;
 
     let token = skip_authorize();
-    token.authorized_ok(web::Json(courses))
+    token.authorized_ok(web::Json(without_join_codes(courses)))
 }
 
 /**
@@ -229,7 +241,7 @@ async fn get_organization_active_courses(
     .await?;
 
     let token = skip_authorize();
-    token.authorized_ok(Json(courses))
+    token.authorized_ok(Json(without_join_codes(courses)))
 }
 
 #[utoipa::path(

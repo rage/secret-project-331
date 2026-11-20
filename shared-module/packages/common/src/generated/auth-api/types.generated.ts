@@ -75,7 +75,16 @@ export type ActionOnResource = {
   resource: Resource
 }
 
+/**
+ * What a challenge may be redeemed for.
+ */
+export type ChallengePurpose = "signup" | "password_reset"
+
 export type CreateAccountDetails = {
+  /**
+   * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+   */
+  altcha: string
   country: string
   email: string
   email_communication_consent: boolean
@@ -113,6 +122,24 @@ export type DeleteUserAccountResult =
 export type EmailCode = {
   code: string
 }
+
+/**
+ * Whether a session confirmation code went out, and if not, why.
+ */
+export type EmailCodeOutcome =
+  | {
+      type: "sent"
+    }
+  | {
+      type: "already_sent"
+    }
+  | {
+      retry_after_seconds: number
+      type: "recently_sent"
+    }
+  | {
+      type: "daily_limit_reached"
+    }
 
 export type Login = {
   email: string
@@ -223,6 +250,9 @@ export type SendDeleteUserEmailCodeResult =
       type: "recently_sent"
     }
   | {
+      type: "daily_limit_reached"
+    }
+  | {
       type: "incorrect_password"
     }
 
@@ -230,6 +260,86 @@ export type SendEmailCodeData = {
   language: string
   password: string
 }
+
+/**
+ * One way for the user to prove the session is theirs, and why it is asked for.
+ */
+export type SessionChallenge = {
+  method: SessionChallengeMethod
+  reasons: Array<SessionChallengeReason>
+}
+
+/**
+ * How the user can confirm the session.
+ */
+export type SessionChallengeMethod = "email_code"
+
+/**
+ * Why the session needs confirming.
+ */
+export type SessionChallengeReason = "unrecognized_network"
+
+export type SessionEmailCodeRequest = {
+  /**
+   * Which language to mail. Falls back to English when no template exists for it.
+   */
+  language: string
+  /**
+   * The user asked for another mail. Without it, a code that is still usable is not replaced.
+   */
+  resend: boolean
+}
+
+/**
+ * What asking for a session confirmation code did.
+ */
+export type SessionEmailCodeResult =
+  | {
+      /**
+       * Where the code goes.
+       */
+      masked_email: string
+      outcome: EmailCodeOutcome
+      type: "required"
+    }
+  | {
+      type: "not_required"
+    }
+
+/**
+ * Whether the current session must be confirmed before the UI lets the user on.
+ */
+export type SessionStatus = {
+  challenges: Array<SessionChallenge>
+  verification_required: boolean
+}
+
+/**
+ * The emailed code the user typed to confirm the session.
+ */
+export type SessionVerifyRequest = {
+  code: string
+}
+
+/**
+ * Outcome of submitting a session confirmation code.
+ */
+export type SessionVerifyResult =
+  | {
+      type: "verified"
+    }
+  | {
+      type: "invalid_code"
+    }
+  | {
+      type: "expired_code"
+    }
+  | {
+      type: "too_many_attempts"
+    }
+  | {
+      type: "not_required"
+    }
 
 export type SignupResponse =
   | {
@@ -266,6 +376,25 @@ export type VerifyEmailRequest = {
   email_verification_token: string
 }
 
+export type GetAuthAltchaChallengeData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The form the challenge is for; a solution is accepted only there.
+     */
+    purpose: ChallengePurpose
+  }
+  url: "/api/v0/auth/altcha-challenge"
+}
+
+export type GetAuthAltchaChallengeResponses = {
+  /**
+   * A signed ALTCHA challenge
+   */
+  200: unknown
+}
+
 export type PostAuthAuthorizeData = {
   body: ActionOnResource
   path?: never
@@ -298,6 +427,29 @@ export type PostAuthAuthorizeMultipleResponses = {
 
 export type PostAuthAuthorizeMultipleResponse =
   PostAuthAuthorizeMultipleResponses[keyof PostAuthAuthorizeMultipleResponses]
+
+export type PostAuthSignupData = {
+  body: CreateAccountDetails
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account"
+}
+
+export type PostAuthSignupErrors = {
+  /**
+   * Cannot sign up (e.g. already signed in or validation error)
+   */
+  400: unknown
+}
+
+export type PostAuthSignupResponses = {
+  /**
+   * Signup outcome
+   */
+  200: SignupResponse
+}
+
+export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
 
 export type PostAuthDeleteUserAccountData = {
   body: EmailCode
@@ -379,28 +531,56 @@ export type PostAuthSendEmailCodeResponses = {
 export type PostAuthSendEmailCodeResponse =
   PostAuthSendEmailCodeResponses[keyof PostAuthSendEmailCodeResponses]
 
-export type PostAuthSignupData = {
-  body: CreateAccountDetails
+export type GetAuthSessionStatusData = {
+  body?: never
   path?: never
   query?: never
-  url: "/api/v0/auth/signup"
+  url: "/api/v0/auth/session-status"
 }
 
-export type PostAuthSignupErrors = {
+export type GetAuthSessionStatusResponses = {
   /**
-   * Cannot sign up (e.g. already signed in or validation error)
+   * Whether the session needs confirming
    */
-  400: unknown
+  200: SessionStatus
 }
 
-export type PostAuthSignupResponses = {
+export type GetAuthSessionStatusResponse =
+  GetAuthSessionStatusResponses[keyof GetAuthSessionStatusResponses]
+
+export type PostAuthSessionStatusEmailCodeData = {
+  body: SessionEmailCodeRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/session-status/email-code"
+}
+
+export type PostAuthSessionStatusEmailCodeResponses = {
   /**
-   * Signup outcome
+   * What the request did
    */
-  200: SignupResponse
+  200: SessionEmailCodeResult
 }
 
-export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
+export type PostAuthSessionStatusEmailCodeResponse =
+  PostAuthSessionStatusEmailCodeResponses[keyof PostAuthSessionStatusEmailCodeResponses]
+
+export type PostAuthSessionStatusVerifyData = {
+  body: SessionVerifyRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/session-status/verify"
+}
+
+export type PostAuthSessionStatusVerifyResponses = {
+  /**
+   * Outcome of submitting the code
+   */
+  200: SessionVerifyResult
+}
+
+export type PostAuthSessionStatusVerifyResponse =
+  PostAuthSessionStatusVerifyResponses[keyof PostAuthSessionStatusVerifyResponses]
 
 export type GetAuthUserInfoData = {
   body?: never
@@ -413,7 +593,7 @@ export type GetAuthUserInfoResponses = {
   /**
    * Profile when signed in; null when anonymous
    */
-  200: null | UserInfo
+  200: UserInfo | null
 }
 
 export type GetAuthUserInfoResponse = GetAuthUserInfoResponses[keyof GetAuthUserInfoResponses]

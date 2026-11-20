@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
@@ -9,7 +9,7 @@ import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import DefaultSVG from "@/shared-module/common/img/hero-default-bg-image.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
@@ -28,6 +28,8 @@ interface TextBoxProps {
   backgroundImages: HeroBackgroundImages
 }
 
+const TITLE_CLASS = "hero-title"
+
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
@@ -36,21 +38,21 @@ const TextBox = styled.div<TextBoxProps>`
   align-items: center;
   text-align: center;
   justify-content: center;
-  ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.mobile)}
+  ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.mobile, color)}
 
   ${respondToOrLarger.md} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.medium)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.medium, color)}
   }
 
   ${respondToOrLarger.lg} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.large)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.large, color)}
   }
 
   ${respondToOrLarger.xl} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.xlarge)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
-  h1 {
+  .${TITLE_CLASS} {
     z-index: 20;
     margin-bottom: 0.8rem;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
@@ -109,6 +111,8 @@ export interface LandingPageHeroSectionProps {
   fontColor?: string
   backgroundRepeatX?: boolean
   variant?: string
+  // The exam page has its own h1, so the hero title is an h2 there.
+  isExam?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & LandingPageHeroSectionProps
@@ -123,6 +127,7 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   backgroundColor,
   backgroundRepeatX,
   fontColor,
+  isExam,
 }) => {
   const { t } = useTranslation()
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
@@ -139,6 +144,8 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       ref={containerRef}
       onPointerDown={onPointerDown}
       className={css`
+        position: relative;
+        overflow: hidden;
         width: 100%;
         border-radius: 1px;
         transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -184,8 +191,8 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       <TextBox backgroundImages={backgroundImages} color={fontColor}>
         <ParsedText
           text={title}
-          tag="h1"
-          tagProps={{ className: flipClassName }}
+          tag={isExam ? "h2" : "h1"}
+          tagProps={{ className: cx(TITLE_CLASS, flipClassName) }}
           useWrapperElement={true}
         />
         <div className="hero-subtitle">{children}</div>
@@ -205,6 +212,11 @@ const LandingPageHeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
             }
             // oxlint-disable-next-line i18next/no-literal-string
             firstChapterGrid.scrollIntoView({ behavior: "smooth" })
+            // Move focus to the grid heading so keyboard and screen reader users follow the scroll.
+            const heading = firstChapterGrid.querySelector<HTMLElement>("h2")
+            if (heading) {
+              focusProgrammatically(heading, { preventScroll: true })
+            }
           }}
         >
           {t("start-course")}

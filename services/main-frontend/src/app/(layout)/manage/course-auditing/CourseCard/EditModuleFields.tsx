@@ -44,11 +44,6 @@ const EditModuleFields: React.FC<Props> = ({ control, module, idx }) => {
         rules={nullIfEmpty}
         isDisabled={!override}
       />
-      <Checkbox
-        control={control}
-        label={t("label-enable-registering-completion-to-uh-open-university")}
-        name={`modules.${idx}.enable_registering_completion_to_uh_open_university` as const}
-      />
       <div key={module.id} className={contentRowStyles}>
         <div
           className={css`

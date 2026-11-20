@@ -21,6 +21,11 @@ export function manageCoursePagesRoute(courseId: string) {
   return `/manage/courses/${courseId}/pages`
 }
 
+/** Shows the course's research consent form as students see it, live from an open CMS editor. */
+export function manageCourseResearchFormPreviewRoute(courseId: string) {
+  return `/manage/research-forms/${courseId}/preview`
+}
+
 export function manageCourseModulesRoute(courseId: string) {
   return `/manage/courses/${courseId}/modules`
 }
@@ -49,6 +54,20 @@ export function manageCourseInstancesRoute(courseId: string) {
 
 export function manageCourseLanguageVersionsRoute(courseId: string) {
   return `/manage/courses/${courseId}/language-versions`
+}
+
+export function manageLanguageVersionsRoute(courseId?: string) {
+  return courseId
+    ? `/manage/language-versions?course=${encodeURIComponent(courseId)}`
+    : "/manage/language-versions"
+}
+
+export function manageCreateCounterpartRoute(
+  courseId: string,
+  pageId: string,
+  languageCode: string,
+) {
+  return `/manage/courses/${courseId}/pages/${pageId}/create-counterpart?language=${encodeURIComponent(languageCode)}`
 }
 
 export function manageCoursePermissionsRoute(courseId: string) {
@@ -160,6 +179,19 @@ export function manageChatbotRoute(chatbotId: string) {
 
 export function courseChatbotSettingsRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/chatbot`
+}
+
+export function manageCourseAgentChangesetsRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/agent-changesets`
+}
+
+export function manageCourseAgentChangesetRoute(courseId: string, changesetId: string) {
+  return `/manage/courses/${courseId}/other/agent-changesets/${changesetId}`
+}
+
+/** Opens a fresh preview of a page in an agent changeset; a link, so it can open in a new tab. */
+export function agentChangesetPagePreviewRoute(changesetId: string, pageId: string) {
+  return `/manage/agent-changesets/${changesetId}/preview/${pageId}`
 }
 
 export function manageCourseOtherReferencesRoute(courseId: string) {
@@ -276,6 +308,10 @@ export function manageCoursePlansListRoute() {
   return `/manage/course-plans`
 }
 
+export function manageCoursePlansSupportRoute() {
+  return `/manage/course-plans/support`
+}
+
 export function manageCoursePlanRoute(planId: string) {
   return `/manage/course-plans/${planId}`
 }
@@ -332,6 +368,11 @@ export function completionRegistrationRoute(courseModuleId: string) {
   return `/completion-registration/${courseModuleId}`
 }
 
+/** Must match the backend's handoff redirect and the status link in its mails. */
+export function moocfiCompletionRegistrationRoute(moocfiCourseId: string) {
+  return `/completion-registration/mooc-fi/${moocfiCourseId}`
+}
+
 /** Must match the backend's `LINK_STUDENT_NUMBER_PATH`; a divergence breaks every mail already sent. */
 export function linkStudentNumberRoute(token: string) {
   return `/link-student-number/${token}`
@@ -353,8 +394,18 @@ export function creditRegistrationCoursesRoute() {
   return "/manage/credit-registration/courses"
 }
 
+/** One course's or mooc.fi target's registrations, linking emails and Sisu enrolments. */
+export function creditRegistrationCourseRoute(courseOrTargetId: string) {
+  return `/manage/credit-registration/courses/${courseOrTargetId}`
+}
+
 export function creditRegistrationLinkingRoute() {
   return "/manage/credit-registration/linking"
+}
+
+/** The Linking tab's searchable list of every linking email. */
+export function creditRegistrationLinkingEmailsRoute() {
+  return "/manage/credit-registration/linking/emails"
 }
 
 export function creditRegistrationSystemRoute() {

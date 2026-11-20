@@ -7,11 +7,11 @@
 
 use headless_lms_models::email_deliveries::insert_email_delivery_with_placeholders;
 use headless_lms_models::library::credit_registration::student_notifications::{
-    STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue, claim_unnotified, set_email_delivery_id,
+    RegistrationStatusPage, STUDENT_NOTIFICATION_LIMIT, StudentNotificationToQueue,
+    claim_unnotified, set_email_delivery_id,
 };
 use serde_json::json;
 use sqlx::{Connection, PgPool};
-use uuid::Uuid;
 
 use crate::error::CreditRegistrationResult;
 use crate::use_cases::mail_queue::{MailQueueSummary, TemplateCache, template_language};
@@ -81,7 +81,7 @@ fn placeholders(
             .map(|credits| format_credits(credits, language))
             .unwrap_or_default(),
         "ENROLMENT_LINK": notification.enrolment_link.as_deref().unwrap_or_default(),
-        "STATUS_LINK": status_page_url(base_url, notification.course_module_id),
+        "STATUS_LINK": status_page_url(base_url, notification.status_page),
     })
 }
 
@@ -97,9 +97,14 @@ fn format_credits(credits: f32, language: &str) -> String {
 }
 
 /// The page the mail sends the student to, which is where every next step already lives.
-fn status_page_url(base_url: &str, course_module_id: Uuid) -> String {
-    format!(
-        "{}/completion-registration/{course_module_id}",
-        base_url.trim_end_matches('/')
-    )
+fn status_page_url(base_url: &str, status_page: RegistrationStatusPage) -> String {
+    let base_url = base_url.trim_end_matches('/');
+    match status_page {
+        RegistrationStatusPage::CourseModule { course_module_id } => {
+            format!("{base_url}/completion-registration/{course_module_id}")
+        }
+        RegistrationStatusPage::Moocfi { moocfi_course_id } => {
+            format!("{base_url}/completion-registration/mooc-fi/{moocfi_course_id}")
+        }
+    }
 }

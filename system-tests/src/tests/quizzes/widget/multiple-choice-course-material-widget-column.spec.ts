@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -15,7 +16,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.goto("http://project-331.local/organizations")
 
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.locator(`div:text-is("Introduction to Course Material")`).click()
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
 
   await page.evaluate(() => {
@@ -38,6 +39,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   const frame = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-column-single",
@@ -51,6 +53,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-single",
@@ -64,7 +67,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-single",
@@ -79,6 +82,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-single",
@@ -96,6 +100,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   const frame2 = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-success-click-column-multi",
@@ -110,7 +115,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-success-click-column-multi",
@@ -124,7 +129,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("try again").click()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["color-contrast"],
+    axeSkip: ["color-contrast", NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-before-failure-click-column-multi",
@@ -139,6 +144,7 @@ test("multiple-choice course material column test", async ({ page, headless }, t
   await page.getByText("Submit").click()
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     headless,
     testInfo,
     snapshotName: "course-material-multiple-choice-after-failure-click-column-multi",

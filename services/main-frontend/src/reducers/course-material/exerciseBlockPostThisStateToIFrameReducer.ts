@@ -55,15 +55,12 @@ export default function exerciseBlockPostThisStateToIFrameReducer(
       return exerciseTasks
         .toSorted((a, b) => a.order_number - b.order_number)
         .map<ExerciseIframeState>((exerciseTask) => {
-          const prevExerciseTask = prev?.find((x) => x.exercise_task_id === exerciseTask.id)
           const userVariables = userVariableListToMap(
             action.payload.user_course_instance_exercise_service_variables.filter(
               (variable) => variable.exercise_service_slug === exerciseTask.exercise_service_slug,
             ),
           )
-          if (prevExerciseTask && prevExerciseTask?.view_type === "view-submission") {
-            return prevExerciseTask
-          } else if (action.isChapterLocked && exerciseTask.previous_submission) {
+          if (action.isChapterLocked && exerciseTask.previous_submission) {
             return {
               view_type: "view-submission",
               exercise_task_id: exerciseTask.id,

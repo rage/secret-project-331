@@ -1,7 +1,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { MinusCircle } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
@@ -141,6 +141,15 @@ const Timeline: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemTimeline, UserItemAnswerTimeline>
 > = ({ quizItemAnswerState, quizItem, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  // Id of the control to focus once the answer change has swapped the select and Remove button.
+  const pendingFocusId = useRef<string | null>(null)
+  useEffect(() => {
+    if (pendingFocusId.current) {
+      // oxlint-disable-next-line unicorn/prefer-query-selector -- id embeds a raw UUID
+      document.getElementById(pendingFocusId.current)?.focus()
+      pendingFocusId.current = null
+    }
+  }, [quizItemAnswerState])
   const chosenEventIds = (quizItemAnswerState?.timelineChoices ?? []).map((tc) => tc.chosenEventId)
   const hasDuplicateAnswers = chosenEventIds.length !== new Set(chosenEventIds).size
   return (
@@ -223,6 +232,7 @@ const Timeline: React.FunctionComponent<
                       return { label: tie.name, value: tie.eventId }
                     })}
                     onChange={(event) => {
+                      pendingFocusId.current = `remove-${timelineItem.itemId}`
                       if (!quizItemAnswerState) {
                         const choices = [
                           {
@@ -275,11 +285,13 @@ const Timeline: React.FunctionComponent<
                       {selectedTimelineEventDetails?.name ?? t("deleted-option")}
                     </p>
                     <StyledButton
+                      id={`remove-${timelineItem.itemId}`}
                       aria-label={t("remove-answer-for-year", { year: timelineItem.year })}
                       onClick={() => {
                         if (!quizItemAnswerState) {
                           return
                         }
+                        pendingFocusId.current = `select-${timelineItem.itemId}`
                         const timelineChoicesWithoutThisOne =
                           quizItemAnswerState.timelineChoices?.filter(
                             (tc) => tc.timelineItemId !== timelineItem.itemId,

@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM agent_changesets\n    WHERE user_id = $1\n      AND course_id = $2\n  ) AS \"has_changesets!\",\n  (\n    SELECT count(*)\n    FROM agent_changeset_entities e\n      JOIN agent_changesets cs ON cs.id = e.changeset_id\n    WHERE cs.user_id = $1\n      AND cs.course_id = $2\n      AND cs.status = 'open'\n      AND cs.expires_at > now()\n  ) AS \"open_entity_count!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "has_changesets!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "open_entity_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "f73223689c37ef7136884dba69d91bb1b260d094b2a3e91dba46d787dd853ba2"
+}

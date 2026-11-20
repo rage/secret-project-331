@@ -74,14 +74,12 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
           }
           const question = foundQuestion.question
           return (
-            <>
-              {text_data && (
-                <Essay key={id} question={question} content={text_data} index={index} />
-              )}
+            <React.Fragment key={id}>
+              {text_data && <Essay question={question} content={text_data} index={index} />}
               {number_data !== null && (
-                <Likert key={id} question={question} content={number_data ?? null} index={index} />
+                <Likert question={question} content={number_data ?? null} index={index} />
               )}
-            </>
+            </React.Fragment>
           )
         },
       )}

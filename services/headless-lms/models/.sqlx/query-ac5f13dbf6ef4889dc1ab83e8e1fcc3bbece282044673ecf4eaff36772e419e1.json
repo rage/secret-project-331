@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*)::BIGINT AS \"task_count!\",\n  COUNT(*) FILTER (WHERE t.is_completed)::BIGINT AS \"completed_task_count!\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id\nWHERE s.course_designer_plan_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "task_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "completed_task_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "ac5f13dbf6ef4889dc1ab83e8e1fcc3bbece282044673ecf4eaff36772e419e1"
+}

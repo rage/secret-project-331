@@ -299,7 +299,7 @@ export const chooserPanelCss = css`
 `
 
 export const chooserTitleCss = css`
-  color: var(--color-gray-400);
+  color: var(--color-gray-500);
   font-size: 0.6875rem;
   font-weight: 500;
   line-height: 1.25;
@@ -335,7 +335,7 @@ export const chooserPagerCss = css`
 `
 
 export const chooserSectionLabelCss = css`
-  color: var(--color-gray-400);
+  color: var(--color-gray-500);
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -426,7 +426,7 @@ export const standaloneTimePanelCss = css`
 `
 
 export const timePanelHeadingCss = css`
-  color: var(--color-gray-400);
+  color: var(--color-gray-500);
   font-size: 0.625rem;
   font-weight: 500;
   line-height: 1.25;

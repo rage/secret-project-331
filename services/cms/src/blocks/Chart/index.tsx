@@ -3,6 +3,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { image as icon } from "@wordpress/icons"
 
+import { URL_REFERENCE } from "@/utils/Gutenberg/agentSchema"
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import ChartEditor from "./ChartEditor"
@@ -32,6 +33,7 @@ const ChartConfiguration: BlockConfiguration<ChartAttributes> = {
   attributes: {
     spec: {
       type: "string",
+      agentSchema: { type: "string", "x-vega-lite-spec": true },
       // Empty by default so a new block starts data-first: the editor asks for a data file before
       // revealing the spec editor.
       default: "",
@@ -52,6 +54,7 @@ const ChartConfiguration: BlockConfiguration<ChartAttributes> = {
     // No default: unset means no data file has been attached.
     dataFileUrl: {
       type: "string",
+      agentSchema: URL_REFERENCE,
     },
   },
   icon,

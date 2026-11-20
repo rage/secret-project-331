@@ -9,10 +9,12 @@ import { validURL } from "@/shared-module/common/utils/validation"
 import { Dialog } from "@/shared-module/components"
 
 import ContentArea from "./ContentArea"
+import ExerciseServiceFlagFields, { type ExerciseServiceFlags } from "./ExerciseServiceFlagFields"
 
 interface ExerciseServiceCreationModelProps {
   onChange: (key: string) => (value: string) => void
   onChangeName: (value: string) => void
+  onChangeFlags: (flags: ExerciseServiceFlags) => void
   exercise_service: ExerciseServiceNewOrUpdate
   handleSubmit: () => Promise<void>
   handleClose: () => void
@@ -26,7 +28,15 @@ const MAX_REPROCESSING_SUBMISSION_AT_ONCE = "max_reprocessing_submissions_at_onc
 
 const ExerciseServiceCreationModal: React.FC<
   React.PropsWithChildren<ExerciseServiceCreationModelProps>
-> = ({ open, handleClose, exercise_service, onChange, onChangeName, handleSubmit }) => {
+> = ({
+  open,
+  handleClose,
+  exercise_service,
+  onChange,
+  onChangeName,
+  onChangeFlags,
+  handleSubmit,
+}) => {
   const { t } = useTranslation()
   return (
     <Dialog
@@ -79,6 +89,7 @@ const ExerciseServiceCreationModal: React.FC<
           error: t("error-title"),
         })}
       />
+      <ExerciseServiceFlagFields flags={exercise_service} onChange={onChangeFlags} />
     </Dialog>
   )
 }

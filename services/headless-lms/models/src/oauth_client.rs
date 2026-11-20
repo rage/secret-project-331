@@ -69,9 +69,29 @@ pub struct OAuthClient {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+
+    /// Set for a client registered through a Client ID Metadata Document, whose `client_id` is
+    /// the document's URL: when the document was last fetched.
+    pub metadata_document_fetched_at: Option<DateTime<Utc>>,
+    pub client_uri: Option<String>,
 }
 
 impl OAuthClient {
+    /// Whether the client was registered through a Client ID Metadata Document.
+    pub fn is_metadata_document_client(&self) -> bool {
+        self.metadata_document_fetched_at.is_some()
+    }
+
+    /// How long this client's access tokens are valid: shorter for clients registered through a
+    /// metadata document.
+    pub fn access_token_ttl(&self) -> chrono::Duration {
+        if self.is_metadata_document_client() {
+            chrono::Duration::minutes(15)
+        } else {
+            chrono::Duration::hours(1)
+        }
+    }
+
     pub fn is_public(&self) -> bool {
         self.token_endpoint_auth_method.is_public()
     }
@@ -279,6 +299,92 @@ impl OAuthClient {
         .fetch_one(conn)
         .await?;
 
+        Ok(row)
+    }
+}
+
+/// A client as its Client ID Metadata Document describes it, already validated.
+#[derive(Debug, Clone)]
+pub struct MetadataDocumentClient<'a> {
+    /// The URL the document was fetched from, which is also the client id.
+    pub client_id: &'a str,
+    pub client_name: &'a str,
+    pub redirect_uris: &'a [String],
+    pub client_uri: Option<&'a str>,
+    /// The scopes the client may request.
+    pub scopes: &'a [String],
+}
+
+impl OAuthClient {
+    /// Stores or refreshes the cached registration of a Client ID Metadata Document client: a
+    /// public client that must use PKCE with S256 and gets Bearer tokens through the
+    /// authorization code and refresh token grants.
+    pub async fn upsert_metadata_document_client(
+        conn: &mut PgConnection,
+        client: MetadataDocumentClient<'_>,
+    ) -> ModelResult<Self> {
+        let p = NewClientParams {
+            client_id: client.client_id,
+            client_name: client.client_name,
+            application_type: ApplicationType::Native,
+            token_endpoint_auth_method: TokenEndpointAuthMethod::None,
+            client_secret: None,
+            client_secret_expires_at: None,
+            redirect_uris: client.redirect_uris,
+            post_logout_redirect_uris: None,
+            allowed_grant_types: &[
+                GrantTypeName::AuthorizationCode,
+                GrantTypeName::RefreshToken,
+            ],
+            scopes: client.scopes,
+            require_pkce: true,
+            pkce_methods_allowed: &[PkceMethod::S256],
+            allowed_origins: None,
+            bearer_allowed: true,
+        };
+        p.validate()?;
+        let row = sqlx::query_as!(
+            OAuthClient,
+            r#"
+INSERT INTO oauth_clients (
+    client_id,
+    client_name,
+    application_type,
+    token_endpoint_auth_method,
+    redirect_uris,
+    allowed_grant_types,
+    scopes,
+    require_pkce,
+    pkce_methods_allowed,
+    bearer_allowed,
+    metadata_document_fetched_at,
+    client_uri
+  )
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), $11) ON CONFLICT (client_id)
+WHERE deleted_at IS NULL DO
+UPDATE
+SET client_name = EXCLUDED.client_name,
+  redirect_uris = EXCLUDED.redirect_uris,
+  scopes = EXCLUDED.scopes,
+  metadata_document_fetched_at = EXCLUDED.metadata_document_fetched_at,
+  client_uri = EXCLUDED.client_uri
+WHERE oauth_clients.metadata_document_fetched_at IS NOT NULL
+RETURNING *
+            "#,
+            p.client_id,
+            p.client_name,
+            p.application_type as ApplicationType,
+            p.token_endpoint_auth_method as TokenEndpointAuthMethod,
+            p.redirect_uris,
+            p.allowed_grant_types as &[GrantTypeName],
+            p.scopes,
+            p.require_pkce,
+            p.pkce_methods_allowed as &[PkceMethod],
+            p.bearer_allowed,
+            client.client_uri,
+        )
+        .fetch_one(conn)
+        .await?;
         Ok(row)
     }
 }

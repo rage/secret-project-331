@@ -7,7 +7,7 @@ use serde_json::Value;
 use utoipa::ToSchema;
 
 use crate::{
-    course_modules::{self, CourseModule},
+    course_modules::{self, CompletionMethod, CourseModule},
     courses,
     exercises::{ActivityProgress, Exercise, GradingProgress},
     prelude::*,
@@ -51,6 +51,14 @@ pub enum ReviewingStage {
     Locked,
     /// In this stage the chapter was locked while the student had not returned an answer to the exercise. There is nothing for anyone to review, and the student can no longer answer the exercise.
     NotAnsweredAndLocked,
+}
+
+impl ReviewingStage {
+    /// Whether the user may still submit answers to the exercise. Every stage past `NotStarted`
+    /// locks the exercise until a teacher resets it, whatever the chapter's locking status.
+    pub fn accepts_submissions(self) -> bool {
+        self == Self::NotStarted
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -113,10 +121,9 @@ pub struct UserCourseProgress {
     pub total_exercises: Option<u32>,
     pub attempted_exercises: Option<i32>,
     pub attempted_exercises_required: Option<i32>,
-    /// False when a teacher grades the module, in which case neither threshold applies.
-    pub automatic_completion: bool,
-    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
-    pub requires_exam: bool,
+    /// The thresholds apply only to `by_requirements` and `by_exam`; for `by_exam` they only qualify
+    /// the user to take the exam that completion also needs.
+    pub completion_method: CompletionMethod,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -419,10 +426,9 @@ pub struct UserCourseModuleProgress {
     pub attempted_exercises: i32,
     /// `None` when the module is completed manually or sets no attempt threshold.
     pub attempted_exercises_required: Option<i32>,
-    /// False when a teacher grades the module, in which case neither threshold applies.
-    pub automatic_completion: bool,
-    /// When true, the thresholds only qualify the user to sit an exam that completion also needs.
-    pub requires_exam: bool,
+    /// The thresholds apply only to `by_requirements` and `by_exam`; for `by_exam` they only qualify
+    /// the user to take the exam that completion also needs.
+    pub completion_method: CompletionMethod,
 }
 
 /// The user's standing in every module of the given courses, keyed by course module id.
@@ -492,7 +498,7 @@ GROUP BY chapters.course_module_id
         .await?
         .into_iter()
         .map(|course_module| {
-            let requirements = course_module.completion_policy.automatic();
+            let requirements = course_module.completion_policy.requirements();
             let progress = UserCourseModuleProgress {
                 score_given: option_f32_to_f32_two_decimals_with_none_as_zero(
                     score_given_by_module.get(&course_module.id).copied(),
@@ -515,8 +521,7 @@ GROUP BY chapters.course_module_id
                     .try_into()?,
                 attempted_exercises_required: requirements
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
-                automatic_completion: requirements.is_some(),
-                requires_exam: requirements.is_some_and(|x| x.requires_exam),
+                completion_method: course_module.completion_policy.method(),
             };
             Ok((course_module.id, progress))
         })
@@ -559,7 +564,7 @@ fn merge_modules_with_metrics(
         .map(|course_module| {
             let user_metrics = user_metrics_by_course_module_id.get(&course_module.id);
             let course_metrics = course_metrics_by_course_module_id.get(&course_module.id);
-            let requirements = course_module.completion_policy.automatic();
+            let requirements = course_module.completion_policy.requirements();
             let progress = UserCourseProgress {
                 course_module_id: course_module.id,
                 // Only default course module doesn't have a name.
@@ -585,8 +590,7 @@ fn merge_modules_with_metrics(
                     .transpose()?,
                 attempted_exercises_required: requirements
                     .and_then(|x| x.number_of_exercises_attempted_treshold),
-                automatic_completion: requirements.is_some(),
-                requires_exam: requirements.is_some_and(|x| x.requires_exam),
+                completion_method: course_module.completion_policy.method(),
             };
             Ok(progress)
         })
@@ -1568,7 +1572,7 @@ mod tests {
                 Uuid::parse_str("3fa4bee6-7390-415e-968f-ecdc5f28330e").unwrap(),
             )
             .set_timestamps(timestamp, timestamp, None)
-            .set_registration_info(None, Some(5.0), None, false, false),
+            .set_registration_info(None, Some(5.0), None),
         ];
         let course_metrics_by_course_module_id = HashMap::from([(
             module_id,

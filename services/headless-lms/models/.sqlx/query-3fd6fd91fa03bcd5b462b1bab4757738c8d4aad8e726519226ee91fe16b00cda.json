@@ -13,7 +13,8 @@
               "Enum": [
                 "staff_login",
                 "account_deletion",
-                "email_ownership_verification"
+                "email_ownership_verification",
+                "network_verification"
               ]
             }
           }

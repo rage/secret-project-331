@@ -132,6 +132,15 @@
   height: unset !important;
 }
 
+// block-editor outlines a draggable block whenever the pointer rests on anything not contenteditable.
+// Our blocks are mostly inputs and exercise iframes, so the outline would sit over whatever is being
+// edited. Keyboard focus and list-view highlighting still outline them.
+.block-editor-block-list__block[data-type^="moocfi/"].is-hovered-draggable:not(:focus):not(
+    .is-highlighted
+  )::after {
+  content: none !important;
+}
+
 .block-editor-block-list__empty-block-inserter {
   .block-editor-inserter {
     float: right;

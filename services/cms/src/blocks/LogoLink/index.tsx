@@ -14,6 +14,21 @@ const LogoLinkConfiguration: BlockConfiguration = {
   description: "Logo Link",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
+  allowedBlocks: ["core/image", "core/columns"],
+  innerBlocksArea: {
+    template: [
+      [
+        "core/columns",
+        { isStackedOnMobile: true },
+        [
+          ["core/column", {}, [["core/image"]]],
+          ["core/column", {}, [["core/image"]]],
+          ["core/column", {}, [["core/image"]]],
+        ],
+      ],
+    ],
+    templateLock: "all",
+  },
   edit: LogoLinkEditor,
   save: LogoLinkSave,
 }

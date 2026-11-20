@@ -247,10 +247,13 @@ describe("date and time fields", () => {
       "aria-disabled",
       "true",
     )
-    expect(screen.getByRole("group", { name: "Readonly time" })).toHaveAttribute(
-      "aria-readonly",
-      "true",
-    )
+    const readonlySegments = within(
+      screen.getByRole("group", { name: "Readonly time" }),
+    ).getAllByRole("spinbutton")
+    expect(readonlySegments.length).toBeGreaterThan(0)
+    for (const segment of readonlySegments) {
+      expect(segment).toHaveAttribute("aria-readonly", "true")
+    }
   })
 
   test("DateField forwards data-testid to the group, hidden value, and calendar trigger", () => {

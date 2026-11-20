@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_specific_consent_form_questions (\n    id,\n    course_id,\n    research_consent_form_id,\n    question\n  )\nVALUES ($1, $2, $3, $4) ON CONFLICT (id)\nDO UPDATE SET question = $4,\nresearch_consent_form_id = $3,\ndeleted_at = NULL\nWHERE course_specific_consent_form_questions.course_id = excluded.course_id\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9c559e6126ccd3ed0d6b638923255869abe17c8c0ce43978ae7562ec050ed581"
+}

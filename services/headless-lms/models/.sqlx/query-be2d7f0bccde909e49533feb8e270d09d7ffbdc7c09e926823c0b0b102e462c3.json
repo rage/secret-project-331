@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM user_course_settings\nWHERE current_course_id = $1\n  AND user_id = ANY($2)\nRETURNING to_jsonb(user_course_settings.*) AS \"row!\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "row!",
+        "type_info": "Jsonb",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "be2d7f0bccde909e49533feb8e270d09d7ffbdc7c09e926823c0b0b102e462c3"
+}

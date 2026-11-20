@@ -4,8 +4,19 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-/** `selected` is a toggle that is on: `primary` that keeps its fill while hovered or focused. */
-export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon" | "danger" | "selected"
+/**
+ * `selected` is a toggle that is on: `primary` that keeps its fill while hovered or focused.
+ * `link` looks like a link in running text, for an action that changes what is on screen rather
+ * than going anywhere; it ignores `size` and takes the surrounding font.
+ */
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "icon"
+  | "danger"
+  | "selected"
+  | "link"
 
 export interface PressHandlers {
   onPress?: (e: PressEvent) => void
@@ -258,6 +269,33 @@ const iconCss = css`
   }
 `
 
+const linkCss = css`
+  display: inline;
+  height: auto;
+  padding: 0;
+  border: 0;
+  color: var(--link-fg);
+  font: inherit;
+  line-height: inherit;
+  text-align: start;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  white-space: normal;
+
+  /* An inline-flex child would not carry the underline. */
+  > span {
+    display: inline;
+  }
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    color: var(--link-fg-hover);
+  }
+
+  &[data-pressed="true"] {
+    transform: none;
+  }
+`
+
 const sizeStyles: Record<ButtonSize, string> = {
   small: sizeSmCss,
   medium: sizeMdCss,
@@ -271,6 +309,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   icon: iconCss,
   danger: dangerCss,
   selected: selectedCss,
+  link: linkCss,
 }
 
 const iconSizeStyles: Record<ButtonSize, string> = {
@@ -286,7 +325,7 @@ function resolveVariantCss(variant: ButtonVariant): string {
 export function resolveButtonRootCss(input: ResolveStylesInput): string {
   return cx(
     rootBaseCss,
-    sizeStyles[input.size],
+    input.variant === "link" ? undefined : sizeStyles[input.size],
     resolveVariantCss(input.variant),
     input.variant === "icon" ? iconSizeStyles[input.size] : undefined,
   )

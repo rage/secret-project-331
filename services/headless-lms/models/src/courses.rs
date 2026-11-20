@@ -8,15 +8,20 @@ use crate::{
     course_prerequisites::{
         CoursePrerequisite, EditCoursePrerequisite, upsert_course_prerequisites,
     },
+    entity_history::{self, HistoryAuthor},
+    error::missing_model_error,
+    library::entity_snapshots::{
+        self, ContentEntityType, CourseAudienceSnapshot, CourseSettingsSnapshot,
+    },
     organizations::DatabaseOrganization,
     pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings, file_store::FileStore,
-    language_tag_to_name::LANGUAGE_TAG_TO_NAME, strings::non_empty_trimmed,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, language_tags::primary_language,
+    strings::non_empty_trimmed,
 };
-use itertools::multiunzip;
 use pgvector::Vector;
 use utoipa::ToSchema;
 pub struct CourseInfo {
@@ -297,10 +302,23 @@ pub async fn insert(
     course_language_group_id: Uuid,
     new_course: &NewCourse,
 ) -> ModelResult<Uuid> {
-    let mut tx = conn.begin().await?;
-
-    let name = non_empty_trimmed(&new_course.name).unwrap_or(&new_course.name);
+    let title = non_empty_trimmed(&new_course.name);
+    let name = title.unwrap_or(&new_course.name);
     let description = non_empty_trimmed(&new_course.description);
+    let embeddings = if app_config.disable_embedding_vector_creation_when_seeding {
+        None
+    } else {
+        let texts = title.into_iter().chain(description).map(str::to_string);
+        let embeddings = TextEmbeddings::create(app_config, texts.collect()).await?;
+        Some((
+            embeddings.get_or_create_one(app_config, title).await?,
+            embeddings
+                .get_or_create_one(app_config, description)
+                .await?,
+        ))
+    };
+
+    let mut tx = conn.begin().await?;
 
     let res = sqlx::query!(
         "
@@ -349,15 +367,8 @@ RETURNING id
     )
     .fetch_one(&mut *tx)
     .await?;
-    if !app_config.disable_embedding_vector_creation_when_seeding {
-        update_course_embeddings(
-            &mut tx,
-            app_config,
-            res.id,
-            non_empty_trimmed(&new_course.name),
-            description,
-        )
-        .await?
+    if let Some((title_embedding, description_embedding)) = embeddings {
+        update_course_embeddings(&mut tx, res.id, title_embedding, description_embedding).await?
     }
     tx.commit().await?;
     Ok(res.id)
@@ -556,217 +567,63 @@ GROUP BY c.id,
     Ok(data)
 }
 
+/// Saves the auditing view's changes and records the course settings and modules it changed in
+/// their history. Modules of other courses in the update are ignored.
 pub async fn update_course_auditing_data(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
     data_update: CourseAuditingDataUpdate,
+    author_user_id: Uuid,
 ) -> ModelResult<()> {
-    for module in &data_update.modules {
-        crate::course_modules::validate_completion_registration_link(
-            module.completion_registration_link_override.as_deref(),
-        )?;
-    }
-    let (
-        module_ids,
-        uh_course_codes,
-        completion_registration_link_overrides,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university,
-    ): (Vec<_>, Vec<_>, Vec<_>, Vec<_>, Vec<_>) =
-        multiunzip(data_update.modules.into_iter().map(|m| {
-            (
-                m.id,
-                m.uh_course_code,
-                m.completion_registration_link_override,
-                m.ects_credits,
-                m.enable_registering_completion_to_uh_open_university,
-            )
-        }));
-
-    let new_prerequisite_ids: Vec<Uuid> = data_update.prerequisites.iter().map(|p| p.id).collect();
-
-    let old_course = get_course(conn, course_id).await?;
-
-    let old_prerequisites: Vec<CoursePrerequisite> =
-        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
-
-    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
-        .iter()
-        .filter(|p| !new_prerequisite_ids.contains(&p.id))
-        .map(|p| p.id.to_owned())
-        .collect();
-
-    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
-        .iter()
-        .map(|p| (p.id, &p.prerequisite))
-        .collect();
-
-    let changed_prerequisites: Vec<EditCoursePrerequisite> = data_update
-        .prerequisites
-        .into_iter()
-        .filter(|p| match old_prerequisites_hash.get(&p.id) {
-            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
-            None => true,
-        })
-        .collect();
-
-    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
-        changed_prerequisites
-            .iter()
-            .map(|p| (p.id, p.prerequisite.to_owned()))
-            .unzip();
-
-    let new_audience_ids: Vec<Uuid> = data_update.audiences.iter().map(|a| a.id).collect();
-
-    let old_audiences: Vec<CourseAudience> =
-        crate::course_audiences::get_by_course_id(conn, course_id).await?;
-
-    let audiences_to_delete: Vec<Uuid> = old_audiences
-        .iter()
-        .filter(|a| !new_audience_ids.contains(&a.id))
-        .map(|a| a.id.to_owned())
-        .collect();
-
-    let old_audiences_hash: HashMap<Uuid, &String> =
-        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
-
-    let changed_audiences: Vec<EditCourseAudience> = data_update
-        .audiences
-        .into_iter()
-        .filter(|a| match old_audiences_hash.get(&a.id) {
-            Some(old_audience) => **old_audience != a.audience,
-            None => true,
-        })
-        .collect();
-
-    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
-        .iter()
-        .map(|a| (a.id, a.audience.to_owned()))
-        .unzip();
-
-    let prerequisite_embeddings = if updated_prerequisites.is_empty() {
-        None
-    } else {
-        Some(create_embeddings(app_config, updated_prerequisites.clone()).await?)
+    // destructure so new fields cause a compilation error here
+    let CourseAuditingDataUpdate {
+        description,
+        is_draft,
+        is_test_mode,
+        is_unlisted,
+        is_joinable_by_code_only,
+        closed_at,
+        closed_additional_message,
+        closed_course_successor_id,
+        prerequisites,
+        audiences,
+        modules,
+    } = data_update;
+    let author = HistoryAuthor::user(author_user_id);
+    let audiences = audience_snapshots(audiences);
+    let edit = |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        description: description.clone(),
+        is_draft,
+        is_test_mode,
+        is_unlisted,
+        is_joinable_by_code_only,
+        closed_at,
+        closed_additional_message: closed_additional_message.clone(),
+        closed_course_successor_id,
+        audiences: audiences.clone(),
+        ..live.clone()
     };
-
-    let audience_embeddings = if updated_audiences.is_empty() {
-        None
-    } else {
-        Some(create_embeddings(app_config, updated_audiences.clone()).await?)
-    };
-
+    let embeddings =
+        embed_changed_metadata(conn, app_config, course_id, &edit, &prerequisites).await?;
     let mut tx = conn.begin().await?;
-
-    sqlx::query_as!(
-        CourseAuditingDataUpdate,
-        r#"
-UPDATE courses
-SET description = $2,
-  is_draft = $3,
-  is_test_mode = $4,
-  is_unlisted = $5,
-  is_joinable_by_code_only = $6,
-  closed_at = $7,
-  closed_additional_message = $8,
-  closed_course_successor_id = $9
-WHERE id = $1
-  AND deleted_at IS NULL
-"#,
+    let live = load_settings(&mut tx, course_id).await?;
+    write_settings(&mut tx, app_config, &edit(&live), &live, false, &embeddings).await?;
+    write_prerequisites(&mut tx, app_config, course_id, prerequisites, &embeddings).await?;
+    entity_history::record_current(
+        &mut tx,
+        ContentEntityType::CourseSettings,
         course_id,
-        data_update.description,
-        data_update.is_draft,
-        data_update.is_test_mode,
-        data_update.is_unlisted,
-        data_update.is_joinable_by_code_only,
-        data_update.closed_at,
-        data_update.closed_additional_message,
-        data_update.closed_course_successor_id
+        author,
     )
-    .execute(&mut *tx)
     .await?;
 
-    if old_course.description != data_update.description
-        && data_update.description.is_some()
-        && data_update.description != Some("".to_string())
+    for module_id in
+        crate::course_modules::update_auditing_fields(&mut tx, course_id, modules).await?
     {
-        update_course_embeddings(
-            &mut tx,
-            app_config,
-            course_id,
-            Some(old_course.name.as_str()),
-            data_update.description.as_deref(),
-        )
-        .await?;
-    };
-
-    sqlx::query!(
-        r#"
-UPDATE course_modules cm
-SET uh_course_code = v.uh_course_code,
-  completion_registration_link_override = v.completion_registration_link_override,
-  ects_credits = v.ects_credits,
-  enable_registering_completion_to_uh_open_university = v.enable_registering_completion_to_uh_open_university
-FROM (
-    SELECT *
-    FROM UNNEST(
-        $1::uuid [],
-        $2::TEXT [],
-        $3::TEXT [],
-        $4::FLOAT8 [],
-        $5::BOOLEAN []
-      ) AS v(
-        id,
-        uh_course_code,
-        completion_registration_link_override,
-        ects_credits,
-        enable_registering_completion_to_uh_open_university
-      )
-  ) AS v
-WHERE cm.id = v.id
-  AND cm.course_id = $6
-  AND cm.deleted_at IS NULL
-"#,
-        &module_ids,
-        &uh_course_codes as &[Option<String>],
-        &completion_registration_link_overrides as &[Option<String>],
-        &ects_credits as &[Option<f32>],
-        &enable_registering_completion_to_uh_open_university,
-        course_id
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    if let Some(embeddings) = prerequisite_embeddings {
-        upsert_course_prerequisites(
-            &mut tx,
-            course_id,
-            updated_prerequisite_ids,
-            updated_prerequisites,
-            embeddings,
-        )
-        .await?
-    } else {
-        vec![]
-    };
-
-    if let Some(embeddings) = audience_embeddings {
-        upsert_course_audiences(
-            &mut tx,
-            course_id,
-            updated_audience_ids,
-            updated_audiences,
-            embeddings,
-        )
-        .await?
-    } else {
-        vec![]
-    };
-
-    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
-
-    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
+        entity_history::record_current(&mut tx, ContentEntityType::Module, module_id, author)
+            .await?;
+    }
 
     tx.commit().await?;
     Ok(())
@@ -790,6 +647,69 @@ WHERE courses.deleted_at IS NULL
   )
 "#,
         user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+/// A course with its organization's name, as listed to a native client.
+#[derive(Debug)]
+pub struct CourseWithOrganizationName {
+    pub id: Uuid,
+    pub slug: String,
+    pub name: String,
+    pub description: Option<String>,
+    pub ai_policy: CourseAiPolicy,
+    pub organization_name: String,
+}
+
+/// Courses the user is enrolled on, through any of their instances, that contain at least one
+/// task of any of the given exercise types; each course once, ordered by name. An empty
+/// `exercise_types` matches nothing.
+pub async fn get_enrolled_courses_with_exercise_types(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_types: &[String],
+) -> ModelResult<Vec<CourseWithOrganizationName>> {
+    let courses = sqlx::query_as!(
+        CourseWithOrganizationName,
+        r#"
+SELECT c.id,
+  c.slug,
+  c.name,
+  c.description,
+  c.ai_policy AS "ai_policy: CourseAiPolicy",
+  o.name AS organization_name
+FROM courses AS c
+  JOIN organizations AS o ON o.id = c.organization_id
+WHERE c.deleted_at IS NULL
+  AND o.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_instance_enrollments AS cie
+      JOIN course_instances AS ci ON ci.id = cie.course_instance_id
+    WHERE cie.user_id = $1
+      AND ci.course_id = c.id
+      AND cie.deleted_at IS NULL
+      AND ci.deleted_at IS NULL
+  )
+  AND EXISTS (
+    SELECT 1
+    FROM exercises AS e
+      JOIN exercise_slides AS es ON es.exercise_id = e.id
+      JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
+    WHERE e.course_id = c.id
+      AND et.exercise_type = ANY($2)
+      AND e.deleted_at IS NULL
+      AND es.deleted_at IS NULL
+      AND et.deleted_at IS NULL
+  )
+ORDER BY c.name,
+  c.id
+"#,
+        user_id,
+        exercise_types,
     )
     .fetch_all(conn)
     .await?;
@@ -845,6 +765,27 @@ WHERE course_language_group_id = $1
 AND deleted_at IS NULL
         "#,
         course.course_language_group_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+/// The courses of the course language groups: [`get_all_language_versions_of_course`] for many
+/// groups at once.
+pub async fn get_by_course_language_group_ids(
+    conn: &mut PgConnection,
+    course_language_group_ids: &[Uuid],
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT *
+FROM courses
+WHERE course_language_group_id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        course_language_group_ids,
     )
     .fetch_all(conn)
     .await?;
@@ -944,6 +885,25 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(course)
+}
+
+/// The course language group of a live course: the group its language versions share.
+pub async fn get_course_language_group_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT course_language_group_id
+FROM courses
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }
 
 pub async fn get_by_id_and_join_code(
@@ -1163,15 +1123,156 @@ pub struct CourseUpdate {
     pub course_material_ai_instructions: Option<bool>,
 }
 
+/// Lets the rest of the transaction swap chapter numbers, module and page order numbers, page
+/// paths and citation keys, and point a chapter at a front page it writes later; these
+/// constraints are checked at commit.
+pub(crate) async fn defer_structure_constraints(conn: &mut PgConnection) -> ModelResult<()> {
+    sqlx::query!(
+        "SET CONSTRAINTS unique_chapters_chapter_number_course_id_when_not_deleted,
+  course_modules_order_number_uniqueness,
+  pages_order_number_uniqueness,
+  unique_pages_url_path_course_id_when_not_deleted,
+  citation_key_uniqueness,
+  chapters_front_page_id_fkey DEFERRED"
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+impl From<&Course> for CourseUpdate {
+    /// The course's current values, to change some of them and save with [`update_course`].
+    fn from(course: &Course) -> Self {
+        Self {
+            name: course.name.clone(),
+            description: course.description.clone(),
+            is_draft: course.is_draft,
+            is_test_mode: course.is_test_mode,
+            can_add_chatbot: course.can_add_chatbot,
+            is_unlisted: course.is_unlisted,
+            is_joinable_by_code_only: course.is_joinable_by_code_only,
+            ask_marketing_consent: course.ask_marketing_consent,
+            flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(0),
+            flagged_answers_skip_manual_review_and_allow_retry: course
+                .flagged_answers_skip_manual_review_and_allow_retry,
+            closed_at: course.closed_at,
+            closed_additional_message: course.closed_additional_message.clone(),
+            closed_course_successor_id: course.closed_course_successor_id,
+            chapter_locking_enabled: course.chapter_locking_enabled,
+            ai_policy: course.ai_policy,
+            course_material_ai_instructions: course.course_material_ai_instructions,
+        }
+    }
+}
+
+/// Saves the course's editable fields and records the result in its history. Errors with
+/// `PreconditionFailed` if the update changes `can_add_chatbot` and `can_change_chatbot` is false.
 pub async fn update_course(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_update: CourseUpdate,
+    author_user_id: Uuid,
+    can_change_chatbot: bool,
 ) -> ModelResult<Course> {
-    let old_course = get_course(conn, course_id).await?;
+    // destructure so new fields cause a compilation error here
+    let CourseUpdate {
+        name,
+        description,
+        is_draft,
+        is_test_mode,
+        can_add_chatbot,
+        is_unlisted,
+        is_joinable_by_code_only,
+        ask_marketing_consent,
+        flagged_answers_threshold,
+        flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at,
+        closed_additional_message,
+        closed_course_successor_id,
+        chapter_locking_enabled,
+        ai_policy,
+        course_material_ai_instructions,
+    } = course_update;
+    let edit = move |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        name: name.clone(),
+        description: description.clone(),
+        is_draft,
+        is_test_mode,
+        can_add_chatbot,
+        is_unlisted,
+        is_joinable_by_code_only,
+        ask_marketing_consent,
+        flagged_answers_threshold: Some(flagged_answers_threshold),
+        flagged_answers_skip_manual_review_and_allow_retry,
+        closed_at,
+        closed_additional_message: closed_additional_message.clone(),
+        closed_course_successor_id,
+        chapter_locking_enabled,
+        ai_policy,
+        course_material_ai_instructions,
+        ..live.clone()
+    };
+    let live = load_settings(conn, course_id).await?;
+    let embeddings =
+        TextEmbeddings::create(app_config, changed_settings_texts(&edit(&live), &live)).await?;
+    entity_history::save_recording(
+        conn,
+        ContentEntityType::CourseSettings,
+        course_id,
+        HistoryAuthor::user(author_user_id),
+        async move |tx| {
+            let live = load_settings(&mut *tx, course_id).await?;
+            write_settings(
+                tx,
+                app_config,
+                &edit(&live),
+                &live,
+                can_change_chatbot,
+                &embeddings,
+            )
+            .await
+        },
+    )
+    .await
+}
+
+async fn load_settings(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseSettingsSnapshot> {
+    let course = get_course(conn, course_id).await?;
+    entity_snapshots::course_settings_of(conn, &course).await
+}
+
+/// Writes the course settings of the snapshot without recording history: the course row in one
+/// write, and the audiences that differ from `live`, the current settings. Embeddings of the
+/// changed name, description and audiences come from `embeddings` where it has them. Errors with
+/// `PreconditionFailed` if the snapshot is of another course, or if it changes `can_add_chatbot`
+/// and `can_change_chatbot` is false.
+pub async fn write_settings(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    settings: &CourseSettingsSnapshot,
+    live: &CourseSettingsSnapshot,
+    can_change_chatbot: bool,
+    embeddings: &TextEmbeddings,
+) -> ModelResult<Course> {
+    if settings.course_id != live.course_id {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Course settings snapshot is for another course".to_string()
+        ));
+    }
+    if settings.can_add_chatbot != live.can_add_chatbot && !can_change_chatbot {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Only global admins can change whether the course can have a chatbot".to_string()
+        ));
+    }
+    let course_id = settings.course_id;
     let mut tx = conn.begin().await?;
-    let res = sqlx::query_as!(
+    let course = sqlx::query_as!(
         Course,
         r#"
 UPDATE courses
@@ -1190,46 +1291,75 @@ SET name = $1,
   closed_course_successor_id = $13,
   chapter_locking_enabled = $14,
   ai_policy = $15,
-  course_material_ai_instructions = $16
-WHERE id = $17
+  course_material_ai_instructions = $16,
+  base_module_completion_requires_n_submodule_completions = $17
+WHERE id = $18
   AND deleted_at IS NULL
 RETURNING *
     "#,
-        course_update.name,
-        course_update.description,
-        course_update.is_draft,
-        course_update.is_test_mode,
-        course_update.can_add_chatbot,
-        course_update.is_unlisted,
-        course_update.is_joinable_by_code_only,
-        course_update.ask_marketing_consent,
-        course_update.flagged_answers_threshold,
-        course_update.flagged_answers_skip_manual_review_and_allow_retry,
-        course_update.closed_at,
-        course_update.closed_additional_message,
-        course_update.closed_course_successor_id,
-        course_update.chapter_locking_enabled,
-        course_update.ai_policy as CourseAiPolicy,
-        course_update.course_material_ai_instructions,
+        settings.name,
+        settings.description,
+        settings.is_draft,
+        settings.is_test_mode,
+        settings.can_add_chatbot,
+        settings.is_unlisted,
+        settings.is_joinable_by_code_only,
+        settings.ask_marketing_consent,
+        settings.flagged_answers_threshold,
+        settings.flagged_answers_skip_manual_review_and_allow_retry,
+        settings.closed_at,
+        settings.closed_additional_message,
+        settings.closed_course_successor_id,
+        settings.chapter_locking_enabled,
+        settings.ai_policy as CourseAiPolicy,
+        settings.course_material_ai_instructions,
+        settings.base_module_completion_requires_n_submodule_completions,
         course_id
     )
     .fetch_one(&mut *tx)
     .await?;
-    let title = if old_course.name != course_update.name {
-        Some(course_update.name.as_str())
-    } else {
-        None
-    };
 
-    let description = if old_course.description != course_update.description {
-        course_update.description.as_deref()
-    } else {
-        None
-    };
+    let (title, description) = changed_embedded_texts(settings, live);
+    let title_embedding = embeddings.get_or_create_one(app_config, title).await?;
+    let description_embedding = embeddings
+        .get_or_create_one(app_config, description)
+        .await?;
+    update_course_embeddings(&mut tx, course_id, title_embedding, description_embedding).await?;
 
-    update_course_embeddings(&mut tx, app_config, course_id, title, description).await?;
+    if !live.chapter_locking_enabled && settings.chapter_locking_enabled {
+        let user_ids: Vec<Uuid> =
+            crate::user_course_settings::get_all_by_course_id(&mut tx, course_id)
+                .await?
+                .into_iter()
+                .map(|settings| settings.user_id)
+                .collect();
+        crate::user_chapter_locking_statuses::init_for_users(&mut tx, course_id, &user_ids).await?;
+    }
+
+    let (changed_ids, changed_audiences) = changed_audiences(&settings.audiences, &live.audiences);
+    if !changed_audiences.is_empty() {
+        let embeddings = embeddings
+            .get_or_create(app_config, &changed_audiences)
+            .await?;
+        upsert_course_audiences(
+            &mut tx,
+            course_id,
+            changed_ids,
+            changed_audiences,
+            embeddings,
+        )
+        .await?;
+    }
+    let removed_audience_ids: Vec<Uuid> = live
+        .audiences
+        .iter()
+        .filter(|live| !settings.audiences.iter().any(|a| a.id == live.id))
+        .map(|live| live.id)
+        .collect();
+    crate::course_audiences::delete_batch(&mut tx, removed_audience_ids).await?;
+
     tx.commit().await?;
-    Ok(res)
+    Ok(course)
 }
 
 /// Enables or disables suspected-cheater detection for a single course. Used by the seed routine to
@@ -1312,12 +1442,7 @@ pub async fn get_cfgname_by_tag(
     conn: &mut PgConnection,
     ietf_language_tag: String,
 ) -> ModelResult<String> {
-    let tag = ietf_language_tag
-        .split('-')
-        .next()
-        .unwrap_or_else(|| &ietf_language_tag[..]);
-
-    let lang_name = LANGUAGE_TAG_TO_NAME.get(&tag);
+    let lang_name = LANGUAGE_TAG_TO_NAME.get(primary_language(&ietf_language_tag));
 
     let name = sqlx::query!(
         "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",
@@ -1405,6 +1530,44 @@ LIMIT $2
     Ok(courses)
 }
 
+/// The courses the user holds a role in, directly or through the course's organization, by name.
+/// Which of them the user may edit is for `headless_lms_authorization` to decide.
+pub async fn get_by_course_or_organization_role(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<Course>> {
+    let courses = sqlx::query_as!(
+        Course,
+        r#"
+SELECT *
+FROM courses
+WHERE deleted_at IS NULL
+  AND (
+    id IN (
+      SELECT course_id
+      FROM roles
+      WHERE deleted_at IS NULL
+        AND user_id = $1
+        AND course_id IS NOT NULL
+    )
+    OR organization_id IN (
+      SELECT organization_id
+      FROM roles
+      WHERE deleted_at IS NULL
+        AND user_id = $1
+        AND organization_id IS NOT NULL
+    )
+  )
+ORDER BY name COLLATE "C",
+  id
+        "#,
+        user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
 pub async fn get_by_organization_id(
     conn: &mut PgConnection,
     organization_id: Uuid,
@@ -1463,157 +1626,263 @@ WHERE join_code = $1
     Ok(course)
 }
 
+/// Saves the course description, audiences and prerequisites, and records the course settings in
+/// their history.
 pub async fn set_metadata(
     conn: &mut PgConnection,
     app_config: &ApplicationConfiguration,
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
+    author_user_id: Uuid,
 ) -> ModelResult<CourseMetadata> {
-    let new_prerequisite_ids: Vec<Uuid> = course_metadata
-        .course_prerequisites
-        .iter()
-        .map(|p| p.id)
-        .collect();
+    let CourseMetadataUpdate {
+        course_description,
+        course_audiences,
+        course_prerequisites,
+    } = course_metadata;
+    let course_audiences = audience_snapshots(course_audiences);
+    let edit = move |live: &CourseSettingsSnapshot| CourseSettingsSnapshot {
+        description: course_description.clone(),
+        audiences: course_audiences.clone(),
+        ..live.clone()
+    };
+    let embeddings =
+        embed_changed_metadata(conn, app_config, course_id, &edit, &course_prerequisites).await?;
+    let course = entity_history::save_recording(
+        conn,
+        ContentEntityType::CourseSettings,
+        course_id,
+        HistoryAuthor::user(author_user_id),
+        async move |tx| {
+            let live = load_settings(&mut *tx, course_id).await?;
+            let course = write_settings(
+                &mut *tx,
+                app_config,
+                &edit(&live),
+                &live,
+                false,
+                &embeddings,
+            )
+            .await?;
+            write_prerequisites(tx, app_config, course_id, course_prerequisites, &embeddings)
+                .await?;
+            Ok(course)
+        },
+    )
+    .await?;
 
-    let old_prerequisites: Vec<CoursePrerequisite> =
-        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    Ok(CourseMetadata {
+        course_description: course.description,
+        course_audiences: crate::course_audiences::get_by_course_id(conn, course_id).await?,
+        course_prerequisites: crate::course_prerequisites::get_by_course_id(conn, course_id)
+            .await?,
+        course_updated_at: course.updated_at,
+    })
+}
 
-    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
-        .iter()
-        .filter(|p| !new_prerequisite_ids.contains(&p.id))
-        .map(|p| p.id.to_owned())
-        .collect();
-
-    let old_prerequisites_hash: HashMap<Uuid, &String> = old_prerequisites
-        .iter()
-        .map(|p| (p.id, &p.prerequisite))
-        .collect();
-
-    let changed_prerequisites: Vec<EditCoursePrerequisite> = course_metadata
-        .course_prerequisites
+/// The audiences of an edit, sorted by id as [`CourseSettingsSnapshot::audiences`] are.
+fn audience_snapshots(audiences: Vec<EditCourseAudience>) -> Vec<CourseAudienceSnapshot> {
+    let mut audiences: Vec<CourseAudienceSnapshot> = audiences
         .into_iter()
-        .filter(|p| match old_prerequisites_hash.get(&p.id) {
-            Some(old_prerequisite) => **old_prerequisite != p.prerequisite,
-            None => true,
+        .map(|a| CourseAudienceSnapshot {
+            id: a.id,
+            audience: a.audience,
         })
         .collect();
+    audiences.sort_by_key(|a| a.id);
+    audiences
+}
 
-    let (updated_prerequisite_ids, updated_prerequisites): (Vec<Uuid>, Vec<String>) =
-        changed_prerequisites
+/// Saves the course's prerequisites as listed, deleting the ones left out. Only new and changed
+/// prerequisites get new embeddings, taken from `embeddings` where it has them.
+async fn write_prerequisites(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    course_id: Uuid,
+    prerequisites: Vec<EditCoursePrerequisite>,
+    embeddings: &TextEmbeddings,
+) -> ModelResult<()> {
+    let old_prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let removed_ids: Vec<Uuid> = old_prerequisites
+        .iter()
+        .filter(|old| !prerequisites.iter().any(|p| p.id == old.id))
+        .map(|old| old.id)
+        .collect();
+    let (changed_ids, changed_texts) = changed_prerequisites(&prerequisites, &old_prerequisites);
+    if !changed_texts.is_empty() {
+        let embeddings = embeddings.get_or_create(app_config, &changed_texts).await?;
+        upsert_course_prerequisites(conn, course_id, changed_ids, changed_texts, embeddings)
+            .await?;
+    }
+    crate::course_prerequisites::delete_batch(conn, removed_ids).await?;
+    Ok(())
+}
+
+/// The audiences of `audiences` that `live` lacks or has with another text.
+fn changed_audiences(
+    audiences: &[CourseAudienceSnapshot],
+    live: &[CourseAudienceSnapshot],
+) -> (Vec<Uuid>, Vec<String>) {
+    changed_texts(
+        audiences,
+        live,
+        |a| (a.id, a.audience.as_str()),
+        |a| (a.id, a.audience.as_str()),
+    )
+}
+
+/// The prerequisites of `prerequisites` that `old` lacks or has with another text.
+fn changed_prerequisites(
+    prerequisites: &[EditCoursePrerequisite],
+    old: &[CoursePrerequisite],
+) -> (Vec<Uuid>, Vec<String>) {
+    changed_texts(
+        prerequisites,
+        old,
+        |p| (p.id, p.prerequisite.as_str()),
+        |p| (p.id, p.prerequisite.as_str()),
+    )
+}
+
+/// The ids and texts of `new` that `old` lacks or has with another text.
+fn changed_texts<New, Old>(
+    new: &[New],
+    old: &[Old],
+    new_text: fn(&New) -> (Uuid, &str),
+    old_text: fn(&Old) -> (Uuid, &str),
+) -> (Vec<Uuid>, Vec<String>) {
+    let old: HashMap<Uuid, &str> = old.iter().map(old_text).collect();
+    new.iter()
+        .map(new_text)
+        .filter(|(id, text)| old.get(id) != Some(text))
+        .map(|(id, text)| (id, text.to_string()))
+        .unzip()
+}
+
+/// Embeds the settings texts that `edit` of the live settings and saving `prerequisites` would add
+/// or change.
+async fn embed_changed_metadata(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    course_id: Uuid,
+    edit: &impl Fn(&CourseSettingsSnapshot) -> CourseSettingsSnapshot,
+    prerequisites: &[EditCoursePrerequisite],
+) -> ModelResult<TextEmbeddings> {
+    let live = load_settings(conn, course_id).await?;
+    let old_prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let mut texts = changed_settings_texts(&edit(&live), &live);
+    texts.extend(changed_prerequisites(prerequisites, &old_prerequisites).1);
+    TextEmbeddings::create(app_config, texts).await
+}
+
+/// The texts whose embeddings [`write_settings`] updates when writing `settings` over `live`.
+pub(crate) fn changed_settings_texts(
+    settings: &CourseSettingsSnapshot,
+    live: &CourseSettingsSnapshot,
+) -> Vec<String> {
+    let (title, description) = changed_embedded_texts(settings, live);
+    let mut texts: Vec<String> = title
+        .into_iter()
+        .chain(description)
+        .map(str::to_string)
+        .collect();
+    texts.extend(changed_audiences(&settings.audiences, &live.audiences).1);
+    texts
+}
+
+/// Every text of `settings` that has an embedding, for settings with no earlier version.
+pub(crate) fn settings_texts(settings: &CourseSettingsSnapshot) -> Vec<String> {
+    std::iter::once(settings.name.as_str())
+        .chain(settings.description.as_deref().filter(|d| !d.is_empty()))
+        .chain(settings.audiences.iter().map(|a| a.audience.as_str()))
+        .map(str::to_string)
+        .collect()
+}
+
+/// The name and description of `settings` whose course embeddings need updating.
+fn changed_embedded_texts<'a>(
+    settings: &'a CourseSettingsSnapshot,
+    live: &CourseSettingsSnapshot,
+) -> (Option<&'a str>, Option<&'a str>) {
+    let title = (settings.name != live.name).then_some(settings.name.as_str());
+    let description = settings
+        .description
+        .as_deref()
+        .filter(|description| settings.description != live.description && !description.is_empty());
+    (title, description)
+}
+
+/// Embeddings of course name, description, audience and prerequisite texts, made before a save's
+/// transaction so that the save doesn't wait for the embedding API while holding row locks. Texts
+/// it lacks, such as ones changed in between, are embedded during the save.
+#[derive(Debug, Default)]
+pub struct TextEmbeddings(HashMap<String, Vec<f32>>);
+
+impl TextEmbeddings {
+    /// Embeds `texts`; calls the embedding API only if there are any.
+    pub async fn create(
+        app_config: &ApplicationConfiguration,
+        texts: Vec<String>,
+    ) -> ModelResult<Self> {
+        Ok(Self(embed_texts(app_config, texts).await?))
+    }
+
+    /// The embeddings of `texts` in order, embedding the ones `self` lacks.
+    async fn get_or_create(
+        &self,
+        app_config: &ApplicationConfiguration,
+        texts: &[String],
+    ) -> ModelResult<Vec<Vec<f32>>> {
+        let missing: Vec<String> = texts
             .iter()
-            .map(|p| (p.id, p.prerequisite.to_owned()))
-            .unzip();
+            .filter(|text| !self.0.contains_key(*text))
+            .cloned()
+            .collect();
+        let created = embed_texts(app_config, missing).await?;
+        texts
+            .iter()
+            .map(|text| {
+                self.0
+                    .get(text)
+                    .or_else(|| created.get(text))
+                    .cloned()
+                    .ok_or_else(missing_model_error(
+                        ModelErrorType::Generic,
+                        "The embedding API returned too few embeddings.",
+                    ))
+            })
+            .collect()
+    }
 
-    let audience_ids: Vec<Uuid> = course_metadata
-        .course_audiences
-        .iter()
-        .map(|a| a.id)
-        .collect();
+    /// The embedding of `text`, if any, embedding it if `self` lacks it.
+    async fn get_or_create_one(
+        &self,
+        app_config: &ApplicationConfiguration,
+        text: Option<&str>,
+    ) -> ModelResult<Option<Vector>> {
+        let Some(text) = text else {
+            return Ok(None);
+        };
+        let embedding = self
+            .get_or_create(app_config, &[text.to_string()])
+            .await?
+            .pop()
+            .map(Vector::from);
+        Ok(embedding)
+    }
+}
 
-    let old_audiences: Vec<CourseAudience> =
-        crate::course_audiences::get_by_course_id(conn, course_id).await?;
-
-    let audiences_to_delete: Vec<Uuid> = old_audiences
-        .iter()
-        .filter(|a| !audience_ids.contains(&a.id))
-        .map(|a| a.id.to_owned())
-        .collect();
-
-    let old_audiences_hash: HashMap<Uuid, &String> =
-        old_audiences.iter().map(|a| (a.id, &a.audience)).collect();
-
-    let changed_audiences: Vec<EditCourseAudience> = course_metadata
-        .course_audiences
-        .into_iter()
-        .filter(|a| match old_audiences_hash.get(&a.id) {
-            Some(old_audience) => **old_audience != a.audience,
-            None => true,
-        })
-        .collect();
-
-    let (updated_audience_ids, updated_audiences): (Vec<Uuid>, Vec<String>) = changed_audiences
-        .iter()
-        .map(|a| (a.id, a.audience.to_owned()))
-        .unzip();
-
-    let prerequisite_embeddings = if updated_prerequisites.is_empty() {
-        None
-    } else {
-        Some(create_embeddings(app_config, updated_prerequisites.clone()).await?)
-    };
-
-    let audience_embeddings = if updated_audiences.is_empty() {
-        None
-    } else {
-        Some(create_embeddings(app_config, updated_audiences.clone()).await?)
-    };
-
-    let mut tx = conn.begin().await?;
-
-    if let Some(embeddings) = prerequisite_embeddings {
-        upsert_course_prerequisites(
-            &mut tx,
-            course_id,
-            updated_prerequisite_ids,
-            updated_prerequisites,
-            embeddings,
-        )
-        .await?
-    } else {
-        vec![]
-    };
-
-    if let Some(embeddings) = audience_embeddings {
-        upsert_course_audiences(
-            &mut tx,
-            course_id,
-            updated_audience_ids,
-            updated_audiences,
-            embeddings,
-        )
-        .await?
-    } else {
-        vec![]
-    };
-
-    crate::course_prerequisites::delete_batch(&mut tx, prerequisites_to_delete).await?;
-    crate::course_audiences::delete_batch(&mut tx, audiences_to_delete).await?;
-
-    let course = get_course(&mut tx, course_id).await?;
-
-    let update_payload = CourseUpdate {
-        name: course.name,
-        description: course_metadata.course_description,
-        is_draft: course.is_draft,
-        is_test_mode: course.is_test_mode,
-        can_add_chatbot: course.can_add_chatbot,
-        is_unlisted: course.is_unlisted,
-        is_joinable_by_code_only: course.is_joinable_by_code_only,
-        ask_marketing_consent: course.ask_marketing_consent,
-        flagged_answers_threshold: course.flagged_answers_threshold.unwrap_or(0),
-        flagged_answers_skip_manual_review_and_allow_retry: course
-            .flagged_answers_skip_manual_review_and_allow_retry,
-        closed_at: course.closed_at,
-        closed_additional_message: course.closed_additional_message,
-        closed_course_successor_id: course.closed_course_successor_id,
-        chapter_locking_enabled: course.chapter_locking_enabled,
-        ai_policy: course.ai_policy,
-        course_material_ai_instructions: course.course_material_ai_instructions,
-    };
-    let updated_course = update_course(&mut tx, app_config, course_id, update_payload).await?;
-
-    tx.commit().await?;
-
-    let prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
-    let audiences = crate::course_audiences::get_by_course_id(conn, course_id).await?;
-
-    let res = CourseMetadata {
-        course_description: updated_course.description,
-        course_audiences: audiences,
-        course_prerequisites: prerequisites,
-        course_updated_at: updated_course.updated_at,
-    };
-    Ok(res)
+async fn embed_texts(
+    app_config: &ApplicationConfiguration,
+    mut texts: Vec<String>,
+) -> ModelResult<HashMap<String, Vec<f32>>> {
+    texts.sort();
+    texts.dedup();
+    if texts.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let embeddings = create_embeddings(app_config, texts.clone()).await?;
+    Ok(texts.into_iter().zip(embeddings).collect())
 }
 
 pub async fn get_metadata(
@@ -1643,46 +1912,14 @@ pub async fn get_metadata(
     Ok(metadata)
 }
 
+/// Saves the course's title and description embeddings, keeping the stored one where an argument
+/// is `None`.
 pub async fn update_course_embeddings(
     conn: &mut PgConnection,
-    app_config: &ApplicationConfiguration,
     course_id: Uuid,
-    title: Option<&str>,
-    description: Option<&str>,
+    title_embedding: Option<Vector>,
+    description_embedding: Option<Vector>,
 ) -> ModelResult<()> {
-    let title_embedding = if let Some(title) = title {
-        Some(
-            create_embeddings(app_config, vec![title.to_owned()])
-                .await?
-                .into_iter()
-                .next()
-                .ok_or_else(|| {
-                    model_err!(Generic, "The embedding API returned no title embedding.")
-                })
-                .map(Vector::from)?,
-        )
-    } else {
-        None
-    };
-
-    let description_embedding = if let Some(description) = description {
-        Some(
-            create_embeddings(app_config, vec![description.to_owned()])
-                .await?
-                .into_iter()
-                .next()
-                .ok_or_else(|| {
-                    model_err!(
-                        Generic,
-                        "The embedding API returned no description embedding."
-                    )
-                })
-                .map(Vector::from)?,
-        )
-    } else {
-        None
-    };
-
     sqlx::query!(
         r#"
 INSERT INTO course_embeddings (
@@ -1887,7 +2124,7 @@ mod test {
         async fn update_course_round_trips_ai_policy_fields() {
             let app_config =
                 init_app_conf().expect("Application Configuration initialization failed");
-            insert_data!(:tx, user: _user, :org);
+            insert_data!(:tx, :user, :org);
             let course_language_group_id = course_language_groups::insert(
                 tx.as_mut(),
                 PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000001").unwrap()),
@@ -1940,6 +2177,8 @@ mod test {
                     course_material_ai_instructions: Some(true),
                     ..Default::default()
                 },
+                user,
+                false,
             )
             .await
             .unwrap();
@@ -1950,6 +2189,137 @@ mod test {
             let reread = courses::get_course(tx.as_mut(), course_id).await.unwrap();
             assert_eq!(reread.ai_policy, CourseAiPolicy::Limited);
             assert_eq!(reread.course_material_ai_instructions, Some(true));
+        }
+    }
+
+    mod enrolled_courses_with_exercise_types {
+        use super::*;
+        use crate::{
+            course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+            exercise_tasks::{self, NewExerciseTask},
+        };
+
+        #[tokio::test]
+        async fn gets_enrolled_courses_with_exercise_types() {
+            insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:chapter_id, page:page_id, :exercise, slide:exercise_slide_id);
+
+            course_instance_enrollments::insert_enrollment_and_set_as_current(
+                tx.as_mut(),
+                NewCourseInstanceEnrollment {
+                    course_id,
+                    user_id,
+                    course_instance_id: instance.id,
+                },
+            )
+            .await
+            .unwrap();
+            let tmc = ["tmc".to_string()];
+            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap();
+            assert!(
+                courses.is_empty(),
+                "user should not be enrolled on any course with tmc exercises"
+            );
+
+            exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    assignment: Vec::new(),
+                    exercise_slide_id,
+                    exercise_type: "tmc".to_string(),
+                    model_solution_spec: None,
+                    private_spec: None,
+                    public_spec: None,
+                    order_number: 1,
+                },
+            )
+            .await
+            .unwrap();
+            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+                .await
+                .unwrap();
+            assert_eq!(
+                courses.len(),
+                1,
+                "user should be enrolled on one course with tmc exercises"
+            );
+
+            // A type list the course has no task for must not match, and neither must an empty list.
+            let others = ["quizzes".to_string(), "example-exercise".to_string()];
+            assert!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &others)
+                    .await
+                    .unwrap()
+                    .is_empty()
+            );
+            assert!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &[])
+                    .await
+                    .unwrap()
+                    .is_empty()
+            );
+
+            // Any list containing a type the course does have matches.
+            let mixed = ["quizzes".to_string(), "tmc".to_string()];
+            assert_eq!(
+                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &mixed)
+                    .await
+                    .unwrap()
+                    .len(),
+                1
+            );
+            tx.rollback().await;
+        }
+
+        #[tokio::test]
+        async fn lists_a_course_once_when_enrolled_on_several_of_its_instances() {
+            insert_data!(:tx, user:user_id, :org, course:course_id, :instance, course_module:_course_module_id, chapter:_chapter_id, page:_page_id, :exercise, slide:exercise_slide_id);
+            exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    assignment: Vec::new(),
+                    exercise_slide_id,
+                    exercise_type: "tmc".to_string(),
+                    model_solution_spec: None,
+                    private_spec: None,
+                    public_spec: None,
+                    order_number: 1,
+                },
+            )
+            .await
+            .unwrap();
+            let default_instance =
+                crate::course_instances::get_default_by_course_id(tx.as_mut(), course_id)
+                    .await
+                    .unwrap();
+            for course_instance_id in [instance.id, default_instance.id] {
+                course_instance_enrollments::insert_enrollment_and_set_as_current(
+                    tx.as_mut(),
+                    NewCourseInstanceEnrollment {
+                        course_id,
+                        user_id,
+                        course_instance_id,
+                    },
+                )
+                .await
+                .unwrap();
+            }
+
+            let courses = get_enrolled_courses_with_exercise_types(
+                tx.as_mut(),
+                user_id,
+                &["tmc".to_string()],
+            )
+            .await
+            .unwrap();
+            assert_eq!(
+                courses.iter().map(|c| c.id).collect::<Vec<_>>(),
+                vec![course_id]
+            );
+            tx.rollback().await;
         }
     }
 }

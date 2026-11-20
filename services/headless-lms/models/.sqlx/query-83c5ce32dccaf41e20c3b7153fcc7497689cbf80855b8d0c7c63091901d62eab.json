@@ -68,7 +68,8 @@
             "kind": {
               "Enum": [
                 "none",
-                "client_secret_post"
+                "client_secret_post",
+                "client_secret_basic"
               ]
             }
           }
@@ -258,6 +259,28 @@
             "name": "allowed_origins"
           }
         }
+      },
+      {
+        "ordinal": 18,
+        "name": "metadata_document_fetched_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "metadata_document_fetched_at"
+          }
+        }
+      },
+      {
+        "ordinal": 19,
+        "name": "client_uri",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_uri"
+          }
+        }
       }
     ],
     "parameters": {
@@ -283,7 +306,8 @@
             "kind": {
               "Enum": [
                 "none",
-                "client_secret_post"
+                "client_secret_post",
+                "client_secret_basic"
               ]
             }
           }
@@ -353,6 +377,8 @@
       false,
       false,
       false,
+      true,
+      true,
       true,
       true
     ]

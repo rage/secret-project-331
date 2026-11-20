@@ -19,8 +19,17 @@ const FlipCardConfiguration: BlockConfiguration<FlipCardAttributes> = {
   attributes: {
     size: {
       type: "string",
+      agentSchema: { type: "string", enum: ["xl", "m", "s"] },
       default: "xl",
     },
+  },
+  allowedBlocks: ["moocfi/front-card", "moocfi/back-card"],
+  innerBlocksArea: {
+    template: [
+      ["moocfi/front-card", {}],
+      ["moocfi/back-card", {}],
+    ],
+    templateLock: "all",
   },
   edit: FlipCardEditor,
   save: FlipCardSave,

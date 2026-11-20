@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
-import { VegaLite } from "react-vega"
+import { VegaEmbed, type VegaEmbedProps } from "react-vega"
 
 import { useDebouncedElementWidth } from "@/shared-module/common/hooks/useDebouncedElementWidth"
 import { useFontLoaded } from "@/shared-module/common/hooks/useFontLoaded"
@@ -26,6 +26,15 @@ interface ChartBlockAttributes {
 const MIN_HEIGHT = 200
 // Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
 const RESIZE_DEBOUNCE_MS = 150
+
+// Module-level because react-vega re-embeds the chart whenever options change.
+const EMBED_OPTIONS: VegaEmbedProps["options"] = {
+  // Specs without a $schema would otherwise be read as plain Vega.
+  mode: "vega-lite",
+  actions: false,
+  // SVG so Vega emits per-axis/mark ARIA.
+  renderer: "svg",
+}
 
 const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlockAttributes>>> = (
   props,
@@ -92,9 +101,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
               transform-origin: top left;
             `}
           >
-            {/* SVG so Vega emits per-axis/mark ARIA. */}
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            {siteFontLoaded && <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />}
+            {siteFontLoaded && <VegaEmbed spec={responsiveSpec} options={EMBED_OPTIONS} />}
           </div>
         </div>
       )}

@@ -44,6 +44,8 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
         <img
           src={imageLink}
           alt={altText}
+          // oxlint-disable-next-line i18next/no-literal-string
+          {...(imageBlock.attributes.isDecorative && { role: "presentation" })}
           width={imageBlock.attributes.width}
           height={imageBlock.attributes.height}
         />

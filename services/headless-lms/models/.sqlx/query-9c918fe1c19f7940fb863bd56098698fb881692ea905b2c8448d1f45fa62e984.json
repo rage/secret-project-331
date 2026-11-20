@@ -321,6 +321,17 @@
             "name": "suotar_answer"
           }
         }
+      },
+      {
+        "ordinal": 18,
+        "name": "details_redacted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "credit_registration_events",
+            "name": "details_redacted_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -341,6 +352,7 @@
       true,
       false,
       false,
+      true,
       true,
       true,
       true,

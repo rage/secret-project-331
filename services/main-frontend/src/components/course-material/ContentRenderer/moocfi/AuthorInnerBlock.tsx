@@ -7,12 +7,8 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import type { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
-interface AuthorInnerBlockAttributes {
-  backgroundColor: string
-}
-
 const AuthorInnerBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<AuthorInnerBlockAttributes>>
+  React.PropsWithChildren<BlockRendererProps<Record<string, never>>>
 > = (props) => {
   return (
     <div>

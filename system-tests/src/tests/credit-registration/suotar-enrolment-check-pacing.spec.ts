@@ -29,7 +29,6 @@ import {
 } from "@/utils/mockSuotar"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import {
-  CONTROL_BASE_URL,
   expireEnrolmentRecheckAllowance,
   getEnrolmentCheckSchedule,
   makeEnrolmentChecksDue,
@@ -92,10 +91,11 @@ const postJson = async <T>(request: APIRequestContext, url: string, data: unknow
 const suotarModuleSettings = (courseCode: string) => ({
   uh_course_code: courseCode,
   ects_credits: 5,
-  completion_policy: { policy: "manual" },
+  completion_policy: { method: "teacher_adds" },
+  exam_requirement: "none",
+  exam_location_description: null,
   completion_registration_link_override: `https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=${courseCode}`,
-  enable_registering_completion_to_uh_open_university: false,
-  enable_credit_registration_via_suotar: true,
+  credit_registration_route: "platform",
 })
 
 /** A Suotar course with `moduleCount` modules, each on a course code of its own. */
@@ -161,16 +161,6 @@ const createPacingCourse = async (
   const modules = (await getJson<CourseStructure>(adminApi, structureUrl)).modules
     .toSorted((left, right) => left.order_number - right.order_number)
     .map((courseModule, index) => ({ id: courseModule.id, courseCode: courseCodes[index]! }))
-  for (const courseModule of modules) {
-    const response = await request.post(`${CONTROL_BASE_URL}/register-new-completions-via-suotar`, {
-      data: { courseModuleId: courseModule.id },
-    })
-    if (!response.ok()) {
-      throw new Error(
-        `Opting ${courseModule.id} into Suotar answered ${response.status()}: ${await response.text()}`,
-      )
-    }
-  }
   await upsertMockSuotarCourseUnits(
     request,
     courseCodes.map((courseCode) => ({

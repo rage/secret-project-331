@@ -14,6 +14,8 @@ interface GradingDecisionControlsProps {
   canResetExercise: boolean
   rejectWarning?: React.ReactNode
   isSubmitting?: boolean
+  /** Id of the element naming what is graded; read after the repeated action buttons. */
+  describedById?: string
   onSubmit: (decision: NewTeacherGradingDecision) => void
 }
 
@@ -37,6 +39,7 @@ export const GradingDecisionControls: React.FC<GradingDecisionControlsProps> = (
   canResetExercise,
   rejectWarning,
   isSubmitting = false,
+  describedById,
   onSubmit,
 }) => {
   const { t } = useTranslation()
@@ -49,6 +52,7 @@ export const GradingDecisionControls: React.FC<GradingDecisionControlsProps> = (
         canResetExercise={canResetExercise}
         rejectWarning={rejectWarning}
         isSubmitting={isSubmitting}
+        {...(describedById ? { describedById } : {})}
         onSubmit={onSubmit}
       />
     </div>

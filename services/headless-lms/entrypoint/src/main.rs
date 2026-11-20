@@ -40,6 +40,10 @@ fn main() -> Result<()> {
             }),
         },
         Program {
+            name: "course-designer-weekly-digest",
+            execute: Box::new(|| tokio_run(programs::course_designer_weekly_digest::main())),
+        },
+        Program {
             name: "doc-file-generator",
             execute: Box::new(|| tokio_run(programs::doc_file_generator::main())),
         },

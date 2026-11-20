@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE external_completions\nSET upstream_check_failed_at = now()\nWHERE user_id = $1\n  AND deleted_at IS NULL\n  AND external_credit_target_id IN (\n    SELECT id\n    FROM external_credit_targets\n    WHERE moocfi_course_id = $2\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c45bed425a4f7f4603d428f9fb5e3f7de51243b88dca23820b7ad0ad4db7e4a9"
+}

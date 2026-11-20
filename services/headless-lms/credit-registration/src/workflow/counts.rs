@@ -113,6 +113,34 @@ impl std::ops::AddAssign for Counts {
     }
 }
 
+/// [`Counts`] for a phase that makes one external request per item, keeping the first failure for
+/// the finding.
+#[derive(Debug, Default)]
+pub(crate) struct RequestTally {
+    counts: Counts,
+    first_error: Option<String>,
+}
+
+impl RequestTally {
+    pub(crate) fn record_success(&mut self) {
+        self.counts.record_decided(false);
+    }
+
+    pub(crate) fn record_failure(&mut self, error: impl ToString) {
+        self.counts.record_decided(true);
+        self.first_error.get_or_insert_with(|| error.to_string());
+    }
+
+    /// `requests` names what failed in the finding, such as "mooc.fi lookups".
+    pub(crate) fn into_counts(self, requests: &str) -> Counts {
+        let failed = self.counts.failed;
+        let finding = self
+            .first_error
+            .map(|error| format!("{failed} {requests} failed, the first with: {error}"));
+        self.counts.with_finding(finding)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use headless_lms_models::credit_registrations::CreditRegistrationState as State;

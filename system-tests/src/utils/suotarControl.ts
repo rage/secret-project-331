@@ -25,9 +25,11 @@ export const CREDIT_REGISTRATION_PHASES = [
   "materialize",
   "preconditions",
   "resolve-enrolments",
+  "moocfi-recheck",
   "import",
   "verify",
   "legacy-mirror",
+  "moocfi-report",
   "student-notifications",
   "enrolment-discovery",
   "link-emails",
@@ -45,6 +47,8 @@ export type CreditRegistrationPhase = (typeof CREDIT_REGISTRATION_PHASES)[number
 export interface TickScope {
   courseId?: string
   courseSlug?: string
+  /** A mooc.fi target's rows, which no course scope reaches. */
+  externalCreditTargetId?: string
   userId?: string
   userEmail?: string
   creditRegistrationIds?: string[]
@@ -61,12 +65,17 @@ export interface RanPhaseTick {
 
 export type PhaseTickResult =
   | RanPhaseTick
-  /** The phase is paused, its circuit breaker is open, account linking is off, or Sisu is still on
-   * the previous day. Nothing ran. */
+  /** The phase is paused, its circuit breaker is open, account linking is off, Sisu is still on
+   * the previous day, or mooc.fi delegation is not configured. Nothing ran. */
   | {
       status: "skipped"
       phase: CreditRegistrationPhase
-      reason: "paused" | "circuitBreakerOpen" | "accountLinkingDisabled" | "sisuDayGap"
+      reason:
+        | "paused"
+        | "circuitBreakerOpen"
+        | "accountLinkingDisabled"
+        | "sisuDayGap"
+        | "moocfiDelegationDisabled"
     }
   /** The scope named something this phase's claim query cannot narrow on. */
   | { status: "scopeNotSupported"; phase: CreditRegistrationPhase }
@@ -165,6 +174,16 @@ export const runVerifyPollTick = (
   request: APIRequestContext,
   scope?: TickScope,
 ): Promise<RanPhaseTick> => runTick(request, "verify", scope)
+
+export const runMoocfiRecheckTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "moocfi-recheck", scope)
+
+export const runMoocfiReportTick = (
+  request: APIRequestContext,
+  scope?: TickScope,
+): Promise<RanPhaseTick> => runTick(request, "moocfi-report", scope)
 
 /**
  * Separate from the registrar tick sequence because the whole point of these specs is that one

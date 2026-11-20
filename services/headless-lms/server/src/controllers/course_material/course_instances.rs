@@ -289,6 +289,11 @@ async fn save_course_settings(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseInstanceEnrollment>> {
     let mut conn = pool.acquire().await?;
+    // Enrolling must not get around a draft course or a join code.
+    let course_id = models::course_instances::get_course_instance(&mut conn, *course_instance_id)
+        .await?
+        .course_id;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), course_id).await?;
 
     let enrollment = models::library::course_instances::enroll(
         &mut conn,
@@ -297,7 +302,6 @@ async fn save_course_settings(
         payload.background_question_answers.as_slice(),
     )
     .await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(enrollment))
 }
 

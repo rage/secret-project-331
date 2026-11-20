@@ -23,7 +23,6 @@ import type {
 import { formatUserName } from "@/hooks/useUserDetails"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { includeIf } from "@/shared-module/common/utils/nullability"
-import { manageCourseModulesRoute } from "@/shared-module/common/utils/routes"
 import type { ButtonVariant } from "@/shared-module/components"
 import { Button, Checkbox, Infobox, Link } from "@/shared-module/components"
 
@@ -42,8 +41,10 @@ import { useIsAccountLinkingEnabled } from "../useIsAccountLinkingEnabled"
 import { formatZonedTimestamp } from "../ZonedTimestamp"
 import { AdminActionDialog } from "./AdminActionDialog"
 import type { DialogOpenState } from "./AdminActionDialog"
+import { unitConfigurationHref } from "./adminLinks"
 import AdminManualLinkButton from "./AdminManualLinkButton"
 import AdminResendLinkingEmailButton from "./AdminResendLinkingEmailButton"
+import { AUDIT_ACTION } from "./auditActions"
 import type { HandActionOffer } from "./handActionOffers"
 import { CHECK_NOW_OFFER, handActionOffers, renderableRemedies, RESUBMIT } from "./handActionOffers"
 import { ReasonField } from "./ReasonConfirmDialog"
@@ -258,7 +259,7 @@ export const TransitionAction: React.FC<TransitionActionProps> = ({
               label={t(riskCopy.confirm)}
             />
           )}
-          <ReasonField control={control} />
+          <ReasonField control={control} auditAction={AUDIT_ACTION.TRANSITION_ITEM} />
         </>
       )}
     />
@@ -378,7 +379,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             key={offer}
             control={
               <Link
-                href={manageCourseModulesRoute(registration.course_id)}
+                href={unitConfigurationHref(registration.course_id)}
                 styledAsButton
                 variant={variantFor(offer)}
                 size="medium"
@@ -436,7 +437,7 @@ const AdminTransitionBlock: React.FC<Props> = ({ registration, isCompact = false
             control={
               <AdminResendLinkingEmailButton
                 studentNumber={studentNumber}
-                courseId={registration.course_id}
+                courseOrTargetId={registration.course_or_target_id}
                 courseName={registration.course_name}
                 variant={variantFor(offer)}
               />

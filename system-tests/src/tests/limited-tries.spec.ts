@@ -24,8 +24,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page
     .getByRole("row", { name: "Page 6 /chapter-1/page-6 Edit" })
-    .getByRole("button")
-    .first()
+    .getByRole("link", { name: "Edit page" })
     .click()
 
   await page.getByLabel("Max points", { exact: true }).click()
@@ -70,7 +69,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.frameLocator("iframe").getByText("Jupiter").click()
 
-  await page.getByText("Submit").click()
+  await page.getByRole("button", { name: "Submit" }).click()
 
   await page.locator('div.tries:has-text("1")').waitFor()
 
@@ -83,7 +82,7 @@ test("Limited tries work", async ({ page }) => {
 
   await page.frameLocator("iframe").getByText("Jupiter").click()
 
-  await page.getByText("Submit").click()
+  await page.getByRole("button", { name: "Submit" }).click()
 
   await page.locator('div.tries:has-text("0")').waitFor()
   await page.getByText("try again").waitFor({ state: "hidden" })

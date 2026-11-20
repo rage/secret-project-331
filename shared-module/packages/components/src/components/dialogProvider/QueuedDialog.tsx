@@ -228,10 +228,17 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
       <div className={bodyCss}>{header}</div>
     )
 
+  // A confirm gets a short generic name and the message as its description, so the question is
+  // read once as content instead of being the name.
   const labelling: DialogLabelling =
     title !== undefined
       ? { title }
-      : { "aria-label": typeof message === "string" ? message : fallbackDialogLabel(kind, t) }
+      : {
+          "aria-label":
+            typeof message === "string" && kind !== "confirm"
+              ? message
+              : fallbackDialogLabel(kind, t),
+        }
 
   const actions = buildActions({
     kind,
@@ -245,7 +252,11 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
   return (
     <Dialog
       {...labelling}
-      {...omitUndefined({ size: request.size, lang: request.lang })}
+      {...omitUndefined({
+        size: request.size,
+        lang: request.lang,
+        isKeyboardDismissDisabled: request.isKeyboardDismissDisabled,
+      })}
       open={visuallyOpen}
       onClose={() => {
         settle(dismissedResult(kind))
@@ -257,9 +268,9 @@ export const QueuedDialog: React.FC<QueuedDialogProps> = ({
       // `alertdialog` is what makes a screen reader announce it on open. A node body is a surface to
       // work through, which some assistive technology would otherwise read out whole.
       role={kind !== "prompt" && typeof message === "string" ? "alertdialog" : "dialog"}
-      // Without a title or a separate description, the content is just the message again — the
-      // same text as the `aria-label` fallback below, so a description would only repeat the name.
-      hasDescription={title !== undefined || description !== undefined}
+      // Without a title or a separate description, a non-confirm's content is just the message
+      // again — the same text as its `aria-label`, so a description would only repeat the name.
+      hasDescription={title !== undefined || description !== undefined || kind === "confirm"}
       showCloseButton={false}
       isDismissable={false}
       exit={visuallyOpen ? (hasSuccessor ? EXIT_HANDOFF : EXIT_FADE) : frozenExitRef.current}
@@ -303,24 +314,33 @@ function buildActions({
     }
     case "confirm": {
       const confirmRequest = request as ConfirmRequest
-      return [
-        {
-          label: confirmRequest.cancelLabel ?? t("dialog.decline"),
-          variant: "secondary",
-          "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
-          onPress: () => {
-            settle(false)
-          },
+      const cancelAction: DialogAction = {
+        label: confirmRequest.cancelLabel ?? t("dialog.decline"),
+        variant: confirmRequest.emphasizesCancel === true ? "primary" : "secondary",
+        "data-testid": CONFIRM_DIALOG_NO_BUTTON_TEST_ID,
+        // Initial focus goes to the safe choice.
+        autoFocus: true,
+        onPress: () => {
+          settle(false)
         },
-        {
-          label: confirmRequest.confirmLabel ?? t("dialog.confirm"),
-          variant: confirmRequest.isDestructive === true ? "danger" : "primary",
-          "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
-          onPress: () => {
-            settle(true)
-          },
+      }
+      const confirmAction: DialogAction = {
+        label: confirmRequest.confirmLabel ?? t("dialog.confirm"),
+        variant:
+          confirmRequest.isDestructive === true
+            ? "danger"
+            : confirmRequest.emphasizesCancel === true
+              ? "secondary"
+              : "primary",
+        "data-testid": CONFIRM_DIALOG_YES_BUTTON_TEST_ID,
+        onPress: () => {
+          settle(true)
         },
-      ]
+      }
+      // The primary action goes last, where the eye ends up.
+      return confirmRequest.emphasizesCancel === true
+        ? [confirmAction, cancelAction]
+        : [cancelAction, confirmAction]
     }
     case "prompt": {
       const promptRequest = request as TextPromptRequest

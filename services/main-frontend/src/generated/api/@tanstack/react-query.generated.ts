@@ -17,32 +17,45 @@ import {
   addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
+  adjustCourseDesignerSchedule,
+  adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
+  adminCreateExternalCreditTarget,
+  adminDeleteExternalCreditTarget,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
+  adminPauseExternalCreditTarget,
   adminPausePhase,
   adminRequestEnrolmentListFetch,
   adminRequeueRetryableCreditRegistrations,
   adminResendAccountLinkingEmail,
   adminResolveStudentNumberForLinking,
   adminResumeCourseModuleCreditRegistration,
+  adminResumeExternalCreditTarget,
   adminResumePhase,
   adminRunPhaseNow,
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
+  adminUpdateExternalCreditTarget,
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
+  archiveCourseDesignerPlan,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  chooseMyCertificate,
+  chooseMyExternalCompletionCertificate,
   claimStudentNumberVerificationToken,
   configureChatbot,
   confirmCourseSuspectedCheater,
   confirmMyEnrolment,
+  confirmMyExternalCompletionEnrolment,
+  continueMoocfiHandoff,
+  createAgentChangesetPreviewLink,
   createChapter,
   createChatbot,
   createCodeGiveaway,
@@ -51,6 +64,7 @@ import {
   createCourseDesignerPlan,
   createCourseDesignerScheduleSuggestion,
   createCourseDesignerStageTask,
+  createCourseFromCourseDesignerPlan,
   createCourseGlossaryTerm,
   createCourseInstance,
   createCourseInstanceCompletions,
@@ -61,6 +75,7 @@ import {
   createExerciseRepository,
   createExerciseService,
   createExternalCourse,
+  createMyMoocfiHandoff,
   createOrganization,
   createOrganizationExam,
   createPage,
@@ -85,7 +100,7 @@ import {
   deleteExerciseService,
   deleteExternalCourse,
   deleteGlossaryTerm,
-  deleteOauthAuthorizedClient,
+  deleteLanguageVersionProblemDismissal,
   deleteOrganizationImage,
   deletePage,
   deletePageAudioFile,
@@ -93,6 +108,7 @@ import {
   denyOauthConsent,
   denyOauthDeviceVerification,
   deviceAuthorizationOauth,
+  discardAgentChangeset,
   dismissCourseSuspectedCheater,
   dismissCreditRegistrationEnrolmentBanner,
   downloadCodeGiveawayCodesCsv,
@@ -118,16 +134,23 @@ import {
   extendCourseDesignerStage,
   finalizeCourseDesignerSchedule,
   generateCertificate,
+  getAccountLinkingCourseEnrolees,
   getAccountLinkingCourses,
   getAccountLinkingStats,
   getAccountLinkingUnlinkedEnrolees,
+  getAgentChangeset,
+  getAgentChangesetCounts,
+  getAgentChangesets,
+  getAgentPagePreview,
   getAllChatbots,
   getAllCourses,
   getAvgTimeToFirstSubmissionHistory,
   getBulkUserDetails,
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
+  getCertificateDetailsByVerificationId,
   getChatbotConfiguration,
+  getChatbotEmbedConf,
   getChatbotModel,
   getChatbotModels,
   getCodeGiveawayById,
@@ -141,6 +164,7 @@ import {
   getCourseByJoinCode,
   getCourseChapters,
   getCourseChatbots,
+  getCourseCompletionOverview,
   getCourseCompletionsHistory,
   getCourseCompletionsHistoryAllLanguageVersions,
   getCourseCompletionsHistoryByInstance,
@@ -154,8 +178,13 @@ import {
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
+  getCourseDesignerAssistantConversationInfo,
+  getCourseDesignerAssistantStatus,
   getCourseDesignerPlan,
   getCourseDesignerPlans,
+  getCourseDesignerSectionStatuses,
+  getCourseDesignerSupportAssistantChatbots,
+  getCourseDesignerSupportPlans,
   getCourseExercises,
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
@@ -174,6 +203,8 @@ import {
   getCourseInstances,
   getCourseInstanceUserProgress,
   getCourseLanguageVersions,
+  getCourseLinkableExams,
+  getCourseLinkedExams,
   getCourseMetadata,
   getCourseModule,
   getCourseModuleCompletion,
@@ -206,7 +237,9 @@ import {
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
   getCreditRegistrationAttentionItems,
+  getCreditRegistrationCourseSummary,
   getCreditRegistrationDetails,
+  getCreditRegistrationEarlierReasons,
   getCreditRegistrationEnrolmentChecks,
   getCreditRegistrationErrorsByCode,
   getCreditRegistrationForAdmin,
@@ -217,6 +250,7 @@ import {
   getCreditRegistrationSettings,
   getCreditRegistrationStatsByCourse,
   getCreditRegistrationThresholds,
+  getCurrentCourseDesignerAssistantConversation,
   getCurrentTime,
   getEditProposals,
   getEmailTemplates,
@@ -241,21 +275,35 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getLanguageVersionExerciseCounterparts,
+  getLanguageVersionJoinCandidates,
+  getLanguageVersionJoinPreview,
+  getLanguageVersionReport,
+  getLanguageVersionSplitPreview,
+  getLanguageVersionStructure,
+  getLanguageVersionSuggestions,
+  getMoocfiCourseLink,
   getMyCertificates,
   getMyCourses,
   getMyCreditRegistrationEnrolmentBanners,
   getMyCreditRegistrationForCourseModule,
+  getMyCreditRegistrationForExternalCompletion,
   getMyCreditRegistrations,
   getMyEmailVerificationStatus,
   getMyEnrolmentRoute,
+  getMyExternalCompletionEnrolmentRoute,
+  getMyMoocfiCreditRegistrations,
+  getMyOldVersionProgress,
+  getMyProgressByPlatform,
   getMyStudies,
   getMyVerifiedStudentNumber,
   getNumberOfPeopleCompletedACourse,
   getNumberOfPeopleDoneAtLeastOneExercise,
   getNumberOfPeopleRegisteredCompletionToStudyRegistry,
   getNumberOfPeopleStartedCourse,
-  getOauthAuthorizedClients,
+  getOauthConsentInfo,
   getOauthDeviceVerification,
+  getOauthGrants,
   getOauthJwks,
   getOauthOpenidConfiguration,
   getOauthUserInfo,
@@ -274,6 +322,8 @@ import {
   getPageHistory,
   getPageHistoryCount,
   getPageInfo,
+  getPendingMoocfiHandoff,
+  getPendingRoleCountWaitingForMe,
   getPendingRoles,
   getPlaygroundExamples,
   getPlaygroundViewsWebsocket,
@@ -332,6 +382,7 @@ import {
   hideCourseFromMyCourses,
   introspectOauthToken,
   joinCourseWithJoinCode,
+  listAccountLinkingEmails,
   listCreditRegistrationAdminActions,
   listCreditRegistrationPhases,
   listCreditRegistrationsForAdmin,
@@ -339,14 +390,24 @@ import {
   listSuotarApiCalls,
   listVerifiedStudentNumbersForAdmin,
   markFeedbackAsRead,
+  newCourseDesignerAssistantConversation,
   type Options,
+  postLanguageVersionCounterpart,
+  postLanguageVersionExerciseLinks,
+  postLanguageVersionJoin,
+  postLanguageVersionPageLinks,
+  postLanguageVersionProblemDismissal,
+  postLanguageVersionRemoveLeftoverLinks,
+  postLanguageVersionSplit,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
   previewStudentNumberVerificationToken,
   processEditProposal,
+  publishAgentChangeset,
   receivePlaygroundGrading,
   recheckCreditRegistrationEnrolment,
   recordMyEnrolmentPageVisit,
+  recordMyExternalCompletionEnrolmentPageVisit,
   releaseExamGrades,
   removeCoursePlanMember,
   removeRole,
@@ -361,24 +422,35 @@ import {
   restorePageHistory,
   retryCreditRegistration,
   retryFailedCreditRegistrationsForCourse,
+  revokeOauthGrant,
   revokeOauthToken,
   revokeSubmissionShare,
   revokeSubmissionSharesOfSubmission,
   saveCourseDesignerSchedule,
   searchUserDetailsExact,
   searchUserDetailsFuzzy,
+  sendCourseDesignerAssistantMessage,
+  sendCourseDesignerAssistantToolResponse,
   sendResetPasswordEmail,
+  setChatbotCourseDesignerAssistant,
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
+  setCourseDesignerGreatMoocVision,
+  setCourseDesignerSectionStatus,
+  setCourseDesignerTaskAssignee,
+  setCourseDesignerWeeklyDigestSubscription,
   setCourseJoinCode,
   setCourseModuleCertificateGeneration,
   setExamCourse,
   setMyCreditJustification,
   setMyEnrolmentRoute,
+  setMyExternalCompletionCreditJustification,
+  setMyExternalCompletionEnrolmentRoute,
   softDeleteOrganization,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
+  unarchiveCourseDesignerPlan,
   unhideCourseFromMyCourses,
   unlinkMyStudentNumber,
   unsetExamCourse,
@@ -410,7 +482,10 @@ import {
   uploadFilesFromExerciseService,
   upsertCoursePartnersBlock,
   verifyEmailOwnership,
+  withdrawMyCertificateChoice,
   withdrawMyEnrolmentConfirmation,
+  withdrawMyExternalCompletionCertificateChoice,
+  withdrawMyExternalCompletionEnrolmentConfirmation,
 } from "../sdk.generated"
 import type {
   AddCodeGiveawayCodesData,
@@ -420,8 +495,14 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdjustCourseDesignerScheduleData,
+  AdjustCourseDesignerScheduleResponse,
+  AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminCreateExternalCreditTargetData,
+  AdminCreateExternalCreditTargetResponse,
+  AdminDeleteExternalCreditTargetData,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionResponse,
   AdminDismissStudyRegistryConflictData,
@@ -430,6 +511,7 @@ import type {
   AdminMaterializeCreditRegistrationsData,
   AdminMaterializeCreditRegistrationsResponse,
   AdminPauseCourseModuleCreditRegistrationData,
+  AdminPauseExternalCreditTargetData,
   AdminPausePhaseData,
   AdminPausePhaseResponse,
   AdminRequestEnrolmentListFetchData,
@@ -441,6 +523,7 @@ import type {
   AdminResolveStudentNumberForLinkingData,
   AdminResolveStudentNumberForLinkingResponse,
   AdminResumeCourseModuleCreditRegistrationData,
+  AdminResumeExternalCreditTargetData,
   AdminResumePhaseData,
   AdminResumePhaseResponse,
   AdminRunPhaseNowData,
@@ -449,16 +532,23 @@ import type {
   AdminTransitionCreditRegistrationResponse,
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberResponse,
+  AdminUpdateExternalCreditTargetData,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
   ApproveOauthConsentData,
   ApproveOauthConsentResponse,
   ApproveOauthDeviceVerificationData,
   ApproveOauthDeviceVerificationResponse,
+  ArchiveCourseDesignerPlanData,
+  ArchiveCourseDesignerPlanResponse,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ChooseMyCertificateData,
+  ChooseMyCertificateResponse,
+  ChooseMyExternalCompletionCertificateData,
+  ChooseMyExternalCompletionCertificateResponse,
   ClaimStudentNumberVerificationTokenData,
   ClaimStudentNumberVerificationTokenResponse,
   ConfigureChatbotData,
@@ -466,6 +556,12 @@ import type {
   ConfirmCourseSuspectedCheaterData,
   ConfirmMyEnrolmentData,
   ConfirmMyEnrolmentResponse,
+  ConfirmMyExternalCompletionEnrolmentData,
+  ConfirmMyExternalCompletionEnrolmentResponse,
+  ContinueMoocfiHandoffData,
+  ContinueMoocfiHandoffResponse,
+  CreateAgentChangesetPreviewLinkData,
+  CreateAgentChangesetPreviewLinkResponse,
   CreateChapterData,
   CreateChapterResponse,
   CreateChatbotData,
@@ -481,6 +577,8 @@ import type {
   CreateCourseDesignerScheduleSuggestionResponse,
   CreateCourseDesignerStageTaskData,
   CreateCourseDesignerStageTaskResponse,
+  CreateCourseFromCourseDesignerPlanData,
+  CreateCourseFromCourseDesignerPlanResponse,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermResponse,
   CreateCourseInstanceCompletionsData,
@@ -499,6 +597,8 @@ import type {
   CreateExerciseServiceResponse,
   CreateExternalCourseData,
   CreateExternalCourseResponse,
+  CreateMyMoocfiHandoffData,
+  CreateMyMoocfiHandoffResponse,
   CreateOrganizationData,
   CreateOrganizationExamData,
   CreatePageAudioFileData,
@@ -536,8 +636,7 @@ import type {
   DeleteExternalCourseData,
   DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
-  DeleteOauthAuthorizedClientData,
-  DeleteOauthAuthorizedClientResponse,
+  DeleteLanguageVersionProblemDismissalData,
   DeleteOrganizationImageData,
   DeletePageAudioFileData,
   DeletePageData,
@@ -550,6 +649,8 @@ import type {
   DenyOauthDeviceVerificationResponse,
   DeviceAuthorizationOauthData,
   DeviceAuthorizationOauthResponse,
+  DiscardAgentChangesetData,
+  DiscardAgentChangesetResponse,
   DismissCourseSuspectedCheaterData,
   DismissCreditRegistrationEnrolmentBannerData,
   DownloadCodeGiveawayCodesCsvData,
@@ -595,12 +696,22 @@ import type {
   FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
+  GetAccountLinkingCourseEnroleesData,
+  GetAccountLinkingCourseEnroleesResponse,
   GetAccountLinkingCoursesData,
   GetAccountLinkingCoursesResponse,
   GetAccountLinkingStatsData,
   GetAccountLinkingStatsResponse,
   GetAccountLinkingUnlinkedEnroleesData,
   GetAccountLinkingUnlinkedEnroleesResponse,
+  GetAgentChangesetCountsData,
+  GetAgentChangesetCountsResponse,
+  GetAgentChangesetData,
+  GetAgentChangesetResponse,
+  GetAgentChangesetsData,
+  GetAgentChangesetsResponse,
+  GetAgentPagePreviewData,
+  GetAgentPagePreviewResponse,
   GetAllChatbotsData,
   GetAllChatbotsResponse,
   GetAllCoursesData,
@@ -612,8 +723,12 @@ import type {
   GetCertificateByConfigurationIdData,
   GetCertificateByConfigurationIdResponse,
   GetCertificateByVerificationIdData,
+  GetCertificateDetailsByVerificationIdData,
+  GetCertificateDetailsByVerificationIdResponse,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
+  GetChatbotEmbedConfData,
+  GetChatbotEmbedConfResponse,
   GetChatbotModelData,
   GetChatbotModelResponse,
   GetChatbotModelsData,
@@ -638,6 +753,8 @@ import type {
   GetCourseChaptersResponse,
   GetCourseChatbotsData,
   GetCourseChatbotsResponse,
+  GetCourseCompletionOverviewData,
+  GetCourseCompletionOverviewResponse,
   GetCourseCompletionsHistoryAllLanguageVersionsData,
   GetCourseCompletionsHistoryAllLanguageVersionsResponse,
   GetCourseCompletionsHistoryByInstanceData,
@@ -664,10 +781,20 @@ import type {
   GetCourseDailyUsersWhoSubmittedSomethingResponse,
   GetCourseData,
   GetCourseDefaultPeerReviewData,
+  GetCourseDesignerAssistantConversationInfoData,
+  GetCourseDesignerAssistantConversationInfoResponse,
+  GetCourseDesignerAssistantStatusData,
+  GetCourseDesignerAssistantStatusResponse,
   GetCourseDesignerPlanData,
   GetCourseDesignerPlanResponse,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponse,
+  GetCourseDesignerSectionStatusesData,
+  GetCourseDesignerSectionStatusesResponse,
+  GetCourseDesignerSupportAssistantChatbotsData,
+  GetCourseDesignerSupportAssistantChatbotsResponse,
+  GetCourseDesignerSupportPlansData,
+  GetCourseDesignerSupportPlansResponse,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   GetCourseExercisesData,
@@ -701,6 +828,10 @@ import type {
   GetCourseInstanceUserProgressData,
   GetCourseLanguageVersionsData,
   GetCourseLanguageVersionsResponse,
+  GetCourseLinkableExamsData,
+  GetCourseLinkableExamsResponse,
+  GetCourseLinkedExamsData,
+  GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
   GetCourseModuleCompletionData,
@@ -765,8 +896,12 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponse,
   GetCreditRegistrationAttentionItemsData,
   GetCreditRegistrationAttentionItemsResponse,
+  GetCreditRegistrationCourseSummaryData,
+  GetCreditRegistrationCourseSummaryResponse,
   GetCreditRegistrationDetailsData,
   GetCreditRegistrationDetailsResponse,
+  GetCreditRegistrationEarlierReasonsData,
+  GetCreditRegistrationEarlierReasonsResponse,
   GetCreditRegistrationEnrolmentChecksData,
   GetCreditRegistrationEnrolmentChecksResponse,
   GetCreditRegistrationErrorsByCodeData,
@@ -787,6 +922,8 @@ import type {
   GetCreditRegistrationStatsByCourseResponse,
   GetCreditRegistrationThresholdsData,
   GetCreditRegistrationThresholdsResponse,
+  GetCurrentCourseDesignerAssistantConversationData,
+  GetCurrentCourseDesignerAssistantConversationResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
   GetEditProposalsData,
@@ -835,6 +972,22 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetLanguageVersionExerciseCounterpartsData,
+  GetLanguageVersionExerciseCounterpartsResponse,
+  GetLanguageVersionJoinCandidatesData,
+  GetLanguageVersionJoinCandidatesResponse,
+  GetLanguageVersionJoinPreviewData,
+  GetLanguageVersionJoinPreviewResponse,
+  GetLanguageVersionReportData,
+  GetLanguageVersionReportResponse,
+  GetLanguageVersionSplitPreviewData,
+  GetLanguageVersionSplitPreviewResponse,
+  GetLanguageVersionStructureData,
+  GetLanguageVersionStructureResponse,
+  GetLanguageVersionSuggestionsData,
+  GetLanguageVersionSuggestionsResponse,
+  GetMoocfiCourseLinkData,
+  GetMoocfiCourseLinkResponse,
   GetMyCertificatesData,
   GetMyCertificatesResponse,
   GetMyCoursesData,
@@ -843,12 +996,22 @@ import type {
   GetMyCreditRegistrationEnrolmentBannersResponse,
   GetMyCreditRegistrationForCourseModuleData,
   GetMyCreditRegistrationForCourseModuleResponse,
+  GetMyCreditRegistrationForExternalCompletionData,
+  GetMyCreditRegistrationForExternalCompletionResponse,
   GetMyCreditRegistrationsData,
   GetMyCreditRegistrationsResponse,
   GetMyEmailVerificationStatusData,
   GetMyEmailVerificationStatusResponse,
   GetMyEnrolmentRouteData,
   GetMyEnrolmentRouteResponse,
+  GetMyExternalCompletionEnrolmentRouteData,
+  GetMyExternalCompletionEnrolmentRouteResponse,
+  GetMyMoocfiCreditRegistrationsData,
+  GetMyMoocfiCreditRegistrationsResponse,
+  GetMyOldVersionProgressData,
+  GetMyOldVersionProgressResponse,
+  GetMyProgressByPlatformData,
+  GetMyProgressByPlatformResponse,
   GetMyStudiesData,
   GetMyStudiesResponse,
   GetMyVerifiedStudentNumberData,
@@ -861,10 +1024,12 @@ import type {
   GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse,
   GetNumberOfPeopleStartedCourseData,
   GetNumberOfPeopleStartedCourseResponse,
-  GetOauthAuthorizedClientsData,
-  GetOauthAuthorizedClientsResponse,
+  GetOauthConsentInfoData,
+  GetOauthConsentInfoResponse,
   GetOauthDeviceVerificationData,
   GetOauthDeviceVerificationResponse,
+  GetOauthGrantsData,
+  GetOauthGrantsResponse,
   GetOauthJwksData,
   GetOauthOpenidConfigurationData,
   GetOauthUserInfoData,
@@ -898,6 +1063,10 @@ import type {
   GetPageHistoryResponse,
   GetPageInfoData,
   GetPageInfoResponse,
+  GetPendingMoocfiHandoffData,
+  GetPendingMoocfiHandoffResponse,
+  GetPendingRoleCountWaitingForMeData,
+  GetPendingRoleCountWaitingForMeResponse,
   GetPendingRolesData,
   GetPendingRolesResponse,
   GetPlaygroundExamplesData,
@@ -1011,6 +1180,8 @@ import type {
   IntrospectOauthTokenData,
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
+  ListAccountLinkingEmailsData,
+  ListAccountLinkingEmailsResponse,
   ListCreditRegistrationAdminActionsData,
   ListCreditRegistrationAdminActionsResponse,
   ListCreditRegistrationPhasesData,
@@ -1024,16 +1195,35 @@ import type {
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponse,
   MarkFeedbackAsReadData,
+  NewCourseDesignerAssistantConversationData,
+  NewCourseDesignerAssistantConversationResponse,
+  PostLanguageVersionCounterpartData,
+  PostLanguageVersionCounterpartResponse,
+  PostLanguageVersionExerciseLinksData,
+  PostLanguageVersionExerciseLinksResponse,
+  PostLanguageVersionJoinData,
+  PostLanguageVersionJoinResponse,
+  PostLanguageVersionPageLinksData,
+  PostLanguageVersionPageLinksResponse,
+  PostLanguageVersionProblemDismissalData,
+  PostLanguageVersionProblemDismissalResponse,
+  PostLanguageVersionRemoveLeftoverLinksData,
+  PostLanguageVersionRemoveLeftoverLinksResponse,
+  PostLanguageVersionSplitData,
+  PostLanguageVersionSplitResponse,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
   PreviewStudentNumberVerificationTokenData,
   PreviewStudentNumberVerificationTokenResponse,
   ProcessEditProposalData,
+  PublishAgentChangesetData,
+  PublishAgentChangesetResponse,
   ReceivePlaygroundGradingData,
   RecheckCreditRegistrationEnrolmentData,
   RecheckCreditRegistrationEnrolmentResponse,
   RecordMyEnrolmentPageVisitData,
+  RecordMyExternalCompletionEnrolmentPageVisitData,
   ReleaseExamGradesData,
   RemoveCoursePlanMemberData,
   RemoveCoursePlanMemberResponse,
@@ -1060,6 +1250,8 @@ import type {
   RetryCreditRegistrationResponse,
   RetryFailedCreditRegistrationsForCourseData,
   RetryFailedCreditRegistrationsForCourseResponse,
+  RevokeOauthGrantData,
+  RevokeOauthGrantResponse,
   RevokeOauthTokenData,
   RevokeSubmissionShareData,
   RevokeSubmissionShareResponse,
@@ -1071,12 +1263,26 @@ import type {
   SearchUserDetailsExactResponse,
   SearchUserDetailsFuzzyData,
   SearchUserDetailsFuzzyResponse,
+  SendCourseDesignerAssistantMessageData,
+  SendCourseDesignerAssistantMessageResponse,
+  SendCourseDesignerAssistantToolResponseData,
+  SendCourseDesignerAssistantToolResponseResponse,
   SendResetPasswordEmailData,
   SendResetPasswordEmailResponse,
+  SetChatbotCourseDesignerAssistantData,
+  SetChatbotCourseDesignerAssistantResponse,
   SetCourseChatbotAsDefaultData,
   SetCourseChatbotAsDefaultResponse,
   SetCourseChatbotAsNonDefaultData,
   SetCourseChatbotAsNonDefaultResponse,
+  SetCourseDesignerGreatMoocVisionData,
+  SetCourseDesignerGreatMoocVisionResponse,
+  SetCourseDesignerSectionStatusData,
+  SetCourseDesignerSectionStatusResponse,
+  SetCourseDesignerTaskAssigneeData,
+  SetCourseDesignerTaskAssigneeResponse,
+  SetCourseDesignerWeeklyDigestSubscriptionData,
+  SetCourseDesignerWeeklyDigestSubscriptionResponse,
   SetCourseJoinCodeData,
   SetCourseModuleCertificateGenerationData,
   SetCourseModuleCertificateGenerationResponse,
@@ -1085,6 +1291,10 @@ import type {
   SetMyCreditJustificationResponse,
   SetMyEnrolmentRouteData,
   SetMyEnrolmentRouteResponse,
+  SetMyExternalCompletionCreditJustificationData,
+  SetMyExternalCompletionCreditJustificationResponse,
+  SetMyExternalCompletionEnrolmentRouteData,
+  SetMyExternalCompletionEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
@@ -1092,6 +1302,8 @@ import type {
   TeacherSetStudentChapterStatusResponse,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
+  UnarchiveCourseDesignerPlanData,
+  UnarchiveCourseDesignerPlanResponse,
   UnhideCourseFromMyCoursesData,
   UnlinkMyStudentNumberData,
   UnlinkMyStudentNumberResponse,
@@ -1144,12 +1356,17 @@ import type {
   UpsertCoursePartnersBlockData,
   VerifyEmailOwnershipData,
   VerifyEmailOwnershipResponse,
+  WithdrawMyCertificateChoiceData,
+  WithdrawMyCertificateChoiceResponse,
   WithdrawMyEnrolmentConfirmationData,
   WithdrawMyEnrolmentConfirmationResponse,
+  WithdrawMyExternalCompletionCertificateChoiceData,
+  WithdrawMyExternalCompletionCertificateChoiceResponse,
+  WithdrawMyExternalCompletionEnrolmentConfirmationData,
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
 } from "../types.generated"
 
 /**
- *
  * POST `/api/v0/files/answer-uploads/:exercise_task_id`
  * Used to upload the files a student is attaching to an answer for the given exercise task.
  *
@@ -1183,7 +1400,6 @@ export const uploadFilesForExerciseAnswerMutation = (
 }
 
 /**
- *
  * POST `/api/v0/files/:exercise_service_slug`
  * Used to upload data from exercise service iframes.
  *
@@ -1212,8 +1428,309 @@ export const uploadFilesFromExerciseServiceMutation = (
   return mutationOptions
 }
 
+export type QueryKey<TOptions extends Options> = [
+  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
+    _id: string
+    _infinite?: boolean
+    tags?: ReadonlyArray<string>
+  },
+]
+
+const createQueryKey = <TOptions extends Options>(
+  id: string,
+  options?: TOptions,
+  infinite?: boolean,
+  tags?: ReadonlyArray<string>,
+): [QueryKey<TOptions>[0]] => {
+  const params: QueryKey<TOptions>[0] = {
+    _id: id,
+    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
+  } as QueryKey<TOptions>[0]
+  if (infinite) {
+    params._infinite = infinite
+  }
+  if (tags) {
+    params.tags = tags
+  }
+  if (options?.body) {
+    params.body = options.body
+  }
+  if (options?.headers) {
+    params.headers = options.headers
+  }
+  if (options?.path) {
+    params.path = options.path
+  }
+  if (options?.query) {
+    params.query = options.query
+  }
+  return [params]
+}
+
+export const getAgentChangesetsQueryKey = (options: Options<GetAgentChangesetsData>) =>
+  createQueryKey("getAgentChangesets", options)
+
 /**
- *
+ * GET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in
+ * the course, newest first, with what each changes.
+ */
+export const getAgentChangesetsOptions = (options: Options<GetAgentChangesetsData>) =>
+  queryOptions<
+    GetAgentChangesetsResponse,
+    DefaultError,
+    GetAgentChangesetsResponse,
+    ReturnType<typeof getAgentChangesetsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangesets({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetsQueryKey(options),
+  })
+
+export const getAgentChangesetCountsQueryKey = (options: Options<GetAgentChangesetCountsData>) =>
+  createQueryKey("getAgentChangesetCounts", options)
+
+/**
+ * GET `/api/v0/main-frontend/agent-changesets/counts?course_id=` - Whether the signed-in user has agent
+ * changesets in the course, and how many entities their open one stages, for the course management
+ * tab and its badge.
+ */
+export const getAgentChangesetCountsOptions = (options: Options<GetAgentChangesetCountsData>) =>
+  queryOptions<
+    GetAgentChangesetCountsResponse,
+    DefaultError,
+    GetAgentChangesetCountsResponse,
+    ReturnType<typeof getAgentChangesetCountsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangesetCounts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetCountsQueryKey(options),
+  })
+
+export const getAgentChangesetQueryKey = (options: Options<GetAgentChangesetData>) =>
+  createQueryKey("getAgentChangeset", options)
+
+/**
+ * GET `/api/v0/main-frontend/agent-changesets/{changeset_id}` - One of the user's changesets for the
+ * review page: what each staged entity changes, field by field and for pages as students see them,
+ * its risk reasons, the conflicts and the agent calls that staged the changes.
+ */
+export const getAgentChangesetOptions = (options: Options<GetAgentChangesetData>) =>
+  queryOptions<
+    GetAgentChangesetResponse,
+    DefaultError,
+    GetAgentChangesetResponse,
+    ReturnType<typeof getAgentChangesetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentChangeset({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentChangesetQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/discard` - Drops the user's open
+ * changeset. Nothing of it reaches the live course. Rejected without changes if the changeset is no
+ * longer open or no longer the reviewed revision.
+ */
+export const discardAgentChangesetMutation = (
+  options?: Partial<Options<DiscardAgentChangesetData>>,
+): UseMutationOptions<
+  DiscardAgentChangesetResponse,
+  DefaultError,
+  Options<DiscardAgentChangesetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DiscardAgentChangesetResponse,
+    DefaultError,
+    Options<DiscardAgentChangesetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await discardAgentChangeset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/preview-link/{page_id}` - Mints a
+ * short-lived preview link for a page of the user's changeset, so the review page can open the staged
+ * page as students would see it.
+ */
+export const createAgentChangesetPreviewLinkMutation = (
+  options?: Partial<Options<CreateAgentChangesetPreviewLinkData>>,
+): UseMutationOptions<
+  CreateAgentChangesetPreviewLinkResponse,
+  DefaultError,
+  Options<CreateAgentChangesetPreviewLinkData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateAgentChangesetPreviewLinkResponse,
+    DefaultError,
+    Options<CreateAgentChangesetPreviewLinkData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createAgentChangesetPreviewLink({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/agent-changesets/{changeset_id}/publish` - Publishes the user's open
+ * changeset, risky changes included. Rejected without changes if the changeset is no longer open or no
+ * longer the reviewed revision, if any staged page or entity changed live since it was staged, or if
+ * saving a staged entity fails.
+ */
+export const publishAgentChangesetMutation = (
+  options?: Partial<Options<PublishAgentChangesetData>>,
+): UseMutationOptions<
+  PublishAgentChangesetResponse,
+  DefaultError,
+  Options<PublishAgentChangesetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PublishAgentChangesetResponse,
+    DefaultError,
+    Options<PublishAgentChangesetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await publishAgentChangeset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getAgentPagePreviewQueryKey = (options: Options<GetAgentPagePreviewData>) =>
+  createQueryKey("getAgentPagePreview", options)
+
+/**
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreviewOptions = (options: Options<GetAgentPagePreviewData>) =>
+  queryOptions<
+    GetAgentPagePreviewResponse,
+    DefaultError,
+    GetAgentPagePreviewResponse,
+    ReturnType<typeof getAgentPagePreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAgentPagePreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAgentPagePreviewQueryKey(options),
+  })
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const getAgentPagePreviewInfiniteQueryKey = (
+  options: Options<GetAgentPagePreviewData>,
+): QueryKey<Options<GetAgentPagePreviewData>> =>
+  createQueryKey("getAgentPagePreview", options, true)
+
+/**
+ * GET `/api/v0/main-frontend/agent-preview/{token}` - The page a preview token points at, staged or
+ * published, or for a token of several pages the page `page` with the list of pages. No login: the
+ * short-lived random token stands in for it, while its user may still edit the course.
+ */
+export const getAgentPagePreviewInfiniteOptions = (options: Options<GetAgentPagePreviewData>) => {
+  const opts = infiniteQueryOptions<
+    GetAgentPagePreviewResponse,
+    DefaultError,
+    InfiniteData<GetAgentPagePreviewResponse>,
+    QueryKey<Options<GetAgentPagePreviewData>>,
+    | string
+    | Pick<QueryKey<Options<GetAgentPagePreviewData>>[0], "body" | "headers" | "path" | "query">
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetAgentPagePreviewData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await getAgentPagePreview({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: getAgentPagePreviewInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+/**
  * POST `/api/v0/main-frontend/certificates/`
  *
  * Updates the certificate configuration for a given module.
@@ -1241,7 +1758,6 @@ export const updateCertificateConfigurationMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/certificates/configuration/{configuration_id}`
  *
  * Deletes the given configuration.
@@ -1269,7 +1785,6 @@ export const deleteCertificateConfigurationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/certificates/generate`
  *
  * Generates a certificate for a given certificate configuration id.
@@ -1318,51 +1833,11 @@ export const updateGeneratedCertificateMutation = (
   return mutationOptions
 }
 
-export type QueryKey<TOptions extends Options> = [
-  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
-    _id: string
-    _infinite?: boolean
-    tags?: ReadonlyArray<string>
-  },
-]
-
-const createQueryKey = <TOptions extends Options>(
-  id: string,
-  options?: TOptions,
-  infinite?: boolean,
-  tags?: ReadonlyArray<string>,
-): [QueryKey<TOptions>[0]] => {
-  const params: QueryKey<TOptions>[0] = {
-    _id: id,
-    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
-  } as QueryKey<TOptions>[0]
-  if (infinite) {
-    params._infinite = infinite
-  }
-  if (tags) {
-    params.tags = tags
-  }
-  if (options?.body) {
-    params.body = options.body
-  }
-  if (options?.headers) {
-    params.headers = options.headers
-  }
-  if (options?.path) {
-    params.path = options.path
-  }
-  if (options?.query) {
-    params.query = options.query
-  }
-  return [params]
-}
-
 export const getCertificateByConfigurationIdQueryKey = (
   options: Options<GetCertificateByConfigurationIdData>,
 ) => createQueryKey("getCertificateByConfigurationId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}`
  *
  * Fetches the user's certificate for the given course module and course instance.
@@ -1391,7 +1866,6 @@ export const getCertificateByVerificationIdQueryKey = (
 ) => createQueryKey("getCertificateByVerificationId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}`
  *
  * Fetches the user's certificate using the verification id.
@@ -1417,8 +1891,35 @@ export const getCertificateByVerificationIdOptions = (
     queryKey: getCertificateByVerificationIdQueryKey(options),
   })
 
+export const getCertificateDetailsByVerificationIdQueryKey = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) => createQueryKey("getCertificateDetailsByVerificationId", options)
+
 /**
+ * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
  *
+ * The certificate's holder, course, module, completion date and printed grade as JSON.
+ */
+export const getCertificateDetailsByVerificationIdOptions = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) =>
+  queryOptions<
+    GetCertificateDetailsByVerificationIdResponse,
+    DefaultError,
+    GetCertificateDetailsByVerificationIdResponse,
+    ReturnType<typeof getCertificateDetailsByVerificationIdQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCertificateDetailsByVerificationId({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCertificateDetailsByVerificationIdQueryKey(options),
+  })
+
+/**
  * POST `/api/v0/main-frontend/chapters` - Create a new course part.
  * # Example
  *
@@ -1454,7 +1955,6 @@ export const createChapterMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
  */
 export const deleteChapterMutation = (
@@ -1476,7 +1976,6 @@ export const deleteChapterMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/chapters/:chapter_id` - Update chapter.
  * # Example
  *
@@ -1513,7 +2012,6 @@ export const updateChapterMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/chapters/:chapter_id/image` - Removes the chapter image.
  *
  * # Example
@@ -1542,7 +2040,6 @@ export const deleteChapterImageMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/chapters/:chapter_id/image` - Sets or updates the chapter image.
  *
  * # Example
@@ -1581,7 +2078,6 @@ export const getCourseChaptersQueryKey = (options: Options<GetCourseChaptersData
   createQueryKey("getCourseChapters", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course - Gets all chapters with a course_id
  */
 export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>) =>
@@ -1599,6 +2095,29 @@ export const getCourseChaptersOptions = (options: Options<GetCourseChaptersData>
         throwOnError: true,
       }),
     queryKey: getCourseChaptersQueryKey(options),
+  })
+
+export const getChatbotEmbedConfQueryKey = (options: Options<GetChatbotEmbedConfData>) =>
+  createQueryKey("getChatbotEmbedConf", options)
+
+/**
+ * GET `/api/v0/main-frontend/chatbot-embed/{chatbot_configuration_id}`
+ */
+export const getChatbotEmbedConfOptions = (options: Options<GetChatbotEmbedConfData>) =>
+  queryOptions<
+    GetChatbotEmbedConfResponse,
+    DefaultError,
+    GetChatbotEmbedConfResponse,
+    ReturnType<typeof getChatbotEmbedConfQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getChatbotEmbedConf({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getChatbotEmbedConfQueryKey(options),
   })
 
 export const getChatbotModelsQueryKey = (options?: Options<GetChatbotModelsData>) =>
@@ -1757,7 +2276,34 @@ export const configureChatbotMutation = (
 }
 
 /**
+ * PUT `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}/course-designer-assistant`
  *
+ * Makes the chatbot the course design assistant on every plan page, taking the role from any
+ * other configuration, or removes the role from it.
+ */
+export const setChatbotCourseDesignerAssistantMutation = (
+  options?: Partial<Options<SetChatbotCourseDesignerAssistantData>>,
+): UseMutationOptions<
+  SetChatbotCourseDesignerAssistantResponse,
+  DefaultError,
+  Options<SetChatbotCourseDesignerAssistantData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetChatbotCourseDesignerAssistantResponse,
+    DefaultError,
+    Options<SetChatbotCourseDesignerAssistantData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setChatbotCourseDesignerAssistant({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * * POST `/api/v0/main-frontend/code-giveaways - Creates a new code giveaway.
  */
 export const createCodeGiveawayMutation = (
@@ -1786,7 +2332,6 @@ export const getCodeGiveawaysByCourseQueryKey = (options: Options<GetCodeGiveawa
   createQueryKey("getCodeGiveawaysByCourse", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
 export const getCodeGiveawaysByCourseOptions = (options: Options<GetCodeGiveawaysByCourseData>) =>
@@ -1810,7 +2355,6 @@ export const getCodeGiveawayByIdQueryKey = (options: Options<GetCodeGiveawayById
   createQueryKey("getCodeGiveawayById", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id - Gets a code giveaway by ID.
  */
 export const getCodeGiveawayByIdOptions = (options: Options<GetCodeGiveawayByIdData>) =>
@@ -1834,7 +2378,6 @@ export const getCodeGiveawayCodesQueryKey = (options: Options<GetCodeGiveawayCod
   createQueryKey("getCodeGiveawayCodes", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes - Gets codes for a code giveaway by ID.
  */
 export const getCodeGiveawayCodesOptions = (options: Options<GetCodeGiveawayCodesData>) =>
@@ -1855,7 +2398,6 @@ export const getCodeGiveawayCodesOptions = (options: Options<GetCodeGiveawayCode
   })
 
 /**
- *
  * * POST `/api/v0/main-frontend/code-giveaways/:id/codes - Adds new codes to a code giveaway.
  */
 export const addCodeGiveawayCodesMutation = (
@@ -1885,7 +2427,6 @@ export const downloadCodeGiveawayCodesCsvQueryKey = (
 ) => createQueryKey("downloadCodeGiveawayCodesCsv", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes/csv - Gets codes for a code giveaway by ID as CSV.
  */
 export const downloadCodeGiveawayCodesCsvOptions = (
@@ -1908,7 +2449,6 @@ export const downloadCodeGiveawayCodesCsvOptions = (
   })
 
 /**
- *
  * * DELETE `/api/v0/main-frontend/code-giveaways/:id/codes/:code_id - Deletes a code giveaway code.
  */
 export const deleteCodeGiveawayCodeMutation = (
@@ -1933,7 +2473,6 @@ export const getCoursesForAuditingQueryKey = (options?: Options<GetCoursesForAud
   createQueryKey("getCoursesForAuditing", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-auditing`
  */
 export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAuditingData>) =>
@@ -1954,7 +2493,6 @@ export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAudi
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/course-auditing/:id`
  */
 export const updateCourseAuditingDataMutation = (
@@ -1984,7 +2522,6 @@ export const getCourseCreditRegistrationActionsQueryKey = (
 ) => createQueryKey("getCourseCreditRegistrationActions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/actions` - The manual
  * actions taken on this course's credit registrations, newest first.
  */
@@ -2008,7 +2545,6 @@ export const getCourseCreditRegistrationActionsOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/by-user-ids` - The
  * registrations of the named students, for the students tab's current page.
  */
@@ -2039,7 +2575,6 @@ export const exportCourseCreditRegistrationsQueryKey = (
 ) => createQueryKey("exportCourseCreditRegistrations", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/export` - Every credit
  * registration of the course as csv.
  */
@@ -2067,7 +2602,6 @@ export const getCourseCreditRegistrationsQueryKey = (
 ) => createQueryKey("getCourseCreditRegistrations", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
  * course's registrations, filtered by state and searched by student name, email or student number.
  */
@@ -2090,47 +2624,12 @@ export const getCourseCreditRegistrationsOptions = (
     queryKey: getCourseCreditRegistrationsQueryKey(options),
   })
 
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K,
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    }
-  }
-  return params as unknown as typeof page
-}
-
 export const getCourseCreditRegistrationsInfiniteQueryKey = (
   options: Options<GetCourseCreditRegistrationsData>,
 ): QueryKey<Options<GetCourseCreditRegistrationsData>> =>
   createQueryKey("getCourseCreditRegistrations", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/list` - A page of the
  * course's registrations, filtered by state and searched by student name, email or student number.
  */
@@ -2182,7 +2681,6 @@ export const getCourseCreditRegistrationModuleConfigsQueryKey = (
 ) => createQueryKey("getCourseCreditRegistrationModuleConfigs", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/module-configs` - The
  * course's per-module credit registration configuration.
  */
@@ -2206,7 +2704,6 @@ export const getCourseCreditRegistrationModuleConfigsOptions = (
   })
 
 /**
- *
  * POST
  * `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/resend-linking-email` - Sets off
  * another account-linking mail for one person on this course.
@@ -2237,7 +2734,6 @@ export const resendCourseCreditRegistrationLinkingEmailMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/retry-failed` - Puts this
  * course's failed registrations back on the pipeline.
  *
@@ -2273,7 +2769,6 @@ export const getCourseCreditRegistrationSummaryQueryKey = (
 ) => createQueryKey("getCourseCreditRegistrationSummary", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/courses/{course_id}/summary` - Per-module
  * counts plus the two reasons a student of this course will not get credits.
  *
@@ -2304,7 +2799,6 @@ export const getCreditRegistrationDetailsQueryKey = (
 ) => createQueryKey("getCreditRegistrationDetails", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}` - One
  * registration with its timeline and the other attempts for the same completion.
  *
@@ -2331,7 +2825,6 @@ export const getCreditRegistrationDetailsOptions = (
   })
 
 /**
- *
  * POST
  * `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/recheck-enrolment`
  * - Asks the pipeline to look for an enrolment again, for a row parked because the study registry had
@@ -2363,7 +2856,6 @@ export const recheckCreditRegistrationEnrolmentMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/course-credit-registrations/registrations/{credit_registration_id}/retry`
  * - Puts one failed registration back on the pipeline.
  *
@@ -2396,7 +2888,6 @@ export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData
   createQueryKey("getCourseInstance", options)
 
 /**
- *
  * GET /course-instances/:id
  */
 export const getCourseInstanceOptions = (options: Options<GetCourseInstanceData>) =>
@@ -2421,7 +2912,6 @@ export const getCourseInstanceCompletionsQueryKey = (
 ) => createQueryKey("getCourseInstanceCompletions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
 export const getCourseInstanceCompletionsOptions = (
@@ -2444,7 +2934,6 @@ export const getCourseInstanceCompletionsOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
 export const createCourseInstanceCompletionsMutation = (
@@ -2492,7 +2981,6 @@ export const getCourseInstanceCourseModuleCompletionsForUserQueryKey = (
 ) => createQueryKey("getCourseInstanceCourseModuleCompletionsForUser", options)
 
 /**
- *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
 export const getCourseInstanceCourseModuleCompletionsForUserOptions = (
@@ -2519,7 +3007,6 @@ export const getCourseInstanceDefaultCertificateConfigurationsQueryKey = (
 ) => createQueryKey("getCourseInstanceDefaultCertificateConfigurations", options)
 
 /**
- *
  * GET /course-instances/:id/default-certificate-configurations - gets default certificate configurations of the given course instance. A default certificate configuration requires only one course module to be completed.
  */
 export const getCourseInstanceDefaultCertificateConfigurationsOptions = (
@@ -2542,7 +3029,6 @@ export const getCourseInstanceDefaultCertificateConfigurationsOptions = (
   })
 
 /**
- *
  * POST /course-instances/:id/delete
  */
 export const deleteCourseInstanceMutation = (
@@ -2564,7 +3050,6 @@ export const deleteCourseInstanceMutation = (
 }
 
 /**
- *
  * POST /course-instances/:id/edit
  */
 export const editCourseInstanceMutation = (
@@ -2635,7 +3120,6 @@ export const exportCourseInstanceCompletionsCsvQueryKey = (
 ) => createQueryKey("exportCourseInstanceCompletionsCsv", options)
 
 /**
- *
  * GET /course-instances/:id/export-completions - gets CSV of course completion based on course_instance ID.
  */
 export const exportCourseInstanceCompletionsCsvOptions = (
@@ -2662,7 +3146,6 @@ export const exportCourseInstancePointsCsvQueryKey = (
 ) => createQueryKey("exportCourseInstancePointsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
  */
 export const exportCourseInstancePointsCsvOptions = (
@@ -2754,7 +3237,6 @@ export const getCourseInstanceUserProgressQueryKey = (
 ) => createQueryKey("getCourseInstanceUserProgress", options)
 
 /**
- *
  * GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
  */
 export const getCourseInstanceUserProgressOptions = (
@@ -2781,7 +3263,6 @@ export const getCourseInstanceExerciseStatusesForUserQueryKey = (
 ) => createQueryKey("getCourseInstanceExerciseStatusesForUser", options)
 
 /**
- *
  * GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
  */
 export const getCourseInstanceExerciseStatusesForUserOptions = (
@@ -2807,7 +3288,6 @@ export const getCourseModuleQueryKey = (options: Options<GetCourseModuleData>) =
   createQueryKey("getCourseModule", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}`
  *
  * Returns information about the course module.
@@ -2834,7 +3314,6 @@ export const getCourseModuleCompletionRegistrationLinkQueryKey = (
 ) => createQueryKey("getCourseModuleCompletionRegistrationLink", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
  */
 export const getCourseModuleCompletionRegistrationLinkOptions = (
@@ -2861,7 +3340,6 @@ export const getCourseModuleCompletionQueryKey = (
 ) => createQueryKey("getCourseModuleCompletion", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion`
  *
  * Gets users's best completion for the course.
@@ -2906,7 +3384,6 @@ export const setCourseModuleCertificateGenerationMutation = (
 }
 
 /**
- *
  * DELETE /api/v0/main-frontend/course-modules/${course_module_id}/threshold - delete threshold for a specific course module.
  */
 export const deleteCourseModuleThresholdMutation = (
@@ -2928,7 +3405,6 @@ export const deleteCourseModuleThresholdMutation = (
 }
 
 /**
- *
  * POST /api/v0/main-frontend/course-modules/${course_module_id}/threshold - post threshold for a specific course module.
  */
 export const createCourseModuleThresholdMutation = (
@@ -2954,7 +3430,6 @@ export const getCourseModuleUserCompletionQueryKey = (
 ) => createQueryKey("getCourseModuleUserCompletion", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/course-modules/{course_module_id}/user-completion`
  *
  * Gets active users's completion for the course, if it exists.
@@ -3020,6 +3495,58 @@ export const createCourseDesignerPlanMutation = (
   return mutationOptions
 }
 
+export const getCourseDesignerSupportAssistantChatbotsQueryKey = (
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData>,
+) => createQueryKey("getCourseDesignerSupportAssistantChatbots", options)
+
+/**
+ * Course chatbots a global admin can choose as the course design assistant.
+ */
+export const getCourseDesignerSupportAssistantChatbotsOptions = (
+  options?: Options<GetCourseDesignerSupportAssistantChatbotsData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSupportAssistantChatbotsResponse,
+    DefaultError,
+    GetCourseDesignerSupportAssistantChatbotsResponse,
+    ReturnType<typeof getCourseDesignerSupportAssistantChatbotsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSupportAssistantChatbots({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSupportAssistantChatbotsQueryKey(options),
+  })
+
+export const getCourseDesignerSupportPlansQueryKey = (
+  options?: Options<GetCourseDesignerSupportPlansData>,
+) => createQueryKey("getCourseDesignerSupportPlans", options)
+
+/**
+ * Read-only overview of every plan for global admins doing MOOC support.
+ */
+export const getCourseDesignerSupportPlansOptions = (
+  options?: Options<GetCourseDesignerSupportPlansData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSupportPlansResponse,
+    DefaultError,
+    GetCourseDesignerSupportPlansResponse,
+    ReturnType<typeof getCourseDesignerSupportPlansQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSupportPlans({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSupportPlansQueryKey(options),
+  })
+
 export const getCourseDesignerPlanQueryKey = (options: Options<GetCourseDesignerPlanData>) =>
   createQueryKey("getCourseDesignerPlan", options)
 
@@ -3039,6 +3566,219 @@ export const getCourseDesignerPlanOptions = (options: Options<GetCourseDesignerP
       }),
     queryKey: getCourseDesignerPlanQueryKey(options),
   })
+
+export const archiveCourseDesignerPlanMutation = (
+  options?: Partial<Options<ArchiveCourseDesignerPlanData>>,
+): UseMutationOptions<
+  ArchiveCourseDesignerPlanResponse,
+  DefaultError,
+  Options<ArchiveCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ArchiveCourseDesignerPlanResponse,
+    DefaultError,
+    Options<ArchiveCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await archiveCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantStatusQueryKey = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) => createQueryKey("getCourseDesignerAssistantStatus", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant`
+ *
+ * Whether the assistant can be offered on this plan's pages.
+ */
+export const getCourseDesignerAssistantStatusOptions = (
+  options: Options<GetCourseDesignerAssistantStatusData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantStatusResponse,
+    DefaultError,
+    GetCourseDesignerAssistantStatusResponse,
+    ReturnType<typeof getCourseDesignerAssistantStatusQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantStatusQueryKey(options),
+  })
+
+export const getCurrentCourseDesignerAssistantConversationQueryKey = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) => createQueryKey("getCurrentCourseDesignerAssistantConversation", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/current`
+ *
+ * The user's latest conversation about the plan with the current assistant, or null when there is
+ * none yet.
+ */
+export const getCurrentCourseDesignerAssistantConversationOptions = (
+  options: Options<GetCurrentCourseDesignerAssistantConversationData>,
+) =>
+  queryOptions<
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    GetCurrentCourseDesignerAssistantConversationResponse,
+    ReturnType<typeof getCurrentCourseDesignerAssistantConversationQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCurrentCourseDesignerAssistantConversation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCurrentCourseDesignerAssistantConversationQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/new`
+ *
+ * Starts a new conversation about the plan, which becomes the user's current one.
+ */
+export const newCourseDesignerAssistantConversationMutation = (
+  options?: Partial<Options<NewCourseDesignerAssistantConversationData>>,
+): UseMutationOptions<
+  NewCourseDesignerAssistantConversationResponse,
+  DefaultError,
+  Options<NewCourseDesignerAssistantConversationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    NewCourseDesignerAssistantConversationResponse,
+    DefaultError,
+    Options<NewCourseDesignerAssistantConversationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await newCourseDesignerAssistantConversation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerAssistantConversationInfoQueryKey = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) => createQueryKey("getCourseDesignerAssistantConversationInfo", options)
+
+/**
+ * GET `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/info`
+ */
+export const getCourseDesignerAssistantConversationInfoOptions = (
+  options: Options<GetCourseDesignerAssistantConversationInfoData>,
+) =>
+  queryOptions<
+    GetCourseDesignerAssistantConversationInfoResponse,
+    DefaultError,
+    GetCourseDesignerAssistantConversationInfoResponse,
+    ReturnType<typeof getCourseDesignerAssistantConversationInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerAssistantConversationInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerAssistantConversationInfoQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/send-message`
+ *
+ * Sends the user's message and streams the assistant's turn, as the course material chatbot's
+ * `send-message` does.
+ */
+export const sendCourseDesignerAssistantMessageMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantMessageData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantMessageResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantMessageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantMessageResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantMessageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantMessage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/course-plans/{plan_id}/assistant/conversations/{conversation_id}/tool-response`
+ *
+ * Answers a tool call the turn suspended on, such as applying or discarding a proposed change, and
+ * streams the resumed turn, as the course material chatbot's `tool-response` does.
+ */
+export const sendCourseDesignerAssistantToolResponseMutation = (
+  options?: Partial<Options<SendCourseDesignerAssistantToolResponseData>>,
+): UseMutationOptions<
+  SendCourseDesignerAssistantToolResponseResponse,
+  DefaultError,
+  Options<SendCourseDesignerAssistantToolResponseData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendCourseDesignerAssistantToolResponseResponse,
+    DefaultError,
+    Options<SendCourseDesignerAssistantToolResponseData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendCourseDesignerAssistantToolResponse({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * Creates a draft course from the plan's course structure. A plan creates at most one course.
+ */
+export const createCourseFromCourseDesignerPlanMutation = (
+  options?: Partial<Options<CreateCourseFromCourseDesignerPlanData>>,
+): UseMutationOptions<
+  CreateCourseFromCourseDesignerPlanResponse,
+  DefaultError,
+  Options<CreateCourseFromCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseFromCourseDesignerPlanResponse,
+    DefaultError,
+    Options<CreateCourseFromCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseFromCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCoursePlanMembersQueryKey = (options: Options<GetCoursePlanMembersData>) =>
   createQueryKey("getCoursePlanMembers", options)
@@ -3126,6 +3866,31 @@ export const saveCourseDesignerScheduleMutation = (
   return mutationOptions
 }
 
+/**
+ * Changes the dates of stages that are not completed while the plan is in progress.
+ */
+export const adjustCourseDesignerScheduleMutation = (
+  options?: Partial<Options<AdjustCourseDesignerScheduleData>>,
+): UseMutationOptions<
+  AdjustCourseDesignerScheduleResponse,
+  DefaultError,
+  Options<AdjustCourseDesignerScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdjustCourseDesignerScheduleResponse,
+    DefaultError,
+    Options<AdjustCourseDesignerScheduleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adjustCourseDesignerSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const finalizeCourseDesignerScheduleMutation = (
   options?: Partial<Options<FinalizeCourseDesignerScheduleData>>,
 ): UseMutationOptions<
@@ -3162,6 +3927,51 @@ export const createCourseDesignerScheduleSuggestionMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await createCourseDesignerScheduleSuggestion({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerSectionStatusesQueryKey = (
+  options: Options<GetCourseDesignerSectionStatusesData>,
+) => createQueryKey("getCourseDesignerSectionStatuses", options)
+
+export const getCourseDesignerSectionStatusesOptions = (
+  options: Options<GetCourseDesignerSectionStatusesData>,
+) =>
+  queryOptions<
+    GetCourseDesignerSectionStatusesResponse,
+    DefaultError,
+    GetCourseDesignerSectionStatusesResponse,
+    ReturnType<typeof getCourseDesignerSectionStatusesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerSectionStatuses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerSectionStatusesQueryKey(options),
+  })
+
+export const setCourseDesignerSectionStatusMutation = (
+  options?: Partial<Options<SetCourseDesignerSectionStatusData>>,
+): UseMutationOptions<
+  SetCourseDesignerSectionStatusResponse,
+  DefaultError,
+  Options<SetCourseDesignerSectionStatusData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerSectionStatusResponse,
+    DefaultError,
+    Options<SetCourseDesignerSectionStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerSectionStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -3302,8 +4112,98 @@ export const updateCourseDesignerStageTaskMutation = (
   return mutationOptions
 }
 
+export const setCourseDesignerTaskAssigneeMutation = (
+  options?: Partial<Options<SetCourseDesignerTaskAssigneeData>>,
+): UseMutationOptions<
+  SetCourseDesignerTaskAssigneeResponse,
+  DefaultError,
+  Options<SetCourseDesignerTaskAssigneeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerTaskAssigneeResponse,
+    DefaultError,
+    Options<SetCourseDesignerTaskAssigneeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerTaskAssignee({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const unarchiveCourseDesignerPlanMutation = (
+  options?: Partial<Options<UnarchiveCourseDesignerPlanData>>,
+): UseMutationOptions<
+  UnarchiveCourseDesignerPlanResponse,
+  DefaultError,
+  Options<UnarchiveCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UnarchiveCourseDesignerPlanResponse,
+    DefaultError,
+    Options<UnarchiveCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await unarchiveCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const setCourseDesignerGreatMoocVisionMutation = (
+  options?: Partial<Options<SetCourseDesignerGreatMoocVisionData>>,
+): UseMutationOptions<
+  SetCourseDesignerGreatMoocVisionResponse,
+  DefaultError,
+  Options<SetCourseDesignerGreatMoocVisionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerGreatMoocVisionResponse,
+    DefaultError,
+    Options<SetCourseDesignerGreatMoocVisionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerGreatMoocVision({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 /**
- *
+ * Opts the current user in or out of the plan's weekly progress email.
+ */
+export const setCourseDesignerWeeklyDigestSubscriptionMutation = (
+  options?: Partial<Options<SetCourseDesignerWeeklyDigestSubscriptionData>>,
+): UseMutationOptions<
+  SetCourseDesignerWeeklyDigestSubscriptionResponse,
+  DefaultError,
+  Options<SetCourseDesignerWeeklyDigestSubscriptionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetCourseDesignerWeeklyDigestSubscriptionResponse,
+    DefaultError,
+    Options<SetCourseDesignerWeeklyDigestSubscriptionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setCourseDesignerWeeklyDigestSubscription({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST `/api/v0/main-frontend/courses` - Create a new course.
  * # Example
  *
@@ -3341,7 +4241,6 @@ export const getAllCoursesQueryKey = (options?: Options<GetAllCoursesData>) =>
   createQueryKey("getAllCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses` - Get all courses
  *
  * Returns all courses.
@@ -3367,7 +4266,6 @@ export const getCourseByJoinCodeQueryKey = (options: Options<GetCourseByJoinCode
   createQueryKey("getCourseByJoinCode", options)
 
 /**
- *
  * GET /courses/join/:join_code - Gets the course related to join code
  */
 export const getCourseByJoinCodeOptions = (options: Options<GetCourseByJoinCodeData>) =>
@@ -3388,7 +4286,6 @@ export const getCourseByJoinCodeOptions = (options: Options<GetCourseByJoinCodeD
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
  */
 export const deleteCourseMutation = (
@@ -3409,7 +4306,6 @@ export const getCourseQueryKey = (options: Options<GetCourseData>) =>
   createQueryKey("getCourse", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id` - Get course.
  */
 export const getCourseOptions = (options: Options<GetCourseData>) =>
@@ -3430,7 +4326,6 @@ export const getCourseOptions = (options: Options<GetCourseData>) =>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id` - Update course.
  * # Example
  *
@@ -3467,7 +4362,6 @@ export const getCourseBreadcrumbInfoQueryKey = (options: Options<GetCourseBreadc
   createQueryKey("getCourseBreadcrumbInfo", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
  */
 export const getCourseBreadcrumbInfoOptions = (options: Options<GetCourseBreadcrumbInfoData>) =>
@@ -3560,11 +4454,36 @@ export const setCourseChatbotAsNonDefaultMutation = (
   return mutationOptions
 }
 
+export const getCourseCompletionOverviewQueryKey = (
+  options: Options<GetCourseCompletionOverviewData>,
+) => createQueryKey("getCourseCompletionOverview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/completion-overview`
+ */
+export const getCourseCompletionOverviewOptions = (
+  options: Options<GetCourseCompletionOverviewData>,
+) =>
+  queryOptions<
+    GetCourseCompletionOverviewResponse,
+    DefaultError,
+    GetCourseCompletionOverviewResponse,
+    ReturnType<typeof getCourseCompletionOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseCompletionOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseCompletionOverviewQueryKey(options),
+  })
+
 export const getCourseInstancesQueryKey = (options: Options<GetCourseInstancesData>) =>
   createQueryKey("getCourseInstances", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
  */
 export const getCourseInstancesOptions = (options: Options<GetCourseInstancesData>) =>
@@ -3589,7 +4508,6 @@ export const getCourseModuleCompletionsForUserQueryKey = (
 ) => createQueryKey("getCourseModuleCompletionsForUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id` - Returns all course module completions for a given user for this course.
  */
 export const getCourseModuleCompletionsForUserOptions = (
@@ -3634,7 +4552,6 @@ export const getCourseUsersCountsByExerciseQueryKey = (
 ) => createQueryKey("getCourseUsersCountsByExercise", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
  */
 export const getCourseUsersCountsByExerciseOptions = (
@@ -3657,7 +4574,6 @@ export const getCourseUsersCountsByExerciseOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/create-copy` - Create a copy of a course with specified mode.
  *
  * Different copy modes:
@@ -3723,7 +4639,6 @@ export const getCourseDailySubmissionCountsQueryKey = (
 ) => createQueryKey("getCourseDailySubmissionCounts", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
  */
 export const getCourseDailySubmissionCountsOptions = (
@@ -3750,7 +4665,6 @@ export const getCourseDailyUsersWhoSubmittedSomethingQueryKey = (
 ) => createQueryKey("getCourseDailyUsersWhoSubmittedSomething", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
  */
 export const getCourseDailyUsersWhoSubmittedSomethingOptions = (
@@ -3795,11 +4709,33 @@ export const getCourseDefaultPeerReviewOptions = (
     queryKey: getCourseDefaultPeerReviewQueryKey(options),
   })
 
+export const getCourseLinkedExamsQueryKey = (options: Options<GetCourseLinkedExamsData>) =>
+  createQueryKey("getCourseLinkedExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/exams` - Returns the exams linked to the course, earliest start first.
+ */
+export const getCourseLinkedExamsOptions = (options: Options<GetCourseLinkedExamsData>) =>
+  queryOptions<
+    GetCourseLinkedExamsResponse,
+    DefaultError,
+    GetCourseLinkedExamsResponse,
+    ReturnType<typeof getCourseLinkedExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkedExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkedExamsQueryKey(options),
+  })
+
 export const getCourseExercisesQueryKey = (options: Options<GetCourseExercisesData>) =>
   createQueryKey("getCourseExercises", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
  */
 export const getCourseExercisesOptions = (options: Options<GetCourseExercisesData>) =>
@@ -3824,7 +4760,6 @@ export const getCourseExercisesAndAnswersRequiringAttentionCountsQueryKey = (
 ) => createQueryKey("getCourseExercisesAndAnswersRequiringAttentionCounts", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
  */
 export const getCourseExercisesAndAnswersRequiringAttentionCountsOptions = (
@@ -3850,7 +4785,6 @@ export const exportCourseInstancesCsvQueryKey = (options: Options<ExportCourseIn
   createQueryKey("exportCourseInstancesCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-course-instances`
  *
  * gets SCV course instances for course
@@ -3877,7 +4811,6 @@ export const exportCourseUserConsentsCsvQueryKey = (
 ) => createQueryKey("exportCourseUserConsentsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`
  *
  * gets SCV course specific research form questions and user answers for course
@@ -3906,7 +4839,6 @@ export const exportCourseExerciseTasksCsvQueryKey = (
 ) => createQueryKey("exportCourseExerciseTasksCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`
  *
  * gets SCV all exercise-tasks' private specs in course
@@ -3935,7 +4867,6 @@ export const exportCourseSubmissionsCsvQueryKey = (
 ) => createQueryKey("exportCourseSubmissionsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${courseId}/export-submissions`
  *
  * gets SCV of course exercise submissions
@@ -3964,7 +4895,6 @@ export const exportCourseUserDetailsCsvQueryKey = (
 ) => createQueryKey("exportCourseUserDetailsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-user-details`
  *
  * gets SCV of user details for all users having submitted an exercise in the course
@@ -3993,7 +4923,6 @@ export const exportCourseUserExerciseStatesCsvQueryKey = (
 ) => createQueryKey("exportCourseUserExerciseStatesCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`
  *
  * gets CSV for course specific user exercise states
@@ -4021,7 +4950,6 @@ export const getCourseFeedbackQueryKey = (options: Options<GetCourseFeedbackData
   createQueryKey("getCourseFeedback", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
  */
 export const getCourseFeedbackOptions = (options: Options<GetCourseFeedbackData>) =>
@@ -4046,7 +4974,6 @@ export const getCourseFeedbackInfiniteQueryKey = (
 ): QueryKey<Options<GetCourseFeedbackData>> => createQueryKey("getCourseFeedback", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
  */
 export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedbackData>) => {
@@ -4092,7 +5019,6 @@ export const getCourseFeedbackCategoriesQueryKey = (
 ) => createQueryKey("getCourseFeedbackCategories", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback-categories` - Returns all the feedback categories used for the given course.
  */
 export const getCourseFeedbackCategoriesOptions = (
@@ -4118,7 +5044,6 @@ export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbac
   createQueryKey("getCourseFeedbackCount", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
  */
 export const getCourseFeedbackCountOptions = (options: Options<GetCourseFeedbackCountData>) =>
@@ -4142,7 +5067,6 @@ export const getCourseAudiencesQueryKey = (options: Options<GetCourseAudiencesDa
   createQueryKey("getCourseAudiences", options)
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
  */
 export const getCourseAudiencesOptions = (options: Options<GetCourseAudiencesData>) =>
@@ -4166,7 +5090,6 @@ export const getCourseMetadataQueryKey = (options: Options<GetCourseMetadataData
   createQueryKey("getCourseMetadata", options)
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-metadata` - Get course metadata.
  */
 export const getCourseMetadataOptions = (options: Options<GetCourseMetadataData>) =>
@@ -4190,7 +5113,6 @@ export const getCoursePrerequisitesQueryKey = (options: Options<GetCoursePrerequ
   createQueryKey("getCoursePrerequisites", options)
 
 /**
- *
  * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
  */
 export const getCoursePrerequisitesOptions = (options: Options<GetCoursePrerequisitesData>) =>
@@ -4253,7 +5175,6 @@ export const createCourseGlossaryTermMutation = (
 }
 
 /**
- *
  * POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
  */
 export const joinCourseWithJoinCodeMutation = (
@@ -4283,16 +5204,7 @@ export const getCourseLanguageVersionsQueryKey = (
 ) => createQueryKey("getCourseLanguageVersions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
- *
- * # Example
- *
- * Request:
- * ```http
- * GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
- * Content-Type: application/json
- * ```
  */
 export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLanguageVersionsData>) =>
   queryOptions<
@@ -4312,7 +5224,414 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
   })
 
 /**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/counterparts` - Copies a page into another language version and links the copy.
+ */
+export const postLanguageVersionCounterpartMutation = (
+  options?: Partial<Options<PostLanguageVersionCounterpartData>>,
+): UseMutationOptions<
+  PostLanguageVersionCounterpartResponse,
+  DefaultError,
+  Options<PostLanguageVersionCounterpartData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionCounterpartResponse,
+    DefaultError,
+    Options<PostLanguageVersionCounterpartData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionCounterpart({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * DELETE `/api/v0/main-frontend/courses/:id/language-versions/dismissals?problem_key=...` - Reports a dismissed problem again.
+ */
+export const deleteLanguageVersionProblemDismissalMutation = (
+  options?: Partial<Options<DeleteLanguageVersionProblemDismissalData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<DeleteLanguageVersionProblemDismissalData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DeleteLanguageVersionProblemDismissalData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteLanguageVersionProblemDismissal({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/dismissals` - Marks a problem as intended.
+ */
+export const postLanguageVersionProblemDismissalMutation = (
+  options?: Partial<Options<PostLanguageVersionProblemDismissalData>>,
+): UseMutationOptions<
+  PostLanguageVersionProblemDismissalResponse,
+  DefaultError,
+  Options<PostLanguageVersionProblemDismissalData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionProblemDismissalResponse,
+    DefaultError,
+    Options<PostLanguageVersionProblemDismissalData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionProblemDismissal({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionExerciseCounterpartsQueryKey = (
+  options: Options<GetLanguageVersionExerciseCounterpartsData>,
+) => createQueryKey("getLanguageVersionExerciseCounterparts", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/exercise-counterparts` - Which exercises of this course lack counterparts.
+ */
+export const getLanguageVersionExerciseCounterpartsOptions = (
+  options: Options<GetLanguageVersionExerciseCounterpartsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionExerciseCounterpartsResponse,
+    DefaultError,
+    GetLanguageVersionExerciseCounterpartsResponse,
+    ReturnType<typeof getLanguageVersionExerciseCounterpartsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionExerciseCounterparts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionExerciseCounterpartsQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/exercise-links` - Links or unlinks exercises across the language versions.
+ */
+export const postLanguageVersionExerciseLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionExerciseLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionExerciseLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionExerciseLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionExerciseLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionExerciseLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionExerciseLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/join` - Joins a course into the language versions, moving its students' data.
+ */
+export const postLanguageVersionJoinMutation = (
+  options?: Partial<Options<PostLanguageVersionJoinData>>,
+): UseMutationOptions<
+  PostLanguageVersionJoinResponse,
+  DefaultError,
+  Options<PostLanguageVersionJoinData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionJoinResponse,
+    DefaultError,
+    Options<PostLanguageVersionJoinData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionJoin({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionJoinCandidatesQueryKey = (
+  options: Options<GetLanguageVersionJoinCandidatesData>,
+) => createQueryKey("getLanguageVersionJoinCandidates", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-candidates` - Courses that could join the language versions.
  *
+ * Only courses the user can edit are returned.
+ */
+export const getLanguageVersionJoinCandidatesOptions = (
+  options: Options<GetLanguageVersionJoinCandidatesData>,
+) =>
+  queryOptions<
+    GetLanguageVersionJoinCandidatesResponse,
+    DefaultError,
+    GetLanguageVersionJoinCandidatesResponse,
+    ReturnType<typeof getLanguageVersionJoinCandidatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionJoinCandidates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionJoinCandidatesQueryKey(options),
+  })
+
+export const getLanguageVersionJoinPreviewQueryKey = (
+  options: Options<GetLanguageVersionJoinPreviewData>,
+) => createQueryKey("getLanguageVersionJoinPreview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-preview/:joined_course_id` - What joining the course would change.
+ */
+export const getLanguageVersionJoinPreviewOptions = (
+  options: Options<GetLanguageVersionJoinPreviewData>,
+) =>
+  queryOptions<
+    GetLanguageVersionJoinPreviewResponse,
+    DefaultError,
+    GetLanguageVersionJoinPreviewResponse,
+    ReturnType<typeof getLanguageVersionJoinPreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionJoinPreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionJoinPreviewQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/page-links` - Links or unlinks pages across the language versions.
+ */
+export const postLanguageVersionPageLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionPageLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionPageLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionPageLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionPageLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionPageLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionPageLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/remove-leftover-links` - Removes links to deleted pages and exercises.
+ */
+export const postLanguageVersionRemoveLeftoverLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionRemoveLeftoverLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionRemoveLeftoverLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionRemoveLeftoverLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionRemoveLeftoverLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionRemoveLeftoverLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionRemoveLeftoverLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionReportQueryKey = (options: Options<GetLanguageVersionReportData>) =>
+  createQueryKey("getLanguageVersionReport", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/report` - Checks the language versions for problems.
+ *
+ * Needs `Edit` on this course only; `can_edit` per course tells which fixes the user may apply.
+ */
+export const getLanguageVersionReportOptions = (options: Options<GetLanguageVersionReportData>) =>
+  queryOptions<
+    GetLanguageVersionReportResponse,
+    DefaultError,
+    GetLanguageVersionReportResponse,
+    ReturnType<typeof getLanguageVersionReportQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionReport({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionReportQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/split` - Removes a course from the language versions, moving its students' data with it.
+ */
+export const postLanguageVersionSplitMutation = (
+  options?: Partial<Options<PostLanguageVersionSplitData>>,
+): UseMutationOptions<
+  PostLanguageVersionSplitResponse,
+  DefaultError,
+  Options<PostLanguageVersionSplitData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionSplitResponse,
+    DefaultError,
+    Options<PostLanguageVersionSplitData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionSplit({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionSplitPreviewQueryKey = (
+  options: Options<GetLanguageVersionSplitPreviewData>,
+) => createQueryKey("getLanguageVersionSplitPreview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/split-preview/:split_course_id` - What removing the course from the language versions would change.
+ */
+export const getLanguageVersionSplitPreviewOptions = (
+  options: Options<GetLanguageVersionSplitPreviewData>,
+) =>
+  queryOptions<
+    GetLanguageVersionSplitPreviewResponse,
+    DefaultError,
+    GetLanguageVersionSplitPreviewResponse,
+    ReturnType<typeof getLanguageVersionSplitPreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionSplitPreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionSplitPreviewQueryKey(options),
+  })
+
+export const getLanguageVersionStructureQueryKey = (
+  options: Options<GetLanguageVersionStructureData>,
+) => createQueryKey("getLanguageVersionStructure", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/structure` - The language versions' chapters, pages and exercises side by side.
+ */
+export const getLanguageVersionStructureOptions = (
+  options: Options<GetLanguageVersionStructureData>,
+) =>
+  queryOptions<
+    GetLanguageVersionStructureResponse,
+    DefaultError,
+    GetLanguageVersionStructureResponse,
+    ReturnType<typeof getLanguageVersionStructureQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionStructure({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionStructureQueryKey(options),
+  })
+
+export const getLanguageVersionSuggestionsQueryKey = (
+  options: Options<GetLanguageVersionSuggestionsData>,
+) => createQueryKey("getLanguageVersionSuggestions", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
+ *
+ * Candidate courses outside the language versions need `Edit` too.
+ */
+export const getLanguageVersionSuggestionsOptions = (
+  options: Options<GetLanguageVersionSuggestionsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionSuggestionsResponse,
+    DefaultError,
+    GetLanguageVersionSuggestionsResponse,
+    ReturnType<typeof getLanguageVersionSuggestionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionSuggestions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionSuggestionsQueryKey(options),
+  })
+
+export const getCourseLinkableExamsQueryKey = (options: Options<GetCourseLinkableExamsData>) =>
+  createQueryKey("getCourseLinkableExams", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/linkable-exams` - Returns the exams of the course's organization that the user could link to the course, by name, including those linked to other courses.
+ */
+export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkableExamsData>) =>
+  queryOptions<
+    GetCourseLinkableExamsResponse,
+    DefaultError,
+    GetCourseLinkableExamsResponse,
+    ReturnType<typeof getCourseLinkableExamsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseLinkableExams({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseLinkableExamsQueryKey(options),
+  })
+
+/**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
  *
  * Creates redirects if url_path changes.
@@ -4336,7 +5655,6 @@ export const updateCourseChapterOrderingMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-course-instance`
  */
 export const createCourseInstanceMutation = (
@@ -4362,7 +5680,6 @@ export const createCourseInstanceMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:id/new-page-ordering` - Reorders pages to the given order numbers and given chapters.
  *
  * Note that the page objects posted here might have the content omitted because it is not needed here and the content makes the request body to be very large.
@@ -4392,7 +5709,6 @@ export const getCoursePageVisitDatumSummaryQueryKey = (
 ) => createQueryKey("getCoursePageVisitDatumSummary", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryOptions = (
@@ -4419,7 +5735,6 @@ export const getCoursePageVisitDatumSummaryByCountriesQueryKey = (
 ) => createQueryKey("getCoursePageVisitDatumSummaryByCountries", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByCountriesOptions = (
@@ -4446,7 +5761,6 @@ export const getCoursePageVisitDatumSummaryByDeviceTypesQueryKey = (
 ) => createQueryKey("getCoursePageVisitDatumSummaryByDeviceTypes", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByDeviceTypesOptions = (
@@ -4473,7 +5787,6 @@ export const getCoursePageVisitDatumSummaryByPagesQueryKey = (
 ) => createQueryKey("getCoursePageVisitDatumSummaryByPages", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
  */
 export const getCoursePageVisitDatumSummaryByPagesOptions = (
@@ -4496,7 +5809,6 @@ export const getCoursePageVisitDatumSummaryByPagesOptions = (
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
  */
 export const deleteCoursePartnersBlockMutation = (
@@ -4521,7 +5833,6 @@ export const getCoursePartnersBlockQueryKey = (options: Options<GetCoursePartner
   createQueryKey("getCoursePartnersBlock", options)
 
 /**
- *
  * GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
  */
 export const getCoursePartnersBlockOptions = (options: Options<GetCoursePartnersBlockData>) =>
@@ -4537,7 +5848,6 @@ export const getCoursePartnersBlockOptions = (options: Options<GetCoursePartners
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
  */
 export const upsertCoursePartnersBlockMutation = (
@@ -4562,7 +5872,6 @@ export const getCourseProgressForUserQueryKey = (options: Options<GetCourseProgr
   createQueryKey("getCourseProgressForUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user progress for the course.
  */
 export const getCourseProgressForUserOptions = (options: Options<GetCourseProgressForUserData>) =>
@@ -4657,7 +5966,6 @@ export const updateCourseReferenceMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/{course_id}/reprocess-completions`
  *
  * Reprocesses all module completions for the given course instance. Only available to admins.
@@ -4685,7 +5993,6 @@ export const reprocessCourseCompletionsMutation = (
 }
 
 /**
- *
  * POST /api/v0/main-frontend/courses/:course_id/generate-join-code - Generates a code that is used as a part of URL to join course
  */
 export const setCourseJoinCodeMutation = (
@@ -4711,7 +6018,6 @@ export const getSisuCourseLlmDescriptionsQueryKey = (
 ) => createQueryKey("getSisuCourseLlmDescriptions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
  *
  * Returns LLM generated descriptions for a course based on information from Sisu API.
@@ -5531,7 +6837,6 @@ export const getCourseExerciseStatusesForUserQueryKey = (
 ) => createQueryKey("getCourseExerciseStatusesForUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id` - Returns status for all exercises in the course for a given user.
  */
 export const getCourseExerciseStatusesForUserOptions = (
@@ -5557,7 +6862,6 @@ export const getCourseStructureQueryKey = (options: Options<GetCourseStructureDa
   createQueryKey("getCourseStructure", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure of a course.
  * # Example
  * ```json
@@ -5898,7 +7202,6 @@ export const getCourseSubmissionCountsByExerciseQueryKey = (
 ) => createQueryKey("getCourseSubmissionCountsByExercise", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
  */
 export const getCourseSubmissionCountsByExerciseOptions = (
@@ -5925,7 +7228,6 @@ export const getCourseSuspectedCheatersQueryKey = (
 ) => createQueryKey("getCourseSuspectedCheaters", options)
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
  */
 export const getCourseSuspectedCheatersOptions = (
@@ -5948,7 +7250,6 @@ export const getCourseSuspectedCheatersOptions = (
   })
 
 /**
- *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
 export const confirmCourseSuspectedCheaterMutation = (
@@ -5970,7 +7271,6 @@ export const confirmCourseSuspectedCheaterMutation = (
 }
 
 /**
- *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
 export const dismissCourseSuspectedCheaterMutation = (
@@ -5996,7 +7296,6 @@ export const getCourseFlaggedSuspectedCheatersCountQueryKey = (
 ) => createQueryKey("getCourseFlaggedSuspectedCheatersCount", options)
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
  */
 export const getCourseFlaggedSuspectedCheatersCountOptions = (
@@ -6019,7 +7318,6 @@ export const getCourseFlaggedSuspectedCheatersCountOptions = (
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-everyone` - Can be used by teachers to reset the course progress for all students. Only works when the course is a draft and not published to students. Cannot be used to delete a course that some students have taken.
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
@@ -6047,7 +7345,6 @@ export const resetCourseProgressForEveryoneMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/courses/${course.id}/teacher-reset-course-progress-for-themselves` - Allows a teacher to reset the course progress for themselves. Cannot be used to reset the course for others.
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
@@ -6078,7 +7375,6 @@ export const getCourseThresholdsQueryKey = (options: Options<GetCourseThresholds
   createQueryKey("getCourseThresholds", options)
 
 /**
- *
  * GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
  */
 export const getCourseThresholdsOptions = (options: Options<GetCourseThresholdsData>) =>
@@ -6099,7 +7395,6 @@ export const getCourseThresholdsOptions = (options: Options<GetCourseThresholdsD
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id/update-metadata` - Update metadata.
  */
 export const updateMetadataMutation = (
@@ -6121,7 +7416,6 @@ export const updateMetadataMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/${course_id}/update-peer-review-queue-reviews-received`
  *
  * Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
@@ -6149,7 +7443,6 @@ export const updateCoursePeerReviewQueueReviewsReceivedMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/courses/:course_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
  *
  * Put the the contents of the media in a form and add a content type header multipart/form-data.
@@ -6186,7 +7479,6 @@ export const getCourseUserSettingsForUserQueryKey = (
 ) => createQueryKey("getCourseUserSettingsForUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get current course settings for a specific user.
  */
 export const getCourseUserSettingsForUserOptions = (
@@ -6213,7 +7505,6 @@ export const getCourseWeekdayHourSubmissionCountsQueryKey = (
 ) => createQueryKey("getCourseWeekdayHourSubmissionCounts", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
  */
 export const getCourseWeekdayHourSubmissionCountsOptions = (
@@ -6239,7 +7530,6 @@ export const getAccountLinkingStatsQueryKey = (options?: Options<GetAccountLinki
   createQueryKey("getAccountLinkingStats", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking` - The linking funnel, each
  * course code's enrolment list, the send-status totals, the recent linking emails, who is waiting for
  * a student number and the stale-address list.
@@ -6265,7 +7555,6 @@ export const getAccountLinkingCoursesQueryKey = (options?: Options<GetAccountLin
   createQueryKey("getAccountLinkingCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses` - The courses support
  * can send a linking email for by hand.
  */
@@ -6291,7 +7580,6 @@ export const getAccountLinkingUnlinkedEnroleesQueryKey = (
 ) => createQueryKey("getAccountLinkingUnlinkedEnrolees", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_id}/unlinked-enrolees`
  * - Everyone on the course's enrolment lists whom no account is linked to, for sending one of them a
  * linking email by hand.
@@ -6317,8 +7605,117 @@ export const getAccountLinkingUnlinkedEnroleesOptions = (
     queryKey: getAccountLinkingUnlinkedEnroleesQueryKey(options),
   })
 
+export const getAccountLinkingCourseEnroleesQueryKey = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) => createQueryKey("getAccountLinkingCourseEnrolees", options)
+
 /**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/courses/{course_or_target_id}/enrolees`
+ * - Everyone on a course's or mooc.fi target's enrolment lists, with the account linked to each and
+ * the linking emails they have had.
  *
+ * Lists the rosters live. Stores nothing beyond the call log row every study registry call writes.
+ */
+export const getAccountLinkingCourseEnroleesOptions = (
+  options: Options<GetAccountLinkingCourseEnroleesData>,
+) =>
+  queryOptions<
+    GetAccountLinkingCourseEnroleesResponse,
+    DefaultError,
+    GetAccountLinkingCourseEnroleesResponse,
+    ReturnType<typeof getAccountLinkingCourseEnroleesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAccountLinkingCourseEnrolees({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAccountLinkingCourseEnroleesQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsQueryKey = (options?: Options<ListAccountLinkingEmailsData>) =>
+  createQueryKey("listAccountLinkingEmails", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsOptions = (options?: Options<ListAccountLinkingEmailsData>) =>
+  queryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    ListAccountLinkingEmailsResponse,
+    ReturnType<typeof listAccountLinkingEmailsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await listAccountLinkingEmails({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: listAccountLinkingEmailsQueryKey(options),
+  })
+
+export const listAccountLinkingEmailsInfiniteQueryKey = (
+  options?: Options<ListAccountLinkingEmailsData>,
+): QueryKey<Options<ListAccountLinkingEmailsData>> =>
+  createQueryKey("listAccountLinkingEmails", options, true)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/account-linking/emails` - A page of every
+ * linking email, newest first.
+ *
+ * An `address` search covers every status, so a mail is found whatever became of it.
+ */
+export const listAccountLinkingEmailsInfiniteOptions = (
+  options?: Options<ListAccountLinkingEmailsData>,
+) => {
+  const opts = infiniteQueryOptions<
+    ListAccountLinkingEmailsResponse,
+    DefaultError,
+    InfiniteData<ListAccountLinkingEmailsResponse>,
+    QueryKey<Options<ListAccountLinkingEmailsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListAccountLinkingEmailsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        return await listAccountLinkingEmails({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+      },
+      queryKey: listAccountLinkingEmailsInfiniteQueryKey(options),
+    },
+  )
+  return opts as Omit<typeof opts, "initialData">
+}
+
+/**
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/fetch-enrolment-list` - Makes
  * one course code's enrolment list due at its next grid point.
  *
@@ -6347,7 +7744,6 @@ export const adminRequestEnrolmentListFetchMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/manual-link` - Links a student
  * number to an account on an admin's judgement.
  *
@@ -6378,7 +7774,6 @@ export const adminManuallyLinkStudentNumberMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resend` - Sets off another
  * account-linking mail for one person on one course.
  *
@@ -6409,7 +7804,6 @@ export const adminResendAccountLinkingEmailMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/resolve-person` - Looks one
  * student number up in the study registry without changing anything.
  *
@@ -6439,7 +7833,6 @@ export const adminResolveStudentNumberForLinkingMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/account-linking/study-registry-conflicts/{conflict_id}/dismiss` -
  * Takes a student number clash off the list for good.
  *
@@ -6468,7 +7861,6 @@ export const getCreditRegistrationAttentionItemsQueryKey = (
 ) => createQueryKey("getCreditRegistrationAttentionItems", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/attention` - The Needs attention tab: the rows
  * that need a person by timeline phase, and the rows running late, explained by a blocking problem or
  * recently dismissed.
@@ -6501,7 +7893,6 @@ export const listCreditRegistrationAdminActionsQueryKey = (
 ) => createQueryKey("listCreditRegistrationAdminActions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
  * newest first.
  *
@@ -6533,7 +7924,6 @@ export const listCreditRegistrationAdminActionsInfiniteQueryKey = (
   createQueryKey("listCreditRegistrationAdminActions", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/audit` - A page of the global action log,
  * newest first.
  *
@@ -6583,13 +7973,41 @@ export const listCreditRegistrationAdminActionsInfiniteOptions = (
   return opts as Omit<typeof opts, "initialData">
 }
 
+export const getCreditRegistrationEarlierReasonsQueryKey = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) => createQueryKey("getCreditRegistrationEarlierReasons", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/audit/earlier-reasons` - The reasons given
+ * before for an action, to pick from instead of typing the same one again.
+ *
+ * Distinct after trimming, most recently used first, at most 20.
+ */
+export const getCreditRegistrationEarlierReasonsOptions = (
+  options: Options<GetCreditRegistrationEarlierReasonsData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationEarlierReasonsResponse,
+    DefaultError,
+    GetCreditRegistrationEarlierReasonsResponse,
+    ReturnType<typeof getCreditRegistrationEarlierReasonsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationEarlierReasons({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationEarlierReasonsQueryKey(options),
+  })
+
 export const getCreditRegistrationStatsByCourseQueryKey = (
   options?: Options<GetCreditRegistrationStatsByCourseData>,
 ) => createQueryKey("getCreditRegistrationStatsByCourse", options)
 
 /**
- *
- * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every Suotar-enabled course module,
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses` - Every course module with a course code,
  * its validated configuration and its volumes.
  */
 export const getCreditRegistrationStatsByCourseOptions = (
@@ -6612,7 +8030,120 @@ export const getCreditRegistrationStatsByCourseOptions = (
   })
 
 /**
- *
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets` - Adds a mooc.fi
+ * course whose credits courses registers.
+ */
+export const adminCreateExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminCreateExternalCreditTargetData>>,
+): UseMutationOptions<
+  AdminCreateExternalCreditTargetResponse,
+  DefaultError,
+  Options<AdminCreateExternalCreditTargetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminCreateExternalCreditTargetResponse,
+    DefaultError,
+    Options<AdminCreateExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminCreateExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}`
+ * - Replaces a mooc.fi target's configuration.
+ */
+export const adminUpdateExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminUpdateExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminUpdateExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminUpdateExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminUpdateExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/delete`
+ * - Soft-deletes a mooc.fi target, which withdraws its completions not yet submitted.
+ */
+export const adminDeleteExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminDeleteExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDeleteExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDeleteExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDeleteExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/pause`
+ * - Stops every phase from claiming this mooc.fi target's rows, freezing them where they stand.
+ */
+export const adminPauseExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminPauseExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminPauseExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminPauseExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminPauseExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/resume`
+ * - Lets the phases claim this mooc.fi target's rows again.
+ */
+export const adminResumeExternalCreditTargetMutation = (
+  options?: Partial<Options<AdminResumeExternalCreditTargetData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminResumeExternalCreditTargetData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminResumeExternalCreditTargetData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminResumeExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/pause` - Stops every
  * phase from claiming this module's rows.
  *
@@ -6642,7 +8173,6 @@ export const adminPauseCourseModuleCreditRegistrationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/courses/{course_module_id}/resume` - Lets the
  * phases claim this module's rows again.
  */
@@ -6668,12 +8198,38 @@ export const adminResumeCourseModuleCreditRegistrationMutation = (
   return mutationOptions
 }
 
+export const getCreditRegistrationCourseSummaryQueryKey = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) => createQueryKey("getCreditRegistrationCourseSummary", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/{course_or_target_id}/summary` - One
+ * course's or mooc.fi target's name and course codes.
+ */
+export const getCreditRegistrationCourseSummaryOptions = (
+  options: Options<GetCreditRegistrationCourseSummaryData>,
+) =>
+  queryOptions<
+    GetCreditRegistrationCourseSummaryResponse,
+    DefaultError,
+    GetCreditRegistrationCourseSummaryResponse,
+    ReturnType<typeof getCreditRegistrationCourseSummaryQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCreditRegistrationCourseSummary({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCreditRegistrationCourseSummaryQueryKey(options),
+  })
+
 export const getCreditRegistrationEnrolmentChecksQueryKey = (
   options?: Options<GetCreditRegistrationEnrolmentChecksData>,
 ) => createQueryKey("getCreditRegistrationEnrolmentChecks", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/enrolment-checks` - Lateness, cost, population
  * and findings of the enrolment checks, and the enrolment list schedule per course code.
  */
@@ -6701,7 +8257,6 @@ export const getCreditRegistrationErrorsByCodeQueryKey = (
 ) => createQueryKey("getCreditRegistrationErrorsByCode", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/errors/by-code` - Error events per code over a
  * window and the window before it, with the terminal verdicts of the same window beside them.
  *
@@ -6728,7 +8283,6 @@ export const getCreditRegistrationErrorsByCodeOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/materialize` - Creates ledger rows for eligible
  * completions and recomputes preconditions, now.
  *
@@ -6763,7 +8317,6 @@ export const getCreditRegistrationOverviewQueryKey = (
 ) => createQueryKey("getCreditRegistrationOverview", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/overview` - Everything the Overview tab and the
  * alert banner render, in one request so the tiles cannot contradict each other.
  */
@@ -6791,7 +8344,6 @@ export const listCreditRegistrationPhasesQueryKey = (
 ) => createQueryKey("listCreditRegistrationPhases", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/phases` - Every pipeline phase, its heartbeat
  * and the queue it is responsible for, and the workers' circuit breakers.
  */
@@ -6815,7 +8367,6 @@ export const listCreditRegistrationPhasesOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/pause` - Pauses one phase: the
  * worker loop skips it on every tick until it is resumed.
  */
@@ -6838,7 +8389,6 @@ export const adminPausePhaseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/resume` - Resumes one paused
  * phase.
  */
@@ -6861,7 +8411,6 @@ export const adminResumePhaseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/phases/{phase}/run-now` - Makes one phase due
  * immediately: the worker loop picks it up on its next tick instead of waiting out `next_run_at`.
  */
@@ -6888,7 +8437,6 @@ export const getCreditRegistrationPipelineHistoryQueryKey = (
 ) => createQueryKey("getCreditRegistrationPipelineHistory", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/pipeline-history` - Daily queue depth per
  * ledger state, with what entered and left each state that day, and the count per timeline step and
  * the Needs attention count from the day those snapshots began.
@@ -6917,7 +8465,6 @@ export const getCreditRegistrationReconciliationQueryKey = (
 ) => createQueryKey("getCreditRegistrationReconciliation", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/reconciliation` - The drift detectors: work the
  * ledger should be doing and is not, and outcomes the study registry and the ledger disagree about.
  */
@@ -6945,7 +8492,6 @@ export const listCreditRegistrationsForAdminQueryKey = (
 ) => createQueryKey("listCreditRegistrationsForAdmin", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
  * and sorted.
  */
@@ -6974,7 +8520,6 @@ export const listCreditRegistrationsForAdminInfiniteQueryKey = (
   createQueryKey("listCreditRegistrationsForAdmin", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations` - A page of the ledger, filtered
  * and sorted.
  */
@@ -7022,7 +8567,6 @@ export const listCreditRegistrationsForAdminInfiniteOptions = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/bulk-transition` - Moves a
  * selection of rows by hand, one transaction for the lot.
  *
@@ -7056,7 +8600,6 @@ export const adminBulkTransitionCreditRegistrationsMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/requeue-retryable` - Makes every
  * `failed_retryable` row waiting out a backoff due now.
  *
@@ -7090,7 +8633,6 @@ export const getCreditRegistrationForAdminQueryKey = (
 ) => createQueryKey("getCreditRegistrationForAdmin", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}` - One
  * row with its timeline, the calls that timeline refers to, the other attempts for the same completion,
  * the actions taken on it and its linking mails.
@@ -7115,7 +8657,6 @@ export const getCreditRegistrationForAdminOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/dismiss-attention`
  * - Takes a row off the Needs attention queue.
  *
@@ -7149,7 +8690,6 @@ export const getCreditRegistrationLinkingCandidatesQueryKey = (
 ) => createQueryKey("getCreditRegistrationLinkingCandidates", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/linking-candidates`
  * - Who on the code's enrolment list a student stuck waiting for a student number may be.
  *
@@ -7177,7 +8717,30 @@ export const getCreditRegistrationLinkingCandidatesOptions = (
   })
 
 /**
+ * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/notes`
+ * - Leaves a note on a registration for whoever handles it next.
  *
+ * Changes nothing else: the row stays on the Needs attention queue, counted as reacted to.
+ */
+export const adminAddCreditRegistrationNoteMutation = (
+  options?: Partial<Options<AdminAddCreditRegistrationNoteData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminAddCreditRegistrationNoteData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminAddCreditRegistrationNoteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminAddCreditRegistrationNote({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST `/api/v0/main-frontend/credit-registration-admin/registrations/{credit_registration_id}/transition`
  * - Moves one row by hand.
  *
@@ -7213,7 +8776,6 @@ export const listVerifiedStudentNumbersForAdminQueryKey = (
 ) => createQueryKey("listVerifiedStudentNumbersForAdmin", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
  * spot-checking and support.
  */
@@ -7242,7 +8804,6 @@ export const listVerifiedStudentNumbersForAdminInfiniteQueryKey = (
   createQueryKey("listVerifiedStudentNumbersForAdmin", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/student-numbers` - A page of the live links, for
  * spot-checking and support.
  */
@@ -7290,7 +8851,6 @@ export const listVerifiedStudentNumbersForAdminInfiniteOptions = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registration-admin/student-numbers/{id}/unlink` - Retires one link.
  *
  * A reason is required, so the request carries a body rather than being a `DELETE`. The row is
@@ -7322,12 +8882,11 @@ export const listSuotarApiCallsQueryKey = (options?: Options<ListSuotarApiCallsD
   createQueryKey("listSuotarApiCalls", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
  * registry call log, newest first.
  *
  * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
- * the bodies are scrubbed, so there is no student number in them to search.
+ * a sampled body may not hold the student's item.
  */
 export const listSuotarApiCallsOptions = (options?: Options<ListSuotarApiCallsData>) =>
   queryOptions<
@@ -7351,12 +8910,11 @@ export const listSuotarApiCallsInfiniteQueryKey = (
 ): QueryKey<Options<ListSuotarApiCallsData>> => createQueryKey("listSuotarApiCalls", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls` - A page of the study
  * registry call log, newest first.
  *
  * Filtering by `credit_registration_id` is how "find the call that carried this student" is answered:
- * the bodies are scrubbed, so there is no student number in them to search.
+ * a sampled body may not hold the student's item.
  */
 export const listSuotarApiCallsInfiniteOptions = (options?: Options<ListSuotarApiCallsData>) => {
   const opts = infiniteQueryOptions<
@@ -7400,7 +8958,6 @@ export const getSuotarApiCallQueryKey = (options: Options<GetSuotarApiCallData>)
   createQueryKey("getSuotarApiCall", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-api-calls/{suotar_api_call_id}` - One
  * call with its stored bodies, the ledger rows it covered and the timeline entries it produced.
  */
@@ -7425,7 +8982,6 @@ export const getSuotarHealthQueryKey = (options?: Options<GetSuotarHealthData>) 
   createQueryKey("getSuotarHealth", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/suotar-health` - Per-endpoint call counts,
  * success rates and latency percentiles over an hour, a day and a week.
  */
@@ -7451,7 +9007,6 @@ export const getCreditRegistrationThresholdsQueryKey = (
 ) => createQueryKey("getCreditRegistrationThresholds", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registration-admin/thresholds` - Every number the alert rules and
  * the stuck detectors use.
  *
@@ -7481,7 +9036,6 @@ export const getMyCreditRegistrationsQueryKey = (options?: Options<GetMyCreditRe
   createQueryKey("getMyCreditRegistrations", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my` - Every credit registration of the signed-in
  * account, newest completion first.
  */
@@ -7507,7 +9061,6 @@ export const getMyCreditRegistrationForCourseModuleQueryKey = (
 ) => createQueryKey("getMyCreditRegistrationForCourseModule", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}` - The
  * signed-in account's registration for one course module, or null when the pipeline has not created one
  * yet.
@@ -7532,7 +9085,6 @@ export const getMyCreditRegistrationForCourseModuleOptions = (
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/credit-justification`
  * - Records why the caller needs the credits in the study registry rather than a certificate.
  *
@@ -7563,7 +9115,6 @@ export const setMyCreditJustificationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-page-visit`
  * - The caller opened the registration page after completing, and it is showing them how to enrol.
  *
@@ -7595,7 +9146,6 @@ export const getMyEnrolmentRouteQueryKey = (options: Options<GetMyEnrolmentRoute
   createQueryKey("getMyEnrolmentRoute", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
  * - What the caller said about where they enrol this module.
  */
@@ -7617,9 +9167,9 @@ export const getMyEnrolmentRouteOptions = (options: Options<GetMyEnrolmentRouteD
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route`
- * - Records which university relationship the caller has, which decides where they are told to enrol.
+ * - Records which university relationship the caller has, which decides where they are told to enrol,
+ * and their answers to the questions that follow it. Replaces every stored answer.
  */
 export const setMyEnrolmentRouteMutation = (
   options?: Partial<Options<SetMyEnrolmentRouteData>>,
@@ -7644,7 +9194,60 @@ export const setMyEnrolmentRouteMutation = (
 }
 
 /**
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes back choosing the certificate.
+ */
+export const withdrawMyCertificateChoiceMutation = (
+  options?: Partial<Options<WithdrawMyCertificateChoiceData>>,
+): UseMutationOptions<
+  WithdrawMyCertificateChoiceResponse,
+  DefaultError,
+  Options<WithdrawMyCertificateChoiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyCertificateChoiceResponse,
+    DefaultError,
+    Options<WithdrawMyCertificateChoiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyCertificateChoice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/certificate-choice`
+ * - The caller takes the certificate instead of registering credits.
  *
+ * Advisory like the other answers: the pipeline still registers the completion.
+ */
+export const chooseMyCertificateMutation = (
+  options?: Partial<Options<ChooseMyCertificateData>>,
+): UseMutationOptions<
+  ChooseMyCertificateResponse,
+  DefaultError,
+  Options<ChooseMyCertificateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ChooseMyCertificateResponse,
+    DefaultError,
+    Options<ChooseMyCertificateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await chooseMyCertificate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * DELETE `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller takes back saying they had enrolled.
  */
@@ -7671,7 +9274,6 @@ export const withdrawMyEnrolmentConfirmationMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/by-course-module/{course_module_id}/enrolment-route/confirm`
  * - The caller says they have enrolled.
  *
@@ -7702,12 +9304,281 @@ export const confirmMyEnrolmentMutation = (
   return mutationOptions
 }
 
+export const getMyCreditRegistrationForExternalCompletionQueryKey = (
+  options: Options<GetMyCreditRegistrationForExternalCompletionData>,
+) => createQueryKey("getMyCreditRegistrationForExternalCompletion", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -
+ * The signed-in account's registration for one mooc.fi completion, or null when the pipeline has not
+ * created one yet.
+ */
+export const getMyCreditRegistrationForExternalCompletionOptions = (
+  options: Options<GetMyCreditRegistrationForExternalCompletionData>,
+) =>
+  queryOptions<
+    GetMyCreditRegistrationForExternalCompletionResponse,
+    DefaultError,
+    GetMyCreditRegistrationForExternalCompletionResponse,
+    ReturnType<typeof getMyCreditRegistrationForExternalCompletionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyCreditRegistrationForExternalCompletion({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyCreditRegistrationForExternalCompletionQueryKey(options),
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`
+ * - [`set_my_credit_justification`] for a mooc.fi completion.
+ *
+ * Stored against the mooc.fi completion rather than this row, so the answer survives a tier change
+ * that replaces the row.
+ */
+export const setMyExternalCompletionCreditJustificationMutation = (
+  options?: Partial<Options<SetMyExternalCompletionCreditJustificationData>>,
+): UseMutationOptions<
+  SetMyExternalCompletionCreditJustificationResponse,
+  DefaultError,
+  Options<SetMyExternalCompletionCreditJustificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyExternalCompletionCreditJustificationResponse,
+    DefaultError,
+    Options<SetMyExternalCompletionCreditJustificationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyExternalCompletionCreditJustification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`
+ * - [`record_my_enrolment_page_visit`] for a mooc.fi completion.
+ */
+export const recordMyExternalCompletionEnrolmentPageVisitMutation = (
+  options?: Partial<Options<RecordMyExternalCompletionEnrolmentPageVisitData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<RecordMyExternalCompletionEnrolmentPageVisitData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<RecordMyExternalCompletionEnrolmentPageVisitData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await recordMyExternalCompletionEnrolmentPageVisit({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getMyExternalCompletionEnrolmentRouteQueryKey = (
+  options: Options<GetMyExternalCompletionEnrolmentRouteData>,
+) => createQueryKey("getMyExternalCompletionEnrolmentRoute", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - What the caller said about where they enrol for this mooc.fi completion.
+ */
+export const getMyExternalCompletionEnrolmentRouteOptions = (
+  options: Options<GetMyExternalCompletionEnrolmentRouteData>,
+) =>
+  queryOptions<
+    GetMyExternalCompletionEnrolmentRouteResponse,
+    DefaultError,
+    GetMyExternalCompletionEnrolmentRouteResponse,
+    ReturnType<typeof getMyExternalCompletionEnrolmentRouteQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyExternalCompletionEnrolmentRoute({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyExternalCompletionEnrolmentRouteQueryKey(options),
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`
+ * - [`set_my_enrolment_route`] for a mooc.fi completion.
+ */
+export const setMyExternalCompletionEnrolmentRouteMutation = (
+  options?: Partial<Options<SetMyExternalCompletionEnrolmentRouteData>>,
+): UseMutationOptions<
+  SetMyExternalCompletionEnrolmentRouteResponse,
+  DefaultError,
+  Options<SetMyExternalCompletionEnrolmentRouteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SetMyExternalCompletionEnrolmentRouteResponse,
+    DefaultError,
+    Options<SetMyExternalCompletionEnrolmentRouteData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await setMyExternalCompletionEnrolmentRoute({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`withdraw_my_certificate_choice`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionCertificateChoiceMutation = (
+  options?: Partial<Options<WithdrawMyExternalCompletionCertificateChoiceData>>,
+): UseMutationOptions<
+  WithdrawMyExternalCompletionCertificateChoiceResponse,
+  DefaultError,
+  Options<WithdrawMyExternalCompletionCertificateChoiceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyExternalCompletionCertificateChoiceResponse,
+    DefaultError,
+    Options<WithdrawMyExternalCompletionCertificateChoiceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyExternalCompletionCertificateChoice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`
+ * - [`choose_my_certificate`] for a mooc.fi completion.
+ */
+export const chooseMyExternalCompletionCertificateMutation = (
+  options?: Partial<Options<ChooseMyExternalCompletionCertificateData>>,
+): UseMutationOptions<
+  ChooseMyExternalCompletionCertificateResponse,
+  DefaultError,
+  Options<ChooseMyExternalCompletionCertificateData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ChooseMyExternalCompletionCertificateResponse,
+    DefaultError,
+    Options<ChooseMyExternalCompletionCertificateData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await chooseMyExternalCompletionCertificate({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.
+ */
+export const withdrawMyExternalCompletionEnrolmentConfirmationMutation = (
+  options?: Partial<Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>>,
+): UseMutationOptions<
+  WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
+  DefaultError,
+  Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    WithdrawMyExternalCompletionEnrolmentConfirmationResponse,
+    DefaultError,
+    Options<WithdrawMyExternalCompletionEnrolmentConfirmationData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await withdrawMyExternalCompletionEnrolmentConfirmation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`
+ * - [`confirm_my_enrolment`] for a mooc.fi completion.
+ */
+export const confirmMyExternalCompletionEnrolmentMutation = (
+  options?: Partial<Options<ConfirmMyExternalCompletionEnrolmentData>>,
+): UseMutationOptions<
+  ConfirmMyExternalCompletionEnrolmentResponse,
+  DefaultError,
+  Options<ConfirmMyExternalCompletionEnrolmentData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ConfirmMyExternalCompletionEnrolmentResponse,
+    DefaultError,
+    Options<ConfirmMyExternalCompletionEnrolmentData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await confirmMyExternalCompletionEnrolment({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`
+ * - Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.
+ *
+ * mooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the
+ * student and the course from the stored completion, never from this request. Only from the IP that
+ * minted it.
+ */
+export const createMyMoocfiHandoffMutation = (
+  options?: Partial<Options<CreateMyMoocfiHandoffData>>,
+): UseMutationOptions<
+  CreateMyMoocfiHandoffResponse,
+  DefaultError,
+  Options<CreateMyMoocfiHandoffData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateMyMoocfiHandoffResponse,
+    DefaultError,
+    Options<CreateMyMoocfiHandoffData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createMyMoocfiHandoff({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getMyCreditRegistrationEnrolmentBannersQueryKey = (
   options: Options<GetMyCreditRegistrationEnrolmentBannersData>,
 ) => createQueryKey("getMyCreditRegistrationEnrolmentBanners", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/enrolment-banners/by-course/{course_id}` - The
  * caller's registrations on one course that owe them the in-course re-enrol banner.
  *
@@ -7734,7 +9605,6 @@ export const getMyCreditRegistrationEnrolmentBannersOptions = (
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/credit-registrations/my/student-number` - Unlinks the student number
  * from the signed-in account.
  *
@@ -7767,7 +9637,6 @@ export const getMyVerifiedStudentNumberQueryKey = (
 ) => createQueryKey("getMyVerifiedStudentNumber", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/my/student-number` - The student number linked to the
  * signed-in account, or null.
  */
@@ -7791,7 +9660,6 @@ export const getMyVerifiedStudentNumberOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/dismiss-enrolment-banner` - Puts away the
  * in-course re-enrol banner for one registration.
  *
@@ -7820,7 +9688,6 @@ export const dismissCreditRegistrationEnrolmentBannerMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/my/{id}/recheck-enrolment` - Asks the pipeline to
  * look for an enrolment again, for a row parked because the study registry had none.
  */
@@ -7851,7 +9718,6 @@ export const getCreditRegistrationSettingsQueryKey = (
 ) => createQueryKey("getCreditRegistrationSettings", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/settings` - Deployment-wide credit registration
  * switches.
  */
@@ -7879,7 +9745,6 @@ export const previewStudentNumberVerificationTokenQueryKey = (
 ) => createQueryKey("previewStudentNumberVerificationToken", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}` - What the
  * mailed link would link, without linking it.
  *
@@ -7905,12 +9770,12 @@ export const previewStudentNumberVerificationTokenOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/credit-registrations/student-number-verifications/{token}/claim` - Spends
  * a mailed link and links the student number to the signed-in account.
  *
  * Any signed-in account may claim any valid token: holding it proves control of the Sisu-held mailbox,
- * and the session says which of our accounts the person wants to use.
+ * and the session says which of our accounts the person wants to use. The account's name is set to
+ * Sisu's in the same transaction, with the first name the student picked, and pushed to TMC.
  */
 export const claimStudentNumberVerificationTokenMutation = (
   options?: Partial<Options<ClaimStudentNumberVerificationTokenData>>,
@@ -7938,7 +9803,6 @@ export const getEmailTemplatesQueryKey = (options?: Options<GetEmailTemplatesDat
   createQueryKey("getEmailTemplates", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/email-templates`
  */
 export const getEmailTemplatesOptions = (options?: Options<GetEmailTemplatesData>) =>
@@ -7959,7 +9823,6 @@ export const getEmailTemplatesOptions = (options?: Options<GetEmailTemplatesData
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/email-templates`
  *
  * Creates a global template; rejects a second live one for the same type and language.
@@ -7987,7 +9850,6 @@ export const createEmailTemplateMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/email-templates/:id`
  */
 export const deleteEmailTemplateMutation = (
@@ -8013,7 +9875,6 @@ export const deleteEmailTemplateMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/email-verification/request` - Mails a fresh verification code to the
  * signed-in account's current address.
  */
@@ -8044,7 +9905,6 @@ export const getMyEmailVerificationStatusQueryKey = (
 ) => createQueryKey("getMyEmailVerificationStatus", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/email-verification/status` - Whether the signed-in account's address is
  * proven, and what we last mailed about it.
  */
@@ -8072,9 +9932,8 @@ export const getEmailVerificationCodeForTestModeQueryKey = (
 ) => createQueryKey("getEmailVerificationCodeForTestMode", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/email-verification/test-mode-code` - The signed-in account's own pending
- * verification code.
+ * code for `purpose`, email ownership verification by default.
  *
  * Exists because the system tests have no mail capture. 404 unless `TEST_MODE` is on, and scoped to the
  * caller's own account, so an accidentally open gate only ever hands you your own code.
@@ -8099,11 +9958,12 @@ export const getEmailVerificationCodeForTestModeOptions = (
   })
 
 /**
- *
- * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof.
+ * POST `/api/v0/main-frontend/email-verification/verify` - Spends a mailed code and records the proof,
+ * and copies the now proven address to TMC.
  *
  * Authenticated and scoped to the caller's own account, so the code is the only secret involved and it
- * never has to identify anybody on its own.
+ * never has to identify anybody on its own. Nothing is recorded if TMC refuses the address or cannot
+ * be reached, so the code can be tried again.
  */
 export const verifyEmailOwnershipMutation = (
   options?: Partial<Options<VerifyEmailOwnershipData>>,
@@ -8131,7 +9991,6 @@ export const getExamExercisesQueryKey = (options: Options<GetExamExercisesData>)
   createQueryKey("getExamExercises", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
  */
 export const getExamExercisesOptions = (options: Options<GetExamExercisesData>) =>
@@ -8152,7 +10011,6 @@ export const getExamExercisesOptions = (options: Options<GetExamExercisesData>) 
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false. Takes teacher grading decision ids as input.
  */
 export const releaseExamGradesMutation = (
@@ -8178,7 +10036,6 @@ export const getExamSubmissionsWithExamIdQueryKey = (
 ) => createQueryKey("getExamSubmissionsWithExamId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
  */
 export const getExamSubmissionsWithExamIdOptions = (
@@ -8206,7 +10063,6 @@ export const getExamSubmissionsWithExamIdInfiniteQueryKey = (
   createQueryKey("getExamSubmissionsWithExamId", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
  */
 export const getExamSubmissionsWithExamIdInfiniteOptions = (
@@ -8257,7 +10113,6 @@ export const getExamSubmissionsWithExerciseIdQueryKey = (
 ) => createQueryKey("getExamSubmissionsWithExerciseId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
  */
 export const getExamSubmissionsWithExerciseIdOptions = (
@@ -8285,7 +10140,6 @@ export const getExamSubmissionsWithExerciseIdInfiniteQueryKey = (
   createQueryKey("getExamSubmissionsWithExerciseId", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
  */
 export const getExamSubmissionsWithExerciseIdInfiniteOptions = (
@@ -8334,7 +10188,6 @@ export const getExamSubmissionsWithExerciseIdInfiniteOptions = (
 export const getExamQueryKey = (options: Options<GetExamData>) => createQueryKey("getExam", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id
  */
 export const getExamOptions = (options: Options<GetExamData>) =>
@@ -8350,7 +10203,6 @@ export const getExamOptions = (options: Options<GetExamData>) =>
   })
 
 /**
- *
  * * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
 export const duplicateExamMutation = (
@@ -8372,7 +10224,6 @@ export const duplicateExamMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
  */
 export const editExamMutation = (
@@ -8393,7 +10244,6 @@ export const exportExamPointsCsvQueryKey = (options: Options<ExportExamPointsCsv
   createQueryKey("exportExamPointsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id/export-points`
  */
 export const exportExamPointsCsvOptions = (options: Options<ExportExamPointsCsvData>) =>
@@ -8417,7 +10267,6 @@ export const exportExamSubmissionsCsvQueryKey = (options: Options<ExportExamSubm
   createQueryKey("exportExamSubmissionsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exams/:id/export-submissions`
  */
 export const exportExamSubmissionsCsvOptions = (options: Options<ExportExamSubmissionsCsvData>) =>
@@ -8438,7 +10287,6 @@ export const exportExamSubmissionsCsvOptions = (options: Options<ExportExamSubmi
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exams/:id/set`
  */
 export const setExamCourseMutation = (
@@ -8456,7 +10304,6 @@ export const setExamCourseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/exams/:id/unset`
  */
 export const unsetExamCourseMutation = (
@@ -8478,7 +10325,6 @@ export const getExerciseRepositoriesForCourseQueryKey = (
 ) => createQueryKey("getExerciseRepositoriesForCourse", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-repositories/course/:id`
  */
 export const getExerciseRepositoriesForCourseOptions = (
@@ -8505,7 +10351,6 @@ export const getExerciseRepositoriesForExamQueryKey = (
 ) => createQueryKey("getExerciseRepositoriesForExam", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
  */
 export const getExerciseRepositoriesForExamOptions = (
@@ -8528,7 +10373,6 @@ export const getExerciseRepositoriesForExamOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercise-repositories/new
  */
 export const createExerciseRepositoryMutation = (
@@ -8554,7 +10398,6 @@ export const createExerciseRepositoryMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/exercise-repositories/:id`
  */
 export const deleteExerciseRepositoryMutation = (
@@ -8580,7 +10423,6 @@ export const deleteExerciseRepositoryMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-repositories/:id`
  */
 export const updateExerciseRepositoryMutation = (
@@ -8609,7 +10451,6 @@ export const getExerciseServicesQueryKey = (options?: Options<GetExerciseService
   createQueryKey("getExerciseServices", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-services`
  */
 export const getExerciseServicesOptions = (options?: Options<GetExerciseServicesData>) =>
@@ -8630,7 +10471,6 @@ export const getExerciseServicesOptions = (options?: Options<GetExerciseServices
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercise-services`
  */
 export const createExerciseServiceMutation = (
@@ -8681,7 +10521,6 @@ export const getExerciseServiceByIdQueryKey = (options: Options<GetExerciseServi
   createQueryKey("getExerciseServiceById", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-services/:id`
  */
 export const getExerciseServiceByIdOptions = (options: Options<GetExerciseServiceByIdData>) =>
@@ -8702,7 +10541,6 @@ export const getExerciseServiceByIdOptions = (options: Options<GetExerciseServic
   })
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-services/:id`
  */
 export const updateExerciseServiceMutation = (
@@ -8728,7 +10566,6 @@ export const updateExerciseServiceMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Adds a new teacher grading decision, without updating user exercise state
  */
 export const addTeacherGradingForExamSubmissionMutation = (
@@ -8758,7 +10595,6 @@ export const getExamUserExerciseStateInfoQueryKey = (
 ) => createQueryKey("getExamUserExerciseStateInfo", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/{exercise_id}/{user_id}/user-exercise-state-info`-
  */
 export const getExamUserExerciseStateInfoOptions = (
@@ -8785,7 +10621,6 @@ export const getExerciseSlideSubmissionInfoQueryKey = (
 ) => createQueryKey("getExerciseSlideSubmissionInfo", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
  */
 export const getExerciseSlideSubmissionInfoOptions = (
@@ -8811,7 +10646,6 @@ export const getExercisesByCourseIdQueryKey = (options: Options<GetExercisesByCo
   createQueryKey("getExercisesByCourseId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Returns all exercises for a course with course_id
  */
 export const getExercisesByCourseIdOptions = (options: Options<GetExercisesByCourseIdData>) =>
@@ -8832,7 +10666,6 @@ export const getExercisesByCourseIdOptions = (options: Options<GetExercisesByCou
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-users` - Resets all selected exercises for selected users and then logs the resets to exercise_reset_logs table
  */
 export const resetExercisesForSelectedUsersMutation = (
@@ -8861,7 +10694,6 @@ export const getExerciseQueryKey = (options: Options<GetExerciseData>) =>
   createQueryKey("getExercise", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
  */
 export const getExerciseOptions = (options: Options<GetExerciseData>) =>
@@ -8886,7 +10718,6 @@ export const getExerciseAnswersRequiringAttentionQueryKey = (
 ) => createQueryKey("getExerciseAnswersRequiringAttention", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 export const getExerciseAnswersRequiringAttentionOptions = (
@@ -8914,7 +10745,6 @@ export const getExerciseAnswersRequiringAttentionInfiniteQueryKey = (
   createQueryKey("getExerciseAnswersRequiringAttention", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 export const getExerciseAnswersRequiringAttentionInfiniteOptions = (
@@ -8965,7 +10795,6 @@ export const getExerciseCsvExportTaskOptionsQueryKey = (
 ) => createQueryKey("getExerciseCsvExportTaskOptions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and, for each task's exercise service, the CSV export support flags and whether its answers are files.
  */
 export const getExerciseCsvExportTaskOptionsOptions = (
@@ -8992,7 +10821,6 @@ export const downloadExerciseAnswerFilesQueryKey = (
 ) => createQueryKey("downloadExerciseAnswerFiles", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/download-answer-files` - Streams every file-typed answer to the exercise as a zip archive.
  */
 export const downloadExerciseAnswerFilesOptions = (
@@ -9018,7 +10846,6 @@ export const exportExerciseAnswersCsvQueryKey = (options: Options<ExportExercise
   createQueryKey("exportExerciseAnswersCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
 export const exportExerciseAnswersCsvOptions = (options: Options<ExportExerciseAnswersCsvData>) =>
@@ -9043,7 +10870,6 @@ export const exportExerciseDefinitionsCsvQueryKey = (
 ) => createQueryKey("exportExerciseDefinitionsCsv", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-definitions-csv` - Exports one exercise task definition as CSV using the task's exercise service.
  */
 export const exportExerciseDefinitionsCsvOptions = (
@@ -9069,7 +10895,6 @@ export const exerciseHasAnswerFilesQueryKey = (options: Options<ExerciseHasAnswe
   createQueryKey("exerciseHasAnswerFiles", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/has-answer-files` - Tells whether the exercise has any file-typed answer to download.
  */
 export const exerciseHasAnswerFilesOptions = (options: Options<ExerciseHasAnswerFilesData>) =>
@@ -9093,7 +10918,6 @@ export const getExerciseSubmissionsQueryKey = (options: Options<GetExerciseSubmi
   createQueryKey("getExerciseSubmissions", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 export const getExerciseSubmissionsOptions = (options: Options<GetExerciseSubmissionsData>) =>
@@ -9119,7 +10943,6 @@ export const getExerciseSubmissionsInfiniteQueryKey = (
   createQueryKey("getExerciseSubmissions", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 export const getExerciseSubmissionsInfiniteOptions = (
@@ -9167,7 +10990,6 @@ export const getExerciseSubmissionsForUserQueryKey = (
 ) => createQueryKey("getExerciseSubmissionsForUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
 export const getExerciseSubmissionsForUserOptions = (
@@ -9193,7 +11015,6 @@ export const getExternalCoursesQueryKey = (options?: Options<GetExternalCoursesD
   createQueryKey("getExternalCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/external-courses/all` - Gets all external courses.
  */
 export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesData>) =>
@@ -9214,7 +11035,6 @@ export const getExternalCoursesOptions = (options?: Options<GetExternalCoursesDa
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/delete` - Deletes external course.
  */
 export const deleteExternalCourseMutation = (
@@ -9240,7 +11060,6 @@ export const deleteExternalCourseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/new` - Creates new external course.
  */
 export const createExternalCourseMutation = (
@@ -9266,7 +11085,6 @@ export const createExternalCourseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/external-courses/update` - Updates external course.
  */
 export const updateExternalCourseMutation = (
@@ -9292,7 +11110,6 @@ export const updateExternalCourseMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
  */
 export const markFeedbackAsReadMutation = (
@@ -9318,7 +11135,6 @@ export const getCompletionStatsByEmailDomainQueryKey = (
 ) => createQueryKey("getCompletionStatsByEmailDomain", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/completion-stats-by-email-domain`
  * *
  * * Query parameters:
@@ -9348,7 +11164,6 @@ export const getCourseCompletionStatsForEmailDomainQueryKey = (
 ) => createQueryKey("getCourseCompletionStatsForEmailDomain", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain`
  * *
  * * Query parameters:
@@ -9379,7 +11194,6 @@ export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistryQueryKey 
 ) => createQueryKey("getCourseModuleStatsByCompletionsRegisteredToStudyRegistry", options)
 
 /**
- *
  * * GET `/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry`
  * *
  * * Query parameters:
@@ -9409,7 +11223,6 @@ export const getNumberOfPeopleCompletedACourseQueryKey = (
 ) => createQueryKey("getNumberOfPeopleCompletedACourse", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-completed-a-course`
  *
  * Query parameters:
@@ -9439,7 +11252,6 @@ export const getNumberOfPeopleDoneAtLeastOneExerciseQueryKey = (
 ) => createQueryKey("getNumberOfPeopleDoneAtLeastOneExercise", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise`
  *
  * Query parameters:
@@ -9469,7 +11281,6 @@ export const getNumberOfPeopleRegisteredCompletionToStudyRegistryQueryKey = (
 ) => createQueryKey("getNumberOfPeopleRegisteredCompletionToStudyRegistry", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry`
  *
  * Query parameters:
@@ -9499,7 +11310,6 @@ export const getNumberOfPeopleStartedCourseQueryKey = (
 ) => createQueryKey("getNumberOfPeopleStartedCourse", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/global-stats/number-of-people-started-course`
  *
  * Query parameters:
@@ -9559,6 +11369,117 @@ export const updateGlossaryTermMutation = (
   }
   return mutationOptions
 }
+
+export const getMyMoocfiCreditRegistrationsQueryKey = (
+  options: Options<GetMyMoocfiCreditRegistrationsData>,
+) => createQueryKey("getMyMoocfiCreditRegistrations", options)
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}` - Syncs the caller's
+ * completions of a mooc.fi course from mooc.fi and returns them with their registration status.
+ *
+ * When mooc.fi cannot be reached the answer is still 200, from the rows stored earlier, with
+ * `is_up_to_date` false.
+ */
+export const getMyMoocfiCreditRegistrationsOptions = (
+  options: Options<GetMyMoocfiCreditRegistrationsData>,
+) =>
+  queryOptions<
+    GetMyMoocfiCreditRegistrationsResponse,
+    DefaultError,
+    GetMyMoocfiCreditRegistrationsResponse,
+    ReturnType<typeof getMyMoocfiCreditRegistrationsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyMoocfiCreditRegistrations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyMoocfiCreditRegistrationsQueryKey(options),
+  })
+
+export const getMoocfiCourseLinkQueryKey = (options: Options<GetMoocfiCourseLinkData>) =>
+  createQueryKey("getMoocfiCourseLink", options)
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-credit-registrations/{moocfi_course_id}/course-link` - The mooc.fi
+ * course's name and registration page, without reading mooc.fi.
+ *
+ * Needs no sign-in: the handoff error page uses it while the wrong account, or none, is signed in.
+ */
+export const getMoocfiCourseLinkOptions = (options: Options<GetMoocfiCourseLinkData>) =>
+  queryOptions<
+    GetMoocfiCourseLinkResponse,
+    DefaultError,
+    GetMoocfiCourseLinkResponse,
+    ReturnType<typeof getMoocfiCourseLinkQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMoocfiCourseLink({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMoocfiCourseLinkQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/moocfi-handoffs/continue` - Completes the waiting handoff: signs out
+ * whoever is signed in and signs in the handoff's account. Single use.
+ *
+ * Only from a same-origin request, and the continuation cookie is SameSite=Lax, so another site cannot
+ * post it. 404 when no handoff is waiting for the course; 400 when the signed-in account is no longer
+ * the one the student saw; 403 for an account with a courses role.
+ */
+export const continueMoocfiHandoffMutation = (
+  options?: Partial<Options<ContinueMoocfiHandoffData>>,
+): UseMutationOptions<
+  ContinueMoocfiHandoffResponse,
+  DefaultError,
+  Options<ContinueMoocfiHandoffData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ContinueMoocfiHandoffResponse,
+    DefaultError,
+    Options<ContinueMoocfiHandoffData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await continueMoocfiHandoff({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getPendingMoocfiHandoffQueryKey = (options: Options<GetPendingMoocfiHandoffData>) =>
+  createQueryKey("getPendingMoocfiHandoff", options)
+
+/**
+ * GET `/api/v0/main-frontend/moocfi-handoffs/pending?moocfi_course_id=…` - The handoff waiting for the
+ * student's confirmation on the course's landing page, or 404 when none is waiting for that course,
+ * it has expired or been used, or it was minted for another IP.
+ */
+export const getPendingMoocfiHandoffOptions = (options: Options<GetPendingMoocfiHandoffData>) =>
+  queryOptions<
+    GetPendingMoocfiHandoffResponse,
+    DefaultError,
+    GetPendingMoocfiHandoffResponse,
+    ReturnType<typeof getPendingMoocfiHandoffQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getPendingMoocfiHandoff({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getPendingMoocfiHandoffQueryKey(options),
+  })
 
 export const getOauthOpenidConfigurationQueryKey = (
   options?: Options<GetOauthOpenidConfigurationData>,
@@ -9654,70 +11575,28 @@ export const authorizeOauthPostMutation = (
   return mutationOptions
 }
 
-export const getOauthAuthorizedClientsQueryKey = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) => createQueryKey("getOauthAuthorizedClients", options)
-
-export const getOauthAuthorizedClientsOptions = (
-  options?: Options<GetOauthAuthorizedClientsData>,
-) =>
-  queryOptions<
-    GetOauthAuthorizedClientsResponse,
-    DefaultError,
-    GetOauthAuthorizedClientsResponse,
-    ReturnType<typeof getOauthAuthorizedClientsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getOauthAuthorizedClients({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getOauthAuthorizedClientsQueryKey(options),
-  })
-
-export const deleteOauthAuthorizedClientMutation = (
-  options?: Partial<Options<DeleteOauthAuthorizedClientData>>,
-): UseMutationOptions<
-  DeleteOauthAuthorizedClientResponse,
-  DefaultError,
-  Options<DeleteOauthAuthorizedClientData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOauthAuthorizedClientResponse,
-    DefaultError,
-    Options<DeleteOauthAuthorizedClientData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await deleteOauthAuthorizedClient({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
 /**
  * Handles `/consent` approval after the user agrees to grant requested scopes.
  *
  * This endpoint:
- * - Validates the redirect URI and requested scopes against the registered client.
- * - Records granted scopes for the user-client pair.
- * - Redirects back to `/authorize` to continue the OAuth flow.
+ * - Validates the redirect URI and the approved scopes against the registered client.
+ * - Records the approved scopes for the user-client pair.
+ * - Redirects back to `/authorize` with the approved scopes, so the code is issued for them.
+ *
+ * `scope` is what the user approved, which may be fewer scopes than requested. If it contains
+ * any MCP scope it must contain `material:read`.
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent?client_id=test-client-id&redirect_uri=http://localhost&scopes=openid%20profile&state=random123&nonce=secure_nonce_abc HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent HTTP/1.1
  * Cookie: session=abc123
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","scope":"openid profile","state":"random123","nonce":"secure_nonce_abc","response_type":"code"}
  * ```
  *
- * Redirect back to `/authorize`:
- * ```http
- * HTTP/1.1 302 Found
- * Location: /api/v0/main-frontend/oauth/authorize?client_id=...
+ * Response:
+ * ```json
+ * {"redirect_uri": "/api/v0/main-frontend/oauth/authorize?client_id=..."}
  * ```
  */
 export const approveOauthConsentMutation = (
@@ -9742,22 +11621,47 @@ export const approveOauthConsentMutation = (
   return mutationOptions
 }
 
+export const getOauthConsentInfoQueryKey = (options: Options<GetOauthConsentInfoData>) =>
+  createQueryKey("getOauthConsentInfo", options)
+
+/**
+ * GET `/api/v0/main-frontend/oauth/consent-info` - What the consent screen shows: the client asking
+ * and a checkbox state per requested scope. The client must already be known, which the authorize
+ * endpoint ensures before redirecting to the consent screen.
+ */
+export const getOauthConsentInfoOptions = (options: Options<GetOauthConsentInfoData>) =>
+  queryOptions<
+    GetOauthConsentInfoResponse,
+    DefaultError,
+    GetOauthConsentInfoResponse,
+    ReturnType<typeof getOauthConsentInfoQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthConsentInfo({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthConsentInfoQueryKey(options),
+  })
+
 /**
  * Handles `/consent/deny` when the user refuses to grant scopes.
  *
  * This endpoint:
- * - Redirects back to the client with `error=access_denied`.
+ * - Redirects back to the client with `error=access_denied` and `iss` (RFC 9207).
  *
  * # Example
  * ```http
- * GET /api/v0/main-frontend/oauth/consent/deny?redirect_uri=http://localhost&state=random123 HTTP/1.1
+ * POST /api/v0/main-frontend/oauth/consent/deny HTTP/1.1
  *
+ * {"client_id":"test-client-id","redirect_uri":"http://localhost","state":"random123"}
  * ```
  *
  * Response:
- * ```http
- * HTTP/1.1 302 Found
- * Location: http://localhost?error=access_denied&state=random123
+ * ```json
+ * {"redirect_uri": "http://localhost?error=access_denied&state=random123&iss=..."}
  * ```
  */
 export const denyOauthConsentMutation = (
@@ -9917,6 +11821,52 @@ export const denyOauthDeviceVerificationMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await denyOauthDeviceVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getOauthGrantsQueryKey = (options?: Options<GetOauthGrantsData>) =>
+  createQueryKey("getOauthGrants", options)
+
+/**
+ * GET `/api/v0/main-frontend/oauth/grants` - The signed-in user's OAuth grants, including AI agent
+ * clients, with their scopes and when they were last used.
+ */
+export const getOauthGrantsOptions = (options?: Options<GetOauthGrantsData>) =>
+  queryOptions<
+    GetOauthGrantsResponse,
+    DefaultError,
+    GetOauthGrantsResponse,
+    ReturnType<typeof getOauthGrantsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getOauthGrants({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getOauthGrantsQueryKey(options),
+  })
+
+/**
+ * DELETE `/api/v0/main-frontend/oauth/grants/{grant_id}` - Revokes one of the signed-in user's grants
+ * and every token issued from it. The client has to ask for consent again.
+ */
+export const revokeOauthGrantMutation = (
+  options?: Partial<Options<RevokeOauthGrantData>>,
+): UseMutationOptions<RevokeOauthGrantResponse, DefaultError, Options<RevokeOauthGrantData>> => {
+  const mutationOptions: UseMutationOptions<
+    RevokeOauthGrantResponse,
+    DefaultError,
+    Options<RevokeOauthGrantData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await revokeOauthGrant({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -10236,7 +12186,6 @@ export const getOrganizationBySlugQueryKey = (options: Options<GetOrganizationBy
   createQueryKey("getOrganizationBySlug", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/org/:slug
  */
 export const getOrganizationBySlugOptions = (options: Options<GetOrganizationBySlugData>) =>
@@ -10260,7 +12209,6 @@ export const getOrganizationsQueryKey = (options?: Options<GetOrganizationsData>
   createQueryKey("getOrganizations", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
  */
 export const getOrganizationsOptions = (options?: Options<GetOrganizationsData>) =>
@@ -10320,7 +12268,6 @@ export const getOrganizationExamByExamIdQueryKey = (
 ) => createQueryKey("getOrganizationExamByExamId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
  */
 export const getOrganizationExamByExamIdOptions = (
@@ -10346,7 +12293,6 @@ export const getOrganizationQueryKey = (options: Options<GetOrganizationData>) =
   createQueryKey("getOrganization", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
  */
 export const getOrganizationOptions = (options: Options<GetOrganizationData>) =>
@@ -10385,7 +12331,6 @@ export const softDeleteOrganizationMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/organizations/{organization_id}`
  *
  * Updates an organization's name, hidden status, and slug.
@@ -10413,7 +12358,6 @@ export const getOrganizationCourseExamsQueryKey = (
 ) => createQueryKey("getOrganizationCourseExams", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
  */
 export const getOrganizationCourseExamsOptions = (
@@ -10439,7 +12383,6 @@ export const getOrganizationCoursesQueryKey = (options: Options<GetOrganizationC
   createQueryKey("getOrganizationCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
  */
 export const getOrganizationCoursesOptions = (options: Options<GetOrganizationCoursesData>) =>
@@ -10465,7 +12408,6 @@ export const getOrganizationCoursesInfiniteQueryKey = (
   createQueryKey("getOrganizationCourses", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
  */
 export const getOrganizationCoursesInfiniteOptions = (
@@ -10630,7 +12572,6 @@ export const getOrganizationDuplicatableCoursesQueryKey = (
 ) => createQueryKey("getOrganizationDuplicatableCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"` - Returns a list of all courses in a organization that the current user has permission to duplicate.
  */
 export const getOrganizationDuplicatableCoursesOptions = (
@@ -10653,7 +12594,6 @@ export const getOrganizationDuplicatableCoursesOptions = (
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
  */
 export const createOrganizationExamMutation = (
@@ -10675,7 +12615,6 @@ export const createOrganizationExamMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/organizations/:organizations_id/image` - Removes the organizations image.
  *
  * # Example
@@ -10704,7 +12643,6 @@ export const deleteOrganizationImageMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/organizations/:organizations_id/image` - Sets or updates the chapter image.
  *
  * # Example
@@ -10739,7 +12677,6 @@ export const getOrganizationExamsQueryKey = (options: Options<GetOrganizationExa
   createQueryKey("getOrganizationExams", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
  */
 export const getOrganizationExamsOptions = (options: Options<GetOrganizationExamsData>) =>
@@ -10760,7 +12697,6 @@ export const getOrganizationExamsOptions = (options: Options<GetOrganizationExam
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/page_audio/:file_id` - Removes the chapter image.
  *
  * # Example
@@ -10789,7 +12725,6 @@ export const deletePageAudioFileMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/page_audio/:page_id` - Sets or updates the page audio.
  *
  * # Example
@@ -10828,7 +12763,6 @@ export const getPageAudioFilesQueryKey = (options: Options<GetPageAudioFilesData
   createQueryKey("getPageAudioFiles", options)
 
 /**
- *
  * GET `/api/v0/main-fronted/page_audio/:page_id/files` - Get a page audio files
  *
  * Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
@@ -10851,7 +12785,6 @@ export const getPageAudioFilesOptions = (options: Options<GetPageAudioFilesData>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/pages` - Create a new page.
  *
  * Please note that this endpoint will change all the exercise and exercise task ids you've created. Make sure the use the updated ids from the response object.
@@ -10901,7 +12834,6 @@ export const getCoursePagesQueryKey = (options: Options<GetCoursePagesData>) =>
   createQueryKey("getCoursePages", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
  */
 export const getCoursePagesOptions = (options: Options<GetCoursePagesData>) =>
@@ -10922,7 +12854,6 @@ export const getCoursePagesOptions = (options: Options<GetCoursePagesData>) =>
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/pages/:page_id` - Delete a page, related exercises, and related exercise tasks by id.
  *
  *
@@ -10952,7 +12883,6 @@ export const getPageHistoryQueryKey = (options: Options<GetPageHistoryData>) =>
   createQueryKey("getPageHistory", options)
 
 /**
- *
  * GET /api/v0/main-frontend/pages/:page_id/history
  */
 export const getPageHistoryOptions = (options: Options<GetPageHistoryData>) =>
@@ -10977,7 +12907,6 @@ export const getPageHistoryInfiniteQueryKey = (
 ): QueryKey<Options<GetPageHistoryData>> => createQueryKey("getPageHistory", options, true)
 
 /**
- *
  * GET /api/v0/main-frontend/pages/:page_id/history
  */
 export const getPageHistoryInfiniteOptions = (options: Options<GetPageHistoryData>) => {
@@ -11021,7 +12950,6 @@ export const getPageHistoryCountQueryKey = (options: Options<GetPageHistoryCount
   createQueryKey("getPageHistoryCount", options)
 
 /**
- *
  * GET /api/v0/main-frontend/pages/:page_id/history_count
  */
 export const getPageHistoryCountOptions = (options: Options<GetPageHistoryCountData>) =>
@@ -11045,7 +12973,6 @@ export const getPageInfoQueryKey = (options: Options<GetPageInfoData>) =>
   createQueryKey("getPageInfo", options)
 
 /**
- *
  * GET `/api/v0/main-fronted/pages/:page_id/info` - Get a pages's course id, course name, organization slug
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
@@ -11068,7 +12995,6 @@ export const getPageInfoOptions = (options: Options<GetPageInfoData>) =>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
  */
 export const updatePageDetailsMutation = (
@@ -11090,7 +13016,6 @@ export const updatePageDetailsMutation = (
 }
 
 /**
- *
  * POST /api/v0/main-frontend/pages/:page_id/restore
  */
 export const restorePageHistoryMutation = (
@@ -11167,7 +13092,6 @@ export const getPlaygroundExamplesQueryKey = (options?: Options<GetPlaygroundExa
   createQueryKey("getPlaygroundExamples", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
  */
 export const getPlaygroundExamplesOptions = (options?: Options<GetPlaygroundExamplesData>) =>
@@ -11188,7 +13112,6 @@ export const getPlaygroundExamplesOptions = (options?: Options<GetPlaygroundExam
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
  */
 export const createPlaygroundExampleMutation = (
@@ -11214,7 +13137,6 @@ export const createPlaygroundExampleMutation = (
 }
 
 /**
- *
  * PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
  */
 export const updatePlaygroundExampleMutation = (
@@ -11240,7 +13162,6 @@ export const updatePlaygroundExampleMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
  */
 export const deletePlaygroundExampleMutation = (
@@ -11269,7 +13190,6 @@ export const getEditProposalsQueryKey = (options: Options<GetEditProposalsData>)
   createQueryKey("getEditProposals", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
  */
 export const getEditProposalsOptions = (options: Options<GetEditProposalsData>) =>
@@ -11294,7 +13214,6 @@ export const getEditProposalsInfiniteQueryKey = (
 ): QueryKey<Options<GetEditProposalsData>> => createQueryKey("getEditProposals", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
  */
 export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposalsData>) => {
@@ -11335,7 +13254,6 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
 export const processEditProposalMutation = (
@@ -11360,7 +13278,6 @@ export const getRegradingsQueryKey = (options?: Options<GetRegradingsData>) =>
   createQueryKey("getRegradings", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
  */
 export const getRegradingsOptions = (options?: Options<GetRegradingsData>) =>
@@ -11385,7 +13302,6 @@ export const getRegradingsInfiniteQueryKey = (
 ): QueryKey<Options<GetRegradingsData>> => createQueryKey("getRegradings", options, true)
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
  */
 export const getRegradingsInfiniteOptions = (options?: Options<GetRegradingsData>) => {
@@ -11426,7 +13342,6 @@ export const getRegradingsInfiniteOptions = (options?: Options<GetRegradingsData
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
  */
 export const createRegradingMutation = (
@@ -11451,7 +13366,6 @@ export const getRegradingsCountQueryKey = (options?: Options<GetRegradingsCountD
   createQueryKey("getRegradingsCount", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings/count` - Counts regradings
  */
 export const getRegradingsCountOptions = (options?: Options<GetRegradingsCountData>) =>
@@ -11475,7 +13389,6 @@ export const getRegradingInfoQueryKey = (options: Options<GetRegradingInfoData>)
   createQueryKey("getRegradingInfo", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
  */
 export const getRegradingInfoOptions = (options: Options<GetRegradingInfoData>) =>
@@ -11499,7 +13412,6 @@ export const getRolesQueryKey = (options?: Options<GetRolesData>) =>
   createQueryKey("getRoles", options)
 
 /**
- *
  * * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 export const getRolesOptions = (options?: Options<GetRolesData>) =>
@@ -11520,7 +13432,6 @@ export const getRolesOptions = (options?: Options<GetRolesData>) =>
   })
 
 /**
- *
  * * POST /api/v0/main-frontend/roles/add - Give a role to a user.
  */
 export const addRoleMutation = (
@@ -11541,7 +13452,6 @@ export const getPendingRolesQueryKey = (options?: Options<GetPendingRolesData>) 
   createQueryKey("getPendingRoles", options)
 
 /**
- *
  * * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 export const getPendingRolesOptions = (options?: Options<GetPendingRolesData>) =>
@@ -11561,8 +13471,34 @@ export const getPendingRolesOptions = (options?: Options<GetPendingRolesData>) =
     queryKey: getPendingRolesQueryKey(options),
   })
 
+export const getPendingRoleCountWaitingForMeQueryKey = (
+  options?: Options<GetPendingRoleCountWaitingForMeData>,
+) => createQueryKey("getPendingRoleCountWaitingForMe", options)
+
 /**
- *
+ * GET `/api/v0/main-frontend/roles/pending/waiting-for-me` - How many roles granted to the signed-in
+ * user's email wait for them to verify it.
+ */
+export const getPendingRoleCountWaitingForMeOptions = (
+  options?: Options<GetPendingRoleCountWaitingForMeData>,
+) =>
+  queryOptions<
+    GetPendingRoleCountWaitingForMeResponse,
+    DefaultError,
+    GetPendingRoleCountWaitingForMeResponse,
+    ReturnType<typeof getPendingRoleCountWaitingForMeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getPendingRoleCountWaitingForMe({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getPendingRoleCountWaitingForMeQueryKey(options),
+  })
+
+/**
  * * POST /api/v0/main-frontend/roles/remove - Remove a role from a user.
  */
 export const removeRoleMutation = (
@@ -11583,7 +13519,6 @@ export const listOwnSubmissionSharesQueryKey = (options?: Options<ListOwnSubmiss
   createQueryKey("listOwnSubmissionShares", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/shared-submissions` - Lists the shares the current user has minted,
  * newest first, so they can be reviewed and withdrawn.
  */
@@ -11605,9 +13540,8 @@ export const listOwnSubmissionSharesOptions = (options?: Options<ListOwnSubmissi
   })
 
 /**
- *
  * DELETE `/api/v0/main-frontend/shared-submissions/of-submission/{submission_id}` - Withdraws every
- * share the current user has minted for one submission.
+ * share the current user has minted for one submission or snapshot.
  */
 export const revokeSubmissionSharesOfSubmissionMutation = (
   options?: Partial<Options<RevokeSubmissionSharesOfSubmissionData>>,
@@ -11632,7 +13566,6 @@ export const revokeSubmissionSharesOfSubmissionMutation = (
 }
 
 /**
- *
  * DELETE `/api/v0/main-frontend/shared-submissions/{token}` - Withdraws one share, after which the
  * link stops resolving.
  *
@@ -11665,9 +13598,8 @@ export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmis
   createQueryKey("getSharedSubmissionInfo", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
- * render a shared submission.
+ * render a shared submission or ungraded snapshot.
  *
  * The `token` is the unguessable share id minted by the client share endpoint. Login is
  * required, but holding the token is the only capability needed to view the submission —
@@ -11694,7 +13626,6 @@ export const getStatusCronjobsQueryKey = (options?: Options<GetStatusCronjobsDat
   createQueryKey("getStatusCronjobs", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/cronjobs`
  *
  * Returns the status of all CronJobs in the current namespace.
@@ -11720,7 +13651,6 @@ export const getStatusDeploymentsQueryKey = (options?: Options<GetStatusDeployme
   createQueryKey("getStatusDeployments", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/deployments`
  *
  * Returns the status of all Deployments in the current namespace.
@@ -11746,7 +13676,6 @@ export const getStatusEventsQueryKey = (options?: Options<GetStatusEventsData>) 
   createQueryKey("getStatusEvents", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/events`
  *
  * Returns the status of all Events in the current namespace.
@@ -11772,7 +13701,6 @@ export const getStatusHealthQueryKey = (options?: Options<GetStatusHealthData>) 
   createQueryKey("getStatusHealth", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/health`
  *
  * Returns detailed system health status with issues list (admin only).
@@ -11798,7 +13726,6 @@ export const getStatusIngressesQueryKey = (options?: Options<GetStatusIngressesD
   createQueryKey("getStatusIngresses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/ingresses`
  *
  * Returns the status of all Ingresses in the current namespace.
@@ -11824,7 +13751,6 @@ export const getStatusJobsQueryKey = (options?: Options<GetStatusJobsData>) =>
   createQueryKey("getStatusJobs", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/jobs`
  *
  * Returns the status of all Jobs in the current namespace.
@@ -11851,7 +13777,6 @@ export const getStatusPodDisruptionBudgetsQueryKey = (
 ) => createQueryKey("getStatusPodDisruptionBudgets", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pod-disruption-budgets`
  *
  * Returns the status of all PodDisruptionBudgets in the current namespace.
@@ -11879,7 +13804,6 @@ export const getStatusPodsQueryKey = (options?: Options<GetStatusPodsData>) =>
   createQueryKey("getStatusPods", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pods`
  *
  * Returns the status of all Pods in the current namespace.
@@ -11905,7 +13829,6 @@ export const getStatusPodLogsQueryKey = (options: Options<GetStatusPodLogsData>)
   createQueryKey("getStatusPodLogs", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/pods/{pod_name}/logs`
  *
  * Returns logs from a specific pod.
@@ -11935,7 +13858,6 @@ export const getStatusServicesQueryKey = (options?: Options<GetStatusServicesDat
   createQueryKey("getStatusServices", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/services`
  *
  * Returns the status of all Services in the current namespace.
@@ -11961,7 +13883,6 @@ export const getStatusSystemHealthQueryKey = (options?: Options<GetStatusSystemH
   createQueryKey("getStatusSystemHealth", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/status/system-health` Returns a boolean indicating whether the system is healthy.
  *
  * Uses the same underlying checking logic as the detailed health endpoint.
@@ -11985,7 +13906,6 @@ export const getStatusSystemHealthOptions = (options?: Options<GetStatusSystemHe
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/teacher-grading-decisions` - Creates a new teacher grading decision, overriding the points a user has received from an exercise.
  */
 export const createTeacherGradingDecisionMutation = (
@@ -12014,7 +13934,6 @@ export const getCurrentTimeQueryKey = (options?: Options<GetCurrentTimeData>) =>
   createQueryKey("getCurrentTime", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/time` Returns the server's current UTC time as an RFC3339 timestamp string.
  *
  * Response body example:
@@ -12038,7 +13957,6 @@ export const getCurrentTimeOptions = (options?: Options<GetCurrentTimeData>) =>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/bulk-user-details` - Get user details for a list of user IDs with course permission check
  * Only returns user details for users who are actually enrolled in the specified course
  */
@@ -12065,8 +13983,7 @@ export const getBulkUserDetailsMutation = (
 }
 
 /**
- *
- * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the user whose id or email equals the query
+ * POST `/api/v0/main-frontend/user-details/search-exact` - Finds the users whose id, email or TMC id equals the query
  */
 export const searchUserDetailsExactMutation = (
   options?: Partial<Options<SearchUserDetailsExactData>>,
@@ -12091,7 +14008,6 @@ export const searchUserDetailsExactMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/search-fuzzy` - Typo-tolerant search by name or email
  */
 export const searchUserDetailsFuzzyMutation = (
@@ -12117,8 +14033,11 @@ export const searchUserDetailsFuzzyMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
+ *
+ * A new email reaches TMC only once it is verified, through
+ * [`crate::controllers::main_frontend::email_verification::verify_email_ownership`], unless email
+ * ownership verification is off.
  */
 export const updateUserInfoMutation = (
   options?: Partial<Options<UpdateUserInfoData>>,
@@ -12139,7 +14058,6 @@ export const updateUserInfoMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/user-details/user-by-courses` - Find user details by user id with multi-course permission check
  * Returns user details if the user has permission to view user details through any of the specified courses
  */
@@ -12170,7 +14088,6 @@ export const getUserDetailsForAuthenticatedUserQueryKey = (
 ) => createQueryKey("getUserDetailsForAuthenticatedUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
  */
 export const getUserDetailsForAuthenticatedUserOptions = (
@@ -12217,7 +14134,6 @@ export const getUsersByCourseIdForUserDetailsQueryKey = (
 ) => createQueryKey("getUsersByCourseIdForUserDetails", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
  */
 export const getUsersByCourseIdForUserDetailsOptions = (
@@ -12244,7 +14160,6 @@ export const getUserDetailsByCourseAndUserIdQueryKey = (
 ) => createQueryKey("getUserDetailsByCourseAndUserId", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user details by user id with course permission check
  * Only returns user details if the user is enrolled in the specified course
  */
@@ -12293,7 +14208,6 @@ export const getUserResearchConsentQueryKey = (options?: Options<GetUserResearch
   createQueryKey("getUserResearchConsent", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
  */
 export const getUserResearchConsentOptions = (options?: Options<GetUserResearchConsentData>) =>
@@ -12317,7 +14231,6 @@ export const getMyCertificatesQueryKey = (options?: Options<GetMyCertificatesDat
   createQueryKey("getMyCertificates", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-certificates` - Every certificate the authenticated user holds.
  *
  * No user id parameter, so it cannot be pointed at another account. Anyone holding a certificate's
@@ -12344,7 +14257,6 @@ export const getMyCoursesQueryKey = (options?: Options<GetMyCoursesData>) =>
   createQueryKey("getMyCourses", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
  */
 export const getMyCoursesOptions = (options?: Options<GetMyCoursesData>) =>
@@ -12365,7 +14277,6 @@ export const getMyCoursesOptions = (options?: Options<GetMyCoursesData>) =>
   })
 
 /**
- *
  * POST `/api/v0/main-frontend/users/my-courses/:course_id/hide` - Hides a course from the
  * authenticated user's "My courses" list.
  */
@@ -12388,7 +14299,6 @@ export const hideCourseFromMyCoursesMutation = (
 }
 
 /**
- *
  * POST `/api/v0/main-frontend/users/my-courses/:course_id/unhide` - Puts a previously hidden course
  * back into the authenticated user's "My courses" list.
  */
@@ -12410,11 +14320,63 @@ export const unhideCourseFromMyCoursesMutation = (
   return mutationOptions
 }
 
+export const getMyOldVersionProgressQueryKey = (options?: Options<GetMyOldVersionProgressData>) =>
+  createQueryKey("getMyOldVersionProgress", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-old-version-progress` - The authenticated user's courses on the
+ * old version of the platform (the old mooc.fi and tmc.mooc.fi), for My studies.
+ *
+ * Kept apart from `my-studies` so the slow upstreams delay only this. An upstream that cannot be
+ * reached is reported in its status rather than failing the request.
+ */
+export const getMyOldVersionProgressOptions = (options?: Options<GetMyOldVersionProgressData>) =>
+  queryOptions<
+    GetMyOldVersionProgressResponse,
+    DefaultError,
+    GetMyOldVersionProgressResponse,
+    ReturnType<typeof getMyOldVersionProgressQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyOldVersionProgress({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyOldVersionProgressQueryKey(options),
+  })
+
+export const getMyProgressByPlatformQueryKey = (options?: Options<GetMyProgressByPlatformData>) =>
+  createQueryKey("getMyProgressByPlatform", options)
+
+/**
+ * GET `/api/v0/main-frontend/users/my-progress-by-platform` - The authenticated user's courses on
+ * courses.mooc.fi, tmc.mooc.fi and the old mooc.fi, shown before they delete their account.
+ *
+ * A platform that cannot be reached is reported in its status rather than failing the request.
+ */
+export const getMyProgressByPlatformOptions = (options?: Options<GetMyProgressByPlatformData>) =>
+  queryOptions<
+    GetMyProgressByPlatformResponse,
+    DefaultError,
+    GetMyProgressByPlatformResponse,
+    ReturnType<typeof getMyProgressByPlatformQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getMyProgressByPlatform({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getMyProgressByPlatformQueryKey(options),
+  })
+
 export const getMyStudiesQueryKey = (options?: Options<GetMyStudiesData>) =>
   createQueryKey("getMyStudies", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/my-studies` - The authenticated user's own study record: every
  * course they are enrolled in, its modules, and their completions.
  *
@@ -12437,6 +14399,28 @@ export const getMyStudiesOptions = (options?: Options<GetMyStudiesData>) =>
       }),
     queryKey: getMyStudiesQueryKey(options),
   })
+
+export const sendResetPasswordEmailMutation = (
+  options?: Partial<Options<SendResetPasswordEmailData>>,
+): UseMutationOptions<
+  SendResetPasswordEmailResponse,
+  DefaultError,
+  Options<SendResetPasswordEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendResetPasswordEmailResponse,
+    DefaultError,
+    Options<SendResetPasswordEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendResetPasswordEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,
@@ -12478,30 +14462,7 @@ export const getResetPasswordTokenStatusMutation = (
   return mutationOptions
 }
 
-export const sendResetPasswordEmailMutation = (
-  options?: Partial<Options<SendResetPasswordEmailData>>,
-): UseMutationOptions<
-  SendResetPasswordEmailResponse,
-  DefaultError,
-  Options<SendResetPasswordEmailData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SendResetPasswordEmailResponse,
-    DefaultError,
-    Options<SendResetPasswordEmailData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await sendResetPasswordEmail({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
 /**
- *
  * POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
  */
 export const createUserResearchConsentMutation = (
@@ -12531,7 +14492,6 @@ export const getUserResearchFormQuestionAnswersQueryKey = (
 ) => createQueryKey("getUserResearchFormQuestionAnswers", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
  */
 export const getUserResearchFormQuestionAnswersOptions = (
@@ -12556,7 +14516,6 @@ export const getUserResearchFormQuestionAnswersOptions = (
 export const getUserQueryKey = (options: Options<GetUserData>) => createQueryKey("getUser", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id`
  */
 export const getUserOptions = (options: Options<GetUserData>) =>
@@ -12575,7 +14534,6 @@ export const getUserCourseEnrollmentsQueryKey = (options: Options<GetUserCourseE
   createQueryKey("getUserCourseEnrollments", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/course-enrollments`
  */
 export const getUserCourseEnrollmentsOptions = (options: Options<GetUserCourseEnrollmentsData>) =>
@@ -12600,7 +14558,6 @@ export const getUserCourseSubmissionTimesQueryKey = (
 ) => createQueryKey("getUserCourseSubmissionTimes", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/courses/:course_id/submission-times` - A user's exercise
  * submission times in a course, each tagged with its exercise and module. Teacher/admin (global) view.
  */
@@ -12627,7 +14584,6 @@ export const getUserRolesQueryKey = (options: Options<GetUserRolesData>) =>
   createQueryKey("getUserRoles", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin
  * (global) view; used to label the account (e.g. staff/teacher) on the user-details page.
  */
@@ -12652,7 +14608,6 @@ export const getUserSuspectedCheatersQueryKey = (options: Options<GetUserSuspect
   createQueryKey("getUserSuspectedCheaters", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for
  * a user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;
  * read-only (confirm/dismiss happen on the per-course cheaters page).
@@ -12678,7 +14633,6 @@ export const getUserResetExerciseLogsQueryKey = (options: Options<GetUserResetEx
   createQueryKey("getUserResetExerciseLogs", options)
 
 /**
- *
  * GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
  */
 export const getUserResetExerciseLogsOptions = (options: Options<GetUserResetExerciseLogsData>) =>

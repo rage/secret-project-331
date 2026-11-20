@@ -3,17 +3,19 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
-import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
+import { useBlockProps } from "@wordpress/block-editor"
+import { useMergeRefs } from "@wordpress/compose"
 import React, { useContext, useState } from "react"
 
+import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
-import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
+import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
@@ -23,31 +25,7 @@ import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
-
-const ALLOWED_NESTED_BLOCKS = [
-  "core/paragraph",
-  "core/image",
-  "core/heading",
-  "core/list",
-  "core/list-item",
-  "core/quote",
-  "core/audio",
-  "core/code",
-  "core/columns",
-  "core/column", // core/column is child of core/columns
-  "core/embed", // This is used by youtube, twitter etc.
-  "core/file",
-  "core/html",
-  "core/preformatted",
-  "core/pullquote",
-  "core/separator",
-  "core/block",
-  "core/spacer",
-  "core/table",
-  "core/verse",
-  "moocfi/latex",
-  "moocfi/iframe",
-]
+import { useTabKeyContainment } from "./useTabKeyContainment"
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -60,6 +38,13 @@ const svgSquare = css`
   flex: 0 0 4rem;
   height: 4rem;
   justify-content: center;
+`
+
+const iconButton = css`
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 `
 
 const gray400WithHover = css`
@@ -127,6 +112,8 @@ const ExerciseTaskEditor: React.FC<
 
   const exerciseServicesQuery = useAllExerciseServices()
   const blockProps = useBlockProps()
+  const tabContainmentRef = useTabKeyContainment()
+  const mergedRef = useMergeRefs([blockProps.ref, tabContainmentRef])
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -145,7 +132,8 @@ const ExerciseTaskEditor: React.FC<
 
   const renderEditor = (exerciseServices: NonNullable<typeof exerciseServicesQuery.data>) => {
     const exerciseType = attributes.exercise_type
-    const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
+    const exerciseService = exerciseServices.find((o) => o.slug === exerciseType)
+    const url = exerciseService?.public_iframe_url
 
     if (exerciseType && !url) {
       return (
@@ -183,15 +171,15 @@ const ExerciseTaskEditor: React.FC<
               `}
             >
               {t("task")}
+              {exerciseService && <ExerciseServiceBadges exerciseService={exerciseService} />}
             </div>
-            <div
-              className={cx(svgSquare, gray500WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, toggleEditor)}
+            <button
+              type="button"
+              data-exercise-task-edit=""
+              className={cx(svgSquare, iconButton, gray500WithHover)}
               onClick={toggleEditor}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={attributes.show_editor ? t("close") : t("edit")}
+              aria-label={t("edit-task")}
+              aria-expanded={attributes.show_editor}
             >
               {attributes.show_editor ? (
                 <XmarkCircle
@@ -210,15 +198,12 @@ const ExerciseTaskEditor: React.FC<
                   `}
                 />
               )}
-            </div>
-            <div
-              className={cx(svgSquare, gray400WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, handleDeleteTask)}
+            </button>
+            <button
+              type="button"
+              className={cx(svgSquare, iconButton, gray400WithHover)}
               onClick={handleDeleteTask}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={t("delete")}
+              aria-label={t("delete-task")}
             >
               <Trash
                 size={16}
@@ -227,7 +212,7 @@ const ExerciseTaskEditor: React.FC<
                   margin: 1.5rem;
                 `}
               />
-            </div>
+            </button>
           </div>
         </div>
         {attributes.show_editor ? (
@@ -246,7 +231,7 @@ const ExerciseTaskEditor: React.FC<
                     className={cx(assignmentBox, gutenbergControlsVisible)}
                   >
                     <h3>{t("title-assignment")}</h3>
-                    <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
+                    <RegisteredInnerBlocks />
                   </div>
                   {!exerciseType ? (
                     <ChooseExerciseTaskType
@@ -276,7 +261,7 @@ const ExerciseTaskEditor: React.FC<
   }
 
   return (
-    <div {...blockProps}>
+    <div {...blockProps} ref={mergedRef}>
       <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
         {(exerciseServices) => renderEditor(exerciseServices)}
       </QueryResult>

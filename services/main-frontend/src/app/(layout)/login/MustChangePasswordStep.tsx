@@ -6,6 +6,7 @@ import i18n from "i18next"
 import { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -83,6 +84,7 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
   const uncheckedReturnTo = useQueryParameter("return_to")
   const [emailSent, setEmailSent] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const altchaRef = useRef<AltchaWidgetHandle>(null)
 
   // The button that led here unmounts, so move focus to the new view's heading.
   useEffect(() => {
@@ -90,11 +92,13 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
   }, [emailSent])
 
   const sendMutation = useToastMutation(
-    async () =>
-      validateGeneratedData(
-        await sendResetPasswordEmail({ body: { email, language: i18n.language } }),
+    async () => {
+      const altcha = (await altchaRef.current?.solve()) ?? ""
+      return validateGeneratedData(
+        await sendResetPasswordEmail({ body: { email, language: i18n.language, altcha } }),
         isBoolean,
-      ),
+      )
+    },
     { method: "POST", notify: true },
     {
       onSuccess: () => setEmailSent(true),
@@ -137,6 +141,8 @@ export const MustChangePasswordStep: React.FC<MustChangePasswordStepProps> = ({
         // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
         <ErrorNotice error={sendMutation.error} announce="off" />
       )}
+      {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
+      <AltchaWidget ref={altchaRef} purpose={"password_reset"} />
       <div className={actionsCss}>
         <Button
           variant="primary"

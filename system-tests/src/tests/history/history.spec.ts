@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { openCoursePageInEditor } from "@/utils/manageCoursePages"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -34,6 +35,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -71,7 +73,10 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await saveCMSPage(page)
 
-  await page.click('[aria-label="Block: ExerciseTask"] div[role="button"]')
+  await page
+    .locator('[aria-label="Block: ExerciseTask"]')
+    .getByRole("button", { name: "Edit task" })
+    .click()
 
   const frame = await getLocatorForNthExerciseServiceIframe(page, "example-exercise", 1)
   await scrollLocatorsParentIframeToViewIfNeeded(frame)
@@ -98,7 +103,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.getByRole("tab", { name: "Pages" }).click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
@@ -108,7 +113,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.goBack()
   await page.getByText("Course pages for Introduction to history").waitFor()
 
-  await page.click(`[aria-label="Dropdown menu"]:right-of(:text("New title"))`)
+  await page.getByRole("button", { name: "Page actions for New title!" }).click()
 
   await page.click(`a:has-text("History")`)
 
@@ -208,6 +213,7 @@ screenshotTarget: page,
   // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

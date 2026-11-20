@@ -20,8 +20,7 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
   attributes: {
     content: {
       type: "string",
-      source: "html",
-      selector: "span",
+      isRichText: true,
     },
   },
   icon: formatLTR,

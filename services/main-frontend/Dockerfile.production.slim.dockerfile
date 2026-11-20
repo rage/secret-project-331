@@ -1,19 +1,19 @@
 # This image is used in skaffold.production.yaml to create a slim image that is used in production
 FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest AS builder
 
-RUN mkdir -p /app && chown -R node /app
+RUN mkdir -p /app/source && chown node /app/source
 
 USER node
 
-WORKDIR /app
+WORKDIR /app/source
 
-COPY --chown=node package.json /app/
-COPY --chown=node pnpm-lock.yaml /app/
-COPY --chown=node pnpm-workspace.yaml /app/
+COPY --chown=node package.json /app/source/
+COPY --chown=node pnpm-lock.yaml /app/source/
+COPY --chown=node pnpm-workspace.yaml /app/source/
 
 RUN pnpm install --frozen-lockfile
 
-COPY --chown=node . /app
+COPY --chown=node . /app/source
 
 RUN pnpm run postinstall
 
@@ -24,13 +24,14 @@ RUN pnpm run build
 
 FROM eu.gcr.io/moocfi-public/project-331-node-base:latest AS runtime
 
-COPY --from=builder /app/.next/standalone /app
-COPY --from=builder /app/.next/static /app/.next/static
-COPY --from=builder /app/public /app/public
+# Traced from /app (see next.config.js): source/ plus the pnpm/store/ files its symlinks point into
+COPY --from=builder /app/source/.next/standalone /app
+COPY --from=builder /app/source/.next/static /app/source/.next/static
+COPY --from=builder /app/source/public /app/source/public
 
 USER node
 
-WORKDIR /app
+WORKDIR /app/source
 
 EXPOSE 3000
 

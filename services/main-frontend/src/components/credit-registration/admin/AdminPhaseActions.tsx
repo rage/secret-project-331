@@ -13,6 +13,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { Menu, type MenuItemDescriptor, useDialog } from "@/shared-module/components"
 
 import { CREDIT_REGISTRATION_NS } from "../constants"
+import { AUDIT_ACTION } from "./auditActions"
 import { usePauseResumeAction } from "./usePauseResumeAction"
 
 const LINK_EMAILS_PHASE = "link-emails"
@@ -36,6 +37,7 @@ const AdminPhaseActions: React.FC<Props> = ({ phase, paused, isKnownPhase }) => 
     ])
 
   const { pauseItem, resumeItem, dialog } = usePauseResumeAction({
+    pauseAuditAction: AUDIT_ACTION.PAUSE_PHASE,
     pause: (fields) => adminPausePhase({ path: { phase }, body: { reason: fields.reason } }),
     resume: () => adminResumePhase({ path: { phase }, body: { reason: null } }),
     invalidate: () => void invalidatePhases(),

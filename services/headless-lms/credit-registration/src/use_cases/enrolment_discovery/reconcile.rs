@@ -1,14 +1,17 @@
-//! What one code's roster does to the modules on it: waking linked students' registrations and
-//! claiming linking mails for everybody else.
+//! What one code's roster does to the modules and mooc.fi targets on it: waking linked students'
+//! registrations and claiming linking mails for everybody else.
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use headless_lms_models::course_module_suotar_configurations::mark_listing_succeeded;
+use headless_lms_models::course_modules::course_code_match_key;
+use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
 use headless_lms_models::credit_registration_roster_schedules::{
-    AccountLinkingCodeCounters, record_linking_counters,
+    AccountLinkingCodeCounters, RosterUnit, record_linking_counters,
 };
 use headless_lms_models::library::credit_registration::account_linking::{
-    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, mail_address,
+    DiscoveredPerson, LinkingMailClaim, claim_linking_mails_batch, listed_addresses, mail_address,
+    registerable_completion_courses_by_account_email,
 };
 use headless_lms_models::library::credit_registration::enrolment_checks::{
     RosterEnrolee, wake_for_roster_listing,
@@ -24,35 +27,55 @@ use uuid::Uuid;
 use super::CodeListing;
 use crate::error::CreditRegistrationResult;
 
-/// Wakes the linked students' registrations on every module of one code's roster and claims a
-/// linking mail for everybody else, once per course on the code: mails and links are per course.
-/// Returns the linking mails claimed, for the caller's roster-fetch summary.
+/// Wakes the linked students' registrations on every module and mooc.fi target of one code's roster
+/// and claims a linking mail for everybody else, once per course or target on the code: mails and
+/// links are per course, and a target has none. Returns the linking mails claimed, for the caller's
+/// roster-fetch summary.
 pub(super) async fn reconcile_roster(
     conn: &mut PgConnection,
     listing: &CodeListing,
     people: &[RosterPerson],
     account_linking_since: Option<DateTime<Utc>>,
+    ignores_test_holds: bool,
 ) -> CreditRegistrationResult<i32> {
     let distinct = distinct_people(people);
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
     let linked = LinkedAccounts::new(&linked_rows);
     let enrolees = roster_enrolees(people, &linked);
     if !enrolees.is_empty() {
-        for module in &listing.modules {
-            wake_for_roster_listing(conn, module.course_module_id, &enrolees).await?;
+        for unit in &listing.units {
+            wake_for_roster_listing(conn, unit.credit_unit_id, &enrolees, ignores_test_holds)
+                .await?;
         }
     }
     let mut mailed_count = 0;
     if let Some(since) = account_linking_since {
-        let considered = enrolled_since(&distinct, since);
-        let course_ids: BTreeSet<Uuid> = listing
-            .modules
+        let sources: BTreeSet<LinkingMailSource> = listing
+            .units
             .iter()
-            .map(|module| module.course_id)
+            .map(RosterUnit::linking_mail_source)
             .collect();
-        let counters = claim_linking_mails(conn, &considered, &linked, &course_ids).await?;
+        let course_ids: BTreeSet<Uuid> = sources
+            .iter()
+            .filter_map(|source| source.course_id())
+            .collect();
+        let mut considered = enrolled_since(&distinct, since);
+        let unlinked_early = unlinked_enrolled_before(&distinct, &linked, since);
+        let late_completer_courses =
+            late_completer_courses(conn, &unlinked_early, &course_ids, since).await?;
+        considered.extend(unlinked_early.iter().filter(|person| {
+            late_completer_courses.contains_key(person.person_id.expose_secret())
+        }));
+        let counters = claim_linking_mails(
+            conn,
+            &considered,
+            &linked,
+            &sources,
+            &late_completer_courses,
+        )
+        .await?;
         mailed_count = counters.mailed_count;
-        let unlinked_before = unlinked_enrolled_before(&distinct, &linked, since).len();
+        let unlinked_before = unlinked_early.len() - late_completer_courses.len();
         record_linking_counters(
             conn,
             listing.code.course_code.as_str(),
@@ -61,20 +84,17 @@ pub(super) async fn reconcile_roster(
         )
         .await?;
     }
-    for module in &listing.modules {
-        mark_listing_succeeded(
-            conn,
-            module.course_module_id,
-            account_linking_since.is_some(),
-        )
-        .await?;
+    for unit in &listing.units {
+        mark_listing_succeeded(conn, unit.credit_unit_id, account_linking_since.is_some()).await?;
     }
     Ok(mailed_count)
 }
 
 /// A person enrolled on several realisations of the code is listed once per realisation; keeps the
 /// most recent enrolment of each, one with no enrolment time counting as the oldest.
-fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
+fn distinct_people<'a>(
+    people: impl IntoIterator<Item = &'a RosterPerson>,
+) -> Vec<&'a RosterPerson> {
     let mut kept: Vec<&RosterPerson> = Vec::new();
     let mut index_by_person: HashMap<&str, usize> = HashMap::new();
     for person in people {
@@ -93,8 +113,51 @@ fn distinct_people(people: &[RosterPerson]) -> Vec<&RosterPerson> {
     kept
 }
 
-/// The people the linking mails consider: those enrolled at or after `since`. Without a link we
-/// cannot tell who the rest are, so they are neither mailed nor counted.
+/// For each of `early` (unlinked, enrolled before `since`) whose Sisu primary or secondary address is
+/// the account email of someone with a registerable completion since `since`, keyed by Sisu person
+/// id, the courses that completion is on: their completion is why they are worth mailing now.
+async fn late_completer_courses(
+    conn: &mut PgConnection,
+    early: &[&RosterPerson],
+    course_ids: &BTreeSet<Uuid>,
+    since: DateTime<Utc>,
+) -> CreditRegistrationResult<HashMap<String, BTreeSet<Uuid>>> {
+    let addresses_by_person: Vec<(&RosterPerson, Vec<String>)> = early
+        .iter()
+        .map(|&person| {
+            let addresses = listed_addresses(person).map(str::to_lowercase).collect();
+            (person, addresses)
+        })
+        .collect();
+    let mut addresses: Vec<String> = addresses_by_person
+        .iter()
+        .flat_map(|(_, addresses)| addresses.iter().cloned())
+        .collect();
+    addresses.sort_unstable();
+    addresses.dedup();
+    if addresses.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let course_ids: Vec<Uuid> = course_ids.iter().copied().collect();
+    let courses_by_email =
+        registerable_completion_courses_by_account_email(conn, &course_ids, since, &addresses)
+            .await?;
+    Ok(addresses_by_person
+        .into_iter()
+        .filter_map(|(person, addresses)| {
+            let courses: BTreeSet<Uuid> = addresses
+                .iter()
+                .filter_map(|address| courses_by_email.get(address))
+                .flatten()
+                .copied()
+                .collect();
+            (!courses.is_empty()).then(|| (person.person_id.expose_secret().to_owned(), courses))
+        })
+        .collect())
+}
+
+/// The people the linking mails consider by enrolment time: those enrolled at or after `since`.
+/// The rest are mailed only through [`late_completer_courses`].
 fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<&'a RosterPerson> {
     people
         .iter()
@@ -107,6 +170,14 @@ fn enrolled_since<'a>(people: &[&'a RosterPerson], since: DateTime<Utc>) -> Vec<
         .collect()
 }
 
+/// Whether `person` enrolled before `since` or at no known time: no linking mail goes to them by
+/// enrolment time, only once an account with their Sisu address has a registerable completion.
+pub fn is_enrolled_before(person: &RosterPerson, since: DateTime<Utc>) -> bool {
+    person
+        .enrolled_at()
+        .is_none_or(|enrolled_at| enrolled_at < since)
+}
+
 /// The people [`enrolled_since`] leaves out, enrolled before `since` or at no known time, whom no
 /// account is linked to.
 fn unlinked_enrolled_before<'a>(
@@ -117,12 +188,7 @@ fn unlinked_enrolled_before<'a>(
     people
         .iter()
         .copied()
-        .filter(|person| {
-            person
-                .enrolled_at()
-                .is_none_or(|enrolled_at| enrolled_at < since)
-                && !linked.is_linked(person)
-        })
+        .filter(|person| is_enrolled_before(person, since) && !linked.is_linked(person))
         .collect()
 }
 
@@ -141,19 +207,45 @@ pub(crate) async fn list_unlinked_enrolled_before(
         .collect())
 }
 
-/// Everyone on a roster whom no account is linked to, whenever they enrolled, each once with their
-/// latest enrolment.
-pub(crate) async fn list_unlinked(
+/// A person on a course's rosters with the account linked to them, if any.
+#[derive(Debug, Clone)]
+pub struct ListedEnrolee {
+    /// With their latest enrolment under any of `course_codes`.
+    pub person: RosterPerson,
+    pub linked_user_id: Option<Uuid>,
+    /// Every course code whose roster lists them, as [`course_code_match_key`] gives it.
+    pub course_codes: Vec<String>,
+}
+
+/// Everyone on these rosters, keyed by course code, each once with their latest enrolment and the
+/// account linked to them.
+pub(crate) async fn list_with_linked_accounts(
     conn: &mut PgConnection,
-    people: &[RosterPerson],
-) -> CreditRegistrationResult<Vec<RosterPerson>> {
-    let distinct = distinct_people(people);
+    rosters: &[(String, Vec<RosterPerson>)],
+) -> CreditRegistrationResult<Vec<ListedEnrolee>> {
+    let mut codes_by_person_id: HashMap<&str, BTreeSet<String>> = HashMap::new();
+    for (code, people) in rosters {
+        let key = course_code_match_key(code);
+        for person in people {
+            codes_by_person_id
+                .entry(person.person_id.expose_secret())
+                .or_default()
+                .insert(key.clone());
+        }
+    }
+    let distinct = distinct_people(rosters.iter().flat_map(|(_, people)| people));
     let linked_rows = load_linked_accounts(conn, &distinct).await?;
     let linked = LinkedAccounts::new(&linked_rows);
     Ok(distinct
         .into_iter()
-        .filter(|person| !linked.is_linked(person))
-        .cloned()
+        .map(|person| ListedEnrolee {
+            person: person.clone(),
+            linked_user_id: linked.linked_user_id(person),
+            course_codes: codes_by_person_id
+                .get(person.person_id.expose_secret())
+                .map(|codes| codes.iter().cloned().collect())
+                .unwrap_or_default(),
+        })
         .collect())
 }
 
@@ -185,31 +277,46 @@ async fn load_linked_accounts(
 /// The accounts linked to someone on one code's roster, indexed once for every module on it.
 struct LinkedAccounts<'a> {
     rows: &'a [VerifiedStudentNumber],
-    person_ids: HashSet<&'a str>,
-    student_numbers: HashSet<&'a str>,
+    user_ids_by_person_id: HashMap<&'a str, Uuid>,
+    user_ids_by_student_number: HashMap<&'a str, Uuid>,
 }
 
 impl<'a> LinkedAccounts<'a> {
     fn new(rows: &'a [VerifiedStudentNumber]) -> Self {
+        let mut user_ids_by_person_id = HashMap::new();
+        let mut user_ids_by_student_number = HashMap::new();
+        for row in rows {
+            if let Some(person_id) = expose_option(&row.sisu_person_id) {
+                user_ids_by_person_id
+                    .entry(person_id)
+                    .or_insert(row.user_id);
+            }
+            user_ids_by_student_number
+                .entry(row.student_number.expose_secret())
+                .or_insert(row.user_id);
+        }
         Self {
             rows,
-            person_ids: rows
-                .iter()
-                .filter_map(|row| expose_option(&row.sisu_person_id))
-                .collect(),
-            student_numbers: rows
-                .iter()
-                .map(|row| row.student_number.expose_secret())
-                .collect(),
+            user_ids_by_person_id,
+            user_ids_by_student_number,
         }
+    }
+
+    /// The account linked to `person`, preferring a match by Sisu person id over one by student
+    /// number.
+    fn linked_user_id(&self, person: &RosterPerson) -> Option<Uuid> {
+        self.user_ids_by_person_id
+            .get(person.person_id.expose_secret())
+            .or_else(|| {
+                self.user_ids_by_student_number
+                    .get(person.student_number.expose_secret())
+            })
+            .copied()
     }
 
     /// Whether some account is linked to `person`, by Sisu person id or student number.
     fn is_linked(&self, person: &RosterPerson) -> bool {
-        self.person_ids.contains(person.person_id.expose_secret())
-            || self
-                .student_numbers
-                .contains(person.student_number.expose_secret())
+        self.linked_user_id(person).is_some()
     }
 }
 
@@ -248,26 +355,40 @@ fn roster_enrolees(people: &[RosterPerson], linked: &LinkedAccounts<'_>) -> Vec<
         .collect()
 }
 
-/// Claims a linking mail on each of `course_ids` for everyone in `people` we hold no link for, and
-/// counts each person once by the strongest claim any course got for them.
+/// Claims a linking mail for everyone in `people` we hold no link for, on each of `sources` or,
+/// for those in `courses_of_late_completers`, only on the courses their completion is on. Counts
+/// each person once by the strongest claim any course or target got for them.
 async fn claim_linking_mails(
     conn: &mut PgConnection,
     people: &[&RosterPerson],
     linked: &LinkedAccounts<'_>,
-    course_ids: &BTreeSet<Uuid>,
+    sources: &BTreeSet<LinkingMailSource>,
+    courses_of_late_completers: &HashMap<String, BTreeSet<Uuid>>,
 ) -> CreditRegistrationResult<AccountLinkingCodeCounters> {
     let (mut counters, candidates) = linking_candidates(people, linked);
     let mut strongest = vec![LinkingMailClaim::NoAddress; candidates.len()];
-    if !candidates.is_empty() {
-        for &course_id in course_ids {
-            let discovered: Vec<DiscoveredPerson> = candidates
-                .iter()
-                .map(|person| DiscoveredPerson::listed(person, course_id))
-                .collect();
-            let claims = claim_linking_mails_batch(conn, &discovered).await?;
-            for (person_strongest, claim) in strongest.iter_mut().zip(claims) {
-                *person_strongest = (*person_strongest).max(claim);
-            }
+    for &source in sources {
+        let on_source: Vec<usize> = (0..candidates.len())
+            .filter(|&index| {
+                courses_of_late_completers
+                    .get(candidates[index].person_id.expose_secret())
+                    .is_none_or(|courses| {
+                        source
+                            .course_id()
+                            .is_some_and(|course_id| courses.contains(&course_id))
+                    })
+            })
+            .collect();
+        if on_source.is_empty() {
+            continue;
+        }
+        let discovered: Vec<DiscoveredPerson> = on_source
+            .iter()
+            .map(|&index| DiscoveredPerson::listed(candidates[index], source))
+            .collect();
+        let claims = claim_linking_mails_batch(conn, &discovered).await?;
+        for (&index, claim) in on_source.iter().zip(claims) {
+            strongest[index] = strongest[index].max(claim);
         }
     }
     for claim in strongest {

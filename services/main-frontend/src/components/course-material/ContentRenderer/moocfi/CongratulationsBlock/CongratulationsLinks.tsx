@@ -33,20 +33,41 @@ const StyledLink = styled.a`
 `
 
 // One interactive element per CTA, not an anchor wrapping a button (WCAG 1.3.1, 2.5.3).
-const Cta: React.FC<{ href: string; label: string; enabled: boolean }> = ({
+// A disabled CTA with a `hint` stays focusable and is described by it.
+const Cta: React.FC<{ href: string; label: string; enabled: boolean; hint?: string }> = ({
   href,
   label,
   enabled,
-}) =>
-  enabled ? (
-    <Link href={href} styledAsButton variant="secondary" size="large">
-      {label}
-    </Link>
-  ) : (
-    <Button variant="secondary" size="large" disabled>
-      {label}
-    </Button>
+  hint,
+}) => {
+  if (enabled) {
+    return (
+      <Link href={href} styledAsButton variant="secondary" size="large">
+        {label}
+      </Link>
+    )
+  }
+  return (
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      `}
+    >
+      <Button variant="secondary" size="large" disabled={!hint} disabledReason={hint}>
+        {label}
+      </Button>
+      {hint && (
+        // The button carries the hint as its description.
+        <span aria-hidden="true" className={css(`font-size: 16px; color: #04312e;`)}>
+          {hint}
+        </span>
+      )}
+    </div>
   )
+}
 
 export interface CongratulationsLinksProps {
   certificateConfigurationId: string | null | undefined
@@ -55,9 +76,7 @@ export interface CongratulationsLinksProps {
 
 export const moduleOffersCreditOrCompletionRegistration = (
   module: UserModuleCompletionStatus,
-): boolean =>
-  module.enable_credit_registration_via_suotar ||
-  module.enable_registering_completion_to_uh_open_university
+): boolean => module.registers_credits
 
 const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLinksProps>> = ({
   certificateConfigurationId,
@@ -72,7 +91,8 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
   return (
     <CTAWrapper
       className={css`
-        button:disabled {
+        button:disabled,
+        button[aria-disabled="true"] {
           color: #91ac97 !important;
         }
       `}
@@ -82,6 +102,7 @@ const CongratulationsLinks: React.FC<React.PropsWithChildren<CongratulationsLink
           href={`${COMPLETION_REGISTRATION_BASE_PATH}/${module.module_id}`}
           label={module.register_credits_via_suotar ? t("register-completion") : t("register")}
           enabled={Boolean(module.completed)}
+          hint={t("credit-registration-registers-on-module-completion")}
         />
       )}
       {module.certification_enabled && certificateConfigurationId && (

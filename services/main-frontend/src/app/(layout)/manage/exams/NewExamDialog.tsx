@@ -1,7 +1,7 @@
 "use client"
 
 import type { UseQueryResult } from "@tanstack/react-query"
-import React from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewExamForm, { NEW_EXAM_FORM_ID } from "@/components/forms/NewExamForm"
@@ -27,6 +27,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   close,
 }) => {
   const { t } = useTranslation()
+  const [form, setForm] = useState<HTMLFormElement | null>(null)
   const createExamMutation = useToastMutationOptions(
     createOrganizationExamMutationOptions(),
     {
@@ -69,6 +70,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       initialData={null}
       organizationId={organizationId}
       onCancel={close}
+      formRef={setForm}
       onCreateNewExam={(newExam) =>
         createExamMutation.mutate({
           body: newExam,
@@ -99,9 +101,9 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
           variant: "primary",
           type: "submit",
           domProps: { form: NEW_EXAM_FORM_ID },
-          // The form only mounts once getOrgExams resolves; without this the footer button
-          // would submit nothing while the dialog is still loading.
-          disabled: getOrgExams.data === undefined,
+          // The form mounts only after QueryResult's loading skeleton, which can outlast the
+          // query; until then the footer button would submit nothing.
+          disabled: form === null,
         },
       ]}
     >

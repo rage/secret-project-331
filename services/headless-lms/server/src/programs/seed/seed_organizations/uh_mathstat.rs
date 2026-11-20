@@ -5,7 +5,7 @@ use headless_lms_models::{
     PKeyPolicy,
     chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
-    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
+    course_modules::{self, CompletionPolicy, CompletionRequirements, ExamRequirement},
     courses::{self, NewCourse},
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
@@ -21,6 +21,7 @@ use crate::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
+            seed_course_design_guide::seed_course_design_guide,
             seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
             seed_introduction_to_codes::seed_introduction_to_codes,
             seed_introduction_to_course_auditing::seed_introduction_to_course_auditing,
@@ -385,15 +386,15 @@ pub async fn seed_organization_uh_mathstat(
     // configure automatic completions
     let automatic_default_module =
         course_modules::get_default_by_course_id(&mut conn, suspected_cheaters_course_id).await?;
-    let automatic_default_module = course_modules::update_automatic_completion_status(
+    let automatic_default_module = course_modules::update_completion_policy(
         &mut conn,
         automatic_default_module.id,
-        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+        &CompletionPolicy::ByRequirements(CompletionRequirements {
             course_module_id: automatic_default_module.id,
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
-            requires_exam: false,
         }),
+        ExamRequirement::None,
     )
     .await?;
     course_modules::update_uh_course_code(
@@ -491,6 +492,13 @@ pub async fn seed_organization_uh_mathstat(
         "advanced-chatbot-course",
         uh_data.clone(),
         seed_users_result,
+    )
+    .await?;
+
+    let _course_design_guide_id = seed_course_design_guide(
+        &app_config,
+        Uuid::parse_str("ed16ad3c-5ae4-4595-ab9b-f151f3bf7198")?,
+        uh_data.clone(),
     )
     .await?;
 

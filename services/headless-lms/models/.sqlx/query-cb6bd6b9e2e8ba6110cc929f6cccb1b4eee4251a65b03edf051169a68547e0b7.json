@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT h.client_ip_hash = $2 AS \"is_bound!\"\nFROM moocfi_outbound_handoffs h\n  JOIN external_completions ec ON ec.id = h.external_completion_id\n  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id\nWHERE h.token_digest = $1\n  AND h.deleted_at IS NULL\n  AND ec.deleted_at IS NULL\n  AND t.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_bound!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Text"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "cb6bd6b9e2e8ba6110cc929f6cccb1b4eee4251a65b03edf051169a68547e0b7"
+}

@@ -1,4 +1,6 @@
+import { contrastRatio } from "../../common/src/utils/color"
 import { atLeast, below, BREAKPOINT_PX } from "../src/styles/breakpoints"
+import "../src/styles/tokens"
 import {
   DURATION_MS,
   EASING,
@@ -6,14 +8,13 @@ import {
   LOOP_DURATION_MS,
   MIN_VISIBLE_MS,
 } from "../src/styles/motion"
-import "../src/styles/tokens"
 
 /** The `:root` declaration block that `tokensGlobal` injects, as a live `CSSStyleDeclaration`. */
 function rootDeclarations(): CSSStyleDeclaration {
   const sheet = document.styleSheets[0]
   const rule = sheet && Array.from(sheet.cssRules).find((r) => r.cssText.startsWith(":root"))
   if (!(rule instanceof CSSStyleRule)) {
-    throw new Error("tokensGlobal did not inject a :root rule")
+    throw new TypeError("tokensGlobal did not inject a :root rule")
   }
   return rule.style
 }
@@ -142,4 +143,32 @@ describe("tokens.ts custom properties", () => {
     // so the two stacks degrade identically once neither Inter nor Raleway is available.
     expect(headingStack.slice(1)).toEqual(sansStack.slice(2))
   })
+})
+
+describe("focus ring", () => {
+  test("color is opaque and has at least 3:1 contrast on white", () => {
+    const value = rootDeclarations().getPropertyValue("--focus-ring-color")
+    expect(value).toMatch(/^rgb\(\d+, \d+, \d+\)$/)
+    expect(contrastRatio(value, "#ffffff")).toBeGreaterThanOrEqual(3)
+  })
+})
+
+describe("button transitions", () => {
+  test.each(["--btn-transition", "--btn-press-transition"])(
+    "%s lists properties and never animates visibility",
+    (name) => {
+      const value = rootDeclarations().getPropertyValue(name)
+      expect(value).not.toMatch(/\ball\b/)
+      expect(value).not.toContain("visibility")
+      for (const property of [
+        "background-color",
+        "color",
+        "border-color",
+        "box-shadow",
+        "outline-color",
+      ]) {
+        expect(value).toContain(property)
+      }
+    },
+  )
 })

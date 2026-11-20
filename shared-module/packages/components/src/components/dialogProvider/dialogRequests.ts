@@ -21,6 +21,8 @@ interface DialogRequest {
   size?: DialogSize
   /** `lang` on the dialog root, when the content is not in the UI language. */
   lang?: string
+  /** Ignores Escape, for a question where backing out would silently pick one of the answers. */
+  isKeyboardDismissDisabled?: boolean
 }
 
 export type AlertRequest = DialogRequest & {
@@ -41,6 +43,11 @@ export type ConfirmRequest = DialogRequest & {
    * deliberately leaves initial focus on the dialog itself, so nothing destructive is armed.
    */
   isDestructive?: boolean
+  /**
+   * Answering no is the safe default, as when yes would be recorded and acted on: renders the
+   * negative action as the primary one and the affirmative as secondary.
+   */
+  emphasizesCancel?: boolean
 }
 
 interface PromptLabels {

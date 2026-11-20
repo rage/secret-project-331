@@ -5,6 +5,7 @@ Contains error and result types for all the controllers.
 use std::panic::Location;
 
 use crate::domain::authorization::AuthorizedResponse;
+use crate::domain::oauth::redirects::error_redirect_url;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
     http::{StatusCode, header::ContentType},
@@ -20,6 +21,7 @@ use headless_lms_credit_registration::error::{
 };
 use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
+use headless_lms_utils::http::escape_auth_param;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 
@@ -63,9 +65,9 @@ pub enum ControllerErrorType {
     #[display("Not found")]
     NotFound,
 
-    /// HTTP status code 429.
+    /// HTTP status code 429, with how long until a retry can succeed for `Retry-After`.
     #[display("Too many requests")]
-    TooManyRequests,
+    TooManyRequests(Option<std::time::Duration>),
 
     /// HTTP status code 401. Needs to log in.
     #[display("Unauthorized")]
@@ -78,6 +80,11 @@ pub enum ControllerErrorType {
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
+
+    /// HTTP status code 403 with a specific domain reason, so clients can tell it apart from a
+    /// token that lacks a scope.
+    #[display("Forbidden")]
+    ForbiddenWithReason(ForbiddenReason),
 
     /// Varied response based on error
     #[display("OAuthError")]
@@ -109,13 +116,45 @@ impl UnauthorizedReason {
     }
 }
 
+/// Reasons a logged-in user may not answer an exercise, which a client can branch on.
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ForbiddenReason {
+    /// The exercise's chapter has not opened yet.
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    /// Chapter locking keeps the chapter closed until the previous ones are completed.
+    #[display("Chapter not unlocked yet")]
+    ChapterNotUnlockedYet,
+    /// The user has completed and locked the chapter.
+    #[display("Chapter completed and locked")]
+    ChapterCompletedAndLocked,
+    /// The user's exercise state takes no more answers, though the chapter may be open again.
+    #[display("Exercise locked")]
+    ExerciseLocked,
+}
+
+impl ForbiddenReason {
+    /// Returns the stable message key for this forbidden reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
+            Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
+            Self::ExerciseLocked => "exercise_locked",
+        }
+    }
+}
+
 /// Builds a 422 whose `message_key` the client keys its error handling on.
 pub fn bad_request_with_reason(reason: BadRequestReason, message: String) -> ControllerError {
     controller_err!(BadRequestWithReason(reason), message)
 }
 
-/// Bad request reasons a client can branch on. Only `CourseSlugAlreadyTaken` has a web-frontend
-/// translation; the rest are consumed by the VSCode client, which renders its own message.
+/// Bad request reasons a client can branch on. `CourseSlugAlreadyTaken` and
+/// `FormVerificationFailed` have web-frontend translations, the mooc.fi target ones become field
+/// errors on the admin form, and the rest are consumed by the VSCode client, which renders its own
+/// message.
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum BadRequestReason {
@@ -126,6 +165,12 @@ pub enum BadRequestReason {
     /// The user is not enrolled on the course the requested exercise belongs to.
     #[display("Not enrolled")]
     NotEnrolled,
+    /// The exercise's deadline, or its chapter's, has passed.
+    #[display("Deadline passed")]
+    DeadlinePassed,
+    /// The user has used every try the exercise allows.
+    #[display("Out of tries")]
+    OutOfTries,
     /// A submission named a file that was uploaded but has since been reaped.
     #[display("Upload expired")]
     UploadExpired,
@@ -135,6 +180,24 @@ pub enum BadRequestReason {
     /// A submission named the same uploaded file more than once.
     #[display("Duplicate upload")]
     DuplicateUpload,
+    /// Only a paste snapshot can be shared, not a backup.
+    #[display("Backup not shareable")]
+    BackupNotShareable,
+    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
+    #[display("Tiers overlap")]
+    ExternalCreditTargetTiersOverlap,
+    /// The mooc.fi course already has a live target with this course code.
+    #[display("Course code taken")]
+    ExternalCreditTargetCourseCodeTaken,
+    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
+    #[display("mooc.fi course fixed")]
+    ExternalCreditTargetMoocfiCourseFixed,
+    /// A save named a version of the record that is no longer the latest.
+    #[display("Stale version")]
+    StaleVersion,
+    /// The form's proof-of-work solution was missing, wrong, expired or already used.
+    #[display("Form verification failed")]
+    FormVerificationFailed,
 }
 
 impl BadRequestReason {
@@ -144,9 +207,19 @@ impl BadRequestReason {
             Self::CourseSlugAlreadyTaken => "course_slug_already_taken",
             Self::ForeignKeyViolation => "foreign_key_violation",
             Self::NotEnrolled => "not_enrolled",
+            Self::DeadlinePassed => "deadline_passed",
+            Self::OutOfTries => "out_of_tries",
             Self::UploadExpired => "upload_expired",
             Self::UnknownUpload => "unknown_upload",
             Self::DuplicateUpload => "duplicate_upload",
+            Self::BackupNotShareable => "backup_not_shareable",
+            Self::ExternalCreditTargetTiersOverlap => "external_credit_target_tiers_overlap",
+            Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
+            Self::ExternalCreditTargetMoocfiCourseFixed => {
+                "external_credit_target_moocfi_course_fixed"
+            }
+            Self::StaleVersion => "stale_version",
+            Self::FormVerificationFailed => "form_verification_failed",
         }
     }
 
@@ -156,6 +229,10 @@ impl BadRequestReason {
             "courses_slug_key_when_not_deleted"
             | "course_language_groups_slug_unique_non_deleted" => {
                 Some(Self::CourseSlugAlreadyTaken)
+            }
+            "external_credit_targets_tier_overlap" => Some(Self::ExternalCreditTargetTiersOverlap),
+            "uq_external_credit_targets_course_code" => {
+                Some(Self::ExternalCreditTargetCourseCodeTaken)
             }
             _ => None,
         }
@@ -417,20 +494,17 @@ impl error::ResponseError for ControllerError {
             }
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
-            if let Some(uri) = &data.redirect_uri
-                && let Ok(mut url) = url::Url::parse(uri)
-            {
-                {
-                    let mut qp = url.query_pairs_mut();
-                    qp.append_pair("error", &data.error);
-                    qp.append_pair("error_description", &data.error_description);
-                    if let Some(state) = &data.state {
-                        qp.append_pair("state", state);
-                    }
-                }
-                let loc = url.to_string();
+            if let Some(location) = data.redirect_uri.as_deref().and_then(|redirect_uri| {
+                error_redirect_url(
+                    redirect_uri,
+                    &data.error,
+                    Some(&data.error_description),
+                    data.state.as_deref(),
+                    data.issuer.as_deref(),
+                )
+            }) {
                 return HttpResponse::Found()
-                    .append_header(("Location", loc))
+                    .append_header(("Location", location))
                     .finish();
             }
 
@@ -444,10 +518,6 @@ impl error::ResponseError for ControllerError {
             };
 
             let mut res = HttpResponse::build(status);
-            // Small helper to safely embed values in WWW-Authenticate auth-param strings.
-            fn escape_auth_param(s: &str) -> String {
-                s.replace('\\', "\\\\").replace('"', "\\\"")
-            }
 
             match data.error.as_str() {
                 // OAuth2 Bearer challenges (RFC 6750 §3)
@@ -519,7 +589,14 @@ impl error::ResponseError for ControllerError {
             metadata: metadata_json,
         };
 
-        HttpResponseBuilder::new(status)
+        let mut response = HttpResponseBuilder::new(status);
+        if let ControllerErrorType::TooManyRequests(Some(retry_after)) = self.error_type {
+            response.append_header((
+                actix_web::http::header::RETRY_AFTER,
+                retry_after.as_secs().max(1),
+            ));
+        }
+        response
             .append_header(ContentType::json())
             .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
                 error!("Error while serialising error response: {e}");
@@ -535,10 +612,11 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
-            ControllerErrorType::TooManyRequests => StatusCode::TOO_MANY_REQUESTS,
+            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
             ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
                 StatusCode::BAD_REQUEST
@@ -554,6 +632,16 @@ impl error::ResponseError for ControllerError {
 }
 
 impl ControllerError {
+    /// Adds the authorization server's issuer to an OAuth error that redirects to the client.
+    pub fn with_oauth_issuer(mut self, issuer: String) -> Self {
+        if let ControllerErrorType::OAuthError(data) = &mut self.error_type
+            && data.redirect_uri.is_some()
+        {
+            data.issuer = Some(issuer);
+        }
+        self
+    }
+
     fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
         match self.error_type {
             ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
@@ -570,12 +658,13 @@ impl ControllerError {
             ControllerErrorType::UpgradeRequired => ("obsolete_client", "obsolete_client"),
             ControllerErrorType::NotFound => ("not_found", "not_found"),
             // Matches the rate limit middleware's response.
-            ControllerErrorType::TooManyRequests => ("rate_limit", "rate_limited"),
+            ControllerErrorType::TooManyRequests(_) => ("rate_limit", "rate_limited"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::UnauthorizedWithReason(reason) => {
                 ("unauthorized", reason.message_key())
             }
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::ForbiddenWithReason(reason) => ("forbidden", reason.message_key()),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
             ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
         }
@@ -598,7 +687,7 @@ impl ControllerError {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "snake_case")]
 pub struct OAuthErrorData {
     pub error: String,
@@ -606,6 +695,20 @@ pub struct OAuthErrorData {
     pub redirect_uri: Option<String>,
     pub state: Option<String>,
     pub nonce: Option<String>,
+    /// Sent with errors redirected to the client (RFC 9207); see
+    /// [`ControllerError::with_oauth_issuer`].
+    pub issuer: Option<String>,
+}
+
+impl OAuthErrorData {
+    /// An error answered as JSON; set `redirect_uri` to send it to the client instead.
+    pub fn new(code: OAuthErrorCode, description: impl Into<String>) -> Self {
+        Self {
+            error: code.as_str().to_string(),
+            error_description: description.into(),
+            ..Default::default()
+        }
+    }
 }
 
 pub enum OAuthErrorCode {
@@ -618,7 +721,14 @@ pub enum OAuthErrorCode {
     UnauthorizedClient,
     UnsupportedGrantType,
     UnsupportedResponseType,
+    /// RFC 8707: the requested resource is unknown or not allowed.
+    InvalidTarget,
     ServerError,
+    TemporarilyUnavailable,
+    // OpenID Connect Core §3.1.2.6 authorization errors.
+    LoginRequired,
+    ConsentRequired,
+    RequestNotSupported,
     InvalidDpopProof,
     UseDpopNonce,
     // RFC 8628 Device Authorization Grant token-endpoint errors. All map to
@@ -641,7 +751,12 @@ impl OAuthErrorCode {
             Self::UnauthorizedClient => "unauthorized_client",
             Self::UnsupportedGrantType => "unsupported_grant_type",
             Self::UnsupportedResponseType => "unsupported_response_type",
+            Self::InvalidTarget => "invalid_target",
             Self::ServerError => "server_error",
+            Self::TemporarilyUnavailable => "temporarily_unavailable",
+            Self::LoginRequired => "login_required",
+            Self::ConsentRequired => "consent_required",
+            Self::RequestNotSupported => "request_not_supported",
             Self::InvalidDpopProof => "invalid_dpop_proof",
             Self::UseDpopNonce => "use_dpop_nonce",
             Self::AuthorizationPending => "authorization_pending",
@@ -774,6 +889,13 @@ impl From<ModelError> for ControllerError {
                         ControllerErrorType::BadRequestWithReason(reason)
                     }),
                 description.to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
+            ModelErrorType::StaleVersion => Self::new_with_traces(
+                ControllerErrorType::BadRequestWithReason(BadRequestReason::StaleVersion),
+                err.message().to_string(),
                 Some(err.into()),
                 backtrace,
                 span_trace,
@@ -951,28 +1073,17 @@ impl From<dpop_verifier::error::DpopError> for ControllerError {
             | DpopError::NonceMismatch
             | DpopError::NonceStale
             | DpopError::InvalidHmacConfig
-            | DpopError::MissingNonce => OAuthErrorData {
-                error: OAuthErrorCode::InvalidDpopProof.as_str().into(),
-                error_description: err.to_string(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-
-            DpopError::Store(e) => OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: format!("DPoP storage error: {e}"),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-
+            | DpopError::MissingNonce => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidDpopProof, err.to_string())
+            }
+            DpopError::Store(e) => OAuthErrorData::new(
+                OAuthErrorCode::ServerError,
+                format!("DPoP storage error: {e}"),
+            ),
+            // RFC 9449 §12.2
             DpopError::UseDpopNonce { nonce } => OAuthErrorData {
-                error: OAuthErrorCode::UseDpopNonce.as_str().into(), // per RFC 9449 §12.2
-                error_description: "Server requires DPoP nonce".into(),
-                redirect_uri: None,
-                state: None,
                 nonce: Some(nonce.clone()),
+                ..OAuthErrorData::new(OAuthErrorCode::UseDpopNonce, "Server requires DPoP nonce")
             },
         };
 
@@ -1002,27 +1113,15 @@ pub enum PkceFlowError {
 impl From<PkceFlowError> for ControllerError {
     fn from(err: PkceFlowError) -> Self {
         let data = match &err {
-            PkceFlowError::InvalidRequest(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidRequest.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            PkceFlowError::InvalidGrant(msg) => OAuthErrorData {
-                error: OAuthErrorCode::InvalidGrant.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
-            PkceFlowError::ServerError(msg) => OAuthErrorData {
-                error: OAuthErrorCode::ServerError.as_str().into(),
-                error_description: (*msg).into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            },
+            PkceFlowError::InvalidRequest(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidRequest, *msg)
+            }
+            PkceFlowError::InvalidGrant(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::InvalidGrant, *msg)
+            }
+            PkceFlowError::ServerError(msg) => {
+                OAuthErrorData::new(OAuthErrorCode::ServerError, *msg)
+            }
         };
 
         ControllerError::new(
@@ -1380,6 +1479,33 @@ mod tests {
 
         assert_eq!(value["type"], "validation_error");
         assert_eq!(value["message_key"], "not_enrolled");
+    }
+
+    #[test]
+    fn test_chapter_locking_uses_dedicated_message_keys_and_403() {
+        for (reason, key) in [
+            (ForbiddenReason::ChapterNotOpenYet, "chapter_not_open_yet"),
+            (
+                ForbiddenReason::ChapterNotUnlockedYet,
+                "chapter_not_unlocked_yet",
+            ),
+            (
+                ForbiddenReason::ChapterCompletedAndLocked,
+                "chapter_completed_and_locked",
+            ),
+            (ForbiddenReason::ExerciseLocked, "exercise_locked"),
+        ] {
+            let response =
+                controller_err!(ForbiddenWithReason(reason), "locked".to_string()).error_response();
+            assert_eq!(response.status(), StatusCode::FORBIDDEN);
+            let bytes = actix_web::body::to_bytes(response.into_body())
+                .now_or_never()
+                .expect("response should resolve immediately")
+                .expect("body bytes");
+            let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+            assert_eq!(value["type"], "forbidden");
+            assert_eq!(value["message_key"], key);
+        }
     }
 
     #[test]

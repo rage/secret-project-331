@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM email_address_mail_budgets\nWHERE day < $1\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Date"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "df9e069f941311cf33c954bfcfc3c2e438a1a3de102d4d4eabc4ec00a0466860"
+}

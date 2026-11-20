@@ -5,19 +5,60 @@
 
 import * as z from "zod"
 
-export const zAutomaticCompletionRequirements = z.object({
-  course_module_id: z.uuid(),
-  number_of_exercises_attempted_treshold: z
+export const zAgentChangesetStatus = z.enum(["open", "published", "discarded", "expired"])
+
+export const zAgentChangeset = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  expires_at: z.iso.datetime(),
+  id: z.uuid(),
+  published_at: z.iso.datetime().nullish(),
+  revision: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  number_of_points_treshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  requires_exam: z.boolean(),
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  status: zAgentChangesetStatus,
+  updated_at: z.iso.datetime(),
+  user_id: z.uuid(),
+})
+
+/**
+ * One block type's registration: its attributes, where it may be nested and an example.
+ */
+export const zBlockSchema = z.object({
+  allowed_children: z.array(z.string()).nullish(),
+  allowed_parents: z.array(z.string()).nullish(),
+  attributes: z.record(z.string(), z.unknown()),
+  description: z.string(),
+  example: z.unknown(),
+  template: z.unknown().optional(),
+  template_lock: z.unknown().optional(),
+  title: z.string(),
+})
+
+/**
+ * What kind of rule a block breaks.
+ */
+export const zBlockValidationErrorCode = z.enum([
+  "invalid_block",
+  "duplicate_client_id",
+  "unknown_block",
+  "not_allowed_here",
+  "invalid_nesting",
+  "invalid_attribute",
+  "forbidden_attribute",
+  "disallowed_markup",
+])
+
+/**
+ * A problem the validator found in a block, with how to fix it.
+ */
+export const zBlockValidationError = z.object({
+  clientId: z.uuid().nullish(),
+  code: zBlockValidationErrorCode,
+  fix: z.string(),
+  message: z.string(),
+  path: z.array(z.unknown()),
 })
 
 export const zChartSpecGenerationRequest = z.object({
@@ -67,14 +108,42 @@ export const zCodeGiveaway = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * Thresholds of [`CompletionPolicy::ByRequirements`] and [`CompletionPolicy::ByExam`], as exact counts.
+ */
+export const zCompletionRequirements = z.object({
+  course_module_id: z.uuid(),
+  number_of_exercises_attempted_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  number_of_points_treshold: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+})
+
+/**
+ * How students get a module's completion, with the thresholds the method uses.
+ */
 export const zCompletionPolicy = z.union([
-  zAutomaticCompletionRequirements.and(
+  z.object({
+    method: z.enum(["not_decided"]),
+  }),
+  zCompletionRequirements.and(
     z.object({
-      policy: z.enum(["automatic"]),
+      method: z.enum(["by_requirements"]),
+    }),
+  ),
+  zCompletionRequirements.and(
+    z.object({
+      method: z.enum(["by_exam"]),
     }),
   ),
   z.object({
-    policy: z.enum(["manual"]),
+    method: z.enum(["teacher_adds"]),
   }),
 ])
 
@@ -130,6 +199,19 @@ export const zCourse = z.object({
   updated_at: z.iso.datetime(),
 })
 
+/**
+ * The name of one of the course settings in [`CourseBlockFeatures`].
+ */
+export const zCourseBlockFeature = z.enum(["chapter_locking_enabled", "can_add_chatbot"])
+
+/**
+ * The course settings that make blocks available, named as in the course settings.
+ */
+export const zCourseBlockFeatures = z.object({
+  can_add_chatbot: z.boolean(),
+  chapter_locking_enabled: z.boolean(),
+})
+
 export const zCourseInstance = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
@@ -146,29 +228,9 @@ export const zCourseInstance = z.object({
 })
 
 /**
- * Like [CourseModulesSchema], but the automatic-completion columns are collapsed into
- * `completion_policy`.
+ * How a module's completions turn into credits.
  */
-export const zCourseModule = z.object({
-  certification_enabled: z.boolean(),
-  completion_policy: zCompletionPolicy,
-  completion_registration_link_override: z.string().nullish(),
-  copied_from: z.uuid().nullish(),
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  ects_credits: z.number().nullish(),
-  enable_credit_registration_via_suotar: z.boolean(),
-  enable_registering_completion_to_uh_open_university: z.boolean(),
-  id: z.uuid(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  uh_course_code: z.string().nullish(),
-  updated_at: z.iso.datetime(),
-})
+export const zCreditRegistrationRoute = z.enum(["platform", "external", "certificate_only"])
 
 export const zDatabaseChapter = z.object({
   chapter_image_path: z.string().nullish(),
@@ -216,6 +278,8 @@ export const zEmailTemplateType = z.enum([
   "verify_email_address",
   "credit_registration_action_needed",
   "credit_registration_registered",
+  "verify_network",
+  "course_designer_weekly_digest",
 ])
 
 export const zEmailTemplate = z.object({
@@ -266,11 +330,49 @@ export const zExamInstructionsUpdate = z.object({
 })
 
 /**
+ * Whether passing a module requires an exam, and where it is held.
+ */
+export const zExamRequirement = z.enum(["none", "platform", "examinarium", "elsewhere"])
+
+/**
+ * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
+ * `completion_policy`.
+ */
+export const zCourseModule = z.object({
+  certification_enabled: z.boolean(),
+  completion_policy: zCompletionPolicy,
+  completion_registration_link_override: z.string().nullish(),
+  copied_from: z.uuid().nullish(),
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  credit_registration_route: zCreditRegistrationRoute,
+  deleted_at: z.iso.datetime().nullish(),
+  ects_credits: z.number().nullish(),
+  exam_location_description: z.string().nullish(),
+  exam_requirement: zExamRequirement,
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  uh_course_code: z.string().nullish(),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * The exercise block a list of blocks is validated as the children of.
+ */
+export const zExerciseContext = z.enum(["task_instructions", "review_instructions"])
+
+/**
  * Exercise service definition that the CMS can use to render the editor view.
  */
 export const zExerciseServiceIframeRenderingInfo = z.object({
   has_custom_view: z.boolean(),
   id: z.uuid(),
+  is_experimental: z.boolean(),
+  is_global_admin_only: z.boolean(),
   name: z.string(),
   public_iframe_url: z.string(),
   slug: z.string(),
@@ -293,16 +395,49 @@ export const zGutenbergBlock = z.object({
   name: z.string(),
 })
 
+/**
+ * A page as the tool shows and matches it. Deleted pages appear only in leftover links.
+ */
+export const zLanguageVersionPage = z.object({
+  chapter_id: z.uuid().nullish(),
+  chapter_name: z.string().nullish(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_id: z.uuid(),
+  exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  id: z.uuid(),
+  is_chapter_front_page: z.boolean(),
+  is_deleted: z.boolean(),
+  language_code: z.string(),
+  page_language_group_id: z.uuid().nullish(),
+  position: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * Body of CMS POST /pages/{page_id}/language-versions/link.
+ */
+export const zLinkPageCounterpartRequest = z.object({
+  counterpart_page_id: z.uuid(),
+})
+
 export const zNewResearchForm = z.object({
   content: z.unknown(),
   course_id: z.uuid(),
-})
-
-export const zNewResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  question: z.string(),
-  question_id: z.uuid(),
-  research_consent_form_id: z.uuid(),
 })
 
 export const zPage = z.object({
@@ -334,6 +469,33 @@ export const zPageInfo = z.object({
   page_title: z.string(),
 })
 
+export const zPageLinkCandidate = z.object({
+  is_linked: z.boolean(),
+  is_suggested: z.boolean(),
+  page: zLanguageVersionPage,
+})
+
+/**
+ * The page's counterpart in one other language version.
+ */
+export const zPageLanguageVersion = z.object({
+  can_edit: z.boolean(),
+  counterpart: zLanguageVersionPage.nullish(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  language_code: z.string(),
+  link_candidates: z.array(zPageLinkCandidate),
+})
+
+/**
+ * A page's counterparts in the other language versions (CMS GET /pages/{page_id}/language-versions).
+ */
+export const zPageLanguageVersions = z.object({
+  can_edit_all_courses: z.boolean(),
+  page: zLanguageVersionPage,
+  versions: z.array(zPageLanguageVersion),
+})
+
 export const zPageRoutingData = z.object({
   chapter_front_page_id: z.uuid().nullish(),
   chapter_id: z.uuid(),
@@ -352,6 +514,12 @@ export const zPageNavigationInformation = z.object({
   next_page: zPageRoutingData.nullish(),
   previous_page: zPageRoutingData.nullish(),
 })
+
+/**
+ * The editor (and validator) context a page's blocks are checked against. A chapter's front
+ * page takes the same blocks as its other pages.
+ */
+export const zPageType = z.enum(["course-page", "top-level-page", "course-front-page"])
 
 export const zParagraphSuggestionAction = z.enum([
   "moocfi/ai/generate-draft-from-notes",
@@ -440,7 +608,6 @@ export const zCmsPeerOrSelfReviewQuestion = z.object({
 })
 
 /**
- *
  * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
@@ -507,10 +674,30 @@ export const zCmsPageUpdate = z.object({
   url_path: z.string(),
 })
 
+/**
+ * A CMS page save. It is refused as stale when `expected_updated_at` is set and the page has
+ * changed since that version; leave it unset to overwrite.
+ */
+export const zCmsPageSave = zCmsPageUpdate.and(
+  z.object({
+    expected_updated_at: z.iso.datetime().nullish(),
+  }),
+)
+
 export const zCmsPeerOrSelfReviewConfiguration = z.object({
   peer_or_self_review_config: zCmsPeerOrSelfReviewConfig,
   peer_or_self_review_questions: z.array(zCmsPeerOrSelfReviewQuestion),
 })
+
+/**
+ * Save of a course's default configuration. A save is refused as stale when `expected_updated_at`
+ * is set and the configuration has changed since that version; leave it unset to overwrite.
+ */
+export const zCmsPeerOrSelfReviewConfigurationSave = zCmsPeerOrSelfReviewConfiguration.and(
+  z.object({
+    expected_updated_at: z.iso.datetime().nullish(),
+  }),
+)
 
 export const zContentManagementPage = z.object({
   exercise_slides: z.array(zCmsPageExerciseSlide),
@@ -545,14 +732,26 @@ export const zResearchForm = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zResearchFormQuestion = z.object({
-  course_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  question: z.string(),
-  research_consent_form_id: z.uuid(),
-  updated_at: z.iso.datetime(),
+/**
+ * An inline format rich text may use, and the tag it is stored as.
+ */
+export const zRichTextFormat = z.object({
+  description: z.string(),
+  name: z.string(),
+  tag: z.string(),
+})
+
+/**
+ * The CMS's export of block registrations, the single source of block schemas, from
+ * `GET /api/agent/block-schemas`.
+ */
+export const zBlockSchemas = z.object({
+  blocks: z.record(z.string(), zBlockSchema),
+  course_feature_gated_blocks: z.record(z.string(), zCourseBlockFeature),
+  max_request_bytes: z.int().gte(0),
+  page_types: z.record(z.string(), z.array(z.string())),
+  rich_text_formats: z.array(zRichTextFormat),
+  version: z.string(),
 })
 
 /**
@@ -569,6 +768,7 @@ export const zToolCategory = z.enum([
   "admin_support_courses",
   "admin_support_learning_progress",
   "admin_support_academic_integrity",
+  "course_planning",
 ])
 
 /**
@@ -578,10 +778,58 @@ export const zUploadResult = z.object({
   url: z.string(),
 })
 
+/**
+ * The validator's verdict on one page: valid when `errors` is empty.
+ */
+export const zValidationOutcome = z.object({
+  blocks: z.array(z.unknown()),
+  errors: z.array(zBlockValidationError),
+  warnings: z.array(zBlockValidationError),
+})
+
+/**
+ * The answer of the CMS's `POST /api/agent/validate-blocks`, a verdict per page in request order.
+ */
+export const zValidateBlocksResponse = z.object({
+  pages: z.array(zValidationOutcome),
+})
+
+/**
+ * Where the validated blocks sit, which decides the blocks they may use.
+ */
+export const zValidationTarget = z.union([
+  z.object({
+    page_type: zPageType,
+  }),
+  z.object({
+    exercise_context: zExerciseContext,
+  }),
+])
+
+/**
+ * One list of blocks to validate: a page's, or an exercise's instructions.
+ */
+export const zPageValidationRequest = zValidationTarget.and(
+  z.object({
+    blocks: z.array(z.unknown()),
+    unchanged_client_ids: z.array(z.uuid()).optional(),
+  }),
+)
+
+/**
+ * The body of the CMS's `POST /api/agent/validate-blocks`: one HTTP request's share of the pages
+ * a write call validates, its pages already serialized.
+ */
+export const zValidateBlocksRequest = z.object({
+  course_features: zCourseBlockFeatures,
+  pages: z.array(zPageValidationRequest),
+})
+
 export const zVerbosityLevel = z.enum(["low", "medium", "high"])
 
 export const zChatbotConfiguration = z.object({
   chatbot_name: z.string(),
+  course_designer_assistant: z.boolean(),
   course_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   daily_tokens_per_user: z
@@ -590,6 +838,7 @@ export const zChatbotConfiguration = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   default_chatbot: z.boolean(),
   deleted_at: z.iso.datetime().nullish(),
+  embeddable: z.boolean(),
   enabled_to_students: z.boolean(),
   enabled_tool_categories: z.array(zToolCategory),
   frequency_penalty: z.number(),
@@ -619,6 +868,16 @@ export const zChatbotConfiguration = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
+
+/**
+ * A course's default configuration as the CMS loaded it. `updated_at` is the version the editor
+ * sends back on save.
+ */
+export const zVersionedCmsPeerOrSelfReviewConfiguration = zCmsPeerOrSelfReviewConfiguration.and(
+  z.object({
+    updated_at: z.iso.datetime(),
+  }),
+)
 
 export const zRequestChartSpecGenerationBody = zChartSpecGenerationRequest
 
@@ -695,9 +954,9 @@ export const zGetCmsCourseDefaultPeerReviewPath = z.object({
 /**
  * Default peer review configuration
  */
-export const zGetCmsCourseDefaultPeerReviewResponse = zCmsPeerOrSelfReviewConfiguration
+export const zGetCmsCourseDefaultPeerReviewResponse = zVersionedCmsPeerOrSelfReviewConfiguration
 
-export const zUpdateCmsCourseDefaultPeerReviewBody = zCmsPeerOrSelfReviewConfiguration
+export const zUpdateCmsCourseDefaultPeerReviewBody = zCmsPeerOrSelfReviewConfigurationSave
 
 export const zUpdateCmsCourseDefaultPeerReviewPath = z.object({
   course_id: z.uuid(),
@@ -706,7 +965,7 @@ export const zUpdateCmsCourseDefaultPeerReviewPath = z.object({
 /**
  * Updated default peer review configuration
  */
-export const zUpdateCmsCourseDefaultPeerReviewResponse = zCmsPeerOrSelfReviewConfiguration
+export const zUpdateCmsCourseDefaultPeerReviewResponse = zVersionedCmsPeerOrSelfReviewConfiguration
 
 export const zGetCmsCourseModulesPath = z.object({
   course_id: z.uuid(),
@@ -778,17 +1037,6 @@ export const zUpsertCmsCourseResearchFormPath = z.object({
  * Research form
  */
 export const zUpsertCmsCourseResearchFormResponse = zResearchForm
-
-export const zUpsertCmsCourseResearchFormQuestionsBody = z.array(zNewResearchFormQuestion)
-
-export const zUpsertCmsCourseResearchFormQuestionsPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Research form questions
- */
-export const zUpsertCmsCourseResearchFormQuestionsResponse = z.array(zResearchFormQuestion)
 
 export const zUploadCmsCourseMediaBody = z.string()
 
@@ -897,7 +1145,7 @@ export const zGetCmsPagePath = z.object({
  */
 export const zGetCmsPageResponse = zContentManagementPage
 
-export const zUpdateCmsPageBody = zCmsPageUpdate
+export const zUpdateCmsPageBody = zCmsPageSave
 
 export const zUpdateCmsPagePath = z.object({
   page_id: z.uuid(),
@@ -928,6 +1176,26 @@ export const zGetCmsPageInfoPath = z.object({
  */
 export const zGetCmsPageInfoResponse = zPageInfo
 
+export const zGetCmsPageLanguageVersionsPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The page's counterparts
+ */
+export const zGetCmsPageLanguageVersionsResponse = zPageLanguageVersions
+
+export const zLinkCmsPageCounterpartBody = zLinkPageCounterpartRequest
+
+export const zLinkCmsPageCounterpartPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The page's counterparts after linking
+ */
+export const zLinkCmsPageCounterpartResponse = zPageLanguageVersions
+
 export const zGetCmsPageNavigationPath = z.object({
   page_id: z.uuid(),
 })
@@ -936,6 +1204,15 @@ export const zGetCmsPageNavigationPath = z.object({
  * Page navigation
  */
 export const zGetCmsPageNavigationResponse = zPageNavigationInformation
+
+export const zGetCmsPagePendingAgentChangesPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The open changeset changing the page, if any
+ */
+export const zGetCmsPagePendingAgentChangesResponse = zAgentChangeset.nullable()
 
 export const zGetCmsRepositoryExercisesForCoursePath = z.object({
   course_id: z.uuid(),

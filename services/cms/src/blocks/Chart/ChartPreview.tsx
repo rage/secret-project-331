@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import React from "react"
-import { VegaLite } from "react-vega"
+import { VegaEmbed, type VegaEmbedProps } from "react-vega"
 
 import { useDebouncedElementWidth } from "@/shared-module/common/hooks/useDebouncedElementWidth"
 import { useFontLoaded } from "@/shared-module/common/hooks/useFontLoaded"
@@ -16,6 +16,14 @@ import { useRenderableChartSpec } from "./useRenderableChartSpec"
 const MIN_HEIGHT = 200
 // Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
 const RESIZE_DEBOUNCE_MS = 150
+
+// Module-level because react-vega re-embeds the chart whenever options change.
+const EMBED_OPTIONS: VegaEmbedProps["options"] = {
+  // Specs without a $schema would otherwise be read as plain Vega.
+  mode: "vega-lite",
+  actions: false,
+  renderer: "svg",
+}
 
 const messageStyle = (background: string, border: string, color: string) => css`
   padding: 1rem;
@@ -134,8 +142,7 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({
               transform-origin: top left;
             `}
           >
-            {/* eslint-disable-next-line i18next/no-literal-string */}
-            {siteFontLoaded && <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />}
+            {siteFontLoaded && <VegaEmbed spec={responsiveSpec} options={EMBED_OPTIONS} />}
           </div>
         </div>
       )}

@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_designer_plan_events (\n  course_designer_plan_id,\n  actor_user_id,\n  event_type,\n  stage\n)\nSELECT $1, $2, 'workspace_saved', $3\nWHERE NOT EXISTS (\n  SELECT 1\n  FROM course_designer_plan_events\n  WHERE course_designer_plan_id = $1\n    AND actor_user_id = $2\n    AND event_type = 'workspace_saved'\n    AND stage = $3\n    AND occurred_at > NOW() - INTERVAL '1 hour'\n    AND deleted_at IS NULL\n)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "78169dd6000c65ba5a4e7061f0ac02d1e0909636d84f5cbd7e3696b346cca5b0"
+}

@@ -79,6 +79,17 @@
             "name": "justification"
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "moocfi_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "completion_registration_credit_justifications",
+            "name": "moocfi_completion_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -91,9 +102,10 @@
       false,
       false,
       true,
+      true,
       false,
       false,
-      false
+      true
     ]
   },
   "hash": "cb9649581f40e62826255edaeaee6123508ec70c71ccc318671dbfd517d58099"

@@ -6,43 +6,15 @@ import { createRequire } from "module"
 import path from "path"
 
 import type { BlockType } from "@wordpress/blocks"
-import * as jsdom from "jsdom"
 import type { JSONSchema } from "json-schema-to-typescript"
 import { compile } from "json-schema-to-typescript"
 import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 
+import "../src/utils/Gutenberg/headlessDom.ts"
+
 const require = createRequire(import.meta.url)
 
-// -------- Make the script (node) enviroment to look enough like a browser environment for the operation to succeed --------
-const { JSDOM } = jsdom
-const dom = new JSDOM(`<body>
-<script>document.body.appendChild(document.createElement("hr"));</script>
-</body>`)
-const mock = () => {
-  // No op
-}
-Object.defineProperty(dom.window, "matchMedia", {
-  writable: true,
-  value: (query: unknown) => {
-    return {
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: mock,
-      removeListener: mock,
-      addEventListener: mock,
-      removeEventListener: mock,
-      dispatchEvent: mock,
-    }
-  },
-})
-
-// @ts-expect-error: Just to prevent a crash, not used
-global.window = dom.window
-global.document = dom.window.document
-// @ts-expect-error: Just to prevent a crash, not used
-global.CSS = {}
-global.location = dom.window.location
+// Overrides on top of the shared headless DOM that this script's imports need.
 Object.defineProperty(global, "navigator", {
   value: {
     userAgent:
@@ -109,12 +81,12 @@ async function main() {
     modifyEmbedBlockAttributes: _modifyEmbedBlockAttributes,
     modifyImageBlockAttributes: _modifyImageBlockAttributes,
   } = await import("../src/utils/Gutenberg/modifyBlockAttributes")
-  const { supportedCoreBlocks } = await import("../src/blocks/supportedGutenbergBlocks")
+  const { storableCoreBlocks } = await import("../src/blocks/supportedGutenbergBlocks")
 
   blockLibrary.registerCoreBlocks()
 
   blocks.getBlockTypes().forEach((block: BlockType<Record<string, unknown>>) => {
-    if (supportedCoreBlocks.indexOf(block.name) === -1) {
+    if (!storableCoreBlocks.includes(block.name)) {
       blocks.unregisterBlockType(block.name)
     }
   })

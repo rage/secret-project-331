@@ -6,7 +6,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
-    course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
+    course_modules::{self, CompletionPolicy, CompletionRequirements, ExamRequirement},
     courses::{self, NewCourse},
     library::{
         self,
@@ -23,8 +23,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_agent_changesets, seed_cs_course_material, seed_glossary,
+            seed_graded_course, seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
@@ -253,6 +253,14 @@ pub async fn seed_organization_uh_cs(
             false,
             seed_users_result,
         )),
+        run_parallelly(seed_agent_changesets::seed_agent_changesets_course(
+            app_config.clone(),
+            Uuid::parse_str("5b0e2a5c-4a26-4c55-9a0c-6f0f8c4f6a31")?,
+            "Agent changesets",
+            "agent-changesets",
+            cs_data.clone(),
+            seed_users_result,
+        )),
         run_parallelly(seed_glossary::seed_glossary_course(
             app_config.clone(),
             Uuid::parse_str("c218ca00-dbde-4b0c-ab98-4f075c49425a")?,
@@ -318,15 +326,15 @@ pub async fn seed_organization_uh_cs(
     // configure automatic completions
     let automatic_default_module =
         course_modules::get_default_by_course_id(&mut conn, automatic_completions_id).await?;
-    let automatic_default_module = course_modules::update_automatic_completion_status(
+    let automatic_default_module = course_modules::update_completion_policy(
         &mut conn,
         automatic_default_module.id,
-        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+        &CompletionPolicy::ByRequirements(CompletionRequirements {
             course_module_id: automatic_default_module.id,
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
-            requires_exam: false,
         }),
+        ExamRequirement::None,
     )
     .await?;
     course_modules::update_uh_course_code(
@@ -337,15 +345,15 @@ pub async fn seed_organization_uh_cs(
     .await?;
     let automatic_with_exam_default_module =
         course_modules::get_default_by_course_id(&mut conn, automatic_course_with_exam_id).await?;
-    let automatic_with_exam_default_module = course_modules::update_automatic_completion_status(
+    let automatic_with_exam_default_module = course_modules::update_completion_policy(
         &mut conn,
         automatic_with_exam_default_module.id,
-        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+        &CompletionPolicy::ByExam(CompletionRequirements {
             course_module_id: automatic_with_exam_default_module.id,
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
-            requires_exam: true,
         }),
+        ExamRequirement::Platform,
     )
     .await?;
     course_modules::update_uh_course_code(
@@ -382,19 +390,24 @@ pub async fn seed_organization_uh_cs(
     // configure certification
     let certificates_default_module =
         course_modules::get_default_by_course_id(&mut conn, certificates_id).await?;
-    course_modules::update_automatic_completion_status(
+    course_modules::update_completion_policy(
         &mut conn,
         certificates_default_module.id,
-        &CompletionPolicy::Automatic(AutomaticCompletionRequirements {
+        &CompletionPolicy::ByRequirements(CompletionRequirements {
             course_module_id: certificates_default_module.id,
             number_of_exercises_attempted_treshold: Some(1),
             number_of_points_treshold: Some(1),
-            requires_exam: false,
         }),
+        ExamRequirement::None,
     )
     .await?;
-    course_modules::update_certification_enabled(&mut conn, certificates_default_module.id, true)
-        .await?;
+    course_modules::update_certification_enabled(
+        &mut conn,
+        certificates_default_module.id,
+        true,
+        teacher_user_id,
+    )
+    .await?;
 
     roles::insert(
         &mut conn,

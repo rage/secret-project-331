@@ -1,7 +1,9 @@
 //! What one answer does to its row, and writing it there, guarded by the state the claim expects.
 
 use chrono::{DateTime, Utc};
-use headless_lms_models::credit_registration_events::CreditRegistrationEventKind;
+use headless_lms_models::credit_registration_events::{
+    CreditRegistrationEventKind, suotar_exchange_details,
+};
 use headless_lms_models::credit_registrations::{
     self, CreditRegistrationState, PayloadSnapshot, Transition, Transitioned,
     set_resubmit_not_before, set_sisu_attainment_if_unclaimed, set_submitted_attainment,
@@ -13,9 +15,7 @@ use headless_lms_models::library::credit_registration::grade_mapping::MappedGrad
 use headless_lms_models::library::credit_registration::outcomes::{
     NextAttempt, Outcome, UnaskedMove,
 };
-use headless_lms_models::library::credit_registration::scrub::{
-    scrub_text, suotar_exchange_details,
-};
+use headless_lms_models::library::credit_registration::scrub::scrub_text;
 use headless_lms_models::library::credit_registration::study_registry::RegistryAttainment;
 use headless_lms_models::verified_student_numbers;
 use secrecy::ExposeSecret;

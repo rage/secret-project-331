@@ -2,11 +2,11 @@
 
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useRef } from "react"
 
 import { useCornerTapFlip } from "@/hooks/course-material/useCornerTapFlip"
 import { respondToOrLarger } from "@/shared-module/common//styles/respond"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
 import { COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM } from "@/utils/course-material/constants"
 import { escapeUrlForCss } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -28,6 +28,8 @@ const CENTERED_MARGIN = "0 auto"
 const DEFAULT_MARGIN_MEDIUM_SCREEN = "0 0 0 45%"
 const DEFAULT_MARGIN_LARGE_SCREEN = "0 0 0 35%"
 
+const TITLE_CLASS = "hero-title"
+
 const TextBox = styled.div<TextBoxProps>`
   display: flex;
   flex-direction: column;
@@ -37,25 +39,26 @@ const TextBox = styled.div<TextBoxProps>`
   text-align: ${({ direction }) => direction};
   align-items: ${({ direction }) => direction};
   justify-content: center;
-  ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.mobile)}
+  ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.mobile, color)}
 
   ${respondToOrLarger.md} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_MEDIUM_SCREEN};
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.medium)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.medium, color)}
   }
 
   ${respondToOrLarger.lg} {
     margin: ${({ direction }) =>
       direction === "center" ? CENTERED_MARGIN : DEFAULT_MARGIN_LARGE_SCREEN};
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.large)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.large, color)}
   }
 
   ${respondToOrLarger.xl} {
-    ${({ backgroundImages }) => heroTextReadabilityCss(backgroundImages.xlarge)}
+    ${({ backgroundImages, color }) => heroTextReadabilityCss(backgroundImages.xlarge, color)}
   }
 
-  h1 {
+  .${TITLE_CLASS} {
+    font-size: ${typography.h3};
     font-weight: 700;
     z-index: 20;
     margin-bottom: 0.5rem;
@@ -98,6 +101,8 @@ export interface HeroSectionProps {
   partiallyTransparent?: boolean
   backgroundRepeatX?: boolean
   backgroundSizeRem?: number
+  // The exam page has its own h1, so the hero title is an h2 there.
+  isExam?: boolean
 }
 
 export type CardProps = React.HTMLAttributes<HTMLDivElement> & HeroSectionProps
@@ -117,6 +122,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   backgroundRepeatX,
   backgroundSizeRem,
   alignBottom,
+  isExam,
 }) => {
   const CENTER = "center"
   const LEFT = "left"
@@ -124,6 +130,7 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
   // oxlint-disable-next-line i18next/no-literal-string
   const backgroundVerticalAlignment = alignBottom ? "bottom" : "center"
   const { containerRef, onPointerDown, flipClassName } = useCornerTapFlip()
+  const labelRef = useRef<HTMLElement>(null)
 
   const backgroundImages = resolveHeroBackgroundImages({
     backgroundImage,
@@ -185,12 +192,25 @@ const HeroSection: React.FC<React.PropsWithChildren<CardProps>> = ({
       `}
     >
       <TextBox backgroundImages={backgroundImages} color={fontColor} direction={direction}>
-        <span className="chapter">{label}</span>
+        {/* No wrapper: the label must stay a flex item for its margin to apply. */}
+        <ParsedText
+          text={label}
+          tag="span"
+          // oxlint-disable-next-line i18next/no-literal-string
+          tagProps={{ className: "chapter" }}
+          options={{ glossary: false }}
+          useWrapperElement={false}
+          wrapperRef={labelRef}
+        />
         <ParsedText
           text={title}
-          tag="h1"
+          tag={isExam ? "h2" : "h1"}
           tagProps={{
-            className: cx(INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS, flipClassName),
+            className: cx(
+              TITLE_CLASS,
+              INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS,
+              flipClassName,
+            ),
           }}
           options={{ glossary: false }}
           useWrapperElement={true}

@@ -32,15 +32,8 @@ const registration = (
     ...overrides,
   }) as MyCreditRegistration
 
-const actionsFor = (reg: MyCreditRegistration, options: { linkToStatusPage?: boolean } = {}) =>
-  renderHook(
-    () =>
-      useStudentRegistrationActions({
-        registration: reg,
-        linkToStatusPage: options.linkToStatusPage ?? false,
-      }),
-    { wrapper },
-  ).result.current
+const actionsFor = (reg: MyCreditRegistration) =>
+  renderHook(() => useStudentRegistrationActions(reg), { wrapper }).result.current
 
 describe("useStudentRegistrationActions", () => {
   test("leads a missing enrolment with the enrolment page and offers a recheck beside it", () => {
@@ -112,17 +105,6 @@ describe("useStudentRegistrationActions", () => {
     )
 
     expect(primaryAction).toBeNull()
-    expect(secondaryActions).toHaveLength(0)
-  })
-
-  test("leaves a failure with no lever of its own with only the onward link", () => {
-    const { primaryAction, secondaryActions } = actionsFor(
-      registration("failed", { error_code: "misregistered" }),
-      { linkToStatusPage: true },
-    )
-
-    expect(primaryAction?.label).toBe("link-text-see-what-happened")
-    expect(primaryAction?.href).toBe("/completion-registration/module-1")
     expect(secondaryActions).toHaveLength(0)
   })
 })

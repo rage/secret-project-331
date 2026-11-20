@@ -71,8 +71,8 @@
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation",
-                "chart-spec-generation",
-                "feedback-categorization"
+                "feedback-categorization",
+                "chart-spec-generation"
               ]
             }
           }
@@ -109,8 +109,8 @@
                 "cms-paragraph-suggestion",
                 "sisu-description-summary",
                 "prompt-creation",
-                "chart-spec-generation",
-                "feedback-categorization"
+                "feedback-categorization",
+                "chart-spec-generation"
               ]
             }
           }

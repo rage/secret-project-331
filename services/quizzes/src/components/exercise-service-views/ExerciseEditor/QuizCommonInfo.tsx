@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import Accordion from "@/shared-module/common/components/Accordion"
@@ -52,6 +52,7 @@ const HORIZONTAL = "horizontal"
 
 const QuizCommonInfo: React.FC = () => {
   const { t } = useTranslation()
+  const layoutTitleId = useId()
 
   const itemFeedbackVisibilityOptions = useItemFeedbackVisibilityOptions()
 
@@ -81,12 +82,12 @@ const QuizCommonInfo: React.FC = () => {
                 })
               }}
             />
-            <OptionTitle> {t("layout-options")} </OptionTitle>
+            <OptionTitle id={layoutTitleId}> {t("layout-options")} </OptionTitle>
             <OptionDescription>
               {t("quiz-item-display-direction")}{" "}
               {t("this-feature-is-only-meant-for-closed-end-questions")}
             </OptionDescription>
-            <MultipleChoiceLayoutChoiceContainer role="radiogroup">
+            <MultipleChoiceLayoutChoiceContainer role="radiogroup" aria-labelledby={layoutTitleId}>
               <RadioButton
                 checked={selected.quizItemDisplayDirection === HORIZONTAL}
                 onClick={() => {

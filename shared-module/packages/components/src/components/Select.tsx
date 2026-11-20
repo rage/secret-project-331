@@ -19,6 +19,7 @@ import {
 import type { FieldValues, Path } from "react-hook-form"
 
 import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { ARIA_VALIDATION } from "../lib/utils/aria"
 import { composeRefs } from "../lib/utils/compositeField"
 import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
@@ -30,6 +31,7 @@ import {
   type SelectOption,
   type SelectOptionGroup,
 } from "../lib/utils/select"
+import { FieldError } from "./primitives/FieldError"
 import {
   fieldControlCss,
   fieldRootCss,
@@ -188,6 +190,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     isDisabled,
     isRequired,
+    validationBehavior: ARIA_VALIDATION,
     isInvalid,
     label,
     description,
@@ -237,6 +240,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       value: selectedKey,
       isDisabled,
       isRequired,
+      validationBehavior: ARIA_VALIDATION,
       isInvalid,
       label,
       description,
@@ -292,6 +296,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
     onKeyDown,
     onKeyUp,
+    "aria-invalid": hookIsInvalid ? true : undefined,
   })
 
   const resolvedRenderedError = resolveRenderedErrorMessage(
@@ -381,7 +386,7 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
               )}
               {isRefObjectHTMLUListElementOrNull(mergedCollectionRef) && (
                 <ListBox
-                  {...mergeProps(menuProps, collectionProps)}
+                  {...(searchEnabled ? mergeProps(menuProps, collectionProps) : menuProps)}
                   // useSelect asks for native-select behaviour, where the press that opens the
                   // listbox also selects whatever it is released over. A long listbox is clamped
                   // to the viewport and can then cover the trigger, so that release picks an
@@ -397,9 +402,9 @@ export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
       </div>
 
       {resolvedRenderedError ? (
-        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+        <FieldError {...errorMessageProps} className={resolveMessageCss(fieldSize, true)}>
           {resolvedRenderedError}
-        </p>
+        </FieldError>
       ) : description ? (
         <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
           {description}

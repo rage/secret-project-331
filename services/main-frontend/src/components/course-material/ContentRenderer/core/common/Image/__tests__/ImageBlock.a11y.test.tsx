@@ -10,8 +10,9 @@ import { ImageInteractivityContext } from "../ImageInteractivityContext"
 // react-medium-image-zoom ships ESM that jest can't transform; mock it out.
 jest.mock("react-medium-image-zoom", () => ({
   __esModule: true,
-  // oxlint-disable-next-line react/jsx-no-useless-fragment -- a component mock must return an element, not bare ReactNode
-  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  default: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="zoom">{children}</div>
+  ),
 }))
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
@@ -58,5 +59,34 @@ describe("ImageBlock accessibility (issue #75)", () => {
     const { container } = renderBlock(makeProps({ caption: "" }))
     expect(container.querySelector("figcaption")).toBeNull()
     expect(container.querySelector("figure")).not.toBeNull()
+  })
+})
+
+describe("ImageBlock links", () => {
+  it("zooms an image linked to its own file instead of linking it", () => {
+    const { container, getByTestId } = render(
+      <ImageBlock
+        {...makeProps({ href: "https://example.com/photo.jpg", linkDestination: "media" })}
+      />,
+    )
+    expect(container.querySelector("a")).toBeNull()
+    expect(getByTestId("zoom")).toContainElement(container.querySelector("img"))
+  })
+
+  it("does not link an image whose custom link is its own file", () => {
+    const { container } = renderBlock(
+      makeProps({ href: "https://example.com/photo.jpg", linkDestination: "custom" }),
+    )
+    expect(container.querySelector("a")).toBeNull()
+  })
+
+  it("keeps a custom link to another address", () => {
+    const { getByRole } = renderBlock(
+      makeProps({ href: "https://example.com/article", linkDestination: "custom" }),
+    )
+    expect(getByRole("link", { name: "A photo" })).toHaveAttribute(
+      "href",
+      "https://example.com/article",
+    )
   })
 })

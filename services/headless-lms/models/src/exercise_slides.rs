@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use futures::future::BoxFuture;
 use url::Url;
 use utoipa::ToSchema;
@@ -164,6 +166,43 @@ LIMIT 1;
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// The slide of each exercise that the course site shows the user: the one already selected for
+/// them in `course_id`, otherwise a random one, as for anonymous visitors. Read-only: unlike
+/// [`crate::exercises::get_or_select_exercise_slide`], a random pick isn't stored, so it can differ
+/// between calls. Exercises without slides are left out.
+pub async fn get_shown_slide_ids_for_exercises(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    course_id: Uuid,
+    exercise_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let rows = sqlx::query!(
+        "
+SELECT DISTINCT ON (s.exercise_id) s.exercise_id,
+  s.id
+FROM exercise_slides s
+  LEFT JOIN user_exercise_states ues ON ues.exercise_id = s.exercise_id
+  AND ues.user_id = $1
+  AND ues.course_id = $2
+  AND ues.deleted_at IS NULL
+WHERE s.exercise_id = ANY($3)
+  AND s.deleted_at IS NULL
+ORDER BY s.exercise_id,
+  s.id = ues.selected_exercise_slide_id DESC NULLS LAST,
+  random()
+        ",
+        user_id,
+        course_id,
+        exercise_ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows
+        .into_iter()
+        .map(|row| (row.exercise_id, row.id))
+        .collect())
 }
 
 pub async fn get_exercise_slide_by_exercise_task_id(

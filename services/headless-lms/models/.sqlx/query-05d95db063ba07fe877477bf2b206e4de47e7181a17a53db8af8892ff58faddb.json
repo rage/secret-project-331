@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_specific_consent_form_questions\nSET deleted_at = NOW()\nWHERE research_consent_form_id = $1\n  AND deleted_at IS NULL\n  AND id <> ALL($2::uuid [])\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "05d95db063ba07fe877477bf2b206e4de47e7181a17a53db8af8892ff58faddb"
+}

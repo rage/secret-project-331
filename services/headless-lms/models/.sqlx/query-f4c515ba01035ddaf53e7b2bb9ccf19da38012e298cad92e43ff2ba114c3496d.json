@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT t.title\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id\nWHERE s.course_designer_plan_id = $1\n  AND s.deleted_at IS NULL\n  AND t.deleted_at IS NULL\n  AND t.is_completed\n  AND t.completed_at > $2\nORDER BY t.completed_at, t.order_number\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "title"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f4c515ba01035ddaf53e7b2bb9ccf19da38012e298cad92e43ff2ba114c3496d"
+}

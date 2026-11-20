@@ -3,6 +3,7 @@ use chrono::{DateTime, Utc};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     PKeyPolicy, SpecFetcher, course_exams,
+    course_instance_enrollments::{self, NewCourseInstanceEnrollment},
     exams::{self, NewExam},
     exercise_slide_submissions,
     exercise_task_gradings::{self, ExerciseTaskGradingResult, UserPointsUpdateStrategy},
@@ -16,7 +17,7 @@ use headless_lms_models::{
     },
     peer_or_self_review_configs::{self, CmsPeerOrSelfReviewConfig},
     peer_or_self_review_questions::{self, CmsPeerOrSelfReviewQuestion},
-    user_exercise_slide_states, user_exercise_states,
+    user_ai_usage_notice_acknowledgements, user_exercise_slide_states, user_exercise_states,
 };
 use headless_lms_utils::{
     attributes,
@@ -91,7 +92,7 @@ pub async fn create_page(
         conn,
         PageUpdateArgs {
             page_id: page.id,
-            author,
+            author: headless_lms_models::entity_history::HistoryAuthor::user(author),
             cms_page_update: CmsPageUpdate {
                 content: page_data.content,
                 exercises: page_data.exercises,
@@ -778,5 +779,47 @@ pub async fn create_best_peer_review(
         false,
     )
     .await?;
+    Ok(())
+}
+
+/// Inserts a seeded user whose email counts as verified, as a real account's would once its owner
+/// has confirmed it; roles granted by email only take effect for verified addresses.
+pub async fn insert_user_with_verified_email(
+    conn: &mut PgConnection,
+    pkey_policy: headless_lms_models::PKeyPolicy<Uuid>,
+    email: &str,
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+) -> Result<Uuid> {
+    let user_id =
+        headless_lms_models::users::insert(conn, pkey_policy, email, first_name, last_name).await?;
+    headless_lms_models::user_details::set_email_verified(
+        conn,
+        user_id,
+        headless_lms_models::user_details::EmailVerificationMethod::EmailedCode,
+        Utc::now(),
+    )
+    .await?;
+    Ok(user_id)
+}
+
+/// Enrols the way a student who has been through the course's opening dialogs is: without
+/// `user_course_settings` and the AI notice acknowledgement, the course pages open on a dialog.
+pub async fn enroll(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_instance_id: Uuid,
+) -> Result<()> {
+    course_instance_enrollments::insert_enrollment_and_set_as_current(
+        conn,
+        NewCourseInstanceEnrollment {
+            user_id,
+            course_id,
+            course_instance_id,
+        },
+    )
+    .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(conn, user_id, course_id).await?;
     Ok(())
 }

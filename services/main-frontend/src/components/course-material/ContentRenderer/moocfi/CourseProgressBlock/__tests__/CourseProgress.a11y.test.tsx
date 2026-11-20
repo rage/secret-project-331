@@ -19,8 +19,7 @@ const moduleProgress = (overrides: Partial<UserCourseProgress> = {}): UserCourse
   total_exercises: 10,
   attempted_exercises: 3,
   attempted_exercises_required: 5,
-  automatic_completion: true,
-  requires_exam: false,
+  completion_method: "by_requirements",
   ...overrides,
 })
 
@@ -95,7 +94,7 @@ describe("CourseProgress", () => {
   })
 
   it("words the requirements for the exam in exam courses", async () => {
-    renderProgress({ requires_exam: true, score_required: null })
+    renderProgress({ completion_method: "by_exam", score_required: null })
     expect(screen.getByRole("heading", { name: "heading-exam-requirements" })).toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "label-about-exam-requirements" }))
     expect(await screen.findByText("requirements-intro-exam-one")).toBeInTheDocument()

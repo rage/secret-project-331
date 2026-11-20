@@ -23,7 +23,7 @@ describe("AuthorBlock accessibility (issue #73)", () => {
     id: "author-block",
     name: "moocfi/author",
     isValid: true,
-    attributes: { backgroundColor: "#fff" },
+    attributes: {},
     clientId: "author-block",
     innerBlocks: [],
   }

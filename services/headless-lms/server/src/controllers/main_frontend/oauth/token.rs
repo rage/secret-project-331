@@ -1,8 +1,8 @@
 use crate::domain::oauth::dpop::verify_dpop_from_actix_for_token;
 use crate::domain::oauth::errors::TokenGrantError;
 use crate::domain::oauth::helpers::{
-    ClientAuthError, authenticate_oauth_client, oauth_invalid_client, ok_json_no_cache,
-    scope_has_openid,
+    ClientAuthError, authenticate_oauth_client, oauth_error, oauth_invalid_client,
+    ok_json_no_cache, scope_has_openid,
 };
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::oidc::generate_id_token;
@@ -15,7 +15,7 @@ use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig};
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
-use domain::error::{OAuthErrorCode, OAuthErrorData};
+use domain::error::OAuthErrorCode;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::cache::Cache;
 use models::oauth_access_token::TokenType;
@@ -119,7 +119,8 @@ pub async fn token(
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
 
-    let access_ttl = Duration::hours(1);
+    // Rotation gives every new refresh token a fresh lifetime, so it expires after this long
+    // without use.
     let refresh_ttl = Duration::days(30);
 
     let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
@@ -140,21 +141,17 @@ pub async fn token(
 
     // Add non-secret fields to the span for observability
     tracing::Span::current().record("client_id", &form.client_id);
+    let access_ttl = client.access_token_ttl();
 
     // Check if client allows this grant type
     let grant_kind = form.grant.kind();
     tracing::Span::current().record("grant_type", format!("{:?}", grant_kind));
     if !client.allows_grant(grant_kind) {
-        return Err(ControllerError::new(
-            ControllerErrorType::OAuthError(Box::new(OAuthErrorData {
-                error: OAuthErrorCode::UnsupportedGrantType.as_str().into(),
-                error_description: "grant type not allowed for this client".into(),
-                redirect_uri: None,
-                state: None,
-                nonce: None,
-            })),
-            "Grant type not allowed for this client",
-            None::<anyhow::Error>,
+        return Err(oauth_error(
+            OAuthErrorCode::UnsupportedGrantType,
+            "grant type not allowed for this client",
+            None,
+            None,
         ));
     }
 
@@ -200,6 +197,7 @@ pub async fn token(
         issued_token_type,
         dpop_jkt: dpop_jkt_opt.as_deref(),
         token_hmac_key,
+        resource: form.resource.as_ref(),
     };
 
     let TokenGrantResult {
@@ -212,14 +210,13 @@ pub async fn token(
         .await
         .map_err(|e: TokenGrantError| ControllerError::from(e))?;
 
-    let base_url = app_conf.base_url.trim_end_matches('/');
     let id_token = if issue_id_token && scope_has_openid(&scope_vec) {
         Some(generate_id_token(
             user_id,
             &client.client_id,
             nonce_opt.as_deref(),
             at_expires_at,
-            &format!("{}/api/v0/main-frontend/oauth", base_url),
+            &app_conf.oauth_issuer(),
             &app_conf,
         )?)
     } else {
@@ -235,6 +232,7 @@ pub async fn token(
             TokenType::DPoP => "DPoP".to_string(),
         },
         expires_in: access_ttl.num_seconds() as u32,
+        scope: scope_vec.join(" "),
     };
 
     server_token.authorized_ok(ok_json_no_cache(response))

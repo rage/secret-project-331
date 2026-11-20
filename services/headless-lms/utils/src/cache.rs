@@ -268,6 +268,45 @@ impl Cache {
         }
     }
 
+    /// Deletes every key matching the glob `pattern` (Redis `MATCH` syntax), for keys that embed
+    /// request parameters. Returns false if Redis is unavailable or fails.
+    pub async fn invalidate_matching(&self, pattern: &str) -> bool {
+        if !self.initial_connection_successful() {
+            return false;
+        }
+        let Some(mut connection) = self.connection_manager.get().cloned() else {
+            return false;
+        };
+        let mut cursor: u64 = 0;
+        loop {
+            let scanned: redis::RedisResult<(u64, Vec<String>)> = redis::cmd("SCAN")
+                .arg(cursor)
+                .arg("MATCH")
+                .arg(pattern)
+                .arg("COUNT")
+                .arg(1000)
+                .query_async(&mut connection)
+                .await;
+            let (next_cursor, keys) = match scanned {
+                Ok(res) => res,
+                Err(e) => {
+                    error!("Failed to scan cache keys: {e}");
+                    return false;
+                }
+            };
+            if !keys.is_empty()
+                && let Err(e) = connection.del::<_, i64>(keys).await
+            {
+                error!("Failed to invalidate cache keys: {e}");
+                return false;
+            }
+            if next_cursor == 0 {
+                return true;
+            }
+            cursor = next_cursor;
+        }
+    }
+
     /// Returns whether the initial connection was successful
     pub fn initial_connection_successful(&self) -> bool {
         self.initial_connection_successful

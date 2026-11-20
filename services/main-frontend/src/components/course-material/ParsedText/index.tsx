@@ -54,6 +54,8 @@ interface GlossaryTarget {
 
 // https://github.com/facebook/react/issues/31600
 const RESCAN_DELAYS_MS = [0, 2000] as const
+// How long to watch for lazily loaded HTML (e.g. the LaTeX paragraph) filling in glossary spans.
+const LAZY_CONTENT_WINDOW_MS = 10_000
 
 const scanGlossaryTargets = (container: HTMLElement | null): GlossaryTarget[] => {
   if (!container) {
@@ -141,7 +143,32 @@ const ParsedText = <T extends Tag>(props: ParsedTextProps<T>) => {
       timersRef.current.push(id)
     }
 
+    // A lazily loaded element (e.g. the LaTeX paragraph) fills in its HTML after the scans above,
+    // so watch for glossary spans appearing for a while; without terms there is nothing to find.
+    let observer: MutationObserver | undefined
+    let frame = 0
+    if (terms.length > 0 && initialContainer && typeof MutationObserver !== "undefined") {
+      observer = new MutationObserver(() => {
+        if (frame !== 0) {
+          return
+        }
+        frame = window.requestAnimationFrame(() => {
+          frame = 0
+          const next = scanGlossaryTargets(containerRef.current)
+          setGlossaryTargets((prev) => (sameTargets(prev, next) ? prev : next))
+        })
+      })
+      observer.observe(initialContainer, { childList: true, subtree: true })
+      timersRef.current.push(
+        window.setTimeout(() => observer?.disconnect(), LAZY_CONTENT_WINDOW_MS),
+      )
+    }
+
     return () => {
+      observer?.disconnect()
+      if (frame !== 0) {
+        window.cancelAnimationFrame(frame)
+      }
       timersRef.current.forEach((t) => window.clearTimeout(t))
       timersRef.current = []
     }

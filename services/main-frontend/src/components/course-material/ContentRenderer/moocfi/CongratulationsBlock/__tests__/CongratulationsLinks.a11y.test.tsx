@@ -13,8 +13,6 @@ const baseModule: UserModuleCompletionStatus = {
   certification_enabled: true,
   completed: true,
   default: false,
-  enable_registering_completion_to_uh_open_university: true,
-  enable_credit_registration_via_suotar: false,
   register_credits_via_suotar: false,
   grade: 5,
   module_id: "module-1",
@@ -22,6 +20,7 @@ const baseModule: UserModuleCompletionStatus = {
   order_number: 1,
   passed: true,
   prerequisite_modules_completed: true,
+  registers_credits: true,
 }
 
 describe("CongratulationsLinks accessibility (issue #55)", () => {
@@ -62,8 +61,12 @@ describe("CongratulationsLinks accessibility (issue #55)", () => {
     )
 
     expect(screen.queryByRole("link")).not.toBeInTheDocument()
-    const buttons = screen.getAllByRole("button")
-    expect(buttons).toHaveLength(2)
-    buttons.forEach((button) => expect(button).toBeDisabled())
+    expect(screen.getAllByRole("button")).toHaveLength(2)
+    // Register explains itself, so it stays focusable; the certificate button has no reason.
+    expect(screen.getByRole("button", { name: "register" })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    )
+    expect(screen.getByRole("button", { name: "generate-certificate-button-label" })).toBeDisabled()
   })
 })

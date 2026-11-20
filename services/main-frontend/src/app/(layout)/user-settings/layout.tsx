@@ -42,7 +42,7 @@ const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => 
         {t("user-settings")}
       </h1>
 
-      <Tabs>
+      <Tabs wrapOnPhone>
         {/* oxlint-disable-next-line i18next/no-literal-string */}
         <Tab tabName="account">{t("user-settings-account-tab")}</Tab>
         {/* oxlint-disable-next-line i18next/no-literal-string */}

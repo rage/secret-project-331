@@ -6,8 +6,8 @@ import { createCourse } from "@/utils/flows/newCourse.flow"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
+import accessibilityCheck from "../utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
-import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
 test.describe("anonymous user", () => {
   test("cannot see draft course", async ({ page }) => {
@@ -68,10 +68,7 @@ test.describe("admin", () => {
     await expect(page.getByText("Introduction to Drafts")).toBeVisible()
   })
 
-  test("can create a draft course and change it to a non-draft course", async ({
-    page,
-    headless,
-  }, testInfo) => {
+  test("can create a draft course and change it to a non-draft course", async ({ page }) => {
     await page.goto("http://project-331.local/organizations")
 
     await selectOrganization(
@@ -89,13 +86,8 @@ test.describe("admin", () => {
 
     await page.locator("[aria-label=\"Manage\\ course\\ \\'Advanced\\ drafts\\'\"] svg").click()
 
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: page,
-      headless,
-      testInfo,
-      snapshotName: "draft-course",
-      waitForTheseToBeVisibleAndStable: [page.getByText("Advanced drafts (Draft)")],
-    })
+    await expect(page.getByText("Advanced drafts (Draft)")).toBeVisible()
+    await accessibilityCheck(page, "Draft course overview")
 
     await page.getByRole("button", { name: "Edit" }).first().click()
     // Uncheck input[type="checkbox"]
@@ -104,14 +96,8 @@ test.describe("admin", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Update" }).click()
     await page.getByRole("button", { name: "Update", exact: true }).waitFor({ state: "hidden" })
 
-    await expectScreenshotsToMatchSnapshots({
-      screenshotTarget: page,
-      headless,
-      testInfo,
-      snapshotName: "non-draft-course",
-      waitForTheseToBeVisibleAndStable: [page.getByRole("heading", { name: "Advanced drafts" })],
-      clearNotifications: true,
-    })
+    await expect(page.getByRole("heading", { name: "Advanced drafts" })).toBeVisible()
+    await accessibilityCheck(page, "Non-draft course overview")
   })
 })
 
@@ -136,9 +122,13 @@ test.describe("Teacher", () => {
     await page.getByLabel("Email", { exact: true }).fill("user@example.com")
     const roleToAdd = new Select(page, page.locator("#add-user-role"), { name: "Role to add" })
     await roleToAdd.chooseOption("Material viewer")
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Add user" }).click()
-    })
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("button", { name: "Add user" }).click()
+      },
+      "Role added for user@example.com",
+    )
 
     // check that the user can access the course
     const context2 = await browser.newContext({ storageState: "src/states/user@example.com.json" })

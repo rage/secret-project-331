@@ -9,6 +9,7 @@ import useConversationInfo from "@/hooks/course-material/chatbot/useConversation
 import useCurrentConversationId from "@/hooks/course-material/chatbot/useCurrentConversationId"
 
 import { hasStreamedAssistantContent } from "../../chatbotReducer"
+import courseMaterialChatbotEndpoints from "../../courseMaterialChatbotEndpoints"
 import {
   ASK_MULTIPLE_CHOICE_QUESTION_TOOL,
   multipleChoiceAnswer,
@@ -50,9 +51,17 @@ const wrapper = ({ children }: { children: ReactNode }) => {
 }
 
 const renderChatbot = () =>
-  renderHook(() => useChatbotStateAndData("11111111-1111-4111-8111-111111111111", null, true), {
-    wrapper,
-  })
+  renderHook(
+    () =>
+      useChatbotStateAndData(
+        courseMaterialChatbotEndpoints("11111111-1111-4111-8111-111111111111"),
+        null,
+        true,
+      ),
+    {
+      wrapper,
+    },
+  )
 
 beforeEach(() => {
   jest.clearAllMocks()

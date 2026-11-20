@@ -8,6 +8,8 @@
  * because `system-tests` pins `LANGUAGE=en_US`.
  */
 
+import { escapeForRegExp } from "../regex"
+
 /** Locale the app passes to react-aria's `I18nProvider`; every name below is resolved in it. */
 export const DEFAULT_TEMPORAL_LOCALE = "en"
 
@@ -42,10 +44,6 @@ export const DATE_PICKER_LABELS = {
 /** Accessible name of the calendar header buttons that open the month/year chooser. */
 export function chooseMonthAndYearLabel(visibleLabel: string): string {
   return `Choose month and year: ${visibleLabel}`
-}
-
-function escapeForRegExp(value: string): string {
-  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
 /**

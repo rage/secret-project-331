@@ -70,6 +70,26 @@ pub struct UserDetail {
     pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
+/// How course design plans name a person: their full name, or their email when they have none.
+pub fn full_name_or_email(
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+    email: &str,
+) -> String {
+    let name = [first_name, last_name]
+        .into_iter()
+        .flatten()
+        .map(str::trim)
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ");
+    if name.is_empty() {
+        email.to_string()
+    } else {
+        name
+    }
+}
+
 pub async fn get_user_details_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -89,6 +109,36 @@ SELECT user_id,
   email_verified_method
 FROM user_details
 WHERE user_id = $1 ",
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// [`get_user_details_by_user_id`] that also locks the row until the transaction ends, for a read
+/// that decides a later write.
+pub async fn get_user_details_by_user_id_for_update(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<UserDetail> {
+    let res = sqlx::query_as!(
+        UserDetail,
+        "
+SELECT user_id,
+  created_at,
+  updated_at,
+  email,
+  first_name,
+  last_name,
+  country,
+  email_communication_consent,
+  email_verified_at,
+  email_verified_method
+FROM user_details
+WHERE user_id = $1
+FOR UPDATE
+",
         user_id
     )
     .fetch_one(conn)
@@ -180,7 +230,8 @@ pub async fn get_active_user_id_by_email_case_insensitive(
     Ok(id)
 }
 
-/// Users whose id or email equals the search term, ignoring case and surrounding whitespace.
+/// Users whose id, email or TMC id (`users.upstream_id`) equals the search term, ignoring case and
+/// surrounding whitespace.
 ///
 /// At most one row per kind, and cheap enough to answer before [`search_for_user_details_fuzzy`].
 pub async fn search_for_user_details_exact(
@@ -190,7 +241,12 @@ pub async fn search_for_user_details_exact(
     let search = search.trim();
     let user_id = search.parse::<Uuid>().ok();
     let email = (user_id.is_none() && search.contains('@')).then_some(search);
-    if user_id.is_none() && email.is_none() {
+    let upstream_id = search
+        .bytes()
+        .all(|b| b.is_ascii_digit())
+        .then(|| search.parse::<i32>().ok())
+        .flatten();
+    if user_id.is_none() && email.is_none() && upstream_id.is_none() {
         return Ok(Vec::new());
     }
     let res = sqlx::query_as!(
@@ -209,9 +265,16 @@ SELECT user_id,
 FROM user_details
 WHERE user_id = $1
   OR lower(email) = lower($2)
+  OR user_id = (
+    SELECT id
+    FROM users
+    WHERE upstream_id = $3
+      AND deleted_at IS NULL
+  )
 ",
         user_id,
         email,
+        upstream_id,
     )
     .fetch_all(conn)
     .await?;
@@ -443,6 +506,29 @@ WHERE user_id = $2
     Ok(())
 }
 
+/// Sets the name alone. The caller also pushes it to TMC, which otherwise keeps the old one.
+pub async fn update_user_name(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    first_name: &str,
+    last_name: &str,
+) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE user_details
+SET first_name = $1,
+  last_name = $2
+WHERE user_id = $3
+"#,
+        first_name,
+        last_name,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_user_email_communication_consent(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -523,7 +609,8 @@ WHERE id = $2
     Ok(updated_user)
 }
 
-/// Records a proof of control over the address currently in `email`.
+/// Records a proof of control over the address currently in `email`, and grants the roles that were
+/// waiting for it (see [`crate::pending_roles`]).
 ///
 /// Must not also write `email`: the `clear_email_verification` trigger would null the flag in the
 /// same statement.
@@ -533,6 +620,7 @@ pub async fn set_email_verified(
     method: EmailVerificationMethod,
     verified_at: DateTime<Utc>,
 ) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
 UPDATE user_details
@@ -544,8 +632,48 @@ WHERE user_id = $1
         verified_at,
         method as EmailVerificationMethod,
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+    crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Records a proof of control from a code mailed at `code_created_at`, and grants the roles that
+/// were waiting for it, unless the account already has a proof or its details changed since then.
+/// An admin's assertion is replaced, since it is not proof (see [`has_mailbox_proof`]).
+///
+/// One conditional write, so an address change committing alongside cannot slip between the check
+/// and the write. Compare [`set_email_verified`], which records unconditionally.
+pub async fn set_email_verified_unless_changed_since(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    method: EmailVerificationMethod,
+    code_created_at: DateTime<Utc>,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let result = sqlx::query!(
+        r#"
+UPDATE user_details
+SET email_verified_at = now(),
+  email_verified_method = $2
+WHERE user_id = $1
+  AND (
+    email_verified_at IS NULL
+    OR email_verified_method = 'admin_asserted'
+  )
+  AND updated_at <= $3
+"#,
+        user_id,
+        method as EmailVerificationMethod,
+        code_created_at,
+    )
+    .execute(&mut *tx)
+    .await?;
+    if result.rows_affected() > 0 {
+        crate::pending_roles::activate_for_user(&mut tx, user_id).await?;
+    }
+    tx.commit().await?;
     Ok(())
 }
 
@@ -564,6 +692,14 @@ WHERE user_id = $1
     .execute(conn)
     .await?;
     Ok(())
+}
+
+/// Whether the user has shown they control the address in `email`. An admin's say-so is not proof:
+/// it can attach any address to any account.
+pub async fn has_mailbox_proof(conn: &mut PgConnection, user_id: Uuid) -> ModelResult<bool> {
+    Ok(get_email_verification(conn, user_id)
+        .await?
+        .is_some_and(|(_, method)| method != EmailVerificationMethod::AdminAsserted))
 }
 
 /// Whether the address currently in `email` has a proof of control, and how it was obtained.

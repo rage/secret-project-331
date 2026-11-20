@@ -27,15 +27,19 @@ const NEVER_ENTERED_MIN_AGE_SECS: i64 = 60 * 60;
 /// A completion that satisfies the materialise predicate and has no ledger row.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct NeverEnteredCompletion {
-    pub course_module_completion_id: Uuid,
+    /// `None` for a mooc.fi completion, as are the course and the module.
+    pub course_module_completion_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    pub external_credit_target_id: Option<Uuid>,
     pub completion_date: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
     /// The student has no enrolment on the course, so `materialize` has no course instance to put
@@ -53,10 +57,13 @@ pub struct ReconciliationRegistration {
     pub last_name: Option<String>,
     pub email: Option<String>,
     pub student_number: Option<String>,
-    pub course_id: Uuid,
+    /// `None` on a mooc.fi registration, as is `course_module_id`.
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
     pub course_module_name: Option<String>,
+    pub external_credit_target_id: Option<Uuid>,
     pub uh_course_code: Option<String>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
@@ -67,25 +74,30 @@ pub struct ReconciliationRegistration {
     pub terminal_at: Option<DateTime<Utc>>,
 }
 
-/// A ledger row the legacy study-registry ledger contradicts.
+/// A ledger row the legacy study-registry ledger, or for a mooc.fi row mooc.fi, contradicts.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct LegacyLedgerDivergenceRow {
     pub credit_registration_id: Uuid,
-    pub course_module_completion_id: Uuid,
+    /// `None` on a mooc.fi registration, as are the course and the module.
+    pub course_module_completion_id: Option<Uuid>,
+    pub external_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub course_id: Uuid,
+    pub course_id: Option<Uuid>,
+    /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    pub course_module_id: Uuid,
+    pub course_module_id: Option<Uuid>,
+    pub external_credit_target_id: Option<Uuid>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
     /// We registered it and the legacy ledger has no row of ours, so the teacher views and the pull
-    /// stream still call the completion unregistered.
+    /// stream still call the completion unregistered. Never set on a mooc.fi row.
     pub mirror_missing: bool,
     /// A registrar took the completion through the pull path while our pipeline had not finished
-    /// with it: the shape a double registration would have.
+    /// with it, or another organization registered a mooc.fi completion we had already submitted:
+    /// the shape a double registration would have.
     pub registered_by_a_registrar: bool,
 }
 
@@ -251,6 +263,7 @@ async fn rows_by_ids(
 fn to_never_entered(row: UnmaterialisedCompletion) -> NeverEnteredCompletion {
     NeverEnteredCompletion {
         course_module_completion_id: row.course_module_completion_id,
+        external_completion_id: row.external_completion_id,
         user_id: row.user_id,
         first_name: row.first_name,
         last_name: row.last_name,
@@ -259,6 +272,7 @@ fn to_never_entered(row: UnmaterialisedCompletion) -> NeverEnteredCompletion {
         course_name: row.course_name,
         course_module_id: row.course_module_id,
         course_module_name: row.course_module_name,
+        external_credit_target_id: row.external_credit_target_id,
         completion_date: row.completion_date,
         created_at: row.created_at,
         missing_enrolment: row.missing_enrolment,
@@ -277,6 +291,7 @@ fn to_reconciliation_row(row: AdminCreditRegistration) -> ReconciliationRegistra
         course_name: row.course_name,
         course_module_id: row.course_module_id,
         course_module_name: row.course_module_name,
+        external_credit_target_id: row.external_credit_target_id,
         uh_course_code: row.uh_course_code,
         state: row.state,
         state_entered_at: row.state_entered_at,
@@ -292,6 +307,7 @@ fn to_legacy_divergence(row: LegacyLedgerDivergence) -> LegacyLedgerDivergenceRo
     LegacyLedgerDivergenceRow {
         credit_registration_id: row.credit_registration_id,
         course_module_completion_id: row.course_module_completion_id,
+        external_completion_id: row.external_completion_id,
         user_id: row.user_id,
         first_name: row.first_name,
         last_name: row.last_name,
@@ -299,6 +315,7 @@ fn to_legacy_divergence(row: LegacyLedgerDivergence) -> LegacyLedgerDivergenceRo
         course_id: row.course_id,
         course_name: row.course_name,
         course_module_id: row.course_module_id,
+        external_credit_target_id: row.external_credit_target_id,
         state: row.state,
         state_entered_at: row.state_entered_at,
         mirror_missing: row.mirror_missing,

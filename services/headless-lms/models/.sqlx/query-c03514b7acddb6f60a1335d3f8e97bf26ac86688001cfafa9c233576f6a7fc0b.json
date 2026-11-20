@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM pages\n    WHERE page_language_group_id = $1\n      AND course_id IS NOT NULL\n      AND deleted_at IS NULL\n    GROUP BY course_id\n    HAVING COUNT(*) > 1\n  ) AS \"exists!\"\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "c03514b7acddb6f60a1335d3f8e97bf26ac86688001cfafa9c233576f6a7fc0b"
+}

@@ -1,27 +1,33 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useContext, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
 
 import type { NewResearchForm, ResearchForm } from "@/generated/api"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { Button, useDialog } from "@/shared-module/components"
+import type { ResearchFormPreviewMessage } from "@/shared-module/common/utils/researchFormPreview"
+import { openResearchFormPreviewChannel } from "@/shared-module/common/utils/researchFormPreview"
+import { manageCourseResearchFormPreviewRoute } from "@/shared-module/common/utils/routes"
+import { Button, ErrorNotice, useDialog } from "@/shared-module/components"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
+import { isResearchQuestionTooShort } from "../../blocks/ResearchConsentQuestion/questionLength"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
 import { mediaUploadBuilder } from "../../services/mediaUpload"
-import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
+// oxlint-disable-next-line i18next/no-literal-string
+const QUESTION_BLOCK_NAME = "moocfi/research-consent-question"
+
 interface ResearchFormEditorProps {
-  data: ResearchForm
+  initialContent: BlockInstance[]
   handleSave: (updatedTemplate: NewResearchForm) => Promise<ResearchForm>
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
@@ -30,39 +36,56 @@ interface ResearchFormEditorProps {
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
 const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorProps>> = ({
-  data,
+  initialContent,
   handleSave,
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
 }) => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
-  const [content, setContent] = useState<BlockInstance[]>(
-    modifyBlocks((data.content ?? []) as BlockInstance[], [
-      ...allowedResearchFormCoreBlocks,
-      // oxlint-disable-next-line i18next/no-literal-string
-      "moocfi/research-consent-question",
-    ]) as BlockInstance[],
+  const [content, setContent] = useState<BlockInstance[]>(() =>
+    modifyBlocks(initialContent, [...allowedResearchFormCoreBlocks, QUESTION_BLOCK_NAME]),
   )
   const courseId = useContext(CourseContext)?.courseId
   const [saving, setSaving] = useState(false)
-  const [currentContent, setCurrentContent] = useState<BlockInstance[]>(
-    modifyBlocks((data.content ?? []) as BlockInstance[], [
-      ...allowedResearchFormCoreBlocks,
-      // oxlint-disable-next-line i18next/no-literal-string
-      "moocfi/research-consent-question",
-    ]) as BlockInstance[],
-  )
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [currentContent, setCurrentContent] = useState<BlockInstance[]>(content)
 
-  if (!currentContent) {
-    if (!isBlockInstanceArray(data.content)) {
-      throw new Error("content is not block instance")
-    } else {
-      setCurrentContent(data.content)
+  const latestContent = useRef(content)
+  const previewChannel = useRef<BroadcastChannel | null>(null)
+  useEffect(() => {
+    if (!courseId) {
+      return
     }
-  }
+    const channel = openResearchFormPreviewChannel(courseId)
+    channel.addEventListener("message", (event: MessageEvent<ResearchFormPreviewMessage>) => {
+      if (event.data.type === "ready") {
+        // oxlint-disable-next-line unicorn/require-post-message-target-origin -- BroadcastChannel has no target origin
+        channel.postMessage(previewDraft(latestContent.current))
+      }
+    })
+    previewChannel.current = channel
+    return () => {
+      channel.close()
+      previewChannel.current = null
+    }
+  }, [courseId])
+  useEffect(() => {
+    latestContent.current = content
+    previewChannel.current?.postMessage(previewDraft(content))
+  }, [content])
 
   const handleOnSave = async () => {
+    const questions = content.filter((block) => block.name === QUESTION_BLOCK_NAME)
+    if (questions.length === 0) {
+      setSaveError(t("research-form-needs-a-question"))
+      return
+    }
+    if (questions.some((question) => isResearchQuestionTooShort(question.attributes.content))) {
+      setSaveError(t("research-form-has-too-short-questions"))
+      return
+    }
+    setSaveError(null)
     setSaving(true)
     try {
       const res = await handleSave({
@@ -96,6 +119,15 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
         <Button variant="primary" size="medium" onClick={handleOnSave} disabled={saving}>
           {t("save")}
         </Button>
+        {courseId && (
+          <Button
+            variant="secondary"
+            size="medium"
+            onClick={() => window.open(manageCourseResearchFormPreviewRoute(courseId), "_blank")}
+          >
+            {t("preview")}
+          </Button>
+        )}
         <Button
           variant="secondary"
           size="medium"
@@ -113,6 +145,7 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
           {t("reset")}
         </Button>
       </div>
+      {saveError && <ErrorNotice error={saveError} />}
     </div>
   )
   return (
@@ -153,6 +186,14 @@ const ResearchFormEditor: React.FC<React.PropsWithChildren<ResearchFormEditorPro
       </div>
     </>
   )
+}
+
+/** What Save would store, as plain JSON: RichText values are objects until serialized. */
+function previewDraft(content: BlockInstance[]): ResearchFormPreviewMessage {
+  return {
+    type: "draft",
+    content: JSON.parse(JSON.stringify(removeUnsupportedBlockType(content))),
+  }
 }
 
 export default ResearchFormEditor

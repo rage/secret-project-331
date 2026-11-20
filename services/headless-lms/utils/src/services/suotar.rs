@@ -611,8 +611,7 @@ pub struct SuotarBatchResponse<R> {
     pub duration: Duration,
     /// `suotar_api_calls.id`, absent only when the audit write itself failed.
     pub call_id: Option<Uuid>,
-    /// Unscrubbed; scrub before persisting any part of it. Shared with the audit record rather than
-    /// copied, since `list-by-course` bodies are the largest the pipeline handles.
+    /// Shared with the audit record rather than copied, since `list-by-course` bodies are the largest the pipeline handles.
     pub raw_response: Arc<serde_json::Value>,
 }
 
@@ -705,7 +704,7 @@ impl std::error::Error for SuotarError {
 }
 
 /// Both fields are audit-row columns: `worker_name` separates the submitter from the verify poller
-/// from a manual retry, and the ids replace the identifiers scrubbing removes from stored bodies.
+/// from a manual retry, and the ids name every row even after sampling drops items from the body.
 #[derive(Debug, Clone, Default)]
 pub struct SuotarCallContext {
     pub worker_name: String,
@@ -723,7 +722,6 @@ pub struct SuotarCallStarted {
     pub credit_registration_ids: Vec<Uuid>,
     pub request_item_ids: Vec<String>,
     pub started_at: DateTime<Utc>,
-    /// Unscrubbed; the implementation scrubs before it persists anything.
     pub request_body: serde_json::Value,
 }
 
@@ -740,12 +738,11 @@ pub struct SuotarCallFinished {
     pub endpoint: Option<SuotarEndpoint>,
     pub request_level_error_code: Option<String>,
     pub error_message: Option<String>,
-    /// Unscrubbed; the implementation scrubs before it persists anything.
     pub response_body: Option<Arc<serde_json::Value>>,
 }
 
 /// Persists one `suotar_api_calls` row per call. A trait because the table is in the models crate,
-/// which depends on this one. Implementations must scrub the bodies.
+/// which depends on this one.
 #[async_trait]
 pub trait SuotarCallAudit: Send + Sync {
     /// Returns the row id, which travels out as [`CORRELATION_ID_HEADER`]. `None` means the row
@@ -1149,7 +1146,7 @@ fn failed<R>(
     (Err(error), finished)
 }
 
-/// A body that is not JSON is still worth keeping; the scrubber takes a bare string too.
+/// A body that is not JSON is still worth keeping.
 fn body_for_audit(text: &str) -> serde_json::Value {
     serde_json::from_str(text).unwrap_or_else(|_| serde_json::Value::String(text.to_string()))
 }

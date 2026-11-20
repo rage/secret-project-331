@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -23,6 +23,8 @@ export interface ConfirmDialogReason {
   hint?: React.ReactNode
   /** Overrides the default validation message shown when the field is submitted blank. */
   requiredMessage?: string
+  /** Above the field, e.g. a picker of reasons given before; `setReason` replaces the field's text. */
+  renderAbove?: (setReason: (reason: string) => void) => React.ReactNode
 }
 
 export interface ConfirmDialogProps {
@@ -82,9 +84,15 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 }) => {
   const { t } = useTranslation("shared-module")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { control, handleSubmit } = useForm<ConfirmDialogFormValues>({
+  const { control, handleSubmit, reset, setValue } = useForm<ConfirmDialogFormValues>({
     defaultValues: { reason: "" },
   })
+  // Callers keep the dialog mounted between uses, so it would reopen with the reason last sent.
+  useEffect(() => {
+    if (open) {
+      reset()
+    }
+  }, [open, reset])
 
   const runConfirm = async (reasonValue?: string) => {
     setIsSubmitting(true)
@@ -132,6 +140,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       {...omitUndefined({ size, "data-testid": dataTestId })}
     >
       <div className={reason ? descriptionAboveFieldCss : undefined}>{description}</div>
+      {reason?.renderAbove && (
+        <div className={descriptionAboveFieldCss}>
+          {reason.renderAbove((text) => setValue("reason", text, { shouldValidate: true }))}
+        </div>
+      )}
       {reason ? (
         <TextArea<ConfirmDialogFormValues>
           name="reason"

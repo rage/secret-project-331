@@ -81,7 +81,6 @@ test.describe("The teacher", () => {
 
     await page.getByRole("button", { name: "Check the suggested links" }).click()
     await expect(page.getByRole("heading", { name: "Chapters and pages" })).toBeVisible()
-    await page.getByRole("button", { name: "Accept all suggestions" }).click()
     await expect(page.getByRole("button", { name: "Undo accept all" })).toBeVisible()
     await expectScreenshotsToMatchSnapshots({
       screenshotTarget: page,
@@ -91,11 +90,18 @@ test.describe("The teacher", () => {
       waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "Undo accept all" })],
       beforeScreenshot: () => hideToasts(page),
     })
-    // Continue opens each chapter tab in turn before moving on to the next step.
+    // Continue opens each chapter tab in turn; Accept all only covers the tab on screen.
     const reviewHeading = page.getByRole("heading", { name: "Review and apply" })
+    const acceptAll = page.getByRole("button", { name: "Accept all suggestions" })
+    let acceptedTabs = 0
     while (!(await reviewHeading.isVisible())) {
+      if (await acceptAll.isVisible()) {
+        await acceptAll.click()
+        acceptedTabs += 1
+      }
       await page.getByRole("button", { name: "Continue" }).click()
     }
+    expect(acceptedTabs).toBeGreaterThan(0)
     await page.getByRole("button", { name: "Apply changes" }).click()
     const applyDialog = page.getByRole("dialog", { name: "Apply the changes" })
     await applyDialog.getByRole("button", { name: "Apply changes" }).click()

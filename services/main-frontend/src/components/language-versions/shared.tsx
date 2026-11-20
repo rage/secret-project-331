@@ -320,9 +320,10 @@ export const SurenessBadge: React.FC<{
   reason: SuggestionReason | null | undefined
 }> = ({ sureness, reason }) => {
   const { t } = useTranslation()
+  const label = t(SURENESS_LABEL_KEY[sureness])
   const badge = (
     <Badge size="compact" tone={SURENESS_TONE[sureness]}>
-      {t(SURENESS_LABEL_KEY[sureness])}
+      {label}
     </Badge>
   )
   if (!reason) {
@@ -330,7 +331,7 @@ export const SurenessBadge: React.FC<{
   }
   const reasonText = suggestionReasonText(t, reason)
   return (
-    <Tooltip aria-label={reasonText} trigger={badge}>
+    <Tooltip aria-label={label} trigger={badge}>
       {reasonText}
     </Tooltip>
   )

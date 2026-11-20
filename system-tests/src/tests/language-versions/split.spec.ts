@@ -50,6 +50,9 @@ test("Removing a course from the language versions moves its students with it", 
   await expect(courses.getByRole("link", { name: SPLIT_SET.swedishName })).toHaveCount(0)
   await expect(page.getByText("This course has no other language versions yet.")).toBeVisible()
   await expect(
-    problemRow(page, "2 courses look like translations of this course but are separate courses"),
+    problemRow(
+      page,
+      "2 courses look like translations of this course but are not its language versions",
+    ),
   ).toContainText(`“${SPLIT_SET.swedishName}” (Swedish)`)
 })

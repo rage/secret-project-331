@@ -8,6 +8,7 @@ import {
   languageVersionsTabUrl,
   storageStateOf,
 } from "@/utils/languageVersions"
+import { hideToasts } from "@/utils/notificationUtils"
 import expectScreenshotsToMatchSnapshots from "@/utils/screenshot"
 
 // Owns the "join" set. Each test builds on the previous one.
@@ -88,6 +89,7 @@ test.describe("The teacher", () => {
       testInfo,
       snapshotName: "language-versions-guided-pages",
       waitForTheseToBeVisibleAndStable: [page.getByRole("button", { name: "Undo accept all" })],
+      beforeScreenshot: () => hideToasts(page),
     })
     await page.getByRole("button", { name: "Continue" }).click()
 
@@ -123,8 +125,9 @@ test.describe("After the join", () => {
     )
     await new Topbar(page).languageMenu.clickItem("Suomi")
     await expect(page).toHaveURL(coursePageUrl(JOIN_SET, JOIN_SET.finnishSlug, PAGE_PATH))
+    // The course material is shown in the course's own language.
     await expect(
-      page.getByText("You have previously started this course in a different language").first(),
+      page.getByText("Olet jo aloittanut tämän kurssin toisella kielellä").first(),
     ).toBeVisible()
   })
 })

@@ -27,7 +27,10 @@ test("The admin tool opens the language versions of the course picked by name", 
   await expect(courses.getByRole("link", { name: ADMIN_SET.finnishName })).toBeVisible()
   await expect(courses.getByRole("link", { name: ADMIN_SET.swedishName })).toBeVisible()
   await expect(
-    problemRow(page, "A course looks like a translation of this course but is a separate course"),
+    problemRow(
+      page,
+      "A course looks like a translation of this course but is not one of its language versions",
+    ),
   ).toContainText(`“${ADMIN_SET.englishName}” (English)`)
 
   await expectScreenshotsToMatchSnapshots({

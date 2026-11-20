@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { Select } from "@/utils/components/Select"
 import {
   languageVersionsTabUrl,
@@ -15,7 +16,8 @@ test.use({ storageState: storageStateOf(PROBLEMS_SET.teacherEmail) })
 const MISSING_PAGE = "1 Finnish page has no Swedish counterpart"
 const DUPLICATE_PAGES = "2 Swedish pages are linked to the same page"
 const UNLINKED_EXERCISES = "1 Finnish exercise is not linked yet"
-const SEPARATE_COURSE = "A course looks like a translation of this course but is a separate course"
+const SEPARATE_COURSE =
+  "A course looks like a translation of this course but is not one of its language versions"
 const PAGE_ORDER = "The pages of chapter 1 are in a different order in Swedish"
 
 test("The problem list groups the problems of the language versions by severity", async ({
@@ -64,7 +66,8 @@ test("Exercises without a counterpart show the missing language in the Exercises
   await expect(missing).toHaveCount(1)
   await expect(missing).toHaveText("sv")
 
-  await missing.click()
+  // Mouse users open the tooltip by hovering; an instant click right after page load leaves it shut.
+  await missing.hover()
   await page
     .getByRole("link", { name: "No Swedish counterpart. Link one in Language versions." })
     .click()
@@ -95,6 +98,8 @@ test("The page editor's Language versions view shows the missing counterpart", a
     snapshotName: "language-versions-page-editor-view",
     // The editor sidebar is a desktop layout.
     skipMobile: true,
+    // Gutenberg's own paragraph markup and the editor page, which has no h1.
+    axeSkip: ["aria-allowed-attr", NO_H1],
   })
 
   await view.getByRole("link", { name: "Create counterpart" }).click()

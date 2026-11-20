@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SET CONSTRAINTS user_course_settings_current_course_group_fkey DEFERRED",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "b23df28eb9afeeb3b7a7837f90742e85e8857916d8fc948cbe96b58e8ae31ccd"
+}

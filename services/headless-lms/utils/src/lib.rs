@@ -16,6 +16,7 @@ pub mod icu4x;
 pub mod ip_to_country;
 pub mod json_schema_types;
 pub mod language_tag_to_name;
+pub mod language_tags;
 pub mod merge_edits;
 pub mod numbers;
 pub mod page_visit_hasher;

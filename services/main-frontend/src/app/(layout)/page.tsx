@@ -16,6 +16,7 @@ import {
   globalStatsRoute,
   manageCoursePlansSupportRoute,
   manageExerciseServicesRoute,
+  manageLanguageVersionsRoute,
   regradingsRoute,
   searchUsersRoute,
 } from "@/shared-module/common/utils/routes"
@@ -117,6 +118,9 @@ const FrontPage = () => {
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link href={courseAuditingRoute()}>{t("link-course-auditing")}</Link>
+        </div>
+        <div>
+          <Link href={manageLanguageVersionsRoute()}>{t("link-language-versions")}</Link>
         </div>
         <div>
           <Link href={manageCoursePlansSupportRoute()}>{t("course-plans-support-title")}</Link>

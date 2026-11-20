@@ -1116,6 +1116,78 @@
         }
       }
     },
+    "/api/v0/cms/pages/{page_id}/language-versions": {
+      "get": {
+        "tags": ["cms_pages"],
+        "summary": "GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.",
+        "operationId": "getCmsPageLanguageVersions",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The page's counterparts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageLanguageVersions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/cms/pages/{page_id}/language-versions/link": {
+      "post": {
+        "tags": ["cms_pages"],
+        "summary": "POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.",
+        "operationId": "linkCmsPageCounterpart",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkPageCounterpartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The page's counterparts after linking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageLanguageVersions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/pages/{page_id}/page-navigation": {
       "get": {
         "tags": ["cms_pages"],
@@ -2693,6 +2765,82 @@
           }
         }
       },
+      "LanguageVersionPage": {
+        "type": "object",
+        "description": "A page as the tool shows and matches it. Deleted pages appear only in leftover links.",
+        "required": [
+          "id",
+          "course_id",
+          "language_code",
+          "title",
+          "url_path",
+          "position",
+          "is_chapter_front_page",
+          "exercise_count",
+          "is_deleted"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "chapter_name": {
+            "type": ["string", "null"]
+          },
+          "chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` for pages outside chapters (e.g. the course front page)."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_chapter_front_page": {
+            "type": "boolean"
+          },
+          "is_deleted": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "page_language_group_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1-based position among the live pages of the chapter (or of the pages outside chapters)."
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "LinkPageCounterpartRequest": {
+        "type": "object",
+        "description": "Body of CMS POST /pages/{page_id}/language-versions/link.",
+        "required": ["counterpart_page_id"],
+        "properties": {
+          "counterpart_page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "NewResearchForm": {
         "type": "object",
         "required": ["course_id", "content"],
@@ -2792,6 +2940,80 @@
           },
           "page_title": {
             "type": "string"
+          }
+        }
+      },
+      "PageLanguageVersion": {
+        "type": "object",
+        "description": "The page's counterpart in one other language version.",
+        "required": ["course_id", "course_name", "language_code", "can_edit", "link_candidates"],
+        "properties": {
+          "can_edit": {
+            "type": "boolean"
+          },
+          "counterpart": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LanguageVersionPage"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "link_candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLinkCandidate"
+            },
+            "description": "When `counterpart` is `None`: the course's pages, for \"Link an existing page\"."
+          }
+        }
+      },
+      "PageLanguageVersions": {
+        "type": "object",
+        "description": "A page's counterparts in the other language versions (CMS GET /pages/{page_id}/language-versions).",
+        "required": ["page", "versions", "can_edit_all_courses"],
+        "properties": {
+          "can_edit_all_courses": {
+            "type": "boolean",
+            "description": "Linking and creating counterparts need edit rights on every course in the group."
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          },
+          "versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLanguageVersion"
+            },
+            "description": "One entry per other language version."
+          }
+        }
+      },
+      "PageLinkCandidate": {
+        "type": "object",
+        "required": ["page", "is_linked", "is_suggested"],
+        "properties": {
+          "is_linked": {
+            "type": "boolean",
+            "description": "Already has a counterpart in the page's language; linking it moves that link."
+          },
+          "is_suggested": {
+            "type": "boolean"
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
           }
         }
       },

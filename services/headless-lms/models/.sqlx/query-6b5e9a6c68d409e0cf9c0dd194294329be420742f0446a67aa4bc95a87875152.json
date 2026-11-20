@@ -1,0 +1,31 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT a.id\nFROM user_ai_usage_notice_acknowledgements a\nWHERE a.course_language_group_id = $1\n  AND a.deleted_at IS NULL\n  AND (\n    $3\n    OR a.user_id = ANY($4)\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM user_ai_usage_notice_acknowledgements t\n    WHERE t.user_id = a.user_id\n      AND t.course_language_group_id = $2\n      AND t.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_ai_usage_notice_acknowledgements",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6b5e9a6c68d409e0cf9c0dd194294329be420742f0446a67aa4bc95a87875152"
+}

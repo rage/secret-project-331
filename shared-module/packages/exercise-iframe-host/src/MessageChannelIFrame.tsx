@@ -2,12 +2,20 @@
 
 import { css } from "@emotion/css"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
   DialogResponseMessage,
   ExtendedIframeState,
+  FocusFirstInvalidMessage,
   MessageFromIframe,
   SetLanguageMessage,
   SetStateMessage,
@@ -75,6 +83,15 @@ type ConnectionStage = IframeConnectionState["stage"]
 
 type IframeLoadError = "reload-exhausted" | "not-loaded"
 
+/** Imperative API of `MessageChannelIFrame`, passed through its `ref` prop. */
+export interface MessageChannelIFrameHandle {
+  /**
+   * Moves focus to the iframe and, once it has connected, asks it to focus its first invalid
+   * field. While the load has failed, focuses the reload button instead. Does not scroll.
+   */
+  focusFirstInvalid: () => void
+}
+
 interface MessageChannelIFrameProps {
   url: string
   postThisStateToIFrame: ExtendedIframeState | null
@@ -115,6 +132,7 @@ interface MessageChannelIFrameProps {
    * `set-state` after the iframe reloads. Return `undefined` to send none.
    */
   getAnswerDraft?: () => unknown
+  ref?: React.Ref<MessageChannelIFrameHandle>
 }
 
 const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
@@ -153,6 +171,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   detectLoadFailure = false,
   onConnectionStateChange,
   getAnswerDraft,
+  ref,
 }) => {
   const { t, i18n } = useTranslation()
   const { openLinkOnRequest, downloadFileOnRequest } = useIframeLinkRequests(
@@ -633,6 +652,26 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
 
   const readAnswerDraft = useEventCallback(() => getAnswerDraft?.())
 
+  const reloadButtonRef = useRef<HTMLButtonElement>(null)
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusFirstInvalid: () => {
+        if (reloadButtonRef.current) {
+          reloadButtonRef.current.focus({ preventScroll: true })
+          return
+        }
+        iframeRef.current?.focus({ preventScroll: true })
+        if (isConnectedRef.current && messageChannel) {
+          // oxlint-disable-next-line i18next/no-literal-string
+          const message: FocusFirstInvalidMessage = { message: "focus-first-invalid" }
+          messageChannel.port1.postMessage(message)
+        }
+      },
+    }),
+    [messageChannel],
+  )
+
   // Keep the iframe informed of the current user interface language
   useEffect(() => {
     if (!messageChannel) {
@@ -764,6 +803,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
               color: #fff;
               white-space: nowrap;
             `}
+            ref={reloadButtonRef}
             onClick={reloadAfterLoadError}
           >
             {loadError === "not-loaded"

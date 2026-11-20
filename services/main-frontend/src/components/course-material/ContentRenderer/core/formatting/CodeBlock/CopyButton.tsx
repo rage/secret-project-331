@@ -37,7 +37,8 @@ const buttonStyles = css`
   position: absolute;
   top: 26px;
   right: 26px;
-  background: transparent;
+  /* Opaque, because long lines scroll underneath it; matches the code background. */
+  background-color: #282c34;
   border: none;
   cursor: pointer;
   padding: 4px;
@@ -59,11 +60,11 @@ const buttonStyles = css`
     color: ${ICON_COLORS.ERROR};
   }
   &:hover:not([data-status="default"]) {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: #3a3f4a;
   }
   &:hover[data-status="default"] {
     transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: #3a3f4a;
   }
 `
 

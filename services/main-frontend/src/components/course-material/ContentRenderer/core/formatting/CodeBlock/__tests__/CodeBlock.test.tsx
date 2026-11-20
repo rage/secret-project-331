@@ -398,9 +398,10 @@ describe("CodeBlock", () => {
     it("announces highlighted lines to screen readers when highlights are present", () => {
       const content = "line1 // HIGHLIGHT LINE\nline2\nline3 // HIGHLIGHT LINE"
       const { container } = renderCodeBlock(content)
-      const preParent = container.querySelector("pre")?.parentElement
+      // The announcement sits next to the scroll region that holds the <pre>.
+      const blockEl = container.querySelector("pre")?.parentElement?.parentElement
       const srOnlyEl =
-        preParent?.querySelector(":scope > span") ?? preParent?.querySelector(":scope > div")
+        blockEl?.querySelector(":scope > span") ?? blockEl?.querySelector(":scope > div")
       expect(srOnlyEl).toBeInTheDocument()
       expect(srOnlyEl?.textContent?.length).toBeGreaterThan(0)
     })

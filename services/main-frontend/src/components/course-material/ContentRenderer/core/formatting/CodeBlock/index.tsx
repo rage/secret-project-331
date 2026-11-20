@@ -10,11 +10,12 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ScrollRegion } from "@/shared-module/components"
 
 import type { BlockRendererProps } from "../../.."
 import { CopyButton } from "./CopyButton"
 import { parseHighlightedCode } from "./highlightParser"
-import { getPreStyles } from "./styles"
+import { getPreStyles, getScrollerStyles } from "./styles"
 import { formatHighlightedLinesRanges, replaceBrTagsWithNewlines } from "./utils"
 
 const SyntaxHighlightedContainer = dynamicImport(() => import("./SyntaxHighlightedContainer"))
@@ -70,15 +71,18 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
           </VisuallyHidden>
         )}
         {cleanCode && <CopyButton content={cleanCode} />}
-        <pre
-          className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
+        <ScrollRegion
+          className={getScrollerStyles(dontAllowBlockToBeWiderThanContainerWidth ?? false)}
+          label={t("code-example")}
         >
-          <SyntaxHighlightedContainer
-            content={cleanCode}
-            highlightedLines={highlightedLines}
-            {...omitUndefined({ language })}
-          />
-        </pre>
+          <pre className={getPreStyles(fontSizePx)}>
+            <SyntaxHighlightedContainer
+              content={cleanCode}
+              highlightedLines={highlightedLines}
+              {...omitUndefined({ language })}
+            />
+          </pre>
+        </ScrollRegion>
       </div>
     </BreakFromCentered>
   )

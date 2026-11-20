@@ -8,22 +8,29 @@ export const containerStyles = css`
   margin: 0 auto;
 `
 
-export const getPreStyles = (fontSizePx: number, allowFullWidth: boolean) => css`
-  margin-top: 0;
+/** Long lines scroll sideways instead of wrapping, so a wrapped line can't read as a new statement. */
+export const getScrollerStyles = (allowFullWidth: boolean) => css`
+  overflow-x: auto;
+  border-radius: 4px;
+  background-color: #282c34;
+  margin: ${allowFullWidth ? "calc(16px - 1.5rem) 16px" : "16px"};
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+  }
+`
+
+export const getPreStyles = (fontSizePx: number) => css`
+  margin: 0;
+  min-width: 100%;
+  width: max-content;
   font-size: ${fontSizePx}px;
   font-family: ${monospaceFont} !important;
   line-height: 1.75rem;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  padding: 16px;
-  ${
-    allowFullWidth
-      ? `
-    margin-top: -1.5rem;
-    margin-bottom: -1.5rem;
-  `
-      : ""
-  }
+  white-space: pre;
+  /* Room for the copy button, so lines that fit don't run under it. */
+  padding-right: 2.5rem;
 `
 
 export const codeBlockStyles = css`

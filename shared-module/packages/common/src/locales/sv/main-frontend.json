@@ -577,6 +577,7 @@
   "closing-time": "Stängningstid",
   "code": "Kod",
   "code-block-highlighted-lines": "Markerade rader: {{lines}}",
+  "code-example": "Kodexempel",
   "cohort-analysis-future-date": "Framtida datum - Ingen data tillgänglig ännu",
   "cohort-analysis-tooltip": "Kohort: {{cohort}}<br/>Dagar efter start: {{days}}<br/>Aktiva användare: {{users}}",
   "cohort-analysis-tooltip-daily": "Kohort: {{cohort}}<br/>Dagar efter start: {{days}}<br/>Aktiva användare: {{users}}",

@@ -391,6 +391,20 @@ describe("ExerciseBlock answers", () => {
     expectSubmittable()
   })
 
+  it("drops a captured answer when a reset removes the task's previous submission", async () => {
+    await renderExerciseBlock(withSubmission("sub-1"))
+    await reportAnswer("task-1", { data: { a: 1 }, valid: true })
+    await reportAnswer("task-2", { data: { b: 2 }, valid: true })
+    expectSubmittable()
+
+    mockFetchExercise.mockResolvedValue(
+      makeExercise([makeTask("task-1", 0), makeTask("task-2", 1)]),
+    )
+    await refetchQueries()
+
+    expectBlockedBy("answer-the-exercise-before-submitting")
+  })
+
   it("submits the captured answers", async () => {
     await renderExerciseBlock(makeExercise([makeTask("task-1", 0), makeTask("task-2", 1)]))
     await reportAnswer("task-1", { data: { a: 1 }, valid: true })

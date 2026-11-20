@@ -162,8 +162,9 @@ type CapturedAnswers = Map<string, CapturedExerciseTaskAnswer>
 
 /**
  * Seeds answers from the tasks' previous submissions, keeping answers the iframes reported since:
- * a refetch doesn't re-send state to the iframes, so they wouldn't report them again. A captured
- * answer is replaced only when its task's previous submission is in `changedSubmissionTaskIds`.
+ * a refetch doesn't re-send state to the iframes, so they wouldn't report them again. A task in
+ * `changedSubmissionTaskIds` (its previous submission was replaced or removed, e.g. by a reset)
+ * drops its captured answer, since its iframe is sent a new state.
  */
 function mergePreviousSubmissionAnswers(
   answers: CapturedAnswers,
@@ -172,14 +173,14 @@ function mergePreviousSubmissionAnswers(
 ): CapturedAnswers {
   const merged: CapturedAnswers = new Map()
   for (const task of tasks) {
-    const captured = answers.get(task.id)
-    if (task.previous_submission && (!captured || changedSubmissionTaskIds.has(task.id))) {
+    const captured = changedSubmissionTaskIds.has(task.id) ? undefined : answers.get(task.id)
+    if (captured) {
+      merged.set(task.id, captured)
+    } else if (task.previous_submission) {
       merged.set(task.id, {
         valid: true,
         ...storedAnswerToCapturedAnswerFields(task.previous_submission),
       })
-    } else if (captured) {
-      merged.set(task.id, captured)
     }
   }
   return merged
@@ -254,11 +255,7 @@ const ExerciseBlock: React.FC<
     const seenSubmissionIds = previousSubmissionIdsRef.current
     const changedSubmissionTaskIds = new Set(
       tasks
-        .filter(
-          (task) =>
-            task.previous_submission &&
-            seenSubmissionIds.get(task.id) !== task.previous_submission.id,
-        )
+        .filter((task) => seenSubmissionIds.get(task.id) !== task.previous_submission?.id)
         .map((task) => task.id),
     )
     previousSubmissionIdsRef.current = new Map(

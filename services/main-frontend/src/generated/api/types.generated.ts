@@ -8,6 +8,116 @@ export type ClientOptions = {
 }
 
 /**
+ * Which account form a submission was for. Each of them mails an address.
+ */
+export type AccountFormAction = "signup" | "signup_code_resend" | "password_reset" | "email_change"
+
+/**
+ * A logged submission, as the admin page shows it.
+ */
+export type AccountFormDecision = {
+  action: AccountFormAction
+  created_at: string
+  id: string
+  matched_rule_ids: Array<string>
+  network_prefix?: string | null
+  outcome: AccountFormOutcome
+  recipient_domain?: string | null
+  signals: unknown
+  user_id?: string | null
+}
+
+/**
+ * What the entries of a list rule are matched against.
+ */
+export type AccountFormListKind = "address" | "mailbox" | "account" | "domain"
+
+/**
+ * What the account form rules decided for a submission, and the handler did.
+ */
+export type AccountFormOutcome = "allow" | "drop"
+
+/**
+ * A rule as it is now. Matches by `expression` or by the list, never both.
+ */
+export type AccountFormRule = {
+  created_at: string
+  description: string
+  enabled: boolean
+  /**
+   * `None` for a list rule.
+   */
+  expression?: string | null
+  id: string
+  list_entries: Array<string>
+  list_kind?: AccountFormListKind | null
+  log_only: boolean
+  name: string
+  /**
+   * [`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`].
+   */
+  outcome: AccountFormOutcome
+  updated_at: string
+}
+
+/**
+ * A rule as an admin saves it.
+ */
+export type AccountFormRuleUpdate = {
+  description: string
+  enabled: boolean
+  /**
+   * `None` for a list rule.
+   */
+  expression?: string | null
+  list_entries: Array<string>
+  list_kind?: AccountFormListKind | null
+  log_only: boolean
+  name: string
+  /**
+   * [`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`].
+   */
+  outcome: AccountFormOutcome
+}
+
+/**
+ * One saved version of a rule.
+ */
+export type AccountFormRuleVersion = {
+  changed_by_user_id: string
+  created_at: string
+  /**
+   * Whether this save deleted the rule.
+   */
+  deleted: boolean
+  description: string
+  enabled: boolean
+  /**
+   * `None` for a list rule.
+   */
+  expression?: string | null
+  id: string
+  list_entries: Array<string>
+  list_kind?: AccountFormListKind | null
+  log_only: boolean
+  name: string
+  /**
+   * [`AccountFormOutcome::Allow`] or [`AccountFormOutcome::Drop`].
+   */
+  outcome: AccountFormOutcome
+}
+
+/**
+ * The admin settings, with defaults for a deployment where none are saved.
+ */
+export type AccountFormSettings = {
+  /**
+   * Makes every account form rule log-only.
+   */
+  rules_log_only: boolean
+}
+
+/**
  * What one code's last enrolment list that fed account linking did, each person counted once in
  * exactly one of the counters after `listed_person_count`. Written whole, so the dashboard never
  * mixes two runs.
@@ -4330,6 +4440,13 @@ export type DatabaseOrganization = {
   updated_at: string
 }
 
+/**
+ * The address whose logged submissions to list.
+ */
+export type DecisionLookupRequest = {
+  email: string
+}
+
 export type DeploymentInfo = {
   name: string
   ready_replicas: number
@@ -4598,6 +4715,10 @@ export type EmailData = {
    * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
    */
   altcha: string
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   email: string
   language: string
 }
@@ -7668,6 +7789,32 @@ export type RoleUser = {
   user_id: string
 }
 
+/**
+ * A rule's matcher to try: an expression, or a list kind with its entries.
+ */
+export type RuleDryRunRequest = {
+  expression?: string | null
+  list_entries?: Array<string>
+  list_kind?: AccountFormListKind | null
+}
+
+/**
+ * How a rule would have matched the latest logged submissions.
+ */
+export type RuleDryRunResult = {
+  /**
+   * Submissions the expression could not be evaluated on, e.g. for lacking a signal.
+   */
+  errors: number
+  evaluated: number
+  /**
+   * The latest matched submissions, at most a few dozen.
+   */
+  examples: Array<AccountFormDecision>
+  first_error?: string | null
+  matched: number
+}
+
 export type SaveCourseDesignerScheduleRequest = {
   name?: string | null
   stages: Array<CourseDesignerScheduleStageInput>
@@ -8486,6 +8633,10 @@ export type UserIdsPayload = {
  * The profile form as both frontends submit it.
  */
 export type UserInfoPayload = {
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   country: string
   email: string
   email_communication_consent: boolean
@@ -8613,6 +8764,187 @@ export type UploadFilesFromExerciseServiceResponses = {
 
 export type UploadFilesFromExerciseServiceResponse =
   UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses]
+
+export type GetAccountFormDecisionsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+     * Only submissions logged before this time, for paging back.
+     */
+    before?: string
+  }
+  url: "/api/v0/main-frontend/account-forms/decisions"
+}
+
+export type GetAccountFormDecisionsResponses = {
+  /**
+   * Logged submissions
+   */
+  200: Array<AccountFormDecision>
+}
+
+export type GetAccountFormDecisionsResponse =
+  GetAccountFormDecisionsResponses[keyof GetAccountFormDecisionsResponses]
+
+export type LookupAccountFormDecisionsData = {
+  body: DecisionLookupRequest
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/decisions/lookup"
+}
+
+export type LookupAccountFormDecisionsResponses = {
+  /**
+   * Logged submissions about the address
+   */
+  200: Array<AccountFormDecision>
+}
+
+export type LookupAccountFormDecisionsResponse =
+  LookupAccountFormDecisionsResponses[keyof LookupAccountFormDecisionsResponses]
+
+export type GetAccountFormRulesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules"
+}
+
+export type GetAccountFormRulesResponses = {
+  /**
+   * Rules
+   */
+  200: Array<AccountFormRule>
+}
+
+export type GetAccountFormRulesResponse =
+  GetAccountFormRulesResponses[keyof GetAccountFormRulesResponses]
+
+export type CreateAccountFormRuleData = {
+  body: AccountFormRuleUpdate
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules"
+}
+
+export type CreateAccountFormRuleResponses = {
+  /**
+   * The new rule's id
+   */
+  200: string
+}
+
+export type CreateAccountFormRuleResponse =
+  CreateAccountFormRuleResponses[keyof CreateAccountFormRuleResponses]
+
+export type DryRunAccountFormRuleData = {
+  body: RuleDryRunRequest
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules/dry-run"
+}
+
+export type DryRunAccountFormRuleResponses = {
+  /**
+   * How the rule would have matched
+   */
+  200: RuleDryRunResult
+}
+
+export type DryRunAccountFormRuleResponse =
+  DryRunAccountFormRuleResponses[keyof DryRunAccountFormRuleResponses]
+
+export type DeleteAccountFormRuleData = {
+  body?: never
+  path: {
+    /**
+     * Rule id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules/{id}"
+}
+
+export type DeleteAccountFormRuleResponses = {
+  /**
+   * Deleted
+   */
+  200: unknown
+}
+
+export type UpdateAccountFormRuleData = {
+  body: AccountFormRuleUpdate
+  path: {
+    /**
+     * Rule id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules/{id}"
+}
+
+export type UpdateAccountFormRuleResponses = {
+  /**
+   * Saved
+   */
+  200: unknown
+}
+
+export type GetAccountFormRuleVersionsData = {
+  body?: never
+  path: {
+    /**
+     * Rule id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/rules/{id}/versions"
+}
+
+export type GetAccountFormRuleVersionsResponses = {
+  /**
+   * Versions
+   */
+  200: Array<AccountFormRuleVersion>
+}
+
+export type GetAccountFormRuleVersionsResponse =
+  GetAccountFormRuleVersionsResponses[keyof GetAccountFormRuleVersionsResponses]
+
+export type GetAccountFormSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/settings"
+}
+
+export type GetAccountFormSettingsResponses = {
+  /**
+   * Settings
+   */
+  200: AccountFormSettings
+}
+
+export type GetAccountFormSettingsResponse =
+  GetAccountFormSettingsResponses[keyof GetAccountFormSettingsResponses]
+
+export type UpdateAccountFormSettingsData = {
+  body: AccountFormSettings
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/account-forms/settings"
+}
+
+export type UpdateAccountFormSettingsResponses = {
+  /**
+   * Saved
+   */
+  200: unknown
+}
 
 export type GetAgentChangesetsData = {
   body?: never

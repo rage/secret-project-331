@@ -1,0 +1,172 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  email,\n  first_name,\n  last_name,\n  country,\n  language,\n  password_hash,\n  email_communication_consent,\n  code_digest,\n  code_sent_at,\n  email_delivery_id,\n  failed_attempts,\n  expires_at\nFROM pending_signups\nWHERE id = $1\n  AND expires_at > now()\nFOR UPDATE\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "email",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "email"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "first_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "last_name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "country",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "country"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "language",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "language"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "password_hash",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "password_hash"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "email_communication_consent",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "email_communication_consent"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "code_digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "code_digest"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "code_sent_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "code_sent_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "email_delivery_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "email_delivery_id"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "failed_attempts",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "failed_attempts"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "pending_signups",
+            "name": "expires_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "187eb04d49f06d4812ed5c7b59db7e7a46d490a4c4f74c7256ba9836817a2e7f"
+}

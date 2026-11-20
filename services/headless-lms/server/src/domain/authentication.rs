@@ -37,7 +37,12 @@ use uuid::Uuid;
 const SESSION_KEY: &str = "user";
 
 pub(crate) fn constant_time_eq_str(left: &str, right: &str) -> bool {
-    left.as_bytes().ct_eq(right.as_bytes()).into()
+    constant_time_eq(left.as_bytes(), right.as_bytes())
+}
+
+/// Compares without revealing where the inputs differ.
+pub(crate) fn constant_time_eq(left: &[u8], right: &[u8]) -> bool {
+    left.ct_eq(right).into()
 }
 #[derive(Debug, Serialize, Deserialize)]
 struct GraphQLRequest<'a> {

@@ -1,0 +1,182 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  changed_by_user_id,\n  name,\n  description,\n  expression,\n  list_kind AS \"list_kind: AccountFormListKind\",\n  list_entries,\n  outcome AS \"outcome: AccountFormOutcome\",\n  enabled,\n  log_only,\n  deleted\nFROM account_form_rule_versions\nWHERE account_form_rule_id = $1\nORDER BY created_at DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "changed_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "changed_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "expression",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "expression"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "list_kind: AccountFormListKind",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_list_kind",
+            "kind": {
+              "Enum": [
+                "address",
+                "mailbox",
+                "account",
+                "domain"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "list_kind"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "list_entries",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "list_entries"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "outcome: AccountFormOutcome",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_outcome",
+            "kind": {
+              "Enum": [
+                "allow",
+                "drop"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "outcome"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "enabled"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "log_only",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "log_only"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "deleted",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "account_form_rule_versions",
+            "name": "deleted"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "75ac18c3a3febcc793de2685f9ae4181a09c5a11b7edaea735d8de0cd0081676"
+}

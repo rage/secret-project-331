@@ -1408,6 +1408,10 @@ export type UserDetail = {
  * The profile form as both frontends submit it.
  */
 export type UserInfoPayload = {
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   country: string
   email: string
   email_communication_consent: boolean

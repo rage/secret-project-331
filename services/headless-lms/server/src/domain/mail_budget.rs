@@ -56,12 +56,17 @@ pub async fn may_mail_user(conn: &mut PgConnection, user_id: Uuid) -> anyhow::Re
 /// Call it in the transaction that queues the mail, after every other check has passed, and before
 /// minting a code or token: minting retires the live one, which a refused mail must not do.
 pub async fn try_consume_for_user(conn: &mut PgConnection, user_id: Uuid) -> anyhow::Result<bool> {
-    delete_old_counts_occasionally(conn).await?;
     let email = headless_lms_models::user_details::get_user_details_by_user_id(conn, user_id)
         .await?
         .email;
+    try_consume_for_address(conn, &email).await
+}
+
+/// [`try_consume_for_user`] for a raw address, for mail to someone with no account here.
+pub async fn try_consume_for_address(conn: &mut PgConnection, email: &str) -> anyhow::Result<bool> {
+    delete_old_counts_occasionally(conn).await?;
     let key = email_address_mail_budgets::inbox_key(
-        &email,
+        email,
         // From env rather than the runtime config: sync_tmc_users mails without one.
         form_context_secret_from_env()?.expose_secret().as_bytes(),
     );

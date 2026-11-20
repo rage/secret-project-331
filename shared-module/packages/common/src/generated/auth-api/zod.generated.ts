@@ -10,8 +10,13 @@ import * as z from "zod"
  */
 export const zChallengePurpose = z.enum(["signup", "password_reset"])
 
+export const zConfirmSignupRequest = z.object({
+  code: z.string(),
+})
+
 export const zCreateAccountDetails = z.object({
   altcha: z.string(),
+  client_info: z.string().nullish(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),
@@ -94,6 +99,10 @@ export const zLoginResponse = z.union([
     type: z.enum(["failed"]),
   }),
 ])
+
+export const zResendSignupCodeRequest = z.object({
+  client_info: z.string().nullish(),
+})
 
 /**
  * The target of an action.
@@ -272,14 +281,15 @@ export const zSessionVerifyResult = z.union([
   }),
 ])
 
-export const zSignupResponse = z.union([
-  z.object({
-    type: z.enum(["success"]),
-  }),
-  z.object({
-    type: z.enum(["email_already_exists"]),
-  }),
-])
+/**
+ * Outcome of typing the code. Wrong, expired, spent and "no such signup" are one value, so the
+ * answer tells nothing about the code.
+ */
+export const zSignupConfirmationResult = z.enum(["confirmed", "invalid", "account_exists"])
+
+export const zSignupResponse = z.object({
+  type: z.enum(["code_mailed"]),
+})
 
 /**
  * Generic information about the logged in user.
@@ -402,6 +412,20 @@ export const zPostAuthSignupBody = zCreateAccountDetails
  * Signup outcome
  */
 export const zPostAuthSignupResponse = zSignupResponse
+
+export const zPostAuthConfirmSignupBody = zConfirmSignupRequest
+
+/**
+ * Whether the code confirmed the signup
+ */
+export const zPostAuthConfirmSignupResponse = zSignupConfirmationResult
+
+export const zPostAuthResendSignupCodeBody = zResendSignupCodeRequest
+
+/**
+ * The pending signup's code
+ */
+export const zGetAuthSignupCodeForTestModeResponse = z.string()
 
 export const zPostAuthDeleteUserAccountBody = zEmailCode
 

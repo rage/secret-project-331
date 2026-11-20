@@ -21,12 +21,9 @@ export async function selectSignupCountry(page: Page, country: string): Promise<
 }
 
 /**
- * Creates a fresh account through the signup page and clears the standard post-signup gates: the
- * research-consent form and the "confirm your email address" notice. Lands the browser on `returnTo`.
- *
- * Use this to get a guaranteed-fresh user (no prior enrollment or acknowledgements) for a course.
+ * Fills in and sends the signup page's form, leaving the browser on the "Check your email" step.
  */
-export async function signUp(
+export async function submitSignupForm(
   page: Page,
   { firstName, lastName, email, password, country = "Andorra", returnTo }: SignUpOptions,
 ): Promise<void> {
@@ -43,6 +40,18 @@ export async function signUp(
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Create an account" }).click()
   })
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible()
+}
+
+/**
+ * Creates a fresh account through the signup page and clears the standard post-signup gates: the
+ * emailed confirmation code and the research-consent form. Lands the browser on `returnTo`.
+ *
+ * Use this to get a guaranteed-fresh user (no prior enrollment or acknowledgements) for a course.
+ */
+export async function signUp(page: Page, options: SignUpOptions): Promise<void> {
+  await submitSignupForm(page, options)
+  await confirmSignupWithMailedCode(page)
 
   // The research-consent form is shown to every new user and blocks the page until answered.
   await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()
@@ -50,8 +59,28 @@ export async function signUp(
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Save" }).click()
   })
-
-  // "Please confirm your email address" notice — dismiss it so the redirect to returnTo proceeds.
-  await expect(page.getByRole("heading", { name: "Please confirm your email" })).toBeVisible()
   await page.getByRole("button", { name: "Done" }).click()
+}
+
+/**
+ * Types the code of the pending signup on the "Check your email" step. The code comes from a
+ * test-mode endpoint, as the system tests have no mail capture.
+ */
+export async function confirmSignupWithMailedCode(page: Page): Promise<void> {
+  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible()
+  const response = await page.request.get(
+    "http://project-331.local/api/v0/auth/create-account/test-mode-code",
+  )
+  await expect(response).toBeOK()
+  const code: string = await response.json()
+  await page.getByTestId("one-time-code-field").getByRole("textbox").first().click()
+  await page.keyboard.type(code)
+}
+
+/** Checks that the signup on the "Check your email" step got no code: nothing was mailed. */
+export async function expectNoMailedSignupCode(page: Page): Promise<void> {
+  const response = await page.request.get(
+    "http://project-331.local/api/v0/auth/create-account/test-mode-code",
+  )
+  expect(response.status()).toBe(404)
 }

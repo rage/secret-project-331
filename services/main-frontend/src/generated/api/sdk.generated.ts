@@ -120,6 +120,8 @@ import type {
   ContinueMoocfiHandoffData,
   ContinueMoocfiHandoffErrors,
   ContinueMoocfiHandoffResponses,
+  CreateAccountFormRuleData,
+  CreateAccountFormRuleResponses,
   CreateAgentChangesetPreviewLinkData,
   CreateAgentChangesetPreviewLinkResponses,
   CreateChapterData,
@@ -180,6 +182,8 @@ import type {
   CreateTeacherGradingDecisionResponses,
   CreateUserResearchConsentData,
   CreateUserResearchConsentResponses,
+  DeleteAccountFormRuleData,
+  DeleteAccountFormRuleResponses,
   DeleteCertificateConfigurationData,
   DeleteCertificateConfigurationResponses,
   DeleteChapterData,
@@ -240,6 +244,8 @@ import type {
   DownloadCodeGiveawayCodesCsvResponses,
   DownloadExerciseAnswerFilesData,
   DownloadExerciseAnswerFilesResponses,
+  DryRunAccountFormRuleData,
+  DryRunAccountFormRuleResponses,
   DuplicateExamData,
   DuplicateExamResponses,
   EditCourseInstanceData,
@@ -283,6 +289,14 @@ import type {
   FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
+  GetAccountFormDecisionsData,
+  GetAccountFormDecisionsResponses,
+  GetAccountFormRulesData,
+  GetAccountFormRulesResponses,
+  GetAccountFormRuleVersionsData,
+  GetAccountFormRuleVersionsResponses,
+  GetAccountFormSettingsData,
+  GetAccountFormSettingsResponses,
   GetAccountLinkingCourseEnroleesData,
   GetAccountLinkingCourseEnroleesErrors,
   GetAccountLinkingCourseEnroleesResponses,
@@ -792,6 +806,8 @@ import type {
   ListSuotarApiCallsResponses,
   ListVerifiedStudentNumbersForAdminData,
   ListVerifiedStudentNumbersForAdminResponses,
+  LookupAccountFormDecisionsData,
+  LookupAccountFormDecisionsResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
   NewCourseDesignerAssistantConversationData,
@@ -917,6 +933,10 @@ import type {
   UnlinkMyStudentNumberResponses,
   UnsetExamCourseData,
   UnsetExamCourseResponses,
+  UpdateAccountFormRuleData,
+  UpdateAccountFormRuleResponses,
+  UpdateAccountFormSettingsData,
+  UpdateAccountFormSettingsResponses,
   UpdateCertificateConfigurationData,
   UpdateCertificateConfigurationResponses,
   UpdateChapterData,
@@ -1016,6 +1036,7 @@ import {
   zConfirmMyEnrolmentResponse,
   zConfirmMyExternalCompletionEnrolmentResponse,
   zContinueMoocfiHandoffResponse,
+  zCreateAccountFormRuleResponse,
   zCreateAgentChangesetPreviewLinkResponse,
   zCreateChapterResponse,
   zCreateChatbotResponse,
@@ -1055,6 +1076,7 @@ import {
   zDiscardAgentChangesetResponse,
   zDownloadCodeGiveawayCodesCsvResponse,
   zDownloadExerciseAnswerFilesResponse,
+  zDryRunAccountFormRuleResponse,
   zDuplicateExamResponse,
   zExerciseHasAnswerFilesResponse,
   zExportCourseCreditRegistrationsResponse,
@@ -1073,6 +1095,10 @@ import {
   zExtendCourseDesignerStageResponse,
   zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
+  zGetAccountFormDecisionsResponse,
+  zGetAccountFormRulesResponse,
+  zGetAccountFormRuleVersionsResponse,
+  zGetAccountFormSettingsResponse,
   zGetAccountLinkingCourseEnroleesResponse,
   zGetAccountLinkingCoursesResponse,
   zGetAccountLinkingStatsResponse,
@@ -1309,6 +1335,7 @@ import {
   zListOwnSubmissionSharesResponse,
   zListSuotarApiCallsResponse,
   zListVerifiedStudentNumbersForAdminResponse,
+  zLookupAccountFormDecisionsResponse,
   zNewCourseDesignerAssistantConversationResponse,
   zPreviewCourseInstanceCompletionsResponse,
   zPreviewStudentNumberVerificationTokenResponse,
@@ -1454,6 +1481,168 @@ export const uploadFilesFromExerciseService = <ThrowOnError extends boolean = tr
       ...options.headers,
     },
   })
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/decisions` The latest logged submissions, newest first.
+ */
+export const getAccountFormDecisions = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountFormDecisionsData, ThrowOnError>,
+): RequestResult<GetAccountFormDecisionsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountFormDecisionsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountFormDecisionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/decisions",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/decisions/lookup` The logged submissions about one
+ * address, for helping a person who did not get their mail.
+ */
+export const lookupAccountFormDecisions = <ThrowOnError extends boolean = true>(
+  options: Options<LookupAccountFormDecisionsData, ThrowOnError>,
+): RequestResult<LookupAccountFormDecisionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<
+    LookupAccountFormDecisionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zLookupAccountFormDecisionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/decisions/lookup",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/rules`
+ */
+export const getAccountFormRules = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountFormRulesData, ThrowOnError>,
+): RequestResult<GetAccountFormRulesResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountFormRulesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountFormRulesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/rules` Creates a rule.
+ */
+export const createAccountFormRule = <ThrowOnError extends boolean = true>(
+  options: Options<CreateAccountFormRuleData, ThrowOnError>,
+): RequestResult<CreateAccountFormRuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<CreateAccountFormRuleResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zCreateAccountFormRuleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/account-forms/rules/dry-run` Evaluates a rule's matcher on the latest
+ * logged submissions without saving anything.
+ */
+export const dryRunAccountFormRule = <ThrowOnError extends boolean = true>(
+  options: Options<DryRunAccountFormRuleData, ThrowOnError>,
+): RequestResult<DryRunAccountFormRuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<DryRunAccountFormRuleResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zDryRunAccountFormRuleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules/dry-run",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * DELETE `/api/v0/main-frontend/account-forms/rules/{id}` Deletes a rule; its versions stay.
+ */
+export const deleteAccountFormRule = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteAccountFormRuleData, ThrowOnError>,
+): RequestResult<DeleteAccountFormRuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).delete<DeleteAccountFormRuleResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules/{id}",
+    ...options,
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/account-forms/rules/{id}`
+ */
+export const updateAccountFormRule = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateAccountFormRuleData, ThrowOnError>,
+): RequestResult<UpdateAccountFormRuleResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateAccountFormRuleResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules/{id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/rules/{id}/versions` Every saved version of a rule, newest
+ * first.
+ */
+export const getAccountFormRuleVersions = <ThrowOnError extends boolean = true>(
+  options: Options<GetAccountFormRuleVersionsData, ThrowOnError>,
+): RequestResult<GetAccountFormRuleVersionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetAccountFormRuleVersionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetAccountFormRuleVersionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/rules/{id}/versions",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/account-forms/settings`
+ */
+export const getAccountFormSettings = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAccountFormSettingsData, ThrowOnError>,
+): RequestResult<GetAccountFormSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<GetAccountFormSettingsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetAccountFormSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/account-forms/settings",
+    ...options,
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/account-forms/settings`
+ */
+export const updateAccountFormSettings = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateAccountFormSettingsData, ThrowOnError>,
+): RequestResult<UpdateAccountFormSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<UpdateAccountFormSettingsResponses, unknown, ThrowOnError, "data">(
+    {
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/account-forms/settings",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
 
 /**
  * GET `/api/v0/main-frontend/agent-changesets?course_id=` - The signed-in user's agent changesets in

@@ -13,18 +13,25 @@ import type {
   GetAuthLoggedInResponses,
   GetAuthSessionStatusData,
   GetAuthSessionStatusResponses,
+  GetAuthSignupCodeForTestModeData,
+  GetAuthSignupCodeForTestModeErrors,
+  GetAuthSignupCodeForTestModeResponses,
   GetAuthUserInfoData,
   GetAuthUserInfoResponses,
   PostAuthAuthorizeData,
   PostAuthAuthorizeMultipleData,
   PostAuthAuthorizeMultipleResponses,
   PostAuthAuthorizeResponses,
+  PostAuthConfirmSignupData,
+  PostAuthConfirmSignupResponses,
   PostAuthDeleteUserAccountData,
   PostAuthDeleteUserAccountResponses,
   PostAuthLoginData,
   PostAuthLoginResponses,
   PostAuthLogoutData,
   PostAuthLogoutResponses,
+  PostAuthResendSignupCodeData,
+  PostAuthResendSignupCodeResponses,
   PostAuthSendEmailCodeData,
   PostAuthSendEmailCodeResponses,
   PostAuthSessionStatusEmailCodeData,
@@ -40,9 +47,11 @@ import type {
 import {
   zGetAuthLoggedInResponse,
   zGetAuthSessionStatusResponse,
+  zGetAuthSignupCodeForTestModeResponse,
   zGetAuthUserInfoResponse,
   zPostAuthAuthorizeMultipleResponse,
   zPostAuthAuthorizeResponse,
+  zPostAuthConfirmSignupResponse,
   zPostAuthDeleteUserAccountResponse,
   zPostAuthLoginResponse,
   zPostAuthSendEmailCodeResponse,
@@ -136,7 +145,8 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
   })
 
 /**
- * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ * POST `/api/v0/auth/create-account` Starts a signup: mails a code to the address, which
+ * [`confirm_signup`] takes to create the account and sign in. See [`crate::domain::signup`].
  *
  * # Example
  * ```http
@@ -173,6 +183,67 @@ export const postAuthSignup = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * POST `/api/v0/auth/create-account/confirm` Creates the account of the session's pending signup when
+ * `code` is the one mailed to its address, and signs in.
+ */
+export const postAuthConfirmSignup = <ThrowOnError extends boolean = true>(
+  options: Options<PostAuthConfirmSignupData, ThrowOnError>,
+): RequestResult<PostAuthConfirmSignupResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PostAuthConfirmSignupResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zPostAuthConfirmSignupResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/create-account/confirm",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,
+ * subject to the resend interval and the address's mail budget. Answers the same whatever happened.
+ */
+export const postAuthResendSignupCode = <ThrowOnError extends boolean = true>(
+  options: Options<PostAuthResendSignupCodeData, ThrowOnError>,
+): RequestResult<PostAuthResendSignupCodeResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<PostAuthResendSignupCodeResponses, unknown, ThrowOnError, "data">(
+    {
+      responseStyle: "data",
+      url: "/api/v0/auth/create-account/resend-code",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
+
+/**
+ * GET `/api/v0/auth/create-account/test-mode-code` The pending signup's mailed code, for the system tests,
+ * which have no mail capture. 404 unless `TEST_MODE` is on.
+ */
+export const getAuthSignupCodeForTestMode = <ThrowOnError extends boolean = true>(
+  options?: Options<GetAuthSignupCodeForTestModeData, ThrowOnError>,
+): RequestResult<
+  GetAuthSignupCodeForTestModeResponses,
+  GetAuthSignupCodeForTestModeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options?.client ?? client).get<
+    GetAuthSignupCodeForTestModeResponses,
+    GetAuthSignupCodeForTestModeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetAuthSignupCodeForTestModeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/auth/create-account/test-mode-code",
+    ...options,
   })
 
 /**

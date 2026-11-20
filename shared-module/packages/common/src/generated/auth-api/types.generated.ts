@@ -80,11 +80,19 @@ export type ActionOnResource = {
  */
 export type ChallengePurpose = "signup" | "password_reset"
 
+export type ConfirmSignupRequest = {
+  code: string
+}
+
 export type CreateAccountDetails = {
   /**
    * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
    */
   altcha: string
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
   country: string
   email: string
   email_communication_consent: boolean
@@ -157,6 +165,13 @@ export type LoginResponse =
   | {
       type: "failed"
     }
+
+export type ResendSignupCodeRequest = {
+  /**
+   * The form's opaque report about the browser, for the account form log.
+   */
+  client_info?: string | null
+}
 
 /**
  * The target of an action.
@@ -338,13 +353,15 @@ export type SessionVerifyResult =
       type: "not_required"
     }
 
-export type SignupResponse =
-  | {
-      type: "success"
-    }
-  | {
-      type: "email_already_exists"
-    }
+/**
+ * Outcome of typing the code. Wrong, expired, spent and "no such signup" are one value, so the
+ * answer tells nothing about the code.
+ */
+export type SignupConfirmationResult = "confirmed" | "invalid" | "account_exists"
+
+export type SignupResponse = {
+  type: "code_mailed"
+}
 
 /**
  * Generic information about the logged in user.
@@ -458,6 +475,61 @@ export type PostAuthSignupResponses = {
 }
 
 export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
+
+export type PostAuthConfirmSignupData = {
+  body: ConfirmSignupRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account/confirm"
+}
+
+export type PostAuthConfirmSignupResponses = {
+  /**
+   * Whether the code confirmed the signup
+   */
+  200: SignupConfirmationResult
+}
+
+export type PostAuthConfirmSignupResponse =
+  PostAuthConfirmSignupResponses[keyof PostAuthConfirmSignupResponses]
+
+export type PostAuthResendSignupCodeData = {
+  body: ResendSignupCodeRequest
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account/resend-code"
+}
+
+export type PostAuthResendSignupCodeResponses = {
+  /**
+   * The request was received
+   */
+  200: unknown
+}
+
+export type GetAuthSignupCodeForTestModeData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account/test-mode-code"
+}
+
+export type GetAuthSignupCodeForTestModeErrors = {
+  /**
+   * Not in test mode, or no pending code
+   */
+  404: unknown
+}
+
+export type GetAuthSignupCodeForTestModeResponses = {
+  /**
+   * The pending signup's code
+   */
+  200: string
+}
+
+export type GetAuthSignupCodeForTestModeResponse =
+  GetAuthSignupCodeForTestModeResponses[keyof GetAuthSignupCodeForTestModeResponses]
 
 export type PostAuthDeleteUserAccountData = {
   body: EmailCode

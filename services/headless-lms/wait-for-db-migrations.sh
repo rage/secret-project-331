@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Set to some table that is created late on the migrations
-TABLE_TO_USE="shared_rate_counts"
+TABLE_TO_USE="account_form_decisions"
 
 if [ -z ${DATABASE_URL+x} ]; then
     echo "Error: DATABASE_URL must be set" 1>&2

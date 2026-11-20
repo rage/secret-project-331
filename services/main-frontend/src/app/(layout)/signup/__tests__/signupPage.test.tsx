@@ -37,6 +37,8 @@ jest.mock("@/hooks/useUserResearchConsentQuery", () => ({
 
 jest.mock("@/shared-module/common/generated/auth-api/sdk.generated", () => ({
   postAuthSignup: jest.fn(),
+  postAuthConfirmSignup: jest.fn(),
+  postAuthResendSignupCode: jest.fn(),
 }))
 
 // Solved at once, so the form's own validation is what these tests see.
@@ -181,8 +183,8 @@ describe("Create account form accessibility", () => {
     expect(link).toHaveTextContent("sign-in-if-you-have-an-account")
   })
 
-  it("moves focus to the confirm-email heading once the research consent dialog closes", async () => {
-    ;(postAuthSignup as jest.Mock).mockResolvedValue({ type: "success" })
+  it("moves focus to the code field once the code is mailed", async () => {
+    ;(postAuthSignup as jest.Mock).mockResolvedValue({ type: "code_mailed" })
     renderPage()
     await act(async () => {})
     fireEvent.change(screen.getByLabelText("first-name"), { target: { value: "Ada" } })
@@ -197,28 +199,7 @@ describe("Create account form accessibility", () => {
     fireEvent.click(await screen.findByRole("option", { name: "fi" }))
     fireEvent.click(screen.getByRole("button", { name: "create-an-account" }))
 
-    const dialog = await screen.findByTestId("research-consent-dialog")
-    const heading = await screen.findByRole("heading", {
-      level: 1,
-      name: "message-please-confirm-your-email-address",
-      hidden: true,
-    })
-    // The page behind the dialog is inert, so the heading cannot take focus yet.
-    await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement))
-
-    fireEvent.click(
-      screen.getByRole("radio", {
-        name: "research-consent-i-do-not-want-participate-in-educational-research",
-      }),
-    )
-    fireEvent.click(screen.getByRole("button", { name: "button-text-save" }))
-    await waitFor(() => expect(screen.queryByTestId("research-consent-dialog")).toBeNull())
-    await act(
-      () =>
-        new Promise<void>((resolve) => {
-          setTimeout(resolve, 100)
-        }),
-    )
-    expect(heading).toHaveFocus()
+    await screen.findByRole("heading", { level: 1, name: "heading-check-your-email" })
+    await waitFor(() => expect(document.activeElement).toBeInstanceOf(HTMLInputElement))
   })
 })

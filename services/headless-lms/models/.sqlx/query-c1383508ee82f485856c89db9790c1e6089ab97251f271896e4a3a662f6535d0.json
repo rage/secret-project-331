@@ -1,0 +1,166 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  created_at,\n  action AS \"action: AccountFormAction\",\n  outcome AS \"outcome: AccountFormOutcome\",\n  matched_rule_ids,\n  signals,\n  user_id,\n  recipient_domain,\n  network_prefix::text AS network_prefix,\n  address_digest,\n  mailbox_digest\nFROM account_form_decisions\nWHERE (\n    $1::timestamptz IS NULL\n    OR created_at < $1\n  )\nORDER BY created_at DESC\nLIMIT $2\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "action: AccountFormAction",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_action",
+            "kind": {
+              "Enum": [
+                "signup",
+                "signup_code_resend",
+                "password_reset",
+                "email_change"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "action"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "outcome: AccountFormOutcome",
+        "type_info": {
+          "Custom": {
+            "name": "account_form_outcome",
+            "kind": {
+              "Enum": [
+                "allow",
+                "drop"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "outcome"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "matched_rule_ids",
+        "type_info": "UuidArray",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "matched_rule_ids"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "signals",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "signals"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "recipient_domain",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "recipient_domain"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "network_prefix",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "address_digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "address_digest"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "mailbox_digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "account_form_decisions",
+            "name": "mailbox_digest"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      null,
+      true,
+      true
+    ]
+  },
+  "hash": "c1383508ee82f485856c89db9790c1e6089ab97251f271896e4a3a662f6535d0"
+}

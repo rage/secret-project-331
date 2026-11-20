@@ -113,6 +113,9 @@ const FrontPage = () => {
         <div>
           <Link href="/manage/email-templates">{t("email-templates-title")}</Link>
         </div>
+        <div>
+          <Link href="/manage/account-forms">{t("account-forms-title")}</Link>
+        </div>
       </OnlyRenderIfPermissions>
       <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>

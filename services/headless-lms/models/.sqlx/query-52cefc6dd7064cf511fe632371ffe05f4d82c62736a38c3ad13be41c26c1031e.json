@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT max(created_at)\nFROM account_form_decisions\nWHERE address_digest = $1\n  AND action = $2\n  AND created_at > $3\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "max",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        {
+          "Custom": {
+            "name": "account_form_action",
+            "kind": {
+              "Enum": [
+                "signup",
+                "signup_code_resend",
+                "password_reset",
+                "email_change"
+              ]
+            }
+          }
+        },
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "52cefc6dd7064cf511fe632371ffe05f4d82c62736a38c3ad13be41c26c1031e"
+}

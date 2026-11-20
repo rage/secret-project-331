@@ -112,7 +112,7 @@
     "/api/v0/auth/create-account": {
       "post": {
         "tags": ["auth"],
-        "summary": "POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/create-account HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true,\n  \"altcha\": \"eyJjaGFsbGVuZ2UiOnsi...\"\n}\n```",
+        "summary": "POST `/api/v0/auth/create-account` Starts a signup: mails a code to the address, which\n[`confirm_signup`] takes to create the account and sign in. See [`crate::domain::signup`].\n\n# Example\n```http\nPOST /api/v0/auth/create-account HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true,\n  \"altcha\": \"eyJjaGFsbGVuZ2UiOnsi...\"\n}\n```",
         "operationId": "postAuthSignup",
         "requestBody": {
           "content": {
@@ -140,6 +140,79 @@
           },
           "429": {
             "description": "Too many attempts; see Retry-After"
+          }
+        }
+      }
+    },
+    "/api/v0/auth/create-account/confirm": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/create-account/confirm` Creates the account of the session's pending signup when\n`code` is the one mailed to its address, and signs in.",
+        "operationId": "postAuthConfirmSignup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmSignupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether the code confirmed the signup",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupConfirmationResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/create-account/resend-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/create-account/resend-code` Mails a new code for the session's pending signup,\nsubject to the resend interval and the address's mail budget. Answers the same whatever happened.",
+        "operationId": "postAuthResendSignupCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResendSignupCodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The request was received"
+          }
+        }
+      }
+    },
+    "/api/v0/auth/create-account/test-mode-code": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "GET `/api/v0/auth/create-account/test-mode-code` The pending signup's mailed code, for the system tests,\nwhich have no mail capture. 404 unless `TEST_MODE` is on.",
+        "operationId": "getAuthSignupCodeForTestMode",
+        "responses": {
+          "200": {
+            "description": "The pending signup's code",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not in test mode, or no pending code"
           }
         }
       }
@@ -616,6 +689,15 @@
         "description": "What a challenge may be redeemed for.",
         "enum": ["signup", "password_reset"]
       },
+      "ConfirmSignupRequest": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
       "CreateAccountDetails": {
         "type": "object",
         "required": [
@@ -633,6 +715,10 @@
           "altcha": {
             "type": "string",
             "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
           },
           "country": {
             "type": "string"
@@ -842,6 +928,15 @@
             }
           }
         ]
+      },
+      "ResendSignupCodeRequest": {
+        "type": "object",
+        "properties": {
+          "client_info": {
+            "type": ["string", "null"],
+            "description": "The form's opaque report about the browser, for the account form log."
+          }
+        }
       },
       "Resource": {
         "oneOf": [
@@ -1296,6 +1391,11 @@
         ],
         "description": "Outcome of submitting a session confirmation code."
       },
+      "SignupConfirmationResult": {
+        "type": "string",
+        "description": "Outcome of typing the code. Wrong, expired, spent and \"no such signup\" are one value, so the\nanswer tells nothing about the code.",
+        "enum": ["confirmed", "invalid", "account_exists"]
+      },
       "SignupResponse": {
         "oneOf": [
           {
@@ -1304,17 +1404,7 @@
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["success"]
-              }
-            }
-          },
-          {
-            "type": "object",
-            "required": ["type"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["email_already_exists"]
+                "enum": ["code_mailed"]
               }
             }
           }

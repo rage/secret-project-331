@@ -5,6 +5,9 @@ Each submodule corresponds to a database table.
 */
 // we always use --document-private-items, so this warning is moot
 #![allow(rustdoc::private_intra_doc_links)]
+pub mod account_form_decisions;
+pub mod account_form_rules;
+pub mod account_form_settings;
 pub mod agent_changeset_calls;
 pub mod agent_changeset_entities;
 pub mod agent_changesets;
@@ -135,6 +138,7 @@ pub mod peer_or_self_review_questions;
 pub mod peer_or_self_review_submissions;
 pub mod peer_review_queue_entries;
 pub mod pending_roles;
+pub mod pending_signups;
 pub mod playground_examples;
 pub mod points_breakdowns;
 pub mod privacy_link;

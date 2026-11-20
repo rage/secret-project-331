@@ -11,6 +11,7 @@ import {
   useLoadSlot,
 } from "../../hooks/useLoadSlot"
 import { baseTheme } from "../../styles"
+import Spinner from "../Spinner"
 
 /** Call `onReady` once the child has loaded; until then, or until the hold timeout, it holds a load slot. */
 export type ChildFactoryWithCallback = (onReady: () => void) => React.ReactNode
@@ -59,11 +60,13 @@ export function ThrottledChildRenderer({
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                gap: 0.5rem;
                 border: 1px dashed ${baseTheme.colors.gray[200]};
                 border-radius: 4px;
                 color: ${baseTheme.colors.gray[500]};
               `}
             >
+              <Spinner variant="small" disableMargin />
               {t("throttled-renderer.loading")}
             </div>
           ))}

@@ -221,6 +221,7 @@
   "table.noRows": "لا يوجد ما يمكن عرضه",
   "table.selectAllRows": "تحديد كل الصفوف في هذه الصفحة",
   "table.selectRow": "تحديد الصف",
+  "throttled-renderer.loading": "جارٍ التحميل…",
   "title-data-view": "عرض البيانات",
   "title-debug-view": "عرض التصحيح",
   "title-references": "المراجع",

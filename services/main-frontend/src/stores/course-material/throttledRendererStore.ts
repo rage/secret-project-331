@@ -1,14 +1,9 @@
-/**
- * Queue ID for exercise task iframe rendering throttle.
- * All ExerciseTaskIframe instances sharing this qid will use the same queue.
- */
+import type { LoadSlotConfig } from "@/shared-module/common/hooks/useLoadSlot"
+
+/** Queue shared by every exercise task iframe on the page, so they are throttled together. */
 export const EXERCISE_IFRAME_QUEUE_ID = "exercise-task-iframes"
 
-/**
- * Configuration for exercise task iframe rendering throttle.
- * When a participant exceeds maxHoldMs, they are demoted (freed slot) but continue running.
- */
-export const EXERCISE_IFRAME_QUEUE_CONFIG = {
+export const EXERCISE_IFRAME_QUEUE_CONFIG: LoadSlotConfig = {
   capacity: 3,
-  maxHoldMs: 1000,
+  maxHoldMs: 8000,
 }

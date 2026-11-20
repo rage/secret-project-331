@@ -22,7 +22,10 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import type { StudentExerciseSlideSubmission } from "@/generated/course-material-api/types.generated"
+import type {
+  CourseMaterialExerciseTask,
+  StudentExerciseSlideSubmission,
+} from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
@@ -153,6 +156,33 @@ const DeadlineText = styled.div<DeadlineProps>`
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
 
+type CapturedAnswers = Map<string, CapturedExerciseTaskAnswer>
+
+/**
+ * Seeds answers from the tasks' previous submissions, keeping answers the iframes reported since:
+ * a refetch doesn't re-send state to the iframes, so they wouldn't report them again. A captured
+ * answer is replaced only when its task's previous submission is in `changedSubmissionTaskIds`.
+ */
+function mergePreviousSubmissionAnswers(
+  answers: CapturedAnswers,
+  tasks: CourseMaterialExerciseTask[],
+  changedSubmissionTaskIds: ReadonlySet<string>,
+): CapturedAnswers {
+  const merged: CapturedAnswers = new Map()
+  for (const task of tasks) {
+    const captured = answers.get(task.id)
+    if (task.previous_submission && (!captured || changedSubmissionTaskIds.has(task.id))) {
+      merged.set(task.id, {
+        valid: true,
+        ...storedAnswerToCapturedAnswerFields(task.previous_submission),
+      })
+    } else if (captured) {
+      merged.set(task.id, captured)
+    }
+  }
+  return merged
+}
+
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<
@@ -166,7 +196,8 @@ const ExerciseBlock: React.FC<
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
+  const [answers, setAnswers] = useState<CapturedAnswers>(new Map())
+  const previousSubmissionIdsRef = useRef<Map<string, string>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
@@ -213,16 +244,23 @@ const ExerciseBlock: React.FC<
       signedIn: Boolean(loginState.signedIn),
       isChapterLocked: Boolean(isChapterLocked),
     })
-    const a = new Map()
-    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
-      if (et.previous_submission) {
-        a.set(et.id, {
-          valid: true,
-          ...storedAnswerToCapturedAnswerFields(et.previous_submission),
-        })
-      }
-    })
-    setAnswers(a)
+    const tasks = getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks
+    const seenSubmissionIds = previousSubmissionIdsRef.current
+    const changedSubmissionTaskIds = new Set(
+      tasks
+        .filter(
+          (task) =>
+            task.previous_submission &&
+            seenSubmissionIds.get(task.id) !== task.previous_submission.id,
+        )
+        .map((task) => task.id),
+    )
+    previousSubmissionIdsRef.current = new Map(
+      tasks.flatMap((task) =>
+        task.previous_submission ? [[task.id, task.previous_submission.id] as const] : [],
+      ),
+    )
+    setAnswers((prev) => mergePreviousSubmissionAnswers(prev, tasks, changedSubmissionTaskIds))
   }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
@@ -295,17 +333,9 @@ const ExerciseBlock: React.FC<
 
       // if answers were empty, because page refresh
       if (answers.size === 0 && courseMaterialState.settings?.user_id) {
-        await getCourseMaterialExercise.refetch()
-        const a = new Map()
-        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
-          if (et.previous_submission) {
-            a.set(et.id, {
-              valid: true,
-              ...storedAnswerToCapturedAnswerFields(et.previous_submission),
-            })
-          }
-        })
-        setAnswers(a)
+        const refetched = await getCourseMaterialExercise.refetch()
+        const tasks = (refetched.data ?? data).current_exercise_slide.exercise_tasks
+        setAnswers((prev) => mergePreviousSubmissionAnswers(prev, tasks, new Set()))
       }
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
     },
@@ -437,9 +467,10 @@ const ExerciseBlock: React.FC<
         // understand why (course-improvements-issues#161). Answer-specific reasons come from the
         // exercise iframe (e.g. a Timeline duplicate); host-side ones (deadline, language version,
         // cannot post) are added here.
-        const taskCount = postThisStateToIFrame?.length ?? 0
         const answerValues = Array.from(answers.values())
-        const answersIncomplete = answers.size < taskCount || answerValues.some((a) => !a.valid)
+        const answersIncomplete = courseMaterialExercise.current_exercise_slide.exercise_tasks.some(
+          (task) => !answers.get(task.id)?.valid,
+        )
         const answerValidityMessages = answerValues.flatMap((a) => a.validityMessages ?? [])
         const submissionBlockers: string[] = []
         if (answersIncomplete) {

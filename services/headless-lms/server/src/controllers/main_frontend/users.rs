@@ -1190,6 +1190,10 @@ fn old_version_upstream_rate_limit() -> RateLimit {
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
+        "/send-reset-password-email",
+        web::post().to(domain::removed_routes::log_removed_route_request),
+    )
+    .route(
         "/user-research-form-question-answers",
         web::get().to(get_all_research_form_answers_with_user_id),
     )

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_tasks copied_task\nSET private_spec = jsonb_set(\n    jsonb_set(\n      copied_task.private_spec,\n      '{repository_exercise,id}',\n      to_jsonb(uuid_generate_v5($1, re.id::text)::text)\n    ),\n    '{repository_exercise,repository_id}',\n    to_jsonb(uuid_generate_v5($1, re.repository_id::text)::text)\n  )\nFROM repository_exercises re\n  JOIN exercise_repositories er ON er.id = re.repository_id\nWHERE (copied_task.private_spec -> 'repository_exercise' ->> 'id') = re.id::text\n  AND (\n    er.course_id = $2\n    OR er.exam_id = $2\n  )\n  AND er.deleted_at IS NULL\n  AND re.deleted_at IS NULL\n  AND copied_task.id IN (\n    SELECT uuid_generate_v5($1, t.id::text)\n    FROM exercise_tasks t\n      JOIN exercise_slides s ON s.id = t.exercise_slide_id\n      JOIN exercises e ON e.id = s.exercise_id\n    WHERE e.course_id = $2\n      OR e.exam_id = $2\n  );\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "34476c3b6179f3f13c0a8660df744b521e5027c0019e740ca5a168e8d9b0b1bc"
+}

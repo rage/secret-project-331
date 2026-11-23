@@ -16,7 +16,6 @@ CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON teacher_newsletter_items FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 COMMENT ON TABLE teacher_newsletter_items IS 'Stores individual newsletter content items for a specific course within a defined date range. Multiple items are aggregated to generate a complete teacher newsletter, stored in both HTML and plain text formats.';
-COMMENT ON TABLE teacher_newsletter_items IS '';
 COMMENT ON COLUMN teacher_newsletter_items.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN teacher_newsletter_items.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN teacher_newsletter_items.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';

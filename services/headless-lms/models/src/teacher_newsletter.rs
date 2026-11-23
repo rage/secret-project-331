@@ -28,9 +28,12 @@ pub async fn get_teacher_newsletter_subscriptions(
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query_scalar!(
         "
-SELECT user_id
-FROM teacher_newsletter_subscriptions
-WHERE subscribed = 't' AND deleted_at IS NULL
+SELECT tns.user_id
+FROM teacher_newsletter_subscriptions AS tns
+  JOIN users AS u ON u.id = tns.user_id
+WHERE tns.subscribed = 't'
+  AND tns.deleted_at IS NULL
+  AND u.deleted_at IS NULL
         ",
     )
     .fetch_all(conn)

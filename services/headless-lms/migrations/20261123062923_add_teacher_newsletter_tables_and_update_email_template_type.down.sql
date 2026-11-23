@@ -25,8 +25,8 @@ CREATE TYPE email_template_type_old AS ENUM (
   'verify_email_address',
   'credit_registration_action_needed',
   'credit_registration_registered',
-  'course_designer_weekly_digest',
-  'verify_network'
+  'verify_network',
+  'course_designer_weekly_digest'
 );
 
 ALTER TABLE email_templates

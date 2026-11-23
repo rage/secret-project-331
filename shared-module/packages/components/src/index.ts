@@ -102,7 +102,6 @@ export type {
 } from "./components/ErrorNotice"
 export { normalizeErrorForDisplay } from "./lib/errors/normalizeErrorForDisplay"
 export type {
-  BackendMessageKey,
   ErrorCategory,
   ErrorSeverity,
   ErrorViewIssue,

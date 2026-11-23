@@ -1,7 +1,8 @@
 import i18next from "i18next"
 
-import { normalizeErrorForDisplay } from "../src/lib/errors/normalizeErrorForDisplay"
+import type { MessageKey } from "../../common/src/generated/errors-api"
 import "../tests/test-i18n"
+import { normalizeErrorForDisplay } from "../src/lib/errors/normalizeErrorForDisplay"
 
 // oxlint-disable-next-line import/no-named-as-default-member -- getFixedT is the instance method
 const t = i18next.getFixedT(null, "errors")
@@ -14,13 +15,12 @@ class FakeAppApiError extends Error {
   public kind = "api"
   public status: number | null = null
   public requestId: string | null = null
-  public messageKey: string | null = null
+  public messageKey: MessageKey | null = null
   public type: string | null = null
   public code: string | null = null
   public userMessage: string | null = null
   public detail: string | null = null
   public issues: { path?: string; code?: string; message: string }[] = []
-  public metadata: Record<string, unknown> | null = null
   public extra: Record<string, unknown> | null = null
   public retryAfterSeconds: number | null = null
   public url: string | null = null
@@ -53,7 +53,7 @@ describe("normalizeErrorForDisplay", () => {
         status: 422,
         userMessage: "Please fix fields",
         issues: [{ path: "body.email", message: "Invalid email", code: "invalid_format" }],
-        metadata: { block_id: "block-123" },
+        messageKey: { validation_error_with_cms_anchor_block_id: { block_id: "block-123" } },
         requestId: "req-1",
         code: "VALIDATION_FAILED",
         detail: "detail",
@@ -104,15 +104,16 @@ describe("normalizeErrorForDisplay", () => {
     const result = normalizeErrorForDisplay(
       {
         type: "validation_error",
-        message_key: "validation_error",
+        message_key: { validation_error_with_cms_anchor_block_id: { block_id: "block-42" } },
         message: "Input invalid",
         errors: [{ path: ["body", "email"], message: "Invalid email", code: "invalid_format" }],
-        metadata: { block_id: "block-42" },
       },
       t,
     )
 
-    expect(result.messageKey).toBe("validation_error")
+    expect(result.messageKey).toStrictEqual({
+      validation_error_with_cms_anchor_block_id: { block_id: "block-42" },
+    })
     expect(result.type).toBe("validation_error")
     expect(result.category).toBe("validation")
     expect(result.code).toBeNull()

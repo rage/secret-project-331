@@ -14,7 +14,6 @@ use secrecy::ExposeSecret;
 use utoipa::ToSchema;
 
 use crate::config::server_runtime_config;
-use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::prelude::*;
 
 const ALGORITHM: &str = "PBKDF2/SHA-256";
@@ -131,10 +130,11 @@ fn verified_challenge(payload: Payload) -> Option<Challenge> {
 }
 
 fn refusal() -> ControllerError {
-    bad_request_with_reason(
-        BadRequestReason::FormVerificationFailed,
-        "Form verification failed. Please try again.".to_string(),
+    controller_err!(
+        BadRequest,
+        "Form verification failed. Please try again.".to_string()
     )
+    .with_message_key(headless_lms_models::errors::MessageKey::FormVerificationFailed)
 }
 
 async fn delete_expired_occasionally(conn: &mut PgConnection) -> ModelResult<()> {

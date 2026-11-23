@@ -9,7 +9,8 @@ use crate::{
     prelude::*,
 };
 use headless_lms_models::{
-    ModelError, ModelErrorType, flagged_answers::FlaggedAnswer, peer_or_self_review_configs,
+    ModelError, ModelErrorType, errors::MessageKey, flagged_answers::FlaggedAnswer,
+    peer_or_self_review_configs,
 };
 use models::{
     exercise_task_submissions::PeerOrSelfReviewsReceived,
@@ -91,12 +92,11 @@ async fn get_exercise(
     if let Some(exam_id) = course_material_exercise.exercise.exam_id {
         let user_id_for_exam = user_id.ok_or_else(|| {
             ControllerError::new(
-                ControllerErrorType::UnauthorizedWithReason(
-                    crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
-                ),
+                ControllerErrorType::Unauthorized,
                 "User must be authenticated to view exam exercises".to_string(),
                 None,
             )
+            .with_message_key(MessageKey::AuthenticationRequiredForExamExercise)
         })?;
         let user_enrollment =
             models::exams::get_enrollment(&mut conn, exam_id, user_id_for_exam).await?;
@@ -163,13 +163,11 @@ async fn authorize_exercise_access(
         }
         (None, Some(exam_id)) => {
             let user_id = user_id.ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::UnauthorizedWithReason(
-                        crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
-                    ),
-                    "User must be authenticated to view exam exercises".to_string(),
-                    None,
+                controller_err!(
+                    Unauthorized,
+                    "User must be authenticated to view exam exercises".to_string()
                 )
+                .with_message_key(MessageKey::AuthenticationRequiredForExamExercise)
             })?;
             super::exams::authorize_exam_content_access(conn, exam_id, user_id).await
         }

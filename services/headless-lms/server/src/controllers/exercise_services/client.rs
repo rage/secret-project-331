@@ -11,12 +11,12 @@ declares `supports_native_client` in its service info. The course/exercise queri
 capability, and submit rejects a task whose service lacks it.
 */
 use crate::controllers::helpers::file_uploading;
-use crate::domain::error::{BadRequestReason, ForbiddenReason, bad_request_with_reason};
 use crate::domain::exercise_services::token::UserFromOAuthToken;
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 use actix_web::FromRequest;
 use exercise_services_api as api;
+use headless_lms_models::errors::MessageKey;
 use headless_lms_models::exercises::{ActivityProgress, GradingProgress};
 use headless_lms_models::user_exercise_states::{ReviewingStage, UserExerciseState};
 use headless_lms_utils::course_url::course_page_url;
@@ -269,9 +269,10 @@ async fn authorize_access_to_exercise_chapter(
     .await?
     {
         return Err(controller_err!(
-            ForbiddenWithReason(ForbiddenReason::ChapterNotOpenYet),
+            Forbidden,
             "This exercise's chapter is not open yet.".to_string()
-        ));
+        )
+        .with_message_key(MessageKey::ChapterNotOpenYet));
     }
     Ok(())
 }
@@ -1023,10 +1024,11 @@ async fn verify_was_enrolled(
 
 /// The refusal both enrollment checks report, with the `not_enrolled` key clients branch on.
 fn not_enrolled_error() -> ControllerError {
-    bad_request_with_reason(
-        BadRequestReason::NotEnrolled,
-        "User is not enrolled to this exercise's course".to_string(),
+    controller_err!(
+        BadRequest,
+        "User is not enrolled to this exercise's course".to_string()
     )
+    .with_message_key(MessageKey::NotEnrolled)
 }
 
 /// The URL path authorizes `exercise_id`; the slide/task ids come from the request body,
@@ -1897,10 +1899,11 @@ async fn share_submission(
         )?;
         // Backups are pruned past the cap, which would break their links, and are not rate limited.
         if snapshot.purpose != SnapshotPurpose::Paste {
-            return Err(bad_request_with_reason(
-                BadRequestReason::BackupNotShareable,
-                "Only a paste can be shared, not a backup.".to_string(),
-            ));
+            return Err(controller_err!(
+                BadRequest,
+                "Only a paste can be shared, not a backup.".to_string()
+            )
+            .with_message_key(MessageKey::BackupNotShareable));
         }
         domain::exercise_services::submission_sharing::share_snapshot(
             &mut conn,
@@ -2278,9 +2281,10 @@ mod tests {
         use futures_util::FutureExt;
 
         let err = controller_err!(
-            BadRequestWithReason(BadRequestReason::NotEnrolled),
+            BadRequest,
             "User is not enrolled to this exercise's course".to_string()
-        );
+        )
+        .with_message_key(MessageKey::NotEnrolled);
         let response = err.error_response();
         assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
 

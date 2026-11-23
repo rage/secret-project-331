@@ -145,7 +145,14 @@ describe("ErrorNotice", () => {
   })
 
   test("links to the block the error came from", () => {
-    renderUi(<ErrorNotice error={{ message: "Broken block", metadata: { block_id: "block-9" } }} />)
+    renderUi(
+      <ErrorNotice
+        error={{
+          message: "Broken block",
+          message_key: { validation_error_with_cms_anchor_block_id: { block_id: "block-9" } },
+        }}
+      />,
+    )
 
     expect(screen.getByRole("link", { name: "Go to error" })).toHaveAttribute("href", "#block-9")
   })

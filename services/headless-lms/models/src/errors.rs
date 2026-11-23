@@ -44,6 +44,71 @@ pub struct NewErrorReport {
     pub details: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum MessageKey {
+    InternalError,
+    ValidationError,
+    ObsoleteClient,
+    NotFound,
+    RateLimited,
+    Unauthorized,
+    Forbidden,
+    OauthError,
+    // BadRequest errors
+    CourseSlugAlreadyTaken,
+    ForeignKeyViolation {
+        constraint: Option<String>,
+        table: Option<String>,
+    },
+    DatabaseConstraint {
+        constraint: String,
+    },
+    ValidationErrorWithCmsAnchorBlockId {
+        block_id: Uuid,
+    },
+    /// The user is not enrolled on the course the requested exercise belongs to.
+    NotEnrolled,
+    /// The exercise's deadline, or its chapter's, has passed.
+    DeadlinePassed,
+    /// The user has used every try the exercise allows.
+    OutOfTries,
+    /// A submission named a file that was uploaded but has since been reaped.
+    UploadExpired,
+    /// A submission named a file the host has no upload record of for this exercise and user.
+    UnknownUpload,
+    /// A submission named the same uploaded file more than once.
+    DuplicateUpload,
+    /// Only a paste snapshot can be shared, not a backup.
+    BackupNotShareable,
+    /// A mooc.fi target's tiers overlap another live target's of the same mooc.fi course.
+    ExternalCreditTargetTiersOverlap,
+    /// The mooc.fi course already has a live target with this course code.
+    ExternalCreditTargetCourseCodeTaken,
+    /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
+    ExternalCreditTargetMoocfiCourseFixed,
+    /// A save named a version of the record that is no longer the latest.
+    StaleVersion,
+    /// The form's proof-of-work solution was missing, wrong, expired or already used.
+    FormVerificationFailed,
+    // Unauthorized errors
+    AuthenticationRequiredForExamExercise,
+    ResponseValidationError,
+    // Sisu errors
+    InvalidCourseCode,
+    GenericSisuError,
+    SisuResourceNotFound,
+    // Forbidden errors
+    /// The exercise's chapter has not opened yet.
+    ChapterNotOpenYet,
+    /// Chapter locking keeps the chapter closed until the previous ones are completed.
+    ChapterNotUnlockedYet,
+    /// The user has completed and locked the chapter.
+    ChapterCompletedAndLocked,
+    /// The user's exercise state takes no more answers, though the chapter may be open again.
+    ExerciseLocked,
+}
+
 /// Inserts one error occurrence and upserts its variant in a single transaction.
 /// The variant service is treated as immutable after creation; any future service
 /// rename must update both error_variants.service and related error_occurrences.service

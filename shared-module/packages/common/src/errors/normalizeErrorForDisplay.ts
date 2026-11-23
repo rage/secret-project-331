@@ -1,5 +1,4 @@
 export type {
-  BackendMessageKey,
   ErrorCategory,
   ErrorSeverity,
   ErrorViewIssue,

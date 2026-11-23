@@ -48,7 +48,6 @@ describe("ErrorBanner", () => {
       messageKey: "forbidden",
       requestId: "req-7",
       userMessage: "No permission to view user details",
-      metadata: { block_id: "block-1" },
       body: {
         type: "forbidden",
         message_key: "forbidden",
@@ -60,12 +59,30 @@ describe("ErrorBanner", () => {
 
     expect(screen.getByRole("heading", { name: "Forbidden" })).toBeInTheDocument()
     expect(screen.getByText("req-7")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Go to error" })).toHaveAttribute("href", "#block-1")
 
     fireEvent.click(screen.getByRole("button", { name: /Technical details/ }))
 
     expect(screen.getByText("Message key").nextElementSibling).toHaveTextContent("forbidden")
     expect(screen.getByText("Status").nextElementSibling).toHaveTextContent("403")
+  })
+
+  test("renders a go to error link for a CMS anchor message key", () => {
+    const error = new AppApiError({
+      kind: "api",
+      status: 422,
+      type: "validation_error",
+      messageKey: { validation_error_with_cms_anchor_block_id: { block_id: "block-1" } },
+      requestId: "req-8",
+      userMessage: "Invalid content",
+      body: {
+        type: "validation_error",
+        message: "Invalid content",
+      },
+    })
+
+    renderBanner(<ErrorBanner error={error} variant="readOnly" />)
+
+    expect(screen.getByRole("link", { name: "Go to error" })).toHaveAttribute("href", "#block-1")
   })
 
   test("renders the context message above the parsed copy", () => {

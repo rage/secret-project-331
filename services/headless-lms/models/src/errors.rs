@@ -89,6 +89,8 @@ pub enum MessageKey {
     ExternalCreditTargetMoocfiCourseFixed,
     /// A save named a version of the record that is no longer the latest.
     StaleVersion,
+    /// The form's proof-of-work solution was missing, wrong, expired or already used.
+    FormVerificationFailed,
     // Unauthorized errors
     AuthenticationRequiredForExamExercise,
     ResponseValidationError,

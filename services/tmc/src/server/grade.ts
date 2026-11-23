@@ -126,6 +126,35 @@ async function postImpl(request: Request): Promise<Response> {
 
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
+/**
+ * Gradings run at once in this process. Each holds a sandbox pod and its archives in memory, and the
+ * service's own memory limit is small; the rest wait their turn, which the host's stale-grading
+ * timeout bounds.
+ */
+const MAX_CONCURRENT_GRADINGS = 4
+let runningGradings = 0
+const waitingGradings: (() => void)[] = []
+
+async function withGradingSlot<T>(grade: () => Promise<T>): Promise<T> {
+  if (runningGradings >= MAX_CONCURRENT_GRADINGS) {
+    await new Promise<void>((resolve) => {
+      waitingGradings.push(resolve)
+    })
+  } else {
+    runningGradings++
+  }
+  try {
+    return await grade()
+  } finally {
+    const next = waitingGradings.shift()
+    if (next) {
+      next()
+    } else {
+      runningGradings--
+    }
+  }
+}
+
 /** Grades an answer after /grade has answered, and sends the result to the host's grading-update URL. */
 async function gradeAndReport(
   req: GradeRequest,
@@ -134,7 +163,7 @@ async function gradeAndReport(
 ): Promise<void> {
   let result: ExerciseTaskGradingResult
   try {
-    result = await gradeAnswer(req, answerArchive)
+    result = await withGradingSlot(() => gradeAnswer(req, answerArchive))
   } catch (e) {
     error("Failed to grade", e)
     result = {
@@ -385,9 +414,11 @@ const gradeInPod = async (
 
   const valgrindFailed = isValgrindFailure(normalized)
   const styleFailed = isStyleFailure(validations)
+  // "Failed" is for runs that say nothing about the answer: the host does not count them as tries.
   let gradingProgress: GradingProgress = "Failed"
   let feedback: { text: string; key: GradingFeedbackKey } | null = null
   if (normalized.status === "COMPILE_FAILED") {
+    gradingProgress = "FullyGraded"
     feedback = { text: "Could not compile the submission", key: "compile_failed" }
   } else if (normalized.status === "GENERIC_ERROR") {
     feedback = { text: "The tests could not be run", key: "generic_error" }

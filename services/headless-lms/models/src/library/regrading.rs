@@ -83,7 +83,8 @@ pub async fn regrade(
                     )
                     .await?;
                     incomplete_regradings.insert(regrading_id);
-                } else if regrading_status.exercise_services_full {
+                } else if regrading_status.exercise_services_full || regrading_status.awaits_results
+                {
                     incomplete_regradings.insert(regrading_id);
                 }
             }
@@ -125,7 +126,13 @@ pub async fn regrade(
     }) = grading_futures.next().await
     {
         let grading_result = match exercise_service_result {
-            Ok(grading_result) => grading_result,
+            Ok(grading_result) => {
+                // The service reports the result later through the grading-update route.
+                if grading_result.grading_progress == GradingProgress::Pending {
+                    incomplete_regradings.insert(regrading_submission.regrading_id);
+                }
+                grading_result
+            }
             Err(err) => {
                 tracing::error!(
                     "Failed to get grading from exercise service {}: {}",
@@ -164,7 +171,12 @@ pub async fn regrade(
 struct RegradingStatus {
     exercise_services_full: bool,
     missing_exercise_services: HashSet<String>,
+    /// A sent grading has not reported its result yet.
+    awaits_results: bool,
 }
+
+/// How long a regrading waits for a pending grading's result before sending the submission again.
+const PENDING_REGRADING_RESEND_AFTER: chrono::Duration = chrono::Duration::minutes(30);
 
 async fn do_single_regrading(
     conn: &mut PgConnection,
@@ -183,6 +195,7 @@ async fn do_single_regrading(
     let mut regrading_status = RegradingStatus {
         exercise_services_full: false,
         missing_exercise_services: HashSet::new(),
+        awaits_results: false,
     };
 
     // for each regrading, process all related submissions
@@ -203,11 +216,19 @@ async fn do_single_regrading(
         if let Some(grading_id) = regrading_submission.grading_after_regrading {
             // this submission has previously been at least partially regraded
             let grading = models::exercise_task_gradings::get_by_id(&mut *conn, grading_id).await?;
-            if grading.grading_progress == GradingProgress::FullyGraded {
-                // already fully graded, continue to the next one
-                continue;
+            match grading.grading_progress {
+                GradingProgress::FullyGraded
+                | GradingProgress::PendingManual
+                | GradingProgress::Failed => continue,
+                GradingProgress::Pending
+                    if Utc::now() - grading.updated_at < PENDING_REGRADING_RESEND_AFTER =>
+                {
+                    regrading_status.awaits_results = true;
+                    continue;
+                }
+                // Never sent, or its result was lost: send it again.
+                GradingProgress::Pending | GradingProgress::NotReady => {}
             }
-            // otherwise, attempt grading again
         }
 
         // create new grading for the submission
@@ -483,6 +504,140 @@ mod test {
             .await
             .unwrap();
         assert_eq!(grading.score_given, Some(0.0))
+    }
+
+    /// A service that answers `Pending` reports later, so the regrading is not done until it has.
+    #[tokio::test]
+    async fn a_regrading_stays_open_while_a_grading_result_is_pending() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter, :page, :exercise, :slide);
+        let exercise = exercises::get_by_id(tx.as_mut(), exercise).await.unwrap();
+        let task = models::exercise_tasks::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            NewExerciseTask {
+                exercise_slide_id: slide,
+                exercise_type: "test-exercise".to_string(),
+                assignment: vec![],
+                public_spec: Some(Value::Null),
+                private_spec: Some(Value::Null),
+                model_solution_spec: Some(Value::Null),
+                order_number: 0,
+            },
+        )
+        .await
+        .unwrap();
+        let graded = ExerciseTaskGradingResult {
+            grading_progress: GradingProgress::FullyGraded,
+            score_given: 0.0,
+            score_maximum: 1,
+            feedback_text: None,
+            feedback_json: None,
+            set_user_variables: None,
+        };
+        let original_grading = create_initial_submission(
+            tx.as_mut(),
+            user,
+            &exercise,
+            course,
+            slide,
+            StudentExerciseSlideSubmission {
+                exercise_slide_id: slide,
+                exercise_task_submissions: vec![StudentExerciseTaskSubmission::json(
+                    task,
+                    Value::Null,
+                )],
+            },
+            HashMap::from([(task, graded.clone())]),
+        )
+        .await
+        .unwrap();
+        let regrading = models::regradings::insert(
+            tx.as_mut(),
+            UserPointsUpdateStrategy::CanAddPointsButCannotRemovePoints,
+        )
+        .await
+        .unwrap();
+        let submitted = original_grading
+            .exercise_task_submission_results
+            .first()
+            .unwrap();
+        let regrading_submission_id = models::exercise_task_regrading_submissions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            regrading,
+            submitted.submission.id,
+            submitted.grading.as_ref().unwrap().id,
+        )
+        .await
+        .unwrap();
+        let server = mockito::Server::new_async().await;
+        let service = create_mock_service(tx.as_mut(), "test-exercise".to_string(), 1, &server)
+            .await
+            .unwrap();
+        let services = HashMap::from([("test-exercise".to_string(), service)]);
+        let sent = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+        let pending = ExerciseTaskGradingResult {
+            grading_progress: GradingProgress::Pending,
+            ..graded.clone()
+        };
+        let send = {
+            let sent = sent.clone();
+            move |_: Url, _: &ExerciseTask, _: &ExerciseTaskSubmission, _: Uuid| {
+                sent.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+                let pending = pending.clone();
+                async move { Ok(pending) }.boxed()
+            }
+        };
+
+        for _ in 0..2 {
+            regrade(
+                tx.as_mut(),
+                &services,
+                &send,
+                &init_file_store(),
+                &init_app_conf().expect("app conf"),
+            )
+            .await
+            .unwrap();
+            let open = models::regradings::get_by_id(tx.as_mut(), regrading)
+                .await
+                .unwrap();
+            assert!(open.regrading_completed_at.is_none());
+        }
+        assert_eq!(
+            sent.load(std::sync::atomic::Ordering::SeqCst),
+            1,
+            "a pending grading is not sent again while it may still report"
+        );
+
+        let grading_id = models::exercise_task_regrading_submissions::get_regrading_submission(
+            tx.as_mut(),
+            regrading_submission_id,
+        )
+        .await
+        .unwrap()
+        .grading_after_regrading
+        .unwrap();
+        models::exercise_task_gradings::set_grading_progress(
+            tx.as_mut(),
+            grading_id,
+            GradingProgress::FullyGraded,
+        )
+        .await
+        .unwrap();
+        regrade(
+            tx.as_mut(),
+            &services,
+            &send,
+            &init_file_store(),
+            &init_app_conf().expect("app conf"),
+        )
+        .await
+        .unwrap();
+        let done = models::regradings::get_by_id(tx.as_mut(), regrading)
+            .await
+            .unwrap();
+        assert!(done.regrading_completed_at.is_some());
     }
 
     #[tokio::test]

@@ -719,16 +719,35 @@ async fn determine_can_post_submission(
         }
     }
 
-    let can_post_submission = if let Some(user_id) = user_id {
-        if let Some(exam_id) = exercise.exam_id {
-            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
-        } else {
-            true
-        }
-    } else {
-        false
+    let Some(user_id) = user_id else {
+        return Ok(false);
     };
-    Ok(can_post_submission)
+    if let Some(exam_id) = exercise.exam_id {
+        return exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await;
+    }
+    if let (true, Some(max_tries), Some(course_id), Some(slide_id)) = (
+        exercise.limit_number_of_tries,
+        exercise.max_tries_per_slide,
+        exercise.course_id,
+        user_exercise_state
+            .as_ref()
+            .and_then(|state| state.selected_exercise_slide_id),
+    ) {
+        let used = crate::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
+            conn,
+            exercise.id,
+            CourseOrExamId::Course(course_id),
+            user_id,
+        )
+        .await?
+        .get(&slide_id)
+        .copied()
+        .unwrap_or(0);
+        if used >= i64::from(max_tries) {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 pub async fn get_or_select_exercise_slide(

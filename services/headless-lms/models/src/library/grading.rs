@@ -328,6 +328,67 @@ pub async fn apply_grading_update(
     .await
 }
 
+/// What the student is told about a grading that never finished.
+const LOST_GRADING_FEEDBACK: &str = "The grading of this submission did not finish, so it was stopped. It did not use a try; submit again.";
+
+/// Fails the gradings that have waited for their exercise service's result for longer than
+/// `stale_after`, such as one lost when the service restarted. A failed grading uses no try, so the
+/// student can submit again. Returns how many were failed.
+pub async fn fail_stale_pending_gradings(
+    conn: &mut PgConnection,
+    stale_after: chrono::Duration,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> ModelResult<usize> {
+    let stale = sqlx::query!(
+        r#"
+SELECT ets.id AS task_submission_id,
+  etg.id AS grading_id
+FROM exercise_task_gradings AS etg
+  JOIN exercise_task_submissions AS ets ON ets.exercise_task_grading_id = etg.id
+WHERE etg.grading_progress = 'pending'
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+  AND etg.updated_at < now() - make_interval(secs => $1)
+"#,
+        stale_after.num_seconds() as f64,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let failed = ExerciseTaskGradingResult {
+        grading_progress: GradingProgress::Failed,
+        score_given: 0.0,
+        score_maximum: 0,
+        feedback_text: Some(LOST_GRADING_FEEDBACK.to_string()),
+        feedback_json: None,
+        set_user_variables: None,
+    };
+    for row in &stale {
+        let task_submission = exercise_task_submissions::get_submission(
+            conn,
+            row.task_submission_id,
+            file_store,
+            app_conf,
+        )
+        .await?;
+        let grading = exercise_task_gradings::get_by_id(&mut *conn, row.grading_id).await?;
+        let slide = crate::exercise_slides::get_exercise_slide(
+            &mut *conn,
+            task_submission.exercise_slide_id,
+        )
+        .await?;
+        let exercise = exercises::get_by_id(&mut *conn, slide.exercise_id).await?;
+        let mut tx = conn.begin().await?;
+        apply_grading_update(&mut tx, &exercise, &task_submission, &grading, &failed).await?;
+        tx.commit().await?;
+        warn!(
+            grading_id = %row.grading_id,
+            "Failed a grading that waited for its exercise service for too long"
+        );
+    }
+    Ok(stale.len())
+}
+
 async fn apply_grading_result_to_user_state(
     conn: &mut PgConnection,
     exercise: &Exercise,

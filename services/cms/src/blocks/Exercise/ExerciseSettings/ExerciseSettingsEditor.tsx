@@ -10,7 +10,8 @@ import type { ExerciseAttributes } from "@/blocks/Exercise"
 import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Checkbox, Disclosure, TextField } from "@/shared-module/components"
+import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { Checkbox, DateTimeLocalField, Disclosure, TextField } from "@/shared-module/components"
 import RegisteredInnerBlocks from "@/utils/Gutenberg/RegisteredInnerBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useAttributeForm } from "@/utils/useAttributeForm"
@@ -26,6 +27,8 @@ interface SettingsValues {
   limitNumberOfTries: boolean
   maxTriesPerSlide: string
   teacherReviewsAnswerAfterLocking: boolean
+  /** Local `YYYY-MM-DDTHH:mm`, or empty for no deadline of its own. */
+  deadline: string
 }
 
 const parseOptionalInt = (value: string): number | undefined => {
@@ -53,6 +56,7 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
       limitNumberOfTries: Boolean(attributes.limit_number_of_tries),
       maxTriesPerSlide: attributes.max_tries_per_slide?.toString() ?? "",
       teacherReviewsAnswerAfterLocking: attributes.teacher_reviews_answer_after_locking ?? true,
+      deadline: formatDateForDateTimeLocalInputs(attributes.deadline) ?? "",
     },
     (values, changedName) => {
       switch (changedName) {
@@ -74,6 +78,13 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
             teacher_reviews_answer_after_locking: values.teacherReviewsAnswerAfterLocking,
           })
           break
+        case "deadline": {
+          const deadline = values.deadline ? new Date(values.deadline) : null
+          setAttributes({
+            deadline: deadline && !isNaN(deadline.getTime()) ? deadline.toISOString() : undefined,
+          })
+          break
+        }
       }
     },
   )
@@ -129,6 +140,14 @@ const SettingsFields: React.FC<SettingsFieldsProps> = ({
           `}
         />
       </div>
+      <DateTimeLocalField
+        name="deadline"
+        control={control}
+        label={t("exercise-deadline")}
+        className={css`
+          margin-bottom: 1rem;
+        `}
+      />
       {showTeacherReview && (
         <Checkbox
           name="teacherReviewsAnswerAfterLocking"

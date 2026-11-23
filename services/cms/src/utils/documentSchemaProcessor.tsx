@@ -84,7 +84,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       score_maximum: exerciseAttributes.score_maximum,
       max_tries_per_slide: exerciseAttributes.max_tries_per_slide ?? null,
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
-      deadline: null,
+      deadline: exerciseAttributes.deadline ?? null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
       needs_self_review: exerciseAttributes.needs_self_review,
       peer_or_self_review_config: peerOrSelfReviewConfig,
@@ -279,6 +279,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
             : "null",
         use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
         teacher_reviews_answer_after_locking: exercise.teacher_reviews_answer_after_locking,
+        ...includeIf(exercise.deadline !== null && exercise.deadline !== undefined, {
+          deadline: exercise.deadline ?? undefined,
+        }),
       },
     }
 

@@ -190,6 +190,7 @@
   "error-use-embed-block-instead": "يرجى استخدام كتلة التضمين بدلًا من ذلك.",
   "exercise-custom-view-block": "كتلة عرض مخصصة للتمرين",
   "exercise-custom-view-block-explanation": "عرض لخدمة التمرين غير متعلق بتمرين.",
+  "exercise-deadline": "الموعد النهائي (يحل محل الموعد النهائي للفصل)",
   "exercise-max-points": "الحد الأقصى للنقاط",
   "exercise-name": "اسم التمرين",
   "exercise-title": "التمرين",

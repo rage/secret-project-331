@@ -190,6 +190,7 @@
   "example-exercise-editor": "Esimerkkitehtäväeditori",
   "exercise-custom-view-block": "Mukautettu näkymä lohko",
   "exercise-custom-view-block-explanation": "Näkymä tehtäväpalveluun, joka ei liity tehtävään.",
+  "exercise-deadline": "Määräaika (ohittaa luvun määräajan)",
   "exercise-max-points": "Maksimipisteet",
   "exercise-name": "Tehtävän nimi",
   "exercise-title": "Tehtävä",

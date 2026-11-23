@@ -46,6 +46,7 @@ export type MessageKey =
   | "external_credit_target_course_code_taken"
   | "external_credit_target_moocfi_course_fixed"
   | "stale_version"
+  | "form_verification_failed"
   | "authentication_required_for_exam_exercise"
   | "response_validation_error"
   | "invalid_course_code"

@@ -44,6 +44,7 @@ export const zMessageKey = z.union([
   z.enum(["external_credit_target_course_code_taken"]),
   z.enum(["external_credit_target_moocfi_course_fixed"]),
   z.enum(["stale_version"]),
+  z.enum(["form_verification_failed"]),
   z.enum(["authentication_required_for_exam_exercise"]),
   z.enum(["response_validation_error"]),
   z.enum(["invalid_course_code"]),

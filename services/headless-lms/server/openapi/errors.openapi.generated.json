@@ -186,6 +186,11 @@
           },
           {
             "type": "string",
+            "description": "The form's proof-of-work solution was missing, wrong, expired or already used.",
+            "enum": ["form_verification_failed"]
+          },
+          {
+            "type": "string",
             "enum": ["authentication_required_for_exam_exercise"]
           },
           {

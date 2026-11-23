@@ -48,6 +48,7 @@ export const gradeRequestSchema = z.looseObject({
   exercise_spec: privateSpecSchema,
   submission_files: z.array(gradingRequestFileSchema).min(1),
 })
+export type GradingRequestFile = z.infer<typeof gradingRequestFileSchema>
 export type GradeRequest = z.infer<typeof gradeRequestSchema>
 
 // SpecRequest envelope for public-spec / model-solution. private_spec is validated separately so

@@ -36,6 +36,8 @@ export const GRADING_FEEDBACK_KEYS: readonly GradingFeedbackKey[] = [
  */
 export interface GradingFeedbackExtras {
   feedback_key: GradingFeedbackKey | null
+  /** For `langs_error`: the cause tmc-langs gave, with server paths removed. */
+  feedback_detail?: string
   /** Null when the exercise's language has no style check or the check could not run. */
   validations?: StyleValidationResult | null
   /** Valgrind found errors, which fail the run without failing any single test. */
@@ -53,6 +55,7 @@ export interface FeedbackTestResult {
 /** What a view shows of a grading's `feedback_json`; every field tolerates a missing key. */
 export interface ParsedFeedback {
   feedbackKey: GradingFeedbackKey | null
+  feedbackDetail: string | null
   status: string | null
   testResults: FeedbackTestResult[]
   logs: Record<string, string>
@@ -94,6 +97,8 @@ export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
       typeof key === "string" && (GRADING_FEEDBACK_KEYS as readonly string[]).includes(key)
         ? (key as GradingFeedbackKey)
         : null,
+    feedbackDetail:
+      typeof feedbackJson["feedback_detail"] === "string" ? feedbackJson["feedback_detail"] : null,
     status: typeof feedbackJson["status"] === "string" ? feedbackJson["status"] : null,
     testResults: Array.isArray(rawResults)
       ? rawResults

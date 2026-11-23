@@ -8,6 +8,7 @@ import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/ex
 import { LangsError } from "@/tmc/langs"
 
 import {
+  answerCompression,
   gradingFailureFeedback,
   gradingFailureKey,
   handleGrade,
@@ -291,5 +292,15 @@ describe("readTestsTimeoutMs", () => {
     } finally {
       await rm(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe("answerCompression", () => {
+  it("reads a zip upload as zip and anything else as the packed tar.zst", () => {
+    expect(answerCompression({ name: "solution.ZIP", mime: "application/octet-stream" })).toBe(
+      "zip",
+    )
+    expect(answerCompression({ name: "blob", mime: "application/x-zip-compressed" })).toBe("zip")
+    expect(answerCompression({ name: "submission.tar.zst", mime: "application/zstd" })).toBe("zstd")
   })
 })

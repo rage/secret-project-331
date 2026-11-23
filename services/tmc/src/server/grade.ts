@@ -7,7 +7,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import type { StyleValidationResult } from "@/tmc/cli"
+import type { Compression, StyleValidationResult } from "@/tmc/cli"
 import {
   LangsError,
   checkStyle,
@@ -21,7 +21,7 @@ import type { GradingFeedbackExtras, GradingFeedbackKey } from "@/util/gradingFe
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
-import type { GradeRequest } from "./requestSchemas"
+import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
 import { gradeRequestSchema } from "./requestSchemas"
 
 const { log, debug, error } = createLogger("grade")
@@ -120,7 +120,7 @@ async function postImpl(request: Request): Promise<Response> {
   }
   // The playground authorises its grading update URL itself and sends no claim header.
   const gradingUpdateClaim = request.headers.get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
-  void gradeAndReport(req, answerArchive.download_url, gradingUpdateClaim)
+  void gradeAndReport(req, answerArchive, gradingUpdateClaim)
   return jsonOk(PENDING_RESULT)
 }
 
@@ -129,12 +129,12 @@ export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operatio
 /** Grades an answer after /grade has answered, and sends the result to the host's grading-update URL. */
 async function gradeAndReport(
   req: GradeRequest,
-  answerArchiveUrl: string,
+  answerArchive: GradingRequestFile,
   gradingUpdateClaim: string | null,
 ): Promise<void> {
   let result: ExerciseTaskGradingResult
   try {
-    result = await gradeAnswer(req, answerArchiveUrl)
+    result = await gradeAnswer(req, answerArchive)
   } catch (e) {
     error("Failed to grade", e)
     result = {
@@ -155,6 +155,15 @@ export class TemplateError extends Error {
     super("Failed to prepare the exercise template", { cause })
     this.name = "TemplateError"
   }
+}
+
+/** How an answer archive is compressed: a zip upload by its name or mime, else the `.tar.zst` the service packs. */
+export function answerCompression(file: Pick<GradingRequestFile, "name" | "mime">): Compression {
+  const isZip =
+    file.name.toLowerCase().endsWith(".zip") ||
+    file.mime === "application/zip" ||
+    file.mime === "application/x-zip-compressed"
+  return isZip ? "zip" : "zstd"
 }
 
 /** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
@@ -187,10 +196,13 @@ export function gradingFailureKey(e: unknown): GradingFeedbackKey {
 function failedGrading(
   e: unknown,
 ): Pick<ExerciseTaskGradingResult, "feedback_text" | "feedback_json"> {
-  return {
-    feedback_text: gradingFailureFeedback(e),
-    feedback_json: { feedback_key: gradingFailureKey(e) } satisfies GradingFeedbackExtras,
+  const extras: GradingFeedbackExtras = {
+    feedback_key: gradingFailureKey(e),
+    ...(e instanceof LangsError && gradingFailureKey(e) === "langs_error"
+      ? { feedback_detail: withoutServerPaths(e.rootCause) }
+      : {}),
   }
+  return { feedback_text: gradingFailureFeedback(e), feedback_json: extras }
 }
 
 /**
@@ -250,7 +262,7 @@ async function sendGradingUpdate(
 
 const gradeAnswer = async (
   req: GradeRequest,
-  answerArchiveUrl: string,
+  answerArchive: GradingRequestFile,
 ): Promise<ExerciseTaskGradingResult> => {
   const tempPaths: string[] = []
   try {
@@ -259,7 +271,7 @@ const gradeAnswer = async (
     debug("downloading the submitted archive")
     const submissionArchivePath = temporaryFile()
     tempPaths.push(submissionArchivePath)
-    await downloadStream(answerArchiveUrl, submissionArchivePath)
+    await downloadStream(answerArchive.download_url, submissionArchivePath)
 
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
@@ -284,7 +296,7 @@ const gradeAnswer = async (
       extractedTemplatePath,
       preparedSubmissionArchivePath,
       submissionArchivePath,
-      "zstd",
+      answerCompression(answerArchive),
       EXTRACT_SUBMISSION_NAIVELY,
       log,
     )

@@ -24,6 +24,7 @@
 - Working with the backend and shared code: [Frontend Development](./frontend.md)
 - Database setup and updates: [Backend Development](./headless-lms.md)
 - Adding new exercises: [Plugin System](./plugin-system.md)
+- Operating the editor extension's API: [Exercise Services Client](./exercise-services-client.md)
 - Making the site work on all devices: [Mobile-First CSS](./mobile-first-css.md)
 - Adding different languages: [Internationalization](./internationalization.md)
 - Creating new blocks for content: [Blocks Development](./blocks.md)

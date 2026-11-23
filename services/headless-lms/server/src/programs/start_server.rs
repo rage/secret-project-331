@@ -42,6 +42,9 @@ pub async fn main() -> anyhow::Result<()> {
         .build()
         .await
         .expect("Failed to create server config");
+    if let Ok(mut conn) = server_config.db_pool.acquire().await {
+        crate::domain::oauth::native_client_check::warn_about_native_editor_client(&mut conn).await;
+    }
     let mut server = HttpServer::new(move || {
         let server_config = server_config.clone();
         App::new()

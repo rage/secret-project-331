@@ -492,7 +492,7 @@ async fn build_teacher_newsletter(
             <table style="width: 100%;">
                 <tbody>
                     <tr>
-                        <td style="border: none; background: rgba(255, 212, 68, 0.12); border-left: 3px solid #ffd444;">
+                        <td style="border: none; background: #FAF6E3; border-left: 2px solid #E0C341;">
                             <h2 style="margin-top: 0;">Items waiting for review: </h2>
                             <ul>
                             {}{}{}

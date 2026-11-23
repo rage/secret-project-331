@@ -52,7 +52,6 @@ impl EmailTemplateType {
             | Self::VerifyNetwork => {
                 vec![("CODE", "123456".to_string())]
             }
-
             Self::CreditRegistrationAccountLinking => vec![
                 (
                     "LINK",

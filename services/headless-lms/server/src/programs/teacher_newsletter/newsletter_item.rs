@@ -1,3 +1,4 @@
+use headless_lms_utils::strings::escape_html;
 use uuid::Uuid;
 
 use crate::programs::teacher_newsletter::blocks::{section_block, stats_block};
@@ -80,7 +81,7 @@ impl TeacherNewsletterItem {
 
         match format {
             TeacherNewsletterItemFormat::Html => format!(
-                r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{course_name}</h2>
+                r#"<h2 style="font-family: sans-serif; font-size: 24px; margin: 24px 0 12px; color: #1a2333;">{}</h2>
                 {cheaters}
                 {feedback}
                 {proposals}
@@ -88,7 +89,8 @@ impl TeacherNewsletterItem {
                     <tbody>
                         <tr>{returned}{completed}{started}</tr>
                     </tbody>
-                </table>"#
+                </table>"#,
+                escape_html(course_name)
             ),
             TeacherNewsletterItemFormat::Text => format!(
                 "{course_name}\n\n{cheaters}{feedback}{proposals}{started}{returned}{completed}\n\n"

@@ -11,8 +11,10 @@ import {
   approveOauthDeviceVerification,
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
+import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import useLogout from "@/shared-module/common/hooks/useLogout"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -140,6 +142,7 @@ const DeviceVerificationPage: React.FC = () => {
               clientName: verification.data.client_name,
             })}
           </h2>
+          <SignedInAccount />
           {/* RFC 8628 §5.4: the user can only spot a phished code if they can compare it. */}
           <p>{t("oauth-device-compare-code")}</p>
           <p className={userCodeStyles} dir="ltr" data-testid="oauth-device-user-code">
@@ -185,6 +188,31 @@ const DeviceVerificationPage: React.FC = () => {
         </>
       )}
     </section>
+  )
+}
+
+/** Which account the approval is for, with a way to switch before approving. */
+const SignedInAccount: React.FC = () => {
+  const { t } = useTranslation("main-frontend")
+  const userDetails = useUserDetails()
+  const { logout } = useLogout()
+  const details = userDetails.data
+  if (!details) {
+    return null
+  }
+  const name = [details.first_name, details.last_name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" ")
+  return (
+    <p data-testid="oauth-device-signed-in-account">
+      {t("oauth-device-signed-in-as", {
+        account: name ? `${name} (${details.email})` : details.email,
+      })}{" "}
+      <Button variant="tertiary" size="small" onClick={() => void logout()}>
+        {t("oauth-device-use-another-account")}
+      </Button>
+    </p>
   )
 }
 

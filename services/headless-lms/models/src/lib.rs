@@ -44,6 +44,7 @@ pub mod course_exams;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
+pub mod course_model_solution_settings;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_module_suotar_configurations;

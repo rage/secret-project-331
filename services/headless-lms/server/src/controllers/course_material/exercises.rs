@@ -141,10 +141,35 @@ async fn get_exercise(
     let has_received_full_points = score_given
         >= course_material_exercise.exercise.score_maximum as f32
         || (score_given - course_material_exercise.exercise.score_maximum as f32).abs() < 0.0001;
-    if !has_received_full_points && !out_of_tries {
+    if !has_received_full_points
+        && !out_of_tries
+        && !course_releases_model_solution(&mut conn, &course_material_exercise.exercise).await?
+    {
         course_material_exercise.clear_model_solution_specs();
     }
     token.authorized_ok(web::Json(course_material_exercise))
+}
+
+/// Whether the exercise's course reveals its model solution to every student by now, per the
+/// course's model-solution settings.
+async fn course_releases_model_solution(
+    conn: &mut PgConnection,
+    exercise: &models::exercises::Exercise,
+) -> ModelResult<bool> {
+    let Some(course_id) = exercise.course_id else {
+        return Ok(false);
+    };
+    let chapter_deadline = match exercise.chapter_id {
+        Some(chapter_id) => {
+            models::chapters::get_chapter(conn, chapter_id)
+                .await?
+                .deadline
+        }
+        None => None,
+    };
+    Ok(models::course_model_solution_settings::get(conn, course_id)
+        .await?
+        .reveals(exercise.deadline.or(chapter_deadline), Utc::now()))
 }
 
 /// Authorizes viewing or answering an exercise from the course material: a course exercise needs

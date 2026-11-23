@@ -1,0 +1,1 @@
+DROP TABLE course_model_solution_settings;

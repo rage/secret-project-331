@@ -8,6 +8,7 @@ import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 import ExerciseList from "./ExerciseList"
 import ExerciseRepositories from "./ExerciseRepositories"
+import ModelSolutionSettings from "./ModelSolutionSettings"
 
 const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -26,6 +27,19 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         {t("title-all-exercises")}
       </h1>
       <ExerciseList courseId={courseId} />
+      <h2
+        className={css`
+          font-size: clamp(2rem, 3.6vh, 36px);
+          color: ${baseTheme.colors.gray[700]};
+          font-family: ${headingFont};
+          font-weight: bold;
+          padding-top: 1rem;
+          margin-bottom: 1rem;
+        `}
+      >
+        {t("header-model-solutions")}
+      </h2>
+      <ModelSolutionSettings courseId={courseId} />
       <h2
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);

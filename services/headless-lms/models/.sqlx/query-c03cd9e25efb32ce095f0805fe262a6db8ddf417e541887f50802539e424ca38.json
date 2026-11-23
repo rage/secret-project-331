@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories\nSET status = CASE\n    WHEN sync_requested_at > sync_started_at THEN 'pending'\n    ELSE 'success'\n  END::exercise_repository_status,\n  sync_started_at = NULL,\n  sync_attempts = 0,\n  error_message = NULL,\n  last_synced_at = now(),\n  last_sync_report = $3\nWHERE id = $1\n  AND sync_started_at = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c03cd9e25efb32ce095f0805fe262a6db8ddf417e541887f50802539e424ca38"
+}

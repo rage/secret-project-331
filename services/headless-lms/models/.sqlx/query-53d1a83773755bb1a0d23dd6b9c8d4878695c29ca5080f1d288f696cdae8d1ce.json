@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE repository_exercises\nSET deleted_at = now()\nWHERE repository_id = $1\nAND deleted_at IS NULL\nRETURNING *\n",
+  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE repository_id = $1\nAND re.deleted_at IS NULL\nORDER BY re.part, re.name\n",
   "describe": {
     "columns": [
       {
@@ -16,50 +16,17 @@
       },
       {
         "ordinal": 1,
-        "name": "created_at",
-        "type_info": "Timestamptz",
+        "name": "repository_id",
+        "type_info": "Uuid",
         "origin": {
           "Table": {
-            "table": "repository_exercises",
-            "name": "created_at"
+            "table": "exercise_repositories",
+            "name": "id"
           }
         }
       },
       {
         "ordinal": 2,
-        "name": "updated_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "repository_exercises",
-            "name": "updated_at"
-          }
-        }
-      },
-      {
-        "ordinal": 3,
-        "name": "deleted_at",
-        "type_info": "Timestamptz",
-        "origin": {
-          "Table": {
-            "table": "repository_exercises",
-            "name": "deleted_at"
-          }
-        }
-      },
-      {
-        "ordinal": 4,
-        "name": "repository_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "repository_exercises",
-            "name": "repository_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "part",
         "type_info": "Varchar",
         "origin": {
@@ -70,7 +37,7 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 3,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
@@ -81,7 +48,18 @@
         }
       },
       {
-        "ordinal": 7,
+        "ordinal": 4,
+        "name": "repository_url",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_repositories",
+            "name": "url"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
         "name": "checksum",
         "type_info": "Bytea",
         "origin": {
@@ -92,9 +70,9 @@
         }
       },
       {
-        "ordinal": 8,
+        "ordinal": 6,
         "name": "download_url",
-        "type_info": "Varchar",
+        "type_info": "Text",
         "origin": {
           "Table": {
             "table": "repository_exercises",
@@ -112,13 +90,11 @@
       false,
       false,
       false,
-      true,
-      false,
       false,
       false,
       false,
       false
     ]
   },
-  "hash": "d32dd762450eb9624d1816257f1edbaa88a33958ab06807b618d2673fdda3a97"
+  "hash": "53d1a83773755bb1a0d23dd6b9c8d4878695c29ca5080f1d288f696cdae8d1ce"
 }

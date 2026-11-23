@@ -768,6 +768,10 @@ export type PeerReviewProcessingStrategy =
 
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
+/**
+ * An exercise as the exercise editor's picker lists it. Serialized into tmc private specs as
+ * `repository_exercise`, so the field set is part of the tmc service's contract.
+ */
 export type RepositoryExercise = {
   checksum: Array<number>
   download_url: string
@@ -1653,6 +1657,28 @@ export type GetCmsPagePendingAgentChangesResponses = {
 
 export type GetCmsPagePendingAgentChangesResponse =
   GetCmsPagePendingAgentChangesResponses[keyof GetCmsPagePendingAgentChangesResponses]
+
+export type GetCmsRepositoryExercisesForExamData = {
+  body?: never
+  path: {
+    /**
+     * Exam id
+     */
+    exam_id: string
+  }
+  query?: never
+  url: "/api/v0/cms/repository-exercises/exam/{exam_id}"
+}
+
+export type GetCmsRepositoryExercisesForExamResponses = {
+  /**
+   * Repository exercises for exam
+   */
+  200: Array<RepositoryExercise>
+}
+
+export type GetCmsRepositoryExercisesForExamResponse =
+  GetCmsRepositoryExercisesForExamResponses[keyof GetCmsRepositoryExercisesForExamResponses]
 
 export type GetCmsRepositoryExercisesForCourseData = {
   body?: never

@@ -934,6 +934,8 @@ import type {
   SetMyExternalCompletionEnrolmentRouteResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
+  SyncExerciseRepositoryData,
+  SyncExerciseRepositoryResponses,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponses,
   TeacherSetStudentChapterStatusData,
@@ -1393,6 +1395,7 @@ import {
   zSetMyEnrolmentRouteResponse,
   zSetMyExternalCompletionCreditJustificationResponse,
   zSetMyExternalCompletionEnrolmentRouteResponse,
+  zSyncExerciseRepositoryResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -8132,6 +8135,20 @@ export const updateExerciseRepository = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's
+ * exercises from its current contents.
+ */
+export const syncExerciseRepository = <ThrowOnError extends boolean = true>(
+  options: Options<SyncExerciseRepositoryData, ThrowOnError>,
+): RequestResult<SyncExerciseRepositoryResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<SyncExerciseRepositoryResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zSyncExerciseRepositoryResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercise-repositories/{id}/sync",
+    ...options,
   })
 
 /**

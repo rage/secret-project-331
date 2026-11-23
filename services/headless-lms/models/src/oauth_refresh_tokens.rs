@@ -33,6 +33,8 @@ pub struct OAuthRefreshTokens {
     pub rotated_from: Option<Digest>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    /// The login this token descends from; rotation passes it on.
+    pub family_id: Uuid,
 }
 
 #[derive(Debug, Clone)]
@@ -217,6 +219,32 @@ impl OAuthRefreshTokens {
         Ok(row)
     }
 
+    /// Ends one login: revokes every refresh token of the family and deletes its access tokens,
+    /// leaving the user's other logins to the same client alone.
+    ///
+    /// Returns the digests of the deleted access tokens so the caller can evict their cached user
+    /// mappings.
+    pub async fn revoke_family(
+        conn: &mut PgConnection,
+        family_id: Uuid,
+    ) -> ModelResult<Vec<Digest>> {
+        let mut tx = conn.begin().await?;
+        sqlx::query!(
+            r#"UPDATE oauth_refresh_tokens SET revoked = true WHERE family_id = $1"#,
+            family_id
+        )
+        .execute(&mut *tx)
+        .await?;
+        let deleted_digests = sqlx::query_scalar!(
+            r#"DELETE FROM oauth_access_tokens WHERE refresh_token_family_id = $1 RETURNING digest"#,
+            family_id
+        )
+        .fetch_all(&mut *tx)
+        .await?;
+        tx.commit().await?;
+        Ok(deleted_digests)
+    }
+
     /// Revokes everything issued from a (user, client) grant: every refresh token, every access
     /// token, and any outstanding authorization code.
     ///
@@ -341,32 +369,30 @@ impl OAuthRefreshTokens {
     /// This method must be called within an existing database transaction.
     /// The caller is responsible for managing the transaction (begin, commit, rollback).
     ///
-    /// Revokes all tokens for user/client, inserts new refresh token, and inserts new access token.
+    /// Revokes the old token's family, inserts the new refresh token into it, and inserts the new
+    /// access token.
     pub async fn complete_refresh_token_rotation_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         old_token: &OAuthRefreshTokens,
         params: RotateRefreshTokenParams<'_>,
     ) -> ModelResult<()> {
-        // Revoke all tokens for user/client
         sqlx::query!(
             r#"
             UPDATE oauth_refresh_tokens
                SET revoked = true
-             WHERE user_id = $1 AND client_id = $2
+             WHERE family_id = $1
             "#,
-            old_token.user_id,
-            old_token.client_id
+            old_token.family_id
         )
         .execute(&mut **tx)
         .await?;
 
-        // Insert new refresh token
         sqlx::query!(
             r#"
             INSERT INTO oauth_refresh_tokens
-              (digest, user_id, client_id, scopes, audience, jti, expires_at, revoked, rotated_from, metadata, dpop_jkt)
+              (digest, user_id, client_id, scopes, audience, jti, expires_at, revoked, rotated_from, metadata, dpop_jkt, family_id)
             VALUES
-              ($1,    $2,     $3,        $4,     $5,       gen_random_uuid(), $6,       false,   $7,          $8,      $9)
+              ($1,    $2,     $3,        $4,     $5,       gen_random_uuid(), $6,       false,   $7,          $8,      $9,       $10)
             "#,
             params.new_refresh_token_digest.as_bytes(),
             old_token.user_id,
@@ -376,12 +402,12 @@ impl OAuthRefreshTokens {
             params.refresh_token_expires_at,
             old_token.digest.as_bytes(),
             serde_json::Value::Object(serde_json::Map::new()),
-            params.refresh_token_dpop_jkt
+            params.refresh_token_dpop_jkt,
+            old_token.family_id
         )
         .execute(&mut **tx)
         .await?;
 
-        // Insert new access token
         OAuthAccessToken::insert(
             tx,
             NewAccessTokenParams {
@@ -394,6 +420,7 @@ impl OAuthRefreshTokens {
                 dpop_jkt: params.access_token_dpop_jkt,
                 metadata: serde_json::Map::new(),
                 expires_at: params.access_token_expires_at,
+                refresh_token_family_id: Some(old_token.family_id),
             },
         )
         .await?;
@@ -407,12 +434,13 @@ impl OAuthRefreshTokens {
     /// This method must be called within an existing database transaction.
     /// The caller is responsible for managing the transaction (begin, commit, rollback).
     ///
-    /// Inserts access token, revokes all refresh tokens for user/client, and inserts new refresh token.
+    /// Starts a new login: inserts an access token and a refresh token in a new family. The user's
+    /// other logins to the client stay valid.
     pub async fn issue_tokens_from_auth_code_in_transaction(
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         params: IssueTokensFromAuthCodeParams<'_>,
     ) -> ModelResult<()> {
-        // Insert access token
+        let family_id = Uuid::new_v4();
         OAuthAccessToken::insert(
             tx,
             NewAccessTokenParams {
@@ -425,30 +453,17 @@ impl OAuthRefreshTokens {
                 dpop_jkt: params.access_token_dpop_jkt,
                 metadata: serde_json::Map::new(),
                 expires_at: params.access_token_expires_at,
+                refresh_token_family_id: Some(family_id),
             },
         )
         .await?;
 
-        // Revoke all refresh tokens for user/client
-        sqlx::query!(
-            r#"
-            UPDATE oauth_refresh_tokens
-               SET revoked = true
-             WHERE user_id = $1 AND client_id = $2
-            "#,
-            params.user_id,
-            params.client_id
-        )
-        .execute(&mut **tx)
-        .await?;
-
-        // Insert new refresh token
         sqlx::query!(
             r#"
             INSERT INTO oauth_refresh_tokens
-              (digest, user_id, client_id, scopes, audience, jti, expires_at, revoked, rotated_from, metadata, dpop_jkt)
+              (digest, user_id, client_id, scopes, audience, jti, expires_at, revoked, rotated_from, metadata, dpop_jkt, family_id)
             VALUES
-              ($1,    $2,     $3,        $4,     $5,       gen_random_uuid(), $6,       false,   NULL,          $7,      $8)
+              ($1,    $2,     $3,        $4,     $5,       gen_random_uuid(), $6,       false,   NULL,          $7,      $8,       $9)
             "#,
             params.refresh_token_digest.as_bytes(),
             params.user_id,
@@ -457,7 +472,8 @@ impl OAuthRefreshTokens {
             params.audience,
             params.refresh_token_expires_at,
             serde_json::Value::Object(serde_json::Map::new()),
-            params.refresh_token_dpop_jkt
+            params.refresh_token_dpop_jkt,
+            family_id
         )
         .execute(&mut **tx)
         .await?;

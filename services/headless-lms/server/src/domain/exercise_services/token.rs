@@ -55,9 +55,12 @@ fn unauthorized(message: &str) -> ControllerError {
     controller_err!(Unauthorized, message.to_string())
 }
 
-/// Builds the `403 forbidden` error the langs client expects for a token missing the scope.
+/// Builds the `403 insufficient_scope` error for a token missing the scope.
 fn forbidden(message: &str) -> ControllerError {
-    controller_err!(Forbidden, message.to_string())
+    controller_err!(
+        ForbiddenWithReason(crate::domain::error::ForbiddenReason::InsufficientScope),
+        message.to_string()
+    )
 }
 
 /// The response to a token `resolve_bearer_token` rejected.
@@ -379,6 +382,7 @@ mod tests {
                 dpop_jkt,
                 metadata: serde_json::Map::new(),
                 expires_at,
+                refresh_token_family_id: None,
             },
         )
         .await
@@ -685,7 +689,7 @@ mod tests {
             .expect("body bytes");
         let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
         assert_eq!(value["type"], "forbidden");
-        assert_eq!(value["message_key"], "forbidden");
+        assert_eq!(value["message_key"], "insufficient_scope");
     }
 
     /// A token that authenticated once (populating the cache) must not keep

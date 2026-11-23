@@ -921,7 +921,7 @@ mod test {
 
         let tmc = ["tmc".to_string()];
         assert_eq!(
-            crate::courses::get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+            crate::courses::get_client_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap()
                 .len(),
@@ -940,7 +940,7 @@ mod test {
             .unwrap();
 
         assert!(
-            crate::courses::get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+            crate::courses::get_client_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap()
                 .is_empty(),

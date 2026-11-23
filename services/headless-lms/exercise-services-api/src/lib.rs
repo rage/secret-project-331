@@ -19,9 +19,16 @@ pub type Token =
 pub struct CurrentUser {
     /// Stable for the lifetime of the account.
     pub id: Uuid,
+    /// The account's name as the user entered it, for showing which account is logged in. Absent
+    /// when the user has not given one, and from a host that predates the field.
+    #[serde(default)]
+    pub name: Option<String>,
+    /// Absent from a host that predates the field.
+    #[serde(default)]
+    pub email: Option<String>,
 }
 
-/// A course the current user can browse or is enrolled in.
+/// A course the current user is enrolled on or teaches.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct Course {
@@ -35,6 +42,37 @@ pub struct Course {
     /// client's decision. Absent from a host that predates the field, which reads as `not_set`.
     #[serde(default)]
     pub ai_policy: CourseAiPolicy,
+    /// The course material's front page. Absent from a host that predates the field.
+    #[serde(default)]
+    pub url: Option<String>,
+    /// The course's language as an IETF BCP 47 tag, e.g. `en-US` or `fi-FI`. Absent from a host
+    /// that predates the field.
+    #[serde(default)]
+    pub language_code: Option<String>,
+    /// Shared by every language version of the course; versions are different courses with
+    /// different exercises. Absent from a host that predates the field.
+    #[serde(default)]
+    pub language_group_id: Option<Uuid>,
+    /// The language version of this course the user now studies, when they have moved from this
+    /// course to another version. Absent otherwise, and from a host that predates the field.
+    #[serde(default)]
+    pub moved_to_course_id: Option<Uuid>,
+    /// When the course run ended or ends; the course takes no new students from then on. Absent
+    /// for a course with no end, and from a host that predates the field.
+    #[serde(default)]
+    pub closed_at: Option<DateTime<Utc>>,
+    /// The course that continues this one after it ended, if its teacher named one.
+    #[serde(default)]
+    pub successor_course_id: Option<Uuid>,
+    /// Whether the user has a live enrollment on the course. A course the user only teaches is
+    /// listed without one, and submits to it are refused with `not_enrolled`. Absent from a host
+    /// that predates the field.
+    #[serde(default)]
+    pub is_enrolled: Option<bool>,
+    /// Whether the user teaches or assists on the course. Staff are served exercises of chapters
+    /// that have not opened yet, and model solutions whatever their own progress.
+    #[serde(default)]
+    pub is_staff: bool,
 }
 
 /// A course's AI-use policy as chosen by its teacher.
@@ -62,8 +100,9 @@ pub enum CourseAiPolicy {
 }
 
 /// One selected slide of an exercise, carrying only the tasks whose exercise service can serve
-/// the requesting client. An exercise with no client-servable task is omitted entirely by
-/// endpoints that return this type, rather than appearing with an empty `tasks`.
+/// the requesting client. An exercise with no client-servable task, or whose slide also has tasks
+/// the client cannot answer, is omitted entirely by endpoints that return this type, rather than
+/// appearing with an empty `tasks`.
 #[derive(Debug, Serialize, Deserialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub struct ExerciseSlide {
@@ -72,6 +111,8 @@ pub struct ExerciseSlide {
     /// The course the exercise belongs to, so a client need not resolve it separately.
     pub course_id: Uuid,
     pub exercise_name: String,
+    /// The exercise's position on its page, from 0. Positions repeat across pages; the course's
+    /// exercise list is already in material order.
     pub exercise_order_number: i32,
     /// The effective deadline: the exercise's own, else its chapter's. Submissions are refused
     /// from this moment on.
@@ -242,7 +283,7 @@ pub struct ExerciseTaskSubmissionResult {
 }
 
 /// The grading status of a task submission, as polled after `submit`.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
 pub enum ExerciseTaskSubmissionStatus {
     NoGradingYet,
@@ -264,7 +305,73 @@ pub enum ExerciseTaskSubmissionStatus {
         /// exercise, and from a host that predates the field.
         #[serde(default)]
         exercise_progress: Option<ExerciseProgress>,
+        /// The course material page of the exercise, anchored at the exercise, where the user's
+        /// latest submission and its grading are shown. Absent for an exam exercise, and from a
+        /// host that predates the field.
+        #[serde(default)]
+        submission_page_url: Option<String>,
     },
+    /// A status newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(skip_serializing)]
+    Unrecognized,
+}
+
+impl<'de> Deserialize<'de> for ExerciseTaskSubmissionStatus {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        /// The known statuses. A derived `#[serde(other)]` cannot catch an unknown variant that
+        /// carries data, so anything this fails on reads as `Unrecognized` instead.
+        #[derive(Deserialize)]
+        enum Known {
+            NoGradingYet,
+            Grading {
+                grading_progress: GradingProgress,
+                score_given: Option<f32>,
+                grading_started_at: Option<DateTime<Utc>>,
+                grading_completed_at: Option<DateTime<Utc>>,
+                feedback_json: Option<serde_json::Value>,
+                feedback_text: Option<String>,
+                #[serde(default)]
+                exercise_progress: Option<ExerciseProgress>,
+                #[serde(default)]
+                submission_page_url: Option<String>,
+            },
+        }
+
+        let value = serde_json::Value::deserialize(deserializer)?;
+        let is_known_variant = match &value {
+            serde_json::Value::String(name) => name == "NoGradingYet",
+            serde_json::Value::Object(map) => map.len() == 1 && map.contains_key("Grading"),
+            _ => false,
+        };
+        if !is_known_variant {
+            return Ok(Self::Unrecognized);
+        }
+        Ok(
+            match serde_json::from_value(value).map_err(serde::de::Error::custom)? {
+                Known::NoGradingYet => Self::NoGradingYet,
+                Known::Grading {
+                    grading_progress,
+                    score_given,
+                    grading_started_at,
+                    grading_completed_at,
+                    feedback_json,
+                    feedback_text,
+                    exercise_progress,
+                    submission_page_url,
+                } => Self::Grading {
+                    grading_progress,
+                    score_given,
+                    grading_started_at,
+                    grading_completed_at,
+                    feedback_json,
+                    feedback_text,
+                    exercise_progress,
+                    submission_page_url,
+                },
+            },
+        )
+    }
 }
 
 /// How far along a task submission's grading is.
@@ -281,6 +388,10 @@ pub enum GradingProgress {
     Pending,
     /// Grading is complete. `score_given`, if present, is the final grade.
     FullyGraded,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// What an entry in the submissions list is.
@@ -295,6 +406,10 @@ pub enum SubmissionKind {
     Paste,
     /// An ungraded snapshot stored before local changes were discarded.
     Backup,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// A past submission or snapshot of the current user to an exercise. `id` is what
@@ -405,6 +520,72 @@ pub struct ExerciseProgress {
     /// and with `exercise_locked` otherwise. Absent from a host that predates the field.
     #[serde(default)]
     pub exercise_locked: bool,
+    /// Where the user's answer is in the exercise's review process, which runs in the course
+    /// material. Absent while the user can still answer, and from a host that predates the field.
+    #[serde(default)]
+    pub reviewing_stage: Option<ReviewingStage>,
+    /// A teacher's grading of the user's answer, which overrides the automatic score. Absent when
+    /// no teacher has graded the current answer, when the teacher awarded full points or hid the
+    /// grading, and from a host that predates the field.
+    #[serde(default)]
+    pub teacher_review: Option<TeacherReview>,
+}
+
+/// Where an answer is in the review process of an exercise that uses peer, self or teacher review.
+/// Every stage takes no new answers; the reviews themselves are done in the course material.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ReviewingStage {
+    /// The user must give peer reviews to other students' answers.
+    PeerReview,
+    /// The user must review their own answer.
+    SelfReview,
+    /// The user has given their reviews and waits for others to review their answer.
+    WaitingForPeerReviews,
+    /// The answer waits for a teacher's grading.
+    WaitingForTeacher,
+    /// Reviews are done and points awarded; the answer is final.
+    ReviewedAndLocked,
+    /// The answer was locked with its chapter before any review.
+    Locked,
+    /// The chapter was locked before the user answered.
+    NotAnsweredAndLocked,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
+}
+
+/// A teacher's grading of the user's answer to an exercise, as the course material shows it.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct TeacherReview {
+    pub decision: TeacherDecision,
+    /// The points the teacher awarded, replacing the automatic score.
+    pub score_given: f32,
+    /// The teacher's written reasoning, if they gave any.
+    pub justification: Option<String>,
+    pub created_at: DateTime<Utc>,
+}
+
+/// What a teacher decided about an answer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum TeacherDecision {
+    ZeroPoints,
+    CustomPoints,
+    SuspectedPlagiarism,
+    /// The answer was rejected and the exercise reset, so the user can answer again.
+    RejectAndReset,
+    UnauthorizedAiUse,
+    BadAnswer,
+    Other,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// What a user's points on an exercise wait for when a teacher reviews answers before awarding
@@ -439,6 +620,10 @@ pub enum ExerciseStanding {
     /// Below full points (0 included), the try limit is used up on every slide and no review is
     /// pending, so the score is final.
     OutOfTries,
+    /// A value newer than this crate. Deserialize-only: serializing it is an error, and the
+    /// OpenAPI schema omits it.
+    #[serde(other, skip_serializing)]
+    Unrecognized,
 }
 
 /// A shareable URL for a submission or paste.
@@ -482,7 +667,10 @@ mod test {
                 tries_left: None,
                 pending_teacher_review: None,
                 exercise_locked: false,
+                reviewing_stage: None,
+                teacher_review: None,
             }),
+            submission_page_url: None,
         };
         assert_eq!(
             serde_json::to_value(&graded).unwrap(),
@@ -505,7 +693,10 @@ mod test {
                         "tries_left": null,
                         "pending_teacher_review": null,
                         "exercise_locked": false,
+                        "reviewing_stage": null,
+                        "teacher_review": null,
                     },
+                    "submission_page_url": null,
                 }
             }),
         );
@@ -584,6 +775,14 @@ mod test {
             description: None,
             organization_name: "org".to_string(),
             ai_policy: CourseAiPolicy::FullUse,
+            url: None,
+            language_code: None,
+            language_group_id: None,
+            moved_to_course_id: None,
+            closed_at: None,
+            successor_course_id: None,
+            is_enrolled: None,
+            is_staff: false,
         })
         .unwrap();
         assert_eq!(value["ai_policy"], json!("full_use"));
@@ -737,6 +936,8 @@ mod test {
                 tries_left: Some(0),
                 pending_teacher_review: None,
                 exercise_locked: false,
+                reviewing_stage: None,
+                teacher_review: None,
             }],
             closed_chapters: Vec::new(),
         })
@@ -812,6 +1013,8 @@ mod test {
             tries_left: None,
             pending_teacher_review: Some(PendingTeacherReview::AwaitsTeacher),
             exercise_locked: true,
+            reviewing_stage: Some(ReviewingStage::WaitingForTeacher),
+            teacher_review: None,
         })
         .unwrap();
         assert_eq!(value["pending_teacher_review"], json!("awaits_teacher"));
@@ -891,5 +1094,81 @@ mod test {
             serde_json::to_value(SnapshotPurpose::Paste).unwrap(),
             json!("paste")
         );
+    }
+
+    /// One value newer than the client must not fail the whole response it is in.
+    #[test]
+    fn unknown_enum_values_read_as_unrecognized() {
+        assert!(matches!(
+            serde_json::from_value::<GradingProgress>(json!("SomeFutureProgress")).unwrap(),
+            GradingProgress::Unrecognized
+        ));
+        assert_eq!(
+            serde_json::from_value::<SubmissionKind>(json!("some_future_kind")).unwrap(),
+            SubmissionKind::Unrecognized
+        );
+        assert_eq!(
+            serde_json::from_value::<ExerciseStanding>(json!("SomeFutureStanding")).unwrap(),
+            ExerciseStanding::Unrecognized
+        );
+        assert_eq!(
+            serde_json::from_value::<ReviewingStage>(json!("some_future_stage")).unwrap(),
+            ReviewingStage::Unrecognized
+        );
+        assert!(matches!(
+            serde_json::from_value::<ExerciseTaskSubmissionStatus>(json!("SomeFutureStatus"))
+                .unwrap(),
+            ExerciseTaskSubmissionStatus::Unrecognized
+        ));
+        assert!(matches!(
+            serde_json::from_value::<ExerciseTaskSubmissionStatus>(
+                json!({ "SomeFutureStatus": { "detail": 1 } })
+            )
+            .unwrap(),
+            ExerciseTaskSubmissionStatus::Unrecognized
+        ));
+        assert!(serde_json::to_value(GradingProgress::Unrecognized).is_err());
+        assert!(serde_json::to_value(ExerciseTaskSubmissionStatus::Unrecognized).is_err());
+    }
+
+    /// A known status must still fail loudly when its own fields are malformed.
+    #[test]
+    fn malformed_grading_status_is_an_error() {
+        assert!(
+            serde_json::from_value::<ExerciseTaskSubmissionStatus>(json!({
+                "Grading": { "grading_progress": 3 }
+            }))
+            .is_err()
+        );
+        assert!(matches!(
+            serde_json::from_value::<ExerciseTaskSubmissionStatus>(json!("NoGradingYet")).unwrap(),
+            ExerciseTaskSubmissionStatus::NoGradingYet
+        ));
+    }
+
+    /// A newer client must still read a host that predates the course fields added after
+    /// `ai_policy`.
+    #[test]
+    fn course_from_an_older_host_has_no_url_language_or_flags() {
+        let course: Course = serde_json::from_value(json!({
+            "id": Uuid::nil(),
+            "slug": "slug",
+            "name": "name",
+            "description": null,
+            "organization_name": "org",
+            "ai_policy": "no_ai",
+        }))
+        .unwrap();
+        assert_eq!(course.url, None);
+        assert_eq!(course.language_code, None);
+        assert_eq!(course.is_enrolled, None);
+        assert!(!course.is_staff);
+    }
+
+    #[test]
+    fn current_user_from_an_older_host_has_no_name() {
+        let user: CurrentUser = serde_json::from_value(json!({ "id": Uuid::nil() })).unwrap();
+        assert_eq!(user.name, None);
+        assert_eq!(user.email, None);
     }
 }

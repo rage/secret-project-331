@@ -653,46 +653,91 @@ WHERE courses.deleted_at IS NULL
     Ok(courses)
 }
 
-/// A course with its organization's name, as listed to a native client.
+/// A course as listed to a native client, with the user's relation to it.
 #[derive(Debug)]
-pub struct CourseWithOrganizationName {
+pub struct ClientCourse {
     pub id: Uuid,
     pub slug: String,
     pub name: String,
     pub description: Option<String>,
     pub ai_policy: CourseAiPolicy,
+    pub language_code: String,
+    pub course_language_group_id: Uuid,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_course_successor_id: Option<Uuid>,
     pub organization_name: String,
+    pub organization_slug: String,
+    /// The language version of the course the user studies now, if they have chosen one.
+    pub current_course_id: Option<Uuid>,
+    pub is_enrolled: bool,
+    /// Whether the user is a teacher or an assistant on the course or one of its instances.
+    pub is_staff: bool,
 }
 
-/// Courses the user is enrolled on, through any of their instances, that contain at least one
-/// task of any of the given exercise types; each course once, ordered by name. An empty
-/// `exercise_types` matches nothing.
-pub async fn get_enrolled_courses_with_exercise_types(
+/// Courses the user is enrolled on, through any of their instances, or is a teacher or assistant
+/// on, that contain at least one task of any of the given exercise types; each course once, ordered
+/// by name. An empty `exercise_types` matches nothing.
+pub async fn get_client_courses_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_types: &[String],
-) -> ModelResult<Vec<CourseWithOrganizationName>> {
+) -> ModelResult<Vec<ClientCourse>> {
     let courses = sqlx::query_as!(
-        CourseWithOrganizationName,
+        ClientCourse,
         r#"
 SELECT c.id,
   c.slug,
   c.name,
   c.description,
   c.ai_policy AS "ai_policy: CourseAiPolicy",
-  o.name AS organization_name
+  c.language_code,
+  c.course_language_group_id,
+  c.closed_at,
+  c.closed_course_successor_id,
+  o.name AS organization_name,
+  o.slug AS organization_slug,
+  ucs.current_course_id AS "current_course_id?",
+  enrollment.is_enrolled AS "is_enrolled!",
+  staff.is_staff AS "is_staff!"
 FROM courses AS c
   JOIN organizations AS o ON o.id = c.organization_id
+  LEFT JOIN user_course_settings AS ucs ON ucs.course_language_group_id = c.course_language_group_id
+  AND ucs.user_id = $1
+  AND ucs.deleted_at IS NULL
+  CROSS JOIN LATERAL (
+    SELECT EXISTS (
+        SELECT 1
+        FROM course_instance_enrollments AS cie
+          JOIN course_instances AS ci ON ci.id = cie.course_instance_id
+        WHERE cie.user_id = $1
+          AND ci.course_id = c.id
+          AND cie.deleted_at IS NULL
+          AND ci.deleted_at IS NULL
+      ) AS is_enrolled
+  ) AS enrollment
+  CROSS JOIN LATERAL (
+    SELECT EXISTS (
+        SELECT 1
+        FROM roles AS r
+        WHERE r.user_id = $1
+          AND r.deleted_at IS NULL
+          AND r.role IN ('teacher', 'assistant')
+          AND (
+            r.course_id = c.id
+            OR r.course_instance_id IN (
+              SELECT id
+              FROM course_instances
+              WHERE course_id = c.id
+                AND deleted_at IS NULL
+            )
+          )
+      ) AS is_staff
+  ) AS staff
 WHERE c.deleted_at IS NULL
   AND o.deleted_at IS NULL
-  AND EXISTS (
-    SELECT 1
-    FROM course_instance_enrollments AS cie
-      JOIN course_instances AS ci ON ci.id = cie.course_instance_id
-    WHERE cie.user_id = $1
-      AND ci.course_id = c.id
-      AND cie.deleted_at IS NULL
-      AND ci.deleted_at IS NULL
+  AND (
+    enrollment.is_enrolled
+    OR staff.is_staff
   )
   AND EXISTS (
     SELECT 1
@@ -2226,7 +2271,7 @@ mod test {
             .await
             .unwrap();
             let tmc = ["tmc".to_string()];
-            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+            let courses = get_client_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
             assert!(
@@ -2249,7 +2294,7 @@ mod test {
             )
             .await
             .unwrap();
-            let courses = get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
+            let courses = get_client_courses_with_exercise_types(tx.as_mut(), user_id, &tmc)
                 .await
                 .unwrap();
             assert_eq!(
@@ -2261,13 +2306,13 @@ mod test {
             // A type list the course has no task for must not match, and neither must an empty list.
             let others = ["quizzes".to_string(), "example-exercise".to_string()];
             assert!(
-                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &others)
+                get_client_courses_with_exercise_types(tx.as_mut(), user_id, &others)
                     .await
                     .unwrap()
                     .is_empty()
             );
             assert!(
-                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &[])
+                get_client_courses_with_exercise_types(tx.as_mut(), user_id, &[])
                     .await
                     .unwrap()
                     .is_empty()
@@ -2276,7 +2321,7 @@ mod test {
             // Any list containing a type the course does have matches.
             let mixed = ["quizzes".to_string(), "tmc".to_string()];
             assert_eq!(
-                get_enrolled_courses_with_exercise_types(tx.as_mut(), user_id, &mixed)
+                get_client_courses_with_exercise_types(tx.as_mut(), user_id, &mixed)
                     .await
                     .unwrap()
                     .len(),
@@ -2320,13 +2365,10 @@ mod test {
                 .unwrap();
             }
 
-            let courses = get_enrolled_courses_with_exercise_types(
-                tx.as_mut(),
-                user_id,
-                &["tmc".to_string()],
-            )
-            .await
-            .unwrap();
+            let courses =
+                get_client_courses_with_exercise_types(tx.as_mut(), user_id, &["tmc".to_string()])
+                    .await
+                    .unwrap();
             assert_eq!(
                 courses.iter().map(|c| c.id).collect::<Vec<_>>(),
                 vec![course_id]

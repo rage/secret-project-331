@@ -8,6 +8,7 @@ metadata:
     needs-db: "job"
 spec:
   schedule: "30 7 * * 1"
+  timeZone: "Europe/Helsinki"
   startingDeadlineSeconds: 900
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useAtom } from "jotai"
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { useLandmark } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,7 @@ import type { NewProposedBlockEdit } from "@/generated/course-material-api/types
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import {
   blockEditsAtom,
   currentlyOpenFeedbackDialogAtom,
@@ -28,12 +28,45 @@ interface Props {
 
 const CLOSE_ICON = "×"
 
+// Set on <html> while the panel is open so focused elements scroll clear of it.
+export const FEEDBACK_BOTTOM_CLEARANCE_VAR = "--feedback-bottom-clearance"
+const PANEL_BOTTOM_OFFSET_PX = 20
+
 const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pageId }) => {
   const { t } = useTranslation()
   const [type, setCurrentlyOpenFeedbackDialog] = useAtom(currentlyOpenFeedbackDialogAtom)
   const [blockEdits] = useAtom(blockEditsAtom)
   const [selectedBlockId, setSelectedBlockId] = useAtom(selectedBlockIdAtom)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const headingRef = useRef<HTMLHeadingElement>(null)
+  const isOpen = type === "proposed-edits"
+
+  useEffect(() => {
+    if (isOpen && headingRef.current) {
+      focusProgrammatically(headingRef.current)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    const panel = dialogRef.current
+    if (!isOpen || !panel) {
+      return undefined
+    }
+    const root = document.documentElement
+    const update = () => {
+      root.style.setProperty(
+        FEEDBACK_BOTTOM_CLEARANCE_VAR,
+        `${panel.offsetHeight + PANEL_BOTTOM_OFFSET_PX * 2}px`,
+      )
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(panel)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty(FEEDBACK_BOTTOM_CLEARANCE_VAR)
+    }
+  }, [isOpen])
 
   const { landmarkProps } = useLandmark(
     {
@@ -134,9 +167,16 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- region landmark from useLandmark
     <div
       ref={dialogRef}
       {...landmarkProps}
+      tabIndex={-1}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && !e.defaultPrevented) {
+          handleClose()
+        }
+      }}
       className={css`
         position: fixed;
         max-width: 500px;
@@ -155,6 +195,11 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
         height: auto;
         min-height: 200px;
         overflow-y: auto;
+
+        @media (max-height: 480px) {
+          min-height: 0;
+          max-height: 35vh;
+        }
 
         ${respondToOrLarger.xxs} {
           width: 400px;
@@ -179,12 +224,19 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
         `}
       >
         <h2
+          ref={headingRef}
+          tabIndex={-1}
           className={css`
             font-family: ${primaryFont};
             font-size: 1.25rem;
             font-weight: 600;
             color: ${baseTheme.colors.gray[700]};
             margin: 0;
+
+            &:focus-visible {
+              outline: var(--focus-ring-width) solid var(--focus-ring-color);
+              outline-offset: var(--focus-ring-offset);
+            }
           `}
         >
           {topMessage}
@@ -214,11 +266,9 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
               background-color: ${baseTheme.colors.gray[100]};
             }
 
-            &:focus {
-              outline: none;
-              box-shadow:
-                0 0 0 2px ${baseTheme.colors.primary[100]},
-                0 0 0 4px ${baseTheme.colors.gray[200]};
+            &:focus-visible {
+              outline: var(--focus-ring-width) solid var(--focus-ring-color);
+              outline-offset: var(--focus-ring-offset);
             }
           `}
           aria-label={t("close")}

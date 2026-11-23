@@ -19,6 +19,7 @@ import {
   resolveCheckableSizeCss,
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
+import { FieldError } from "../primitives/FieldError"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 import type { RadioInnerProps } from "./radioTypes"
 
@@ -128,9 +129,9 @@ export function RadioStandalone({ forwardedRef, ...props }: RadioInnerProps) {
           </span>
         ) : null}
         {errorMessage ? (
-          <span className={errorCss} id={errorMessageId} role="alert">
+          <FieldError inline className={errorCss} id={errorMessageId}>
             {errorMessage}
-          </span>
+          </FieldError>
         ) : null}
       </span>
     </label>

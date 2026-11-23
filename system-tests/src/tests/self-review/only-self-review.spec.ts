@@ -8,6 +8,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
+import { getExerciseTaskFrame } from "../../utils/iframeLocators"
 
 test.describe("An exercise that has self review but no peer review works", () => {
   let context1: BrowserContext
@@ -35,8 +36,7 @@ test.describe("An exercise that has self review but no peer review works", () =>
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "Multiple choice with feedback" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
       await Checkbox.labelled(teacherPage, "Add self review").setChecked(true)
@@ -70,15 +70,9 @@ test.describe("An exercise that has self review but no peer review works", () =>
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-multiple-choice-with-feedback",
       )
       await selectCourseInstanceIfPrompted(student1Page)
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByRole("button", { name: "cargo" })
-        .click()
+      await getExerciseTaskFrame(student1Page, 1).getByRole("button", { name: "cargo" }).click()
       await student1Page.getByRole("button", { name: "Submit" }).click()
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByText("Your answer was correct.")
-        .waitFor()
+      await getExerciseTaskFrame(student1Page, 1).getByText("Your answer was correct.").waitFor()
       await student1Page.getByRole("button", { name: "Start self review" }).click()
       await student1Page.getByText("In this review, you have to do x.").waitFor()
       await student1Page

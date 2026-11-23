@@ -1,8 +1,8 @@
 "use client"
 
-import { screen, waitFor } from "@testing-library/react"
+import { render, screen, waitFor } from "@testing-library/react"
 
-import { ErrorNotice } from "../src/components/ErrorNotice"
+import { ErrorNotice, ErrorNoticeTitleContext } from "../src/components/ErrorNotice"
 import { domClick, renderUi } from "./testUtils"
 
 const writeText = jest.fn<Promise<void>, [string]>()
@@ -167,5 +167,41 @@ describe("ErrorNotice", () => {
     const { container } = renderUi(<ErrorNotice error={apiFailure} data-testid="save-error" />)
 
     expect(screen.getByTestId("save-error")).toBe(container.firstElementChild)
+  })
+
+  describe("retry and page title", () => {
+    test("Retry is shown for a 5xx, hidden for a 4xx", () => {
+      const retry = jest.fn()
+      const { rerender } = renderUi(<ErrorNotice error={apiFailure} retry={retry} />)
+      expect(screen.getByRole("button", { name: "Retry" })).toBeInTheDocument()
+
+      rerender(
+        <ErrorNotice error={{ ...apiFailure, status: 404, title: "Not Found" }} retry={retry} />,
+      )
+      expect(screen.queryByRole("button", { name: "Retry" })).toBeNull()
+    })
+
+    test("a level 1 notice registers its title, an inline one does not", () => {
+      const register = jest.fn()
+      const { unmount } = render(
+        <ErrorNoticeTitleContext.Provider value={register}>
+          <ErrorNotice error={apiFailure} />
+        </ErrorNoticeTitleContext.Provider>,
+      )
+      expect(register).not.toHaveBeenCalled()
+      unmount()
+
+      const { unmount: unmountPage } = render(
+        <ErrorNoticeTitleContext.Provider value={register}>
+          <ErrorNotice
+            error={{ ...apiFailure, status: 404, title: "Not Found" }}
+            headingLevel={1}
+          />
+        </ErrorNoticeTitleContext.Provider>,
+      )
+      expect(register).toHaveBeenLastCalledWith("Not Found")
+      unmountPage()
+      expect(register).toHaveBeenLastCalledWith(null)
+    })
   })
 })

@@ -1,6 +1,8 @@
 import type { Locator, Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
+import { escapeForRegExp } from "../regex"
+
 export class PagesInChapterSelector {
   private readonly page: Page
 
@@ -18,7 +20,7 @@ export class PagesInChapterSelector {
 
   public getPageLinkByTitle(title: string): Locator {
     const container = this.getContainer()
-    const escapedTitle = title.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const escapedTitle = escapeForRegExp(title)
     return container.getByRole("link", { name: new RegExp(`^\\d+ ${escapedTitle}$`) })
   }
 

@@ -49,7 +49,7 @@ async function moveChapter(page: Page, chapterHeading: string, direction: "up" |
 async function movePage(page: Page, pageText: string, direction: "up" | "down") {
   await test.step(`Move page "${pageText}" ${direction}`, async () => {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
-    await pageRow.getByLabel("Dropdown menu").click()
+    await pageRow.getByRole("button", { name: `Page actions for ${pageText}` }).click()
     await page.getByRole("menuitem", { name: `Move ${direction}` }).click()
     await verifyDialogState(page, false, true)
   })
@@ -58,7 +58,7 @@ async function movePage(page: Page, pageText: string, direction: "up" | "down") 
 async function deletePage(page: Page, pageText: string) {
   await test.step(`Delete page "${pageText}"`, async () => {
     const pageRow = page.getByRole("row").filter({ hasText: pageText })
-    await pageRow.getByLabel("Dropdown menu").click()
+    await pageRow.getByRole("button", { name: `Page actions for ${pageText}` }).click()
 
     await hideToasts(page)
     await page.getByRole("menuitem", { name: "Delete" }).click()
@@ -154,7 +154,9 @@ test("manage course structure works", async ({ page, headless }, testInfo) => {
     await waitForSuccessNotification(page, async () => {
       await page.getByRole("button", { name: "Update" }).click()
     })
-    await expect(page.getByText("The intermediaries TEST change")).toBeVisible()
+    await expect(
+      page.getByRole("heading", { name: /The intermediaries TEST change/ }),
+    ).toBeVisible()
   })
 
   await test.step("Test more page deletion", async () => {

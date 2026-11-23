@@ -2,7 +2,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useContext, useState } from "react"
+import React, { useContext, useId, useState } from "react"
 import { Menu, MenuItem, MenuTrigger, Popover, Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
@@ -60,6 +60,7 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const [isOpen, setIsOpen] = useState(false)
+  const popupLabelId = useId()
 
   const { items, displayName, displayInitial, displayEmail, fullDisplayName, shouldShow } =
     useUserMenuItems({
@@ -74,6 +75,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
   if (!shouldShow) {
     return null
   }
+
+  const popupLabel = `${displayName}. ${t("open-account-menu")}`
 
   return (
     <MenuTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
@@ -126,6 +129,8 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
       </TopBarMenuButton>
 
       <Popover
+        aria-label={popupLabel}
+        aria-labelledby={popupLabelId}
         placement="bottom end"
         offset={8}
         className={css`
@@ -180,7 +185,11 @@ const UserMenu: React.FC<React.PropsWithChildren<UserMenuProps>> = ({ menuOption
           </div>
         </div>
 
+        <span id={popupLabelId} hidden>
+          {popupLabel}
+        </span>
         <Menu
+          aria-labelledby={popupLabelId}
           data-testid="topbar-user-menu-popover"
           aria-label="Account actions"
           className={css`

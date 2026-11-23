@@ -1,8 +1,11 @@
+use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
+use crate::domain::proof_of_work::{self, ChallengePurpose};
 use crate::domain::rate_limit_middleware_builder::{RateLimit, RateLimitConfig, RateLimitKey};
 use crate::domain::session_verification;
 use crate::prelude::*;
 use anyhow::anyhow;
+use chrono::Duration;
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
@@ -915,17 +918,24 @@ pub async fn get_user_roles(
     token.authorized_ok(web::Json(res))
 }
 
+/// A new account has only just chosen its password, so it gets no reset mail until this old.
+const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
+const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
+const MAX_RESET_MAILS_PER_DAY: usize = 3;
+
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct EmailData {
     pub email: String,
     pub language: String,
+    /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+    pub altcha: String,
 }
 
 #[instrument(skip(pool))]
 #[utoipa::path(
     post,
-    path = "/send-reset-password-email",
+    path = "/request-password-reset",
     operation_id = "sendResetPasswordEmail",
     tag = "users",
     request_body = EmailData,
@@ -940,6 +950,8 @@ pub async fn send_reset_password_email(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
+    proof_of_work::verify_and_spend(&mut conn, &payload.altcha, ChallengePurpose::PasswordReset)
+        .await?;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -987,14 +999,38 @@ pub async fn send_reset_password_email(
     };
 
     if let Some(user) = user {
-        let token = Uuid::new_v4();
-
-        let _password_token =
-            models::user_passwords::insert_password_reset_token(&mut conn, user.id, token).await?;
-
-        let _ =
-            models::email_deliveries::insert_email_delivery(&mut conn, user.id, reset_template.id)
+        let mut tx = conn.begin().await?;
+        models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
+        let now = Utc::now();
+        let sent_today = models::user_passwords::get_password_reset_token_creation_times_since(
+            &mut tx,
+            user.id,
+            now - Duration::days(1),
+        )
+        .await?;
+        let sent_recently = sent_today.iter().any(|created_at| {
+            now - *created_at < Duration::minutes(RESET_MAIL_MIN_INTERVAL_MINUTES)
+        });
+        // Only accounts created here with a password count as new: a row imported from TMC by this
+        // handler has no password yet, and once it gets one through a reset, it already has a token.
+        let is_new_account = now - user.created_at
+            < Duration::hours(RESET_MAIL_MIN_ACCOUNT_AGE_HOURS)
+            && sent_today.is_empty()
+            && models::user_passwords::check_if_users_password_is_stored(&mut tx, user.id).await?;
+        // Every outcome gets the same answer, so the response never tells whether an account exists.
+        // Other accounts reaching the same inbox share its budget, so it must not hold back a proven
+        // owner's own resets.
+        if !is_new_account
+            && !sent_recently
+            && sent_today.len() < MAX_RESET_MAILS_PER_DAY
+            && mail_budget::may_mail_user(&mut tx, user.id).await?
+        {
+            models::user_passwords::insert_password_reset_token(&mut tx, user.id, Uuid::new_v4())
                 .await?;
+            models::email_deliveries::insert_email_delivery(&mut tx, user.id, reset_template.id)
+                .await?;
+        }
+        tx.commit().await?;
     }
 
     token.authorized_ok(web::Json(true))
@@ -1154,6 +1190,10 @@ fn old_version_upstream_rate_limit() -> RateLimit {
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
+        "/send-reset-password-email",
+        web::post().to(domain::removed_routes::log_removed_route_request),
+    )
+    .route(
         "/user-research-form-question-answers",
         web::get().to(get_all_research_form_answers_with_user_id),
     )
@@ -1186,9 +1226,15 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         "/user-research-consents",
         web::post().to(post_user_consents),
     )
-    .route(
-        "/send-reset-password-email",
-        web::post().to(send_reset_password_email),
+    .service(
+        web::resource("/request-password-reset")
+            .wrap(RateLimit::new(RateLimitConfig {
+                per_minute: Some(10),
+                per_hour: Some(50),
+                per_day: Some(200),
+                ..Default::default()
+            }))
+            .route(web::post().to(send_reset_password_email)),
     )
     .route("/{user_id}", web::get().to(get_user))
     .route(

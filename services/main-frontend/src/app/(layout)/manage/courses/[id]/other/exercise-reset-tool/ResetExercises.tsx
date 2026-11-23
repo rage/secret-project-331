@@ -111,7 +111,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   return (
     <div>
-      <h3
+      <h1
         className={cx(
           headingCss,
           css`
@@ -120,7 +120,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         )}
       >
         {t("title-reset-exercises")}
-      </h3>
+      </h1>
       <div
         className={css`
           display: flex;

@@ -14,6 +14,34 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/auth/altcha-challenge": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "GET `/api/v0/auth/altcha-challenge` A fresh proof-of-work challenge for one of the account forms, in\nthe format the ALTCHA widget fetches.",
+        "operationId": "getAuthAltchaChallenge",
+        "parameters": [
+          {
+            "name": "purpose",
+            "in": "query",
+            "description": "The form the challenge is for; a solution is accepted only there.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ChallengePurpose"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A signed ALTCHA challenge",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/auth/authorize": {
       "post": {
         "tags": ["auth"],
@@ -74,6 +102,38 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/create-account": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/create-account HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true,\n  \"altcha\": \"eyJjaGFsbGVuZ2UiOnsi...\"\n}\n```",
+        "operationId": "postAuthSignup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDetails"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Signup outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot sign up (e.g. already signed in or validation error)"
           }
         }
       }
@@ -269,38 +329,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/v0/auth/signup": {
-      "post": {
-        "tags": ["auth"],
-        "summary": "POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
-        "operationId": "postAuthSignup",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAccountDetails"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Signup outcome",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SignupResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Cannot sign up (e.g. already signed in or validation error)"
           }
         }
       }
@@ -577,6 +605,11 @@
           }
         }
       },
+      "ChallengePurpose": {
+        "type": "string",
+        "description": "What a challenge may be redeemed for.",
+        "enum": ["signup", "password_reset"]
+      },
       "CreateAccountDetails": {
         "type": "object",
         "required": [
@@ -587,9 +620,14 @@
           "password",
           "password_confirmation",
           "country",
-          "email_communication_consent"
+          "email_communication_consent",
+          "altcha"
         ],
         "properties": {
+          "altcha": {
+            "type": "string",
+            "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
           "country": {
             "type": "string"
           },
@@ -1061,6 +1099,16 @@
               "type": {
                 "type": "string",
                 "enum": ["recently_sent"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["daily_limit_reached"]
               }
             }
           },

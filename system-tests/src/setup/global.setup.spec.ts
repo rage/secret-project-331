@@ -7,6 +7,7 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { test } from "@playwright/test"
 
 import { CREDIT_REGISTRATION_STUDENT_EMAILS } from "../utils/creditRegistration"
+import { LANGUAGE_VERSION_USER_EMAILS } from "../utils/languageVersions"
 import { login } from "../utils/login"
 
 const ONE_WEEK_MS = 10 * 10 * 10 * 60 * 60 * 24 * 7
@@ -42,9 +43,9 @@ async function createLoginStates(page: Page, context: BrowserContext) {
       email: "langs@example.com",
       password: "langs",
     },
-    // The password is the address's local part, for `seed_credit_registration.rs`'s accounts and
-    // the general `studentN` ones alike.
-    ...CREDIT_REGISTRATION_STUDENT_EMAILS.map((email) => ({
+    // The password is the address's local part, for the accounts of `seed_credit_registration.rs`
+    // and `seed_language_versions.rs` and the general `studentN` ones alike.
+    ...[...CREDIT_REGISTRATION_STUDENT_EMAILS, ...LANGUAGE_VERSION_USER_EMAILS].map((email) => ({
       email,
       password: email.replace(/@.*$/, ""),
     })),

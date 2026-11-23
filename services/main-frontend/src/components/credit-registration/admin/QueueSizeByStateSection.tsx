@@ -149,7 +149,11 @@ const StateSmallMultiples: React.FC<{ history: CreditRegistrationHistory }> = ({
   }
   return (
     <div ref={panelRef}>
-      <Echarts options={options} height={rowCount * rowPitch} />
+      <Echarts
+        label={t("credit-registration-heading-by-state-trend")}
+        options={options}
+        height={rowCount * rowPitch}
+      />
     </div>
   )
 }

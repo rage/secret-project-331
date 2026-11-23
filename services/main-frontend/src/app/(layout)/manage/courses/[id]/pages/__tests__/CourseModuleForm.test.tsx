@@ -75,24 +75,27 @@ function renderForm(module: ModuleView, linkedExams: LinkedExam[] = []) {
       />
     </QueryClientProvider>,
   )
-  fireEvent.click(screen.getByRole("button", { name: "edit" }))
+  fireEvent.click(screen.getByRole("button", { name: "edit-module-named" }))
   return { onSubmitForm }
 }
 
-const passMethod = (name: string) => screen.getByRole("radio", { name: new RegExp(`^${name}`) })
+// Role queries by name are slow over this form in jsdom (seconds each), so the tests find
+// elements by label or text.
+const radio = (label: string | RegExp) => screen.getByLabelText(label, { selector: "input" })
+const passMethod = (name: string) => radio(new RegExp(`^${name}`))
 
 describe("CourseModuleForm", () => {
   it("switches to teacher-added completions for an exam outside the platform, and back", async () => {
     renderForm(moduleWith({ completion_method: "by_requirements", number_of_points_treshold: 10 }))
     expect(passMethod("pass-method-by-requirements")).toBeChecked()
 
-    fireEvent.click(screen.getByRole("radio", { name: "yes" }))
-    fireEvent.click(screen.getByRole("radio", { name: /^exam-location-examinarium/ }))
+    fireEvent.click(radio("yes"))
+    fireEvent.click(radio(/^exam-location-examinarium/))
 
     await waitFor(() => expect(passMethod("pass-method-teacher-adds")).toBeChecked())
     expect(screen.getByText("pass-method-switched-outside-exam")).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("radio", { name: /^no/ }))
+    fireEvent.click(radio(/^no/))
     await waitFor(() => expect(passMethod("pass-method-by-requirements")).toBeChecked())
   })
 
@@ -101,8 +104,8 @@ describe("CourseModuleForm", () => {
       EXAM_WITH_PASS_MARK,
     ])
 
-    fireEvent.click(screen.getByRole("radio", { name: "yes" }))
-    fireEvent.click(screen.getByRole("radio", { name: /^exam-location-platform/ }))
+    fireEvent.click(radio("yes"))
+    fireEvent.click(radio(/^exam-location-platform/))
 
     await waitFor(() => expect(passMethod("pass-method-by-exam")).toBeChecked())
     expect(screen.getByText("pass-method-switched-by-exam")).toBeInTheDocument()
@@ -125,12 +128,9 @@ describe("CourseModuleForm", () => {
     mockSetExamCourse.mockResolvedValue(undefined)
     renderForm(moduleWith({ exam_requirement: "platform", completion_method: "by_exam" }))
 
-    fireEvent.click(screen.getByRole("button", { name: "link-an-exam" }))
-    // Role queries by name are slow over this form in jsdom, so the picker is found by its text.
+    fireEvent.click(screen.getByText("link-an-exam"))
     fireEvent.click(await screen.findByText("placeholder-choose-exam"))
-    fireEvent.click(
-      within(screen.getByRole("listbox")).getByRole("option", { name: /Retake exam/ }),
-    )
+    fireEvent.click(within(screen.getByRole("listbox")).getByText(/Retake exam/))
     expect(screen.getByText("exam-also-used-in")).toBeInTheDocument()
     fireEvent.click(screen.getByText("button-link-exam"))
 
@@ -139,5 +139,37 @@ describe("CourseModuleForm", () => {
         expect.objectContaining({ path: { id: "exam-2" }, body: { course_id: "course-1" } }),
       ),
     )
+  })
+
+  it("focuses the first field on Edit and returns focus to Edit on Cancel", () => {
+    renderForm(moduleWith({ name: "Module A" }))
+
+    expect(document.activeElement).toBe(document.querySelector('input[name="name"]'))
+
+    fireEvent.click(screen.getByRole("button", { name: "button-text-cancel" }))
+
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "edit-module-named" }))
+  })
+
+  it("focuses the name field of a create card on open", () => {
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <CourseModuleForm
+          mode="create"
+          module={moduleWith({ name: "" })}
+          chapters={[1]}
+          creditRegistrationConfig={undefined}
+          linkedExams={[]}
+          courseId="course-1"
+          chapterNumberById={new Map()}
+          links={LINKS}
+          canToggleCertificates={false}
+          onSubmitForm={jest.fn()}
+          onCancel={jest.fn()}
+        />
+      </QueryClientProvider>,
+    )
+
+    expect(document.activeElement).toBe(document.querySelector('input[name="name"]'))
   })
 })

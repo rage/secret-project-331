@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react"
 import { I18nProvider, RouterProvider } from "react-aria-components"
 
 import { LanguageOptionsProvider } from "@/contexts/LanguageOptionsContext"
+import ErrorNoticeTitleProvider from "@/shared-module/common/components/ErrorNoticeTitleProvider"
 import PageTitleManager from "@/shared-module/common/components/PageTitle/PageTitleManager"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
 import useLanguage, { DEFAULT_LANGUAGE, getDir } from "@/shared-module/common/hooks/useLanguage"
@@ -88,7 +89,9 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
                   <GlobalStyles />
                   <PageTitleManager />
                   <RouteFocusManager pathname={pathname} />
-                  <LoginStateContextProvider>{children}</LoginStateContextProvider>
+                  <ErrorNoticeTitleProvider>
+                    <LoginStateContextProvider>{children}</LoginStateContextProvider>
+                  </ErrorNoticeTitleProvider>
                 </DialogProvider>
               </I18nProvider>
             </LanguageOptionsProvider>

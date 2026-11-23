@@ -115,6 +115,10 @@
       "message": "Lisääminen tai päivittäminen tauluun '{{table}}' epäonnistui rajoitteen '{{constraint}}' takia. Tarkista rajoitteeseen liittyvä data ja yritä uudelleen.",
       "title": "Viiteavainvirhe"
     },
+    "form_verification_failed": {
+      "message": "Lähetä lomake uudelleen.",
+      "title": "Lomaketta ei voitu tarkistaa"
+    },
     "generic_sisu_error": {
       "message": "Kuvauksen luonnissa tapahtui virhe.",
       "title": "Kuvausta ei voitu luoda"

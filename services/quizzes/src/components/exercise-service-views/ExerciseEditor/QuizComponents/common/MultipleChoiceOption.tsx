@@ -120,6 +120,8 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
     setVisible(!visible)
   }, [visible])
 
+  const title = option.title ?? ""
+
   const toggleEditMode = () => setEditMode((isEditing) => !isEditing)
 
   return (
@@ -151,6 +153,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
+              aria-label={t("finish-editing-option-named", { title })}
               onClick={toggleEditMode}
             >
               <CheckCircle
@@ -174,6 +177,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
               `}
               variant="icon"
               size="small"
+              aria-label={t("edit-option-named", { title })}
               onClick={toggleEditMode}
             >
               <Pencil
@@ -205,6 +209,8 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             `}
             variant="icon"
             size="small"
+            aria-label={t("option-feedback-named", { title })}
+            aria-expanded={!visible}
             onClick={handleVisibility}
           >
             {visible ? (
@@ -235,6 +241,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
             `}
             variant="icon"
             size="small"
+            aria-label={t("delete-option-named", { title })}
             onClick={onDelete}
           >
             <XmarkCircle size={16} color="#333d45" />
@@ -271,6 +278,7 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
                 <FeedbackMessagesEditor
                   value={option.feedbackMessages}
                   visibilityOptions={optionFeedbackVisibilityOptions}
+                  optionTitle={title}
                   onChange={(feedbackMessages) => onChange({ feedbackMessages })}
                 />
               </MessageDialogTextFieldContainer>

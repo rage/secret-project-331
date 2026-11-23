@@ -5,6 +5,7 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import { Dialog, Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
 export const ReportReasonValues = {
@@ -20,7 +21,7 @@ export const ReportReasonValues = {
 export type ReportReason = (typeof ReportReasonValues)[keyof typeof ReportReasonValues]
 
 interface ReportFormFields {
-  reason: string
+  reason: string | null
   description: string
 }
 
@@ -28,10 +29,11 @@ const MarkAsSpamDialog: React.FC<{
   isOpen: boolean
   onClose: () => void
   onSubmit: (reason: ReportReason, description: string) => void
-}> = ({ isOpen, onClose, onSubmit }) => {
+  onExitComplete?: () => void
+}> = ({ isOpen, onClose, onSubmit, onExitComplete }) => {
   const { t } = useTranslation()
   const { control, watch, reset } = useForm<ReportFormFields>({
-    defaultValues: { reason: "", description: "" },
+    defaultValues: { reason: null, description: "" },
   })
   const selectedReason = watch("reason")
 
@@ -47,6 +49,7 @@ const MarkAsSpamDialog: React.FC<{
     <Dialog
       open={isOpen}
       onClose={onClose}
+      {...omitUndefined({ onExitComplete })}
       title={t("title-report-dialog")}
       actions={[
         {

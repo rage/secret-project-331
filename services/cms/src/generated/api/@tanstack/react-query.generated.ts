@@ -26,10 +26,12 @@ import {
   getCmsExerciseServices,
   getCmsPage,
   getCmsPageInfo,
+  getCmsPageLanguageVersions,
   getCmsPageNavigation,
   getCmsPagePendingAgentChanges,
   getCmsRepositoryExercisesForCourse,
   getExercisesWithSubmissions,
+  linkCmsPageCounterpart,
   type Options,
   previewCmsEmailTemplate,
   requestChartSpecGeneration,
@@ -83,6 +85,8 @@ import type {
   GetCmsPageData,
   GetCmsPageInfoData,
   GetCmsPageInfoResponse,
+  GetCmsPageLanguageVersionsData,
+  GetCmsPageLanguageVersionsResponse,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponse,
   GetCmsPagePendingAgentChangesData,
@@ -92,6 +96,8 @@ import type {
   GetCmsRepositoryExercisesForCourseResponse,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponse,
+  LinkCmsPageCounterpartData,
+  LinkCmsPageCounterpartResponse,
   PreviewCmsEmailTemplateData,
   PreviewCmsEmailTemplateResponse,
   RequestChartSpecGenerationData,
@@ -995,6 +1001,57 @@ export const getCmsPageInfoOptions = (options: Options<GetCmsPageInfoData>) =>
       }),
     queryKey: getCmsPageInfoQueryKey(options),
   })
+
+export const getCmsPageLanguageVersionsQueryKey = (
+  options: Options<GetCmsPageLanguageVersionsData>,
+) => createQueryKey("getCmsPageLanguageVersions", options)
+
+/**
+ * GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.
+ */
+export const getCmsPageLanguageVersionsOptions = (
+  options: Options<GetCmsPageLanguageVersionsData>,
+) =>
+  queryOptions<
+    GetCmsPageLanguageVersionsResponse,
+    DefaultError,
+    GetCmsPageLanguageVersionsResponse,
+    ReturnType<typeof getCmsPageLanguageVersionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCmsPageLanguageVersions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCmsPageLanguageVersionsQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.
+ */
+export const linkCmsPageCounterpartMutation = (
+  options?: Partial<Options<LinkCmsPageCounterpartData>>,
+): UseMutationOptions<
+  LinkCmsPageCounterpartResponse,
+  DefaultError,
+  Options<LinkCmsPageCounterpartData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    LinkCmsPageCounterpartResponse,
+    DefaultError,
+    Options<LinkCmsPageCounterpartData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await linkCmsPageCounterpart({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCmsPageNavigationQueryKey = (options: Options<GetCmsPageNavigationData>) =>
   createQueryKey("getCmsPageNavigation", options)

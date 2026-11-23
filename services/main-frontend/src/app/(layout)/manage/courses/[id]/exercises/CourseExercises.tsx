@@ -15,7 +15,7 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
   const { t } = useTranslation()
   return (
     <>
-      <h2
+      <h1
         className={css`
           font-size: clamp(2rem, 3.6vh, 36px);
           color: ${baseTheme.colors.gray[700]};
@@ -24,7 +24,7 @@ const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesPro
         `}
       >
         {t("title-all-exercises")}
-      </h2>
+      </h1>
       <ExerciseList courseId={courseId} />
       <h2
         className={css`

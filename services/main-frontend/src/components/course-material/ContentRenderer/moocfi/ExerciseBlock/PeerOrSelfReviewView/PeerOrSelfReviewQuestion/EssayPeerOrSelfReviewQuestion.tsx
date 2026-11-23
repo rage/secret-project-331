@@ -17,9 +17,6 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
   setPeerOrSelfReviewQuestionAnswer,
   peerOrSelfReviewQuestionAnswer,
 }) => {
-  const label = `${peerOrSelfReviewQuestion.question}${
-    peerOrSelfReviewQuestion.answer_required ? " *" : ""
-  }`
   const { control } = useForm<{ answer: string }>({
     defaultValues: { answer: peerOrSelfReviewQuestionAnswer?.text_data ?? "" },
   })
@@ -38,7 +35,19 @@ const EssayPeerOrSelfReviewQuestion: React.FC<
 
   return (
     <div>
-      <TextArea name={ANSWER_FIELD} control={control} label={label} rows={4} autoResize />
+      <TextArea
+        name={ANSWER_FIELD}
+        control={control}
+        label={
+          <>
+            {peerOrSelfReviewQuestion.question}
+            {peerOrSelfReviewQuestion.answer_required && <span aria-hidden="true"> *</span>}
+          </>
+        }
+        isRequired={peerOrSelfReviewQuestion.answer_required}
+        rows={4}
+        autoResize
+      />
     </div>
   )
 }

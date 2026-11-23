@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE pages p\nSET page_language_group_id = m.group_id\nFROM UNNEST($1::uuid [], $2::uuid []) AS m(item_id, group_id)\nWHERE p.id = m.item_id\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "380786825d77f14f6d03ec57015192864c9ec32b7bce7c0834786d059808788c"
+}

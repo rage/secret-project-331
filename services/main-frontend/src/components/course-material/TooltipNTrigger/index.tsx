@@ -15,7 +15,7 @@ import { TooltipNTriggerAnchor } from "./TooltipNTriggerAnchor"
 type TooltipNTriggerProps =
   | {
       variant: "references"
-      href: string
+      href?: string | undefined
       children: ReactNode
       tooltipContent: ReactNode
     }
@@ -53,7 +53,9 @@ const TooltipNTrigger: React.FC<TooltipNTriggerProps> = (props) => {
     <GlossaryTriggerNPopover
       {...omitUndefined({ className: props.className })}
       tooltipContent={tooltipContent}
-      dialogAriaLabel={t("definition")}
+      dialogAriaLabel={
+        typeof children === "string" ? t("definition-of", { term: children }) : t("definition")
+      }
     >
       {children}
     </GlossaryTriggerNPopover>

@@ -5,9 +5,9 @@ import { OverlayContainer } from "@react-aria/overlays"
 import { useOverlayTriggerState } from "@react-stately/overlays"
 import type { ReactElement } from "react"
 import React, { useContext } from "react"
-import { Separator } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
+import SkipLink from "@/shared-module/common/components/SkipLink"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
@@ -103,6 +103,16 @@ interface TopbarProps {
   languageMenuProps?: LanguageMenuProps
 }
 
+const separatorCss = css`
+  height: 24px;
+  background: #e5e7eb;
+  margin-inline: 0;
+  display: none;
+  ${respondToOrLarger.md} {
+    display: block;
+  }
+`
+
 const Topbar: React.FC<TopbarProps> = ({
   children,
   courseId,
@@ -137,6 +147,7 @@ const Topbar: React.FC<TopbarProps> = ({
           z-index: 100;
         `}
       >
+        <SkipLink href="#maincontent">{t("skip-to-content")}</SkipLink>
         <div
           className={css`
             margin: 0 auto;
@@ -156,23 +167,25 @@ const Topbar: React.FC<TopbarProps> = ({
             <Brand />
 
             {/* Middle: primary navigation slot (visible on md+) */}
-            <nav
-              aria-label={t("aria-label-primary-navigation")}
-              className={css`
-                margin-inline-start: 8px;
-                min-width: 0;
-                flex: 1;
-                display: none;
-                gap: 8px;
-                align-items: center;
+            {React.Children.count(children) > 0 && (
+              <nav
+                aria-label={t("aria-label-primary-navigation")}
+                className={css`
+                  margin-inline-start: 8px;
+                  min-width: 0;
+                  flex: 1;
+                  display: none;
+                  gap: 8px;
+                  align-items: center;
 
-                ${respondToOrLarger.md} {
-                  display: flex;
-                }
-              `}
-            >
-              {children}
-            </nav>
+                  ${respondToOrLarger.md} {
+                    display: flex;
+                  }
+                `}
+              >
+                {children}
+              </nav>
+            )}
 
             {/* Right cluster: account THEN quick actions (hamburger is rightmost) */}
             <div
@@ -199,19 +212,7 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableSearch && enableLanguageMenu && (
-                <Separator
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  orientation="vertical"
-                  className={css`
-                    height: 24px;
-                    background: #e5e7eb;
-                    margin-inline: 0;
-                    display: none;
-                    ${respondToOrLarger.md} {
-                      display: block;
-                    }
-                  `}
-                />
+                <span aria-hidden="true" className={separatorCss} />
               )}
 
               {enableLanguageMenu && (
@@ -224,19 +225,7 @@ const Topbar: React.FC<TopbarProps> = ({
               )}
 
               {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
-                <Separator
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  orientation="vertical"
-                  className={css`
-                    height: 24px;
-                    background: #e5e7eb;
-                    margin-inline: 0;
-                    display: none;
-                    ${respondToOrLarger.md} {
-                      display: block;
-                    }
-                  `}
-                />
+                <span aria-hidden="true" className={separatorCss} />
               )}
 
               {loginStateContext.signedIn ? (
@@ -244,19 +233,7 @@ const Topbar: React.FC<TopbarProps> = ({
                   {enableUserMenu && <UserMenu menuOptions={userMenuOptions} />}
 
                   {enableUserMenu && enableQuickActions && (
-                    <Separator
-                      // oxlint-disable-next-line i18next/no-literal-string
-                      orientation="vertical"
-                      className={css`
-                        height: 24px;
-                        background: #e5e7eb;
-                        margin-inline: 0;
-                        display: none;
-                        ${respondToOrLarger.md} {
-                          display: block;
-                        }
-                      `}
-                    />
+                    <span aria-hidden="true" className={separatorCss} />
                   )}
 
                   {enableQuickActions && (

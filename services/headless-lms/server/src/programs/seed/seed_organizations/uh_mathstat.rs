@@ -22,8 +22,9 @@ use crate::{
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
             seed_course_design_guide::seed_course_design_guide,
-            seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
-            seed_introduction_to_codes::seed_introduction_to_codes,
+            seed_course_with_peer_review::seed_peer_review_course,
+            seed_exercise_iframe_resilience::seed_exercise_iframe_resilience_course,
+            seed_generated_description, seed_introduction_to_codes::seed_introduction_to_codes,
             seed_introduction_to_course_auditing::seed_introduction_to_course_auditing,
             seed_lock_chapter_course, seed_material_reference_course,
             seed_metadata_course::seed_metadata_course,
@@ -296,6 +297,16 @@ pub async fn seed_organization_uh_mathstat(
         "reset-progress",
         uh_data.clone(),
         false,
+        seed_users_result,
+    )
+    .await?;
+
+    seed_exercise_iframe_resilience_course(
+        app_config.clone(),
+        Uuid::parse_str("aff9acac-a4c6-4e24-a7b7-cd9aa0f47f8d")?,
+        "Exercise iframe resilience",
+        "exercise-iframe-resilience",
+        uh_data.clone(),
         seed_users_result,
     )
     .await?;

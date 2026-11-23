@@ -43,6 +43,7 @@ import { isStaleVersionError } from "../../utils/staleSave"
 import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
+import LanguageVersionsSidebarView from "./LanguageVersionsSidebarView"
 import PendingAgentChangesNotice from "./PendingAgentChangesNotice"
 
 /** `overwrite` saves over a newer version made by someone else instead of refusing. */
@@ -328,6 +329,19 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       }),
     [pageType, courseCanAddChatbot, chapterLockingEnabled],
   )
+  const extraSidebarViews = useMemo(
+    () =>
+      data.course_id
+        ? [
+            {
+              value: "extra-language-versions" as const,
+              label: t("language-versions"),
+              render: () => <LanguageVersionsSidebarView pageId={data.id} />,
+            },
+          ]
+        : undefined,
+    [data.course_id, data.id, t],
+  )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
       <CmsPageTitle
@@ -359,6 +373,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             allowedBlockVariations={allowedBlockVariants}
             mediaUpload={mediaUpload}
             inspectorButtons={inspectorButtons}
+            extraSidebarViews={extraSidebarViews}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
             setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
           />

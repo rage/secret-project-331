@@ -19,7 +19,8 @@ use crate::{
 };
 use headless_lms_utils::{
     azure_embedding::create_embeddings, file_store::FileStore,
-    language_tag_to_name::LANGUAGE_TAG_TO_NAME, strings::non_empty_trimmed,
+    language_tag_to_name::LANGUAGE_TAG_TO_NAME, language_tags::primary_language,
+    strings::non_empty_trimmed,
 };
 use pgvector::Vector;
 use utoipa::ToSchema;
@@ -886,6 +887,25 @@ WHERE id = $1
     Ok(course)
 }
 
+/// The course language group of a live course: the group its language versions share.
+pub async fn get_course_language_group_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Uuid> {
+    let res = sqlx::query_scalar!(
+        "
+SELECT course_language_group_id
+FROM courses
+WHERE id = $1
+  AND deleted_at IS NULL
+        ",
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id_and_join_code(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -1422,12 +1442,7 @@ pub async fn get_cfgname_by_tag(
     conn: &mut PgConnection,
     ietf_language_tag: String,
 ) -> ModelResult<String> {
-    let tag = ietf_language_tag
-        .split('-')
-        .next()
-        .unwrap_or_else(|| &ietf_language_tag[..]);
-
-    let lang_name = LANGUAGE_TAG_TO_NAME.get(&tag);
+    let lang_name = LANGUAGE_TAG_TO_NAME.get(primary_language(&ietf_language_tag));
 
     let name = sqlx::query!(
         "SELECT cfgname::text FROM pg_ts_config WHERE cfgname = $1",

@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
@@ -16,7 +17,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
   await expectUrlPathWithRandomUuid(page, "/org/uh-cs")
 
-  await page.click(`div:text-is("Introduction to Course Material")`)
+  await page.getByRole("link", { name: "Introduction to Course Material", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 
@@ -33,7 +34,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   await page.getByText("Human-machine interface").first().waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", "page-has-heading-one"],
+    axeSkip: ["aria-hidden-focus", "landmark-unique", "landmark-one-main", NO_H1],
     headless,
     testInfo,
     screenshotTarget: page,
@@ -58,7 +59,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   await page.getByText("Welcome to Introduction to Course Material In this course you'll").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["aria-hidden-focus", "landmark-one-main", "page-has-heading-one"],
+    axeSkip: ["aria-hidden-focus", "landmark-one-main", NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,
@@ -75,7 +76,7 @@ test("content search", async ({ page, headless }, testInfo) => {
   await page.getByText("banana cat enim").waitFor()
 
   await expectScreenshotsToMatchSnapshots({
-    axeSkip: ["landmark-one-main", "page-has-heading-one"],
+    axeSkip: ["landmark-one-main", NO_H1],
     screenshotTarget: page,
     headless,
     testInfo,

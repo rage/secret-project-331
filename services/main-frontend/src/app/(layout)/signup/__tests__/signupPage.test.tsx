@@ -1,8 +1,12 @@
 "use client"
 
 import "@testing-library/jest-dom"
+import "@/shared-module/common/test-utils/inertFocus"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+
+import type { AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 
 import CreateAccountForm from "../page"
 
@@ -24,9 +28,32 @@ jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
   }),
 }))
 
+jest.mock("@/generated/api/sdk.generated", () => ({
+  createUserResearchConsent: jest.fn().mockResolvedValue({}),
+}))
+jest.mock("@/hooks/useUserResearchConsentQuery", () => ({
+  refetchUserResearchConsent: jest.fn().mockResolvedValue(undefined),
+}))
+
 jest.mock("@/shared-module/common/generated/auth-api/sdk.generated", () => ({
   postAuthSignup: jest.fn(),
 }))
+
+// Solved at once, so the form's own validation is what these tests see.
+jest.mock("@/components/forms/AltchaWidget", () => {
+  // jest.mock factories can't use the file's imports.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { useImperativeHandle }: typeof import("react") = require("react")
+  return {
+    __esModule: true,
+    default: function MockAltchaWidget({ ref }: { ref?: React.Ref<AltchaWidgetHandle> }) {
+      useImperativeHandle(ref, () => ({
+        solve: () => Promise.resolve("solved-challenge"),
+      }))
+      return null
+    },
+  }
+})
 
 function renderPage() {
   const queryClient = new QueryClient({
@@ -60,7 +87,7 @@ describe("Create account form accessibility", () => {
       expect(screen.getByLabelText(label)).toHaveAttribute("aria-required", "true")
     }
     // The requirement is stated in visible text instead of unexplained asterisks.
-    expect(screen.getByText("all-fields-are-required")).toBeVisible()
+    expect(screen.getByText("all-text-fields-required")).toBeVisible()
   })
 
   it("names the fieldset after the main heading", () => {
@@ -91,10 +118,6 @@ describe("Create account form accessibility", () => {
     renderPage()
     const submit = screen.getByRole("button", { name: "create-an-account" })
     fireEvent.click(submit)
-
-    await waitFor(() => {
-      expect(screen.getAllByRole("alert").length).toBeGreaterThan(0)
-    })
 
     const firstName = screen.getByLabelText("first-name")
     await waitFor(() => {
@@ -156,5 +179,46 @@ describe("Create account form accessibility", () => {
     const link = container.querySelector(".signin-link a")
     expect(link).not.toBeNull()
     expect(link).toHaveTextContent("sign-in-if-you-have-an-account")
+  })
+
+  it("moves focus to the confirm-email heading once the research consent dialog closes", async () => {
+    ;(postAuthSignup as jest.Mock).mockResolvedValue({ type: "success" })
+    renderPage()
+    await act(async () => {})
+    fireEvent.change(screen.getByLabelText("first-name"), { target: { value: "Ada" } })
+    fireEvent.change(screen.getByLabelText("last-name"), { target: { value: "Lovelace" } })
+    fireEvent.change(screen.getByLabelText("email"), { target: { value: "ada@example.com" } })
+    fireEvent.change(screen.getByLabelText("password"), { target: { value: "password123" } })
+    fireEvent.change(screen.getByLabelText("confirm-password"), {
+      target: { value: "password123" },
+    })
+    const combobox = screen.getByRole("combobox")
+    fireEvent.keyDown(combobox, { key: "ArrowDown" })
+    fireEvent.click(await screen.findByRole("option", { name: "fi" }))
+    fireEvent.click(screen.getByRole("button", { name: "create-an-account" }))
+
+    const dialog = await screen.findByTestId("research-consent-dialog")
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: "message-please-confirm-your-email-address",
+      hidden: true,
+    })
+    // The page behind the dialog is inert, so the heading cannot take focus yet.
+    await waitFor(() => expect(dialog).toContainElement(document.activeElement as HTMLElement))
+
+    fireEvent.click(
+      screen.getByRole("radio", {
+        name: "research-consent-i-do-not-want-participate-in-educational-research",
+      }),
+    )
+    fireEvent.click(screen.getByRole("button", { name: "button-text-save" }))
+    await waitFor(() => expect(screen.queryByTestId("research-consent-dialog")).toBeNull())
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          setTimeout(resolve, 100)
+        }),
+    )
+    expect(heading).toHaveFocus()
   })
 })

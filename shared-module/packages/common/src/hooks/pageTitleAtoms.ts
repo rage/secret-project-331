@@ -45,3 +45,6 @@ let seqCounter = 0
 
 /** Returns a process-monotonic sequence number for ordering registrations within a level. */
 export const nextPageTitleSeq = (): number => ++seqCounter
+
+/** Title of the page-level error notice replacing the page, else null. */
+export const pageErrorTitleAtom = atom<string | null>(null)

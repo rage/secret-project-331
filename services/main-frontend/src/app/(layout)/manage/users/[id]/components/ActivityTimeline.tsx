@@ -699,6 +699,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
         >
           <div ref={wrapperRef} className={scrolls ? scrollingChartFrameCss : undefined}>
             <Echarts
+              label={t("show-activity-chart")}
               options={options}
               height={Math.max(MIN_CHART_HEIGHT_PX, laneCount * LANE_ROW_PX + CHART_CHROME_PX)}
             />

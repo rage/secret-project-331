@@ -1,6 +1,6 @@
 "use client"
 
-import { screen } from "@testing-library/react"
+import { act, screen } from "@testing-library/react"
 import { I18nProvider } from "react-aria"
 
 import { Breadcrumbs, type BreadcrumbItem } from "../src/components/Breadcrumbs"
@@ -153,5 +153,34 @@ describe("Breadcrumbs", () => {
     renderUi(<Breadcrumbs items={[{ label: "Course" }]} data-testid="course-breadcrumbs" />)
 
     expect(screen.getByTestId("course-breadcrumbs")).toBe(screen.getByRole("navigation"))
+  })
+
+  describe("pending crumbs", () => {
+    const pending: BreadcrumbItem[] = [
+      { label: "Courses", href: "/courses" },
+      { status: "pending", key: "pending" },
+    ]
+
+    test("hasError clears aria-busy and the hidden loading text", () => {
+      renderUi(<Breadcrumbs items={pending} hasError />)
+      const nav = screen.getByRole("navigation")
+      expect(nav).not.toHaveAttribute("aria-busy")
+      expect(nav).not.toHaveAttribute("aria-describedby")
+    })
+
+    test("a crumb that never resolves stops being busy after the timeout", () => {
+      jest.useFakeTimers()
+      try {
+        renderUi(<Breadcrumbs items={pending} />)
+        expect(screen.getByRole("navigation")).toHaveAttribute("aria-busy", "true")
+        act(() => {
+          jest.advanceTimersByTime(8000)
+        })
+        expect(screen.getByRole("navigation")).not.toHaveAttribute("aria-busy")
+        expect(screen.queryByText("Loading breadcrumbs", { exact: false })).toBeNull()
+      } finally {
+        jest.useRealTimers()
+      }
+    })
   })
 })

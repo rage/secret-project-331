@@ -15,6 +15,7 @@ import {
   Badge,
   Button,
   Checkbox,
+  itemHeadingProps,
   Select,
   TextArea,
   TextField,
@@ -134,6 +135,8 @@ const editActionsStyles = css`
 `
 
 const UNASSIGNED = ""
+
+export const taskHeadingId = (taskId: string) => `task-${taskId}-heading`
 const TITLE_FIELD = "title" as const
 
 interface TaskEditFormValues {
@@ -331,7 +334,11 @@ export default function WorkspaceTaskRow({
         className={taskRowCheckboxWrapperStyles}
       />
       <div className={taskContentStyles}>
-        <span className={cx(taskTitleStyles, task.is_completed && taskTitleCompletedStyles)}>
+        <span
+          id={taskHeadingId(task.id)}
+          {...itemHeadingProps}
+          className={cx(taskTitleStyles, task.is_completed && taskTitleCompletedStyles)}
+        >
           {task.title}
         </span>
         {task.description && <p className={taskDescriptionStyles}>{task.description}</p>}

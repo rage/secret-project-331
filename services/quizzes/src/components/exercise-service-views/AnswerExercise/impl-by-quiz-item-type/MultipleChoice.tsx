@@ -192,7 +192,7 @@ const MultipleChoice: React.FunctionComponent<
             column-gap: 0.6rem;
           `}
         >
-          <InfoCircle size={20} weight="bold" color="7A3F75" />
+          <InfoCircle size={20} weight="bold" color="#7A3F75" aria-hidden="true" />
           {t("select-all-correct-options")}
         </div>
       )}

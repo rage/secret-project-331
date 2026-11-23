@@ -22,10 +22,7 @@ test.describe("Audio player accessibility", () => {
     await page.getByLabel("Manage course 'Audio course'").click()
     await page.getByRole("tab", { name: "Pages" }).click()
     await waitForSpinnersToDisappear(page)
-    await page
-      .getByRole("row", { name: "The Basics /chapter-1 Edit" })
-      .getByLabel("Dropdown menu")
-      .click()
+    await page.getByRole("button", { name: "Page actions for The Basics" }).click()
     await page.getByRole("menuitem", { name: "Upload audio file" }).click()
     await new FileField(page, "page-audio-file-field").upload("src/fixtures/media/audio.ogg")
     await page.getByRole("button", { name: "Upload", exact: true }).click()

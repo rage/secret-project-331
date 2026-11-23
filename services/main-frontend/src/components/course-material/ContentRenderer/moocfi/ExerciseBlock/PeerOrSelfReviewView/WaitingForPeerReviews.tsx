@@ -10,12 +10,14 @@ import { courseMaterialExerciseQueryKey } from "@/hooks/course-material/useCours
 import { baseTheme } from "@/shared-module/common/styles"
 
 import { exerciseButtonStyles, makeExerciseButtonMutedStyles } from ".."
+import { getPeerReviewHeadingId, usePendingPeerReviewHeadingFocus } from "./peerReviewFocus"
 
 const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: string }>> = ({
   exerciseId,
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  usePendingPeerReviewHeadingFocus(exerciseId)
 
   return (
     <div
@@ -26,6 +28,8 @@ const WaitingForPeerReviews: React.FC<React.PropsWithChildren<{ exerciseId: stri
       `}
     >
       <h3
+        id={getPeerReviewHeadingId(exerciseId)}
+        tabIndex={-1}
         className={css`
           font-weight: 600;
           font-size: 36px;

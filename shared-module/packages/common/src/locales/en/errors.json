@@ -115,6 +115,10 @@
       "message": "Insert or update on table '{{table}}' failed due to constraint '{{constraint}}'. Please verify the data related to the constraint and try again.",
       "title": "Foreign key violation"
     },
+    "form_verification_failed": {
+      "message": "Please send the form again.",
+      "title": "The form could not be verified"
+    },
     "generic_sisu_error": {
       "message": "Something went wrong in generating description",
       "title": "Could not generate description"

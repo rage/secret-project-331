@@ -2,9 +2,9 @@
 
 import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { isPast, parseISO } from "date-fns"
+import { isPast } from "date-fns"
 import { useParams, useRouter } from "next/navigation"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewCourseInstanceForm, {
@@ -15,10 +15,13 @@ import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.
 import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
+import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, QueryResult, ErrorNotice } from "@/shared-module/components"
+import { Button, QueryResult, ErrorNotice, useToggleFocus } from "@/shared-module/components"
+import { inlineMetadataListCss } from "@/styles/sharedStyles"
 
 /** The shared form renders no submit button, since its dialog caller puts one in the footer. */
 const editActionsCss = css`
@@ -61,6 +64,10 @@ const ManageCourseInstances: React.FC = () => {
     }),
   })
   const [editing, setEditing] = useState(false)
+  const formRef = useRef<HTMLDivElement | null>(null)
+  const editButtonRef = useToggleFocus(editing, () =>
+    formRef.current?.querySelector("input")?.focus(),
+  )
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
       await editCourseInstance({
@@ -114,8 +121,7 @@ const ManageCourseInstances: React.FC = () => {
         )}
       >
         {t("label-course-instance")}{" "}
-        {getCourseInstances.data?.name ?? t("default-course-instance-name")} (
-        {getCourseInstances.isSuccess && getCourseInstances.data.id})
+        {getCourseInstances.data?.name ?? t("default-course-instance-name")}
       </h1>
       {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
       {mutation.isError && (
@@ -131,13 +137,15 @@ const ManageCourseInstances: React.FC = () => {
           if (editing) {
             return (
               <>
-                <NewCourseInstanceForm
-                  initialData={data}
-                  onSubmit={(formData) => {
-                    mutation.mutate(formData)
-                    setEditing(false)
-                  }}
-                />
+                <div ref={formRef}>
+                  <NewCourseInstanceForm
+                    initialData={data}
+                    serverIssues={isAppApiError(mutation.error) ? mutation.error.issues : undefined}
+                    onSubmit={(formData) => {
+                      mutation.mutate(formData, { onSuccess: () => setEditing(false) })
+                    }}
+                  />
+                </div>
                 <div className={editActionsCss}>
                   <Button variant="secondary" size="medium" onClick={() => setEditing(false)}>
                     {t("button-text-cancel")}
@@ -155,19 +163,17 @@ const ManageCourseInstances: React.FC = () => {
             )
           }
           const supportEmail = data.support_email ? (
-            <div>
-              {t("support-email")}: {data.support_email}
-            </div>
+            <>
+              <dt>{t("support-email")}:</dt> <dd>{data.support_email}</dd>
+            </>
           ) : (
-            <div>{t("no-support-email-set")}</div>
+            <dd>{t("no-support-email-set")}</dd>
           )
           let schedule
           if (data.ends_at && isPast(data.ends_at)) {
             // instance is over
             schedule = (
-              <div>
-                {t("instance-ended-at-time", { time: parseISO(data.ends_at).toISOString() })}
-              </div>
+              <div>{t("instance-ended-at-time", { time: dateToString(data.ends_at) })}</div>
             )
           } else if (data.starts_at && isPast(data.starts_at)) {
             // course is currently open
@@ -175,7 +181,7 @@ const ManageCourseInstances: React.FC = () => {
               schedule = (
                 <div>
                   {t("instance-is-open-and-ends-at-time", {
-                    time: parseISO(data.ends_at).toISOString(),
+                    time: dateToString(data.ends_at),
                   })}
                 </div>
               )
@@ -185,9 +191,7 @@ const ManageCourseInstances: React.FC = () => {
           } else if (data.starts_at) {
             // course is not open yet
             schedule = (
-              <div>
-                {t("instance-opens-at-time", { time: parseISO(data.starts_at).toISOString() })}
-              </div>
+              <div>{t("instance-opens-at-time", { time: dateToString(data.starts_at) })}</div>
             )
           } else {
             schedule = <div>{t("instance-has-no-set-opening-time")}</div>
@@ -196,17 +200,20 @@ const ManageCourseInstances: React.FC = () => {
             <div className={detailsCss}>
               <div>{data.description}</div>
               <hr />
-              <div>
-                {t("teacher-in-charge-name")}: {data.teacher_in_charge_name}
-              </div>
-              <div>
-                {t("teacher-in-charge-email")}: {data.teacher_in_charge_email}
-              </div>
-              {supportEmail}
+              <dl className={inlineMetadataListCss}>
+                <dt>{t("teacher-in-charge-name")}:</dt> <dd>{data.teacher_in_charge_name}</dd>
+                <dt>{t("teacher-in-charge-email")}:</dt> <dd>{data.teacher_in_charge_email}</dd>
+                {supportEmail}
+              </dl>
               <div>{t("support-email-description")}</div>
               {schedule}
               <div className={viewActionsCss}>
-                <Button variant="tertiary" size="medium" onClick={() => setEditing(true)}>
+                <Button
+                  ref={editButtonRef}
+                  variant="tertiary"
+                  size="medium"
+                  onClick={() => setEditing(true)}
+                >
                   {t("edit")}
                 </Button>
                 <Button

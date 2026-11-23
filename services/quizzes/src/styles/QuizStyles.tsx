@@ -23,7 +23,7 @@ export const quizTheme = {
   gradingWrongItemColor: "#4c5868",
   quizBodyColor: baseTheme.colors.gray[700],
   quizBodyFontSize: "24px",
-  quizItemBackground: "fff",
+  quizItemBackground: "#fff",
   quizTitleFontSize: "20px",
   selectedItemBackground: baseTheme.colors.gray[700],
   selectedItemColor: baseTheme.colors.clear[100],

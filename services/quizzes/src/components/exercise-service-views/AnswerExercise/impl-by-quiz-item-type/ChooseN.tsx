@@ -22,6 +22,7 @@ const ChooseN: React.FunctionComponent<
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const groupId = useId()
+  const titleId = `${groupId}-title`
 
   const selectedIds = quizItemAnswerState?.selectedOptionIds ?? []
   const selectedCount = selectedIds.length
@@ -70,8 +71,6 @@ const ChooseN: React.FunctionComponent<
   const statusId = `${groupId}-status`
   // oxlint-disable-next-line i18next/no-literal-string
   const hintId = `${groupId}-hint`
-  // oxlint-disable-next-line i18next/no-literal-string
-  const liveId = `${groupId}-live`
 
   const groupAriaLabel = quizItem.title || quizItem.body
 
@@ -86,14 +85,15 @@ const ChooseN: React.FunctionComponent<
         }
       `}
     >
-      <h2
+      <div
+        id={titleId}
         className={css`
           display: flex;
           ${QUIZ_TITLE_STYLE}
         `}
       >
         {quizItem.title || quizItem.body}
-      </h2>
+      </div>
 
       <div>
         <ToggleButtonGroup
@@ -101,8 +101,8 @@ const ChooseN: React.FunctionComponent<
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}
-          {...includeIf(groupAriaLabel, { "aria-label": groupAriaLabel })}
-          aria-describedby={`${statusId} ${hintId} ${liveId}`}
+          {...includeIf(groupAriaLabel, { "aria-labelledby": titleId })}
+          aria-describedby={atLimit ? `${statusId} ${hintId}` : statusId}
           className={css`
             display: flex;
             flex-wrap: wrap;
@@ -159,7 +159,14 @@ const ChooseN: React.FunctionComponent<
                       height: 1.25rem;
                     `}
                   >
-                    <CheckCircle size={20} />
+                    <span
+                      aria-hidden="true"
+                      className={css`
+                        display: flex;
+                      `}
+                    >
+                      <CheckCircle size={20} />
+                    </span>
                   </span>
                 )}
               </ToggleButton>
@@ -210,7 +217,6 @@ const ChooseN: React.FunctionComponent<
 
         {/* Persistent live region for invalid action feedback */}
         <div
-          id={liveId}
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div live region; <output> would change display and layout
           role="status"
           aria-live="polite"

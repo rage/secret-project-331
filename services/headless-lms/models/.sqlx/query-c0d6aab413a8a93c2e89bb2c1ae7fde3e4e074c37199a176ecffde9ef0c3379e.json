@@ -1,0 +1,136 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.slug,\n  c.language_code,\n  c.course_language_group_id,\n  c.is_draft,\n  c.created_at,\n  (\n    SELECT COUNT(*)\n    FROM chapters ch\n    WHERE ch.course_id = c.id\n      AND ch.deleted_at IS NULL\n  ) AS \"chapter_count!\",\n  (\n    SELECT COUNT(*)\n    FROM pages p\n    WHERE p.course_id = c.id\n      AND p.deleted_at IS NULL\n  ) AS \"page_count!\",\n  (\n    SELECT COUNT(*)\n    FROM exercises e\n    WHERE e.course_id = c.id\n      AND e.deleted_at IS NULL\n  ) AS \"exercise_count!\",\n  CASE\n    WHEN $2 THEN (\n      SELECT COUNT(*)\n      FROM user_course_settings ucs\n      WHERE ucs.current_course_id = c.id\n        AND ucs.deleted_at IS NULL\n    )\n  END AS \"student_count?\",\n  FALSE AS \"can_edit!\"\nFROM courses c\nWHERE c.id = ANY($1)\n  AND c.deleted_at IS NULL\nORDER BY c.created_at,\n  c.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "language_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "is_draft",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_draft"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "chapter_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "page_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "exercise_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "student_count?",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "can_edit!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "c0d6aab413a8a93c2e89bb2c1ae7fde3e4e074c37199a176ecffde9ef0c3379e"
+}

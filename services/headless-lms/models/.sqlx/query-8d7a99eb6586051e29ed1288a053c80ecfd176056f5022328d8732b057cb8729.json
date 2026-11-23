@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT g.id,\n  g.course_language_group_id AS previous_course_language_group_id\nFROM exercise_language_groups g\n  JOIN exercises e ON e.exercise_language_group_id = g.id\nWHERE e.course_id = $1\n  AND g.course_language_group_id <> $2\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercises o\n      JOIN courses oc ON oc.id = o.course_id\n    WHERE o.exercise_language_group_id = g.id\n      AND o.deleted_at IS NULL\n      AND oc.deleted_at IS NULL\n      AND o.course_id <> ALL($3)\n  )\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_language_groups",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "previous_course_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_language_groups",
+            "name": "course_language_group_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "8d7a99eb6586051e29ed1288a053c80ecfd176056f5022328d8732b057cb8729"
+}

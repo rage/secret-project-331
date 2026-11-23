@@ -36,7 +36,10 @@ async function renderPlaceholder(setUrl: (url: string) => void, defaultValue?: s
 
   return {
     textarea: () => container.querySelector("textarea") as HTMLTextAreaElement,
-    alertText: () => container.querySelector('[role="alert"]')?.textContent,
+    errorText: () => {
+      const id = container.querySelector("textarea")?.getAttribute("aria-describedby")
+      return id ? container.querySelector(`[id="${id}"]`)?.textContent : undefined
+    },
     parse: () => act(() => container.querySelector("button")?.click()),
     unmount: () => {
       act(() => root.unmount())
@@ -76,7 +79,7 @@ describe("IFramePlaceHolder", () => {
     await view.parse()
 
     expect(setUrl).not.toHaveBeenCalled()
-    expect(view.alertText()).toBe("error-parsing-failed")
+    expect(view.errorText()).toBe("error-parsing-failed")
   })
 
   it("treats an empty value as parsing failure, same as non-empty garbage", async () => {
@@ -86,7 +89,7 @@ describe("IFramePlaceHolder", () => {
     await view.parse()
 
     expect(setUrl).not.toHaveBeenCalled()
-    expect(view.alertText()).toBe("error-parsing-failed")
+    expect(view.errorText()).toBe("error-parsing-failed")
   })
 
   it("rejects a url better handled by the embed block, without calling setUrl", async () => {
@@ -97,6 +100,6 @@ describe("IFramePlaceHolder", () => {
     await view.parse()
 
     expect(setUrl).not.toHaveBeenCalled()
-    expect(view.alertText()).toBe("error-use-embed-block-instead")
+    expect(view.errorText()).toBe("error-use-embed-block-instead")
   })
 })

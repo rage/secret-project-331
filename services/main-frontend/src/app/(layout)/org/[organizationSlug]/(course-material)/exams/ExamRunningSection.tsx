@@ -1,18 +1,21 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
-import React from "react"
+import { addMilliseconds, addMinutes, differenceInSeconds, min, parseISO } from "date-fns"
+import React, { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
 import Page from "@/components/course-material/Page"
 import type { ExamData } from "@/generated/course-material-api/types.generated"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { focusProgrammatically } from "@/shared-module/components"
 
 import CenteredClockSkewWarning from "./CenteredClockSkewWarning"
-import ExamInfoHeader from "./ExamInfoHeader"
+import ExamInfoHeader, { EXAM_HEADING_ID } from "./ExamInfoHeader"
 import ExamTimer from "./ExamTimer"
+import { useClockSkewState } from "./useClockSkew"
+import useExamStatusAnnouncer from "./useExamStatusAnnouncer"
 
 export interface ExamRunningSectionProps {
   examData: ExamData
@@ -22,6 +25,8 @@ export interface ExamRunningSectionProps {
   renderFooterActions?: () => React.ReactNode
   renderAfterPage?: () => React.ReactNode
   showEndedInfo?: boolean
+  /** True for the first render after the student started the exam. */
+  justStarted?: boolean
 }
 
 /** Enrolled-and-started view: clock skew, timer, time-over modal, running-out banner, Page, and optional footer/after slots. */
@@ -33,18 +38,35 @@ export default function ExamRunningSection({
   renderFooterActions,
   renderAfterPage,
   showEndedInfo = false,
+  justStarted = false,
 }: ExamRunningSectionProps) {
   const { t } = useTranslation()
+  const { estimate: skew, settled: skewSettled } = useClockSkewState()
 
-  if (examData.enrollment_data.tag !== "EnrolledAndStarted") {
+  useEffect(() => {
+    const heading = justStarted && document.querySelector<HTMLElement>(`#${EXAM_HEADING_ID}`)
+    if (heading) {
+      focusProgrammatically(heading)
+    }
+  }, [justStarted])
+
+  const enrollment =
+    examData.enrollment_data.tag === "EnrolledAndStarted"
+      ? examData.enrollment_data.enrollment
+      : null
+  const startedAt = enrollment ? parseISO(enrollment.started_at) : null
+  const endsAt =
+    startedAt &&
+    (examData.ends_at
+      ? min([addMinutes(startedAt, examData.time_minutes), parseISO(examData.ends_at)])
+      : addMinutes(startedAt, examData.time_minutes))
+  const secondsLeft =
+    endsAt && differenceInSeconds(endsAt, addMilliseconds(now, skew?.finalOffsetMs ?? 0))
+  useExamStatusAnnouncer(secondsLeft, justStarted)
+
+  if (startedAt === null || endsAt === null || secondsLeft === null) {
     return null
   }
-  const { enrollment } = examData.enrollment_data
-  const startedAt = parseISO(enrollment.started_at)
-  const endsAt = examData.ends_at
-    ? min([addMinutes(startedAt, examData.time_minutes), parseISO(examData.ends_at)])
-    : addMinutes(startedAt, examData.time_minutes)
-  const secondsLeft = differenceInSeconds(endsAt, now)
 
   const warningMessageClass = css`
     background: linear-gradient(
@@ -81,7 +103,11 @@ export default function ExamRunningSection({
   return (
     <>
       <CenteredClockSkewWarning />
-      <ExamTimeOverModal disabled={examData.ended} secondsLeft={secondsLeft} onClose={onRefresh} />
+      <ExamTimeOverModal
+        disabled={examData.ended || !skewSettled}
+        secondsLeft={secondsLeft}
+        onClose={onRefresh}
+      />
       <ExamInfoHeader examData={examData} />
       <ExamTimer startedAt={startedAt} endsAt={endsAt} secondsLeft={secondsLeft} />
       {secondsLeft < 10 * 60 && secondsLeft >= 0 && (

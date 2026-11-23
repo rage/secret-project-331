@@ -1,6 +1,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React, { useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
@@ -106,6 +106,7 @@ const MultipleChoiceLayoutChoiceContainer = styled.div`
 
 const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId }) => {
   const { t } = useTranslation()
+  const layoutTitleId = useId()
 
   const [optionTitle, setOptionTitle] = useState("")
   const [correct, setCorrect] = useState(false)
@@ -237,9 +238,9 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         <details>
           <summary> {t("advanced-options")} </summary>
           <AdvancedOptionsContainer>
-            <OptionTitle> {t("layout-options")} </OptionTitle>
+            <OptionTitle id={layoutTitleId}> {t("layout-options")} </OptionTitle>
             <OptionDescription>{t("layout-options-description")}</OptionDescription>
-            <MultipleChoiceLayoutChoiceContainer role="radiogroup">
+            <MultipleChoiceLayoutChoiceContainer role="radiogroup" aria-labelledby={layoutTitleId}>
               <RadioButton
                 onChange={() => {
                   updateState((draft) => {

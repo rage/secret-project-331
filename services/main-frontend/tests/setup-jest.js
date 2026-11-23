@@ -58,7 +58,7 @@ jest.mock("next/dynamic", () => ({
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key) => key,
-    i18n: { changeLanguage: () => Promise.resolve() },
+    i18n: { language: "en", changeLanguage: () => Promise.resolve() },
   }),
   Translation: ({ children }) => children((key) => key),
   // Renders the key, as `t` does, so a component that mixes running text with links can be tested.

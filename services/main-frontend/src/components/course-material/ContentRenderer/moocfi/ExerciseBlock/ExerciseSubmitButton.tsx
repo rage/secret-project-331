@@ -1,15 +1,24 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { announce } from "@react-aria/live-announcer"
 import React, { useEffect, useId, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
+
+/** An already-localized reason the exercise cannot be submitted yet. */
+export interface SubmissionBlocker {
+  message: string
+  /** Scrolls to and focuses what causes the blocker; makes the message a button. */
+  show?: () => void
+}
 
 export interface ExerciseSubmitButtonProps {
   isPending: boolean
-  /** Already-localized reasons the exercise cannot be submitted yet; empty means submittable. */
-  blockers: string[]
+  /** Empty means submittable. A blocked submit shows the first blocker that has `show`. */
+  blockers: SubmissionBlocker[]
   onSubmit: () => void
   buttonClassName?: string
 }
@@ -29,12 +38,28 @@ const blockerListStyles = css`
     margin: 0;
     padding: 0;
   }
+
+  button {
+    all: unset;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:focus-visible {
+      outline: 2px solid currentColor;
+      outline-offset: 2px;
+    }
+  }
 `
 
 const blockerListEmphasizedStyles = css`
   color: ${baseTheme.colors.red[700]};
   font-weight: 500;
 `
+
+const showBlocker = (blocker: SubmissionBlocker, message: string) => {
+  blocker.show?.()
+  announceAfterFocus(message)
+}
 
 // Uses aria-disabled instead of disabled so the button stays focusable for screen readers, and shows
 // the reasons it is disabled right next to it so the student understands why it is greyed out.
@@ -63,12 +88,19 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
       {hasBlockers && (
         <div
           id={hintId}
-          role="status"
           className={cx(blockerListStyles, emphasizeReasons && blockerListEmphasizedStyles)}
         >
           <ul>
-            {blockers.map((reason) => (
-              <li key={reason}>{reason}</li>
+            {blockers.map((blocker) => (
+              <li key={blocker.message}>
+                {blocker.show ? (
+                  <button type="button" onClick={() => showBlocker(blocker, blocker.message)}>
+                    {blocker.message}
+                  </button>
+                ) : (
+                  blocker.message
+                )}
+              </li>
             ))}
           </ul>
         </div>
@@ -81,6 +113,15 @@ const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
           if (blocked) {
             if (hasBlockers) {
               setEmphasizeReasons(true)
+              // Spoken only after a blocked Submit; the visible list changes silently while answering.
+              const message = blockers.map((blocker) => blocker.message).join(" ")
+              const showableBlocker = blockers.find((blocker) => blocker.show)
+              if (showableBlocker) {
+                showBlocker(showableBlocker, message)
+              } else {
+                // oxlint-disable-next-line i18next/no-literal-string -- ARIA politeness level, not user copy
+                announce(message, "polite")
+              }
             }
             return
           }

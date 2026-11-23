@@ -5,6 +5,8 @@ require 'securerandom'
 require 'rest-client'
 require 'dotenv/load'
 require 'pathname'
+require 'fileutils'
+require 'optparse'
 require 'kramdown'
 
 class MaterialMigrator
@@ -19,18 +21,70 @@ class MaterialMigrator
   # default them to this moderate width instead (a teacher can adjust per image after migration).
   DEFAULT_SVG_WIDTH = '250'
 
-  def initialize(directory)
+  # Programming exercises get an empty quiz until their TMC tasks exist: production runs no
+  # example-exercise service, and TMC refuses to save a task without a spec.
+  PLACEHOLDER_EXERCISE_TYPE = 'quizzes'
+  PLACEHOLDER_PRIVATE_SPEC = {
+    'version' => '5',
+    'awardPointsEvenIfWrong' => false,
+    'grantPointsPolicy' => 'grant_whenever_possible',
+    'items' => [],
+    'title' => nil,
+    'body' => nil,
+    'quizItemDisplayDirection' => 'vertical',
+    'feedbackMessages' => [],
+  }.freeze
+
+  PROGRAMMING_EXERCISE_TAGS = %w[programming-exercise in-browser-programming-exercise].freeze
+
+  # Old overview components; nil means the platform has no equivalent block.
+  OVERVIEW_BLOCKS = {
+    'pages-in-this-section' => 'moocfi/pages-in-chapter',
+    'exercises-in-this-section' => 'moocfi/exercises-in-chapter',
+    'exercises-in-all-sections' => nil,
+    'table-of-contents' => nil,
+  }.freeze
+
+  # Fence info strings mapped to the code block's highlight.js ids; unmapped ones auto-detect.
+  CODE_LANGUAGES = {
+    'python' => 'python', 'python3' => 'python', 'sh' => 'bash', 'bash' => 'bash', 'json' => 'json',
+    'csv' => 'plaintext', 'txt' => 'plaintext', 'x' => 'plaintext',
+  }.freeze
+
+  # A markdown backslash escape; the quoted punctuation is literal text. & < > are HTML-escaped first.
+  MARKDOWN_ESCAPE = /\\([\\`*_{}\[\]()#+\-.!^|~"'])/
+
+  LIST_ITEM = /\A(?:[-*+]|(?<number>\d+)\.)\s+/
+
+  # The alignment row under a pipe table's header, with or without outer pipes.
+  PIPE_TABLE_SEPARATOR = /\A\|?\s*:?-+:?\s*(?:\|\s*:?-+:?\s*)+\|?\z/
+
+  # options:
+  #   output_dir: where pages/<relative path>.json and placeholder-exercises.json are written.
+  #   chapter_folder_prefixes: folder names "<prefix>-<n>" that are chapters.
+  #   chapters: Range of source chapter numbers to migrate; nil migrates all.
+  #   first_chapter_number: new number of chapters.first; nil keeps the numbers.
+  #   top_level_pages: material-relative paths of non-chapter pages to migrate; nil migrates all.
+  #   course_url / other_course_url: bases for site-absolute links, the latter for chapters outside `chapters`.
+  #   old_site_urls: absolute URLs of the old site whose links are treated as site-absolute.
+  def initialize(directory, options)
     unless File.directory?(directory)
       raise ArgumentError, "#{directory} is not a directory."
     end
 
+    @options = options
     @directory = directory.end_with?('/') ? directory : "#{directory}/"
-    @files = Dir.glob("#{@directory}**/*").sort
+    validate_top_level_pages
+    @files = Dir.glob("#{@directory}**/*").sort.select { |file| !file.end_with?('.md') || migrated_page?(file) }
+    @top_level_paths = collect_top_level_paths
+    @chapter_page_routes = collect_chapter_page_routes
+    @placeholder_exercises = []
     @inside_frontmatter = false
     @current_tag_type = ''
     @tag_depth = 0
     @known_tags = [
-      'styled-text', 'text-box', 'div', 'quiz', 'img', 'iframe', 'span',
+      'styled-text', 'text-box', 'notice', 'div', 'quiz', 'img', 'iframe', 'span',
+      *PROGRAMMING_EXERCISE_TAGS,
       # Custom course components
       'sub-heading', 'caption-text', 'floating-image', 'detail-tag', 'quote',
       'chart', 'area-chart', 'bar-chart', 'chart-switcher',
@@ -69,7 +123,81 @@ class MaterialMigrator
       process_file(file)
     end
 
+    write_placeholder_exercise_list
     report_warnings
+  end
+
+  def relative_path(file)
+    Pathname.new(file).relative_path_from(Pathname.new(@directory)).to_s
+  end
+
+  def chapter_folder_regex
+    @chapter_folder_regex ||= begin
+      prefixes = @options[:chapter_folder_prefixes].map { |prefix| Regexp.escape(prefix) }.join('|')
+      /\A(#{prefixes})-(\d+)\z/
+    end
+  end
+
+  def chapter_selected?(source_number)
+    @options[:chapters].nil? || @options[:chapters].cover?(source_number)
+  end
+
+  def target_chapter_number(source_number)
+    return source_number unless @options[:first_chapter_number]
+
+    source_number - @options[:chapters].first + @options[:first_chapter_number]
+  end
+
+  # The chapter a material-relative path lies in, as { source:, target:, slug: }, or nil outside chapters.
+  def chapter_location(relative)
+    relative.split('/')[0..-2].reverse_each do |dir|
+      match = dir.match(chapter_folder_regex)
+      next unless match
+
+      source = match[2].to_i
+      target = target_chapter_number(source)
+      return { source: source, target: target, slug: "#{match[1]}-#{target}" }
+    end
+    nil
+  end
+
+  def migrated_page?(file)
+    relative = relative_path(file)
+    chapter = chapter_location(relative)
+    return chapter_selected?(chapter[:source]) if chapter
+
+    @options[:top_level_pages].nil? || @options[:top_level_pages].include?(relative)
+  end
+
+  def validate_top_level_pages
+    missing = Array(@options[:top_level_pages]).reject { |page| File.file?(File.join(@directory, page)) }
+    raise ArgumentError, "--top-level-pages not found in #{@directory}: #{missing.join(', ')}" unless missing.empty?
+  end
+
+  # Frontmatter paths of the migrated pages outside chapters, for telling which links still resolve.
+  def collect_top_level_paths
+    @files.select { |file| file.end_with?('.md') && chapter_location(relative_path(file)).nil? }.filter_map do |file|
+      File.read(file)[/^path:\s*["']?([^"'\n]+)["']?\s*$/, 1]&.strip
+    end
+  end
+
+  # Old site paths of all chapter pages (also chapters not migrated in this run), mapped to the
+  # page's path segments after the chapter; an old path can differ from the file name.
+  def collect_chapter_page_routes
+    Dir.glob("#{@directory}**/*.md").each_with_object({}) do |file, routes|
+      next unless chapter_location(relative_path(file))
+
+      old_path = File.read(file)[/^path:\s*["']?([^"'\n]+)["']?\s*$/, 1]&.strip&.chomp('/')
+      basename = File.basename(file, '.md')
+      routes[old_path] = basename == 'index' ? [] : [basename] if old_path
+    end
+  end
+
+  def write_placeholder_exercise_list
+    File.write(
+      File.join(@options[:output_dir], 'placeholder-exercises.json'),
+      JSON.pretty_generate(@placeholder_exercises)
+    )
   end
 
   def record_warning(message)
@@ -99,6 +227,9 @@ class MaterialMigrator
     @page_title = nil
     @page_path = nil
     @is_section_index_page = section_index_page?(file)
+    @current_chapter = chapter_location(relative_path(file))
+    @page_placeholder_exercises = []
+    @open_paragraph = nil
 
     json_block = create_new_block
 
@@ -106,11 +237,12 @@ class MaterialMigrator
     # tag followed by trailing content (handled below) can re-queue that content.
     lines = content.split("\n")
     until lines.empty?
-      line = lines.shift
-      line = line.strip
+      raw_line = lines.shift
+      line = raw_line.strip
+      @open_paragraph = nil if line.empty?
       if line.empty? && @tag_depth > 0
         # Blank lines inside a <floating-image> are separators; keep them out of the leftover json_block.
-        append_to_last_block_content(json_block, "\n") unless @floating_image
+        start_container_paragraph(json_block) unless @floating_image
         next
       end
 
@@ -128,6 +260,83 @@ class MaterialMigrator
 
       if @inside_frontmatter
         process_frontmatter_line(line, json_block)
+        next
+      end
+
+      if line.start_with?('<!--') && !line.include?('-->')
+        take_verbatim_lines(lines) { |closing| closing.include?('-->') }
+        next
+      end
+
+      if line.start_with?('```')
+        body = take_verbatim_lines(lines) { |closing| closing.start_with?('```') }
+        # Strip the fence's indentation only where the code lines share it; an indented fence
+        # around unindented code must not cost the code a space.
+        shared = body.reject { |l| l.strip.empty? }.map { |l| l[/\A */].length }.min || 0
+        indent = [raw_line[/\A */].length, shared].min
+        body = body.map { |body_line| body_line.sub(/\A {0,#{indent}}/, '') }
+        place_block(build_code_block(body, line.sub(/\A`+/, '').strip), json_block, json_content)
+        next
+      end
+
+      if (sample = line.match(%r{\A<(sample-output|sample-data)(?:\s[^>]*)?>(.*?)(</\1>)?\z}i))
+        body = if sample[3]
+          [sample[2]]
+        else
+          [sample[2], *take_sample_lines(lines, sample[1])]
+        end
+        place_block(build_preformatted_block(body), json_block, json_content)
+        next
+      end
+
+      if line.start_with?('<pre>', '<pre ')
+        first = line.sub(/\A<pre[^>]*>/, '')
+        body = if first.include?('</pre>')
+          [first.sub(%r{</pre>.*\z}, '')]
+        else
+          rest = take_verbatim_lines(lines) { |closing| closing.include?('</pre>') }
+          [first, *rest]
+        end
+        place_block(build_preformatted_block(body), json_block, json_content)
+        next
+      end
+
+      if line.start_with?('|') || (line.include?('|') && lines.first&.strip&.match?(PIPE_TABLE_SEPARATOR))
+        rows = [line]
+        rows << lines.shift.strip while lines.first&.include?('|') && !lines.first.strip.empty?
+        place_block(build_table_block(rows), json_block, json_content)
+        next
+      end
+
+      if (heading = line.match(%r{\A<span class=["']h([1-6])["']>(.*)</span>\z}))
+        handle_header("#{'#' * heading[1].to_i} #{heading[2]}", json_block, json_content)
+        next
+      end
+
+      if line.match?(/\A<table[\s>]/)
+        html = line.include?('</table>') ? line : [line, *take_verbatim_lines(lines) { |closing| closing.include?('</table>') }, '</table>'].join("\n")
+        place_block(build_html_table_block(html), json_block, json_content)
+        next
+      end
+
+      if (overview = line.match(%r{\A<([a-z-]+)\s*(?:/>|></\1>)\z})) && OVERVIEW_BLOCKS.key?(overview[1])
+        if (block_name = OVERVIEW_BLOCKS[overview[1]])
+          overview_block = create_new_block
+          overview_block[:name] = block_name
+          json_content << overview_block
+        else
+          record_warning("dropped <#{overview[1]}>: the platform has no equivalent block")
+        end
+        next
+      end
+
+      if (notice = line.match(%r{\A<notice>(.+)</notice>\z}))
+        lines.unshift('<notice>', notice[1], '</notice>')
+        next
+      end
+
+      if line.match?(LIST_ITEM)
+        add_list_item(raw_line, @tag_depth > 0 ? json_block[:innerBlocks] : json_content)
         next
       end
 
@@ -168,15 +377,7 @@ class MaterialMigrator
             else
               width = extract_image_width(img_attrs)
               image_block = build_image_block(img_attrs[:src], img_attrs[:alt], width)
-              if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
-                json_content << json_block
-                json_content << image_block
-                json_content << create_new_block
-              elsif @tag_depth > 0
-                json_block[:innerBlocks] << image_block
-              else
-                json_content << image_block
-              end
+              place_image_block(image_block, json_block, json_content, @tag_depth)
             end
           else
             record_warning("skipping unhandled self-closing tag: #{line}")
@@ -202,11 +403,17 @@ class MaterialMigrator
             @current_tag_type = 'floating-image'
             next
           end
+          close_name = line[%r{</([a-zA-Z0-9_-]+)}, 1]
+          # Unknown opening tags are dropped without opening anything, so their closing tags must not close the enclosing container.
+          unless @known_tags.include?(close_name)
+            record_warning("ignored closing tag </#{close_name}> of an unknown tag")
+            next
+          end
           if @known_tags.include?(@current_tag_type)
             if @tag_depth > 0
               @tag_depth = @tag_depth - 1
               if @tag_depth == 0 && @current_tag_type != 'styled-text'
-                json_content << json_block
+                finish_container(json_block, json_content)
                 json_block = create_new_block
               elsif @tag_depth == 0 && @current_tag_type == 'styled-text'
                 json_block = create_new_block
@@ -294,34 +501,26 @@ class MaterialMigrator
           next
         end
         if line.start_with?('#')
-          json_block = handle_header(line, json_block, json_content)
+          fresh_block = handle_header(line, json_block, json_content)
+          # Only styled-text moves its headings to the top level; other containers keep theirs
+          # inside and must stay the open block, or they are lost when they close.
+          json_block = fresh_block if @current_tag_type == 'styled-text'
           next
         end
-        if line.match?(/^\s*\d+\.\s+/)
-          handle_numbered_list_item(line, json_block)
-          next
-        end
-        line = convert_inline_markdown(line)
-        append_to_last_block_content(json_block, line + "\n")
+        append_text_to_container(json_block, convert_inline_markdown(line))
+        next
       end
 
-      unless line.empty? || @tag_depth > 0
-        if line.start_with?('#')
-          handle_header(line, json_block, json_content)
-        elsif line.match?(/^\s*\d+\.\s+/)
-          handle_numbered_list_item(line, json_content.last || json_block)
-        else
-          json_content << {
-            'clientId': SecureRandom.uuid,
-            'isValid': true,
-            'name': 'core/paragraph',
-            'attributes': {
-              'content': convert_inline_markdown(line),
-              'dropCap': false,
-            },
-            'innerBlocks': [],
-          }
-        end
+      next if line.empty?
+
+      if line.start_with?('#')
+        handle_header(line, json_block, json_content)
+      elsif @open_paragraph && json_content.last.equal?(@open_paragraph)
+        # A hard-wrapped markdown paragraph continues on this line.
+        @open_paragraph[:attributes][:content] += " #{convert_inline_markdown(line)}"
+      else
+        @open_paragraph = build_paragraph(convert_inline_markdown(line))
+        json_content << @open_paragraph
       end
     end
 
@@ -333,8 +532,17 @@ class MaterialMigrator
 
     json_content = flatten_transparent_wrappers(json_content)
     normalize_copy_text_blocks(json_content)
+    remove_empty_paragraphs(json_content)
+    rewrite_internal_links(json_content)
+    @normalized_exercise_tasks.each do |task|
+      remove_empty_paragraphs(task[:assignment])
+      rewrite_internal_links(task[:assignment])
+    end
 
     metadata = build_page_metadata(file, json_content)
+    @page_placeholder_exercises.each do |exercise|
+      @placeholder_exercises << exercise.merge(page: metadata[:source_path], url_path: metadata[:url_path])
+    end
     wrapped_content = {
       'content': json_content,
       'exercises': @normalized_exercises,
@@ -350,10 +558,9 @@ class MaterialMigrator
       'home_page': @home_page && metadata[:url_path] == "/",
     }
 
-    output_file = File.join(File.dirname(file), "#{File.basename(file, File.extname(file))}.json")
-    File.open(output_file, 'w') do |f|
-      f.write(JSON.pretty_generate(wrapped_content))
-    end
+    output_file = File.join(@options[:output_dir], 'pages', metadata[:source_path].sub(/\.md\z/, '.json'))
+    FileUtils.mkdir_p(File.dirname(output_file))
+    File.write(output_file, JSON.pretty_generate(wrapped_content))
   end
 
   def add_if_present(hash, key, value)
@@ -364,16 +571,12 @@ class MaterialMigrator
   end
 
   def build_page_metadata(file, json_content)
-    relative_path = Pathname.new(file).relative_path_from(Pathname.new(@directory)).to_s
-    path_parts = relative_path.split('/')
+    relative_path = relative_path(file)
     page_slug = File.basename(file, File.extname(file))
     language_code = File.basename(@directory.chomp('/'))
 
-    chapter_slug = path_parts.reverse.find { |part| part.match?(/^(chapter|part)-\d+$/) }
-
-    chapter_number = if chapter_slug
-      chapter_slug.match(/^(?:chapter|part)-(\d+)$/)&.captures&.first&.to_i
-    end
+    chapter_slug = @current_chapter&.fetch(:slug)
+    chapter_number = @current_chapter&.fetch(:target)
     chapter_title = chapter_number ? "Chapter #{chapter_number}" : nil
 
     title = extract_title_from_blocks(json_content) || page_slug.tr('-', ' ').split.map(&:capitalize).join(' ')
@@ -383,6 +586,8 @@ class MaterialMigrator
       "/"
     elsif chapter_slug
       "/#{chapter_slug}/#{page_slug}"
+    elsif @page_path && !@page_path.empty?
+      @page_path
     else
       "/#{language_code}/#{page_slug}"
     end
@@ -450,7 +655,7 @@ class MaterialMigrator
     if @is_section_index_page
       case key
       when 'title'
-        json_block[:attributes][:title] ||= normalize_title(value)
+        json_block[:attributes][:title] ||= renumber_chapter_title(normalize_title(value))
       when 'topic'
         json_block[:attributes][:title] = normalize_title(value)
       when 'subTitle', 'subtitle'
@@ -480,11 +685,21 @@ class MaterialMigrator
       @home_page = value.to_s.strip == 'true'
     when 'path'
       @page_path = value.to_s.strip.gsub(/^["']|["']$/, '')
+      # Gatsby course sites mark their front page with path "/" instead of home_page.
+      @home_page = true if @page_path == '/'
     end
   end
 
   def section_index_page?(file)
-    file.match?(%r{/(?:chapter|part)-\d+/index\.md\z})
+    File.basename(file) == 'index.md' &&
+      File.basename(File.dirname(file)).match?(chapter_folder_regex)
+  end
+
+  # "Osa 8" -> "Osa 1" when chapters are renumbered.
+  def renumber_chapter_title(title)
+    return title unless @current_chapter && @current_chapter[:source] != @current_chapter[:target]
+
+    title.sub(/(?<!\d)#{@current_chapter[:source]}\z/, @current_chapter[:target].to_s)
   end
 
   def handle_block(tag_type, line, json_block, file, json_content)
@@ -495,6 +710,7 @@ class MaterialMigrator
       'homepage-grid', 'course-grid', 'hero-section', 'introduction', 'core-team', 'faq',
       'teaser-card',
       'summary', 'ul', 'ol', 'li', 'p', 'th', 'td',
+      *PROGRAMMING_EXERCISE_TAGS,
     ]
     if line.start_with?("<#{tag_type}") && line.end_with?("</#{tag_type}>") && !accepted_oneliners.include?(tag_type)
       record_warning("skipping unhandled one-liner tag <#{tag_type}>: #{line}")
@@ -505,8 +721,10 @@ class MaterialMigrator
     result = case tag_type
     when 'styled-text'
       handle_paragraph(json_block, json_content)
-    when 'text-box'
+    when 'text-box', 'notice'
       handle_text_box(line, json_block)
+    when *PROGRAMMING_EXERCISE_TAGS
+      handle_programming_exercise(tag_type, line, json_content)
     when 'floating-image'
       handle_floating_image(line)
     when 'div', 'detail-tag', 'topic-hero', 'topic-content', 'details',
@@ -577,7 +795,13 @@ class MaterialMigrator
   def handle_text_box(line, json_block)
     json_block[:name] = 'moocfi/aside'
     json_block[:attributes] = { backgroundColor: '#ebf5fb', separatorColor: '#007acc' }
-    title = extract_quoted_attribute(line, 'title')
+    # The learning objectives block brings its own heading, so the box name is not repeated.
+    if extract_quoted_attribute(line, 'variant') == 'learningObjectives'
+      json_block[:migration_kind] = :learning_objectives
+      json_block[:innerBlocks] << build_paragraph('')
+      return
+    end
+    title = extract_quoted_attribute(line, 'title') || extract_quoted_attribute(line, 'name')
     if title && !title.empty?
       json_block[:innerBlocks] << {
         'clientId': SecureRandom.uuid,
@@ -671,6 +895,8 @@ class MaterialMigrator
     # that the old renderer overrode, so honouring it would shrink images that filled the float.
     width = @floating_image[:size].to_s
     image_block = build_image_block(src, alt, width)
+    return if image_block.nil?
+
     image_block[:attributes][:align] = 'left'
     @floating_image[:image] = image_block
   end
@@ -708,27 +934,334 @@ class MaterialMigrator
     end
   end
 
-  def handle_numbered_list_item(line, json_block)
-    content = convert_inline_markdown(line.sub(/^\s*\d+\.\s+/, '').strip)
-    list_item = {
+  # Adds a markdown list item to the list ending `siblings`, starting a new list when there is none
+  # of the same kind. An item indented by two or more spaces nests under the previous item.
+  def add_list_item(raw_line, siblings)
+    line = raw_line.strip
+    marker = line.match(LIST_ITEM)
+    ordered = !marker[:number].nil?
+    item = build_list_item(line[marker[0].length..])
+    list = siblings.last if siblings.last && siblings.last[:name] == 'core/list'
+    parent_item = list && list[:innerBlocks].last
+
+    if raw_line[/\A */].length >= 2 && parent_item
+      sublist = parent_item[:innerBlocks].last
+      unless sublist && sublist[:attributes][:ordered] == ordered
+        sublist = build_list_block(ordered)
+        parent_item[:innerBlocks] << sublist
+      end
+      sublist[:innerBlocks] << item
+    elsif list && list[:attributes][:ordered] == ordered
+      list[:innerBlocks] << item
+    else
+      siblings << build_list_block(ordered, [item])
+    end
+  end
+
+  def build_paragraph(content)
+    {
       'clientId': SecureRandom.uuid,
       'isValid': true,
-      'name': 'core/list-item',
-      'attributes': { 'content': content },
+      'name': 'core/paragraph',
+      'attributes': { 'content': content, 'dropCap': false },
       'innerBlocks': [],
     }
+  end
+
+  # Text inside a container goes to its open paragraph; after a list, code or other
+  # non-paragraph block it starts a new one instead of being appended into that block.
+  def append_text_to_container(json_block, html)
     last = json_block[:innerBlocks].last
-    if last && last[:name] == 'core/list' && last[:attributes][:ordered]
-      last[:innerBlocks] << list_item
+    if last.nil? || last[:name] == 'core/paragraph'
+      append_to_last_block_content(json_block, html + "\n")
     else
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'core/list',
-        'attributes': { 'ordered': true, 'values': '' },
-        'innerBlocks': [list_item],
-      }
+      json_block[:innerBlocks] << build_paragraph(html + "\n")
     end
+  end
+
+  # A blank line inside a container ends its paragraph.
+  def start_container_paragraph(json_block)
+    last = json_block[:innerBlocks].last
+    if last.nil? || (last[:name] == 'core/paragraph' && !last[:innerBlocks].empty?)
+      append_to_last_block_content(json_block, "\n")
+    elsif last[:name] == 'core/paragraph'
+      json_block[:innerBlocks] << build_paragraph('') unless last[:attributes][:content].to_s.strip.empty?
+    end
+  end
+
+  # Drops the empty paragraphs the line-by-line parsing leaves behind and trims paragraph text.
+  def remove_empty_paragraphs(blocks)
+    blocks.reject! { |block| empty_paragraph?(block) }
+    blocks.each do |block|
+      block[:attributes][:content] = block[:attributes][:content].strip if block[:name] == 'core/paragraph' && block[:attributes][:content].is_a?(String)
+      remove_empty_paragraphs(block[:innerBlocks]) if block[:innerBlocks]
+    end
+    blocks
+  end
+
+  # Places a standalone block (code, preformatted, table) in the open container, or at the top level.
+  def place_block(block, json_block, json_content)
+    if @tag_depth > 0
+      json_block[:innerBlocks] << block
+      json_block[:innerBlocks] << build_paragraph('')
+    else
+      json_content << block
+    end
+  end
+
+  # Consumes the raw lines up to and including the first one whose stripped text satisfies the
+  # block, returning the lines before it.
+  def take_verbatim_lines(lines)
+    body = []
+    until lines.empty?
+      raw = lines.shift
+      return body if yield(raw.strip)
+
+      body << raw
+    end
+    record_warning('a code or sample block was not closed before the end of the file')
+    body
+  end
+
+  # Like take_verbatim_lines, but an unclosed sample ends where its enclosing container closes,
+  # so it can't swallow the following exercises.
+  def take_sample_lines(lines, tag)
+    body = []
+    until lines.empty?
+      stripped = lines.first.strip
+      return body.tap { lines.shift } if stripped.casecmp?("</#{tag}>")
+
+      if stripped.match?(%r{\A</(?:#{(PROGRAMMING_EXERCISE_TAGS + %w[text-box notice]).join('|')})>\z})
+        record_warning("<#{tag}> was not closed before #{stripped}")
+        return body
+      end
+      body << lines.shift
+    end
+    record_warning("<#{tag}> was not closed before the end of the file")
+    body
+  end
+
+  def escape_html(text)
+    text.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;')
+  end
+
+  def trim_blank_lines(body)
+    body.drop_while { |l| l.strip.empty? }.reverse.drop_while { |l| l.strip.empty? }.reverse
+  end
+
+  def build_code_block(body, info_string)
+    block = create_new_block
+    block[:name] = 'core/code'
+    block[:attributes] = { 'content': escape_html(trim_blank_lines(body).join("\n")) }
+    language = CODE_LANGUAGES[info_string.downcase]
+    block[:attributes][:language] = language if language
+    block
+  end
+
+  # Sample program output, which the old site rendered as markdown: bold marks what the user typed
+  # and backslash escapes give literal characters. It may be wrapped in <pre> and contain entities.
+  def build_preformatted_block(body)
+    body = trim_blank_lines(body.reject { |l| l.strip.match?(%r{\A</?pre>\z}) })
+    text = body.join("\n")
+               .gsub(/&(?![a-zA-Z]+;|#\d+;)/, '&amp;').gsub('<', '&lt;').gsub('>', '&gt;')
+               .gsub(MARKDOWN_ESCAPE) { "\u0000#{Regexp.last_match(1).ord}\u0001" }
+               .gsub(/\*\*([^*\n]+?)\*\*/, '<strong>\1</strong>')
+               .gsub(/\u0000(\d+)\u0001/) { Regexp.last_match(1).to_i.chr(Encoding::UTF_8) }
+    block = create_new_block
+    block[:name] = 'core/preformatted'
+    block[:attributes] = { 'content': text }
+    block
+  end
+
+  # A markdown pipe table; a separator row after the first row makes that row the header.
+  def build_table_block(rows)
+    cells = rows.map { |row| row.sub(/\A\|/, '').sub(/\|\s*\z/, '').split('|').map(&:strip) }
+    has_header = cells[1]&.all? { |cell| cell.match?(/\A:?-+:?\z/) }
+    to_row = ->(row, tag) { { 'cells': row.map { |cell| { 'content': convert_inline_markdown(cell), 'tag': tag } } } }
+    block = create_new_block
+    block[:name] = 'core/table'
+    block[:attributes] = {
+      'hasFixedLayout': false,
+      'head': has_header ? [to_row.call(cells[0], 'th')] : [],
+      'body': (has_header ? cells[2..] : cells).map { |row| to_row.call(row, 'td') },
+      'foot': [],
+    }
+    block
+  end
+
+  # Rows in <thead> become the header; cell markup is kept as inline HTML.
+  def build_html_table_block(html)
+    head_html = html[%r{<thead[^>]*>(.*?)</thead>}m, 1] || ''
+    body_html = html.sub(%r{<thead[^>]*>.*?</thead>}m, '')
+    to_rows = lambda do |section, tag|
+      section.scan(%r{<tr[^>]*>(.*?)</tr>}m).map do |(row)|
+        cells = row.scan(%r{<(t[dh])[^>]*>(.*?)</\1>}m).map do |(_, content)|
+          { 'content': convert_inline_markdown(content.strip), 'tag': tag }
+        end
+        { 'cells': cells }
+      end
+    end
+    block = create_new_block
+    block[:name] = 'core/table'
+    block[:attributes] = {
+      'hasFixedLayout': false,
+      'head': to_rows.call(head_html, 'th'),
+      'body': to_rows.call(body_html, 'td'),
+      'foot': [],
+    }
+    block
+  end
+
+  def handle_programming_exercise(tag_type, line, json_content)
+    record_warning("<#{tag_type}> inside another tag; its placeholder may be misplaced") if @tag_depth > 1
+    container = create_new_block
+    container[:migration_kind] = :programming_exercise
+    container[:migration_exercise] = {
+      name: extract_quoted_attribute(line, 'name'),
+      tmcname: extract_quoted_attribute(line, 'tmcname'),
+      in_browser: tag_type == 'in-browser-programming-exercise',
+    }
+    container[:innerBlocks] << build_paragraph('')
+    return container unless line.end_with?("</#{tag_type}>")
+
+    @tag_depth -= 1
+    finish_container(container, json_content)
+    create_new_block
+  end
+
+  # Adds a closed top-level container to the page, converting the containers that become
+  # something else than themselves.
+  def finish_container(container, json_content)
+    case container.delete(:migration_kind)
+    when :programming_exercise
+      add_placeholder_exercise(container, json_content)
+    when :learning_objectives
+      lists = container[:innerBlocks].select { |block| block[:name] == 'core/list' }
+      if lists.length == 1
+        objectives = create_new_block
+        objectives[:name] = 'moocfi/learning-objectives'
+        objectives[:innerBlocks] = lists
+        json_content << objectives
+      else
+        record_warning("learning objectives with #{lists.length} lists kept as an aside")
+        json_content << container
+      end
+    else
+      json_content << container
+    end
+  end
+
+  def add_placeholder_exercise(container, json_content)
+    info = container.delete(:migration_exercise)
+    assignment = flatten_transparent_wrappers(container[:innerBlocks]).reject { |block| empty_paragraph?(block) }
+    exercise_id = add_exercise(
+      name: info[:name] || 'Programming exercise',
+      score_maximum: 1,
+      limit_number_of_tries: false,
+      assignment: assignment,
+      exercise_type: PLACEHOLDER_EXERCISE_TYPE,
+      private_spec: PLACEHOLDER_PRIVATE_SPEC,
+      json_content: json_content
+    )
+    @page_placeholder_exercises << info.merge(exercise_id: exercise_id)
+  end
+
+  # Adds an exercise block with one slide and one task, returning the exercise id.
+  def add_exercise(name:, score_maximum:, limit_number_of_tries:, assignment:, exercise_type:, private_spec:, json_content:)
+    exercise_id = SecureRandom.uuid
+    exercise_slide_id = SecureRandom.uuid
+
+    json_content << {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'moocfi/exercise',
+      'attributes': { 'id': exercise_id },
+      'innerBlocks': [],
+    }
+    @normalized_exercises << {
+      'id': exercise_id,
+      'name': name,
+      'order_number': @exercise_count,
+      'score_maximum': score_maximum,
+      'max_tries_per_slide': nil,
+      'limit_number_of_tries': limit_number_of_tries,
+      'deadline': nil,
+      'needs_peer_review': false,
+      'needs_self_review': false,
+      'peer_or_self_review_config': nil,
+      'peer_or_self_review_questions': nil,
+      'use_course_default_peer_or_self_review_config': true,
+      'teacher_reviews_answer_after_locking': true,
+    }
+    @normalized_exercise_slides << {
+      'id': exercise_slide_id,
+      'exercise_id': exercise_id,
+      'order_number': 0,
+    }
+    @normalized_exercise_tasks << {
+      'id': SecureRandom.uuid,
+      'exercise_slide_id': exercise_slide_id,
+      'assignment': assignment,
+      'exercise_type': exercise_type,
+      'private_spec': private_spec,
+      'order_number': 0,
+    }
+    @exercise_count += 1
+    exercise_id
+  end
+
+  def rewrite_internal_links(blocks)
+    Array(blocks).each do |block|
+      attributes = block[:attributes] || {}
+      attributes.each do |key, value|
+        next unless value.is_a?(String) && value.include?('href="')
+
+        value = strip_old_site_urls(value)
+        attributes[key] = value.gsub(%r{href="(/[^"]*)"}) { "href=\"#{resolve_internal_link(Regexp.last_match(1))}\"" }
+      end
+      rewrite_internal_links(block[:innerBlocks])
+    end
+  end
+
+  def strip_old_site_urls(html)
+    Array(@options[:old_site_urls]).reduce(html) do |result, url|
+      result.gsub(%r{href="#{Regexp.escape(url)}(/[^"]*)?"}) { "href=\"#{Regexp.last_match(1) || '/'}\"" }
+    end
+  end
+
+  # Turns a site-absolute link of the old site into a link to the new course page.
+  def resolve_internal_link(path)
+    unless @options[:course_url]
+      record_warning("site-absolute link left as it is (no --course-url): #{path}")
+      return path
+    end
+
+    route, anchor = path.split('#', 2)
+    segments = route.split('/').reject(&:empty?)
+    base = @options[:course_url]
+    chapter = segments.first&.match(chapter_folder_regex)
+    if chapter
+      page_route = @chapter_page_routes[route.chomp('/')]
+      if page_route
+        segments = [segments.first, *page_route]
+      else
+        record_warning("link to a page that does not exist in the material: #{path}")
+      end
+      source = chapter[2].to_i
+      if chapter_selected?(source)
+        segments[0] = "#{chapter[1]}-#{target_chapter_number(source)}"
+      elsif @options[:other_course_url]
+        base = @options[:other_course_url]
+        record_warning("link into a later chapter outside --chapters points at the other course without renumbering: #{path}") if source > @options[:chapters].last
+      else
+        record_warning("link into a chapter outside --chapters (no --other-course-url): #{path}")
+      end
+    elsif !@top_level_paths.include?(route)
+      record_warning("link to a page that is not migrated: #{path}")
+    end
+
+    url = "#{base.chomp('/')}/#{segments.join('/')}"
+    anchor ? "#{url}##{anchor}" : url
   end
 
   def build_list_block(ordered, items = [])
@@ -834,83 +1367,26 @@ class MaterialMigrator
       item['direction'] = 'column'
     end
 
-    exercise_id = SecureRandom.uuid
-    exercise_slide_id = SecureRandom.uuid
-    exercise_task_id = SecureRandom.uuid
-
-    json_content << {
-      'clientId': SecureRandom.uuid,
-      'isValid': true,
-      'name': 'moocfi/exercise',
-      'attributes': {
-        'id': exercise_id,
-      },
-      'innerBlocks': [],
-    }
-
-    @normalized_exercises << {
-      'id': exercise_id,
-      'name': parsed_quiz_data['title'],
-      'order_number': @exercise_count,
-      'score_maximum': parsed_quiz_data['points'],
-      'max_tries_per_slide': nil,
-      'limit_number_of_tries': parsed_quiz_data['triesLimited'],
-      'deadline': nil,
-      'needs_peer_review': false,
-      'needs_self_review': false,
-      'peer_or_self_review_config': nil,
-      'peer_or_self_review_questions': nil,
-      'use_course_default_peer_or_self_review_config': true,
-      'teacher_reviews_answer_after_locking': true,
-    }
-    @normalized_exercise_slides << {
-      'id': exercise_slide_id,
-      'exercise_id': exercise_id,
-      'order_number': 0,
-    }
-    @normalized_exercise_tasks << {
-      'id': exercise_task_id,
-      'exercise_slide_id': exercise_slide_id,
-      'assignment': [
-        {
-          'clientId': SecureRandom.uuid,
-          'isValid': true,
-          'name': 'core/paragraph',
-          'attributes': {
-            'content': parsed_quiz_data['body'] || '',
-            'dropCap': false,
-          },
-          'innerBlocks': [],
-        },
-      ],
-      'exercise_type': 'quizzes',
-      'private_spec': parsed_quiz_data,
-      'order_number': 0,
-    }
-
-    @exercise_count += 1
+    add_exercise(
+      name: parsed_quiz_data['title'],
+      score_maximum: parsed_quiz_data['points'],
+      limit_number_of_tries: parsed_quiz_data['triesLimited'],
+      assignment: [build_paragraph(parsed_quiz_data['body'] || '')],
+      exercise_type: 'quizzes',
+      private_spec: parsed_quiz_data,
+      json_content: json_content
+    )
     @tag_depth = @tag_depth - 1 if line.end_with?('</quiz>') || oneliner
   end
 
-  # Places an image relative to the current block: split an open paragraph around it, nest it
-  # inside an open container, or append it at the top level.
-  def place_image_block(image_block, json_block, json_content)
-    if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
-      json_content << json_block
-      json_content << image_block
-      json_content << create_new_block
-    elsif @tag_depth > 0
+  # Nests an image in the open container, or appends it at the top level. `open_containers` must
+  # not count the <img> tag itself: pushing the open container here would emit it once per image.
+  def place_image_block(image_block, json_block, json_content, open_containers)
+    return if image_block.nil?
+
+    if open_containers > 0
       json_block[:innerBlocks] << image_block
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'core/paragraph',
-        'attributes': {
-          'content': '',
-          'dropCap': false,
-        },
-        'innerBlocks': [],
-      }
+      json_block[:innerBlocks] << build_paragraph('')
     else
       json_content << image_block
     end
@@ -948,7 +1424,7 @@ class MaterialMigrator
     src_path = attributes[:src]
     image_block = build_image_block(src_path, attributes[:alt], width)
 
-    place_image_block(image_block, json_block, json_content)
+    place_image_block(image_block, json_block, json_content, @tag_depth - 1)
 
     @tag_depth = @tag_depth - 1
   end
@@ -971,9 +1447,7 @@ class MaterialMigrator
 
     image_block = build_image_block(src_path, alt_text, '')
 
-    place_image_block(image_block, json_block, json_content)
-
-    @tag_depth = @tag_depth - 1 if @tag_depth > 0
+    place_image_block(image_block, json_block, json_content, @tag_depth)
   end
 
   def fetch_quiz_details_by_id(id)
@@ -1030,7 +1504,13 @@ class MaterialMigrator
     width
   end
 
+  # nil when the image file is missing from the material.
   def build_image_block(src_path, alt_text, width)
+    unless File.file?(src_path.to_s)
+      record_warning("image file not found, image left out: #{src_path}")
+      return nil
+    end
+
     uploaded_url = upload_extra_file(src_path)
 
     if (width.nil? || width.to_s.empty?) && src_path.to_s.downcase.end_with?('.svg')
@@ -1581,6 +2061,19 @@ def extract_quoted_attribute(line, key)
   match && match[2].strip
 end
 
+# kramdown's typographic quotes are English ones (wrong for Finnish and Swedish) and it would
+# turn "1...6" into "1…6", so keep the material's own punctuation.
+KRAMDOWN_LITERAL_PUNCTUATION = {
+  smart_quotes: %w[apos apos quot quot],
+  typographic_symbols: { hellip: '...', mdash: '---', ndash: '--', laquo: '<<', raquo: '>>', laquo_space: '<< ', raquo_space: ' >>' },
+}.freeze
+
+# The editor's rich text accepts only <em> and <strong>; a block holding <i> or <b> can't be edited.
+# kramdown has no ~~strikethrough~~, which the old sites used for past exam dates.
+def use_editor_inline_tags(text)
+  text.gsub(%r{<(/?)i>}, '<\\1em>').gsub(%r{<(/?)b>}, '<\\1strong>').gsub(/~~(?=\S)(.+?)(?<=\S)~~/, '<s>\\1</s>')
+end
+
 # Converts inline markdown (links, emphasis, code, ...) to HTML with kramdown, which is robust
 # across courses that use varying markdown styles and mixed inline HTML.
 #
@@ -1591,7 +2084,8 @@ end
 def convert_inline_markdown(text)
   return text if text.nil? || text.empty?
 
-  html = Kramdown::Document.new(text).to_html.strip
+  text = use_editor_inline_tags(text)
+  html = Kramdown::Document.new(text, **KRAMDOWN_LITERAL_PUNCTUATION).to_html.strip
 
   if html.start_with?('<p>') && html.end_with?('</p>') && html.scan('<p>').length == 1
     html = html[3..-5].strip
@@ -1627,11 +2121,40 @@ def append_to_last_block_content(json_block, new_content)
   end
 end
 
-if ARGV.empty?
-  abort 'Usage: ruby migrate-material.rb <path>, where path is the directory where the material is located.'
-end
-
 if __FILE__ == $PROGRAM_NAME
-  directory = ARGV[0]
-  MaterialMigrator.new(directory)
+  options = { chapter_folder_prefixes: %w[chapter part] }
+  parser = OptionParser.new do |opts|
+    opts.banner = 'Usage: ruby migrate-material.rb --output-dir DIR [options] <material_dir>'
+    opts.on('--output-dir DIR', 'Where the converted pages and placeholder-exercises.json are written') do |dir|
+      options[:output_dir] = dir
+    end
+    opts.on('--chapter-folder-prefixes LIST', Array, 'Folder prefixes that mark chapters, e.g. osa,part (default: chapter,part)') do |prefixes|
+      options[:chapter_folder_prefixes] = prefixes
+    end
+    opts.on('--chapters FROM-TO', 'Migrate only these chapters, e.g. 8-14') do |range|
+      match = range.match(/\A(\d+)-(\d+)\z/) or raise OptionParser::InvalidArgument, range
+      options[:chapters] = match[1].to_i..match[2].to_i
+    end
+    opts.on('--first-chapter-number N', Integer, 'Renumber the chapters to start from N (needs --chapters)') do |number|
+      options[:first_chapter_number] = number
+    end
+    opts.on('--top-level-pages LIST', Array, 'Pages outside chapters to migrate, relative to material_dir (default: all)') do |pages|
+      options[:top_level_pages] = pages
+    end
+    opts.on('--course-url URL', 'URL of the new course; site-absolute links are rewritten to point into it') do |url|
+      options[:course_url] = url
+    end
+    opts.on('--other-course-url URL', 'URL of the course that holds the chapters outside --chapters') do |url|
+      options[:other_course_url] = url
+    end
+    opts.on('--old-site-urls LIST', Array, 'URLs of the old site; links under them are rewritten like site-absolute links') do |urls|
+      options[:old_site_urls] = urls.map { |url| url.chomp('/') }
+    end
+  end
+  parser.parse!
+
+  abort parser.help if ARGV.length != 1 || options[:output_dir].nil?
+  abort '--first-chapter-number needs --chapters' if options[:first_chapter_number] && options[:chapters].nil?
+
+  MaterialMigrator.new(ARGV[0], options)
 end

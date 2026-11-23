@@ -33,6 +33,19 @@ describe("<IframeView /> (exercise iframe)", () => {
     expect(postMessageSpy).toHaveBeenCalledWith("ready", "*")
   })
 
+  it("sets the document language on set-language", async () => {
+    render(<IframeView />)
+    const channel = new MessageChannel()
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", { source: window.parent, ports: [channel.port2] }),
+      )
+    })
+    channel.port1.postMessage({ message: "set-language", data: "fi" })
+    await vi.waitFor(() => expect(document.documentElement.lang).toBe("fi"))
+    channel.port1.close()
+  })
+
   it("leaves dialog and upload replies to their own listeners without logging them", async () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {})
     render(<IframeView />)

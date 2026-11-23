@@ -21,6 +21,22 @@ describe("Link", () => {
     expect(link).toHaveAttribute("href", "/settings")
   })
 
+  test("marks button-styled links with their variant", () => {
+    renderUi(
+      <>
+        <Link href="/a">Plain</Link>
+        <Link href="/b" styledAsButton variant="secondary">
+          Button
+        </Link>
+      </>,
+    )
+    expect(screen.getByRole("link", { name: "Plain" })).not.toHaveAttribute("data-button-variant")
+    expect(screen.getByRole("link", { name: "Button" })).toHaveAttribute(
+      "data-button-variant",
+      "secondary",
+    )
+  })
+
   test("styledAsButton renders button-like structure with icon", () => {
     renderUi(
       <Link

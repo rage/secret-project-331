@@ -1,0 +1,67 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO language_version_problem_dismissals (\n    course_language_group_id,\n    problem_key,\n    fingerprint,\n    created_by\n  )\nVALUES ($1, $2, $3, $4)\nON CONFLICT (course_language_group_id, problem_key)\nWHERE deleted_at IS NULL DO\nUPDATE\nSET fingerprint = EXCLUDED.fingerprint,\n  created_by = EXCLUDED.created_by,\n  created_at = now()\nRETURNING problem_key,\n  fingerprint,\n  created_by,\n  created_at\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "problem_key",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "language_version_problem_dismissals",
+            "name": "problem_key"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "fingerprint",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "language_version_problem_dismissals",
+            "name": "fingerprint"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_by",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "language_version_problem_dismissals",
+            "name": "created_by"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "language_version_problem_dismissals",
+            "name": "created_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "60563dd1853dcd555ca83a276a8172031c41ca6f0805ba176de0488e1b30678e"
+}

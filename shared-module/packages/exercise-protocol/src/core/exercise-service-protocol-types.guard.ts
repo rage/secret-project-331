@@ -2,7 +2,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, DownloadFileMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerFileRef, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, DownloadFileMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, FocusFirstInvalidMessage, UserInformation, UserVariablesMap, AnswerFileRef, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
@@ -199,7 +199,8 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
             typeof typedObj["error"] === "string" ||
             isRepositoryExercisesMessage(typedObj) as boolean ||
             isTestResultsMessage(typedObj) as boolean ||
-            isDialogResponseMessage(typedObj) as boolean)
+            isDialogResponseMessage(typedObj) as boolean ||
+            isFocusFirstInvalidMessage(typedObj) as boolean)
     )
 }
 
@@ -314,6 +315,16 @@ export function isDialogResponseMessage(obj: unknown): obj is DialogResponseMess
         typedObj["message"] === "dialog-response" &&
         typeof typedObj["requestId"] === "string" &&
         typeof typedObj["confirmed"] === "boolean"
+    )
+}
+
+export function isFocusFirstInvalidMessage(obj: unknown): obj is FocusFirstInvalidMessage {
+    const typedObj = obj as FocusFirstInvalidMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "focus-first-invalid"
     )
 }
 

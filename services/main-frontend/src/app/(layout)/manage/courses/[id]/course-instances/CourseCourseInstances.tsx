@@ -81,6 +81,23 @@ const buttonGroupStyles = css`
   display: contents;
 `
 
+/** Names the link after its instance too, as every card has the same links. */
+const InstanceLink: React.FC<{ href: string; label: string; name: string }> = ({
+  href,
+  label,
+  name,
+}) => (
+  <Link
+    href={href}
+    styledAsButton
+    variant="secondary"
+    size="medium"
+    aria-label={`${label} (${name})`}
+  >
+    {label}
+  </Link>
+)
+
 const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
@@ -124,57 +141,39 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
                     <h3 className={cardTitleStyles}>{name}</h3>
                     <div className={actionButtonsContainerStyles}>
                       <div className={buttonGroupStyles}>
-                        <Link
+                        <InstanceLink
                           href={viewCourseInstanceCompletionsPageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-view-completions")}
-                        </Link>
-                        <Link
+                          label={t("link-view-completions")}
+                          name={name}
+                        />
+                        <InstanceLink
                           href={viewCourseInstancePointsPageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-view-points")}
-                        </Link>
+                          label={t("link-view-points")}
+                          name={name}
+                        />
                       </div>
 
                       <div className={buttonGroupStyles}>
-                        <Link
+                        <InstanceLink
                           href={manageCourseInstancePageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-manage")}
-                        </Link>
-                        <Link
+                          label={t("link-manage")}
+                          name={name}
+                        />
+                        <InstanceLink
                           href={viewCourseInstanceCertificatesPageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-manage-certificates")}
-                        </Link>
-                        <Link
+                          label={t("link-manage-certificates")}
+                          name={name}
+                        />
+                        <InstanceLink
                           href={manageCourseInstanceEmailsPageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-manage-emails")}
-                        </Link>
-                        <Link
+                          label={t("link-manage-emails")}
+                          name={name}
+                        />
+                        <InstanceLink
                           href={manageCourseInstancePermissionsPageRoute(instance.id)}
-                          styledAsButton
-                          variant="secondary"
-                          size="medium"
-                        >
-                          {t("link-manage-permissions")}
-                        </Link>
+                          label={t("link-manage-permissions")}
+                          name={name}
+                        />
                       </div>
 
                       <div className={buttonGroupStyles}>

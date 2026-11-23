@@ -5,7 +5,13 @@
 
 import * as z from "zod"
 
+/**
+ * What a challenge may be redeemed for.
+ */
+export const zChallengePurpose = z.enum(["signup", "password_reset"])
+
 export const zCreateAccountDetails = z.object({
+  altcha: z.string(),
   country: z.string(),
   email: z.string(),
   email_communication_consent: z.boolean(),
@@ -179,6 +185,9 @@ export const zSendDeleteUserEmailCodeResult = z.union([
         error: "Invalid value: Expected int64 to be <= 9223372036854775807",
       }),
     type: z.enum(["recently_sent"]),
+  }),
+  z.object({
+    type: z.enum(["daily_limit_reached"]),
   }),
   z.object({
     type: z.enum(["incorrect_password"]),
@@ -369,6 +378,10 @@ export const zVerifyEmailRequest = z.object({
   email_verification_token: z.string(),
 })
 
+export const zGetAuthAltchaChallengeQuery = z.object({
+  purpose: zChallengePurpose,
+})
+
 export const zPostAuthAuthorizeBody = zActionOnResource
 
 /**
@@ -382,6 +395,13 @@ export const zPostAuthAuthorizeMultipleBody = z.array(zActionOnResource)
  * Authorization result for each input action, in order
  */
 export const zPostAuthAuthorizeMultipleResponse = z.array(z.boolean())
+
+export const zPostAuthSignupBody = zCreateAccountDetails
+
+/**
+ * Signup outcome
+ */
+export const zPostAuthSignupResponse = zSignupResponse
 
 export const zPostAuthDeleteUserAccountBody = zEmailCode
 
@@ -427,13 +447,6 @@ export const zPostAuthSessionStatusVerifyBody = zSessionVerifyRequest
  * Outcome of submitting the code
  */
 export const zPostAuthSessionStatusVerifyResponse = zSessionVerifyResult
-
-export const zPostAuthSignupBody = zCreateAccountDetails
-
-/**
- * Signup outcome
- */
-export const zPostAuthSignupResponse = zSignupResponse
 
 /**
  * Profile when signed in; null when anonymous

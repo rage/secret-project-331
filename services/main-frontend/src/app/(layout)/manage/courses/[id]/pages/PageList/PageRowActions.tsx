@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { Chapter, Page } from "@/generated/api/types.generated"
 import type { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
 import { assertNotNullOrUndefined, includeIf } from "@/shared-module/common/utils/nullability"
-import { Button, Menu } from "@/shared-module/components"
+import { Link, Menu } from "@/shared-module/components"
 
 import NewOrEditPageForm from "../NewOrEditPageForm"
 import PageAudioWidget from "./PageAudioWidget"
@@ -81,13 +81,18 @@ const PageRowActions: React.FC<PageRowActionsProps> = ({
           white-space: nowrap;
         `}
       >
-        <a href={`/cms/pages/${page.id}`}>
-          <Button variant="secondary" size="small">
-            {t("button-text-edit-page")}
-          </Button>
-        </a>
+        <Link
+          href={`/cms/pages/${page.id}`}
+          isCrossService
+          styledAsButton
+          variant="secondary"
+          size="small"
+          aria-label={t("edit-page-named", { title: page.title })}
+        >
+          {t("button-text-edit-page")}
+        </Link>
         <Menu
-          aria-label={t("dropdown-menu")}
+          aria-label={t("page-actions-for", { title: page.title })}
           items={[
             ...(canEditPageDetails
               ? [

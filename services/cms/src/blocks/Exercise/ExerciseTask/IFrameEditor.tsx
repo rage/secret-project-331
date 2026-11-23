@@ -8,6 +8,7 @@ import PageContext from "@/contexts/PageContext"
 import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
@@ -28,7 +29,8 @@ import CourseContext from "../../../contexts/CourseContext"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."
-const IFRAME_EDITOR = "IFRAME EDITOR"
+const QUIZZES_SLUG = "quizzes"
+const EXAMPLE_EXERCISE_SLUG = "example-exercise"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
@@ -46,10 +48,19 @@ const ExerciseTaskIFrameEditor: React.FC<
   const loginStateContext = useContext(LoginStateContext)
   const userInfo = useUserInfo()
   const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
-  const courseId = useContext(PageContext)?.page.course_id
+  const page = useContext(PageContext)?.page
+  const courseId = page?.course_id
   const courseContext = useContext(CourseContext)
 
   const largeScreen = useMedia(respondToOrLarger.xl)
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url: url ?? "",
+    exerciseServiceSlug,
+    viewType: VIEW_TYPE,
+    courseId,
+    pageId: page?.id,
+    exerciseTaskId,
+  })
 
   const postThisStateToIFrame: ExerciseIframeState = useMemoOne(() => {
     return {
@@ -65,6 +76,13 @@ const ExerciseTaskIFrameEditor: React.FC<
       },
     }
   }, [privateSpec])
+
+  const title =
+    exerciseServiceSlug === QUIZZES_SLUG
+      ? t("quiz-editor")
+      : exerciseServiceSlug === EXAMPLE_EXERCISE_SLUG
+        ? t("example-exercise-editor")
+        : exerciseServiceSlug
 
   if (!url || url.trim() === "") {
     return <ErrorNotice error={t("error-cannot-render-exercise-task-missing-url")} />
@@ -159,7 +177,8 @@ const ExerciseTaskIFrameEditor: React.FC<
           sidebarPosition: "right",
         },
       })}
-      title={IFRAME_EDITOR}
+      title={title}
+      {...failureReportHandlers}
     />
   )
 }

@@ -1,6 +1,6 @@
 /* oxlint-disable playwright/prefer-locator */
 import type { Locator, Page } from "@playwright/test"
-import { test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 import { createCourse } from "@/utils/flows/newCourse.flow"
 import {
@@ -71,23 +71,17 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
     await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")
 
     // The test will add a task later on
-    await page.getByLabel("Delete").click()
+    await page.getByLabel("Delete task").click()
   })
 }
 
 const addNewQuiz = async (page: Page) => {
   await test.step("Add new quiz", async () => {
-    let steps = 0
-    do {
-      steps++
-      await page.getByText("Add task").click()
-      // oxlint-disable-next-line playwright/no-wait-for-timeout
-      await page.waitForTimeout(100)
-      // Sometimes the add task button doesn't respond due to lag
-      // oxlint-disable-next-line playwright/no-conditional-in-test
-    } while ((await page.locator('[aria-label="Edit"]').count()) === 0 && steps < 10)
-
-    await page.locator('[aria-label="Edit"]').nth(0).click()
+    const editTask = page.getByRole("button", { name: "Edit task" })
+    const tasksBefore = await editTask.count()
+    await page.getByRole("button", { name: "Add task" }).click()
+    await expect(editTask).toHaveCount(tasksBefore + 1)
+    await editTask.nth(tasksBefore).click()
     await page.getByText("Quizzes").click()
   })
 }
@@ -347,7 +341,7 @@ const createTimeline = async (frame: Locator) => {
     await frame.getByPlaceholder("Some notable event").click()
     await frame.getByPlaceholder("Some notable event").fill("event 3")
     await frame.getByRole("button", { name: "Add", exact: true }).click()
-    await frame.getByLabel("Delete").nth(1).click()
+    await frame.getByLabel("Delete row").nth(1).click()
   })
 }
 

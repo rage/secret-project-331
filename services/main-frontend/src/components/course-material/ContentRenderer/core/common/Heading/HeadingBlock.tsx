@@ -27,7 +27,7 @@ interface ExtraAttributes {
 
 const HeadingBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<HeadingAttributes & ExtraAttributes>>
-> = ({ data }) => {
+> = ({ data, isExam }) => {
   const { content, level, fontSize, fitText, style, anchor } = data.attributes
   const textAlign = textAlignOf(style, data.attributes.textAlign)
   const headingText = headingTextFromHtml(content)
@@ -68,7 +68,8 @@ const HeadingBlock: React.FC<
       `,
     ),
   }
-  switch (level) {
+  // Exams have their own h1, so authored level-1 headings render as h2 there.
+  switch (isExam && (level === 1 || !level) ? 2 : level) {
     case 1:
       return <h1 {...headingProps} />
     case 2:

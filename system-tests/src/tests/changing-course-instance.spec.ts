@@ -5,6 +5,8 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { openCourseSettingsFromQuickActions } from "@/utils/flows/topbar.flow"
 import { selectOrganization } from "@/utils/organizationUtils"
 
+import { getExerciseTaskFrame } from "../utils/iframeLocators"
+
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -28,11 +30,7 @@ test("Changing course instance preserves completions and points", async ({ page 
   })
 
   await test.step("Complete exercise 1.1 and submit", async () => {
-    await page
-      .locator('iframe[title="Exercise 1, task 1 content"]')
-      .contentFrame()
-      .getByRole("checkbox", { name: "4" })
-      .click()
+    await getExerciseTaskFrame(page, 1).getByRole("checkbox", { name: "4" }).click()
     await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Good job").waitFor()
     await page.getByTestId("exercise-points").click()

@@ -7,6 +7,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 
 import { client } from "../client.generated"
 import {
+  getAuthAltchaChallenge,
   getAuthLoggedIn,
   getAuthSessionStatus,
   getAuthUserInfo,
@@ -23,6 +24,7 @@ import {
   postAuthVerifyEmail,
 } from "../sdk.generated"
 import type {
+  GetAuthAltchaChallengeData,
   GetAuthLoggedInData,
   GetAuthLoggedInResponse,
   GetAuthSessionStatusData,
@@ -49,6 +51,64 @@ import type {
   PostAuthVerifyEmailData,
   PostAuthVerifyEmailResponse,
 } from "../types.generated"
+
+export type QueryKey<TOptions extends Options> = [
+  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
+    _id: string
+    _infinite?: boolean
+    tags?: ReadonlyArray<string>
+  },
+]
+
+const createQueryKey = <TOptions extends Options>(
+  id: string,
+  options?: TOptions,
+  infinite?: boolean,
+  tags?: ReadonlyArray<string>,
+): [QueryKey<TOptions>[0]] => {
+  const params: QueryKey<TOptions>[0] = {
+    _id: id,
+    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
+  } as QueryKey<TOptions>[0]
+  if (infinite) {
+    params._infinite = infinite
+  }
+  if (tags) {
+    params.tags = tags
+  }
+  if (options?.body) {
+    params.body = options.body
+  }
+  if (options?.headers) {
+    params.headers = options.headers
+  }
+  if (options?.path) {
+    params.path = options.path
+  }
+  if (options?.query) {
+    params.query = options.query
+  }
+  return [params]
+}
+
+export const getAuthAltchaChallengeQueryKey = (options: Options<GetAuthAltchaChallengeData>) =>
+  createQueryKey("getAuthAltchaChallenge", options)
+
+/**
+ * GET `/api/v0/auth/altcha-challenge` A fresh proof-of-work challenge for one of the account forms, in
+ * the format the ALTCHA widget fetches.
+ */
+export const getAuthAltchaChallengeOptions = (options: Options<GetAuthAltchaChallengeData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof getAuthAltchaChallengeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAuthAltchaChallenge({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAuthAltchaChallengeQueryKey(options),
+  })
 
 /**
  * POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
@@ -100,6 +160,45 @@ export const postAuthAuthorizeMultipleMutation = (
 }
 
 /**
+ * POST `/api/v0/auth/create-account` Creates new mooc.fi account and signs in.
+ *
+ * # Example
+ * ```http
+ * POST /api/v0/auth/create-account HTTP/1.1
+ * Content-Type: application/json
+ *
+ * {
+ * "email": "student@example.com",
+ * "first_name": "John",
+ * "last_name": "Doe",
+ * "language": "en",
+ * "password": "hunter42",
+ * "password_confirmation": "hunter42",
+ * "country" : "Finland",
+ * "email_communication_consent": true,
+ * "altcha": "eyJjaGFsbGVuZ2UiOnsi..."
+ * }
+ * ```
+ */
+export const postAuthSignupMutation = (
+  options?: Partial<Options<PostAuthSignupData>>,
+): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
+  const mutationOptions: UseMutationOptions<
+    PostAuthSignupResponse,
+    DefaultError,
+    Options<PostAuthSignupData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postAuthSignup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
  * POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
  * *
  */
@@ -123,45 +222,6 @@ export const postAuthDeleteUserAccountMutation = (
       }),
   }
   return mutationOptions
-}
-
-export type QueryKey<TOptions extends Options> = [
-  Pick<TOptions, "baseUrl" | "body" | "headers" | "path" | "query"> & {
-    _id: string
-    _infinite?: boolean
-    tags?: ReadonlyArray<string>
-  },
-]
-
-const createQueryKey = <TOptions extends Options>(
-  id: string,
-  options?: TOptions,
-  infinite?: boolean,
-  tags?: ReadonlyArray<string>,
-): [QueryKey<TOptions>[0]] => {
-  const params: QueryKey<TOptions>[0] = {
-    _id: id,
-    baseUrl: options?.baseUrl || (options?.client ?? client).getConfig().baseUrl,
-  } as QueryKey<TOptions>[0]
-  if (infinite) {
-    params._infinite = infinite
-  }
-  if (tags) {
-    params.tags = tags
-  }
-  if (options?.body) {
-    params.body = options.body
-  }
-  if (options?.headers) {
-    params.headers = options.headers
-  }
-  if (options?.path) {
-    params.path = options.path
-  }
-  if (options?.query) {
-    params.query = options.query
-  }
-  return [params]
 }
 
 export const getAuthLoggedInQueryKey = (options?: Options<GetAuthLoggedInData>) =>
@@ -324,44 +384,6 @@ export const postAuthSessionStatusVerifyMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await postAuthSessionStatusVerify({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- * POST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.
- *
- * # Example
- * ```http
- * POST /api/v0/auth/signup HTTP/1.1
- * Content-Type: application/json
- *
- * {
- * "email": "student@example.com",
- * "first_name": "John",
- * "last_name": "Doe",
- * "language": "en",
- * "password": "hunter42",
- * "password_confirmation": "hunter42",
- * "country" : "Finland",
- * "email_communication_consent": true
- * }
- * ```
- */
-export const postAuthSignupMutation = (
-  options?: Partial<Options<PostAuthSignupData>>,
-): UseMutationOptions<PostAuthSignupResponse, DefaultError, Options<PostAuthSignupData>> => {
-  const mutationOptions: UseMutationOptions<
-    PostAuthSignupResponse,
-    DefaultError,
-    Options<PostAuthSignupData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await postAuthSignup({
         ...options,
         ...fnOptions,
         throwOnError: true,

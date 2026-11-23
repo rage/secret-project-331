@@ -206,6 +206,7 @@ const SubmissionFeedback: React.FC<{
       `}
     >
       <span
+        aria-hidden="true"
         className={css`
           position: relative;
           top: 2px;
@@ -219,7 +220,12 @@ const SubmissionFeedback: React.FC<{
         )}
       </span>
 
-      <span>
+      <span
+        className={css`
+          min-width: 0;
+          overflow-wrap: anywhere;
+        `}
+      >
         {showScore ? (
           <>
             {mapScoreToFeedback(userScore as number)}{" "}

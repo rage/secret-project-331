@@ -1,0 +1,145 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH selected AS (\n  SELECT e.id\n  FROM exercises e\n  WHERE e.course_id = ANY($1)\n    AND e.deleted_at IS NULL\n  UNION\n  SELECT e.id\n  FROM exercises e\n  WHERE e.course_id IS NOT NULL\n    AND e.exercise_language_group_id IN (\n      SELECT exercise_language_group_id\n      FROM exercises\n      WHERE course_id = ANY($1)\n        AND deleted_at IS NULL\n    )\n),\nlive_positions AS (\n  SELECT e.id,\n    ROW_NUMBER() OVER (\n      PARTITION BY e.page_id\n      ORDER BY e.order_number,\n        e.id\n    ) AS position\n  FROM exercises e\n  WHERE e.deleted_at IS NULL\n    AND e.page_id IN (\n      SELECT page_id\n      FROM exercises\n      WHERE id IN (\n          SELECT id\n          FROM selected\n        )\n    )\n)\nSELECT e.id,\n  e.course_id AS \"course_id!\",\n  c.language_code,\n  e.name,\n  e.page_id,\n  p.title AS page_title,\n  ch.chapter_number AS \"chapter_number?\",\n  COALESCE(lp.position, 0)::INTEGER AS \"position!\",\n  ARRAY(\n    SELECT et.exercise_type\n    FROM exercise_slides es\n      JOIN exercise_tasks et ON et.exercise_slide_id = es.id\n    WHERE es.exercise_id = e.id\n      AND (\n        e.deleted_at IS NOT NULL\n        OR (\n          es.deleted_at IS NULL\n          AND et.deleted_at IS NULL\n        )\n      )\n    ORDER BY es.order_number,\n      et.order_number\n  ) AS \"exercise_types!\",\n  e.exercise_language_group_id,\n  (\n    e.deleted_at IS NOT NULL\n    OR c.deleted_at IS NOT NULL\n  ) AS \"is_deleted!\",\n  e.copied_from\nFROM selected s\n  JOIN exercises e ON e.id = s.id\n  JOIN courses c ON c.id = e.course_id\n  JOIN pages p ON p.id = e.page_id\n  LEFT JOIN chapters ch ON ch.id = p.chapter_id\n  LEFT JOIN live_positions lp ON lp.id = e.id\nORDER BY e.course_id,\n  ch.chapter_number NULLS FIRST,\n  p.order_number,\n  e.order_number,\n  e.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "language_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "page_title",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "chapter_number?",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "position!",
+        "type_info": "Int4",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "exercise_types!",
+        "type_info": "VarcharArray",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "exercise_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "exercise_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "is_deleted!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "copied_from",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "copied_from"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      true,
+      null,
+      true
+    ]
+  },
+  "hash": "70feebd5758007fb598a2ca308cf3aaed3ac4998c2d3908bf6ab5025cb28f7f2"
+}

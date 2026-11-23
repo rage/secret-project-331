@@ -173,7 +173,7 @@ describe("StudiesCourseCard", () => {
     )
 
     expect(
-      screen.getByRole("link", { name: "credit-registration-status-link-label" }),
+      screen.getByRole("link", { name: /credit-registration-registration-details/ }),
     ).toHaveAttribute("href", "/completion-registration/module-default")
   })
 
@@ -193,7 +193,7 @@ describe("StudiesCourseCard", () => {
 
     expect(screen.getByText("credit-registration-status-sending")).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "credit-registration-status-link-label" }),
+      screen.getByRole("link", { name: /credit-registration-registration-details/ }),
     ).toHaveAttribute("href", "/completion-registration/module-default")
   })
 

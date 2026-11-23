@@ -26,6 +26,7 @@ const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 #[openapi(paths(
     get_exercise,
     get_exercise_submissions,
+    get_exercise_answer_shares,
     get_exercise_submissions_for_user,
     get_exercise_csv_export_task_options,
     export_exercise_task_definitions_csv,
@@ -385,6 +386,43 @@ async fn get_exercise(
     };
 
     token.authorized_ok(web::Json(exercise))
+}
+
+/**
+GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of
+the exercise's answers, including the pastes students made from the editor, so staff can find them.
+ */
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/answer-shares",
+    operation_id = "getExerciseAnswerShares",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "The exercise's live answer shares, newest first", body = Vec<models::exercise_slide_submission_shares::ExerciseAnswerShare>)
+    )
+)]
+async fn get_exercise_answer_shares(
+    pool: web::Data<PgPool>,
+    exercise_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<models::exercise_slide_submission_shares::ExerciseAnswerShare>>>
+{
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Exercise(*exercise_id),
+    )
+    .await?;
+    let shares =
+        models::exercise_slide_submission_shares::list_for_exercise(&mut conn, *exercise_id)
+            .await?;
+    token.authorized_ok(web::Json(shares))
 }
 
 /**
@@ -1182,6 +1220,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route(
         "/{exercise_id}/submissions",
         web::get().to(get_exercise_submissions),
+    )
+    .route(
+        "/{exercise_id}/answer-shares",
+        web::get().to(get_exercise_answer_shares),
     )
     .route(
         "/{exercise_id}/csv-export-task-options",

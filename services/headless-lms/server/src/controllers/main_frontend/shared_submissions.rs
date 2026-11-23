@@ -1,3 +1,4 @@
+use crate::domain::authorization::AuthorizationToken;
 use crate::{domain::models_requests, prelude::*};
 use headless_lms_models::ModelErrorType;
 use headless_lms_models::exercise_slide_submission_shares::{
@@ -18,9 +19,10 @@ pub(crate) struct MainFrontendSharedSubmissionsApiDoc;
 GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
 render a shared submission or ungraded snapshot.
 
-The `token` is the unguessable share id minted by the client share endpoint. Login is
-required, but holding the token is the only capability needed to view the submission —
-no teacher or course role.
+The `token` is the unguessable share id minted by the client share endpoint. Who may open it
+follows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff
+always; any logged-in user while the student has not passed the exercise; once they have, only
+users who have passed it themselves.
 */
 #[utoipa::path(
     get,
@@ -31,22 +33,21 @@ no teacher or course role.
         ("token" = Uuid, Path, description = "Submission share token")
     ),
     responses(
-        (status = 200, description = "Data needed to render the shared submission or snapshot", body = SharedSubmissionInfo)
+        (status = 200, description = "Data needed to render the shared submission or snapshot", body = SharedSubmissionInfo),
+        (status = 403, description = "The shared answer passed the exercise and the viewer has not passed it themselves")
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_shared_submission_info(
     token: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-    _user: AuthUser,
+    user: AuthUser,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<SharedSubmissionInfo>> {
     let mut conn = pool.acquire().await?;
-    // Possession of the share token is the capability; any logged-in user may view it.
-    let auth_token = skip_authorize();
-
     let share = models::exercise_slide_submission_shares::get_by_id(&mut conn, *token).await?;
+    let auth_token = authorize_share_view(&mut conn, user.id, &share).await?;
     let res = match (
         share.exercise_slide_submission_id,
         share.exercise_answer_snapshot_id,
@@ -106,6 +107,84 @@ async fn get_shared_submission_info(
     };
 
     auth_token.authorized_ok(web::Json(res))
+}
+
+/// Lets the viewer open the share as tmc.mooc.fi's default paste visibility does. Whether the shared
+/// answer passed is read from the sharer's standing on the exercise: a paste is never graded, and a
+/// student who has passed is assumed to be sharing working code.
+async fn authorize_share_view(
+    conn: &mut PgConnection,
+    viewer_id: Uuid,
+    share: &models::exercise_slide_submission_shares::ExerciseSlideSubmissionShare,
+) -> Result<AuthorizationToken, ControllerError> {
+    if share.created_by == viewer_id {
+        return Ok(skip_authorize());
+    }
+    let exercise_id = match (
+        share.exercise_slide_submission_id,
+        share.exercise_answer_snapshot_id,
+    ) {
+        (Some(submission_id), _) => {
+            models::exercise_slide_submissions::get_by_id(conn, submission_id)
+                .await?
+                .exercise_id
+        }
+        (None, Some(snapshot_id)) => {
+            models::exercise_answer_snapshots::get_by_id(conn, snapshot_id)
+                .await?
+                .exercise_id
+        }
+        (None, None) => {
+            return Err(controller_err!(
+                InternalServerError,
+                "The share links to nothing".to_string()
+            ));
+        }
+    };
+    if let Ok(token) = authorize(
+        conn,
+        Act::Teach,
+        Some(viewer_id),
+        Res::Exercise(exercise_id),
+    )
+    .await
+    {
+        return Ok(token);
+    }
+    let exercise = models::exercises::get_by_id(conn, exercise_id).await?;
+    if !has_passed(conn, share.created_by, &exercise).await?
+        || has_passed(conn, viewer_id, &exercise).await?
+    {
+        return Ok(skip_authorize());
+    }
+    Err(controller_err!(
+        Forbidden,
+        "This answer passed the exercise, so only course staff and students who have passed the exercise themselves can see it.".to_string()
+    ))
+}
+
+/// Whether the user has full points on the exercise.
+async fn has_passed(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &models::exercises::Exercise,
+) -> ModelResult<bool> {
+    let Some(course_or_exam_id) = exercise
+        .course_id
+        .map(models::CourseOrExamId::Course)
+        .or(exercise.exam_id.map(models::CourseOrExamId::Exam))
+    else {
+        return Ok(false);
+    };
+    let score_given = models::user_exercise_states::get_user_exercise_state_if_exists(
+        conn,
+        user_id,
+        exercise.id,
+        course_or_exam_id,
+    )
+    .await?
+    .and_then(|state| state.score_given);
+    Ok(score_given.is_some_and(|score| score >= exercise.score_maximum as f32 - 0.0001))
 }
 
 /// The course material page the exercise is on, or `None` for an exam exercise or a deleted course.

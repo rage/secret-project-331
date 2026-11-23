@@ -1,11 +1,20 @@
+import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import os from "node:os"
+import path from "node:path"
 
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { LangsError } from "@/tmc/langs"
 
-import { gradingFailureFeedback, handleGrade, runScore, TemplateError } from "./grade"
+import {
+  gradingFailureFeedback,
+  gradingFailureKey,
+  handleGrade,
+  readTestsTimeoutMs,
+  runScore,
+  TemplateError,
+} from "./grade"
 
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -210,17 +219,77 @@ describe("gradingFailureFeedback", () => {
   })
 })
 
-describe("runScore", () => {
-  const passed = { status: "PASSED" as const, testResults: [{ successful: true, points: [] }] }
+const test = (successful: boolean, ...points: string[]) => ({ successful, points })
 
-  it("awards every point only when every test passed", () => {
-    expect(runScore(passed, 2)).toEqual({ score_given: 2, score_maximum: 2 })
-    expect(
-      runScore({ status: "TESTS_FAILED", testResults: [{ successful: false, points: [] }] }, 2),
-    ).toEqual({ score_given: 0, score_maximum: 2 })
+describe("runScore", () => {
+  const passed = { status: "PASSED" as const, testResults: [test(true)] }
+
+  it("awards each point whose tests all passed", () => {
+    const run = {
+      status: "TESTS_FAILED" as const,
+      testResults: [test(true, "1.1", "1.2"), test(false, "1.2"), test(true, "1.3")],
+    }
+    expect(runScore(run, ["1.1", "1.2", "1.3"])).toEqual({ score_given: 2, score_maximum: 3 })
+  })
+
+  it("counts only the points the exercise makes available", () => {
+    const run = { status: "PASSED" as const, testResults: [test(true, "1.1", "extra")] }
+    expect(runScore(run, ["1.1", "1.2"])).toEqual({ score_given: 1, score_maximum: 2 })
+  })
+
+  it("awards nothing for a run that did not finish the tests", () => {
+    for (const status of ["COMPILE_FAILED", "GENERIC_ERROR", "TESTRUN_INTERRUPTED"] as const) {
+      expect(runScore({ status, testResults: [test(true, "1.1")] }, ["1.1"])).toEqual({
+        score_given: 0,
+        score_maximum: 1,
+      })
+    }
+  })
+
+  it("awards nothing after a failed Valgrind or style check", () => {
+    const run = { status: "TESTS_FAILED" as const, testResults: [test(true, "1.1")] }
+    expect(runScore(run, ["1.1"], { valgrindFailed: true })).toEqual({
+      score_given: 0,
+      score_maximum: 1,
+    })
+    expect(runScore(passed, ["1.1"], { styleFailed: true })).toEqual({
+      score_given: 0,
+      score_maximum: 1,
+    })
   })
 
   it("scores a passing exercise without points, such as a no-tests one, as full points", () => {
-    expect(runScore(passed, 0)).toEqual({ score_given: 1, score_maximum: 1 })
+    expect(runScore(passed, [])).toEqual({ score_given: 1, score_maximum: 1 })
+  })
+
+  it("scores a failing exercise without points as zero", () => {
+    const failed = { status: "TESTS_FAILED" as const, testResults: [test(false)] }
+    expect(runScore(failed, [])).toEqual({ score_given: 0, score_maximum: 1 })
+  })
+})
+
+describe("gradingFailureKey", () => {
+  it("names the kind of failure", () => {
+    expect(gradingFailureKey(new Error("boom"))).toBe("server_error")
+    expect(gradingFailureKey(new TemplateError(new Error("x")))).toBe("server_error")
+    expect(
+      gradingFailureKey(new LangsError("x", ["Caused by: No project directory found in archive"])),
+    ).toBe("no_project_in_archive")
+    expect(gradingFailureKey(new LangsError("x", ["Caused by: bad zip"]))).toBe("langs_error")
+  })
+})
+
+describe("readTestsTimeoutMs", () => {
+  it("reads the key from .tmcproject.yml and tolerates a missing file or key", async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), "timeout-test-"))
+    try {
+      expect(await readTestsTimeoutMs(dir)).toBeUndefined()
+      await writeFile(path.join(dir, ".tmcproject.yml"), "extra_student_files: []\n")
+      expect(await readTestsTimeoutMs(dir)).toBeUndefined()
+      await writeFile(path.join(dir, ".tmcproject.yml"), "a: 1\ntests_timeout_ms: 90000 # slow\n")
+      expect(await readTestsTimeoutMs(dir)).toBe(90_000)
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })

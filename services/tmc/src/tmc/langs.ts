@@ -6,7 +6,13 @@ import * as readline from "readline"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type {
+  Compression,
+  ExercisePackagingConfiguration,
+  OutputData,
+  RunResult,
+  StyleValidationResult,
+} from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 /** A failure tmc-langs-cli reported. */
@@ -263,4 +269,20 @@ export const runBrowserTest = async (
     return testResults.data["output-data"]
   }
   return null
+}
+
+/** Style check of an extracted exercise; null when its language has no style check. */
+export const checkStyle = async (
+  exercisePath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<StyleValidationResult | null> => {
+  const output = await execute(
+    "checkstyle",
+    ["--exercise-path", exercisePath, "--locale", "eng"],
+    log,
+  )
+  if (output.data?.["output-data-kind"] === "validation") {
+    return output.data["output-data"]
+  }
+  throw new Error("Unexpected data")
 }

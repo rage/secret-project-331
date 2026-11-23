@@ -11,7 +11,15 @@ import { initKube } from "@/lib"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import type { Logger } from "@/util/logger"
 
-const DEFAULT_TASK_TIMEOUT_MS = 60000
+/** Bound for the setup commands (mkdir, tar, cat), not for the tests. */
+const SETUP_EXEC_TIMEOUT_MS = 60_000
+/** tmc-langs' own limit for a test run when the exercise sets no `tests_timeout_ms`. */
+const DEFAULT_TESTS_TIMEOUT_MS = 60_000
+/** Build and startup time `/tmc-run` needs on top of the tests, such as a Maven build. */
+const TEST_RUN_OVERHEAD_MS = 120_000
+const MAX_TEST_RUN_BUDGET_MS = 15 * 60_000
+/** Longest tail of `/tmc-run`'s stdout and stderr kept for the feedback. */
+const MAX_CAPTURED_RUN_LOG_BYTES = 8 * 1024
 const CONTAINER_NAME = "tmc-submission-execution-sandbox"
 
 const delay = (ms: number) =>
@@ -154,7 +162,19 @@ export async function execWithTimeout(
   return await Promise.race([execPromise, timeoutPromise])
 }
 
-const WAIT_FOR_POD_RUNNING_MS = 120_000
+/** Long enough for a cold node to pull a large sandbox image. */
+const WAIT_FOR_POD_RUNNING_MS = 10 * 60_000
+
+/**
+ * How long to wait for `/tmc-run`: the exercise's `tests_timeout_ms` (tmc-langs' default when
+ * unset) plus build overhead, capped.
+ */
+export function testRunBudgetMs(testsTimeoutMs?: number): number {
+  return Math.min(
+    (testsTimeoutMs ?? DEFAULT_TESTS_TIMEOUT_MS) + TEST_RUN_OVERHEAD_MS,
+    MAX_TEST_RUN_BUDGET_MS,
+  )
+}
 
 /**
  * Create a Writable that buffers only the last `maxBytes` of input.
@@ -296,7 +316,7 @@ async function execOrThrow(
     out.stream,
     err.stream,
     stdin,
-    DEFAULT_TASK_TIMEOUT_MS,
+    SETUP_EXEC_TIMEOUT_MS,
   )
   const name = command[0]
   if (result.timedOut) {
@@ -342,6 +362,8 @@ export async function copySubmissionToPod(
   }
 }
 
+const logTail = (buffer: Buffer) => buffer.toString().trim()
+
 export type TmcRunOutcome =
   | { timedOut: true }
   | { timedOut: false; output: string; parsed: unknown }
@@ -355,9 +377,10 @@ export async function runTmcAndReadOutput(
   kubeExec: k8s.Exec,
   podName: string,
   logger: Logger,
+  runTimeoutMs: number = testRunBudgetMs(),
 ): Promise<TmcRunOutcome> {
-  const out = captureStream(0)
-  const err = captureStream(0)
+  const out = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
+  const err = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
   const tmcRunResult = await execWithTimeout(
     kubeExec,
     podName,
@@ -367,7 +390,7 @@ export async function runTmcAndReadOutput(
     out.stream,
     err.stream,
     null,
-    DEFAULT_TASK_TIMEOUT_MS,
+    runTimeoutMs,
   )
   if (tmcRunResult.timedOut) {
     logger.log("tmc-run timed out")
@@ -379,7 +402,12 @@ export async function runTmcAndReadOutput(
     return {
       timedOut: false,
       output: "",
-      parsed: { status: "GENERIC_ERROR", exitCode: tmcExitCode },
+      parsed: {
+        status: "GENERIC_ERROR",
+        exitCode: tmcExitCode,
+        testResults: [],
+        logs: { stdout: logTail(out.getBuffer()), stderr: logTail(err.getBuffer()) },
+      },
     }
   }
   logger.log("tmc-run finished")
@@ -401,7 +429,7 @@ export async function runTmcAndReadOutput(
       testOutputWriteStream,
       catOut.stream,
       null,
-      DEFAULT_TASK_TIMEOUT_MS,
+      SETUP_EXEC_TIMEOUT_MS,
     )
     if (catResult.timedOut) {
       throw new Error("Running cat inside the container timed out")
@@ -421,7 +449,12 @@ export async function runTmcAndReadOutput(
       return {
         timedOut: false,
         output: testOutputString,
-        parsed: { status: "GENERIC_ERROR", error: "INVALID_TEST_OUTPUT_JSON" },
+        parsed: {
+          status: "GENERIC_ERROR",
+          error: "INVALID_TEST_OUTPUT_JSON",
+          testResults: [],
+          logs: { stdout: logTail(out.getBuffer()), stderr: logTail(err.getBuffer()) },
+        },
       }
     }
   } finally {
@@ -442,7 +475,9 @@ export async function runInSandboxPod(
   sandboxImage: string,
   submissionPath: string,
   logger: Logger,
+  testsTimeoutMs?: number,
 ): Promise<TmcRunOutcome> {
+  const runTimeoutMs = testRunBudgetMs(testsTimeoutMs)
   const { config: kubeConfig, api: kubeApi } = initKube()
 
   const podId = v4()
@@ -452,7 +487,7 @@ export async function runInSandboxPod(
   pod.metadata = new k8s.V1ObjectMeta()
   pod.metadata.name = podName
 
-  const sleepSeconds = Math.ceil((DEFAULT_TASK_TIMEOUT_MS + 10 * 60 * 1000) / 1000)
+  const sleepSeconds = Math.ceil((runTimeoutMs + 10 * 60 * 1000) / 1000)
   const container = new k8s.V1Container()
   container.name = CONTAINER_NAME
   container.image = sandboxImage
@@ -469,7 +504,7 @@ export async function runInSandboxPod(
 
     const kubeExec = new k8s.Exec(kubeConfig)
     await copySubmissionToPod(kubeExec, podName, submissionPath)
-    return await runTmcAndReadOutput(kubeExec, podName, logger)
+    return await runTmcAndReadOutput(kubeExec, podName, logger, runTimeoutMs)
   } finally {
     logger.log(`deleting pod ${podName}`)
     try {

@@ -7,7 +7,7 @@ import type * as k8s from "@kubernetes/client-node"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 
 import type { Logger } from "@/util/logger"
-import { copySubmissionToPod, runTmcAndReadOutput } from "@/util/podExecution"
+import { copySubmissionToPod, runTmcAndReadOutput, testRunBudgetMs } from "@/util/podExecution"
 
 interface FakeRun {
   exitCode: number
@@ -125,5 +125,54 @@ describe("runTmcAndReadOutput", () => {
       output: '{"status":"PASSED"}',
       parsed: { status: "PASSED" },
     })
+  })
+})
+
+describe("runTmcAndReadOutput failures", () => {
+  test("keeps the tail of the output when /tmc-run exits non-zero", async () => {
+    const { exec } = fakeExec([
+      { exitCode: 3, stdout: "building\n", stderr: "Rscript: not found\n" },
+    ])
+
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+
+    expect(outcome).toEqual({
+      timedOut: false,
+      output: "",
+      parsed: {
+        status: "GENERIC_ERROR",
+        exitCode: 3,
+        testResults: [],
+        logs: { stdout: "building", stderr: "Rscript: not found" },
+      },
+    })
+  })
+
+  test("bounds the captured output", async () => {
+    const { exec } = fakeExec([{ exitCode: 1, stderr: `${"x".repeat(20_000)}END` }])
+
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+
+    const stderr = (outcome as { parsed: { logs: { stderr: string } } }).parsed.logs.stderr
+    expect(stderr.length).toBe(8192)
+    expect(stderr.endsWith("END")).toBe(true)
+  })
+
+  test("reports a timeout when /tmc-run outlasts its budget", async () => {
+    const exec = {
+      exec: () => Promise.resolve({}),
+    } as unknown as k8s.Exec
+
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger, 20)
+
+    expect(outcome).toEqual({ timedOut: true })
+  })
+})
+
+describe("testRunBudgetMs", () => {
+  test("adds build overhead to the exercise's test timeout and caps it", () => {
+    expect(testRunBudgetMs()).toBe(180_000)
+    expect(testRunBudgetMs(300_000)).toBe(420_000)
+    expect(testRunBudgetMs(60 * 60_000)).toBe(15 * 60_000)
   })
 })

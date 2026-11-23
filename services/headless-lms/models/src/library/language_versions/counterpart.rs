@@ -458,11 +458,11 @@ async fn get_language_version_page(
     let page = sqlx::query_as!(
         LanguageVersionPage,
         r#"
-SELECT p.id,
+SELECT p.id AS "id!",
   p.course_id AS "course_id!",
-  c.language_code,
-  p.title,
-  p.url_path,
+  c.language_code AS "language_code!",
+  p.title AS "title!",
+  p.url_path AS "url_path!",
   p.chapter_id,
   ch.chapter_number AS "chapter_number?",
   ch.name AS "chapter_name?",

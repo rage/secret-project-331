@@ -53,6 +53,64 @@ pub enum ReviewingStage {
     NotAnsweredAndLocked,
 }
 
+/// The course's exercise states whose automatic points chapter locking holds for a teacher's
+/// review: answered, with no score yet, and not in a teacher's or peers' hands.
+pub async fn get_ids_held_for_review_after_locking(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let ids = sqlx::query_scalar!(
+        r#"
+SELECT ues.id
+FROM user_exercise_states AS ues
+  JOIN exercises AS e ON e.id = ues.exercise_id
+WHERE ues.course_id = $1
+  AND ues.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND e.teacher_reviews_answer_after_locking
+  AND ues.score_given IS NULL
+  AND ues.activity_progress <> 'initialized'
+  AND ues.reviewing_stage = 'not_started'
+"#,
+        course_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(ids)
+}
+
+/// Lets the user answer the chapter's exercises that were locked unanswered with the chapter, after
+/// a teacher unlocked the chapter for them.
+pub async fn reopen_unanswered_locked_in_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<u64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE user_exercise_states
+SET reviewing_stage = 'not_started'
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+  AND reviewing_stage = 'not_answered_and_locked'
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE chapter_id = $3
+      AND deleted_at IS NULL
+  )
+"#,
+        user_id,
+        course_id,
+        chapter_id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected())
+}
+
 impl ReviewingStage {
     /// Whether the user may still submit answers to the exercise. Every stage past `NotStarted`
     /// locks the exercise until a teacher resets it, whatever the chapter's locking status.

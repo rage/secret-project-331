@@ -1335,6 +1335,18 @@ RETURNING *
                 .collect();
         crate::user_chapter_locking_statuses::init_for_users(&mut tx, course_id, &user_ids).await?;
     }
+    if live.chapter_locking_enabled && !settings.chapter_locking_enabled {
+        // Answers held for a teacher's review after locking get their automatic points now.
+        for state_id in
+            crate::user_exercise_states::get_ids_held_for_review_after_locking(&mut tx, course_id)
+                .await?
+        {
+            crate::library::user_exercise_state_updater::update_user_exercise_state(
+                &mut tx, state_id,
+            )
+            .await?;
+        }
+    }
 
     let (changed_ids, changed_audiences) = changed_audiences(&settings.audiences, &live.audiences);
     if !changed_audiences.is_empty() {

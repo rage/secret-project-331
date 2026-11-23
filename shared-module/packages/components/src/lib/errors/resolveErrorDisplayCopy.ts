@@ -65,7 +65,7 @@ function translateMessageKey(
 
   return t(`${namespace}.${key}.${type}`, {
     defaultValue,
-    ...messageKey.translationVariables,
+    replace: messageKey.translationVariables,
   })
 }
 

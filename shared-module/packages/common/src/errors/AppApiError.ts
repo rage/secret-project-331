@@ -68,6 +68,14 @@ function parseIssues(value: unknown): CanonicalApiIssue[] {
   })
 }
 
+/** Validates error message key from unknown input. */
+function validateMessageKey(value: unknown): MessageKey | null {
+  if (typeof value === "string" || typeof value === "object") {
+    return value as MessageKey
+  }
+  return null
+}
+
 export class AppApiError extends Error {
   public kind: AppApiErrorKind
   public status: number | null
@@ -179,7 +187,7 @@ export function parseCanonicalApiPayload(payload: unknown): {
 
   return {
     type: asString(payload.type),
-    messageKey: payload.message_key ? (payload.message_key as MessageKey) : null,
+    messageKey: validateMessageKey(payload.message_key),
     code: asString(payload.code),
     message: asString(payload.message),
     issues: parseIssues(payload.errors),

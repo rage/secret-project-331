@@ -292,7 +292,7 @@ function stringifyMessageKey(value: MessageKey): string {
       const messageKey = entry[0]
       const variables = entry[1]
 
-      if (typeof variables === "object") {
+      if (typeof variables === "object" && variables !== null) {
         return `${messageKey} (${Object.entries(variables)
           .map(([key, variable]) => `${key}: ${variable}`)
           .join(", ")})`

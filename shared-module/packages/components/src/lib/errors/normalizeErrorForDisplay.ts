@@ -284,6 +284,18 @@ function summarizeZodIssue(issue: ZodIssueLike, t: TFunction<"errors">): string 
   return issue.message
 }
 
+// Returns the CMS anchor block ID only when the key has the structured shape. Other values return null.
+function getCmsBlockId(key: unknown): string | null {
+  if (!isRecord(key)) {
+    return null
+  }
+  const anchor = key.validation_error_with_cms_anchor_block_id
+  if (!isRecord(anchor)) {
+    return null
+  }
+  return typeof anchor.block_id === "string" ? anchor.block_id : null
+}
+
 function isLegacyBackendError(value: unknown): value is LegacyErrorResponse {
   return (
     isRecord(value) &&
@@ -298,22 +310,18 @@ function isAggregateLike(value: unknown): value is { message?: unknown; errors?:
 }
 
 function normalizePayload(payload: SimplifiedPayload, t: TFunction<"errors">): ErrorViewModel {
-  const messageKey = payload.message_key as MessageKey
+  const messageKey = (payload.message_key ?? null) as MessageKey | null
   const type = typeof payload.type === "string" ? payload.type : null
   const message = typeof payload.message === "string" ? payload.message : null
 
-  const blockId =
-    typeof messageKey === "object" && "validation_error_with_cms_anchor_block_id" in messageKey
-      ? messageKey.validation_error_with_cms_anchor_block_id.block_id
-      : null
-
+  const blockId = getCmsBlockId(messageKey)
   const category: ErrorCategory =
     messageKey === "rate_limited"
       ? "rate_limit"
       : messageKey === "validation_error" ||
           messageKey === "course_slug_already_taken" ||
           messageKey === "response_validation_error" ||
-          (typeof messageKey === "object" && "validation_error_cms_anchor_block_id" in messageKey)
+          (isRecord(messageKey) && "validation_error_cms_anchor_block_id" in messageKey)
         ? "validation"
         : messageKey === "unauthorized" ||
             messageKey === "chapter_not_open_yet" ||
@@ -353,13 +361,8 @@ function normalizeAppApiError(error: AppApiErrorLike, t: TFunction<"errors">): E
         : error.kind === "parse"
           ? "client"
           : categoryFromStatus(status)
-  const blockId =
-    error.messageKey &&
-    typeof error.messageKey === "object" &&
-    "validation_error_with_cms_anchor_block_id" in error.messageKey
-      ? error.messageKey.validation_error_with_cms_anchor_block_id.block_id
-      : null
 
+  const blockId = getCmsBlockId(error.messageKey)
   return {
     category,
     severity: severityFromCategory(category),

@@ -88,7 +88,7 @@
       "title": "Määräaika umpeutunut"
     },
     "duplicate_upload": {
-      "message": "Samanniminen tiedosto on ladattu useammin kuin kerran.",
+      "message": "Sama tiedosto on liitetty palautukseen useammin kuin kerran.",
       "title": "Päällekkäinen tiedosto"
     },
     "exercise_locked": {

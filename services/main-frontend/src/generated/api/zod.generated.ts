@@ -1800,6 +1800,15 @@ export const zCourseInstanceForm = z.object({
   teacher_in_charge_name: z.string(),
 })
 
+/**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export const zCourseModelSolutionSettings = z.object({
+  reveal_after_deadline: z.boolean(),
+  reveal_at: z.iso.datetime().nullish(),
+})
+
 export const zCourseModuleCompletion = z.object({
   completion_date: z.iso.datetime(),
   completion_granter_user_id: z.uuid().nullish(),
@@ -3761,6 +3770,16 @@ export const zExercise = z.object({
   teacher_reviews_answer_after_locking: z.boolean(),
   updated_at: z.iso.datetime(),
   use_course_default_peer_or_self_review_config: z.boolean(),
+})
+
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export const zExerciseAnswerShare = z.object({
+  created_at: z.iso.datetime(),
+  is_graded: z.boolean(),
+  share_id: z.uuid(),
+  user_id: z.uuid(),
 })
 
 export const zExerciseAnswersInCourseRequiringAttentionCount = z.object({
@@ -11220,6 +11239,26 @@ export const zGetCourseLinkableExamsPath = z.object({
  */
 export const zGetCourseLinkableExamsResponse = z.array(zLinkableExam)
 
+export const zGetCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The course's model solution settings
+ */
+export const zGetCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsBody = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The stored model solution settings
+ */
+export const zUpdateCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
+
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 
 export const zUpdateCourseChapterOrderingPath = z.object({
@@ -12999,6 +13038,15 @@ export const zGetExercisePath = z.object({
  * Exercise
  */
 export const zGetExerciseResponse = zExercise
+
+export const zGetExerciseAnswerSharesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * The exercise's live answer shares, newest first
+ */
+export const zGetExerciseAnswerSharesResponse = z.array(zExerciseAnswerShare)
 
 export const zGetExerciseAnswersRequiringAttentionPath = z.object({
   exercise_id: z.uuid(),

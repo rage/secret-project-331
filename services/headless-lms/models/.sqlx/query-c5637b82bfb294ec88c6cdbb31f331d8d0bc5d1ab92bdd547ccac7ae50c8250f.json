@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ues.id\nFROM user_exercise_states AS ues\n  JOIN exercises AS e ON e.id = ues.exercise_id\nWHERE ues.course_id = $1\n  AND ues.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND e.teacher_reviews_answer_after_locking\n  AND ues.score_given IS NULL\n  AND ues.activity_progress <> 'initialized'\n  AND ues.reviewing_stage = 'not_started'\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_states",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "c5637b82bfb294ec88c6cdbb31f331d8d0bc5d1ab92bdd547ccac7ae50c8250f"
+}

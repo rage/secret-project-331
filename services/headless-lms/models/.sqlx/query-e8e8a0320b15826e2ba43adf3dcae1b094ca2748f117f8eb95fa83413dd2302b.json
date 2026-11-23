@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM exercise_slide_submission_shares\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT s.*\nFROM exercise_slide_submission_shares AS s\n  JOIN users AS u ON u.id = s.created_by\nWHERE s.id = $1\n  AND s.deleted_at IS NULL\n  AND u.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -96,5 +96,5 @@
       true
     ]
   },
-  "hash": "c9c1d09e42dab678369640b5b1e22369641ca7a12fa65f991593630dbc9a82b5"
+  "hash": "e8e8a0320b15826e2ba43adf3dcae1b094ca2748f117f8eb95fa83413dd2302b"
 }

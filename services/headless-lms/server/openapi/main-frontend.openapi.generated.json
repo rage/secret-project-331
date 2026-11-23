@@ -5795,6 +5795,76 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/model-solution-settings": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals\nmodel solutions to students who have neither solved the exercise nor used up its tries.",
+        "operationId": "getCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["courses"],
+        "summary": "PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals\nmodel solutions to every student.",
+        "operationId": "updateCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseModelSolutionSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering": {
       "post": {
         "tags": ["courses"],
@@ -12857,6 +12927,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of\nthe exercise's answers, including the pastes students made from the editor, so staff can find them.",
+        "operationId": "getExerciseAnswerShares",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exercise's live answer shares, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseAnswerShare"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercises/{exercise_id}/answers-requiring-attention": {
       "get": {
         "tags": ["exercises"],
@@ -16002,7 +16106,7 @@
     "/api/v0/main-frontend/shared-submissions/{token}": {
       "get": {
         "tags": ["shared_submissions"],
-        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Who may open it\nfollows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff\nalways; any logged-in user while the student has not passed the exercise; once they have, only\nusers who have passed it themselves.",
         "operationId": "getSharedSubmissionInfo",
         "parameters": [
           {
@@ -16026,6 +16130,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "The shared answer passed the exercise and the viewer has not passed it themselves"
           }
         }
       },
@@ -24572,6 +24679,22 @@
           }
         }
       },
+      "CourseModelSolutionSettings": {
+        "type": "object",
+        "description": "A course's model-solution reveal settings. A course without stored settings uses\n[`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.",
+        "required": ["reveal_after_deadline"],
+        "properties": {
+          "reveal_after_deadline": {
+            "type": "boolean",
+            "description": "Reveal an exercise's model solution to everyone once its deadline (its own, else its\nchapter's) has passed."
+          },
+          "reveal_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Reveal every model solution to everyone from this moment on."
+          }
+        }
+      },
       "CourseModule": {
         "type": "object",
         "description": "Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into\n`completion_policy`.",
@@ -28769,6 +28892,31 @@
           },
           "use_course_default_peer_or_self_review_config": {
             "type": "boolean"
+          }
+        }
+      },
+      "ExerciseAnswerShare": {
+        "type": "object",
+        "description": "A live share of an answer to an exercise, as listed to the course's staff.",
+        "required": ["share_id", "user_id", "created_at", "is_graded"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_graded": {
+            "type": "boolean",
+            "description": "`false` for a paste, which is never graded."
+          },
+          "share_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The token the shared view takes."
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The student whose answer it is."
           }
         }
       },

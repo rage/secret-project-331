@@ -3019,6 +3019,22 @@ export type CourseMetadataUpdate = {
 }
 
 /**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export type CourseModelSolutionSettings = {
+  /**
+   * Reveal an exercise's model solution to everyone once its deadline (its own, else its
+   * chapter's) has passed.
+   */
+  reveal_after_deadline: boolean
+  /**
+   * Reveal every model solution to everyone from this moment on.
+   */
+  reveal_at?: string | null
+}
+
+/**
  * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
  * `completion_policy`.
  */
@@ -5012,6 +5028,25 @@ export type Exercise = {
   teacher_reviews_answer_after_locking: boolean
   updated_at: string
   use_course_default_peer_or_self_review_config: boolean
+}
+
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export type ExerciseAnswerShare = {
+  created_at: string
+  /**
+   * `false` for a paste, which is never graded.
+   */
+  is_graded: boolean
+  /**
+   * The token the shared view takes.
+   */
+  share_id: string
+  /**
+   * The student whose answer it is.
+   */
+  user_id: string
 }
 
 export type ExerciseAnswersInCourseRequiringAttentionCount = {
@@ -12868,6 +12903,50 @@ export type GetCourseLinkableExamsResponses = {
 export type GetCourseLinkableExamsResponse =
   GetCourseLinkableExamsResponses[keyof GetCourseLinkableExamsResponses]
 
+export type GetCourseModelSolutionSettingsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type GetCourseModelSolutionSettingsResponses = {
+  /**
+   * The course's model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type GetCourseModelSolutionSettingsResponse =
+  GetCourseModelSolutionSettingsResponses[keyof GetCourseModelSolutionSettingsResponses]
+
+export type UpdateCourseModelSolutionSettingsData = {
+  body: CourseModelSolutionSettings
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type UpdateCourseModelSolutionSettingsResponses = {
+  /**
+   * The stored model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type UpdateCourseModelSolutionSettingsResponse =
+  UpdateCourseModelSolutionSettingsResponses[keyof UpdateCourseModelSolutionSettingsResponses]
+
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>
   path: {
@@ -17330,6 +17409,28 @@ export type GetExerciseResponses = {
 
 export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses]
 
+export type GetExerciseAnswerSharesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares"
+}
+
+export type GetExerciseAnswerSharesResponses = {
+  /**
+   * The exercise's live answer shares, newest first
+   */
+  200: Array<ExerciseAnswerShare>
+}
+
+export type GetExerciseAnswerSharesResponse =
+  GetExerciseAnswerSharesResponses[keyof GetExerciseAnswerSharesResponses]
+
 export type GetExerciseAnswersRequiringAttentionData = {
   body?: never
   path: {
@@ -19378,6 +19479,13 @@ export type GetSharedSubmissionInfoData = {
   }
   query?: never
   url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type GetSharedSubmissionInfoErrors = {
+  /**
+   * The shared answer passed the exercise and the viewer has not passed it themselves
+   */
+  403: unknown
 }
 
 export type GetSharedSubmissionInfoResponses = {

@@ -431,6 +431,8 @@ import type {
   GetCourseLinkedExamsResponses,
   GetCourseMetadataData,
   GetCourseMetadataResponses,
+  GetCourseModelSolutionSettingsData,
+  GetCourseModelSolutionSettingsResponses,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponses,
@@ -545,6 +547,8 @@ import type {
   GetExamSubmissionsWithExerciseIdResponses,
   GetExamUserExerciseStateInfoData,
   GetExamUserExerciseStateInfoResponses,
+  GetExerciseAnswerSharesData,
+  GetExerciseAnswerSharesResponses,
   GetExerciseAnswersRequiringAttentionData,
   GetExerciseAnswersRequiringAttentionResponses,
   GetExerciseCsvExportTaskOptionsData,
@@ -694,6 +698,7 @@ import type {
   GetRolesData,
   GetRolesResponses,
   GetSharedSubmissionInfoData,
+  GetSharedSubmissionInfoErrors,
   GetSharedSubmissionInfoResponses,
   GetSisuCourseLlmDescriptionsData,
   GetSisuCourseLlmDescriptionsResponses,
@@ -963,6 +968,8 @@ import type {
   UpdateCourseDesignerStageTaskResponses,
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponses,
+  UpdateCourseModelSolutionSettingsData,
+  UpdateCourseModelSolutionSettingsResponses,
   UpdateCourseModulesData,
   UpdateCourseModulesErrors,
   UpdateCourseModulesResponses,
@@ -1170,6 +1177,7 @@ import {
   zGetCourseLinkableExamsResponse,
   zGetCourseLinkedExamsResponse,
   zGetCourseMetadataResponse,
+  zGetCourseModelSolutionSettingsResponse,
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
@@ -1224,6 +1232,7 @@ import {
   zGetExamSubmissionsWithExamIdResponse,
   zGetExamSubmissionsWithExerciseIdResponse,
   zGetExamUserExerciseStateInfoResponse,
+  zGetExerciseAnswerSharesResponse,
   zGetExerciseAnswersRequiringAttentionResponse,
   zGetExerciseCsvExportTaskOptionsResponse,
   zGetExerciseRepositoriesForCourseResponse,
@@ -1404,6 +1413,7 @@ import {
   zUpdateCourseAuditingDataResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
+  zUpdateCourseModelSolutionSettingsResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
@@ -4487,6 +4497,50 @@ export const getCourseLinkableExams = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/linkable-exams",
     ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals
+ * model solutions to students who have neither solved the exercise nor used up its tries.
+ */
+export const getCourseModelSolutionSettings = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseModelSolutionSettingsData, ThrowOnError>,
+): RequestResult<GetCourseModelSolutionSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseModelSolutionSettingsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseModelSolutionSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings",
+    ...options,
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals
+ * model solutions to every student.
+ */
+export const updateCourseModelSolutionSettings = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseModelSolutionSettingsData, ThrowOnError>,
+): RequestResult<UpdateCourseModelSolutionSettingsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).put<
+    UpdateCourseModelSolutionSettingsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zUpdateCourseModelSolutionSettingsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -8314,6 +8368,20 @@ export const getExercise = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of
+ * the exercise's answers, including the pastes students made from the editor, so staff can find them.
+ */
+export const getExerciseAnswerShares = <ThrowOnError extends boolean = true>(
+  options: Options<GetExerciseAnswerSharesData, ThrowOnError>,
+): RequestResult<GetExerciseAnswerSharesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<GetExerciseAnswerSharesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetExerciseAnswerSharesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares",
+    ...options,
+  })
+
+/**
  * GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolean = true>(
@@ -10292,14 +10360,25 @@ export const revokeSubmissionShare = <ThrowOnError extends boolean = true>(
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
  * render a shared submission or ungraded snapshot.
  *
- * The `token` is the unguessable share id minted by the client share endpoint. Login is
- * required, but holding the token is the only capability needed to view the submission —
- * no teacher or course role.
+ * The `token` is the unguessable share id minted by the client share endpoint. Who may open it
+ * follows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff
+ * always; any logged-in user while the student has not passed the exercise; once they have, only
+ * users who have passed it themselves.
  */
 export const getSharedSubmissionInfo = <ThrowOnError extends boolean = true>(
   options: Options<GetSharedSubmissionInfoData, ThrowOnError>,
-): RequestResult<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data"> =>
-  (options.client ?? client).get<GetSharedSubmissionInfoResponses, unknown, ThrowOnError, "data">({
+): RequestResult<
+  GetSharedSubmissionInfoResponses,
+  GetSharedSubmissionInfoErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetSharedSubmissionInfoResponses,
+    GetSharedSubmissionInfoErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zGetSharedSubmissionInfoResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/shared-submissions/{token}",

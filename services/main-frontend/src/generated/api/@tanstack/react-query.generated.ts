@@ -206,6 +206,7 @@ import {
   getCourseLinkableExams,
   getCourseLinkedExams,
   getCourseMetadata,
+  getCourseModelSolutionSettings,
   getCourseModule,
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
@@ -261,6 +262,7 @@ import {
   getExamSubmissionsWithExerciseId,
   getExamUserExerciseStateInfo,
   getExercise,
+  getExerciseAnswerShares,
   getExerciseAnswersRequiringAttention,
   getExerciseCsvExportTaskOptions,
   getExerciseRepositoriesForCourse,
@@ -463,6 +465,7 @@ import {
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
+  updateCourseModelSolutionSettings,
   updateCourseModules,
   updateCoursePageOrdering,
   updateCoursePeerReviewQueueReviewsReceived,
@@ -835,6 +838,8 @@ import type {
   GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
+  GetCourseModelSolutionSettingsData,
+  GetCourseModelSolutionSettingsResponse,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponse,
@@ -943,6 +948,8 @@ import type {
   GetExamSubmissionsWithExerciseIdResponse,
   GetExamUserExerciseStateInfoData,
   GetExamUserExerciseStateInfoResponse,
+  GetExerciseAnswerSharesData,
+  GetExerciseAnswerSharesResponse,
   GetExerciseAnswersRequiringAttentionData,
   GetExerciseAnswersRequiringAttentionResponse,
   GetExerciseCsvExportTaskOptionsData,
@@ -1325,6 +1332,8 @@ import type {
   UpdateCourseDesignerStageTaskResponse,
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponse,
+  UpdateCourseModelSolutionSettingsData,
+  UpdateCourseModelSolutionSettingsResponse,
   UpdateCourseModulesData,
   UpdateCoursePageOrderingData,
   UpdateCoursePeerReviewQueueReviewsReceivedData,
@@ -5634,6 +5643,59 @@ export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkable
       }),
     queryKey: getCourseLinkableExamsQueryKey(options),
   })
+
+export const getCourseModelSolutionSettingsQueryKey = (
+  options: Options<GetCourseModelSolutionSettingsData>,
+) => createQueryKey("getCourseModelSolutionSettings", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals
+ * model solutions to students who have neither solved the exercise nor used up its tries.
+ */
+export const getCourseModelSolutionSettingsOptions = (
+  options: Options<GetCourseModelSolutionSettingsData>,
+) =>
+  queryOptions<
+    GetCourseModelSolutionSettingsResponse,
+    DefaultError,
+    GetCourseModelSolutionSettingsResponse,
+    ReturnType<typeof getCourseModelSolutionSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseModelSolutionSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseModelSolutionSettingsQueryKey(options),
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals
+ * model solutions to every student.
+ */
+export const updateCourseModelSolutionSettingsMutation = (
+  options?: Partial<Options<UpdateCourseModelSolutionSettingsData>>,
+): UseMutationOptions<
+  UpdateCourseModelSolutionSettingsResponse,
+  DefaultError,
+  Options<UpdateCourseModelSolutionSettingsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseModelSolutionSettingsResponse,
+    DefaultError,
+    Options<UpdateCourseModelSolutionSettingsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseModelSolutionSettings({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
@@ -10717,6 +10779,30 @@ export const getExerciseOptions = (options: Options<GetExerciseData>) =>
     queryKey: getExerciseQueryKey(options),
   })
 
+export const getExerciseAnswerSharesQueryKey = (options: Options<GetExerciseAnswerSharesData>) =>
+  createQueryKey("getExerciseAnswerShares", options)
+
+/**
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of
+ * the exercise's answers, including the pastes students made from the editor, so staff can find them.
+ */
+export const getExerciseAnswerSharesOptions = (options: Options<GetExerciseAnswerSharesData>) =>
+  queryOptions<
+    GetExerciseAnswerSharesResponse,
+    DefaultError,
+    GetExerciseAnswerSharesResponse,
+    ReturnType<typeof getExerciseAnswerSharesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getExerciseAnswerShares({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getExerciseAnswerSharesQueryKey(options),
+  })
+
 export const getExerciseAnswersRequiringAttentionQueryKey = (
   options: Options<GetExerciseAnswersRequiringAttentionData>,
 ) => createQueryKey("getExerciseAnswersRequiringAttention", options)
@@ -13634,9 +13720,10 @@ export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmis
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
  * render a shared submission or ungraded snapshot.
  *
- * The `token` is the unguessable share id minted by the client share endpoint. Login is
- * required, but holding the token is the only capability needed to view the submission —
- * no teacher or course role.
+ * The `token` is the unguessable share id minted by the client share endpoint. Who may open it
+ * follows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff
+ * always; any logged-in user while the student has not passed the exercise; once they have, only
+ * users who have passed it themselves.
  */
 export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
   queryOptions<

@@ -266,8 +266,10 @@ const gradeAnswer = async (
     let testsTimeoutMs: number
     try {
       await extractProject(templateArchivePath, extractedTemplatePath, log)
-      points = await fastAvailablePoints(extractedTemplatePath, log)
-      testsTimeoutMs = await getTestsTimeoutMs(extractedTemplatePath, log)
+      ;[points, testsTimeoutMs] = await Promise.all([
+        fastAvailablePoints(extractedTemplatePath, log),
+        getTestsTimeoutMs(extractedTemplatePath, log),
+      ])
     } catch (e) {
       throw new TemplateError(e)
     }

@@ -89,6 +89,5 @@ export function feedbackMessage(t: TFunction, grading: ExerciseTaskGradingResult
       detail: feedback.feedbackDetail ?? "",
     })
   }
-  const text = grading.feedback_text?.trim()
-  return text ? text : null
+  return grading.feedback_text?.trim() || null
 }

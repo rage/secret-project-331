@@ -76,10 +76,6 @@ export const testRequestSchema = z.discriminatedUnion("type", [
 ])
 export type TestRequest = z.infer<typeof testRequestSchema>
 
-export const extractStubRequestSchema = z.looseObject({
-  stub_download_url: z.string().min(1),
-})
-
 export const prepareRepositoryRequestSchema = z.looseObject({
   checkout_download_url: z.string().min(1),
 })

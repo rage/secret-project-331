@@ -54,7 +54,10 @@ const CONFIGURATION_READS_AT_ONCE = 8
 /** The checkout's exercises, each with the files preparing it rewrote. */
 async function prepare(checkout: string): Promise<PreparedRepositoryExercise[]> {
   // tmc-langs writes an exercise's .tmcproject.yml only when the repository root has one.
-  const hasRootConfig = await exists(path.join(checkout, TMCPROJECT_YML))
+  const hasRootConfig = await fs.access(path.join(checkout, TMCPROJECT_YML)).then(
+    () => true,
+    () => false,
+  )
   const exercises = await prepareExerciseRepository(checkout, log)
   const prepared: PreparedRepositoryExercise[] = []
   for (let start = 0; start < exercises.length; start += CONFIGURATION_READS_AT_ONCE) {
@@ -81,15 +84,6 @@ async function prepare(checkout: string): Promise<PreparedRepositoryExercise[]> 
     )
   }
   return prepared
-}
-
-async function exists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath)
-    return true
-  } catch {
-    return false
-  }
 }
 
 export const handlePrepareRepository = wrapRouteHandler(postImpl, {

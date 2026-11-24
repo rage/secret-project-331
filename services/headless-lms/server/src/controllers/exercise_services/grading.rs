@@ -90,6 +90,11 @@ async fn apply_grading_update(
         )
     })?;
     let grading = models::exercise_task_gradings::get_by_id(conn, grading_id).await?;
+    if grading.grading_progress == models::exercises::GradingProgress::Failed {
+        // The host gave up on this grading and told the student the try did not count.
+        warn!(%grading_id, "Ignored a result for a grading that had already failed");
+        return Ok(());
+    }
     let exercise = models::exercises::get_by_id(conn, slide.exercise_id).await?;
     let mut tx = conn.begin().await?;
     models::library::grading::apply_grading_update(

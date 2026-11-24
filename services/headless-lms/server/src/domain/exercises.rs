@@ -184,7 +184,17 @@ async fn grade_submission(
     let has_received_full_points = score_given
         >= exercise_with_user_state.exercise().score_maximum as f32
         || (score_given - exercise_with_user_state.exercise().score_maximum as f32).abs() < 0.0001;
-    if !has_received_full_points && !last_try {
+    // A failed grading gives the try back, so the last try reveals nothing until it is graded.
+    let grading_may_give_try_back = result.exercise_task_submission_results.iter().any(|task| {
+        task.grading.as_ref().is_some_and(|grading| {
+            matches!(
+                grading.grading_progress,
+                models::exercises::GradingProgress::Pending
+                    | models::exercises::GradingProgress::Failed
+            )
+        })
+    });
+    if !has_received_full_points && (!last_try || grading_may_give_try_back) {
         result.clear_model_solution_specs();
     }
     Ok(result)

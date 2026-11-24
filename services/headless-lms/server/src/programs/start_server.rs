@@ -46,22 +46,35 @@ pub async fn main() -> anyhow::Result<()> {
         crate::domain::oauth::native_client_check::warn_about_native_editor_client(&mut conn).await;
     }
     // In the server process rather than a worker deployment of its own, because the syncs upload
-    // archives that this process serves, and a local file store is not shared between pods.
-    actix_web::rt::spawn({
+    // archives that this process serves, and a local file store is not shared between pods. On a
+    // thread of its own because cloning and archiving a repository block.
+    {
         let pool = server_config.db_pool.as_ref().clone();
         let file_store = std::sync::Arc::clone(&server_config.file_store);
         let app_conf = server_config.app_conf.as_ref().clone();
         let jwt_key = server_config.jwt_key.clone().into_inner();
-        async move {
-            if let Err(err) = crate::domain::exercise_repositories::run_sync_worker(
-                pool, file_store, app_conf, jwt_key,
-            )
-            .await
-            {
-                error!("The exercise repository sync worker stopped: {err:#}");
-            }
-        }
-    });
+        std::thread::Builder::new()
+            .name("exercise-repository-sync".to_string())
+            .spawn(move || {
+                let runtime = match tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                {
+                    Ok(runtime) => runtime,
+                    Err(err) => {
+                        error!("Could not start the exercise repository sync worker: {err:#}");
+                        return;
+                    }
+                };
+                if let Err(err) =
+                    runtime.block_on(crate::domain::exercise_repositories::run_sync_worker(
+                        pool, file_store, app_conf, jwt_key,
+                    ))
+                {
+                    error!("The exercise repository sync worker stopped: {err:#}");
+                }
+            })?;
+    }
     let mut server = HttpServer::new(move || {
         let server_config = server_config.clone();
         App::new()

@@ -1589,12 +1589,16 @@ fn verify_submission_owner(
     Ok(())
 }
 
-/// Whether the user can still answer the exam, which hides its gradings until then.
-async fn is_exam_answerable(
+/// Whether the exam's automatic gradings are hidden from the user: while they can still answer it,
+/// and always in a manually graded exam, whose results are the teacher's decisions.
+async fn exam_hides_gradings(
     conn: &mut PgConnection,
     exam_id: Uuid,
     user_id: Uuid,
 ) -> Result<bool, ControllerError> {
+    if models::exams::get(conn, exam_id).await?.grade_manually {
+        return Ok(true);
+    }
     Ok(answerable_exam(conn, exam_id, user_id).await?.is_some())
 }
 
@@ -2057,7 +2061,7 @@ fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The grading status of the submission; `GradingHidden` while the submission's exam can still be answered", body = api::ExerciseTaskSubmissionStatus),
+        (status = 200, description = "The grading status of the submission; `GradingHidden` while the submission's exam can still be answered, and always in a manually graded exam", body = api::ExerciseTaskSubmissionStatus),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot view another user's submission grading (message_key `no_access`)", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -2092,9 +2096,8 @@ async fn get_submission_grading(
         "Cannot view another user's submission grading".to_string(),
     )?;
     let token = skip_authorize();
-    // The exam view hides gradings while the user can still answer the exam.
     if let Some(exam_id) = slide_submission.exam_id
-        && is_exam_answerable(&mut conn, exam_id, user.id).await?
+        && exam_hides_gradings(&mut conn, exam_id, user.id).await?
     {
         return token.authorized_ok(web::Json(api::ExerciseTaskSubmissionStatus::GradingHidden));
     }
@@ -2182,7 +2185,7 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first; without scores while the exercise's exam can still be answered", body = Vec<api::ExerciseSlideSubmissionListItem>),
+        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first; without scores while the exercise's exam can still be answered, and always in a manually graded exam", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)", body = crate::domain::error::ApiErrorResponse),
         (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
@@ -2203,7 +2206,7 @@ async fn get_exercise_submissions(
         .await?
         .exam_id
     {
-        Some(exam_id) => is_exam_answerable(&mut conn, exam_id, user.id).await?,
+        Some(exam_id) => exam_hides_gradings(&mut conn, exam_id, user.id).await?,
         None => false,
     };
 

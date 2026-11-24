@@ -387,17 +387,23 @@ async fn sync_checkout(
     let mut unmatched =
         repository_exercises::get_stored_for_repository(conn, repository_id).await?;
     let mut matched = vec![];
-    let mut added = vec![];
+    let mut at_new_paths = vec![];
+    // Paths first: an unchanged copy of an exercise must not take the original's id.
     for exercise in found {
-        let same_path = unmatched
+        match unmatched
             .iter()
-            .position(|s| s.part == exercise.part && s.name == exercise.name);
-        let same_checksum = || {
-            unmatched
-                .iter()
-                .position(|s| s.checksum == exercise.checksum.as_bytes())
-        };
-        match same_path.or_else(same_checksum) {
+            .position(|s| s.part == exercise.part && s.name == exercise.name)
+        {
+            Some(index) => matched.push((unmatched.swap_remove(index), exercise)),
+            None => at_new_paths.push(exercise),
+        }
+    }
+    let mut added = vec![];
+    for exercise in at_new_paths {
+        match unmatched
+            .iter()
+            .position(|s| s.checksum == exercise.checksum.as_bytes())
+        {
             Some(index) => matched.push((unmatched.swap_remove(index), exercise)),
             None => added.push(exercise),
         }
@@ -978,6 +984,31 @@ mod test {
                 .into_iter()
                 .find(|e| e.name == name)
                 .unwrap()
+        }
+
+        #[actix_web::test]
+        async fn an_unchanged_copy_does_not_take_the_original_id() {
+            insert_data!(:tx, :user, :org, :course);
+            let file_store = temp_file_store();
+            let app_conf = init_app_conf().unwrap();
+            let repository_id = insert_repository(tx.as_mut(), course).await;
+            let checkout = tempfile::tempdir().unwrap();
+            let root = checkout.path();
+            write(root, "part01/original/setup.py", "same");
+            sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
+                .await
+                .unwrap();
+            let original = exercise_named(tx.as_mut(), repository_id, "original").await;
+
+            write(root, "part01/a_copy/setup.py", "same");
+            let report = sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
+                .await
+                .unwrap();
+
+            assert_eq!(report.added, vec!["part01/a_copy"]);
+            assert!(report.renamed.is_empty());
+            let original_now = exercise_named(tx.as_mut(), repository_id, "original").await;
+            assert_eq!(original_now.id, original.id);
         }
 
         #[actix_web::test]

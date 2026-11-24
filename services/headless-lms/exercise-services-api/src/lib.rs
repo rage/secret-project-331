@@ -331,7 +331,7 @@ pub enum ExerciseTaskSubmissionStatus {
         submission_page_url: Option<String>,
     },
     /// The submission belongs to an exam the user can still answer, which keeps its grading
-    /// hidden until then.
+    /// hidden until then, or to a manually graded exam, whose results are the teacher's decisions.
     GradingHidden,
     /// A status newer than this crate. Deserialize-only: serializing it is an error, and the
     /// OpenAPI schema omits it.

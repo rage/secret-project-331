@@ -13,9 +13,9 @@ use headless_lms_utils::periodic_worker::{
 use models::library::regrading;
 use sqlx::PgPool;
 
-/// How long a grading may wait for its exercise service before it is taken for lost. Well past the
-/// longest grading run an exercise service allows.
-const STALE_GRADING_AFTER: chrono::Duration = chrono::Duration::minutes(30);
+/// How long a grading may wait for its exercise service before it is taken for lost. A tmc grading
+/// can take about 25 minutes once it runs, after waiting its turn behind other gradings.
+const STALE_GRADING_AFTER: chrono::Duration = chrono::Duration::hours(1);
 
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.

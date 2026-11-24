@@ -7,9 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import { getExerciseAnswerSharesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseAnswerShare, UserDetail } from "@/generated/api/types.generated"
-import { formatUserName, useBulkUserDetails } from "@/hooks/useUserDetails"
+import { formatUserName, useUserDetailsLookup } from "@/hooks/useUserDetails"
 import { dateToString } from "@/shared-module/common/utils/time"
-import { EmptyState, ErrorNotice, Link, Table } from "@/shared-module/components"
+import { EmptyState, Link, QueryResult, Table } from "@/shared-module/components"
 
 interface Props {
   exerciseId: string
@@ -22,22 +22,26 @@ const AnswerShareList: React.FC<Props> = ({ exerciseId, courseId }) => {
   const sharesQuery = useQuery(
     getExerciseAnswerSharesOptions({ path: { exercise_id: exerciseId } }),
   )
-  const shares = useMemo(() => sharesQuery.data ?? [], [sharesQuery.data])
-  const userIds = useMemo(() => Array.from(new Set(shares.map((s) => s.user_id))), [shares])
-  const userDetailsQuery = useBulkUserDetails(courseId, userIds)
-  const userDetailsMap = useMemo(
-    () => new Map<string, UserDetail>((userDetailsQuery.data ?? []).map((u) => [u.user_id, u])),
-    [userDetailsQuery.data],
+  const userIds = useMemo(
+    () => (sharesQuery.data ?? []).map((share) => share.user_id),
+    [sharesQuery.data],
   )
+  const userDetails = useUserDetailsLookup(courseId, userIds)
 
-  if (sharesQuery.isError) {
-    return <ErrorNotice error={sharesQuery.error} />
-  }
-  if (sharesQuery.isSuccess && shares.length === 0) {
-    return <EmptyState title={t("no-shared-answers")} />
-  }
+  return (
+    <QueryResult query={sharesQuery} emptyFallback={<EmptyState title={t("no-shared-answers")} />}>
+      {(shares) => (
+        <AnswerShareTable shares={shares} userOf={(share) => userDetails(share.user_id)} />
+      )}
+    </QueryResult>
+  )
+}
 
-  const userOf = (share: ExerciseAnswerShare) => userDetailsMap.get(share.user_id)
+const AnswerShareTable: React.FC<{
+  shares: ExerciseAnswerShare[]
+  userOf: (share: ExerciseAnswerShare) => UserDetail | undefined
+}> = ({ shares, userOf }) => {
+  const { t } = useTranslation()
   return (
     <Table
       caption={t("header-shared-answers")}

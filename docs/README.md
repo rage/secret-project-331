@@ -5,7 +5,6 @@
 >
 > - To learn more about the courses, visit [https://www.mooc.fi](https://www.mooc.fi).
 > - For teacher documentation, refer to the **Wiki** tab in this repository.
-> - For programming exercises, see the [teacher guide](./teacher-guide-programming-exercises.md); it belongs in the Wiki once the feature ships.
 
 ## Introduction
 

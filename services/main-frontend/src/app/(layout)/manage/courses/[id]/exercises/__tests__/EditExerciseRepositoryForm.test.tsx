@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
 import type { ExerciseRepository } from "@/generated/api/types.generated"
 import { DialogProvider } from "@/shared-module/components"
@@ -77,8 +77,7 @@ describe("EditExerciseRepositoryForm", () => {
     expect(dialog).toHaveTextContent("exercise-repositories-delete-confirm-in-use")
     expect(onDelete).not.toHaveBeenCalled()
 
-    const buttons = screen.getAllByRole("button", { name: "button-text-delete" })
-    fireEvent.click(buttons[buttons.length - 1])
+    fireEvent.click(within(dialog).getByRole("button", { name: "button-text-delete" }))
     await waitFor(() => expect(onDelete).toHaveBeenCalledTimes(1))
   })
 })

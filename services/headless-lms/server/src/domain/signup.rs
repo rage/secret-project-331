@@ -93,20 +93,20 @@ pub async fn check_may_reveal_existing_account(
     }
     let Some(ip) = client_ip else {
         return Err(shared_limits::too_many_requests(
-            UNKNOWN_REQUESTER_RETRY_SECONDS,
+            Utc::now() + chrono::Duration::seconds(UNKNOWN_REQUESTER_RETRY_SECONDS),
         ));
     };
     let (address_key, range_key) = existing_account_keys(ip);
-    let mut longest_full_window = None;
+    let mut last_full_window_end = None;
     for (key, windows) in [
         (&address_key, &*EXISTING_ACCOUNT_LIMITS),
         (&range_key, &*EXISTING_ACCOUNT_RANGE_LIMITS),
     ] {
         let full = shared_limits::full_window(conn, key, windows).await?;
-        longest_full_window = longest_full_window.max(full);
+        last_full_window_end = last_full_window_end.max(full);
     }
-    match longest_full_window {
-        Some(length) => Err(shared_limits::too_many_requests(length)),
+    match last_full_window_end {
+        Some(ends_at) => Err(shared_limits::too_many_requests(ends_at)),
         None => Ok(()),
     }
 }

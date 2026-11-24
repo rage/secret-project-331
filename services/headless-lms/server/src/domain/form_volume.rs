@@ -93,8 +93,7 @@ pub async fn level(conn: &mut PgConnection, purpose: ChallengePurpose) -> ModelR
     let current = shared_rate_counts::current(conn, &volume_key(purpose), &[VOLUME_WINDOW_SECONDS])
         .await?
         .first()
-        .copied()
-        .unwrap_or(0);
+        .map_or(0, |window| window.count);
     let level = config.steps.level(current as f64 / config.baseline);
     if level > 1 {
         warn!("The {purpose:?} form gets unusually many requests; its level is raised to {level}");

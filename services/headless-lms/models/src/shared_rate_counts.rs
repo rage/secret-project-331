@@ -2,14 +2,21 @@
 
 use crate::prelude::*;
 
+/// A key's count in the window of one length that contains the database's `now()`.
+#[derive(Debug, Clone, Copy)]
+pub struct WindowCount {
+    pub count: i64,
+    pub ends_at: DateTime<Utc>,
+}
+
 /// Counts one more event for `key` in each of `windows` (window length in seconds) and returns the
-/// counts after counting, in the same order. Keys are keyed hashes; see the callers. The server
+/// windows after counting, in the same order. Keys are keyed hashes; see the callers. The server
 /// counts through `shared_limits::increment`, which also deletes old windows.
 pub async fn increment(
     conn: &mut PgConnection,
     key: &[u8],
     windows: &[i64],
-) -> ModelResult<Vec<i64>> {
+) -> ModelResult<Vec<WindowCount>> {
     let lengths = window_lengths(windows)?;
     let rows = sqlx::query!(
         r#"
@@ -22,36 +29,49 @@ FROM unnest($2::integer []) AS w(seconds)
 ON CONFLICT (key_digest, window_seconds, window_start) DO UPDATE
 SET count = t.count + 1
 RETURNING window_seconds,
-  count
+  count,
+  window_start + make_interval(secs => window_seconds) AS "ends_at!"
 "#,
         key,
         &lengths,
     )
     .fetch_all(conn)
     .await?;
-    Ok(lengths
+    lengths
         .iter()
         .map(|length| {
             rows.iter()
                 .find(|row| row.window_seconds == *length)
-                .map_or(0, |row| i64::from(row.count))
+                .map(|row| WindowCount {
+                    count: i64::from(row.count),
+                    ends_at: row.ends_at,
+                })
+                .ok_or_else(|| {
+                    model_err!(Generic, format!("No count returned for window {length}"))
+                })
         })
-        .collect())
+        .collect()
 }
 
-/// The current counts of `key` in each of `windows`, without counting.
+/// The current windows of `key` for each of `windows`, without counting.
 pub async fn current(
     conn: &mut PgConnection,
     key: &[u8],
     windows: &[i64],
-) -> ModelResult<Vec<i64>> {
-    let counts = sqlx::query_scalar!(
+) -> ModelResult<Vec<WindowCount>> {
+    let rows = sqlx::query!(
         r#"
-SELECT coalesce(t.count, 0) AS "count!"
-FROM unnest($2::integer []) WITH ORDINALITY AS w(seconds, position)
+SELECT coalesce(t.count, 0) AS "count!",
+  w.start + make_interval(secs => w.seconds) AS "ends_at!"
+FROM (
+    SELECT seconds,
+      position,
+      to_timestamp(floor(extract(epoch FROM now()) / seconds) * seconds) AS start
+    FROM unnest($2::integer []) WITH ORDINALITY AS u(seconds, position)
+  ) w
   LEFT JOIN shared_rate_counts t ON t.key_digest = $1
   AND t.window_seconds = w.seconds
-  AND t.window_start = to_timestamp(floor(extract(epoch FROM now()) / w.seconds) * w.seconds)
+  AND t.window_start = w.start
 ORDER BY w.position
 "#,
         key,
@@ -59,7 +79,13 @@ ORDER BY w.position
     )
     .fetch_all(conn)
     .await?;
-    Ok(counts.into_iter().map(i64::from).collect())
+    Ok(rows
+        .into_iter()
+        .map(|row| WindowCount {
+            count: i64::from(row.count),
+            ends_at: row.ends_at,
+        })
+        .collect())
 }
 
 /// Hard-deletes windows that ended over a day ago.

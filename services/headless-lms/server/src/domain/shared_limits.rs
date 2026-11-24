@@ -44,16 +44,16 @@ static EXEMPT_NETWORKS: LazyLock<Vec<IpNet>> = LazyLock::new(network_limit_exemp
 
 const OLD_WINDOW_CLEANUP_PROBABILITY: f64 = 0.01;
 
-/// Counts a request from `ip` for `name` and returns the length of the longest window it is over,
-/// if any. Requests without a known address, from an exempt network or in test mode are never
-/// over: many people can share one address, and the system tests send many requests from one.
+/// Counts a request from `ip` for `name` and returns when the last window it is over ends, if any.
+/// Requests without a known address, from an exempt network or in test mode are never over: many
+/// people can share one address, and the system tests send many requests from one.
 async fn count_over_window(
     conn: &mut PgConnection,
     pool: &PgPool,
     name: &str,
     ip: Option<IpAddr>,
     windows: &Windows,
-) -> ModelResult<Option<i64>> {
+) -> ModelResult<Option<DateTime<Utc>>> {
     let Some(ip) = ip.filter(|ip| {
         !server_runtime_config().test_mode
             && !EXEMPT_NETWORKS.iter().any(|network| network.contains(ip))
@@ -65,8 +65,8 @@ async fn count_over_window(
     Ok(windows
         .iter()
         .zip(counts)
-        .filter(|((_, max), count)| count > max)
-        .map(|((length, _), _)| *length)
+        .filter(|((_, max), window)| window.count > *max)
+        .map(|(_, window)| window.ends_at)
         .max())
 }
 
@@ -80,36 +80,32 @@ pub async fn check_and_count(
     windows: &Windows,
 ) -> Result<(), ControllerError> {
     match count_over_window(conn, pool, name, ip, windows).await? {
-        Some(length) => Err(too_many_requests(length)),
+        Some(ends_at) => Err(too_many_requests(ends_at)),
         None => Ok(()),
     }
 }
 
-/// `TooManyRequests` with a `Retry-After` of the time left in the current window of `length`
-/// seconds.
-pub fn too_many_requests(length: i64) -> ControllerError {
-    // Windows are fixed and aligned to the epoch, so the current one ends at the next multiple.
-    let remaining = length - Utc::now().timestamp().rem_euclid(length);
+/// `TooManyRequests` with a `Retry-After` until `retry_at`, at least one second.
+pub fn too_many_requests(retry_at: DateTime<Utc>) -> ControllerError {
+    let remaining = (retry_at - Utc::now()).num_seconds().max(1);
     controller_err!(
-        TooManyRequests(Some(StdDuration::from_secs(
-            u64::try_from(remaining).unwrap_or(60),
-        ))),
+        TooManyRequests(Some(StdDuration::from_secs(remaining.unsigned_abs()))),
         "Too many requests. Please try again later.".to_string()
     )
 }
 
-/// The length of the longest window of `windows` that `key` already reached, without counting.
+/// When the last window of `windows` that `key` already reached ends, without counting.
 pub async fn full_window(
     conn: &mut PgConnection,
     key: &[u8],
     windows: &Windows,
-) -> ModelResult<Option<i64>> {
+) -> ModelResult<Option<DateTime<Utc>>> {
     let counts = shared_rate_counts::current(conn, key, &lengths(windows)).await?;
     Ok(windows
         .iter()
         .zip(counts)
-        .filter(|((_, max), count)| count >= max)
-        .map(|((length, _), _)| *length)
+        .filter(|((_, max), window)| window.count >= *max)
+        .map(|(_, window)| window.ends_at)
         .max())
 }
 
@@ -124,7 +120,7 @@ pub async fn count(
     Ok(())
 }
 
-/// Counts one event for `key` in each of `window_lengths` (seconds) and returns the counts after
+/// Counts one event for `key` in each of `window_lengths` (seconds) and returns the windows after
 /// it, in the same order. Every count in `shared_rate_counts` goes through here.
 ///
 /// On a small fraction of calls it also deletes old windows in the background, on a connection from
@@ -134,7 +130,7 @@ pub async fn increment(
     pool: &PgPool,
     key: &[u8],
     window_lengths: &[i64],
-) -> ModelResult<Vec<i64>> {
+) -> ModelResult<Vec<shared_rate_counts::WindowCount>> {
     let counts = shared_rate_counts::increment(conn, key, window_lengths).await?;
     if rand::rng().random_bool(OLD_WINDOW_CLEANUP_PROBABILITY) {
         let pool = pool.clone();

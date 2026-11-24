@@ -99,6 +99,20 @@ pub enum CourseAiPolicy {
     Unrecognized,
 }
 
+/// An exam the user has started and can still answer. Its exercises come from `exams/{id}/exercises`;
+/// their gradings stay hidden until the user can no longer answer the exam.
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "openapi", derive(utoipa::ToSchema))]
+pub struct Exam {
+    pub id: Uuid,
+    pub name: String,
+    /// When the user started the exam.
+    pub started_at: DateTime<Utc>,
+    /// The user's answers are accepted until this moment: the end of their time or of the exam,
+    /// whichever comes first.
+    pub answerable_until: DateTime<Utc>,
+}
+
 /// One selected slide of an exercise, carrying only the tasks whose exercise service can serve
 /// the requesting client. An exercise with no client-servable task, or whose slide also has tasks
 /// the client cannot answer, is omitted entirely by endpoints that return this type, rather than
@@ -108,8 +122,13 @@ pub enum CourseAiPolicy {
 pub struct ExerciseSlide {
     pub slide_id: Uuid,
     pub exercise_id: Uuid,
-    /// The course the exercise belongs to, so a client need not resolve it separately.
+    /// The course the exercise belongs to, so a client need not resolve it separately. The nil
+    /// UUID for an exam exercise, which `exam_id` names instead.
     pub course_id: Uuid,
+    /// The exam the exercise belongs to; absent for a course exercise, and from a host that
+    /// predates the field.
+    #[serde(default)]
+    pub exam_id: Option<Uuid>,
     pub exercise_name: String,
     /// The exercise's position on its page, from 0. Positions repeat across pages; the course's
     /// exercise list is already in material order.
@@ -311,6 +330,9 @@ pub enum ExerciseTaskSubmissionStatus {
         #[serde(default)]
         submission_page_url: Option<String>,
     },
+    /// The submission belongs to an exam the user can still answer, which keeps its grading
+    /// hidden until then.
+    GradingHidden,
     /// A status newer than this crate. Deserialize-only: serializing it is an error, and the
     /// OpenAPI schema omits it.
     #[serde(skip_serializing)]
@@ -324,6 +346,7 @@ impl<'de> Deserialize<'de> for ExerciseTaskSubmissionStatus {
         #[derive(Deserialize)]
         enum Known {
             NoGradingYet,
+            GradingHidden,
             Grading {
                 grading_progress: GradingProgress,
                 score_given: Option<f32>,
@@ -340,7 +363,7 @@ impl<'de> Deserialize<'de> for ExerciseTaskSubmissionStatus {
 
         let value = serde_json::Value::deserialize(deserializer)?;
         let is_known_variant = match &value {
-            serde_json::Value::String(name) => name == "NoGradingYet",
+            serde_json::Value::String(name) => name == "NoGradingYet" || name == "GradingHidden",
             serde_json::Value::Object(map) => map.len() == 1 && map.contains_key("Grading"),
             _ => false,
         };
@@ -350,6 +373,7 @@ impl<'de> Deserialize<'de> for ExerciseTaskSubmissionStatus {
         Ok(
             match serde_json::from_value(value).map_err(serde::de::Error::custom)? {
                 Known::NoGradingYet => Self::NoGradingYet,
+                Known::GradingHidden => Self::GradingHidden,
                 Known::Grading {
                     grading_progress,
                     score_given,
@@ -803,6 +827,7 @@ mod test {
         .unwrap();
         assert_eq!(slide.page_url, None);
         assert!(slide.chapter.is_none());
+        assert_eq!(slide.exam_id, None);
     }
 
     #[test]
@@ -1143,6 +1168,10 @@ mod test {
         assert!(matches!(
             serde_json::from_value::<ExerciseTaskSubmissionStatus>(json!("NoGradingYet")).unwrap(),
             ExerciseTaskSubmissionStatus::NoGradingYet
+        ));
+        assert!(matches!(
+            serde_json::from_value::<ExerciseTaskSubmissionStatus>(json!("GradingHidden")).unwrap(),
+            ExerciseTaskSubmissionStatus::GradingHidden
         ));
     }
 

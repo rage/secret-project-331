@@ -340,6 +340,162 @@
         ]
       }
     },
+    "/api/v0/exercise-services/client/exams": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "* GET /api/v0/exercise-services/client/exams\n *\n * Returns the exams the user has started and can still answer that contain exercises this client\n * can be served.",
+        "operationId": "getClientExams",
+        "parameters": [
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's answerable exams with client-servable exercises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exam"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
+    "/api/v0/exercise-services/client/exams/{id}/exercises": {
+      "get": {
+        "tags": ["exercise-services-client"],
+        "summary": "* GET /api/v0/exercise-services/client/exams/:id/exercises\n *\n * Returns the user's slides of the exam's exercises this client can be served, in the order of the\n * exam page. Selects slides for exercises with no slide selected yet.",
+        "operationId": "getClientExamExercises",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "X-Client-Version",
+            "in": "header",
+            "description": "Optional client version; obsolete clients get 426",
+            "required": false,
+            "schema": {
+              "type": ["string", "null"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The user's client-servable exercise slides of the exam",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlide"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The bearer token is missing or was rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No such exam, or the user has not started it or can no longer answer it",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          },
+          "426": {
+            "description": "The client is obsolete and must be upgraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer_auth": []
+          }
+        ]
+      }
+    },
     "/api/v0/exercise-services/client/exercises/{id}": {
       "get": {
         "tags": ["exercise-services-client"],
@@ -398,7 +554,7 @@
             }
           },
           "404": {
-            "description": "No exercise with the given id exists, it belongs to an exam (not served by this API), or a task of its slide cannot be served to this client",
+            "description": "No exercise with the given id exists, it belongs to an exam the user has not started or can no longer answer, or a task of its slide cannot be served to this client",
             "content": {
               "application/json": {
                 "schema": {
@@ -706,7 +862,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The current user's submissions and snapshots of the exercise, newest first",
+            "description": "The current user's submissions and snapshots of the exercise, newest first; without scores while the exercise's exam can still be answered",
             "content": {
               "application/json": {
                 "schema": {
@@ -739,7 +895,7 @@
             }
           },
           "404": {
-            "description": "No exercise with the given id exists, or it belongs to an exam (not served by this API)",
+            "description": "No exercise with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -1005,7 +1161,7 @@
             }
           },
           "404": {
-            "description": "No submission with the given id exists, or it belongs to an exam",
+            "description": "No submission with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -1060,7 +1216,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The grading status of the submission",
+            "description": "The grading status of the submission; `GradingHidden` while the submission's exam can still be answered",
             "content": {
               "application/json": {
                 "schema": {
@@ -1090,7 +1246,7 @@
             }
           },
           "404": {
-            "description": "No submission with the given id exists, or it belongs to an exam",
+            "description": "No submission with the given id exists",
             "content": {
               "application/json": {
                 "schema": {
@@ -1451,6 +1607,30 @@
           }
         }
       },
+      "Exam": {
+        "type": "object",
+        "description": "An exam the user has started and can still answer. Its exercises come from `exams/{id}/exercises`;\ntheir gradings stay hidden until the user can no longer answer the exam.",
+        "required": ["id", "name", "started_at", "answerable_until"],
+        "properties": {
+          "answerable_until": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The user's answers are accepted until this moment: the end of their time or of the exam,\nwhichever comes first."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the user started the exam."
+          }
+        }
+      },
       "ExerciseChapter": {
         "type": "object",
         "description": "The chapter an exercise belongs to, for grouping a course's exercises the way its material\ndoes.",
@@ -1594,12 +1774,17 @@
           "course_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The course the exercise belongs to, so a client need not resolve it separately."
+            "description": "The course the exercise belongs to, so a client need not resolve it separately. The nil\nUUID for an exam exercise, which `exam_id` names instead."
           },
           "deadline": {
             "type": ["string", "null"],
             "format": "date-time",
             "description": "The effective deadline: the exercise's own, else its chapter's. Submissions are refused\nfrom this moment on."
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The exam the exercise belongs to; absent for a course exercise, and from a host that\npredates the field."
           },
           "exercise_id": {
             "type": "string",
@@ -1805,6 +1990,11 @@
                 }
               }
             }
+          },
+          {
+            "type": "string",
+            "description": "The submission belongs to an exam the user can still answer, which keeps its grading\nhidden until then.",
+            "enum": ["GradingHidden"]
           }
         ],
         "description": "The grading status of a task submission, as polled after `submit`."

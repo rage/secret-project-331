@@ -41,6 +41,8 @@ use utoipa::{IntoParams, OpenApi};
         get_course,
         get_course_exercises,
         get_course_progress,
+        get_exams,
+        get_exam_exercises,
         get_exercise,
         upload_exercise_files,
         submit_exercise,
@@ -65,6 +67,7 @@ use utoipa::{IntoParams, OpenApi};
         api::ExerciseProgress,
         api::ClosedChapter,
         api::ExerciseStanding,
+        api::Exam,
         api::ReviewingStage,
         api::TeacherReview,
         api::TeacherDecision,
@@ -702,6 +705,7 @@ async fn get_course_exercises(
                 slide_id: slide.id,
                 exercise_id: open_exercise.id,
                 course_id: course.id,
+                exam_id: None,
                 exercise_name: open_exercise.name,
                 exercise_order_number: open_exercise.order_number,
                 deadline,
@@ -1122,7 +1126,7 @@ async fn get_course_progress(
         (status = 200, description = "An exercise slide for the user, carrying only the tasks whose exercise service can serve this client", body = api::ExerciseSlide),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope (message_key `insufficient_scope`), the user may not view this exercise (`no_access`), or the exercise's chapter has not opened yet (`chapter_not_open_yet`)", body = crate::domain::error::ApiErrorResponse),
-        (status = 404, description = "No exercise with the given id exists, it belongs to an exam (not served by this API), or a task of its slide cannot be served to this client", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists, it belongs to an exam the user has not started or can no longer answer, or a task of its slide cannot be served to this client", body = crate::domain::error::ApiErrorResponse),
         (status = 422, description = "The user is not enrolled to this exercise's course (message_key `not_enrolled`)", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
@@ -1147,12 +1151,27 @@ async fn get_exercise(
     .map_err(keyed_no_access)?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    // Before selecting a slide, which would be stored for the user even before the exam starts.
-    if exercise.exam_id.is_some() {
-        return Err(controller_err!(
-            NotFound,
-            "This exercise belongs to an exam, which the client API does not serve".to_string()
-        ));
+    if let Some(exam_id) = exercise.exam_id {
+        // Checked before selecting a slide, which would be stored for the user.
+        let exam = answerable_exam_or_not_found(&mut conn, exam_id, user.id).await?;
+        let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+        let slide = exam_exercise_slide(
+            &mut conn,
+            user.id,
+            &exam,
+            exercise,
+            &capable_slugs,
+            file_store.as_ref(),
+            app_conf.as_ref(),
+        )
+        .await?
+        .ok_or_else(|| {
+            controller_err!(
+                NotFound,
+                "This exercise has a task this client cannot answer, so it must be answered in the exam".to_string()
+            )
+        })?;
+        return token.authorized_ok(web::Json(slide));
     }
     if let Some(course_id) = exercise.course_id {
         authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
@@ -1240,6 +1259,7 @@ async fn get_exercise(
         slide_id: exercise_slide.id,
         exercise_id: exercise.id,
         course_id,
+        exam_id: None,
         exercise_name: exercise.name,
         exercise_order_number: exercise.order_number,
         deadline,
@@ -1254,6 +1274,200 @@ async fn get_exercise(
             .as_ref()
             .map(|c| exercise_chapter(c, &locking_statuses)),
     }))
+}
+
+/// The exam as the client is told it, when the user has started it and can still answer it.
+async fn answerable_exam(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> Result<Option<api::Exam>, ControllerError> {
+    let Some(enrollment) = models::exams::get_enrollment(conn, exam_id, user_id).await? else {
+        return Ok(None);
+    };
+    if !models::exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await? {
+        return Ok(None);
+    }
+    let exam = models::exams::get(conn, exam_id).await?;
+    let time_ends_at = enrollment.started_at + chrono::Duration::minutes(exam.time_minutes.into());
+    Ok(Some(api::Exam {
+        id: exam.id,
+        name: exam.name,
+        started_at: enrollment.started_at,
+        answerable_until: exam
+            .ends_at
+            .map_or(time_ends_at, |ends_at| ends_at.min(time_ends_at)),
+    }))
+}
+
+/// [`answerable_exam`], answering an exam the user cannot answer now as not found, as the exam view
+/// shows nothing of it either.
+async fn answerable_exam_or_not_found(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> Result<api::Exam, ControllerError> {
+    answerable_exam(conn, exam_id, user_id)
+        .await?
+        .ok_or_else(|| {
+            controller_err!(
+                NotFound,
+                "This exercise belongs to an exam the user has not started or can no longer answer"
+                    .to_string()
+            )
+        })
+}
+
+/// The user's slide of an exam exercise, or `None` when the slide has a task this client cannot
+/// answer. Exams reveal no model solutions.
+async fn exam_exercise_slide(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exam: &api::Exam,
+    exercise: models::exercises::Exercise,
+    capable_slugs: &[String],
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> Result<Option<api::ExerciseSlide>, ControllerError> {
+    let (slide, _) = models::exercises::get_or_select_exercise_slide(
+        conn,
+        Some(user_id),
+        &exercise,
+        models_requests::fetch_service_info,
+        file_store,
+        app_conf,
+    )
+    .await?;
+    let tasks = client_tasks_from_slide(slide.exercise_tasks, capable_slugs, false);
+    if tasks.is_empty() {
+        return Ok(None);
+    }
+    Ok(Some(api::ExerciseSlide {
+        slide_id: slide.id,
+        exercise_id: exercise.id,
+        course_id: Uuid::nil(),
+        exam_id: Some(exam.id),
+        exercise_name: exercise.name,
+        exercise_order_number: exercise.order_number,
+        deadline: Some(exam.answerable_until),
+        tasks,
+        page_url: None,
+        chapter: None,
+    }))
+}
+
+/**
+ * GET /api/v0/exercise-services/client/exams
+ *
+ * Returns the exams the user has started and can still answer that contain exercises this client
+ * can be served.
+ */
+#[utoipa::path(
+    get,
+    path = "/exams",
+    operation_id = "getClientExams",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    responses(
+        (status = 200, description = "The user's answerable exams with client-servable exercises", body = Vec<api::Exam>),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_exams(
+    pool: web::Data<PgPool>,
+    user: UserFromOAuthToken,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<Vec<api::Exam>>> {
+    let mut conn = pool.acquire().await?;
+    // Only the user's own enrollments are read.
+    let token = skip_authorize();
+    let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+    let mut exams = Vec::new();
+    for exam_id in
+        models::exams::get_unfinished_enrollment_exam_ids_for_user(&mut conn, user.id).await?
+    {
+        let Some(exam) = answerable_exam(&mut conn, exam_id, user.id).await? else {
+            continue;
+        };
+        let exercise_ids: Vec<Uuid> =
+            models::exercises::get_exercises_by_exam_id(&mut conn, exam_id)
+                .await?
+                .into_iter()
+                .map(|exercise| exercise.id)
+                .collect();
+        if !client_capable_exercise_ids(&mut conn, &exercise_ids, &capable_slugs)
+            .await?
+            .is_empty()
+        {
+            exams.push(exam);
+        }
+    }
+    token.authorized_ok(web::Json(exams))
+}
+
+/**
+ * GET /api/v0/exercise-services/client/exams/:id/exercises
+ *
+ * Returns the user's slides of the exam's exercises this client can be served, in the order of the
+ * exam page. Selects slides for exercises with no slide selected yet.
+ */
+#[utoipa::path(
+    get,
+    path = "/exams/{id}/exercises",
+    operation_id = "getClientExamExercises",
+    tag = "exercise-services-client",
+    security(("bearer_auth" = [])),
+    params(
+        ("id" = Uuid, Path, description = "Exam id"),
+        ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
+    ),
+    responses(
+        (status = 200, description = "The user's client-servable exercise slides of the exam", body = Vec<api::ExerciseSlide>),
+        (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
+        (status = 403, description = "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No such exam, or the user has not started it or can no longer answer it", body = crate::domain::error::ApiErrorResponse),
+        (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
+    )
+)]
+#[instrument(skip(pool, file_store, app_conf))]
+async fn get_exam_exercises(
+    pool: web::Data<PgPool>,
+    user: UserFromOAuthToken,
+    exam_id: web::Path<Uuid>,
+    file_store: web::Data<dyn FileStore>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    _client: SupportedClient,
+) -> ControllerResult<web::Json<Vec<api::ExerciseSlide>>> {
+    let mut conn = pool.acquire().await?;
+    let exam = answerable_exam_or_not_found(&mut conn, *exam_id, user.id).await?;
+    // The user has started the exam, which is what lets them see its exercises.
+    let token = skip_authorize();
+    let capable_slugs = native_client_capable_slugs(&mut conn).await?;
+    let mut exercises = models::exercises::get_exercises_by_exam_id(&mut conn, exam.id).await?;
+    exercises.sort_by_key(|exercise| (exercise.order_number, exercise.id));
+    let mut slides = Vec::new();
+    for exercise in exercises {
+        if let Some(slide) = exam_exercise_slide(
+            &mut conn,
+            user.id,
+            &exam,
+            exercise,
+            &capable_slugs,
+            file_store.as_ref(),
+            app_conf.as_ref(),
+        )
+        .await?
+        {
+            slides.push(slide);
+        }
+    }
+    token.authorized_ok(web::Json(slides))
 }
 
 /// Rejects a user without a live enrollment on the exercise's course, before a graded submission.
@@ -1305,6 +1519,37 @@ fn not_enrolled_error() -> ControllerError {
     )
 }
 
+/// Rejects a user who may not answer the exercise here: a course exercise needs an enrollment (one
+/// that once existed, for a snapshot) and an open chapter, an exam exercise an exam the user can
+/// still answer, and takes no snapshots. Returns whose the answers are.
+async fn verify_can_answer(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise: &models::exercises::Exercise,
+    is_for_snapshot: bool,
+) -> Result<CourseOrExamId, ControllerError> {
+    match (exercise.course_id, exercise.exam_id) {
+        (Some(course_id), _) => {
+            if is_for_snapshot {
+                verify_was_enrolled(conn, user_id, course_id).await?;
+            } else {
+                verify_enrolled(conn, user_id, course_id).await?;
+            }
+            authorize_access_to_exercise_chapter(conn, user_id, course_id, exercise.chapter_id)
+                .await?;
+            Ok(CourseOrExamId::Course(course_id))
+        }
+        (None, Some(exam_id)) if !is_for_snapshot => {
+            answerable_exam_or_not_found(conn, exam_id, user_id).await?;
+            Ok(CourseOrExamId::Exam(exam_id))
+        }
+        _ => Err(controller_err!(
+            NotFound,
+            "Exam exercises take no snapshots".to_string()
+        )),
+    }
+}
+
 /// The URL path authorizes `exercise_id`; the slide/task ids come from the request body,
 /// so without this check a caller could submit into an unrelated exercise's slide/task.
 fn verify_slide_and_task_belong(
@@ -1344,8 +1589,16 @@ fn verify_submission_owner(
     Ok(())
 }
 
-/// Answers an exam submission as not found: the exam view hides answers and gradings while the exam
-/// runs, and this API serves no exams.
+/// Whether the user can still answer the exam, which hides its gradings until then.
+async fn is_exam_answerable(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> Result<bool, ControllerError> {
+    Ok(answerable_exam(conn, exam_id, user_id).await?.is_some())
+}
+
+/// Answers an exam submission as not found where this API offers nothing for exams.
 fn verify_not_exam_submission(
     slide_submission: &models::exercise_slide_submissions::ExerciseSlideSubmission,
 ) -> Result<(), ControllerError> {
@@ -1465,17 +1718,8 @@ async fn upload_exercise_files(
     .map_err(keyed_no_access)?;
 
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    let course_id = exercise
-        .course_id
-        .ok_or_else(|| anyhow::anyhow!("Cannot upload files for non-course exercises"))?;
     let is_for_snapshot = query.r#for == Some(UploadFor::Snapshot);
-    if is_for_snapshot {
-        verify_was_enrolled(&mut conn, user.id, course_id).await?;
-    } else {
-        verify_enrolled(&mut conn, user.id, course_id).await?;
-    }
-    authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
-        .await?;
+    let owner = verify_can_answer(&mut conn, user.id, &exercise, is_for_snapshot).await?;
     if !is_for_snapshot {
         domain::exercises::verify_user_can_answer_exercise(&mut conn, user.id, &exercise).await?;
     }
@@ -1485,7 +1729,7 @@ async fn upload_exercise_files(
     let stored = store_client_uploads(
         &mut conn,
         &file_uploading::AnswerUploadDestination {
-            owner: CourseOrExamId::Course(course_id),
+            owner,
             exercise_id: exercise.id,
             user_id: user.id,
         },
@@ -1631,12 +1875,7 @@ async fn submit_exercise(
 
     let submission = submission.into_inner();
     let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
-    let course_id = exercise
-        .course_id
-        .ok_or_else(|| anyhow::anyhow!("Cannot answer non-course exercises"))?;
-    verify_enrolled(&mut conn, user.id, course_id).await?;
-    authorize_access_to_exercise_chapter(&mut conn, user.id, course_id, exercise.chapter_id)
-        .await?;
+    verify_can_answer(&mut conn, user.id, &exercise, false).await?;
     let exercise_slide =
         models::exercise_slides::get_exercise_slide(&mut conn, submission.exercise_slide_id)
             .await?;
@@ -1818,10 +2057,10 @@ fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The grading status of the submission", body = api::ExerciseTaskSubmissionStatus),
+        (status = 200, description = "The grading status of the submission; `GradingHidden` while the submission's exam can still be answered", body = api::ExerciseTaskSubmissionStatus),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot view another user's submission grading (message_key `no_access`)", body = crate::domain::error::ApiErrorResponse),
-        (status = 404, description = "No submission with the given id exists, or it belongs to an exam", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1852,8 +2091,13 @@ async fn get_submission_grading(
         user.id,
         "Cannot view another user's submission grading".to_string(),
     )?;
-    verify_not_exam_submission(&slide_submission)?;
     let token = skip_authorize();
+    // The exam view hides gradings while the user can still answer the exam.
+    if let Some(exam_id) = slide_submission.exam_id
+        && is_exam_answerable(&mut conn, exam_id, user.id).await?
+    {
+        return token.authorized_ok(web::Json(api::ExerciseTaskSubmissionStatus::GradingHidden));
+    }
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
         &mut conn,
@@ -1938,10 +2182,10 @@ fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
         ("X-Client-Version" = Option<String>, Header, description = "Optional client version; obsolete clients get 426")
     ),
     responses(
-        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first", body = Vec<api::ExerciseSlideSubmissionListItem>),
+        (status = 200, description = "The current user's submissions and snapshots of the exercise, newest first; without scores while the exercise's exam can still be answered", body = Vec<api::ExerciseSlideSubmissionListItem>),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "The token lacks the `exercise-services` scope (message_key `insufficient_scope`)", body = crate::domain::error::ApiErrorResponse),
-        (status = 404, description = "No exercise with the given id exists, or it belongs to an exam (not served by this API)", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No exercise with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -1955,17 +2199,13 @@ async fn get_exercise_submissions(
     let mut conn = pool.acquire().await?;
     // The query is scoped to the current user, so no further authorization is needed.
     let token = skip_authorize();
-    // The exam view hides gradings while the exam runs; this API must not reveal them either.
-    if models::exercises::get_by_id(&mut conn, *exercise_id)
+    let grading_is_hidden = match models::exercises::get_by_id(&mut conn, *exercise_id)
         .await?
         .exam_id
-        .is_some()
     {
-        return Err(controller_err!(
-            NotFound,
-            "This exercise belongs to an exam, which the client API does not serve".to_string()
-        ));
-    }
+        Some(exam_id) => is_exam_answerable(&mut conn, exam_id, user.id).await?,
+        None => false,
+    };
 
     // One query for the whole listing, gradings joined in: an editor slide has a single task, so
     // its grading is the slide's grading.
@@ -1993,11 +2233,14 @@ async fn get_exercise_submissions(
         models::exercise_slide_submission_shares::shared_among(&mut conn, user.id, &listed_ids)
             .await?;
 
-    token.authorized_ok(web::Json(submission_list_items(
-        submissions,
-        snapshots,
-        &shared_ids,
-    )))
+    let mut items = submission_list_items(submissions, snapshots, &shared_ids);
+    if grading_is_hidden {
+        for item in &mut items {
+            item.score_given = None;
+            item.grading_progress = None;
+        }
+    }
+    token.authorized_ok(web::Json(items))
 }
 
 /// Submissions and snapshots in one list, newest first.
@@ -2058,7 +2301,7 @@ fn submission_list_items(
         (status = 200, description = "The files the submission or snapshot was made from, in the order they were recorded; the same shape whether the submission came from a native client or the service's IFrame", body = api::SubmissionFiles),
         (status = 401, description = "The bearer token is missing or was rejected", body = crate::domain::error::ApiErrorResponse),
         (status = 403, description = "Cannot download another user's submission (message_key `no_access`)", body = crate::domain::error::ApiErrorResponse),
-        (status = 404, description = "No submission with the given id exists, or it belongs to an exam", body = crate::domain::error::ApiErrorResponse),
+        (status = 404, description = "No submission with the given id exists", body = crate::domain::error::ApiErrorResponse),
         (status = 426, description = "The client is obsolete and must be upgraded", body = crate::domain::error::ApiErrorResponse)
     )
 )]
@@ -2095,7 +2338,6 @@ async fn download_submission(
         user.id,
         "Cannot download another user's submission".to_string(),
     )?;
-    verify_not_exam_submission(&slide_submission)?;
     let token = skip_authorize();
 
     let task_submissions = models::exercise_task_submissions::get_by_exercise_slide_submission_id(
@@ -2280,6 +2522,8 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_course_exercises),
         )
         .route("/courses/{id}/progress", web::get().to(get_course_progress))
+        .route("/exams", web::get().to(get_exams))
+        .route("/exams/{id}/exercises", web::get().to(get_exam_exercises))
         .route("/exercises/{id}", web::get().to(get_exercise))
         .route(
             "/exercises/{id}/files",
@@ -3484,7 +3728,7 @@ mod route_tests {
         exercise: Uuid,
         slide: Uuid,
         task: Uuid,
-        /// A task of the fixture exercise whose exercise service does not declare
+        /// A task, in an exercise of its own, whose exercise service does not declare
         /// `supports_native_client`, so this API cannot serve it.
         unservable_task: Uuid,
         token: String,
@@ -4847,8 +5091,15 @@ mod route_tests {
             .insert_header(("Authorization", format!("Bearer {token}")))
             .to_request();
         let response = test::call_service(app, request).await;
-        assert_eq!(response.status(), StatusCode::OK, "GET {uri}");
-        test::read_body_json(response).await
+        let status = response.status();
+        let body = test::read_body(response).await;
+        assert_eq!(
+            status,
+            StatusCode::OK,
+            "GET {uri}: {}",
+            String::from_utf8_lossy(&body)
+        );
+        serde_json::from_slice(&body).expect("JSON body")
     }
 
     /// The deadline the single and list views serve for the fixture exercise, in whole seconds.
@@ -5903,37 +6154,122 @@ mod route_tests {
         assert_eq!(message_key(&body), "backup_not_shareable");
     }
 
+    /// Moves the fixture's exercise into a running exam, which the user has started when
+    /// `is_started`, and returns the exam's id.
+    async fn move_fixture_exercise_to_running_exam(fixture: &Fixture, is_started: bool) -> Uuid {
+        let mut conn = PgConnection::connect(&dev_database_url())
+            .await
+            .expect("connection");
+        let organization_id = models::courses::get_course(&mut conn, fixture.course)
+            .await
+            .expect("course")
+            .organization_id;
+        let exam = models::exams::insert(
+            &mut conn,
+            models::PKeyPolicy::Generate,
+            &models::exams::NewExam {
+                name: "Exam".to_string(),
+                starts_at: Some(Utc::now() - ChronoDuration::hours(1)),
+                ends_at: Some(Utc::now() + ChronoDuration::hours(1)),
+                time_minutes: 60,
+                organization_id,
+                minimum_points_treshold: 0,
+                grade_manually: false,
+            },
+        )
+        .await
+        .expect("exam");
+        models::pages::insert_exam_page(
+            &mut conn,
+            exam,
+            models::pages::NewPage {
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                content: vec![],
+                url_path: String::new(),
+                title: "Exam".to_string(),
+                course_id: None,
+                exam_id: Some(exam),
+                chapter_id: None,
+                front_page_of_chapter_id: None,
+                content_search_language: None,
+                hidden: false,
+            },
+            fixture.user,
+        )
+        .await
+        .expect("exam page");
+        models::exercises::move_to_exam_for_tests(&mut conn, fixture.exercise, exam)
+            .await
+            .expect("move the exercise into the exam");
+        if is_started {
+            models::exams::enroll(&mut conn, exam, fixture.user, false)
+                .await
+                .expect("start the exam");
+        }
+        exam
+    }
+
+    #[actix_web::test]
+    async fn a_started_exam_and_its_exercises_are_served() {
+        let fixture = committed_fixture(true).await;
+        let exam = move_fixture_exercise_to_running_exam(&fixture, true).await;
+        let app = client_api_app!();
+
+        let exams: Vec<api::Exam> = get_json(&app, &fixture.token, "/exams".to_string()).await;
+        assert_eq!(exams.iter().map(|e| e.id).collect::<Vec<_>>(), vec![exam]);
+        assert!(exams[0].answerable_until <= Utc::now() + ChronoDuration::minutes(61));
+
+        let slides: Vec<api::ExerciseSlide> =
+            get_json(&app, &fixture.token, format!("/exams/{exam}/exercises")).await;
+        assert_eq!(
+            slides.iter().map(|s| s.exercise_id).collect::<Vec<_>>(),
+            vec![fixture.exercise]
+        );
+        assert_eq!(slides[0].exam_id, Some(exam));
+        assert!(
+            slides[0]
+                .tasks
+                .iter()
+                .all(|t| t.model_solution_spec.is_none())
+        );
+
+        let slide: api::ExerciseSlide = get_json(
+            &app,
+            &fixture.token,
+            format!("/exercises/{}", fixture.exercise),
+        )
+        .await;
+        assert_eq!(slide.exam_id, Some(exam));
+    }
+
+    #[actix_web::test]
+    async fn an_exam_the_user_has_not_started_is_not_served() {
+        let fixture = committed_fixture(true).await;
+        let exam = move_fixture_exercise_to_running_exam(&fixture, false).await;
+        let app = client_api_app!();
+
+        let exams: Vec<api::Exam> = get_json(&app, &fixture.token, "/exams".to_string()).await;
+        assert!(exams.is_empty());
+        for uri in [
+            format!("/exams/{exam}/exercises"),
+            format!("/exercises/{}", fixture.exercise),
+        ] {
+            let request = test::TestRequest::get()
+                .uri(&uri)
+                .insert_header(("Authorization", format!("Bearer {}", fixture.token)))
+                .to_request();
+            let response = test::call_service(&app, request).await;
+            assert_eq!(response.status(), StatusCode::NOT_FOUND, "GET {uri}");
+        }
+    }
+
     #[actix_web::test]
     async fn an_exam_exercise_cannot_be_snapshotted() {
         let fixture = committed_fixture(true).await;
         let file = upload_two(&fixture).await[0];
-        {
-            let mut conn = PgConnection::connect(&dev_database_url())
-                .await
-                .expect("connection");
-            let organization_id = models::courses::get_course(&mut conn, fixture.course)
-                .await
-                .expect("course")
-                .organization_id;
-            let exam = models::exams::insert(
-                &mut conn,
-                models::PKeyPolicy::Generate,
-                &models::exams::NewExam {
-                    name: "Exam".to_string(),
-                    starts_at: Some(Utc::now() - ChronoDuration::hours(1)),
-                    ends_at: Some(Utc::now() + ChronoDuration::hours(1)),
-                    time_minutes: 60,
-                    organization_id,
-                    minimum_points_treshold: 0,
-                    grade_manually: false,
-                },
-            )
-            .await
-            .expect("exam");
-            models::exercises::move_to_exam_for_tests(&mut conn, fixture.exercise, exam)
-                .await
-                .expect("move the exercise into the exam");
-        }
+        move_fixture_exercise_to_running_exam(&fixture, true).await;
         let app = client_api_app!();
         let request = snapshot_request(fixture.exercise, &fixture.token, &paste_of(&fixture, file))
             .to_request();

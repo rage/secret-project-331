@@ -1,3 +1,56 @@
+ALTER TABLE oauth_refresh_tokens
+ADD COLUMN family_id UUID;
+-- Until now every (user, client) pair was one family.
+UPDATE oauth_refresh_tokens AS t
+SET family_id = f.family_id
+FROM (
+    SELECT user_id,
+      client_id,
+      uuid_generate_v4() AS family_id
+    FROM oauth_refresh_tokens
+    GROUP BY user_id,
+      client_id
+  ) AS f
+WHERE f.user_id = t.user_id
+  AND f.client_id = t.client_id;
+ALTER TABLE oauth_refresh_tokens
+ALTER COLUMN family_id
+SET DEFAULT uuid_generate_v4(),
+  ALTER COLUMN family_id
+SET NOT NULL;
+CREATE INDEX oauth_refresh_tokens_family_id_idx ON oauth_refresh_tokens (family_id);
+COMMENT ON COLUMN oauth_refresh_tokens.family_id IS 'The login this refresh token descends from: one per authorization-code or device-code redemption, inherited on rotation. Reuse detection and revoking a refresh token end only this family, so one login of a user does not end their others.';
+ALTER TABLE oauth_access_tokens
+ADD COLUMN refresh_token_family_id UUID;
+UPDATE oauth_access_tokens AS a
+SET refresh_token_family_id = (
+    SELECT t.family_id
+    FROM oauth_refresh_tokens AS t
+    WHERE t.user_id = a.user_id
+      AND t.client_id = a.client_id
+    LIMIT 1
+  )
+WHERE a.user_id IS NOT NULL;
+CREATE INDEX oauth_access_tokens_refresh_token_family_id_idx ON oauth_access_tokens (refresh_token_family_id)
+WHERE refresh_token_family_id IS NOT NULL;
+COMMENT ON COLUMN oauth_access_tokens.refresh_token_family_id IS 'The refresh-token family (oauth_refresh_tokens.family_id) this access token was issued with, so ending a family also ends its access tokens. NULL for an access token issued without a refresh token.';
+
+CREATE TABLE course_model_solution_settings (
+  course_id UUID PRIMARY KEY REFERENCES courses,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  reveal_after_deadline BOOLEAN NOT NULL DEFAULT FALSE,
+  reveal_at TIMESTAMP WITH TIME ZONE
+);
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON course_model_solution_settings FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMENT ON TABLE course_model_solution_settings IS 'When a course shows its exercises'' model solutions to students who have neither solved the exercise nor used up its tries. A course without a row reveals them only to those students.';
+COMMENT ON COLUMN course_model_solution_settings.course_id IS 'The course the settings are for.';
+COMMENT ON COLUMN course_model_solution_settings.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN course_model_solution_settings.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN course_model_solution_settings.reveal_after_deadline IS 'Whether an exercise''s model solution is shown to every student once the exercise''s deadline (its own, else its chapter''s) has passed.';
+COMMENT ON COLUMN course_model_solution_settings.reveal_at IS 'From when every exercise''s model solution is shown to every student. NULL for never.';
+
 ALTER TABLE exercise_repositories
 ADD COLUMN branch VARCHAR(255),
   ADD COLUMN sync_requested_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -57,3 +110,9 @@ CREATE INDEX idx_exercise_tasks_repository_exercise_download_url ON exercise_tas
   (private_spec -> 'repository_exercise' ->> 'download_url')
 )
 WHERE (private_spec -> 'repository_exercise' ->> 'download_url') IS NOT NULL;
+
+CREATE INDEX exercise_task_gradings_pending_updated_at_idx ON exercise_task_gradings (updated_at)
+WHERE grading_progress = 'pending'
+  AND deleted_at IS NULL;
+CREATE INDEX exercise_task_submissions_exercise_task_grading_id_idx ON exercise_task_submissions (exercise_task_grading_id)
+WHERE deleted_at IS NULL;

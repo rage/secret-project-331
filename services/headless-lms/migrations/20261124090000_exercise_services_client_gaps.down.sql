@@ -1,3 +1,5 @@
+DROP INDEX exercise_task_submissions_exercise_task_grading_id_idx;
+DROP INDEX exercise_task_gradings_pending_updated_at_idx;
 DROP INDEX idx_exercise_tasks_repository_exercise_download_url;
 DROP INDEX idx_exercise_tasks_repository_exercise_id;
 DROP TABLE retired_repository_exercise_archives;
@@ -11,3 +13,6 @@ ALTER TABLE exercise_repositories DROP COLUMN branch,
   DROP COLUMN last_synced_at,
   DROP COLUMN last_sync_report;
 COMMENT ON COLUMN exercise_repositories.status IS 'The status of the process for adding the repository.';
+DROP TABLE course_model_solution_settings;
+ALTER TABLE oauth_access_tokens DROP COLUMN refresh_token_family_id;
+ALTER TABLE oauth_refresh_tokens DROP COLUMN family_id;

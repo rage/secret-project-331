@@ -1,2 +1,0 @@
-DROP INDEX exercise_task_submissions_exercise_task_grading_id_idx;
-DROP INDEX exercise_task_gradings_pending_updated_at_idx;

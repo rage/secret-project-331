@@ -15,9 +15,6 @@ vi.mock("@/lib", () => ({
 vi.mock("@/tmc/langs", () => ({
   extractProject: vi.fn(),
   prepareExerciseRepository: vi.fn(),
-  getExercisePackagingConfiguration: vi.fn(() =>
-    Promise.resolve({ student_file_paths: [], exercise_file_paths: [], plugin: "python3" }),
-  ),
 }))
 vi.mock("@/shared-module/common/errors/reportErrorOccurrence", () => ({
   reportErrorOccurrence: vi.fn(() => Promise.resolve(undefined)),
@@ -31,8 +28,11 @@ function post(body: unknown): Request {
   })
 }
 
-/** Makes the stubbed extraction produce the given files and the preparation find `part01/ex`. */
-function checkoutWith(files: Record<string, string>) {
+/**
+ * Makes the stubbed extraction produce the given files and the preparation find `part01/ex`,
+ * reporting `writtenFiles` as written.
+ */
+function checkoutWith(files: Record<string, string>, writtenFiles: string[]) {
   vi.mocked(extractProject).mockImplementation(async (_archive, checkout) => {
     for (const [relative, contents] of Object.entries(files)) {
       await fs.mkdir(path.dirname(path.join(checkout, relative)), { recursive: true })
@@ -40,7 +40,16 @@ function checkoutWith(files: Record<string, string>) {
     }
   })
   vi.mocked(prepareExerciseRepository).mockImplementation((checkout) =>
-    Promise.resolve([{ path: path.join(checkout, "part01/ex"), part: "part01", name: "ex" }]),
+    Promise.resolve([
+      {
+        path: path.join(checkout, "part01/ex"),
+        part: "part01",
+        name: "ex",
+        plugin: "python3",
+        tests_timeout_ms: 1000,
+        written_files: writtenFiles,
+      },
+    ]),
   )
 }
 
@@ -50,11 +59,14 @@ describe("POST /api/prepare-repository", () => {
     expect(res.status).toBe(400)
   })
 
-  it("reports each exercise with its merged config and plugin", async () => {
-    checkoutWith({
-      ".tmcproject.yml": "tests_timeout_ms: 1000\n",
-      "part01/ex/.tmcproject.yml": "merged: true\n",
-    })
+  it("reports each exercise with the files langs wrote and its plugin", async () => {
+    checkoutWith(
+      {
+        ".tmcproject.yml": "tests_timeout_ms: 1000\n",
+        "part01/ex/.tmcproject.yml": "merged: true\n",
+      },
+      [".tmcproject.yml"],
+    )
     const res = await handlePrepareRepository(post({ checkout_download_url: "http://files/c" }))
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({
@@ -70,8 +82,8 @@ describe("POST /api/prepare-repository", () => {
     })
   })
 
-  it("rewrites no files in a repository without a root config", async () => {
-    checkoutWith({ "part01/ex/setup.py": "" })
+  it("sends no files when langs wrote none", async () => {
+    checkoutWith({ "part01/ex/.tmcproject.yml": "own: true\n" }, [])
     const res = await handlePrepareRepository(post({ checkout_download_url: "http://files/c" }))
     const body = (await res.json()) as { exercises: { files: unknown[] }[] }
     expect(body.exercises[0]?.files).toEqual([])

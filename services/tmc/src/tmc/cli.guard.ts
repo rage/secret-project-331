@@ -194,7 +194,13 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e === "function") &&
                     typeof e["path"] === "string" &&
                     typeof e["part"] === "string" &&
-                    typeof e["name"] === "string"
+                    typeof e["name"] === "string" &&
+                    typeof e["plugin"] === "string" &&
+                    typeof e["tests_timeout_ms"] === "number" &&
+                    Array.isArray(e["written_files"]) &&
+                    e["written_files"].every((e: any) =>
+                        typeof e === "string"
+                    )
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||

@@ -1,5 +1,5 @@
 // VERSION=0.42.1
-// Type surface regenerated from tmc-langs-rust 2858a60d57e (tmc-langs-cli 0.42.1) by bin/tmc-langs-update-bindings-from-checkout
+// Type surface regenerated from tmc-langs-rust 8069d8e6f9c (tmc-langs-cli 0.42.1) by bin/tmc-langs-update-bindings-from-checkout
 
 export type Locale = string
 
@@ -304,6 +304,19 @@ export type RepositoryExercise = {
    * The exercise directory's name.
    */
   name: string
+  /**
+   * The language plugin that recognised the exercise, as `get-exercise-packaging-configuration`
+   * names it.
+   */
+  plugin: string
+  /**
+   * How long the exercise's tests may run, with the repository's root config merged in.
+   */
+  tests_timeout_ms: number
+  /**
+   * The files this command wrote into the exercise directory, relative to it.
+   */
+  written_files: Array<string>
 }
 
 export type TmcProjectYml = {

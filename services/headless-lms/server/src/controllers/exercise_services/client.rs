@@ -357,15 +357,6 @@ fn exercise_chapter(
     }
 }
 
-/// The deadline submissions are refused from, as the submit gate applies it: the exercise's own
-/// deadline takes precedence over its chapter's.
-fn effective_deadline(
-    exercise: &models::exercises::Exercise,
-    chapter: Option<&DatabaseChapter>,
-) -> Option<DateTime<Utc>> {
-    exercise.deadline.or(chapter.and_then(|c| c.deadline))
-}
-
 /// Rejects a user to whom the course material or the exercise's chapter is not open. A chapter
 /// that has not opened yet gets its own `chapter_not_open_yet` key, so a client can tell it apart
 /// from a token that lacks the scope.
@@ -705,7 +696,7 @@ async fn get_course_exercises(
             let chapter = open_exercise
                 .chapter_id
                 .and_then(|id| open_chapters.get(&id));
-            let deadline = effective_deadline(&open_exercise, chapter);
+            let deadline = open_exercise.effective_deadline(chapter.and_then(|c| c.deadline));
             slides.push(api::ExerciseSlide {
                 slide_id: slide.id,
                 exercise_id: open_exercise.id,
@@ -773,10 +764,7 @@ async fn exercise_progress(
             && !is_being_graded(state)
             && !is_in_peer_or_self_review(state)
             && pending_teacher_review.is_none();
-    let (try_counts, is_out_of_tries) = match exercise
-        .max_tries_per_slide
-        .filter(|_| exercise.limit_number_of_tries)
-    {
+    let (try_counts, is_out_of_tries) = match exercise.try_limit() {
         Some(max) => {
             let submission_counts = models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
                 conn,
@@ -791,14 +779,14 @@ async fn exercise_progress(
                 .and_then(|slide_id| submission_counts.get(&slide_id).copied())
                 .unwrap_or(0);
             let try_counts = TryCounts {
-                max,
-                left: i32::try_from((i64::from(max) - used).max(0)).unwrap_or_default(),
+                max: i32::try_from(max).unwrap_or(i32::MAX),
+                left: i32::try_from((max - used).max(0)).unwrap_or_default(),
             };
             let is_out_of_tries = may_be_out_of_tries
                 && domain::exercises::is_out_of_tries_given(
                     conn,
                     exercise.id,
-                    i64::from(max),
+                    max,
                     &submission_counts,
                 )
                 .await?;
@@ -964,19 +952,6 @@ fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
 /// `None` (never graded) is not full points even when the exercise is worth 0.
 fn has_received_full_points(score_given: Option<f32>, score_maximum: i32) -> bool {
     score_given.is_some_and(|score| models::exercises::is_full_points(score, score_maximum))
-}
-
-/// Mirrors the project-wide "solved" reveal rule (`controllers/course_material/exercises.rs`,
-/// `domain/exercises.rs`): full points, or the per-slide attempt limit exhausted. The course's
-/// [`models::course_model_solution_settings`] can reveal more.
-fn model_solution_should_be_revealed(
-    exercise: &models::exercises::Exercise,
-    score_given: f32,
-    slide_submission_count: i64,
-) -> bool {
-    let out_of_tries = exercise.limit_number_of_tries
-        && slide_submission_count >= exercise.max_tries_per_slide.unwrap_or(i32::MAX) as i64;
-    has_received_full_points(Some(score_given), exercise.score_maximum) || out_of_tries
 }
 
 /**
@@ -1229,13 +1204,16 @@ async fn get_exercise(
         Some(chapter_id) => Some(models::chapters::get_chapter(&mut conn, chapter_id).await?),
         None => None,
     };
-    let deadline = effective_deadline(&exercise, chapter.as_ref());
-    let reveal_model_solution =
-        model_solution_should_be_revealed(&exercise, score_given, slide_submission_count)
-            || models::course_model_solution_settings::get(&mut conn, course_id)
-                .await?
-                .reveals(deadline, Utc::now())
-            || is_course_staff(&mut conn, user.id, course_id).await?;
+    let deadline = exercise.effective_deadline(chapter.as_ref().and_then(|c| c.deadline));
+    let reveal_model_solution = crate::domain::exercises::reveals_model_solution(
+        &mut conn,
+        &exercise,
+        deadline,
+        score_given,
+        slide_submission_count,
+    )
+    .await?
+        || is_course_staff(&mut conn, user.id, course_id).await?;
 
     // Without the capability filter this endpoint would hand out task ids belonging to services
     // that cannot serve a native client, which submit would then have to reject.
@@ -2901,66 +2879,6 @@ mod tests {
         let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
         assert_eq!(value["type"], "validation_error");
         assert_eq!(value["message_key"], "not_enrolled");
-    }
-
-    fn exercise_with(
-        score_maximum: i32,
-        limit_number_of_tries: bool,
-        max_tries_per_slide: Option<i32>,
-    ) -> models::exercises::Exercise {
-        let now = Utc::now();
-        models::exercises::Exercise {
-            id: Uuid::new_v4(),
-            created_at: now,
-            updated_at: now,
-            name: "Test exercise".to_string(),
-            course_id: Some(Uuid::new_v4()),
-            exam_id: None,
-            page_id: Uuid::new_v4(),
-            chapter_id: None,
-            deadline: None,
-            deleted_at: None,
-            score_maximum,
-            order_number: 0,
-            copied_from: None,
-            max_tries_per_slide,
-            limit_number_of_tries,
-            needs_peer_review: false,
-            needs_self_review: false,
-            use_course_default_peer_or_self_review_config: false,
-            exercise_language_group_id: None,
-            teacher_reviews_answer_after_locking: false,
-        }
-    }
-
-    #[test]
-    fn model_solution_hidden_until_full_points() {
-        // Unlimited tries; the only route to "solved" is full points.
-        let ex = exercise_with(5, false, None);
-        assert!(!model_solution_should_be_revealed(&ex, 0.0, 3));
-        assert!(!model_solution_should_be_revealed(&ex, 4.0, 99));
-        // Full points -> reveal, even with tries remaining.
-        assert!(model_solution_should_be_revealed(&ex, 5.0, 0));
-        // Floating-point full points still count via the epsilon comparison.
-        assert!(model_solution_should_be_revealed(&ex, 4.99995, 0));
-    }
-
-    #[test]
-    fn model_solution_revealed_when_out_of_tries() {
-        // Limited to 3 tries per slide.
-        let ex = exercise_with(5, true, Some(3));
-        // Fewer submissions than the limit and no points -> still hidden.
-        assert!(!model_solution_should_be_revealed(&ex, 0.0, 2));
-        // Attempt limit reached with no points -> solved by exhaustion, reveal.
-        assert!(model_solution_should_be_revealed(&ex, 0.0, 3));
-        assert!(model_solution_should_be_revealed(&ex, 0.0, 4));
-    }
-
-    #[test]
-    fn out_of_tries_ignored_when_limit_disabled() {
-        // limit_number_of_tries = false: the attempt count must never mark it solved.
-        let ex = exercise_with(5, false, Some(3));
-        assert!(!model_solution_should_be_revealed(&ex, 0.0, 100));
     }
 
     /// The submit body is deserialized by `web::Json`, so a malformed one fails at the serde

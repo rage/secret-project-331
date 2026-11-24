@@ -67,6 +67,23 @@ impl Exercise {
             )
         })
     }
+
+    /// The per-slide try limit, or `None` when the exercise does not limit tries.
+    pub fn try_limit(&self) -> Option<i64> {
+        self.limit_number_of_tries
+            .then_some(self.max_tries_per_slide)
+            .flatten()
+            .map(i64::from)
+    }
+
+    /// The deadline submissions are refused from: the exercise's own deadline takes precedence
+    /// over its chapter's.
+    pub fn effective_deadline(
+        &self,
+        chapter_deadline: Option<DateTime<Utc>>,
+    ) -> Option<DateTime<Utc>> {
+        self.deadline.or(chapter_deadline)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -572,7 +589,7 @@ pub async fn get_course_material_exercise(
         && let Some(chapter_id) = exercise.chapter_id
     {
         let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
-        exercise.deadline = chapter.deadline;
+        exercise.deadline = exercise.effective_deadline(chapter.deadline);
     }
     let (current_exercise_slide, instance_or_exam_id) = get_or_select_exercise_slide(
         &mut *conn,
@@ -737,9 +754,8 @@ async fn determine_can_post_submission(
     if let Some(exam_id) = exercise.exam_id {
         return exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await;
     }
-    if let (true, Some(max_tries), Some(slide_id)) = (
-        exercise.limit_number_of_tries,
-        exercise.max_tries_per_slide,
+    if let (Some(max_tries), Some(slide_id)) = (
+        exercise.try_limit(),
         user_exercise_state
             .as_ref()
             .and_then(|state| state.selected_exercise_slide_id),
@@ -748,7 +764,7 @@ async fn determine_can_post_submission(
             .get(&slide_id)
             .copied()
             .unwrap_or(0);
-        if used >= i64::from(max_tries) {
+        if used >= max_tries {
             return Ok(false);
         }
     }

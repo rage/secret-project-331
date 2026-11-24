@@ -1,5 +1,5 @@
 //! Startup check of the OAuth client the TestMyCode editor extension logs in with. Production
-//! provisions it by hand (see `docs/exercise-services-client.md`), so nothing else catches drift.
+//! provisions it by hand, so nothing else catches drift.
 
 use headless_lms_models::{
     library::oauth::GrantTypeName,

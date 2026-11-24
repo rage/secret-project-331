@@ -51,8 +51,8 @@ WHERE tns.subscribed = 't'
 pub async fn create_newsletter_item(
     conn: &mut PgConnection,
     course_id: Uuid,
-    period_start: &str,
-    period_end: &str,
+    period_start: DateTime<Utc>,
+    period_end: DateTime<Utc>,
     returned_exercises_count: i64,
     completed_course_count: i64,
     started_course_count: i64,
@@ -63,14 +63,6 @@ pub async fn create_newsletter_item(
     proposal_count_period: i64,
     proposal_count_total: i64,
 ) -> ModelResult<()> {
-    let from = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
-        .with_timezone(&Utc);
-
-    let to = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| model_err!(InvalidRequest, format!("Invalid end date: {}", e)))?
-        .with_timezone(&Utc);
-
     sqlx::query!(
         "
 INSERT INTO teacher_newsletter_items (
@@ -102,8 +94,8 @@ VALUES (
     $12
   )",
         course_id,
-        from,
-        to,
+        period_start,
+        period_end,
         returned_exercises_count,
         completed_course_count,
         started_course_count,
@@ -122,17 +114,9 @@ VALUES (
 pub async fn get_newsletter_items(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
-    period_start: &str,
-    period_end: &str,
+    period_start: DateTime<Utc>,
+    period_end: DateTime<Utc>,
 ) -> ModelResult<Vec<TeacherNewsletterItems>> {
-    let start_dt = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
-        .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
-        .with_timezone(&Utc);
-
-    let end_dt = DateTime::parse_from_rfc3339(&(period_end.to_owned() + "T23:59:59Z"))
-        .map_err(|e| model_err!(InvalidRequest, format!("Invalid end date: {}", e)))?
-        .with_timezone(&Utc);
-
     let res = sqlx::query_as!(
         TeacherNewsletterItems,
         "
@@ -144,8 +128,8 @@ WHERE course_id = ANY($1)
   AND deleted_at IS NULL
         ",
         course_ids,
-        start_dt,
-        end_dt,
+        period_start,
+        period_end,
     )
     .fetch_all(conn)
     .await?;

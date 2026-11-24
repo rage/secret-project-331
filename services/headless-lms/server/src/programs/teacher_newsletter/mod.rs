@@ -4,10 +4,10 @@ use crate::setup_tracing;
 mod blocks;
 pub mod newsletter_item;
 
-use chrono::Utc;
-use dotenvy::dotenv;
-use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models as models;
+
+use chrono::{DateTime, Datelike, Days, NaiveTime, Utc};
+use dotenvy::dotenv;
 use models::courses::Course;
 use models::email_templates::{
     EmailTemplateType::TeacherNewsletter, get_generic_email_template_by_type_and_language,
@@ -55,7 +55,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     info!("Period start: {}, Period end: {}", period_start, period_end);
 
-    create_newsletter_items(&mut conn, courses, &period_start, &period_end).await?;
+    create_newsletter_items(&mut conn, courses, period_start, period_end).await?;
 
     for teacher in teachers {
         models::email_deliveries::insert_email_delivery(
@@ -69,48 +69,57 @@ pub async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-// Assumes that newsletter is always sent on Monday.
-// Returns period from last week Monday to Sunday.
-pub fn get_newsletter_period() -> (String, String) {
-    let date_today = Utc::now().date_naive();
-    let date_yesterday = date_today - chrono::Duration::days(1);
+// Gives period from last week Monday to Sunday
+pub fn get_newsletter_period() -> (DateTime<Utc>, DateTime<Utc>) {
+    let date_previous_week = Utc::now() - Days::new(7);
 
-    let start_date = date_today - chrono::Duration::days(7);
+    // starts counting with Monday = 0
+    let days_since_monday = u64::from(date_previous_week.weekday().num_days_from_monday());
+    let date_monday = date_previous_week - Days::new(days_since_monday);
+    let date_sunday = date_monday + Days::new(6);
 
-    let period_start = start_date.format("%Y-%m-%d").to_string();
-    let period_end = date_yesterday.format("%Y-%m-%d").to_string();
+    let start_of_monday = date_monday
+        .with_time(NaiveTime::from_hms_nano_opt(0, 0, 0, 0).unwrap())
+        .unwrap();
 
-    (period_start, period_end)
+    let end_of_sunday = date_sunday
+        .with_time(NaiveTime::from_hms_nano_opt(23, 59, 59, 999_999_999).unwrap())
+        .unwrap();
+
+    (start_of_monday, end_of_sunday)
 }
 
 async fn create_newsletter_items(
     conn: &mut PgConnection,
     courses: Vec<Course>,
-    period_start: &str,
-    period_end: &str,
+    period_start: DateTime<Utc>,
+    period_end: DateTime<Utc>,
 ) -> anyhow::Result<()> {
+    // DECIDE WHAT TO DO WITH THESE
+    let period_start_str = period_start.to_rfc3339();
+    let period_end_str = period_end.to_rfc3339();
     for course in courses {
         let returned_exercises_count = get_total_users_returned_exercises_custom_time_period(
             conn,
             course.id,
-            period_start,
-            period_end,
+            &period_start_str,
+            &period_end_str,
         )
         .await?
         .count;
         let completed_course_count = get_total_users_completed_course_custom_time_period(
             conn,
             course.id,
-            period_start,
-            period_end,
+            &period_start_str,
+            &period_end_str,
         )
         .await?
         .count;
         let started_course_count = get_total_users_started_course_custom_time_period(
             conn,
             course.id,
-            period_start,
-            period_end,
+            &period_start_str,
+            &period_end_str,
         )
         .await?
         .count;
@@ -120,8 +129,8 @@ async fn create_newsletter_items(
                 conn,
                 course.id,
                 models::suspected_cheaters::SuspectedCheaterStatus::Flagged,
-                period_start,
-                period_end,
+                &period_start_str,
+                &period_end_str,
             )
             .await?;
         let flagged_cheaters_count_total =
@@ -136,8 +145,8 @@ async fn create_newsletter_items(
             models::feedback::get_feedback_count_for_course_custom_time_period(
                 conn,
                 course.id,
-                period_start,
-                period_end,
+                &period_start_str,
+                &period_end_str,
             )
             .await?
             .unread;
@@ -150,8 +159,8 @@ async fn create_newsletter_items(
             models::proposed_page_edits::get_proposal_count_for_course_custom_time_period(
                 conn,
                 course.id,
-                period_start,
-                period_end,
+                &period_start_str,
+                &period_end_str,
             )
             .await?
             .pending;

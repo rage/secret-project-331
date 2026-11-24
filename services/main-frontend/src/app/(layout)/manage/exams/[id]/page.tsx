@@ -7,7 +7,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ExerciseRepositories from "@/app/(layout)/manage/courses/[id]/exercises/ExerciseRepositories"
+import ExerciseRepositories from "@/components/exercise-repositories/ExerciseRepositories"
 import {
   getExamOptions,
   getOrganizationExamByExamIdOptions,

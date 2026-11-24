@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
 import type { CourseManagementPagesProps } from "@/app/(layout)/manage/courses/[id]/types"
+import ExerciseRepositories from "@/components/exercise-repositories/ExerciseRepositories"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 import ExerciseList from "./ExerciseList"
-import ExerciseRepositories from "./ExerciseRepositories"
 import ModelSolutionSettings from "./ModelSolutionSettings"
 
 const CourseExercises: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({

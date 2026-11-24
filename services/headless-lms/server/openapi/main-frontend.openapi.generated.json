@@ -33362,7 +33362,7 @@
       },
       "NewExerciseRepository": {
         "type": "object",
-        "required": ["git_url"],
+        "required": ["url"],
         "properties": {
           "branch": {
             "type": ["string", "null"]
@@ -33378,11 +33378,11 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "git_url": {
-            "type": "string"
-          },
           "public_key": {
             "type": ["string", "null"]
+          },
+          "url": {
+            "type": "string"
           }
         }
       },

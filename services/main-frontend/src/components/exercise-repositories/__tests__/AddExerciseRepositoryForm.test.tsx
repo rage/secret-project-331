@@ -37,7 +37,7 @@ describe("AddExerciseRepositoryForm", () => {
   it("submits the git url when the add button is clicked", async () => {
     const { onSuccess } = renderForm()
 
-    fireEvent.change(document.querySelector('input[name="gitUrl"]') as HTMLInputElement, {
+    fireEvent.change(document.querySelector('input[name="url"]') as HTMLInputElement, {
       target: { value: "git@example.com:course/repo.git" },
     })
 
@@ -47,7 +47,7 @@ describe("AddExerciseRepositoryForm", () => {
 
     await waitFor(() => expect(mockCreateExerciseRepository).toHaveBeenCalledTimes(1))
     const body = mockCreateExerciseRepository.mock.calls[0][0].body
-    expect(body.git_url).toBe("git@example.com:course/repo.git")
+    expect(body.url).toBe("git@example.com:course/repo.git")
     expect(body.course_id).toBe("course-1")
     expect(body.public_key).toBeNull()
     expect(body.deploy_key).toBeNull()

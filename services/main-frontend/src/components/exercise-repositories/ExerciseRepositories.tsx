@@ -209,7 +209,7 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
                   disabled={er.status === "Pending" || syncMutation.isPending}
                   onClick={() => syncMutation.mutate({ path: { id: er.id } })}
                 >
-                  {t("refresh")}
+                  {t("exercise-repositories-sync")}
                 </Button>
               </>
             )}

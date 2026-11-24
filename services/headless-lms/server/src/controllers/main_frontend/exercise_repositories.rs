@@ -16,7 +16,7 @@ pub(crate) struct MainFrontendExerciseRepositoriesApiDoc;
 pub struct NewExerciseRepository {
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
-    git_url: String,
+    url: String,
     branch: Option<String>,
     public_key: Option<String>,
     #[schema(value_type = Option<String>)]
@@ -52,14 +52,14 @@ async fn new(
         Res::from_course_or_exam_id(course_or_exam_id),
     )
     .await?;
-    let branch = validate_url_and_branch(&repository.git_url, repository.branch.as_deref()).await?;
+    let branch = validate_url_and_branch(&repository.url, repository.branch.as_deref()).await?;
     let new_repository_id = Uuid::new_v4();
     // The sync worker picks up the new pending repository.
     models::exercise_repositories::new(
         &mut conn,
         new_repository_id,
         course_or_exam_id,
-        &repository.git_url,
+        &repository.url,
         branch,
         repository.public_key.as_deref(),
         repository.deploy_key.as_ref(),

@@ -6824,8 +6824,8 @@ export type NewExerciseRepository = {
   course_id?: string | null
   deploy_key?: string | null
   exam_id?: string | null
-  git_url: string
   public_key?: string | null
+  url: string
 }
 
 export type NewExternalCourse = {

@@ -7,20 +7,19 @@ import { useTranslation } from "react-i18next"
 import { updateExerciseRepositoryMutation as updateExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseRepository } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField, useDialog } from "@/shared-module/components"
+import { Button, useDialog } from "@/shared-module/components"
+
+import ExerciseRepositoryFields, {
+  EMPTY_EXERCISE_REPOSITORY_FIELDS,
+  type ExerciseRepositoryFieldValues,
+  toRepositoryBody,
+} from "./ExerciseRepositoryFields"
 
 interface Props {
   exerciseRepository: ExerciseRepository
   onSuccess: () => void
   onCancel: () => void
   onDelete: () => void
-}
-
-interface Fields {
-  gitUrl: string
-  branch: string
-  publicKey: string
-  deployKey: string
 }
 
 const EditExerciseRepositoryForm: React.FC<Props> = ({
@@ -37,14 +36,13 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
     handleSubmit,
     formState: { isValid, isSubmitting },
     reset,
-  } = useForm<Fields>({
+  } = useForm<ExerciseRepositoryFieldValues>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
-      gitUrl: exerciseRepository.url,
+      ...EMPTY_EXERCISE_REPOSITORY_FIELDS,
+      url: exerciseRepository.url,
       branch: exerciseRepository.branch ?? "",
-      publicKey: "",
-      deployKey: "",
     },
   })
   const mutation = useToastMutationOptions(
@@ -78,39 +76,18 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
 
   return (
     <form
-      onSubmit={handleSubmit((fields) => {
-        const deployKey = fields.deployKey.trim()
-        mutation.mutate({
-          path: {
-            id: exerciseRepository.id,
-          },
-          body: {
-            url: fields.gitUrl,
-            branch: fields.branch.trim().length > 0 ? fields.branch.trim() : null,
-            deploy_key: deployKey.length > 0 ? fields.deployKey : null,
-            public_key:
-              deployKey.length > 0 && fields.publicKey.length > 0 ? fields.publicKey : null,
-          },
-        })
-      })}
+      onSubmit={handleSubmit((fields) =>
+        mutation.mutate({ path: { id: exerciseRepository.id }, body: toRepositoryBody(fields) }),
+      )}
     >
-      <TextField
-        name="gitUrl"
-        control={control}
-        label={t("exercise-repositories-git-url")}
-        rules={{ required: t("required-field") }}
-      />
-      <TextField name="branch" control={control} label={t("exercise-repositories-branch")} />
       <p>
         {exerciseRepository.has_deploy_key
           ? t("exercise-repositories-deploy-key-stored")
           : t("exercise-repositories-no-deploy-key")}
       </p>
-      <TextArea name="publicKey" control={control} label={t("public-key")} />
-      <TextArea
-        name="deployKey"
+      <ExerciseRepositoryFields
         control={control}
-        label={t("exercise-repositories-replace-deploy-key")}
+        deployKeyLabel={t("exercise-repositories-replace-deploy-key")}
       />
       <Button
         type="submit"

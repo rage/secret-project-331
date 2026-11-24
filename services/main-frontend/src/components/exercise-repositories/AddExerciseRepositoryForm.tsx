@@ -6,20 +6,19 @@ import { useTranslation } from "react-i18next"
 
 import { createExerciseRepositoryMutation as addExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField } from "@/shared-module/components"
+import { Button } from "@/shared-module/components"
+
+import ExerciseRepositoryFields, {
+  EMPTY_EXERCISE_REPOSITORY_FIELDS,
+  type ExerciseRepositoryFieldValues,
+  toRepositoryBody,
+} from "./ExerciseRepositoryFields"
 
 interface Props {
   courseId: string | null
   examId: string | null
   onSuccess: () => void
   onCancel: () => void
-}
-
-interface Fields {
-  gitUrl: string
-  branch: string
-  publicKey: string
-  deployKey: string
 }
 
 const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSuccess, onCancel }) => {
@@ -30,10 +29,10 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     handleSubmit,
     formState: { isValid, isSubmitting },
     reset,
-  } = useForm<Fields>({
+  } = useForm<ExerciseRepositoryFieldValues>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
-    defaultValues: { gitUrl: "", branch: "", publicKey: "", deployKey: "" },
+    defaultValues: EMPTY_EXERCISE_REPOSITORY_FIELDS,
   })
   const mutation = useToastMutationOptions(
     addExerciseRepositoryMutationOptions(),
@@ -54,26 +53,14 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     <form
       onSubmit={handleSubmit((fields) =>
         mutation.mutate({
-          body: {
-            course_id: courseId,
-            exam_id: examId,
-            git_url: fields.gitUrl,
-            branch: fields.branch.trim().length > 0 ? fields.branch.trim() : null,
-            public_key: fields.publicKey.length > 0 ? fields.publicKey : null,
-            deploy_key: fields.deployKey.length > 0 ? fields.deployKey : null,
-          },
+          body: { course_id: courseId, exam_id: examId, ...toRepositoryBody(fields) },
         }),
       )}
     >
-      <TextField
-        name="gitUrl"
+      <ExerciseRepositoryFields
         control={control}
-        label={t("exercise-repositories-git-url")}
-        rules={{ required: t("required-field") }}
+        deployKeyLabel={t("exercise-repositories-deploy-key")}
       />
-      <TextField name="branch" control={control} label={t("exercise-repositories-branch")} />
-      <TextArea name="publicKey" control={control} label={t("public-key")} />
-      <TextArea name="deployKey" control={control} label={t("exercise-repositories-deploy-key")} />
       <Button
         type="submit"
         size="medium"

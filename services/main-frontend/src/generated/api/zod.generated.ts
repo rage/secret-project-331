@@ -5085,8 +5085,8 @@ export const zNewExerciseRepository = z.object({
   course_id: z.uuid().nullish(),
   deploy_key: z.string().nullish(),
   exam_id: z.uuid().nullish(),
-  git_url: z.string(),
   public_key: z.string().nullish(),
+  url: z.string(),
 })
 
 export const zNewExternalCourse = z.object({

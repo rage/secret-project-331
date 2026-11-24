@@ -24,7 +24,7 @@ import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
 import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
-import { gradeRequestSchema } from "./requestSchemas"
+import { currentRepositoryExercise, gradeRequestSchema } from "./requestSchemas"
 
 const { log, debug, error } = createLogger("grade")
 
@@ -262,17 +262,21 @@ const gradeAnswer = async (
   try {
     const { exercise_spec } = req
 
-    debug("downloading the submitted archive")
+    debug("downloading the submitted archive and the exercise template")
     const submissionArchivePath = temporaryFile()
-    tempPaths.push(submissionArchivePath)
-    await downloadStream(answerArchive.download_url, submissionArchivePath)
-
-    debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
-    tempPaths.push(templateArchivePath)
-    // The host's current version, when it sends one, supersedes the copy picked in the editor.
-    const repositoryExercise = req.repository_exercise ?? exercise_spec.repository_exercise
-    await downloadStream(repositoryExercise.download_url, templateArchivePath)
+    tempPaths.push(submissionArchivePath, templateArchivePath)
+    const repositoryExercise = currentRepositoryExercise(req, exercise_spec)
+    // Both settle before a failure is thrown, so neither writes a temp file after its removal.
+    const downloads = await Promise.allSettled([
+      downloadStream(answerArchive.download_url, submissionArchivePath),
+      downloadStream(repositoryExercise.download_url, templateArchivePath),
+    ])
+    for (const download of downloads) {
+      if (download.status === "rejected") {
+        throw download.reason
+      }
+    }
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()

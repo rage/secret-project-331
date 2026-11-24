@@ -156,7 +156,7 @@ describe("POST /api/grade", () => {
     await vi.waitFor(() => {
       expect(updates).toHaveLength(1)
     })
-    expect(downloads).toEqual([SUBMISSION_FILE.download_url])
+    expect(downloads).toEqual([SUBMISSION_FILE.download_url, REPOSITORY_EXERCISE.download_url])
     expect(updates[0]).toEqual({
       claim: "signed-claim",
       body: expect.objectContaining({
@@ -179,7 +179,9 @@ describe("POST /api/grade", () => {
           updates.push(url)
           return Promise.resolve(Response.json(null))
         }
-        downloads.push(url)
+        if (url.startsWith("http://files/")) {
+          downloads.push(url)
+        }
         return new Promise((_resolve, reject) => {
           releaseDownloads.push(() => reject(new Error("download stopped by the test")))
         })

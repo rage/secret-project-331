@@ -21,13 +21,13 @@ pub(super) async fn native_client_capable_slugs(
 
 /// Whether a task of the given exercise service can be served to this client; the one rule
 /// behind which exercises the client API serves.
-pub(super) fn is_client_capable(exercise_type: &str, capable_slugs: &[String]) -> bool {
+fn is_client_capable(exercise_type: &str, capable_slugs: &[String]) -> bool {
     capable_slugs.iter().any(|slug| slug == exercise_type)
 }
 
 /// Whether the client can answer a slide with tasks of these types: a slide submission answers
 /// every task, so each one must be client-capable.
-pub(super) fn is_slide_client_answerable<'a>(
+fn is_slide_client_answerable<'a>(
     task_exercise_types: impl IntoIterator<Item = &'a str>,
     capable_slugs: &[String],
 ) -> bool {
@@ -129,7 +129,7 @@ pub(super) async fn course_chapters(
 
 /// Whether the user may see a course's chapters before they open, as `can_user_view_chapter` lets
 /// them.
-pub(super) async fn can_view_unopened_chapters(
+async fn can_view_unopened_chapters(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
@@ -148,7 +148,7 @@ pub(super) async fn is_course_staff(
 
 /// Whether the user's roles permit `action` on the course. A check that cannot be completed
 /// permits nothing.
-pub(super) async fn user_may_act_on_course(
+async fn user_may_act_on_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     action: Act,
@@ -202,7 +202,7 @@ pub(super) async fn chapter_locking_statuses(
 }
 
 /// The client API's form of a stored chapter locking status.
-pub(super) fn to_api_chapter_locking_status(
+fn to_api_chapter_locking_status(
     status: models::user_chapter_locking_statuses::ChapterLockingStatus,
 ) -> api::ChapterLockingStatus {
     use models::user_chapter_locking_statuses::ChapterLockingStatus as Db;

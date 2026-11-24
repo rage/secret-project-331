@@ -20,6 +20,14 @@ export const repositoryExerciseSchema = z.looseObject({
   download_url: z.string(),
 }) satisfies z.ZodType<RepositoryExercise>
 
+type ParsedRepositoryExercise = z.infer<typeof repositoryExerciseSchema>
+
+/** The repository exercise to use: the host's current version, when it sends one, supersedes the copy picked in the editor. */
+export const currentRepositoryExercise = (
+  request: { repository_exercise?: ParsedRepositoryExercise | undefined },
+  privateSpec: { repository_exercise: ParsedRepositoryExercise },
+): ParsedRepositoryExercise => request.repository_exercise ?? privateSpec.repository_exercise
+
 export const privateSpecSchema = z.looseObject({
   type: z.enum(["browser", "editor"]),
   repository_exercise: repositoryExerciseSchema,

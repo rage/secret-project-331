@@ -1,5 +1,6 @@
 import type { TFunction } from "i18next"
 
+import { isRecord } from "@/shared-module/common/utils/objects"
 import type { RunResult, StyleValidationResult } from "@/tmc/cli"
 import { isRunResult, isStyleValidationResult } from "@/tmc/cli.guard"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
@@ -44,9 +45,6 @@ export interface ParsedFeedback {
   run: RunResult | null
   validations: StyleValidationResult | null
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  value !== null && typeof value === "object" && !Array.isArray(value)
 
 /** Reads a grading's `feedback_json` without trusting its shape. Null when it is not an object. */
 export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {

@@ -50,8 +50,9 @@ mod pinned_stream;
 /// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that
 /// currently resolves to public addresses, so a teacher gets a clear error when saving the URL.
 /// This is an early check, not the enforcement: the clone's own connections go through
-/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then.
-pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
+/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then. Returns the
+/// URL's host and port.
+pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<(String, u16)> {
     let (host, port) = clone_url_host_and_port(url)
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let addresses: Vec<_> = tokio::net::lookup_host((host.as_str(), port))
@@ -59,7 +60,7 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
         .with_context(|| format!("Could not resolve {host}"))?
         .collect();
     pinned_stream::public_addresses(&host, addresses)?;
-    Ok(())
+    Ok((host, port))
 }
 
 /// SHA-256 host key fingerprints of git hosts whose keys are known in advance, as printed by
@@ -140,10 +141,8 @@ async fn clone_repository(
     deploy_key: Option<(Option<&str>, &SecretString)>,
     target: &Path,
 ) -> anyhow::Result<()> {
-    ensure_clone_url_is_allowed(url).await?;
+    let (host, port) = ensure_clone_url_is_allowed(url).await?;
     pinned_stream::register()?;
-    let (host, port) = clone_url_host_and_port(url)
-        .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
     let first_seen = Cell::new(None);
     // libgit2 replaces a rejecting callback's error with a generic one.
@@ -266,7 +265,7 @@ pub fn ensure_branch_name_is_valid(branch: &str) -> anyhow::Result<()> {
 }
 
 /// Syncs started for a repository before it is marked failed.
-pub const MAX_SYNC_ATTEMPTS: i32 = 3;
+const MAX_SYNC_ATTEMPTS: i32 = 3;
 /// A sync running longer than this is assumed dead, for example with the server that ran it.
 /// A live sync taken for dead runs twice at once, so this leaves room for the clone and uploads
 /// around the preparation.

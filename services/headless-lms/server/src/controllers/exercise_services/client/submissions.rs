@@ -113,7 +113,7 @@ pub(super) async fn upload_exercise_files(
 /// What the uploaded files will be named in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "snake_case")]
-pub(super) enum UploadFor {
+enum UploadFor {
     Submission,
     Snapshot,
 }
@@ -379,7 +379,7 @@ pub(super) async fn create_answer_snapshot(
 }
 
 /// The client API's snapshot purpose as the models crate stores it.
-pub(super) fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
+fn model_snapshot_purpose(purpose: api::SnapshotPurpose) -> SnapshotPurpose {
     match purpose {
         api::SnapshotPurpose::Paste => SnapshotPurpose::Paste,
         api::SnapshotPurpose::Backup => SnapshotPurpose::Backup,
@@ -497,7 +497,7 @@ pub(super) async fn get_submission_grading(
 }
 
 /// Maps the internal grading-progress enum to the exercise-services-api one.
-pub(super) fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
+fn map_grading_progress(progress: GradingProgress) -> api::GradingProgress {
     match progress {
         GradingProgress::Failed => api::GradingProgress::Failed,
         GradingProgress::NotReady => api::GradingProgress::NotReady,
@@ -710,7 +710,7 @@ pub(super) async fn download_submission(
 
 /// The client API's answer kind as the model's. Two enums rather than one because the client crate
 /// stays free of server-internal dependencies.
-pub(super) fn model_answer_kind(kind: api::AnswerKind) -> AnswerKind {
+fn model_answer_kind(kind: api::AnswerKind) -> AnswerKind {
     match kind {
         api::AnswerKind::Json => AnswerKind::Json,
         api::AnswerKind::File => AnswerKind::File,

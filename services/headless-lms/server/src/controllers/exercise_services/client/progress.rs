@@ -65,7 +65,7 @@ pub(super) async fn exercise_progress(
 }
 
 /// The teacher's grading the course material shows the user for their current answer.
-pub(super) async fn teacher_review(
+async fn teacher_review(
     conn: &mut PgConnection,
     user_id: Uuid,
     exercise_id: Uuid,
@@ -103,7 +103,7 @@ pub(super) async fn teacher_review(
 }
 
 /// The client form of an answer's review stage; `None` while the user can still answer.
-pub(super) fn to_api_reviewing_stage(stage: ReviewingStage) -> Option<api::ReviewingStage> {
+fn to_api_reviewing_stage(stage: ReviewingStage) -> Option<api::ReviewingStage> {
     match stage {
         ReviewingStage::NotStarted => None,
         ReviewingStage::PeerReview => Some(api::ReviewingStage::PeerReview),
@@ -188,13 +188,13 @@ pub(super) fn derive_exercise_progress(
 
 /// A grading still in progress can award full points, so the score is not final even when the
 /// last try is spent.
-pub(super) fn is_being_graded(state: Option<&UserExerciseState>) -> bool {
+fn is_being_graded(state: Option<&UserExerciseState>) -> bool {
     state.is_some_and(|s| !s.grading_progress.is_complete())
 }
 
 /// Peer and self review can still award points, so the score is not final even when the last try
 /// is spent.
-pub(super) fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
+fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
     state.is_some_and(|s| {
         matches!(
             s.reviewing_stage,
@@ -206,7 +206,7 @@ pub(super) fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bo
 }
 
 /// `None` (never graded) is not full points even when the exercise is worth 0.
-pub(super) fn has_received_full_points(score_given: Option<f32>, score_maximum: i32) -> bool {
+fn has_received_full_points(score_given: Option<f32>, score_maximum: i32) -> bool {
     score_given.is_some_and(|score| models::exercises::is_full_points(score, score_maximum))
 }
 

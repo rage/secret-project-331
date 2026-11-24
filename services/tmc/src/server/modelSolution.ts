@@ -12,7 +12,7 @@ import { createScopedLogger } from "@/util/logger"
 import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
-import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { currentRepositoryExercise, privateSpecSchema, specRequestSchema } from "./requestSchemas"
 import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
@@ -65,8 +65,7 @@ const processModelSolution = async (
       return badRequest("Invalid private spec")
     }
     const privateSpec = privateSpecResult.data
-    // The host's current version, when it sends one, supersedes the copy picked in the editor.
-    const repositoryExercise = specRequest.repository_exercise ?? privateSpec.repository_exercise
+    const repositoryExercise = currentRepositoryExercise(specRequest, privateSpec)
 
     debug("downloading template")
     const templateArchive = temporaryFile()

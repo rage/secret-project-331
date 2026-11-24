@@ -377,6 +377,12 @@ export async function runTmcAndReadOutput(
 ): Promise<TmcRunOutcome> {
   const out = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
   const err = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
+  const genericErrorRun = (extra: Record<string, unknown>) => ({
+    status: "GENERIC_ERROR",
+    ...extra,
+    testResults: [],
+    logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
+  })
   const tmcRunResult = await execWithTimeout(
     kubeExec,
     podName,
@@ -398,12 +404,7 @@ export async function runTmcAndReadOutput(
     return {
       timedOut: false,
       output: "",
-      parsed: {
-        status: "GENERIC_ERROR",
-        exitCode: tmcExitCode,
-        testResults: [],
-        logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
-      },
+      parsed: genericErrorRun({ exitCode: tmcExitCode }),
       validations: null,
     }
   }
@@ -447,12 +448,7 @@ export async function runTmcAndReadOutput(
       return {
         timedOut: false,
         output: testOutputString,
-        parsed: {
-          status: "GENERIC_ERROR",
-          error: "INVALID_TEST_OUTPUT_JSON",
-          testResults: [],
-          logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
-        },
+        parsed: genericErrorRun({ error: "INVALID_TEST_OUTPUT_JSON" }),
         validations,
       }
     }

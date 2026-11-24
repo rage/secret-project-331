@@ -84,7 +84,7 @@ export const rootBaseCss = css`
   vertical-align: middle;
   gap: var(--control-gap);
 
-  border-radius: var(--radius-3);
+  border-radius: var(--control-radius);
   font-weight: 600;
   line-height: 1;
   text-decoration: none;

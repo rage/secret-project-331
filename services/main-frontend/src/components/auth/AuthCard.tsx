@@ -6,8 +6,10 @@ import React from "react"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { Button, Link } from "@/shared-module/components"
 
+/** The result marks an `AuthCard` heading can carry. */
 export type AuthCardStatusIcon = "mail" | "success" | "warning"
 
+/** Props for `AuthCard`. */
 export interface AuthCardProps {
   title: React.ReactNode
   /** Shown beside the title for a result state, such as an email sent or a broken link. */
@@ -210,7 +212,8 @@ const footerLinkCss = css`
   margin-left: 0.125rem;
   color: var(--color-green-700);
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   white-space: nowrap;
 
   &:focus-visible {
@@ -222,7 +225,6 @@ const footerLinkCss = css`
 
   &:hover:not(:disabled):not([aria-disabled="true"]) {
     color: var(--color-green-800);
-    text-decoration: underline;
   }
 `
 
@@ -248,6 +250,7 @@ const arrow = (
   </svg>
 )
 
+/** Props for `AuthCardFooterLink`: a destination `href`, or an `onPress` action. */
 export type AuthCardFooterLinkProps = {
   /** The question the link answers, such as "Remembered your password?". */
   prompt: React.ReactNode

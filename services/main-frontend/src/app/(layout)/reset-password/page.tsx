@@ -90,7 +90,7 @@ const FactIcon: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 /** Milliseconds left of a cooldown that began at `startedAt`, ticking once a second; 0 when over. */
 function useCooldownRemainingMs(startedAt: number | null, durationMs: number): number {
   const [now, setNow] = useState(() => Date.now())
-  // Clamped because `now` lags up to a tick behind a fresh `startedAt`.
+  // Clamped because `now` only ticks while a cooldown runs, so it can be stale when a new one starts.
   const remainingMs =
     startedAt === null ? 0 : Math.min(durationMs, Math.max(0, startedAt + durationMs - now))
   const isRunning = remainingMs > 0
@@ -130,8 +130,11 @@ const ResetPassword: React.FC = () => {
     return undefined
   }, [sentEmail, setFocus])
 
+  // Bumped by "Use a different email" so a request still in flight can't reopen the sent state.
+  const sendGenerationRef = useRef(0)
+
   const postResetPassword = useToastMutation(
-    async (data: SubmitEmailFormFields) => {
+    async (data: SubmitEmailFormFields & { generation: number }) => {
       const altcha = (await altchaRef.current?.solve()) ?? ""
       return validateGeneratedData(
         await sendResetPasswordEmail({
@@ -147,6 +150,9 @@ const ResetPassword: React.FC = () => {
     { method: "POST", notify: true },
     {
       onSuccess: (_, variables) => {
+        if (variables.generation !== sendGenerationRef.current) {
+          return
+        }
         setSentEmail(variables.email)
         setLastSentAt(Date.now())
       },
@@ -192,6 +198,7 @@ const ResetPassword: React.FC = () => {
             <AuthCardFooterLink
               prompt={t("password-reset-wrong-address")}
               onPress={() => {
+                sendGenerationRef.current += 1
                 postResetPassword.reset()
                 setIsResent(false)
                 setSentEmail(null)
@@ -234,12 +241,13 @@ const ResetPassword: React.FC = () => {
               isFullWidth
               isLoading={postResetPassword.isPending}
               disabledReason={cooldownNote}
-              onPress={() =>
+              onPress={() => {
+                setIsResent(false)
                 postResetPassword.mutate(
-                  { email: sentEmail },
+                  { email: sentEmail, generation: sendGenerationRef.current },
                   { onSuccess: () => setIsResent(true) },
                 )
-              }
+              }}
             >
               {t("password-reset-send-again")}
             </Button>
@@ -253,7 +261,9 @@ const ResetPassword: React.FC = () => {
       ) : (
         <form
           noValidate
-          onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}
+          onSubmit={handleSubmit((data) =>
+            postResetPassword.mutate({ ...data, generation: sendGenerationRef.current }),
+          )}
           className={formCss}
         >
           {apiError}

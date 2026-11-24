@@ -66,10 +66,8 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         isBoolean,
       )
     },
-    {
-      method: "POST",
-      notify: true,
-    },
+    // The outcome cards confirm success, and a toast would also say "Success" when the API returns false.
+    { notify: false },
     { onSuccess: setIsPasswordChanged },
   )
 
@@ -100,9 +98,8 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         className={formCss}
       >
         {postPasswordChangeMutation.isError && (
-          // notify:true already announces the error via the toast; the notice is the persistent copy.
-          // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
-          <ErrorNotice error={postPasswordChangeMutation.error} announce="off" density="compact" />
+          // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value, not UI text
+          <ErrorNotice error={postPasswordChangeMutation.error} density="compact" />
         )}
         <PasswordField
           name="new_password"

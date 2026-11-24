@@ -3,10 +3,9 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { ACCEPTED_ARCHIVE_EXTENSIONS } from "@/util/archiveTypes"
 import type { PublicSpec } from "@/util/stateInterfaces"
 
-/** The packed `.tar.zst` an editor submits, or a zip. */
-const ACCEPTED_ARCHIVE_TYPES = ".zst,.zip"
 const VSCODE_EXTENSION_URL =
   "https://marketplace.visualstudio.com/items?itemName=moocfi.test-my-code"
 
@@ -51,7 +50,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
         <Button variant="primary" size="medium" aria-label={t("select-file-for-submission")}>
           <input
             type="file"
-            accept={ACCEPTED_ARCHIVE_TYPES}
+            accept={ACCEPTED_ARCHIVE_EXTENSIONS.join(",")}
             ref={inputRef}
             onChange={(ev) => {
               if (ev.target && ev.target.files && ev.target.files.length > 0) {

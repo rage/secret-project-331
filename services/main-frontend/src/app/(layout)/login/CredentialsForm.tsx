@@ -5,6 +5,7 @@ import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { authCardStackCss } from "@/components/auth/AuthCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField, Link } from "@/shared-module/components"
@@ -42,11 +43,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit(data.email, data.password))}
-      className={css`
-        display: flex;
-        flex-direction: column;
-        gap: 1.125rem;
-      `}
+      className={authCardStackCss}
     >
       <TextField
         name="email"
@@ -84,14 +81,14 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         href="/reset-password"
         className={css`
           align-self: flex-start;
-          font-size: 0.875rem;
+          font-size: var(--font-size-1);
         `}
       >
         {t("forgot-password")}
       </Link>
       <Button
         variant="primary"
-        size="medium"
+        size="large"
         type="submit"
         isFullWidth
         // oxlint-disable-next-line i18next/no-literal-string

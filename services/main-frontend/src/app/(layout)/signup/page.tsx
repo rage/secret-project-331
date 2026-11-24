@@ -1,13 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AuthCard, AuthCardFooterLink } from "@/components/auth/AuthCard"
+import { AuthCard, AuthCardFooterLink, authCardStackCss } from "@/components/auth/AuthCard"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
@@ -24,6 +24,7 @@ import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute } from "@/shared-module/common/utils/routes"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -52,12 +53,6 @@ const fieldsetCss = css`
   margin: 0;
   padding: 0;
   border: none;
-`
-
-const fieldsCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.125rem;
 `
 
 const CreateAccountForm: React.FC = () => {
@@ -111,7 +106,7 @@ const CreateAccountForm: React.FC = () => {
     ? `${pathname}?${searchParams.toString()}`
     : pathname
   const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
-  const loginHref = `/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`
+  const loginHref = loginRoute(returnToForLinkToLoginPage)
   const { isSubmitting } = formState
 
   const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
@@ -241,7 +236,7 @@ const CreateAccountForm: React.FC = () => {
       >
         <Button
           variant="primary"
-          size="medium"
+          size="large"
           isFullWidth
           onClick={() => {
             const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
@@ -268,7 +263,7 @@ const CreateAccountForm: React.FC = () => {
       }
     >
       <form
-        className={fieldsCss}
+        className={authCardStackCss}
         noValidate
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
@@ -309,107 +304,105 @@ const CreateAccountForm: React.FC = () => {
           {t("all-text-fields-required")}
         </p>
         <fieldset
-          className={fieldsetCss}
+          className={cx(fieldsetCss, authCardStackCss)}
           disabled={isSubmitting}
           aria-labelledby="create-account-heading"
         >
-          <div className={fieldsCss}>
-            <TextField
-              name="first_name"
-              control={control}
-              label={t("first-name")}
-              autoComplete="given-name"
-              isRequired
-              rules={{
-                required: t("required-field"),
-              }}
-            />
+          <TextField
+            name="first_name"
+            control={control}
+            label={t("first-name")}
+            autoComplete="given-name"
+            isRequired
+            rules={{
+              required: t("required-field"),
+            }}
+          />
 
-            <TextField
-              name="last_name"
-              control={control}
-              label={t("last-name")}
-              autoComplete="family-name"
-              isRequired
-              rules={{
-                required: t("required-field"),
-              }}
-            />
+          <TextField
+            name="last_name"
+            control={control}
+            label={t("last-name")}
+            autoComplete="family-name"
+            isRequired
+            rules={{
+              required: t("required-field"),
+            }}
+          />
 
-            <ComboBox
-              name="country"
-              autoComplete="country-name"
-              control={control}
-              label={t("enter-country-question")}
-              items={countriesNames}
-              getItemKey={(item) => item.value}
-              getItemTextValue={(item) => item.label}
-              isRequired
-              rules={{ required: t("required-field") }}
-            >
-              {(item) => item.label}
-            </ComboBox>
+          <ComboBox
+            name="country"
+            autoComplete="country-name"
+            control={control}
+            label={t("enter-country-question")}
+            items={countriesNames}
+            getItemKey={(item) => item.value}
+            getItemTextValue={(item) => item.label}
+            isRequired
+            rules={{ required: t("required-field") }}
+          >
+            {(item) => item.label}
+          </ComboBox>
 
-            <TextField
-              name="email"
-              control={control}
-              label={t("email")}
-              type="email"
-              autoComplete="email"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                validate: {
-                  isValidEmail: (value) =>
-                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
-                },
-              }}
-            />
-            <PasswordField
-              name="password"
-              control={control}
-              label={t("password")}
-              autoComplete="new-password"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-              }}
-            />
+          <TextField
+            name="email"
+            control={control}
+            label={t("email")}
+            type="email"
+            autoComplete="email"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              validate: {
+                isValidEmail: (value) =>
+                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
+              },
+            }}
+          />
+          <PasswordField
+            name="password"
+            control={control}
+            label={t("password")}
+            autoComplete="new-password"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+            }}
+          />
 
-            <PasswordField
-              name="password_confirmation"
-              control={control}
-              label={t("confirm-password")}
-              autoComplete="new-password"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-                validate: {
-                  passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
-                },
-              }}
-            />
+          <PasswordField
+            name="password_confirmation"
+            control={control}
+            label={t("confirm-password")}
+            autoComplete="new-password"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+              validate: {
+                passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
+              },
+            }}
+          />
 
-            <Checkbox
-              name="email_communication_consent"
-              control={control}
-              label={t("email-communication-consent-checkbox-text")}
-            />
-          </div>
+          <Checkbox
+            name="email_communication_consent"
+            control={control}
+            label={t("email-communication-consent-checkbox-text")}
+          />
         </fieldset>
         {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
         <AltchaWidget ref={altchaRef} purpose={"signup"} />
         <Button
           variant="primary"
-          size="medium"
+          size="large"
           type="submit"
           isFullWidth
           isLoading={createAccountMutation.isPending}

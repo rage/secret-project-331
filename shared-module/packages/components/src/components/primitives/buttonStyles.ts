@@ -175,11 +175,6 @@ const fullWidthCss = css`
   width: 100%;
 `
 
-/** A full-width button is the main action of its form, so it gets a taller hit area. */
-const fullWidthMdCss = css`
-  height: calc(var(--control-height-md) + var(--space-2));
-`
-
 const iconSizeSmCss = css`
   padding-inline: var(--btn-icon-padding-x-sm);
 `
@@ -339,8 +334,5 @@ export function resolveButtonRootCss(input: ResolveStylesInput): string {
     resolveVariantCss(input.variant),
     input.variant === "icon" ? iconSizeStyles[input.size] : undefined,
     input.isFullWidth && input.variant !== "link" ? fullWidthCss : undefined,
-    input.isFullWidth && input.variant !== "link" && input.size === "medium"
-      ? fullWidthMdCss
-      : undefined,
   )
 }

@@ -10,7 +10,7 @@ import { normalizeErrorForDisplay } from "../lib/errors/normalizeErrorForDisplay
 import { resolveErrorDisplayCopy } from "../lib/errors/resolveErrorDisplayCopy"
 import { below } from "../styles/breakpoints"
 import { Button } from "./Button"
-import { CopyButton } from "./CopyButton"
+import { CopyButton, type CopyButtonAppearance } from "./CopyButton"
 import { DescriptionList } from "./DescriptionList"
 import { Disclosure } from "./Disclosure"
 
@@ -86,6 +86,13 @@ const SEVERITY_ICONS: Record<ErrorSeverity, React.ComponentType<{ size?: number 
 }
 
 const ICON_SIZE: Record<ErrorNoticeDensity, number> = { comfortable: 20, compact: 16 }
+const COPY_BUTTON_APPEARANCE: Record<ErrorNoticeDensity, CopyButtonAppearance> = {
+  comfortable: "button",
+  compact: "link",
+}
+
+/** Lines compact content up with the title text, past the icon. */
+const COMPACT_TEXT_INDENT = `calc(${ICON_SIZE.compact}px + var(--space-3))`
 const REPORT_INDENT = "  "
 
 const fadeIn = keyframes`
@@ -203,7 +210,7 @@ const compactIconCss = css`
 `
 
 const compactTitleCss = css`
-  font-size: 0.9375rem;
+  font-size: var(--font-size-2);
   color: var(--color-gray-800);
 `
 
@@ -225,34 +232,29 @@ const compactSummaryCss = css`
   gap: var(--space-1);
 `
 
-/** Lines a block below the title up with the title text, past the icon. */
-const compactIndentBlockCss = css`
-  margin-left: calc(${ICON_SIZE.compact}px + var(--space-3));
+/** Collapses when empty so it adds no gap to the notice's grid. */
+const compactIndentCss = css`
+  display: grid;
+  margin-left: ${COMPACT_TEXT_INDENT};
+
+  &:empty {
+    display: none;
+  }
+`
+
+const compactSummaryTextCss = css`
+  gap: var(--space-1);
+`
+
+const compactBodyCss = css`
+  gap: var(--space-2);
 `
 
 const compactActionsBesideTitleCss = css`
   flex: none;
 
   ${below("xs")} {
-    padding-left: calc(${ICON_SIZE.compact}px + var(--space-3));
-  }
-`
-
-const quietCopyButtonCss = css`
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--color-gray-500);
-  font-size: 0.8125rem;
-  line-height: 1.4;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-
-  &[data-pressed="true"] {
-    background: none;
-  }
-  &:hover {
-    color: var(--color-gray-700);
+    padding-left: ${COMPACT_TEXT_INDENT};
   }
 `
 
@@ -314,11 +316,23 @@ const requestIdValueCss = css`
   user-select: all;
 `
 
-const actionsCss = css`
+const actionsRowCss = css`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+`
+
+/** Comfortable gives Retry a row of its own above the other actions. */
+const actionsStackCss = css`
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+`
+
+/** Compact keeps Retry in one row with the other actions. */
+const actionsInRowCss = css`
+  display: contents;
 `
 
 const linkCss = css`
@@ -519,97 +533,61 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
   const message = copy.message === copy.title ? null : copy.message
   const isCompact = density === COMPACT_DENSITY
 
-  const summary = (
-    <>
-      <div className={cx(headerCss, isCompact && compactHeaderCss)}>
-        <span
-          className={cx(iconCss, iconSeverityCss[severity], isCompact && compactIconCss)}
-          aria-hidden="true"
-        >
-          <SeverityIcon size={ICON_SIZE[density]} />
-        </span>
-        <HeadingTag className={cx(titleCss, isCompact && compactTitleCss)}>{copy.title}</HeadingTag>
-      </div>
-
-      {context ? (
-        <div className={cx(paragraphCss, isCompact && compactIndentBlockCss)}>{context}</div>
-      ) : null}
-      {message ? (
-        <p className={cx(paragraphCss, isCompact && compactIndentBlockCss)}>{message}</p>
-      ) : null}
-    </>
-  )
-
   // A lone copy link fits beside the title; with Retry or "Go to error" the actions stay one row.
   const isCopyBesideTitle = isCompact && !showRetry && !view.blockId
 
-  const retryButton = showRetry ? (
-    <Button
-      className={cx(
-        !isCompact &&
-          css`
-            justify-self: start;
-          `,
-      )}
-      type="button"
-      variant="secondary"
-      size="small"
-      onPress={retry}
-    >
-      {t("errorNotice.retry")}
-    </Button>
-  ) : null
+  const header = (
+    <div className={cx(headerCss, isCompact && compactHeaderCss)}>
+      <span
+        className={cx(iconCss, iconSeverityCss[severity], isCompact && compactIconCss)}
+        aria-hidden="true"
+      >
+        <SeverityIcon size={ICON_SIZE[density]} />
+      </span>
+      <HeadingTag className={cx(titleCss, isCompact && compactTitleCss)}>{copy.title}</HeadingTag>
+    </div>
+  )
+
+  const summaryText = (
+    <>
+      {context ? <div className={paragraphCss}>{context}</div> : null}
+      {message ? <p className={paragraphCss}>{message}</p> : null}
+    </>
+  )
 
   const actions = (
     <div
       className={cx(
-        actionsCss,
+        isCompact ? actionsRowCss : actionsStackCss,
         isCopyBesideTitle && compactActionsBesideTitleCss,
-        isCompact && !isCopyBesideTitle && compactIndentBlockCss,
       )}
     >
-      {isCompact ? retryButton : null}
-      <CopyButton
-        value={report}
-        label={t("errorNotice.copyReport")}
-        className={cx(isCompact && quietCopyButtonCss)}
-      >
-        {t("errorNotice.copyReport")}
-      </CopyButton>
-      {view.blockId ? (
-        <a className={linkCss} href={`#${view.blockId}`}>
-          {t("go-to-error")}
-        </a>
+      {showRetry ? (
+        <Button type="button" variant="secondary" size="small" onPress={retry}>
+          {t("errorNotice.retry")}
+        </Button>
       ) : null}
+      <div className={isCompact ? actionsInRowCss : actionsRowCss}>
+        <CopyButton
+          value={report}
+          label={t("errorNotice.copyReport")}
+          appearance={COPY_BUTTON_APPEARANCE[density]}
+        >
+          {t("errorNotice.copyReport")}
+        </CopyButton>
+        {view.blockId ? (
+          <a className={linkCss} href={`#${view.blockId}`}>
+            {t("go-to-error")}
+          </a>
+        ) : null}
+      </div>
     </div>
   )
 
-  return (
-    <div
-      className={cx(
-        rootCss,
-        densityCss[density],
-        severityCss[severity],
-        isCompact && compactSeverityBorderCss[severity],
-        maxHeight === undefined ? undefined : maxHeightCss(maxHeight),
-        className,
-      )}
-      role={ANNOUNCEMENT_ROLES[announce]}
-      data-testid={dataTestId}
-    >
-      {isCopyBesideTitle ? (
-        <div className={compactSummaryRowCss}>
-          <div className={compactSummaryCss}>{summary}</div>
-          {actions}
-        </div>
-      ) : isCompact ? (
-        <div className={compactSummaryCss}>{summary}</div>
-      ) : (
-        summary
-      )}
-
+  const body = (
+    <>
       {view.issues.length > 0 ? (
-        <ul className={cx(issuesCss, isCompact && compactIndentBlockCss)}>
+        <ul className={issuesCss}>
           {view.issues.map((issue, index) => (
             <li key={`${issue.path ?? issue.code ?? ""}-${index}`}>
               {issue.path ? <code className={issueLocationCss}>{issue.path}</code> : null}
@@ -620,7 +598,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
       ) : null}
 
       {view.requestId ? (
-        <div className={cx(requestIdCss, isCompact && compactIndentBlockCss)}>
+        <div className={requestIdCss}>
           <dl className={requestIdListCss}>
             <dt className={requestIdLabelCss}>{t("errorNotice.requestId")}</dt>
             <dd className={requestIdValueCss} data-mask-over-this-in-system-tests="true">
@@ -629,14 +607,10 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           </dl>
         </div>
       ) : null}
-      {isCompact ? null : retryButton}
       {isCopyBesideTitle ? null : actions}
 
       {details.length > 0 || blocks.length > 0 ? (
-        <Disclosure
-          title={t("errorNotice.technicalDetails")}
-          className={cx(isCompact && compactIndentBlockCss)}
-        >
+        <Disclosure title={t("errorNotice.technicalDetails")}>
           <div
             className={cx(
               detailsPanelCss,
@@ -653,6 +627,48 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           </div>
         </Disclosure>
       ) : null}
+    </>
+  )
+
+  const compactSummary = (
+    <div className={compactSummaryCss}>
+      {header}
+      <div className={cx(compactIndentCss, compactSummaryTextCss)}>{summaryText}</div>
+    </div>
+  )
+
+  return (
+    <div
+      className={cx(
+        rootCss,
+        densityCss[density],
+        severityCss[severity],
+        isCompact && compactSeverityBorderCss[severity],
+        maxHeight === undefined ? undefined : maxHeightCss(maxHeight),
+        className,
+      )}
+      role={ANNOUNCEMENT_ROLES[announce]}
+      data-testid={dataTestId}
+    >
+      {isCompact ? (
+        <>
+          {isCopyBesideTitle ? (
+            <div className={compactSummaryRowCss}>
+              {compactSummary}
+              {actions}
+            </div>
+          ) : (
+            compactSummary
+          )}
+          <div className={cx(compactIndentCss, compactBodyCss)}>{body}</div>
+        </>
+      ) : (
+        <>
+          {header}
+          {summaryText}
+          {body}
+        </>
+      )}
     </div>
   )
 }

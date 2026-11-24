@@ -1,11 +1,10 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AuthCard } from "@/components/auth/AuthCard"
+import { AuthCard, authCardStackCss } from "@/components/auth/AuthCard"
 import ResetLinkInvalidCard from "@/components/auth/ResetLinkInvalidCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { resetUserPassword } from "@/generated/api/sdk.generated"
@@ -23,12 +22,6 @@ interface ResetPasswordFormFields {
 interface ResetPasswordFormProps {
   token: string
 }
-
-const formCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.125rem;
-`
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const { t } = useTranslation()
@@ -84,7 +77,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         statusIcon="success"
         lede={t("password-changed-description")}
       >
-        <Link href={loginRoute("/")} styledAsButton variant="primary" isFullWidth>
+        <Link href={loginRoute("/")} styledAsButton variant="primary" size="large" isFullWidth>
           {t("login")}
         </Link>
       </AuthCard>
@@ -95,7 +88,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     <AuthCard title={t("password-reset-choose-new-password")}>
       <form
         onSubmit={handleSubmit((data) => postPasswordChangeMutation.mutate(data))}
-        className={formCss}
+        className={authCardStackCss}
       >
         {postPasswordChangeMutation.isError && (
           // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value, not UI text
@@ -132,7 +125,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         <Button
           type="submit"
           variant="primary"
-          size="medium"
+          size="large"
           isFullWidth
           isLoading={postPasswordChangeMutation.isPending}
         >

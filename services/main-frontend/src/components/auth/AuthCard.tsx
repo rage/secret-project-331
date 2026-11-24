@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { ArrowRight, CheckCircle, Envelope, ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -30,7 +31,7 @@ const cardCss = css`
   margin: 0.5rem auto 2rem;
   overflow: hidden;
   border: 1px solid var(--color-clear-400);
-  border-radius: 14px;
+  border-radius: var(--radius-4);
   background: var(--color-clear-50);
   color: var(--color-gray-700);
 
@@ -74,7 +75,7 @@ const titleRowCss = css`
 
 const titleCss = css`
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-size-4);
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.015em;
@@ -84,7 +85,7 @@ const titleCss = css`
 
 const ledeCss = css`
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: var(--font-size-2);
   line-height: 1.55;
   color: var(--color-gray-500);
   text-wrap: pretty;
@@ -96,7 +97,8 @@ const ledeCss = css`
   }
 `
 
-const bodyCss = css`
+/** The vertical rhythm of an `AuthCard` body; use it for a form inside the card too. */
+export const authCardStackCss = css`
   display: flex;
   flex-direction: column;
   gap: 1.125rem;
@@ -124,35 +126,28 @@ const statusIconBaseCss = css`
   border-radius: 50%;
 `
 
-const statusIconCss: Record<AuthCardStatusIcon, string> = {
-  mail: css`
-    background: var(--color-blue-100);
-    color: var(--color-blue-600);
-  `,
-  success: css`
-    background: var(--color-green-100);
-    color: var(--color-green-700);
-  `,
-  warning: css`
-    background: var(--color-crimson-100);
-    color: var(--color-crimson-700);
-  `,
-}
-
-const STATUS_ICON_PATHS: Record<AuthCardStatusIcon, React.ReactNode> = {
-  mail: (
-    <>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m3.5 6.5 8.5 6.5 8.5-6.5" />
-    </>
-  ),
-  success: <path d="m5 12.5 4.5 4.5L19 7.5" strokeWidth={2.4} />,
-  warning: (
-    <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v6M12 16.5v.01" />
-    </>
-  ),
+const STATUS_ICONS: Record<AuthCardStatusIcon, { Icon: typeof Envelope; className: string }> = {
+  mail: {
+    Icon: Envelope,
+    className: css`
+      background: var(--color-blue-100);
+      color: var(--color-blue-600);
+    `,
+  },
+  success: {
+    Icon: CheckCircle,
+    className: css`
+      background: var(--color-green-100);
+      color: var(--color-green-700);
+    `,
+  },
+  warning: {
+    Icon: ExclamationTriangle,
+    className: css`
+      background: var(--color-crimson-100);
+      color: var(--color-crimson-700);
+    `,
+  },
 }
 
 /**
@@ -167,25 +162,15 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   headingId,
   children,
 }) => {
+  const status = statusIcon ? STATUS_ICONS[statusIcon] : undefined
   return (
     <div className={cardCss}>
       <div className={cx(contentCss, footer ? contentAboveFooterCss : undefined)}>
         <div className={headCss}>
           <div className={titleRowCss}>
-            {statusIcon ? (
-              <span className={cx(statusIconBaseCss, statusIconCss[statusIcon])} aria-hidden="true">
-                <svg
-                  width={16}
-                  height={16}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {STATUS_ICON_PATHS[statusIcon]}
-                </svg>
+            {status ? (
+              <span className={cx(statusIconBaseCss, status.className)} aria-hidden="true">
+                <status.Icon size={16} weight="bold" />
               </span>
             ) : null}
             <h1 ref={headingRef} id={headingId} className={titleCss}>
@@ -194,7 +179,7 @@ export const AuthCard: React.FC<AuthCardProps> = ({
           </div>
           {lede ? <p className={ledeCss}>{lede}</p> : null}
         </div>
-        {children ? <div className={bodyCss}>{children}</div> : null}
+        {children ? <div className={authCardStackCss}>{children}</div> : null}
       </div>
       {footer ? <div className={footerCss}>{footer}</div> : null}
     </div>
@@ -203,51 +188,29 @@ export const AuthCard: React.FC<AuthCardProps> = ({
 
 const footerLineCss = css`
   margin: 0;
-  font-size: 0.875rem;
+  font-size: var(--font-size-1);
   line-height: 1.45;
   color: var(--color-gray-500);
 `
 
 const footerLinkCss = css`
+  --link-fg: var(--color-green-700);
+  --link-fg-hover: var(--color-green-800);
   margin-left: 0.125rem;
-  color: var(--color-green-700);
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 2px;
   white-space: nowrap;
-
-  &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color);
-    outline-offset: var(--focus-ring-offset);
-    border-radius: var(--radius-1);
-    box-shadow: none;
-  }
-
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
-    color: var(--color-green-800);
-  }
 `
 
 const arrowCss = css`
+  display: inline-flex;
   margin-left: 0.25rem;
   vertical-align: -2px;
 `
 
 const arrow = (
-  <svg
-    className={arrowCss}
-    width={14}
-    height={14}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={2.4}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
+  <span className={arrowCss} aria-hidden="true">
+    <ArrowRight size={14} weight="bold" />
+  </span>
 )
 
 /** Props for `AuthCardFooterLink`: a destination `href`, or an `onPress` action. */
@@ -271,8 +234,7 @@ export const AuthCardFooterLink: React.FC<AuthCardFooterLinkProps> = ({
     <p className={footerLineCss}>
       {prompt}{" "}
       {href !== undefined ? (
-        // oxlint-disable-next-line i18next/no-literal-string -- appearance enum value
-        <Link href={href} appearance="inherit" className={footerLinkCss}>
+        <Link href={href} className={footerLinkCss}>
           {children}
           {arrow}
         </Link>

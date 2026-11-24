@@ -1,12 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { Clock, InboxMailbox } from "@vectopus/atlas-icons-react"
+import { millisecondsInMinute } from "date-fns/constants"
 import i18n from "i18next"
 import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { AuthCard, AuthCardFooterLink } from "@/components/auth/AuthCard"
+import { AuthCard, AuthCardFooterLink, authCardStackCss } from "@/components/auth/AuthCard"
 import {
   RESET_EMAIL_RESEND_COOLDOWN_MS,
   RESET_LINK_LIFETIME_HOURS,
@@ -28,21 +30,13 @@ interface SubmitEmailFormFields {
   email: string
 }
 
-const MINUTE_MS = 60 * 1000
-
-const formCss = css`
-  display: flex;
-  flex-direction: column;
-  gap: 1.125rem;
-`
-
 const factsListCss = css`
   display: grid;
   gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 0.90625rem;
+  font-size: var(--font-size-1);
   line-height: 1.45;
   color: var(--color-gray-600);
 
@@ -52,17 +46,18 @@ const factsListCss = css`
     gap: 0.625rem;
     align-items: start;
   }
+`
 
-  svg {
-    margin-top: 2px;
-    color: var(--color-blue-500);
-  }
+const factIconCss = css`
+  display: inline-flex;
+  margin-top: 2px;
+  color: var(--color-blue-500);
 `
 
 const resendNoteCss = css`
   margin: 0;
   text-align: center;
-  font-size: 0.84375rem;
+  font-size: var(--font-size-1);
   color: var(--color-gray-500);
   font-variant-numeric: tabular-nums;
 
@@ -71,37 +66,24 @@ const resendNoteCss = css`
   }
 `
 
-const FactIcon: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <svg
-    width={18}
-    height={18}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth={1.9}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    {children}
-  </svg>
-)
-
-/** Milliseconds left of a cooldown that began at `startedAt`, ticking once a second; 0 when over. */
+/**
+ * Milliseconds left of a cooldown that began at `startedAt`; 0 when over. Re-renders only when the
+ * remaining whole minutes change, so callers should display it in minutes.
+ */
 function useCooldownRemainingMs(startedAt: number | null, durationMs: number): number {
   const [now, setNow] = useState(() => Date.now())
-  // Clamped because `now` only ticks while a cooldown runs, so it can be stale when a new one starts.
+  // Clamped because `now` only advances while a cooldown runs, so it can be stale when a new one starts.
   const remainingMs =
     startedAt === null ? 0 : Math.min(durationMs, Math.max(0, startedAt + durationMs - now))
-  const isRunning = remainingMs > 0
 
   useEffect(() => {
-    if (!isRunning) {
+    if (remainingMs <= 0) {
       return
     }
-    const interval = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(interval)
-  }, [isRunning])
+    const msToNextMinuteChange = remainingMs % millisecondsInMinute || millisecondsInMinute
+    const timeout = setTimeout(() => setNow(Date.now()), msToNextMinuteChange)
+    return () => clearTimeout(timeout)
+  }, [remainingMs])
 
   return remainingMs
 }
@@ -163,7 +145,7 @@ const ResetPassword: React.FC = () => {
   const isCoolingDown = cooldownRemainingMs > 0
   const cooldownNote = isCoolingDown
     ? t("password-reset-send-again-wait", {
-        minutes: Math.ceil(cooldownRemainingMs / MINUTE_MS),
+        minutes: Math.ceil(cooldownRemainingMs / millisecondsInMinute),
       })
     : undefined
 
@@ -171,12 +153,6 @@ const ResetPassword: React.FC = () => {
     // notify:true already announces the error via the toast; the notice is the persistent copy.
     // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
     <ErrorNotice error={postResetPassword.error} announce="off" density="compact" />
-  )
-
-  const rememberedPasswordLink = (
-    <AuthCardFooterLink prompt={t("remembered-your-password")} href={loginHref}>
-      {t("login")}
-    </AuthCardFooterLink>
   )
 
   return (
@@ -193,8 +169,8 @@ const ResetPassword: React.FC = () => {
         )
       }
       footer={
-        isSent ? (
-          <>
+        <>
+          {isSent && (
             <AuthCardFooterLink
               prompt={t("password-reset-wrong-address")}
               onPress={() => {
@@ -206,30 +182,28 @@ const ResetPassword: React.FC = () => {
             >
               {t("password-reset-use-different-email")}
             </AuthCardFooterLink>
-            {rememberedPasswordLink}
-          </>
-        ) : (
-          rememberedPasswordLink
-        )
+          )}
+          <AuthCardFooterLink prompt={t("remembered-your-password")} href={loginHref}>
+            {t("login")}
+          </AuthCardFooterLink>
+        </>
       }
     >
       {isSent ? (
         <>
           <ul className={factsListCss}>
             <li>
-              <FactIcon>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3 2" />
-              </FactIcon>
+              <span className={factIconCss} aria-hidden="true">
+                <Clock size={16} />
+              </span>
               <span>
                 {t("password-reset-link-valid-for", { count: RESET_LINK_LIFETIME_HOURS })}
               </span>
             </li>
             <li>
-              <FactIcon>
-                <path d="M3 13h5l1.5 3h5L16 13h5" />
-                <path d="M5.5 5h13L21 13v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5z" />
-              </FactIcon>
+              <span className={factIconCss} aria-hidden="true">
+                <InboxMailbox size={16} />
+              </span>
               <span>{t("password-reset-check-spam")}</span>
             </li>
           </ul>
@@ -237,7 +211,7 @@ const ResetPassword: React.FC = () => {
           <div>
             <Button
               variant="secondary"
-              size="medium"
+              size="large"
               isFullWidth
               isLoading={postResetPassword.isPending}
               disabledReason={cooldownNote}
@@ -264,7 +238,7 @@ const ResetPassword: React.FC = () => {
           onSubmit={handleSubmit((data) =>
             postResetPassword.mutate({ ...data, generation: sendGenerationRef.current }),
           )}
-          className={formCss}
+          className={authCardStackCss}
         >
           {apiError}
           <TextField
@@ -284,7 +258,7 @@ const ResetPassword: React.FC = () => {
           />
           <Button
             variant="primary"
-            size="medium"
+            size="large"
             type="submit"
             isFullWidth
             isLoading={postResetPassword.isPending}

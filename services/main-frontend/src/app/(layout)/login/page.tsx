@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback, useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
@@ -19,13 +18,7 @@ import {
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Dialog, LoadingRegion, ErrorNotice } from "@/shared-module/components"
-
-const ledeLinkCss = css`
-  color: var(--link-fg);
-  /* Underlined so the link is distinguishable by more than colour alone (WCAG 1.4.1). */
-  text-decoration: underline;
-`
+import { Dialog, ErrorNotice, Link, LoadingRegion } from "@/shared-module/components"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
@@ -70,10 +63,7 @@ const Login: React.FC = () => {
           title={t("login")}
           lede={
             <>
-              {t("login-description")}{" "}
-              <a className={ledeLinkCss} href="https://mooc.fi">
-                {t("login.linkMooc")}
-              </a>{" "}
+              {t("login-description")} <Link href="https://mooc.fi">{t("login.linkMooc")}</Link>{" "}
               {t("login-description2")}
             </>
           }

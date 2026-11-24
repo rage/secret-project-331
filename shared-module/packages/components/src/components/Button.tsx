@@ -61,7 +61,7 @@ export type ButtonProps = PressHandlers & {
   iconPosition?: IconPosition
   isLoading?: boolean
   loadingLabel?: string
-  /** Stretches the button across its container; a medium one also grows to 44px tall. */
+  /** Stretches the button across its container. Ignored by the `link` variant. */
   isFullWidth?: boolean
   disabled?: boolean
   /**

@@ -30,7 +30,7 @@ const ResetLinkInvalidCard: React.FC<ResetLinkInvalidCardProps> = ({ headingRef 
       }
     >
       {/* oxlint-disable-next-line i18next/no-literal-string -- route */}
-      <Link href="/reset-password" styledAsButton variant="primary" isFullWidth>
+      <Link href="/reset-password" styledAsButton variant="primary" size="large" isFullWidth>
         {t("request-new-reset-link")}
       </Link>
     </AuthCard>

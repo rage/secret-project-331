@@ -17,10 +17,9 @@ use crate::{
     self as models, ModelResult,
     exercise_service_info::ExerciseServiceInfo,
     exercise_services::{ExerciseService, get_internal_grade_url},
-    exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult},
+    exercise_task_gradings::{ExerciseTaskGrading, ExerciseTaskGradingResult, TaskToGrade},
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::ExerciseTaskSubmission,
-    exercise_tasks::ExerciseTask,
     exercises::{Exercise, GradingProgress},
     prelude::*,
 };
@@ -33,7 +32,7 @@ pub async fn regrade(
     exercise_services_by_type: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
@@ -185,7 +184,7 @@ async fn do_single_regrading(
     grading_futures: &mut GradingFutures,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
@@ -318,9 +317,10 @@ async fn do_single_regrading(
                     get_internal_grade_url(exercise_service, exercise_service_info).await?;
 
                 let exercise_service_name = exercise_service.name.clone();
+                let task_to_grade = TaskToGrade::get(&mut *conn, exercise_task.clone()).await?;
                 let grading_future = send_grading_request(
                     grade_url,
-                    &exercise_task,
+                    &task_to_grade,
                     &submission,
                     models::exercise_tasks::pseudonymous_user_id(
                         &exercise_service.id,
@@ -582,7 +582,7 @@ mod test {
         };
         let send = {
             let sent = sent.clone();
-            move |_: Url, _: &ExerciseTask, _: &ExerciseTaskSubmission, _: Uuid| {
+            move |_: Url, _: &TaskToGrade, _: &ExerciseTaskSubmission, _: Uuid| {
                 sent.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                 let pending = pending.clone();
                 async move { Ok(pending) }.boxed()

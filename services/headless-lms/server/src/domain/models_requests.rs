@@ -12,16 +12,15 @@ use headless_lms_models::{
     HttpErrorType, ModelError, ModelErrorType, ModelResult,
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_task_gradings::{
-        ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile,
+        ExerciseTaskGradingRequest, ExerciseTaskGradingResult, GradingRequestFile, TaskToGrade,
     },
     exercise_task_submissions::{AnswerFile as SubmittedAnswerFile, ExerciseTaskSubmission},
-    exercise_tasks::ExerciseTask,
 };
 
 use headless_lms_base::error::backend_error::BackendError;
 pub use headless_lms_base::jwt::{DOWNLOAD_CLAIM_PARAM, DownloadClaim, JwtKey};
 use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim, validate_hs256_claim};
-use models::SpecFetcher;
+use models::{SpecFetcher, repository_exercises::RepositoryExercise};
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
@@ -255,6 +254,10 @@ pub struct SpecRequest<'a> {
     request_id: Uuid,
     private_spec: Option<&'a serde_json::Value>,
     upload_url: Option<String>,
+    /// The current version of the repository exercise the task uses, which takes precedence over
+    /// any copy the private spec embeds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    repository_exercise: Option<&'a RepositoryExercise>,
 }
 
 #[derive(Debug, Serialize)]
@@ -290,7 +293,7 @@ pub fn make_spec_fetcher(
     request_id: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> impl SpecFetcher {
-    move |url, exercise_service_slug, private_spec| {
+    move |url, exercise_service_slug, private_spec, repository_exercise| {
         let client = reqwest::Client::new();
         let upload_claim = UploadClaim::expiring_in_1_day(exercise_service_slug);
         let upload_url = Some(format!("{base_url}/api/v0/files/{exercise_service_slug}"));
@@ -315,6 +318,7 @@ pub fn make_spec_fetcher(
                 request_id,
                 private_spec,
                 upload_url,
+                repository_exercise,
             })
             .send();
         async move {
@@ -437,11 +441,11 @@ pub fn make_grading_request_sender(
     base_url: String,
 ) -> impl Fn(
     Url,
-    &ExerciseTask,
+    &TaskToGrade,
     &ExerciseTaskSubmission,
     Uuid,
 ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>> {
-    move |grade_url, exercise_task, submission, pseudonymous_user_id| {
+    move |grade_url, task_to_grade, submission, pseudonymous_user_id| {
         let client = reqwest::Client::new();
         let grading_update_url = format!(
             "{base_url}/api/v0/exercise-services/grading/grading-update/{}",
@@ -484,7 +488,8 @@ pub fn make_grading_request_sender(
             .timeout(std::time::Duration::from_secs(120))
             .json(&ExerciseTaskGradingRequest {
                 grading_update_url: &grading_update_url,
-                exercise_spec: &exercise_task.private_spec,
+                exercise_spec: &task_to_grade.exercise_task.private_spec,
+                repository_exercise: task_to_grade.repository_exercise.as_ref(),
                 submission_data: submission.data_json.as_ref(),
                 submission_files: &submission_files,
                 pseudonymous_user_id: Some(pseudonymous_user_id),
@@ -618,18 +623,17 @@ pub fn make_seed_spec_fetcher_with_cache(
     request_id: Uuid,
     jwt_key: Arc<JwtKey>,
 ) -> impl SpecFetcher {
-    // Cache key: (url, exercise_service_slug, private_spec serialized)
+    // Cache key: (url, exercise_service_slug, private spec and repository exercise serialized)
     let cache: Arc<Mutex<SpecCache>> = Arc::new(Mutex::new(HashMap::new()));
 
     // Create the base non-caching spec fetcher and wrap it in Arc to make it clonable
     let base_fetcher = Arc::new(make_spec_fetcher(base_url, request_id, jwt_key));
 
-    move |url, exercise_service_slug, private_spec| {
+    move |url, exercise_service_slug, private_spec, repository_exercise| {
         let url_str = url.to_string();
         let service_slug = exercise_service_slug.to_string();
-        // Convert private_spec to string for cache key if present
-        let private_spec_str =
-            private_spec.map(|spec| serde_json::to_string(&spec).unwrap_or_default());
+        let private_spec_str = private_spec
+            .map(|spec| serde_json::to_string(&(spec, repository_exercise)).unwrap_or_default());
         let key = (url_str.clone(), service_slug.clone(), private_spec_str);
         let cache = Arc::clone(&cache);
         let base_fetcher = Arc::clone(&base_fetcher);
@@ -651,7 +655,13 @@ pub fn make_seed_spec_fetcher_with_cache(
             }
 
             // Not in cache - fetch using base fetcher
-            let fetched_spec = base_fetcher(url, exercise_service_slug, private_spec).await?;
+            let fetched_spec = base_fetcher(
+                url,
+                exercise_service_slug,
+                private_spec,
+                repository_exercise,
+            )
+            .await?;
 
             // Store in cache
             {

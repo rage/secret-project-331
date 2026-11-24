@@ -76,7 +76,7 @@ ALTER TABLE repository_exercises
 ALTER COLUMN archive_path
 SET NOT NULL;
 
-COMMENT ON COLUMN repository_exercises.archive_path IS 'File store path of the exercise''s archive. Each version gets a new path, so tasks still pointing at the previous version keep working until they are refreshed. Copies of a course share their source''s archives.';
+COMMENT ON COLUMN repository_exercises.archive_path IS 'File store path of the exercise''s archive. Each version gets a new path. Copies of a course share their source''s archives.';
 COMMENT ON COLUMN repository_exercises.download_url IS 'The URL of the archive at archive_path.';
 
 CREATE TABLE retired_repository_exercise_archives (
@@ -95,21 +95,27 @@ WHERE deleted_at IS NULL;
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON retired_repository_exercise_archives FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-COMMENT ON TABLE retired_repository_exercise_archives IS 'Repository exercise archives replaced by a sync or left behind by a removed exercise or repository. The object is removed from the file store once no repository exercise and no exercise task refers to it any more.';
+COMMENT ON TABLE retired_repository_exercise_archives IS 'Repository exercise archives replaced by a sync or left behind by a removed exercise or repository. The object is removed from the file store once no live repository exercise has it and no live exercise task uses a removed one that has it.';
 COMMENT ON COLUMN retired_repository_exercise_archives.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN retired_repository_exercise_archives.created_at IS 'Timestamp when the archive was retired.';
 COMMENT ON COLUMN retired_repository_exercise_archives.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN retired_repository_exercise_archives.deleted_at IS 'Timestamp when the archive was removed from the file store. If null, it is still stored.';
 COMMENT ON COLUMN retired_repository_exercise_archives.repository_id IS 'The repository whose sync or deletion retired the archive.';
 COMMENT ON COLUMN retired_repository_exercise_archives.archive_path IS 'File store path of the archive.';
-COMMENT ON COLUMN retired_repository_exercise_archives.download_url IS 'The URL exercise task private specs embed for the archive.';
+COMMENT ON COLUMN retired_repository_exercise_archives.download_url IS 'The URL of the archive.';
 
-CREATE INDEX idx_exercise_tasks_repository_exercise_id ON exercise_tasks ((private_spec -> 'repository_exercise' ->> 'id'))
-WHERE (private_spec -> 'repository_exercise' ->> 'id') IS NOT NULL;
-CREATE INDEX idx_exercise_tasks_repository_exercise_download_url ON exercise_tasks (
-  (private_spec -> 'repository_exercise' ->> 'download_url')
-)
-WHERE (private_spec -> 'repository_exercise' ->> 'download_url') IS NOT NULL;
+ALTER TABLE exercise_tasks
+ADD COLUMN repository_exercise_id UUID REFERENCES repository_exercises(id),
+  ADD COLUMN repository_exercise_checksum BYTEA;
+UPDATE exercise_tasks AS et
+SET repository_exercise_id = re.id,
+  repository_exercise_checksum = re.checksum
+FROM repository_exercises AS re
+WHERE (et.private_spec -> 'repository_exercise' ->> 'id') = re.id::text;
+CREATE INDEX exercise_tasks_repository_exercise_id_idx ON exercise_tasks (repository_exercise_id)
+WHERE repository_exercise_id IS NOT NULL;
+COMMENT ON COLUMN exercise_tasks.repository_exercise_id IS 'The repository exercise the exercise editor picked for this task. The host sends its current version to the exercise service with every spec and grading request, and a repository sync re-derives the task''s specs when it changes.';
+COMMENT ON COLUMN exercise_tasks.repository_exercise_checksum IS 'The checksum of the repository exercise version the task''s public and model solution specs were derived from. A sync re-derives them when it differs from the repository exercise''s current checksum.';
 
 CREATE INDEX exercise_task_gradings_pending_updated_at_idx ON exercise_task_gradings (updated_at)
 WHERE grading_progress = 'pending'

@@ -2111,6 +2111,10 @@ export type CmsPageExerciseTask = {
    * endpoint that produced it, since a derivation may upload files of its own.
    */
   private_spec_files?: Array<string>
+  /**
+   * The repository exercise the exercise editor picked, as it reported it beside the spec.
+   */
+  repository_exercise_id?: string | null
 }
 
 export type CmsPeerOrSelfReviewConfig = {

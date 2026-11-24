@@ -94,6 +94,7 @@ export const zCmsPageExerciseTask = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
   private_spec_files: z.array(z.uuid()).optional(),
+  repository_exercise_id: z.uuid().nullish(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -712,8 +713,8 @@ export const zContentManagementPage = z.object({
 export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
 /**
- * An exercise as the exercise editor's picker lists it. Serialized into tmc private specs as
- * `repository_exercise`, so the field set is part of the tmc service's contract.
+ * An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+ * it as `repository_exercise`, so the field set is part of the exercise services' contract.
  */
 export const zRepositoryExercise = z.object({
   checksum: z.array(

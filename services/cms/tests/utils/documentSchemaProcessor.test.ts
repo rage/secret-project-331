@@ -129,6 +129,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
         options: ["a", "b", "c"],
       },
       private_spec_files: ["e6d6b3ba-6f4e-4f2e-9c1f-3d1a4f2b8a11"],
+      repository_exercise_id: null,
     },
   ],
   url_path: "/path/to/page",
@@ -166,6 +167,7 @@ const exampleUnnormalizedDocumentExerciseTaskAttributes: ExerciseTaskAttributes 
   exercise_type: "quizzes",
   private_spec: '{"options":["a","b","c"]}',
   private_spec_files: [],
+  repository_exercise_id: null,
   show_editor: false,
   order_number: 0,
 }

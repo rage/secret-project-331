@@ -2,6 +2,11 @@ export interface SpecRequest {
   request_id: string
   private_spec: unknown | null
   upload_url: string | null
+  /**
+   * The current version of the repository exercise the task uses, absent for a task that uses
+   * none. Supersedes any copy the private spec embeds.
+   */
+  repository_exercise?: RepositoryExercise
 }
 
 export interface ExerciseServiceInfoApi {

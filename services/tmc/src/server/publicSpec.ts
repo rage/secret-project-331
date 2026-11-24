@@ -68,10 +68,12 @@ async function processPublicSpec(
       return badRequest("Invalid private spec")
     }
     const privateSpec = privateSpecResult.data
+    // The host's current version, when it sends one, supersedes the copy picked in the editor.
+    const repositoryExercise = specRequest.repository_exercise ?? privateSpec.repository_exercise
 
     debug("preparing stub dir")
     const { stubDir, templateDir, paths } = await prepareStubDir(
-      privateSpec.repository_exercise.download_url,
+      repositoryExercise.download_url,
       log,
     )
     tempPaths.push(...paths)
@@ -86,7 +88,7 @@ async function processPublicSpec(
       log,
       debug,
       stubDir,
-      privateSpec.repository_exercise,
+      repositoryExercise,
       upload_url,
       uploadClaim,
     )

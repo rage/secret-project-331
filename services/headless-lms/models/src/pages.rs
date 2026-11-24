@@ -485,6 +485,7 @@ pub struct NormalizedCmsExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub private_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1548,6 +1549,9 @@ pub struct CmsPageExerciseTask {
     /// endpoint that produced it, since a derivation may upload files of its own.
     #[serde(default)]
     pub private_spec_files: Vec<Uuid>,
+    /// The repository exercise the exercise editor picked, as it reported it beside the spec.
+    #[serde(default)]
+    pub repository_exercise_id: Option<Uuid>,
 }
 
 impl CmsPageExerciseTask {
@@ -1563,6 +1567,7 @@ impl CmsPageExerciseTask {
             private_spec: task.private_spec,
             order_number: task.order_number,
             private_spec_files,
+            repository_exercise_id: task.repository_exercise_id,
         }
     }
 }
@@ -2083,7 +2088,9 @@ AND deleted_at IS NULL
 RETURNING id,
   private_spec,
   public_spec,
-  model_solution_spec;
+  model_solution_spec,
+  repository_exercise_id,
+  repository_exercise_checksum;
         ",
         &existing_exercise_slide_ids,
     )
@@ -2550,6 +2557,19 @@ async fn upsert_exercise_tasks(
             assignment: task_update.assignment.clone(),
             exercise_type: task_update.exercise_type.clone(),
             private_spec: task_update.private_spec.clone(),
+            repository_exercise_id: task_update.repository_exercise_id,
+        };
+        let repository_exercise = match task_update.repository_exercise_id {
+            Some(id) => Some(crate::repository_exercises::get_by_id(&mut *conn, id).await?),
+            None => None,
+        };
+        let repository_exercise_checksum = match existing_exercise_task {
+            Some(existing) if existing.has_same_spec_input(&normalized_task) => {
+                existing.repository_exercise_checksum.clone()
+            }
+            _ => repository_exercise
+                .as_ref()
+                .map(|exercise| exercise.checksum.clone()),
         };
         let declares_spec_files = exercise_service_hashmap
             .get(&task_update.exercise_type)
@@ -2557,6 +2577,7 @@ async fn upsert_exercise_tasks(
         let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
+            repository_exercise.as_ref(),
             &model_solution_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
@@ -2567,6 +2588,7 @@ async fn upsert_exercise_tasks(
         let public = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
+            repository_exercise.as_ref(),
             &public_spec_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
@@ -2597,9 +2619,11 @@ INSERT INTO exercise_tasks(
     public_spec,
     private_spec,
     model_solution_spec,
-    order_number
+    order_number,
+    repository_exercise_id,
+    repository_exercise_checksum
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
 SET exercise_slide_id = $2,
   exercise_type = $3,
@@ -2608,13 +2632,16 @@ SET exercise_slide_id = $2,
   private_spec = $6,
   model_solution_spec = $7,
   order_number = $8,
+  repository_exercise_id = $9,
+  repository_exercise_checksum = $10,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,
   assignment,
   exercise_type,
   private_spec,
-  order_number
+  order_number,
+  repository_exercise_id
                 ",
             safe_for_db_exercise_task_id,
             safe_for_db_exercise_slide_id,
@@ -2624,6 +2651,8 @@ RETURNING id,
             task_update.private_spec,
             model_solution_spec,
             task_update.order_number,
+            task_update.repository_exercise_id,
+            repository_exercise_checksum,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2664,6 +2693,7 @@ RETURNING id,
             private_spec: upserted.private_spec,
             order_number: upserted.order_number,
             private_spec_files: task_update.private_spec_files.clone(),
+            repository_exercise_id: upserted.repository_exercise_id,
         })
     }
     Ok(remapped_exercise_tasks)
@@ -2956,6 +2986,16 @@ struct ExerciseTaskIdAndSpec {
     pub private_spec: Option<serde_json::Value>,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Option<Uuid>,
+    pub repository_exercise_checksum: Option<Vec<u8>>,
+}
+
+impl ExerciseTaskIdAndSpec {
+    /// Whether a save of `task_update` would derive this task's specs from the same input again.
+    fn has_same_spec_input(&self, task_update: &NormalizedCmsExerciseTask) -> bool {
+        self.private_spec == task_update.private_spec
+            && self.repository_exercise_id == task_update.repository_exercise_id
+    }
 }
 
 /// A derived spec, with the stored files the exercise service declared it references.
@@ -3007,6 +3047,7 @@ struct DerivedSpecResponse {
 async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
+    repository_exercise: Option<&crate::repository_exercises::RepositoryExercise>,
     urls_by_exercise_type: &HashMap<&String, Url>,
     spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
@@ -3014,13 +3055,10 @@ async fn fetch_derived_spec(
     declares_spec_files: bool,
 ) -> Result<DerivedSpec, ModelError> {
     match existing_exercise_task {
-        Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
-            // Skip generating public spec for an existing exercise again if private spec is still the same.
-            Ok(DerivedSpec {
-                spec: previous_spec,
-                declared_files: None,
-            })
-        }
+        Some(exercise_task) if exercise_task.has_same_spec_input(task_update) => Ok(DerivedSpec {
+            spec: previous_spec,
+            declared_files: None,
+        }),
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
@@ -3038,6 +3076,7 @@ async fn fetch_derived_spec(
                 url,
                 &task_update.exercise_type,
                 task_update.private_spec.as_ref(),
+                repository_exercise,
             )
             .await?;
             // A declaring service answers with an envelope, so the same body cannot be read both
@@ -5130,7 +5169,7 @@ mod test {
             tx.as_mut(),
             new_page("/chapter-1/як", "Raw"),
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5142,7 +5181,7 @@ mod test {
             tx.as_mut(),
             new_page("/chapter-1/іспит", "Legacy"),
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5234,7 +5273,7 @@ mod test {
                 hidden: false,
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5273,6 +5312,7 @@ mod test {
             private_spec: None,
             order_number: 1,
             private_spec_files: vec![],
+            repository_exercise_id: None,
         };
 
         // Works without exercises
@@ -5768,6 +5808,7 @@ mod test {
             assignment: serde_json::Value::Null,
             exercise_type: "declaring-service".to_string(),
             private_spec: Some(serde_json::json!({ "prompt": "hi" })),
+            repository_exercise_id: None,
         }
     }
 
@@ -5781,8 +5822,9 @@ mod test {
         fetch_derived_spec(
             None,
             &declaring_task(),
+            None,
             &urls,
-            move |_url, _slug, _spec| {
+            move |_url, _slug, _spec, _repository_exercise| {
                 let body = body.clone();
                 Box::pin(async move { Ok(body) })
             },

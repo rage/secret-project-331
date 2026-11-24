@@ -1,8 +1,8 @@
 use crate::{exercise_repositories::RetiredArchive, prelude::*};
 use utoipa::ToSchema;
 
-/// An exercise as the exercise editor's picker lists it. Serialized into tmc private specs as
-/// `repository_exercise`, so the field set is part of the tmc service's contract.
+/// An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+/// it as `repository_exercise`, so the field set is part of the exercise services' contract.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, ToSchema)]
 pub struct RepositoryExercise {
     pub id: Uuid,
@@ -226,56 +226,108 @@ ORDER BY er.created_at, re.part, re.name
 
 /// Those of `ids` that a live exercise task uses.
 pub async fn get_ids_in_use(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<Uuid>> {
-    let ids_as_text: Vec<String> = ids.iter().map(Uuid::to_string).collect();
     let in_use = sqlx::query_scalar!(
         r#"
-SELECT DISTINCT (et.private_spec -> 'repository_exercise' ->> 'id')::uuid AS "id!"
+SELECT DISTINCT et.repository_exercise_id AS "id!"
 FROM exercise_tasks et
   JOIN exercise_slides es ON es.id = et.exercise_slide_id
   AND es.deleted_at IS NULL
   JOIN exercises e ON e.id = es.exercise_id
   AND e.deleted_at IS NULL
-WHERE (et.private_spec -> 'repository_exercise' ->> 'id') = ANY($1)
+WHERE et.repository_exercise_id = ANY($1)
   AND et.deleted_at IS NULL
 "#,
-        &ids_as_text
+        ids
     )
     .fetch_all(conn)
     .await?;
     Ok(in_use)
 }
 
-/// A live exercise task whose private spec embeds one of a repository's exercises.
-#[derive(Debug)]
-pub struct ExerciseTaskUsingRepositoryExercise {
-    pub id: Uuid,
-    pub exercise_type: String,
-    pub private_spec: serde_json::Value,
+/// The current version of the repository exercise the exercise task uses, also when the exercise
+/// has since been removed from its repository. `None` for a task that uses none.
+pub async fn get_for_exercise_task(
+    conn: &mut PgConnection,
+    exercise_task_id: Uuid,
+) -> ModelResult<Option<RepositoryExercise>> {
+    let exercise = sqlx::query_as!(
+        RepositoryExercise,
+        "
+SELECT re.id,
+  er.id AS repository_id,
+  re.part,
+  re.name,
+  er.url AS repository_url,
+  re.checksum,
+  re.download_url
+FROM exercise_tasks et
+  JOIN repository_exercises re ON re.id = et.repository_exercise_id
+  JOIN exercise_repositories er ON er.id = re.repository_id
+WHERE et.id = $1
+",
+        exercise_task_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(exercise)
 }
 
-/// Live exercise tasks, course or exam, whose private spec embeds an exercise of the repository.
-pub async fn get_exercise_tasks_using_repository(
+/// The current version of a repository exercise, also when it has since been removed from its
+/// repository.
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<RepositoryExercise> {
+    let exercise = sqlx::query_as!(
+        RepositoryExercise,
+        "
+SELECT re.id,
+  er.id AS repository_id,
+  re.part,
+  re.name,
+  er.url AS repository_url,
+  re.checksum,
+  re.download_url
+FROM repository_exercises re
+  JOIN exercise_repositories er ON er.id = re.repository_id
+WHERE re.id = $1
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise)
+}
+
+/// A live exercise task whose specs were derived from an older version of its repository exercise.
+#[derive(Debug)]
+pub struct OutdatedExerciseTask {
+    pub id: Uuid,
+    pub exercise_type: String,
+    pub private_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Uuid,
+}
+
+/// Live exercise tasks, course or exam, whose specs were derived from another version of one of
+/// the repository's exercises than its current one.
+pub async fn get_outdated_exercise_tasks(
     conn: &mut PgConnection,
     repository_id: Uuid,
-) -> ModelResult<Vec<ExerciseTaskUsingRepositoryExercise>> {
+) -> ModelResult<Vec<OutdatedExerciseTask>> {
     let tasks = sqlx::query_as!(
-        ExerciseTaskUsingRepositoryExercise,
+        OutdatedExerciseTask,
         r#"
 SELECT et.id,
   et.exercise_type,
-  et.private_spec AS "private_spec!"
+  et.private_spec,
+  re.id AS repository_exercise_id
 FROM exercise_tasks et
+  JOIN repository_exercises re ON re.id = et.repository_exercise_id
+  AND re.repository_id = $1
+  AND re.deleted_at IS NULL
   JOIN exercise_slides es ON es.id = et.exercise_slide_id
   AND es.deleted_at IS NULL
   JOIN exercises e ON e.id = es.exercise_id
   AND e.deleted_at IS NULL
-WHERE (et.private_spec -> 'repository_exercise' ->> 'id') IN (
-    SELECT re.id::text
-    FROM repository_exercises re
-    WHERE re.repository_id = $1
-      AND re.deleted_at IS NULL
-  )
-  AND et.deleted_at IS NULL
+WHERE et.deleted_at IS NULL
+  AND et.repository_exercise_checksum IS DISTINCT FROM re.checksum
 "#,
         repository_id
     )
@@ -284,31 +336,33 @@ WHERE (et.private_spec -> 'repository_exercise' ->> 'id') IN (
     Ok(tasks)
 }
 
-/// Stores re-derived specs for a task, unless its private spec has changed since
-/// `previous_private_spec` was read. Returns whether the task was updated.
+/// Stores specs re-derived from the repository exercise version with `checksum`, unless the task's
+/// private spec or repository exercise has changed since `task` was read. Returns whether the
+/// task was updated.
 pub async fn update_exercise_task_specs(
     conn: &mut PgConnection,
-    exercise_task_id: Uuid,
-    previous_private_spec: &serde_json::Value,
-    private_spec: &serde_json::Value,
+    task: &OutdatedExerciseTask,
+    checksum: &[u8],
     public_spec: Option<&serde_json::Value>,
     model_solution_spec: Option<&serde_json::Value>,
 ) -> ModelResult<bool> {
     let res = sqlx::query!(
         "
 UPDATE exercise_tasks
-SET private_spec = $3,
-  public_spec = $4,
-  model_solution_spec = $5
+SET public_spec = $4,
+  model_solution_spec = $5,
+  repository_exercise_checksum = $3
 WHERE id = $1
-  AND private_spec = $2
+  AND private_spec IS NOT DISTINCT FROM $2
+  AND repository_exercise_id = $6
   AND deleted_at IS NULL
 ",
-        exercise_task_id,
-        previous_private_spec,
-        private_spec,
+        task.id,
+        task.private_spec,
+        checksum,
         public_spec,
-        model_solution_spec
+        model_solution_spec,
+        task.repository_exercise_id,
     )
     .execute(conn)
     .await?;

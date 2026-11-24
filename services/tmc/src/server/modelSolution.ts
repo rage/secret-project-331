@@ -65,11 +65,13 @@ const processModelSolution = async (
       return badRequest("Invalid private spec")
     }
     const privateSpec = privateSpecResult.data
+    // The host's current version, when it sends one, supersedes the copy picked in the editor.
+    const repositoryExercise = specRequest.repository_exercise ?? privateSpec.repository_exercise
 
     debug("downloading template")
     const templateArchive = temporaryFile()
     tempPaths.push(templateArchive)
-    await downloadStream(privateSpec.repository_exercise.download_url, templateArchive)
+    await downloadStream(repositoryExercise.download_url, templateArchive)
 
     debug("extracting template")
     const extractedProjectDir = temporaryDirectory()
@@ -87,7 +89,7 @@ const processModelSolution = async (
       debug,
       solutionDir,
       privateSpec.type,
-      privateSpec.repository_exercise,
+      repositoryExercise,
       upload_url,
       uploadClaim,
     )

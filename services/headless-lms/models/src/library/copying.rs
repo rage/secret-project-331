@@ -1335,7 +1335,9 @@ INSERT INTO exercise_tasks (
     public_spec,
     model_solution_spec,
     order_number,
-    copied_from
+    copied_from,
+    repository_exercise_id,
+    repository_exercise_checksum
   )
 SELECT uuid_generate_v5($1, t.id::text),
   copied_slide.id,
@@ -1345,7 +1347,9 @@ SELECT uuid_generate_v5($1, t.id::text),
   t.public_spec,
   t.model_solution_spec,
   t.order_number,
-  t.id
+  t.id,
+  t.repository_exercise_id,
+  t.repository_exercise_checksum
 FROM exercise_tasks t
   JOIN exercise_slides s ON s.id = t.exercise_slide_id
   JOIN exercises e ON e.id = s.exercise_id
@@ -1898,18 +1902,10 @@ WHERE (
     sqlx::query!(
         "
 UPDATE exercise_tasks copied_task
-SET private_spec = jsonb_set(
-    jsonb_set(
-      copied_task.private_spec,
-      '{repository_exercise,id}',
-      to_jsonb(uuid_generate_v5($1, re.id::text)::text)
-    ),
-    '{repository_exercise,repository_id}',
-    to_jsonb(uuid_generate_v5($1, re.repository_id::text)::text)
-  )
+SET repository_exercise_id = uuid_generate_v5($1, re.id::text)
 FROM repository_exercises re
   JOIN exercise_repositories er ON er.id = re.repository_id
-WHERE (copied_task.private_spec -> 'repository_exercise' ->> 'id') = re.id::text
+WHERE copied_task.repository_exercise_id = re.id
   AND (
     er.course_id = $2
     OR er.exam_id = $2
@@ -2694,9 +2690,9 @@ mod tests {
             .await
             .unwrap()
             .remove(0);
-        sqlx::query("UPDATE exercise_tasks SET private_spec = $2 WHERE id = $1")
+        sqlx::query("UPDATE exercise_tasks SET repository_exercise_id = $2 WHERE id = $1")
             .bind(task)
-            .bind(serde_json::json!({ "type": "browser", "repository_exercise": picked }))
+            .bind(picked.id)
             .execute(&mut **tx.as_mut())
             .await
             .unwrap();
@@ -2726,16 +2722,14 @@ mod tests {
         assert_ne!(copied_exercise.id, picked.id);
         assert_eq!(copied_exercise.download_url, picked.download_url);
 
-        let copied_task: serde_json::Value =
-            sqlx::query_scalar("SELECT private_spec FROM exercise_tasks WHERE copied_from = $1")
-                .bind(task)
-                .fetch_one(&mut **tx.as_mut())
-                .await
-                .unwrap();
-        assert_eq!(
-            copied_task["repository_exercise"],
-            serde_json::to_value(copied_exercise).unwrap()
-        );
+        let copied_task_exercise: Option<Uuid> = sqlx::query_scalar(
+            "SELECT repository_exercise_id FROM exercise_tasks WHERE copied_from = $1",
+        )
+        .bind(task)
+        .fetch_one(&mut **tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_task_exercise, Some(copied_exercise.id));
     }
 
     /// A copied course's specs name the same stored files as the originals, so the copy has to

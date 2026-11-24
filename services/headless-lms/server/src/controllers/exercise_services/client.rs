@@ -5212,7 +5212,7 @@ mod route_tests {
                 course_module_id: Some(previous.course_module_id),
             },
             fixture.user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

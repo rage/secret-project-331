@@ -38,7 +38,12 @@ const EXAMPLE_EXERCISE_SLUG = "example-exercise"
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange: (newSpec: string, specFiles: string[] | undefined) => void
+  /** `undefined` arguments leave the previous declaration standing. */
+  onPrivateSpecChange: (
+    newSpec: string,
+    specFiles: string[] | undefined,
+    repositoryExerciseId: string | null | undefined,
+  ) => void
   privateSpec: string | null
   url: string | null | undefined
 }
@@ -114,6 +119,7 @@ const ExerciseTaskIFrameEditor: React.FC<
               // forever. Undefined stays undefined — it means "leave the declaration alone", and
               // flattening it to [] would release the files the spec still references.
               messageContainer.private_spec_files?.toSorted(),
+              messageContainer.repository_exercise_id,
             )
           }
           if (messageContainer.message === "file-upload") {

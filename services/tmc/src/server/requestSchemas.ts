@@ -46,6 +46,7 @@ export const gradingRequestFileSchema = z.looseObject({
 export const gradeRequestSchema = z.looseObject({
   grading_update_url: z.string(),
   exercise_spec: privateSpecSchema,
+  repository_exercise: repositoryExerciseSchema.optional(),
   submission_files: z.array(gradingRequestFileSchema).min(1),
 })
 export type GradingRequestFile = z.infer<typeof gradingRequestFileSchema>
@@ -57,6 +58,7 @@ export const specRequestSchema = z.looseObject({
   request_id: z.string(),
   private_spec: z.unknown(),
   upload_url: z.string().nullable(),
+  repository_exercise: repositoryExerciseSchema.optional(),
 })
 export type ParsedSpecRequest = z.infer<typeof specRequestSchema>
 

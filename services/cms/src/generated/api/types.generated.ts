@@ -202,6 +202,10 @@ export type CmsPageExerciseTask = {
    * endpoint that produced it, since a derivation may upload files of its own.
    */
   private_spec_files?: Array<string>
+  /**
+   * The repository exercise the exercise editor picked, as it reported it beside the spec.
+   */
+  repository_exercise_id?: string | null
 }
 
 /**
@@ -769,8 +773,8 @@ export type PeerReviewProcessingStrategy =
 export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 /**
- * An exercise as the exercise editor's picker lists it. Serialized into tmc private specs as
- * `repository_exercise`, so the field set is part of the tmc service's contract.
+ * An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+ * it as `repository_exercise`, so the field set is part of the exercise services' contract.
  */
 export type RepositoryExercise = {
   checksum: Array<number>

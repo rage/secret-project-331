@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT DISTINCT ra.archive_path,\n  ra.download_url\nFROM retired_repository_exercise_archives ra\nWHERE ra.repository_id = $1\n  AND ra.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM repository_exercises re\n    WHERE re.archive_path = ra.archive_path\n      AND re.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_tasks et\n    WHERE (et.private_spec -> 'repository_exercise' ->> 'download_url') = ra.download_url\n      AND et.deleted_at IS NULL\n  )\n",
+  "query": "\nSELECT DISTINCT ra.archive_path,\n  ra.download_url\nFROM retired_repository_exercise_archives ra\nWHERE ra.repository_id = $1\n  AND ra.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM repository_exercises re\n    WHERE re.archive_path = ra.archive_path\n      AND re.deleted_at IS NULL\n  )\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_tasks et\n      JOIN repository_exercises re ON re.id = et.repository_exercise_id\n    WHERE re.archive_path = ra.archive_path\n      AND et.deleted_at IS NULL\n  )\n",
   "describe": {
     "columns": [
       {
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "e0609139974fc950f1785c3081086d25cb1713102ab6d2d778a4af6158f22d82"
+  "hash": "e0cd9eab0392b92f21496c5c694ec93cc05cd80e560018b2e4dc6f8f4ea17d7e"
 }

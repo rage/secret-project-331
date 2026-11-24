@@ -19,7 +19,7 @@ use headless_lms_models::{
     exercise_task_spec_files::{self, SpecKind},
     pages::{DerivedSpec, parse_derived_spec},
     repository_exercises::{
-        self, ExerciseTaskUsingRepositoryExercise, RepositoryExercise, RepositoryExerciseVersion,
+        self, OutdatedExerciseTask, RepositoryExercise, RepositoryExerciseVersion,
     },
 };
 use headless_lms_utils::{
@@ -376,7 +376,7 @@ async fn sync(
 /// Updates the repository's exercises to match `checkout`, keeping each exercise's id: one found
 /// at the same part and name is the same exercise, and failing that one with the same checksum.
 /// Each new version gets an archive at a new path; the replaced archives are retired, not
-/// deleted, since tasks still point at them until they are refreshed. On error, nothing is
+/// deleted, since copies of the course may still use them. On error, nothing is
 /// changed and the new archives are removed.
 async fn sync_checkout(
     conn: &mut PgConnection,
@@ -546,9 +546,9 @@ async fn upload_archive(
     Ok((path, download_url))
 }
 
-/// Points every live exercise task that embeds an outdated copy of one of the repository's
-/// exercises at the current one, deriving its public and model solution specs again. A task whose
-/// specs cannot be derived keeps its previous version and is retried on the next sync.
+/// Re-derives the public and model solution specs of every live exercise task whose specs come
+/// from an older version of one of the repository's exercises. A task whose specs cannot be
+/// derived keeps its previous ones and is retried on the next sync.
 async fn refresh_exercise_tasks(
     conn: &mut PgConnection,
     repository_id: Uuid,
@@ -556,31 +556,19 @@ async fn refresh_exercise_tasks(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     report: &mut ExerciseRepositorySyncReport,
 ) -> anyhow::Result<()> {
-    let current: HashMap<String, RepositoryExercise> =
-        repository_exercises::get_for_repository(conn, repository_id)
-            .await?
-            .into_iter()
-            .map(|exercise| (exercise.id.to_string(), exercise))
-            .collect();
-    let mut outdated = vec![];
-    for task in
-        repository_exercises::get_exercise_tasks_using_repository(conn, repository_id).await?
-    {
-        let embedded = &task.private_spec["repository_exercise"];
-        let Some(exercise) = embedded["id"].as_str().and_then(|id| current.get(id)) else {
-            continue;
-        };
-        let exercise_json = serde_json::to_value(exercise)?;
-        if *embedded != exercise_json {
-            outdated.push((task, exercise, exercise_json));
-        }
-    }
+    let outdated = repository_exercises::get_outdated_exercise_tasks(conn, repository_id).await?;
     if outdated.is_empty() {
         return Ok(());
     }
+    let current: HashMap<Uuid, RepositoryExercise> =
+        repository_exercises::get_for_repository(conn, repository_id)
+            .await?
+            .into_iter()
+            .map(|exercise| (exercise.id, exercise))
+            .collect();
     let exercise_types: Vec<String> = outdated
         .iter()
-        .map(|(task, _, _)| task.exercise_type.clone())
+        .map(|task| task.exercise_type.clone())
         .unique()
         .collect();
     let services = exercise_service_info::get_selected_exercise_services_by_type(
@@ -589,12 +577,13 @@ async fn refresh_exercise_tasks(
         fetch_service_info,
     )
     .await?;
-    for (task, exercise, exercise_json) in outdated {
-        let mut private_spec = task.private_spec.clone();
-        private_spec["repository_exercise"] = exercise_json;
-        match refresh_exercise_task(conn, &task, &private_spec, &services, &spec_fetcher).await {
+    for task in outdated {
+        let Some(exercise) = current.get(&task.repository_exercise_id) else {
+            continue;
+        };
+        match refresh_exercise_task(conn, &task, exercise, &services, &spec_fetcher).await {
             Ok(true) => report.refreshed_exercise_task_count += 1,
-            // The teacher saved the task meanwhile; the next sync looks at it again.
+            // The teacher saved the task meanwhile, which derived its specs anew.
             Ok(false) => {}
             Err(err) => report
                 .failed_exercise_tasks
@@ -611,19 +600,25 @@ async fn refresh_exercise_tasks(
 async fn derive_spec(
     spec_fetcher: &impl SpecFetcher,
     url: Url,
-    exercise_type: &str,
-    private_spec: &serde_json::Value,
+    task: &OutdatedExerciseTask,
+    exercise: &RepositoryExercise,
     declares_spec_files: bool,
 ) -> anyhow::Result<DerivedSpec> {
-    let response = spec_fetcher(url, exercise_type, Some(private_spec)).await?;
+    let response = spec_fetcher(
+        url,
+        &task.exercise_type,
+        task.private_spec.as_ref(),
+        Some(exercise),
+    )
+    .await?;
     parse_derived_spec(response, declares_spec_files)
         .context("The exercise service declares spec files but did not answer with them")
 }
 
 async fn refresh_exercise_task(
     conn: &mut PgConnection,
-    task: &ExerciseTaskUsingRepositoryExercise,
-    private_spec: &serde_json::Value,
+    task: &OutdatedExerciseTask,
+    exercise: &RepositoryExercise,
     services: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
     spec_fetcher: &impl SpecFetcher,
 ) -> anyhow::Result<bool> {
@@ -634,24 +629,23 @@ async fn refresh_exercise_task(
         derive_spec(
             spec_fetcher,
             exercise_services::get_internal_public_spec_url(service, info)?,
-            &task.exercise_type,
-            private_spec,
+            task,
+            exercise,
             info.declares_spec_files,
         ),
         derive_spec(
             spec_fetcher,
             exercise_services::get_model_solution_url(service, info)?,
-            &task.exercise_type,
-            private_spec,
+            task,
+            exercise,
             info.declares_spec_files,
         ),
     )?;
     let mut tx = conn.begin().await?;
     let updated = repository_exercises::update_exercise_task_specs(
         &mut tx,
-        task.id,
-        &task.private_spec,
-        private_spec,
+        task,
+        &exercise.checksum,
         public.spec.as_ref(),
         model_solution.spec.as_ref(),
     )
@@ -919,11 +913,12 @@ mod test {
         fn derive_from_download_url<'a>(
             url: Url,
             _: &'a str,
-            private_spec: Option<&'a serde_json::Value>,
+            _: Option<&'a serde_json::Value>,
+            repository_exercise: Option<&'a RepositoryExercise>,
         ) -> BoxFuture<'a, ModelResult<serde_json::Value>> {
             let spec = serde_json::json!({
                 "endpoint": url.path(),
-                "derived_from": private_spec.unwrap()["repository_exercise"]["download_url"],
+                "derived_from": repository_exercise.unwrap().download_url,
             });
             async move { Ok(spec) }.boxed()
         }
@@ -932,6 +927,7 @@ mod test {
             _: Url,
             _: &'a str,
             _: Option<&'a serde_json::Value>,
+            _: Option<&'a RepositoryExercise>,
         ) -> BoxFuture<'a, ModelResult<serde_json::Value>> {
             unreachable!("nothing is outdated")
         }
@@ -940,6 +936,24 @@ mod test {
             _url: Url,
         ) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
             unreachable!("the service info is stored")
+        }
+
+        /// Points the task at the repository exercise, as if the editor had picked its current
+        /// version.
+        async fn use_repository_exercise(
+            conn: &mut PgConnection,
+            task_id: Uuid,
+            exercise: &RepositoryExercise,
+        ) {
+            sqlx::query(
+                "UPDATE exercise_tasks SET repository_exercise_id = $1, repository_exercise_checksum = $2 WHERE id = $3",
+            )
+            .bind(exercise.id)
+            .bind(&exercise.checksum)
+            .bind(task_id)
+            .execute(conn)
+            .await
+            .unwrap();
         }
 
         async fn exercise_named(
@@ -1001,7 +1015,7 @@ mod test {
             let moved = exercise_named(tx.as_mut(), repository_id, "moved").await;
             let in_use = exercise_named(tx.as_mut(), repository_id, "kept_in_use").await;
             insert_data!(tx: tx, user: user, org: org, course: course; instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide);
-            exercise_tasks::insert(
+            let task_id = exercise_tasks::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
                 NewExerciseTask {
@@ -1019,6 +1033,7 @@ mod test {
             )
             .await
             .unwrap();
+            use_repository_exercise(tx.as_mut(), task_id, &in_use).await;
 
             write(root, "part01/changed/setup.py", "v2");
             fs::rename(root.join("part01/moved"), root.join("part02-moved")).unwrap();
@@ -1116,7 +1131,7 @@ mod test {
         }
 
         #[actix_web::test]
-        async fn refreshes_the_tasks_that_embed_an_outdated_exercise() {
+        async fn refreshes_the_tasks_derived_from_an_outdated_exercise() {
             insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide);
             let file_store = temp_file_store();
             let app_conf = init_app_conf().unwrap();
@@ -1134,6 +1149,10 @@ mod test {
             .await
             .unwrap();
             let picked = exercise_named(tx.as_mut(), repository_id, "ex").await;
+            let private_spec = serde_json::json!({
+                "type": "editor",
+                "repository_exercise": picked,
+            });
             let task_id = exercise_tasks::insert(
                 tx.as_mut(),
                 PKeyPolicy::Generate,
@@ -1142,16 +1161,14 @@ mod test {
                     exercise_type: slug.clone(),
                     assignment: vec![],
                     public_spec: Some(serde_json::json!({ "checksum": "old" })),
-                    private_spec: Some(serde_json::json!({
-                        "type": "editor",
-                        "repository_exercise": picked,
-                    })),
+                    private_spec: Some(private_spec.clone()),
                     model_solution_spec: None,
                     order_number: 0,
                 },
             )
             .await
             .unwrap();
+            use_repository_exercise(tx.as_mut(), task_id, &picked).await;
 
             write(checkout.path(), "part01/ex/setup.py", "v2");
             let mut report = sync_checkout(
@@ -1179,9 +1196,10 @@ mod test {
             let task = exercise_tasks::get_exercise_task_by_id(tx.as_mut(), task_id)
                 .await
                 .unwrap();
+            assert_eq!(task.private_spec, Some(private_spec));
             assert_eq!(
-                task.private_spec.unwrap()["repository_exercise"],
-                serde_json::to_value(&current).unwrap()
+                task.repository_exercise_checksum,
+                Some(current.checksum.clone())
             );
             assert_eq!(
                 task.public_spec.unwrap(),

@@ -49,6 +49,7 @@ export function currentStateMessage(state: ExerciseIframeState | null): MessageT
           message: "current-state",
           data: { private_spec: state.private_spec },
           private_spec_files: [],
+          repository_exercise_id: state.private_spec.repository_exercise.id,
           valid: true,
         }
   }

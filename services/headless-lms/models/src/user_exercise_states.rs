@@ -1692,7 +1692,7 @@ mod tests {
                 course_module_id: Some(course_module.id),
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -1716,7 +1716,7 @@ mod tests {
                 hidden: false,
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -1758,7 +1758,7 @@ mod tests {
                 course_module_id: Some(course_module.id),
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -1782,7 +1782,7 @@ mod tests {
                 hidden: false,
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -1849,7 +1849,7 @@ mod tests {
                 course_module_id: Some(course_module.id),
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -1873,7 +1873,7 @@ mod tests {
                 hidden: false,
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

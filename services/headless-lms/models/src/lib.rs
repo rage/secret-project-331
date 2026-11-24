@@ -340,11 +340,13 @@ impl PKeyPolicy<Uuid> {
 ///   `Url`: The URL that the request is sent to (the exercise service's endpoint)
 ///   `&str`: Exercise type/service slug
 ///   `Option<Value>`: The Json for the request, for example the private spec in a public spec request
+///   `Option<RepositoryExercise>`: The current version of the repository exercise the task uses
 pub trait SpecFetcher:
     for<'a> Fn(
     Url,
     &'a str,
     Option<&'a serde_json::Value>,
+    Option<&'a repository_exercises::RepositoryExercise>,
 ) -> BoxFuture<'a, ModelResult<serde_json::Value>>
 {
 }
@@ -354,6 +356,7 @@ impl<
         Url,
         &'a str,
         Option<&'a serde_json::Value>,
+        Option<&'a repository_exercises::RepositoryExercise>,
     ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
 > SpecFetcher for T
 {

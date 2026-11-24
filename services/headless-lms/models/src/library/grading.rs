@@ -9,7 +9,7 @@ use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
-        self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
+        self, ExerciseTaskGrading, ExerciseTaskGradingResult, TaskToGrade, UserPointsUpdateStrategy,
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{
@@ -474,7 +474,7 @@ pub async fn grade_user_submission(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
@@ -633,7 +633,7 @@ async fn grade_user_submission_task(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,

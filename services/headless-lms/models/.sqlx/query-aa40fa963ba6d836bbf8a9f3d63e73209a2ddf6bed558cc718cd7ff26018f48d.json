@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT er.id,\n  er.url,\n  er.course_id,\n  er.exam_id,\n  er.status AS \"status: ExerciseRepositoryStatus\",\n  er.error_message,\n  er.branch,\n  er.public_key,\n  er.deploy_key IS NOT NULL AS \"has_deploy_key!\",\n  er.sync_attempts,\n  er.last_synced_at,\n  er.last_sync_report,\n  (\n    SELECT COUNT(*)\n    FROM exercise_tasks et\n      JOIN exercise_slides es ON es.id = et.exercise_slide_id\n      AND es.deleted_at IS NULL\n      JOIN exercises e ON e.id = es.exercise_id\n      AND e.deleted_at IS NULL\n    WHERE et.deleted_at IS NULL\n      AND (et.private_spec -> 'repository_exercise' ->> 'id') IN (\n        SELECT re.id::text\n        FROM repository_exercises re\n        WHERE re.repository_id = er.id\n          AND re.deleted_at IS NULL\n      )\n  ) AS \"exercise_task_count!\"\nFROM exercise_repositories er\nWHERE er.deleted_at IS NULL\n  AND (\n    er.id = $1\n    OR er.course_id = $2\n    OR er.exam_id = $3\n  )\nORDER BY er.created_at\n",
+  "query": "\nSELECT er.id,\n  er.url,\n  er.course_id,\n  er.exam_id,\n  er.status AS \"status: ExerciseRepositoryStatus\",\n  er.error_message,\n  er.branch,\n  er.public_key,\n  er.deploy_key IS NOT NULL AS \"has_deploy_key!\",\n  er.sync_attempts,\n  er.last_synced_at,\n  er.last_sync_report,\n  (\n    SELECT COUNT(*)\n    FROM exercise_tasks et\n      JOIN exercise_slides es ON es.id = et.exercise_slide_id\n      AND es.deleted_at IS NULL\n      JOIN exercises e ON e.id = es.exercise_id\n      AND e.deleted_at IS NULL\n      JOIN repository_exercises re ON re.id = et.repository_exercise_id\n      AND re.repository_id = er.id\n      AND re.deleted_at IS NULL\n    WHERE et.deleted_at IS NULL\n  ) AS \"exercise_task_count!\"\nFROM exercise_repositories er\nWHERE er.deleted_at IS NULL\n  AND (\n    er.id = $1\n    OR er.course_id = $2\n    OR er.exam_id = $3\n  )\nORDER BY er.created_at\n",
   "describe": {
     "columns": [
       {
@@ -171,5 +171,5 @@
       null
     ]
   },
-  "hash": "eb6fe7a27600980fd2465a130a12bc765707adc8dc2ca88d176e1f117cdd0978"
+  "hash": "aa40fa963ba6d836bbf8a9f3d63e73209a2ddf6bed558cc718cd7ff26018f48d"
 }

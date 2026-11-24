@@ -129,6 +129,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           private_spec: JSON.parse(block3.attributes.private_spec),
           order_number: exerciseTaskCount,
           private_spec_files: block3.attributes.private_spec_files ?? [],
+          repository_exercise_id: block3.attributes.repository_exercise_id ?? null,
         })
         exerciseTaskCount = exerciseTaskCount + 1
       })
@@ -221,6 +222,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
                 // release every file the spec references. Sorted like the editor's own list, since
                 // these arrive in no particular order and the unsaved-changes check deep-compares.
                 private_spec_files: (task.private_spec_files ?? []).toSorted(),
+                repository_exercise_id: task.repository_exercise_id ?? null,
                 show_editor: false,
                 order_number: task.order_number,
               },

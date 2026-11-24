@@ -111,13 +111,10 @@ SELECT er.id,
       AND es.deleted_at IS NULL
       JOIN exercises e ON e.id = es.exercise_id
       AND e.deleted_at IS NULL
+      JOIN repository_exercises re ON re.id = et.repository_exercise_id
+      AND re.repository_id = er.id
+      AND re.deleted_at IS NULL
     WHERE et.deleted_at IS NULL
-      AND (et.private_spec -> 'repository_exercise' ->> 'id') IN (
-        SELECT re.id::text
-        FROM repository_exercises re
-        WHERE re.repository_id = er.id
-          AND re.deleted_at IS NULL
-      )
   ) AS "exercise_task_count!"
 FROM exercise_repositories er
 WHERE er.deleted_at IS NULL
@@ -436,8 +433,8 @@ VALUES ($1, $2, $3)
     Ok(())
 }
 
-/// The repository's retired archives that no repository exercise and no live exercise task refers
-/// to any more, so their objects can be removed.
+/// The repository's retired archives that no live repository exercise has and no live exercise
+/// task uses through a removed one, so their objects can be removed.
 pub async fn get_unused_retired_archives(
     conn: &mut PgConnection,
     repository_id: Uuid,
@@ -459,7 +456,8 @@ WHERE ra.repository_id = $1
   AND NOT EXISTS (
     SELECT 1
     FROM exercise_tasks et
-    WHERE (et.private_spec -> 'repository_exercise' ->> 'download_url') = ra.download_url
+      JOIN repository_exercises re ON re.id = et.repository_exercise_id
+    WHERE re.archive_path = ra.archive_path
       AND et.deleted_at IS NULL
   )
 ",

@@ -59,7 +59,7 @@ describe("currentStateMessage", () => {
     })
   })
 
-  it("reports the exercise editor's private spec and that it references no files", () => {
+  it("reports the exercise editor's private spec, its repository exercise and no files", () => {
     expect(
       currentStateMessage({
         view_type: "exercise-editor",
@@ -71,6 +71,7 @@ describe("currentStateMessage", () => {
       message: "current-state",
       data: { private_spec: PRIVATE_SPEC },
       private_spec_files: [],
+      repository_exercise_id: PRIVATE_SPEC.repository_exercise.id,
       valid: true,
     })
   })

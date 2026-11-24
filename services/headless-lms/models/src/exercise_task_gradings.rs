@@ -14,6 +14,7 @@ use crate::{
     exercises::{Exercise, GradingProgress},
     library::custom_view_exercises::CustomViewExerciseTaskGrading,
     prelude::*,
+    repository_exercises::RepositoryExercise,
     user_exercise_states::UserExerciseState,
 };
 
@@ -40,10 +41,33 @@ pub struct ExerciseTaskGrading {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
+/// An exercise task with what the host sends for grading beside it.
+#[derive(Debug, Clone)]
+pub struct TaskToGrade {
+    pub exercise_task: ExerciseTask,
+    /// The current version of the repository exercise the task uses.
+    pub repository_exercise: Option<RepositoryExercise>,
+}
+
+impl TaskToGrade {
+    pub async fn get(conn: &mut PgConnection, exercise_task: ExerciseTask) -> ModelResult<Self> {
+        let repository_exercise =
+            crate::repository_exercises::get_for_exercise_task(conn, exercise_task.id).await?;
+        Ok(Self {
+            exercise_task,
+            repository_exercise,
+        })
+    }
+}
+
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 pub struct ExerciseTaskGradingRequest<'a> {
     pub grading_update_url: &'a str,
     pub exercise_spec: &'a Option<serde_json::Value>,
+    /// The current version of the repository exercise the task uses, which takes precedence over
+    /// any copy the private spec embeds.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub repository_exercise: Option<&'a RepositoryExercise>,
     /// The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one.
     pub submission_data: Option<&'a serde_json::Value>,
     /// The answer's files, in answer order. Empty for a JSON-typed submission.
@@ -329,7 +353,7 @@ pub async fn grade_submission(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
@@ -340,9 +364,10 @@ pub async fn grade_submission(
     let exercise_service =
         get_exercise_service_by_exercise_type(conn, &exercise_task.exercise_type).await?;
     let grade_url = get_internal_grade_url(&exercise_service, &exercise_service_info).await?;
+    let task_to_grade = TaskToGrade::get(conn, exercise_task.clone()).await?;
     let exercise_task_grading_result = send_grading_request(
         grade_url,
-        exercise_task,
+        &task_to_grade,
         submission,
         exercise_tasks::pseudonymous_user_id(&exercise_service.id, &user_exercise_state.user_id),
     )

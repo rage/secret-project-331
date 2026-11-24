@@ -35,6 +35,9 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
             typedObj["private_spec_files"].every((e: any) =>
                 typeof e === "string"
             )) &&
+        (typeof typedObj["repository_exercise_id"] === "undefined" ||
+            typedObj["repository_exercise_id"] === null ||
+            typeof typedObj["repository_exercise_id"] === "string") &&
         typeof typedObj["valid"] === "boolean" &&
         (typeof typedObj["validityMessages"] === "undefined" ||
             Array.isArray(typedObj["validityMessages"]) &&

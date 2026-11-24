@@ -1,7 +1,7 @@
 DROP INDEX exercise_task_submissions_exercise_task_grading_id_idx;
 DROP INDEX exercise_task_gradings_pending_updated_at_idx;
-DROP INDEX idx_exercise_tasks_repository_exercise_download_url;
-DROP INDEX idx_exercise_tasks_repository_exercise_id;
+ALTER TABLE exercise_tasks DROP COLUMN repository_exercise_checksum,
+  DROP COLUMN repository_exercise_id;
 DROP TABLE retired_repository_exercise_archives;
 ALTER TABLE repository_exercises DROP COLUMN archive_path,
   ALTER COLUMN download_url TYPE VARCHAR(255);

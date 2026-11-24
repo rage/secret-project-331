@@ -255,7 +255,9 @@ const gradeAnswer = async (
     debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
     tempPaths.push(templateArchivePath)
-    await downloadStream(exercise_spec.repository_exercise.download_url, templateArchivePath)
+    // The host's current version, when it sends one, supersedes the copy picked in the editor.
+    const repositoryExercise = req.repository_exercise ?? exercise_spec.repository_exercise
+    await downloadStream(repositoryExercise.download_url, templateArchivePath)
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()

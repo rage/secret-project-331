@@ -186,7 +186,6 @@
   "error-use-embed-block-instead": "Bruk embed-blokken i stedet.",
   "exercise-custom-view-block": "Tilpasset oppgavevisning",
   "exercise-custom-view-block-explanation": "En visning til en øvelses tjeneste som ikke er relatert til en oppgave.",
-  "exercise-deadline": "Frist (overstyrer kapittelets frist)",
   "exercise-max-points": "Maks poeng",
   "exercise-name": "Navn på oppgave",
   "exercise-title": "Oppgave",

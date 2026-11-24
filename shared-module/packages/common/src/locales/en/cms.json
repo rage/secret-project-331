@@ -190,7 +190,6 @@
   "example-exercise-editor": "Example exercise editor",
   "exercise-custom-view-block": "Exercise Custom View block",
   "exercise-custom-view-block-explanation": "A view to an exercise service that is not related to an exercise.",
-  "exercise-deadline": "Deadline (overrides the chapter deadline)",
   "exercise-max-points": "Max points",
   "exercise-name": "Exercise name",
   "exercise-title": "Exercise",

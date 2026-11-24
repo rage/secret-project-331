@@ -64,6 +64,8 @@ const createPageWithAnExerciseBlock = async (page: Page) => {
 
     await page.click('button[role="option"]:has-text("Exercise")')
 
+    await page.click('[aria-label="Block: Exercise"]')
+
     await page.getByLabel("Exercise name", { exact: true }).click()
 
     await page.getByLabel("Exercise name", { exact: true }).fill("quizzes test")

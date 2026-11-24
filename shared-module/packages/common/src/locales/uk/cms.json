@@ -188,7 +188,6 @@
   "error-use-embed-block-instead": "Натомість використайте блок вбудовування.",
   "exercise-custom-view-block": "Блок користувацького перегляду вправ",
   "exercise-custom-view-block-explanation": "Перегляд сервісу вправ, який не пов'язаний з вправою.",
-  "exercise-deadline": "Кінцевий термін (замінює термін розділу)",
   "exercise-max-points": "Максимальна кількість балів",
   "exercise-name": "Назва вправи",
   "exercise-title": "Вправа",

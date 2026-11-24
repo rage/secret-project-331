@@ -25,6 +25,7 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { loginRoute } from "@/shared-module/common/utils/routes"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -32,6 +33,7 @@ import {
   ComboBox,
   ErrorNotice,
   focusProgrammatically,
+  Link,
   TextField,
 } from "@/shared-module/components"
 
@@ -353,9 +355,9 @@ const CreateAccountForm: React.FC = () => {
             isRequired
             rules={{
               required: t("required-field"),
-              validate: {
-                isValidEmail: (value) =>
-                  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
+              pattern: {
+                value: EMAIL_PATTERN,
+                message: t("enter-a-valid-email"),
               },
             }}
           />
@@ -428,18 +430,16 @@ const CreateAccountForm: React.FC = () => {
           >
             {emailAlreadyTakenError}
           </p>
-          <a
+          <Link
             href={loginHref}
             className={css`
               display: inline-block;
               margin-top: 0.5rem;
-              color: ${baseTheme.colors.blue[600]};
-              text-decoration: underline;
               font-weight: 500;
             `}
           >
             {t("sign-in-if-you-have-an-account")}
-          </a>
+          </Link>
         </div>
       )}
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}

@@ -28,14 +28,11 @@ const Login: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
   const pathname = usePathname()
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
-  const resetPasswordHref = resetPasswordRoute(
-    validateReturnToRouteOrDefault(uncheckedReturnTo, "/"),
-  )
+  const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
 
   const redirect = useCallback(() => {
-    const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
     router.push(returnTo)
-  }, [router, uncheckedReturnTo])
+  }, [router, returnTo])
 
   const {
     step,
@@ -52,10 +49,9 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (loginStateContext.signedIn && step.step === "credentials") {
-      const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
       router.push(returnTo)
     }
-  }, [loginStateContext.signedIn, uncheckedReturnTo, router, step.step])
+  }, [loginStateContext.signedIn, returnTo, router, step.step])
 
   const isCredentialsStep = step.step === "credentials" || step.step === "verification"
 
@@ -85,7 +81,7 @@ const Login: React.FC = () => {
             onSubmit={submitCredentials}
             error={credentialsError}
             isSubmitting={isSubmittingCredentials}
-            resetPasswordHref={resetPasswordHref}
+            resetPasswordHref={resetPasswordRoute(returnTo)}
           />
         </AuthCard>
       ) : (

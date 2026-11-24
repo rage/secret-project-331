@@ -920,6 +920,7 @@ pub async fn get_user_roles(
 
 /// A new account has only just chosen its password, so it gets no reset mail until this old.
 const RESET_MAIL_MIN_ACCOUNT_AGE_HOURS: i64 = 24;
+/// Mirrored as `RESET_EMAIL_RESEND_COOLDOWN_MS` in main-frontend `components/auth/passwordReset.ts`.
 const RESET_MAIL_MIN_INTERVAL_MINUTES: i64 = 5;
 const MAX_RESET_MAILS_PER_DAY: usize = 3;
 

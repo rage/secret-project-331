@@ -399,6 +399,10 @@ fn fetch_service_info_with_timeout(
     .boxed()
 }
 
+/// How long an exercise service may take to prepare a repository.
+pub const REPOSITORY_PREPARATION_TIMEOUT: std::time::Duration =
+    std::time::Duration::from_secs(20 * 60);
+
 /// Asks the exercise service at `url`, its `repository_preparation_endpoint_path`, to find the
 /// exercises of the repository checkout archived at `checkout_download_url`.
 pub fn prepare_repository(
@@ -408,7 +412,7 @@ pub fn prepare_repository(
     async move {
         let res = reqwest::Client::new()
             .post(url)
-            .timeout(std::time::Duration::from_secs(20 * 60))
+            .timeout(REPOSITORY_PREPARATION_TIMEOUT)
             .json(&serde_json::json!({ "checkout_download_url": checkout_download_url }))
             .send()
             .await

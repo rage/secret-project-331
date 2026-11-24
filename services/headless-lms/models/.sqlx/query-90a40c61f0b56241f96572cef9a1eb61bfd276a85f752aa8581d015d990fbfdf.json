@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url,\n  re.details\nFROM repository_exercises re\n  JOIN exercise_repositories er ON er.id = re.repository_id\nWHERE re.id = $1\n  AND (\n    er.course_id = $2\n    OR er.exam_id = $3\n  )\n",
+  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url,\n  re.details\nFROM repository_exercises re\n  JOIN exercise_repositories er ON er.id = re.repository_id\nWHERE re.id = $1\n  AND re.deleted_at IS NULL\n  AND er.deleted_at IS NULL\n  AND (\n    er.course_id = $2\n    OR er.exam_id = $3\n  )\n",
   "describe": {
     "columns": [
       {
@@ -110,5 +110,5 @@
       true
     ]
   },
-  "hash": "21add75b40bf535fbcb6d5763bb5259fcf68410b6a10f997ee19fbfe4d629703"
+  "hash": "90a40c61f0b56241f96572cef9a1eb61bfd276a85f752aa8581d015d990fbfdf"
 }

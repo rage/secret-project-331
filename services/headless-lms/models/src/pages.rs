@@ -2506,6 +2506,7 @@ RETURNING id,
 }
 
 /// Remaps ids from updates to exercise tasks that may have their ids changed.
+#[allow(clippy::too_many_arguments)]
 async fn upsert_exercise_tasks(
     conn: &mut PgConnection,
     remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
@@ -2578,9 +2579,9 @@ async fn upsert_exercise_tasks(
                         model_err!(
                             PreconditionFailedWithCMSAnchorBlockId {
                                 id: task_update.id,
-                                description: "The exercise task uses a repository exercise of another course or exam.",
+                                description: "The exercise task uses a removed repository exercise or one of another course or exam.",
                             },
-                            "The exercise task uses a repository exercise of another course or exam.".to_string()
+                            "The exercise task uses a removed repository exercise or one of another course or exam.".to_string()
                         )
                     })?,
             ),
@@ -3067,6 +3068,7 @@ struct DerivedSpecResponse {
     files: Vec<Uuid>,
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,

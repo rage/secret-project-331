@@ -52,6 +52,7 @@ const SUBMISSION_FILE = {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
 })
 
 describe("POST /api/grade", () => {
@@ -165,6 +166,49 @@ describe("POST /api/grade", () => {
           "The submission could not be graded because of an error on the server. Try submitting again later.",
       }),
     })
+  })
+
+  it("skips a queued grading once the host has given up waiting for it", async () => {
+    const releaseDownloads: (() => void)[] = []
+    const downloads: string[] = []
+    const updates: string[] = []
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((url: string) => {
+        if (url.startsWith("http://host/")) {
+          updates.push(url)
+          return Promise.resolve(Response.json(null))
+        }
+        downloads.push(url)
+        return new Promise((_resolve, reject) => {
+          releaseDownloads.push(() => reject(new Error("download stopped by the test")))
+        })
+      }),
+    )
+    let now = Date.now()
+    vi.spyOn(Date, "now").mockImplementation(() => now)
+    for (let index = 0; index < 5; index++) {
+      await handleGrade(
+        post({
+          grading_update_url: `http://host/grading-update/${index.toString()}`,
+          exercise_spec: { type: "editor", repository_exercise: REPOSITORY_EXERCISE },
+          submission_files: [
+            { ...SUBMISSION_FILE, download_url: `http://files/${index.toString()}` },
+          ],
+        }),
+      )
+    }
+    await vi.waitFor(() => {
+      expect(downloads).toHaveLength(4)
+    })
+    now += 2 * 60 * 60_000
+    releaseDownloads.forEach((release) => release())
+
+    await vi.waitFor(() => {
+      expect(updates).toHaveLength(4)
+    })
+    expect(downloads).not.toContain("http://files/4")
+    expect(updates).not.toContain("http://host/grading-update/4")
   })
 })
 

@@ -232,17 +232,16 @@ export const getExercisePackagingConfiguration = async (
   throw new Error("Unexpected data")
 }
 
-/** tmc-langs' tests timeout for an exercise that sets none. */
-const DEFAULT_TESTS_TIMEOUT_MS = 60_000
-
 /** How long tmc-langs lets the exercise's tests run, its `.tmcproject.yml` and default applied. */
 export const getTestsTimeoutMs = async (
   exercisePath: string,
   log: (message: string, ...optionalParams: unknown[]) => void,
 ): Promise<number> => {
   const { tests_timeout_ms } = await getExercisePackagingConfiguration(exercisePath, log)
-  // Older CLIs do not report it.
-  return tests_timeout_ms ?? DEFAULT_TESTS_TIMEOUT_MS
+  if (tests_timeout_ms === undefined) {
+    throw new Error("tmc-langs did not report the exercise's tests timeout")
+  }
+  return tests_timeout_ms
 }
 
 /**

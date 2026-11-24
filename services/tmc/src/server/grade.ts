@@ -84,6 +84,12 @@ const MAX_CONCURRENT_GRADINGS = 4
 let runningGradings = 0
 const waitingGradings: (() => void)[] = []
 
+/**
+ * The host fails a grading whose result has not arrived in this time (`STALE_GRADING_AFTER` in
+ * headless-lms' regrader) and discards a later result, so one that waited this long is not run.
+ */
+const HOST_GIVES_UP_AFTER_MS = 60 * 60_000
+
 async function withGradingSlot<T>(grade: () => Promise<T>): Promise<T> {
   if (runningGradings >= MAX_CONCURRENT_GRADINGS) {
     await new Promise<void>((resolve) => {
@@ -110,9 +116,14 @@ async function gradeAndReport(
   answerArchive: GradingRequestFile,
   gradingUpdateClaim: string | null,
 ): Promise<void> {
-  let result: ExerciseTaskGradingResult
+  const queuedAt = Date.now()
+  let result: ExerciseTaskGradingResult | null
   try {
-    result = await withGradingSlot(() => gradeAnswer(req, answerArchive))
+    result = await withGradingSlot(() =>
+      Date.now() - queuedAt < HOST_GIVES_UP_AFTER_MS
+        ? gradeAnswer(req, answerArchive)
+        : Promise.resolve(null),
+    )
   } catch (e) {
     error("Failed to grade", e)
     result = {
@@ -120,6 +131,10 @@ async function gradeAndReport(
       grading_progress: "Failed",
       ...failedGrading(e),
     }
+  }
+  if (result === null) {
+    log("Skipped a grading that waited longer than the host waits for its result")
+    return
   }
   await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
 }

@@ -154,6 +154,27 @@ WHERE id = $1
     Ok(res)
 }
 
+/// The grading, locked until the end of the transaction so that concurrent results for it apply
+/// one at a time, each seeing the one before.
+pub async fn get_by_id_for_update(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExerciseTaskGrading> {
+    let res = sqlx::query_as!(
+        ExerciseTaskGrading,
+        r#"
+SELECT *
+FROM exercise_task_gradings
+WHERE id = $1
+FOR UPDATE
+"#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_exercise_task_submission_id(
     conn: &mut PgConnection,
     exercise_task_submission_id: Uuid,

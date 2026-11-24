@@ -387,7 +387,8 @@ ORDER BY etg.updated_at
         )
         .await
         {
-            Ok(()) => {
+            Ok(false) => {}
+            Ok(true) => {
                 failed_count += 1;
                 warn!(
                     grading_id = %row.grading_id,
@@ -403,6 +404,7 @@ ORDER BY etg.updated_at
     Ok(failed_count)
 }
 
+/// Fails the grading unless its result arrived after it was found stale. Returns whether it did.
 async fn fail_grading(
     conn: &mut PgConnection,
     task_submission_id: Uuid,
@@ -410,19 +412,22 @@ async fn fail_grading(
     failed: &ExerciseTaskGradingResult,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
-) -> ModelResult<()> {
+) -> ModelResult<bool> {
     let task_submission =
         exercise_task_submissions::get_submission(conn, task_submission_id, file_store, app_conf)
             .await?;
-    let grading = exercise_task_gradings::get_by_id(&mut *conn, grading_id).await?;
     let slide =
         crate::exercise_slides::get_exercise_slide(&mut *conn, task_submission.exercise_slide_id)
             .await?;
     let exercise = exercises::get_by_id(&mut *conn, slide.exercise_id).await?;
     let mut tx = conn.begin().await?;
+    let grading = exercise_task_gradings::get_by_id_for_update(&mut tx, grading_id).await?;
+    if grading.grading_progress != GradingProgress::Pending {
+        return Ok(false);
+    }
     apply_grading_update(&mut tx, &exercise, &task_submission, &grading, failed).await?;
     tx.commit().await?;
-    Ok(())
+    Ok(true)
 }
 
 async fn apply_grading_result_to_user_state(

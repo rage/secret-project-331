@@ -14,7 +14,8 @@ use models::library::regrading;
 use sqlx::PgPool;
 
 /// How long a grading may wait for its exercise service before it is taken for lost. A tmc grading
-/// can take about 25 minutes once it runs, after waiting its turn behind other gradings.
+/// can take about 25 minutes once it runs, after waiting its turn behind other gradings. The tmc
+/// service's `HOST_GIVES_UP_AFTER_MS` mirrors this.
 const STALE_GRADING_AFTER: chrono::Duration = chrono::Duration::hours(1);
 
 /**

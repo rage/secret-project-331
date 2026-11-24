@@ -309,8 +309,8 @@ WHERE re.id = $1
     Ok(exercise)
 }
 
-/// The current version of a repository exercise of a repository of the course or exam, also when
-/// it has since been removed from its repository. `None` for another's or an unknown exercise.
+/// A repository exercise of a live repository of the course or exam. `None` for another's, an
+/// unknown or a removed exercise, whose archive may already be gone.
 pub async fn get_in_course_or_exam(
     conn: &mut PgConnection,
     id: Uuid,
@@ -331,6 +331,8 @@ SELECT re.id,
 FROM repository_exercises re
   JOIN exercise_repositories er ON er.id = re.repository_id
 WHERE re.id = $1
+  AND re.deleted_at IS NULL
+  AND er.deleted_at IS NULL
   AND (
     er.course_id = $2
     OR er.exam_id = $3
@@ -416,4 +418,59 @@ WHERE id = $1
     .execute(conn)
     .await?;
     Ok(res.rows_affected() == 1)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::{exercise_repositories, test_helper::*};
+
+    #[tokio::test]
+    async fn get_in_course_or_exam_skips_removed_exercises() {
+        insert_data!(:tx, :user, :org, :course);
+        let repository_id = Uuid::new_v4();
+        exercise_repositories::new(
+            tx.as_mut(),
+            repository_id,
+            CourseOrExamId::Course(course),
+            "https://example.com/repo.git",
+            None,
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let id = Uuid::new_v4();
+        let details = serde_json::Value::Null;
+        insert(
+            tx.as_mut(),
+            id,
+            repository_id,
+            &RepositoryExerciseVersion {
+                part: "part01",
+                name: "ex",
+                checksum: &[1],
+                archive_path: "repository_exercises/a",
+                download_url: "http://files/a",
+                details: &details,
+            },
+        )
+        .await
+        .unwrap();
+        let in_course = CourseOrExamId::Course(course);
+        assert!(
+            get_in_course_or_exam(tx.as_mut(), id, in_course)
+                .await
+                .unwrap()
+                .is_some()
+        );
+
+        delete(tx.as_mut(), id).await.unwrap();
+        assert!(
+            get_in_course_or_exam(tx.as_mut(), id, in_course)
+                .await
+                .unwrap()
+                .is_none()
+        );
+    }
 }

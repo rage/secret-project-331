@@ -40,4 +40,4 @@ An exercise overrides its image with `sandbox_image` in its `.tmcproject.yml`, f
 
 A C# exercise builds with the .NET SDK in its image, so its target framework (for example an old `netcoreapp`) must be one that SDK supports; otherwise the build fails and the submission gets a compile or generic error. Point `sandbox_image` at an image with the SDK the exercise needs.
 
-The time a test run may take is the exercise's `tests_timeout_ms` (default 60 s) plus build overhead, at most 15 minutes.
+The time a test run may take is the exercise's `tests_timeout_ms` (tmc-langs' default when unset) plus build overhead, at most 15 minutes.

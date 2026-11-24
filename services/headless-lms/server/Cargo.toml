@@ -122,7 +122,6 @@ tempfile = "3.27.0"
 zstd = "0.14.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
 tar = "0.4.46"
-# YAML (de)serialization, for merging the .tmcproject.yml files of exercise repositories.
 # DEFLATE compression and gzip decompression.
 flate2 = "1.1.10"
 # Streaming zip writer. The `zip` crate needs `Seek`, which the channel-backed export sink cannot offer.

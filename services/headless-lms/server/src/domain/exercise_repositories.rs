@@ -268,7 +268,12 @@ pub fn ensure_branch_name_is_valid(branch: &str) -> anyhow::Result<()> {
 /// Syncs started for a repository before it is marked failed.
 pub const MAX_SYNC_ATTEMPTS: i32 = 3;
 /// A sync running longer than this is assumed dead, for example with the server that ran it.
-const SYNC_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+/// A live sync taken for dead runs twice at once, so this leaves room for the clone and uploads
+/// around the preparation.
+const SYNC_TIMEOUT: Duration = Duration::from_secs(2 * 60 * 60);
+const _: () = assert!(
+    SYNC_TIMEOUT.as_secs() >= 3 * models_requests::REPOSITORY_PREPARATION_TIMEOUT.as_secs()
+);
 const SYNC_WORKER_TICK: Duration = Duration::from_secs(10);
 
 /// Runs queued repository syncs until the process exits. Every server process runs one; they share

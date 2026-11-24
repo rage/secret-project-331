@@ -2128,10 +2128,10 @@ async fn get_submission_grading(
             )
             .map(|url| format!("{url}#{}", exercise.id));
             (
-                Some(
+                Some(Box::new(
                     exercise_progress(&mut conn, user.id, &exercise, &course, state.as_ref())
                         .await?,
-                ),
+                )),
                 submission_page_url,
             )
         }

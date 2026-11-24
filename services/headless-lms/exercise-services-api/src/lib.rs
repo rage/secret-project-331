@@ -323,7 +323,7 @@ pub enum ExerciseTaskSubmissionStatus {
         /// completion without a separate `courses/{id}/progress` round-trip. Absent for an exam
         /// exercise, and from a host that predates the field.
         #[serde(default)]
-        exercise_progress: Option<ExerciseProgress>,
+        exercise_progress: Option<Box<ExerciseProgress>>,
         /// The course material page of the exercise, anchored at the exercise, where the user's
         /// latest submission and its grading are shown. Absent for an exam exercise, and from a
         /// host that predates the field.
@@ -355,7 +355,7 @@ impl<'de> Deserialize<'de> for ExerciseTaskSubmissionStatus {
                 feedback_json: Option<serde_json::Value>,
                 feedback_text: Option<String>,
                 #[serde(default)]
-                exercise_progress: Option<ExerciseProgress>,
+                exercise_progress: Option<Box<ExerciseProgress>>,
                 #[serde(default)]
                 submission_page_url: Option<String>,
             },
@@ -680,7 +680,7 @@ mod test {
             grading_completed_at: None,
             feedback_json: None,
             feedback_text: Some("ok".to_string()),
-            exercise_progress: Some(ExerciseProgress {
+            exercise_progress: Some(Box::new(ExerciseProgress {
                 exercise_id: Uuid::nil(),
                 score_given: 1.0,
                 score_maximum: 1,
@@ -693,7 +693,7 @@ mod test {
                 exercise_locked: false,
                 reviewing_stage: None,
                 teacher_review: None,
-            }),
+            })),
             submission_page_url: None,
         };
         assert_eq!(

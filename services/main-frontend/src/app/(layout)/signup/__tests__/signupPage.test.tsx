@@ -174,11 +174,10 @@ describe("Create account form accessibility", () => {
     })
   })
 
-  it("styles the log-in link as an underlined link", () => {
-    const { container } = renderPage()
-    const link = container.querySelector(".signin-link a")
-    expect(link).not.toBeNull()
-    expect(link).toHaveTextContent("sign-in-if-you-have-an-account")
+  it("links to the login page, keeping the return path", () => {
+    renderPage()
+    const link = screen.getByRole("link", { name: "login" })
+    expect(link).toHaveAttribute("href", "/login?return_to=%2F")
   })
 
   it("moves focus to the confirm-email heading once the research consent dialog closes", async () => {

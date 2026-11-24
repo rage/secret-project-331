@@ -29,6 +29,7 @@ export interface PressHandlers {
 interface ResolveStylesInput {
   size: ButtonSize
   variant: ButtonVariant
+  isFullWidth?: boolean | undefined
 }
 
 /** Used for non-React/CSS-only screen-reader text; prefer `VisuallyHidden` in components. */
@@ -83,7 +84,7 @@ export const rootBaseCss = css`
   vertical-align: middle;
   gap: var(--control-gap);
 
-  border-radius: var(--control-radius);
+  border-radius: var(--radius-3);
   font-weight: 600;
   line-height: 1;
   text-decoration: none;
@@ -168,6 +169,15 @@ const sizeLgCss = css`
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-x-lg);
   font-size: var(--font-size-lg);
+`
+
+const fullWidthCss = css`
+  width: 100%;
+`
+
+/** A full-width button is the main action of its form, so it gets a taller hit area. */
+const fullWidthMdCss = css`
+  height: calc(var(--control-height-md) + var(--space-2));
 `
 
 const iconSizeSmCss = css`
@@ -328,5 +338,9 @@ export function resolveButtonRootCss(input: ResolveStylesInput): string {
     input.variant === "link" ? undefined : sizeStyles[input.size],
     resolveVariantCss(input.variant),
     input.variant === "icon" ? iconSizeStyles[input.size] : undefined,
+    input.isFullWidth && input.variant !== "link" ? fullWidthCss : undefined,
+    input.isFullWidth && input.variant !== "link" && input.size === "medium"
+      ? fullWidthMdCss
+      : undefined,
   )
 }

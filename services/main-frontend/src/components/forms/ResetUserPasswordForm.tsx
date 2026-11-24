@@ -1,15 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { AuthCard } from "@/components/auth/AuthCard"
+import ResetLinkInvalidCard from "@/components/auth/ResetLinkInvalidCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { resetUserPassword } from "@/generated/api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
-import { Button } from "@/shared-module/components"
+import { loginRoute } from "@/shared-module/common/utils/routes"
+import { Button, ErrorNotice, focusProgrammatically, Link } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ResetPasswordFormFields {
@@ -21,6 +24,12 @@ interface ResetPasswordFormProps {
   token: string
 }
 
+const formCss = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+`
+
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const { t } = useTranslation()
   const { control, handleSubmit, watch } = useForm<ResetPasswordFormFields>({
@@ -31,9 +40,18 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
       password_confirmation: "",
     },
   })
-  const router = useRouter()
+  /** null until the API answers; false when the token stopped working after the page loaded. */
+  const [isPasswordChanged, setIsPasswordChanged] = useState<boolean | null>(null)
+  const outcomeHeadingRef = useRef<HTMLHeadingElement>(null)
 
   const newPassword = watch("new_password")
+
+  useEffect(() => {
+    if (isPasswordChanged !== null && outcomeHeadingRef.current) {
+      return focusProgrammatically(outcomeHeadingRef.current)
+    }
+    return undefined
+  }, [isPasswordChanged])
 
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
@@ -52,31 +70,45 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
       method: "POST",
       notify: true,
     },
-    {
-      onSuccess: () => {
-        // oxlint-disable-next-line i18next/no-literal-string
-        router.push("/login?return_to=%2F")
-      },
-    },
+    { onSuccess: setIsPasswordChanged },
   )
 
-  return (
-    <div>
-      <h1>{t("confirm-your-new-password")}</h1>
+  if (isPasswordChanged === false) {
+    return <ResetLinkInvalidCard headingRef={outcomeHeadingRef} />
+  }
 
+  if (isPasswordChanged === true) {
+    return (
+      <AuthCard
+        headingRef={outcomeHeadingRef}
+        title={t("password-changed-title")}
+        // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
+        statusIcon="success"
+        lede={t("password-changed-description")}
+      >
+        <Link href={loginRoute("/")} styledAsButton variant="primary" isFullWidth>
+          {t("login")}
+        </Link>
+      </AuthCard>
+    )
+  }
+
+  return (
+    <AuthCard title={t("password-reset-choose-new-password")}>
       <form
         onSubmit={handleSubmit((data) => postPasswordChangeMutation.mutate(data))}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-          max-width: 420px;
-        `}
+        className={formCss}
       >
+        {postPasswordChangeMutation.isError && (
+          // notify:true already announces the error via the toast; the notice is the persistent copy.
+          // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
+          <ErrorNotice error={postPasswordChangeMutation.error} announce="off" density="compact" />
+        )}
         <PasswordField
           name="new_password"
           control={control}
-          label={t("password")}
+          label={t("new-password")}
+          description={t("password-reset-new-password-hint")}
           autoComplete="new-password"
           isRequired
           rules={{
@@ -91,7 +123,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
         <PasswordField
           name="password_confirmation"
           control={control}
-          label={t("confirm-password")}
+          label={t("confirm-new-password")}
           autoComplete="new-password"
           isRequired
           rules={{
@@ -104,12 +136,13 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
           type="submit"
           variant="primary"
           size="medium"
+          isFullWidth
           isLoading={postPasswordChangeMutation.isPending}
         >
-          {t("submit")}
+          {t("change-password")}
         </Button>
       </form>
-    </div>
+    </AuthCard>
   )
 }
 

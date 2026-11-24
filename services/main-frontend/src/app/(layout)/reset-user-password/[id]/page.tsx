@@ -4,12 +4,13 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
+import ResetLinkInvalidCard from "@/components/auth/ResetLinkInvalidCard"
 import ResetPasswordForm from "@/components/forms/ResetUserPasswordForm"
 import { getResetPasswordTokenStatus } from "@/generated/api/sdk.generated"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Infobox, QueryResult } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 const ResetPassword: React.FC = () => {
@@ -31,17 +32,9 @@ const ResetPassword: React.FC = () => {
   })
 
   return (
-    <div>
-      <QueryResult query={isValid}>
-        {(data) =>
-          data === true ? (
-            <ResetPasswordForm token={token} />
-          ) : (
-            <Infobox>{t("reset-link-has-expired")}</Infobox>
-          )
-        }
-      </QueryResult>
-    </div>
+    <QueryResult query={isValid}>
+      {(data) => (data === true ? <ResetPasswordForm token={token} /> : <ResetLinkInvalidCard />)}
+    </QueryResult>
   )
 }
 

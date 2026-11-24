@@ -1,15 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
-import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { signUpRoute } from "@/shared-module/common/utils/routes"
 import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
@@ -23,15 +20,14 @@ interface CredentialsFields {
   password: string
 }
 
-// CredentialsForm renders the login credentials form for email and password.
+// CredentialsForm renders the login credentials form for email and password; the page supplies the
+// heading and the sign-up link around it.
 export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   onSubmit,
   error,
   isSubmitting,
 }) => {
   const { t } = useTranslation()
-  const pathname = usePathname()
-  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
   const { control, handleSubmit, setFocus } = useForm<CredentialsFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -49,27 +45,9 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       className={css`
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        padding: 3rem 0rem;
+        gap: 1.125rem;
       `}
     >
-      <h1>{t("login")}</h1>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {t("login-description")}{" "}
-        <a
-          className={css`
-            color: ${baseTheme.colors.blue[600]};
-          `}
-          href="https://mooc.fi"
-        >
-          {t("login.linkMooc")}
-        </a>{" "}
-        {t("login-description2")}
-      </div>
       <TextField
         name="email"
         control={control}
@@ -102,33 +80,26 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
       >
         {error ? t("incorrect-email-or-password") : null}
       </div>
-      <Button
+      <Link
+        href="/reset-password"
         className={css`
-          margin: 1rem 0rem;
+          align-self: flex-start;
+          font-size: 0.875rem;
         `}
+      >
+        {t("forgot-password")}
+      </Link>
+      <Button
         variant="primary"
         size="medium"
         type="submit"
+        isFullWidth
         // oxlint-disable-next-line i18next/no-literal-string
         domProps={{ id: "login-button" }}
         isLoading={isSubmitting}
       >
         {t("login")}
       </Button>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-
-          a {
-            color: ${baseTheme.colors.blue[600]};
-          }
-        `}
-      >
-        <Link href="/reset-password">{t("forgot-password")}</Link>
-        <a href={signUpRoute(returnToForLinkToSignupPage)}>{t("create-an-account")}</a>
-      </div>
     </form>
   )
 }

@@ -216,7 +216,8 @@ const ResetPassword: React.FC = () => {
         isBoolean,
       )
     },
-    { method: "POST", notify: true },
+    // No toast: the card shows the outcome, and a resend abandoned via "Use a different email" would still toast.
+    { notify: false },
     {
       onSuccess: (_, variables) => {
         if (variables.generation !== sendGenerationRef.current) {
@@ -229,9 +230,8 @@ const ResetPassword: React.FC = () => {
   )
 
   const apiError = postResetPassword.isError && (
-    // notify:true already announces the error via the toast; the notice is the persistent copy.
-    // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
-    <ErrorNotice error={postResetPassword.error} announce="off" density="compact" />
+    // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value
+    <ErrorNotice error={postResetPassword.error} density="compact" />
   )
 
   const returnToEmailForm = () => {
@@ -275,7 +275,14 @@ const ResetPassword: React.FC = () => {
           // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
           statusIcon: "mail",
           lede: (
-            <Trans t={t} i18nKey="password-reset-email-sent-to" values={{ email: sentEmail }} />
+            // Escaped then unescaped so a typed address like `a<i>b@x.fi` shows literally, not as markup.
+            <Trans
+              t={t}
+              i18nKey="password-reset-email-sent-to"
+              values={{ email: sentEmail }}
+              tOptions={{ interpolation: { escapeValue: true } }}
+              shouldUnescape
+            />
           ),
           content: (
             <LinkSentDetails

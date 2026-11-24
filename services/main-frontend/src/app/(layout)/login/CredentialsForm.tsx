@@ -8,13 +8,13 @@ import { useTranslation } from "react-i18next"
 import { authCardStackCss } from "@/components/auth/AuthCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
-import { resetPasswordRoute } from "@/shared-module/common/utils/routes"
 import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
   onSubmit: (email: string, password: string) => Promise<void>
   error: boolean
   isSubmitting: boolean
+  resetPasswordHref: string
 }
 
 interface CredentialsFields {
@@ -28,6 +28,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   onSubmit,
   error,
   isSubmitting,
+  resetPasswordHref,
 }) => {
   const { t } = useTranslation()
   const { control, handleSubmit, setFocus } = useForm<CredentialsFields>({
@@ -79,7 +80,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         {error ? t("incorrect-email-or-password") : null}
       </div>
       <Link
-        href={resetPasswordRoute()}
+        href={resetPasswordHref}
         className={css`
           align-self: flex-start;
           font-size: var(--font-size-1);

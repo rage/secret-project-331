@@ -16,7 +16,7 @@ import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { signUpRoute } from "@/shared-module/common/utils/routes"
+import { resetPasswordRoute, signUpRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Dialog, ErrorNotice, Link, LoadingRegion } from "@/shared-module/components"
 
@@ -28,6 +28,9 @@ const Login: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
   const pathname = usePathname()
   const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
+  const resetPasswordHref = resetPasswordRoute(
+    validateReturnToRouteOrDefault(uncheckedReturnTo, "/"),
+  )
 
   const redirect = useCallback(() => {
     const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
@@ -82,6 +85,7 @@ const Login: React.FC = () => {
             onSubmit={submitCredentials}
             error={credentialsError}
             isSubmitting={isSubmittingCredentials}
+            resetPasswordHref={resetPasswordHref}
           />
         </AuthCard>
       ) : (

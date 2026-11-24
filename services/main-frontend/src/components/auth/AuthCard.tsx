@@ -10,7 +10,6 @@ import { Button, Link } from "@/shared-module/components"
 /** The result marks an `AuthCard` heading can carry. */
 export type AuthCardStatusIcon = "mail" | "success" | "warning"
 
-/** Props for `AuthCard`. */
 export interface AuthCardProps {
   title: React.ReactNode
   /** Shown beside the title for a result state, such as an email sent or a broken link. */

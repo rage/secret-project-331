@@ -138,6 +138,7 @@ pub mod peer_or_self_review_questions;
 pub mod peer_or_self_review_submissions;
 pub mod peer_review_queue_entries;
 pub mod pending_roles;
+pub mod pending_signups;
 pub mod playground_examples;
 pub mod points_breakdowns;
 pub mod privacy_link;

@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
-import { Envelope } from "@vectopus/atlas-icons-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
@@ -13,6 +12,7 @@ import { useAccountFormReport } from "@/components/forms/accountFormReport/useAc
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import SignupConfirmationForm from "@/components/forms/SignupConfirmationForm"
 import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
@@ -28,18 +28,7 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import {
-  Button,
-  Checkbox,
-  ComboBox,
-  ErrorNotice,
-  focusProgrammatically,
-  TextField,
-} from "@/shared-module/components"
-
-interface CreateUserErrorResponse {
-  message?: string
-}
+import { Button, Checkbox, ComboBox, ErrorNotice, TextField } from "@/shared-module/components"
 
 interface FormFields {
   first_name: string
@@ -114,30 +103,20 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  const {
-    formState,
-    watch,
-    reset,
-    handleSubmit,
-    trigger,
-    control,
-    setError,
-    setValue,
-    setFocus,
-    getValues,
-  } = useForm<FormFields>({
-    // oxlint-disable-next-line i18next/no-literal-string
-    mode: "onChange",
-    defaultValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      password: "",
-      password_confirmation: "",
-      country: "",
-      email_communication_consent: false,
-    },
-  })
+  const { formState, watch, reset, handleSubmit, trigger, control, setValue, setFocus, getValues } =
+    useForm<FormFields>({
+      // oxlint-disable-next-line i18next/no-literal-string
+      mode: "onChange",
+      defaultValues: {
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        password_confirmation: "",
+        country: "",
+        email_communication_consent: false,
+      },
+    })
 
   const preFillCountry = useQuery(getUsersIpCountryOptions())
   const { dirtyFields } = useFormState({ control })
@@ -166,20 +145,16 @@ const CreateAccountForm: React.FC = () => {
   const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
   const { isSubmitting } = formState
 
-  const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
+  const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
   const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
 
   const { t, i18n } = useTranslation()
-  const confirmHeadingRef = useRef<HTMLHeadingElement>(null)
   const altchaRef = useRef<AltchaWidgetHandle>(null)
   const accountFormReport = useAccountFormReport()
-  usePageTitle(confirmEmailPageVisible ? t("confirm-email-title") : t("title-sign-up"))
-
-  useEffect(() => {
-    if (confirmEmailPageVisible && confirmHeadingRef.current) {
-      focusProgrammatically(confirmHeadingRef.current)
-    }
-  }, [confirmEmailPageVisible])
+  usePageTitle(
+    submittedEmail !== null && !confirmed ? t("confirm-email-title") : t("title-sign-up"),
+  )
 
   const email = watch("email")
   const password = watch("password")
@@ -224,7 +199,7 @@ const CreateAccountForm: React.FC = () => {
   )
 
   useEffect(() => {
-    if (loginStateContext.signedIn && !confirmEmailPageVisible) {
+    if (loginStateContext.signedIn && !confirmed) {
       router.push("/")
     }
   })
@@ -237,79 +212,16 @@ const CreateAccountForm: React.FC = () => {
     }
   }, [password, passwordConfirmation, trigger])
 
-  useEffect(() => {
-    if (createAccountMutation.isError && createAccountMutation.error) {
-      const err = createAccountMutation.error
-      const status =
-        typeof err === "object" && err !== null && "status" in err ? Number(err.status) : null
-      const errorMessage =
-        typeof err === "object" &&
-        err !== null &&
-        "body" in err &&
-        typeof err.body === "object" &&
-        err.body !== null &&
-        "message" in err.body
-          ? String((err.body as CreateUserErrorResponse).message ?? "")
-          : typeof err === "object" && err !== null && "userMessage" in err
-            ? String(err.userMessage ?? "")
-            : ""
-
-      if (
-        status === 400 &&
-        errorMessage.toLowerCase().includes("email") &&
-        (errorMessage.toLowerCase().includes("already been taken") ||
-          errorMessage.toLowerCase().includes("has already been taken"))
-      ) {
-        setEmailAlreadyTakenError(t("email-already-taken"))
-        setError("email", {
-          type: "manual",
-          message: t("email-already-taken-field-error"),
-        })
-      } else {
-        setEmailAlreadyTakenError(null)
-      }
-    } else {
-      setEmailAlreadyTakenError(null)
-    }
-  }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
     value: code,
     label: tCountries(code as keyof typeof countries),
   }))
 
-  if (confirmEmailPageVisible) {
+  if (confirmed) {
     return (
       <Wrapper>
-        <h1 ref={confirmHeadingRef} tabIndex={-1}>
-          {t("message-please-confirm-your-email-address")}
-        </h1>
-        <div
-          className={css`
-            margin: 2rem 0;
-            padding: 1rem;
-            background-color: ${baseTheme.colors.green[100]};
-            line-height: 1.7;
-            display: flex;
-            align-items: center;
-          `}
-        >
-          <Envelope
-            size={32}
-            className={css`
-              font-size: 2rem;
-              margin-right: 1rem;
-            `}
-          />
-          <div>
-            <p>
-              {t("confirm-email-address-instructions-1")}{" "}
-              <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
-              {t("confirm-email-address-instructions-3")}
-            </p>
-            <p></p>
-          </div>
-        </div>
+        <ResearchOnCoursesForm />
         <Button
           variant="primary"
           size="medium"
@@ -320,7 +232,24 @@ const CreateAccountForm: React.FC = () => {
         >
           {t("button-text-done")}
         </Button>
-        {<ResearchOnCoursesForm />}
+      </Wrapper>
+    )
+  }
+
+  if (submittedEmail !== null) {
+    return (
+      <Wrapper>
+        <SignupConfirmationForm
+          email={submittedEmail}
+          onConfirmed={async () => {
+            setConfirmed(true)
+            await loginStateContext.refresh()
+          }}
+          onAccountExists={() => {
+            setSubmittedEmail(null)
+            setEmailAlreadyTakenError(t("email-already-taken"))
+          }}
+        />
       </Wrapper>
     )
   }
@@ -335,17 +264,7 @@ const CreateAccountForm: React.FC = () => {
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
-            const result = await createAccountMutation.mutateAsync(data)
-
-            if (result.type === "email_already_exists") {
-              setEmailAlreadyTakenError(t("email-already-taken"))
-              setError("email", {
-                type: "manual",
-                message: t("email-already-taken-field-error"),
-              })
-              return
-            }
-
+            await createAccountMutation.mutateAsync(data)
             setEmailAlreadyTakenError(null)
             reset({
               first_name: "",
@@ -356,8 +275,7 @@ const CreateAccountForm: React.FC = () => {
               country: "",
               email_communication_consent: false,
             })
-            setConfirmEmailPageVisible(true)
-            await loginStateContext.refresh()
+            setSubmittedEmail(data.email)
           } catch {
             setEmailAlreadyTakenError(null)
           }

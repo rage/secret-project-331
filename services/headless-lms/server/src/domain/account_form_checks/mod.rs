@@ -1,7 +1,7 @@
-//! The checks on the account forms that mail an address: signup, password reset and email change.
-//! [`may_send_mail`] evaluates the admin-written [rules] on a submission and logs it in
-//! [`headless_lms_models::account_form_decisions`]. The handler then mails only when it returns
-//! true, and otherwise answers exactly as if it had.
+//! The checks on the account forms that mail an address: signup, the signup code resend, password
+//! reset and email change. [`may_send_mail`] evaluates the admin-written [rules] on a submission and logs
+//! it in [`headless_lms_models::account_form_decisions`]. The handler then mails only when it
+//! returns true, and otherwise answers exactly as if it had.
 
 pub mod client_report;
 pub mod headers;

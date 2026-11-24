@@ -325,6 +325,13 @@ async fn template_replacements(
         )));
     }
 
+    // A signup's code goes out before the account exists, so it travels on the delivery.
+    if template_type == EmailTemplateType::VerifyEmailAddress && user_id.is_none() {
+        return Ok(TemplateReplacements::Ready(placeholder_bag_replacements(
+            placeholders,
+        )));
+    }
+
     // Every remaining template derives its values from an account.
     let Some(user_id) = user_id else {
         let msg = format!(

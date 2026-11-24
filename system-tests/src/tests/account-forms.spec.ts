@@ -2,8 +2,12 @@ import type { Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { Select } from "@/utils/components/Select"
-import { fillSignupForm, submitSignupForm } from "@/utils/flows/signup.flow"
-import { waitForErrorNotification, waitForSuccessNotification } from "@/utils/notificationUtils"
+import {
+  confirmSignupWithMailedCode,
+  expectNoMailedSignupCode,
+  submitSignupForm,
+} from "@/utils/flows/signup.flow"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 const ACCOUNT_FORMS_URL = "http://project-331.local/manage/account-forms"
 const DROPPED_DOMAIN = "account-forms-dropped.example.com"
@@ -13,13 +17,20 @@ function rulesTable(page: Page) {
   return page.getByRole("table", { name: "Rules" })
 }
 
+test("Signing up with an address that has an account mails no code", async ({ page }) => {
+  await submitSignupForm(page, {
+    firstName: "Existing",
+    lastName: "Address",
+    email: "teacher@example.com",
+    password: "account-forms-password",
+  })
+  await expectNoMailedSignupCode(page)
+})
+
 test.describe("Account form rules", () => {
   test.use({ storageState: "src/states/admin@example.com.json" })
 
-  test("A drop rule creates nothing, answers with an error and is logged", async ({
-    page,
-    browser,
-  }) => {
+  test("A drop rule mails nothing, answers as usual and is logged", async ({ page, browser }) => {
     await test.step("Add an enforced domain rule", async () => {
       await page.goto(ACCOUNT_FORMS_URL)
       await page.getByRole("button", { name: "Add a rule" }).click()
@@ -35,32 +46,16 @@ test.describe("Account form rules", () => {
       await expect(rulesTable(page).getByRole("cell", { name: RULE_NAME })).toBeVisible()
     })
 
-    await test.step("A signup to the domain fails and creates no account", async () => {
+    await test.step("A signup to the domain looks normal but gets no code", async () => {
       const visitor = await browser.newContext({ storageState: { cookies: [], origins: [] } })
       const visitorPage = await visitor.newPage()
-      const signup = {
+      await submitSignupForm(visitorPage, {
         firstName: "Dropped",
         lastName: "Signup",
         email: `${Date.now()}@${DROPPED_DOMAIN}`,
         password: "account-forms-password",
-      }
-      // An existing address would answer that the account exists, so the same error twice shows
-      // that the first attempt created nothing.
-      for (let attempt = 0; attempt < 2; attempt++) {
-        await fillSignupForm(visitorPage, signup)
-        await waitForErrorNotification(
-          visitorPage,
-          async () => {
-            await visitorPage.getByRole("button", { name: "Create an account" }).click()
-          },
-          /Something went wrong/,
-        )
-        await expect(visitorPage.getByText("You already have an account")).toHaveCount(0)
-      }
-      const loggedIn = await visitorPage.request.get(
-        "http://project-331.local/api/v0/auth/logged-in",
-      )
-      expect(await loggedIn.json()).toBe(false)
+      })
+      await expectNoMailedSignupCode(visitorPage)
       await visitor.close()
     })
 
@@ -116,6 +111,7 @@ test.describe("Account form rules", () => {
       email: `account-forms-log-only-${Date.now()}@example.com`,
       password: "account-forms-password",
     })
+    await confirmSignupWithMailedCode(visitorPage)
     await expect(
       visitorPage.getByRole("heading", { name: "Regarding research done on" }),
     ).toBeVisible()

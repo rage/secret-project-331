@@ -41,13 +41,13 @@ async function enterCode(page: Page, code: string): Promise<void> {
   await page.keyboard.type(code)
 }
 
-test("Email ownership verification: the emailed code proves the address and an email change clears the proof", async ({
+test("Email ownership verification: signing up proves the address, an email change clears the proof and the emailed code proves it again", async ({
   page,
 }) => {
   test.slow()
   const accountTab = new AccountTab(page)
 
-  await test.step("Signing up queues a verification code and the address starts unverified", async () => {
+  await test.step("Signing up proves the address with the emailed code", async () => {
     await signUp(page, {
       firstName: "Email",
       lastName: "Ownership",
@@ -57,13 +57,26 @@ test("Email ownership verification: the emailed code proves the address and an e
 
     await page.goto(ACCOUNT_URL)
     const section = page.getByTestId("email-verification-section")
-    await expect(section.getByText("Email not verified")).toBeVisible()
+    await expect(section.getByText("Email verified", { exact: true })).toBeVisible()
     await expect(section.getByText(FIRST_EMAIL, { exact: true }).first()).toBeVisible()
+  })
+
+  await test.step("Changing the email address clears the proof and mails a new code, without a reload", async () => {
+    await accountTab.waitForTab()
+    await accountTab.updatePersonalInformation(
+      { email: SECOND_EMAIL },
+      { field: "email", expectedValue: SECOND_EMAIL },
+    )
+
+    const section = page.getByTestId("email-verification-section")
+    await expect(section.getByText("Email not verified")).toBeVisible()
+    await expect(section.getByText(SECOND_EMAIL, { exact: true }).first()).toBeVisible()
     await expect(section.getByText("Code sent")).toBeVisible()
   })
 
-  await test.step("Opening the code dialog right after signing up offers no resend until the cap lifts", async () => {
+  await test.step("Opening the code dialog right after the change offers no resend until the cap lifts", async () => {
     await page.getByRole("button", { name: "Enter verification code" }).click()
+    await expect(page.getByTestId("one-time-code-field")).toBeVisible()
     await expect(page.getByRole("button", { name: /^Resend in \d:\d\d$/ })).toBeDisabled()
   })
 
@@ -86,31 +99,5 @@ test("Email ownership verification: the emailed code proves the address and an e
     const response = await page.request.post(VERIFY_URL, { data: { code: spentCode } })
     await expect(response).toBeOK()
     expect(await response.json()).toBe("already_verified")
-  })
-
-  await test.step("Changing the email address clears the proof and mails a new code, without a reload", async () => {
-    await page.goto(ACCOUNT_URL)
-    await accountTab.waitForTab()
-    await accountTab.updatePersonalInformation(
-      { email: SECOND_EMAIL },
-      { field: "email", expectedValue: SECOND_EMAIL },
-    )
-
-    const section = page.getByTestId("email-verification-section")
-    await expect(section.getByText("Email not verified")).toBeVisible()
-    await expect(section.getByText(SECOND_EMAIL, { exact: true }).first()).toBeVisible()
-    await page.getByRole("button", { name: "Enter verification code" }).click()
-    await expect(page.getByTestId("one-time-code-field")).toBeVisible()
-  })
-
-  await test.step("The code for the new address verifies it again", async () => {
-    const newCode = await pendingVerificationCode(page)
-    expect(newCode).not.toBe(spentCode)
-
-    await enterCode(page, newCode)
-
-    await expect(
-      page.getByTestId("email-verification-section").getByText("Email verified", { exact: true }),
-    ).toBeVisible()
   })
 })

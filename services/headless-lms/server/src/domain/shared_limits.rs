@@ -6,7 +6,7 @@ use std::sync::LazyLock;
 use std::time::Duration as StdDuration;
 
 use chrono::Duration;
-use headless_lms_models::{account_form_decisions, shared_rate_counts};
+use headless_lms_models::{account_form_decisions, pending_signups, shared_rate_counts};
 use ipnet::IpNet;
 use sqlx::PgPool;
 
@@ -149,12 +149,15 @@ pub async fn increment(
 async fn delete_expired_form_data(pool: &PgPool) -> ModelResult<()> {
     let mut conn = pool.acquire().await?;
     let counts = shared_rate_counts::delete_old(&mut conn).await?;
+    let pending = pending_signups::delete_expired(&mut conn).await?;
     let decisions = account_form_decisions::delete_older_than(
         &mut conn,
         Utc::now() - Duration::days(account_form_checks::RETENTION_DAYS),
     )
     .await?;
-    info!("Deleted {counts} old shared counts and {decisions} logged submissions");
+    info!(
+        "Deleted {counts} old shared counts, {pending} expired pending signups and {decisions} logged submissions"
+    );
     Ok(())
 }
 

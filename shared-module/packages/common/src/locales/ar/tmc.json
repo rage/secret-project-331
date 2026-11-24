@@ -19,7 +19,6 @@
   "feedback-server-error": "تعذّر تقييم التسليم بسبب خطأ في الخادم. حاول التسليم مرة أخرى لاحقاً.",
   "feedback-style-check-failed": "فشل فحص أسلوب الشيفرة، لذا لم تُمنح أي نقاط",
   "feedback-timed-out": "انتهت مهلة الاختبار",
-  "feedback-valgrind-failed": "اكتشف Valgrind أخطاء، لذا لم تُمنح أي نقاط",
   "file-upload-save-failure": "فشل في حفظ تحميل الملف",
   "file-upload-save-success": "تم حفظ تحميل الملف بنجاح.",
   "filter-repository-exercises": "تصفية التمارين",

@@ -5,7 +5,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import type { RunResult } from "@/tmc/cli"
 import { isRunResult } from "@/tmc/cli.guard"
-import { extractProject, prepareSubmission } from "@/tmc/langs"
+import { extractProject, getTestsTimeoutMs, prepareSubmission } from "@/tmc/langs"
 import { compressBrowserAnswer } from "@/util/browserAnswerArchive"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
@@ -53,6 +53,7 @@ export const runTests = async (
     const extractedTemplatePath = temporaryDirectory()
     tempPaths.push(extractedTemplatePath)
     await extractProject(templateArchivePath, extractedTemplatePath, log)
+    const testsTimeoutMs = await getTestsTimeoutMs(extractedTemplatePath, log)
     log("template")
     const preparedSubmissionArchivePath = temporaryFile()
     tempPaths.push(preparedSubmissionArchivePath)
@@ -69,7 +70,12 @@ export const runTests = async (
     let outcome
     try {
       log("preparing pod")
-      outcome = await runInSandboxPod(sandboxImage, preparedSubmissionArchivePath, logger)
+      outcome = await runInSandboxPod(
+        sandboxImage,
+        preparedSubmissionArchivePath,
+        logger,
+        testsTimeoutMs,
+      )
     } catch (e) {
       error(`Failed to test in pod: ${e}`)
       return { status: "GENERIC_ERROR", testResults: [], logs: {} }

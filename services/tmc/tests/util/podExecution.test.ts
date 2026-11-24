@@ -115,7 +115,7 @@ describe("runTmcAndReadOutput", () => {
       { exitCode: 0, stdout: '{"strategy":"FAIL","validation_errors":null}' },
     ])
 
-    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger, 60_000)
 
     expect(commands).toEqual([
       ["sh", "-c", 'cd "$1" && exec /tmc-run', "sh", "/app/submission"],
@@ -137,7 +137,7 @@ describe("runTmcAndReadOutput", () => {
       { exitCode: 1, stderr: "cat: /app/validations.json: No such file or directory" },
     ])
 
-    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger, 60_000)
 
     expect(outcome).toMatchObject({ timedOut: false, validations: null })
   })
@@ -149,7 +149,7 @@ describe("runTmcAndReadOutput failures", () => {
       { exitCode: 3, stdout: "building\n", stderr: "Rscript: not found\n" },
     ])
 
-    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger, 60_000)
 
     expect(outcome).toEqual({
       timedOut: false,
@@ -167,7 +167,7 @@ describe("runTmcAndReadOutput failures", () => {
   test("bounds the captured output", async () => {
     const { exec } = fakeExec([{ exitCode: 1, stderr: `${"x".repeat(20_000)}END` }])
 
-    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger, 60_000)
 
     const stderr = (outcome as { parsed: { logs: { stderr: string } } }).parsed.logs.stderr
     expect(stderr.length).toBe(8192)
@@ -187,7 +187,7 @@ describe("runTmcAndReadOutput failures", () => {
 
 describe("testRunBudgetMs", () => {
   test("adds build overhead to the exercise's test timeout and caps it", () => {
-    expect(testRunBudgetMs()).toBe(180_000)
+    expect(testRunBudgetMs(60_000)).toBe(180_000)
     expect(testRunBudgetMs(300_000)).toBe(420_000)
     expect(testRunBudgetMs(60 * 60_000)).toBe(15 * 60_000)
   })

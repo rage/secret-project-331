@@ -19,7 +19,6 @@
   "feedback-server-error": "Innleveringen kunne ikke vurderes på grunn av en serverfeil. Prøv å levere inn igjen senere.",
   "feedback-style-check-failed": "Kodestilkontrollen feilet, så ingen poeng ble gitt",
   "feedback-timed-out": "Testene brukte for lang tid",
-  "feedback-valgrind-failed": "Valgrind fant feil, så ingen poeng ble gitt",
   "file-upload-save-failure": "Kunne ikke lagre filopplasting",
   "file-upload-save-success": "Filopplastingen ble lagret.",
   "filter-repository-exercises": "Filtrer oppgaver",

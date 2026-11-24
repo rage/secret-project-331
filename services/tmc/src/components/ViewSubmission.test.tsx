@@ -45,7 +45,7 @@ const GRADING = {
   grading_progress: "FullyGraded" as const,
   score_given: 1,
   score_maximum: 2,
-  feedback_text: "Valgrind found errors, so no points were given",
+  feedback_text: "The code style check failed, so no points were given",
   feedback_json: {
     status: "TESTS_FAILED",
     testResults: [
@@ -59,8 +59,7 @@ const GRADING = {
       },
     ],
     logs: { stdout: "building…", stderr: "" },
-    feedback_key: "valgrind_failed",
-    valgrind_failed: true,
+    feedback_key: "style_check_failed",
     validations: {
       strategy: "FAIL",
       validation_errors: {
@@ -83,7 +82,7 @@ describe("<ViewSubmission /> grading", () => {
     expect(screen.getByText("src/Main.java")).toBeInTheDocument()
     expect(screen.getByText("3:7 Missing semicolon")).toBeInTheDocument()
     expect(screen.getByText(/building…/)).toBeInTheDocument()
-    expect(screen.getByText("feedback-valgrind-failed")).toBeInTheDocument()
+    expect(screen.getByText("feedback-style-check-failed")).toBeInTheDocument()
   })
 
   it("falls back to the English feedback text when the grading has no feedback key", () => {

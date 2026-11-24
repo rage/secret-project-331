@@ -1,6 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises"
 import os from "node:os"
-import path from "node:path"
 
 import { afterEach, describe, expect, it, vi } from "vitest"
 
@@ -12,7 +10,6 @@ import {
   gradingFailureFeedback,
   gradingFailureKey,
   handleGrade,
-  readTestsTimeoutMs,
   runScore,
   TemplateError,
 } from "./grade"
@@ -247,12 +244,7 @@ describe("runScore", () => {
     }
   })
 
-  it("awards nothing after a failed Valgrind or style check", () => {
-    const run = { status: "TESTS_FAILED" as const, testResults: [test(true, "1.1")] }
-    expect(runScore(run, ["1.1"], { valgrindFailed: true })).toEqual({
-      score_given: 0,
-      score_maximum: 1,
-    })
+  it("awards nothing after a failed style check", () => {
     expect(runScore(passed, ["1.1"], { styleFailed: true })).toEqual({
       score_given: 0,
       score_maximum: 1,
@@ -277,21 +269,6 @@ describe("gradingFailureKey", () => {
       gradingFailureKey(new LangsError("x", ["Caused by: No project directory found in archive"])),
     ).toBe("no_project_in_archive")
     expect(gradingFailureKey(new LangsError("x", ["Caused by: bad zip"]))).toBe("langs_error")
-  })
-})
-
-describe("readTestsTimeoutMs", () => {
-  it("reads the key from .tmcproject.yml and tolerates a missing file or key", async () => {
-    const dir = await mkdtemp(path.join(os.tmpdir(), "timeout-test-"))
-    try {
-      expect(await readTestsTimeoutMs(dir)).toBeUndefined()
-      await writeFile(path.join(dir, ".tmcproject.yml"), "extra_student_files: []\n")
-      expect(await readTestsTimeoutMs(dir)).toBeUndefined()
-      await writeFile(path.join(dir, ".tmcproject.yml"), "a: 1\ntests_timeout_ms: 90000 # slow\n")
-      expect(await readTestsTimeoutMs(dir)).toBe(90_000)
-    } finally {
-      await rm(dir, { recursive: true, force: true })
-    }
   })
 })
 

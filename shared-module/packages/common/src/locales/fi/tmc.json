@@ -19,7 +19,6 @@
   "feedback-server-error": "Palautusta ei voitu arvostella palvelimen virheen vuoksi. Yritä palauttaa myöhemmin uudelleen.",
   "feedback-style-check-failed": "Koodityylin tarkistus epäonnistui, joten pisteitä ei annettu",
   "feedback-timed-out": "Testit aikakatkaistiin",
-  "feedback-valgrind-failed": "Valgrind löysi virheitä, joten pisteitä ei annettu",
   "file-upload-save-failure": "Tiedoston tallentaminen epäonnistui",
   "file-upload-save-success": "Tiedosto tallennettiin onnistuneesti.",
   "filter-repository-exercises": "Suodata tehtäviä",

@@ -7,15 +7,17 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import type { Compression, StyleValidationResult } from "@/tmc/cli"
+import type { Compression, RunStatus, StyleValidationResult, TestResult } from "@/tmc/cli"
+import { isRunResult, isStyleValidationResult } from "@/tmc/cli.guard"
 import {
   LangsError,
-  checkStyle,
   extractProject,
   fastAvailablePoints,
+  getTestsTimeoutMs,
   prepareSubmission,
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
+import { ZIP_ARCHIVE_EXTENSION } from "@/util/archiveTypes"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import type { GradingFeedbackExtras, GradingFeedbackKey } from "@/util/gradingFeedback"
 import { createLogger } from "@/util/logger"
@@ -40,59 +42,6 @@ const GRADING_UPDATE_RETRY_DELAY_MS = 2000
 
 /** tmc-langs' naive submission extraction, which a project archive never needs. */
 const EXTRACT_SUBMISSION_NAIVELY = false
-
-const RUN_STATUSES = new Set([
-  "PASSED",
-  "TESTS_FAILED",
-  "COMPILE_FAILED",
-  "TESTRUN_INTERRUPTED",
-  "GENERIC_ERROR",
-] as const)
-
-interface NormalizedTestResult {
-  successful: boolean
-  points: string[]
-}
-/** A tmc-langs run result reduced to what scoring needs. */
-export interface NormalizedRunResult {
-  status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
-  testResults: NormalizedTestResult[]
-  /** Set by tmc-langs when it stopped the tests for running too long. */
-  timedOutAfterMs?: number
-}
-
-/** Normalize pod JSON: accept test_results/testResults and successful/passed. */
-function normalizePodOutput(parsed: unknown): NormalizedRunResult | null {
-  if (parsed === null || typeof parsed !== "object") {
-    return null
-  }
-  const obj = parsed as Record<string, unknown>
-  const rawStatus = obj["status"] ?? obj["Status"]
-  const statusStr = typeof rawStatus === "string" ? rawStatus.toUpperCase() : null
-  const validStatus = statusStr && (RUN_STATUSES as Set<string>).has(statusStr)
-  if (!validStatus) {
-    return null
-  }
-  const rawResults = obj["test_results"] ?? obj["testResults"]
-  const rawList = Array.isArray(rawResults) ? rawResults : []
-  const testResults: NormalizedTestResult[] = rawList.map((r: unknown) => {
-    if (r === null || typeof r !== "object") {
-      return { successful: false, points: [] }
-    }
-    const row = r as Record<string, unknown>
-    const successful = row["successful"] === true || row["passed"] === true
-    const points = Array.isArray(row["points"])
-      ? (row["points"] as unknown[]).filter((p): p is string => typeof p === "string")
-      : []
-    return { successful, points }
-  })
-  const timedOutAfterMs = obj["timedOutAfterMs"]
-  return {
-    status: statusStr as NormalizedRunResult["status"],
-    testResults,
-    ...(typeof timedOutAfterMs === "number" ? { timedOutAfterMs } : {}),
-  }
-}
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -189,7 +138,7 @@ export class TemplateError extends Error {
 /** How an answer archive is compressed: a zip upload by its name or mime, else the `.tar.zst` the service packs. */
 export function answerCompression(file: Pick<GradingRequestFile, "name" | "mime">): Compression {
   const isZip =
-    file.name.toLowerCase().endsWith(".zip") ||
+    file.name.toLowerCase().endsWith(ZIP_ARCHIVE_EXTENSION) ||
     file.mime === "application/zip" ||
     file.mime === "application/x-zip-compressed"
   return isZip ? "zip" : "zstd"
@@ -312,11 +261,11 @@ const gradeAnswer = async (
     const extractedTemplatePath = temporaryDirectory()
     tempPaths.push(extractedTemplatePath)
     let points: string[]
-    let testsTimeoutMs: number | undefined
+    let testsTimeoutMs: number
     try {
       await extractProject(templateArchivePath, extractedTemplatePath, log)
       points = await fastAvailablePoints(extractedTemplatePath, log)
-      testsTimeoutMs = await readTestsTimeoutMs(extractedTemplatePath)
+      testsTimeoutMs = await getTestsTimeoutMs(extractedTemplatePath, log)
     } catch (e) {
       throw new TemplateError(e)
     }
@@ -331,15 +280,12 @@ const gradeAnswer = async (
       log,
     )
 
-    const validations = await checkSubmissionStyle(preparedSubmissionArchivePath, tempPaths)
-
     log("grading in pod")
     const gradingResult = await gradeInPod(
       preparedSubmissionArchivePath,
       sandboxImage,
       points,
       testsTimeoutMs,
-      validations,
     )
     log("grading finished")
     return gradingResult
@@ -348,46 +294,11 @@ const gradeAnswer = async (
   }
 }
 
-/**
- * The exercise's `tests_timeout_ms` from its `.tmcproject.yml`, if it sets one. Reads the one
- * scalar key rather than the file, which tmc-langs parses itself when it runs the tests.
- */
-export async function readTestsTimeoutMs(exerciseDir: string): Promise<number | undefined> {
-  let yaml: string
-  try {
-    yaml = await fs.readFile(path.join(exerciseDir, ".tmcproject.yml"), "utf8")
-  } catch {
-    return undefined
-  }
-  const match = /^tests_timeout_ms:[ \t]*(\d+)[ \t]*(?:#.*)?$/m.exec(yaml)
-  return match?.[1] === undefined ? undefined : Number(match[1])
-}
-
-/**
- * Style check of the prepared submission. Null when the language has none or the check could not
- * run, so a broken check never fails a student's answer.
- */
-async function checkSubmissionStyle(
-  preparedSubmissionArchivePath: string,
-  tempPaths: string[],
-): Promise<StyleValidationResult | null> {
-  const projectPath = temporaryDirectory()
-  tempPaths.push(projectPath)
-  try {
-    await extractProject(preparedSubmissionArchivePath, projectPath, log)
-    return await checkStyle(projectPath, log)
-  } catch (e) {
-    error("Style check could not run", e)
-    return null
-  }
-}
-
 const gradeInPod = async (
   submissionPath: string,
   sandboxImage: string,
   points: string[],
-  testsTimeoutMs: number | undefined,
-  validations: StyleValidationResult | null,
+  testsTimeoutMs: number,
 ): Promise<ExerciseTaskGradingResult> => {
   const logger = createLogger("grade")
   let outcome
@@ -408,30 +319,27 @@ const gradeInPod = async (
     }
   }
 
-  const normalized = normalizePodOutput(outcome.parsed)
-  if (!normalized) {
-    throw new Error(`normalizePodOutput failed; received: ${JSON.stringify(outcome.parsed)}`)
+  const run = outcome.parsed
+  if (!isRunResult(run)) {
+    throw new Error(`/tmc-run wrote no tmc-langs run result: ${JSON.stringify(run)}`)
   }
-
-  const valgrindFailed = isValgrindFailure(normalized)
+  const validations = isStyleValidationResult(outcome.validations) ? outcome.validations : null
   const styleFailed = isStyleFailure(validations)
   // "Failed" is for runs that say nothing about the answer: the host does not count them as tries.
   let gradingProgress: GradingProgress = "Failed"
   let feedback: { text: string; key: GradingFeedbackKey } | null = null
-  if (normalized.status === "COMPILE_FAILED") {
+  if (run.status === "COMPILE_FAILED") {
     gradingProgress = "FullyGraded"
     feedback = { text: "Could not compile the submission", key: "compile_failed" }
-  } else if (normalized.status === "GENERIC_ERROR") {
+  } else if (run.status === "GENERIC_ERROR") {
     feedback = { text: "The tests could not be run", key: "generic_error" }
-  } else if (normalized.status === "TESTRUN_INTERRUPTED") {
+  } else if (run.status === "TESTRUN_INTERRUPTED") {
     feedback = { text: "Tests were interrupted", key: "interrupted" }
   } else {
     // The score already says whether the tests passed; clients show it as the result.
     gradingProgress = "FullyGraded"
-    if (normalized.timedOutAfterMs !== undefined) {
+    if (run.timedOutAfterMs !== undefined) {
       feedback = { text: TIMED_OUT_FEEDBACK, key: "timed_out" }
-    } else if (valgrindFailed) {
-      feedback = { text: "Valgrind found errors, so no points were given", key: "valgrind_failed" }
     } else if (styleFailed) {
       feedback = {
         text: "The code style check failed, so no points were given",
@@ -443,30 +351,16 @@ const gradeInPod = async (
   const extras: GradingFeedbackExtras = {
     feedback_key: feedback?.key ?? null,
     validations,
-    valgrind_failed: valgrindFailed,
   }
   return {
     grading_progress: gradingProgress,
-    ...runScore(normalized, points, { valgrindFailed, styleFailed }),
+    ...runScore(run, points, { styleFailed }),
     feedback_text: feedback?.text ?? null,
-    feedback_json: { ...(outcome.parsed as Record<string, unknown>), ...extras },
+    feedback_json: { ...run, ...extras },
   }
 }
 
 const TIMED_OUT_FEEDBACK = "Test timed out"
-
-/**
- * Valgrind errors make tmc-langs' make plugin fail the run without failing any test, so a failed
- * run whose tests all passed is a Valgrind failure.
- */
-function isValgrindFailure(run: NormalizedRunResult): boolean {
-  return (
-    run.status === "TESTS_FAILED" &&
-    run.timedOutAfterMs === undefined &&
-    run.testResults.length > 0 &&
-    run.testResults.every((tr) => tr.successful)
-  )
-}
 
 function isStyleFailure(validations: StyleValidationResult | null): boolean {
   return (
@@ -477,18 +371,17 @@ function isStyleFailure(validations: StyleValidationResult | null): boolean {
 /**
  * Points as tmc-server awards them: each available point whose tests all passed. An exercise that
  * declares no points, such as a no-tests one, is scored out of one point, because the host awards
- * nothing for 0 of 0. A failed Valgrind or style check, or a run that did not finish the tests,
- * earns nothing.
+ * nothing for 0 of 0. A failed style check, or a run that did not finish the tests, earns nothing.
  */
 export function runScore(
-  run: NormalizedRunResult,
+  run: { status: RunStatus; testResults: Pick<TestResult, "successful" | "points">[] },
   availablePoints: string[],
-  checks: { valgrindFailed?: boolean; styleFailed?: boolean } = {},
+  checks: { styleFailed?: boolean } = {},
 ): { score_given: number; score_maximum: number } {
   const available = new Set(availablePoints)
   const scoreMaximum = Math.max(available.size, 1)
   const ranTests = run.status === "PASSED" || run.status === "TESTS_FAILED"
-  if (!ranTests || checks.valgrindFailed === true || checks.styleFailed === true) {
+  if (!ranTests || checks.styleFailed === true) {
     return { score_given: 0, score_maximum: scoreMaximum }
   }
   if (available.size === 0) {

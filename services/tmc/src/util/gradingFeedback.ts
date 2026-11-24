@@ -1,6 +1,7 @@
 import type { TFunction } from "i18next"
 
-import type { StyleValidationResult } from "@/tmc/cli"
+import type { RunResult, StyleValidationResult } from "@/tmc/cli"
+import { isRunResult, isStyleValidationResult } from "@/tmc/cli.guard"
 import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 
 export const GRADING_FEEDBACK_KEYS = [
@@ -10,7 +11,6 @@ export const GRADING_FEEDBACK_KEYS = [
   "interrupted",
   "timed_out",
   "style_check_failed",
-  "valgrind_failed",
   "no_project_in_archive",
   /** tmc-langs rejected the answer. */
   "langs_error",
@@ -32,50 +32,21 @@ export interface GradingFeedbackExtras {
   feedback_key: GradingFeedbackKey | null
   /** For `langs_error`: the cause tmc-langs gave, with server paths removed. */
   feedback_detail?: string
-  /** Null when the exercise's language has no style check or the check could not run. */
+  /** Null when the exercise's language has no style check or the sandbox reported none. */
   validations?: StyleValidationResult | null
-  /** Valgrind found errors, which fail the run without failing any single test. */
-  valgrind_failed?: boolean
 }
 
-export interface FeedbackTestResult {
-  name: string
-  successful: boolean
-  message: string
-  points: string[]
-  exception: string[]
-}
-
-/** What a view shows of a grading's `feedback_json`; every field tolerates a missing key. */
+/** What a view shows of a grading's `feedback_json`. */
 export interface ParsedFeedback {
   feedbackKey: GradingFeedbackKey | null
   feedbackDetail: string | null
-  status: string | null
-  testResults: FeedbackTestResult[]
-  logs: Record<string, string>
+  /** Null when no run happened or its result is not one tmc-langs wrote. */
+  run: RunResult | null
   validations: StyleValidationResult | null
-  valgrindFailed: boolean
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === "object" && !Array.isArray(value)
-
-const strings = (value: unknown): string[] =>
-  Array.isArray(value) ? value.filter((v): v is string => typeof v === "string") : []
-
-function parseTestResult(raw: unknown): FeedbackTestResult | null {
-  if (!isRecord(raw)) {
-    return null
-  }
-  const exception = raw["exception"]
-  return {
-    name: typeof raw["name"] === "string" ? raw["name"] : "",
-    successful: raw["successful"] === true,
-    message: typeof raw["message"] === "string" ? raw["message"] : "",
-    points: strings(raw["points"]),
-    exception: strings(exception),
-  }
-}
 
 /** Reads a grading's `feedback_json` without trusting its shape. Null when it is not an object. */
 export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
@@ -83,31 +54,16 @@ export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
     return null
   }
   const key = feedbackJson["feedback_key"]
-  const rawResults = feedbackJson["testResults"]
-  const rawLogs = feedbackJson["logs"]
+  const detail = feedbackJson["feedback_detail"]
   const validations = feedbackJson["validations"]
   return {
     feedbackKey:
       typeof key === "string" && (GRADING_FEEDBACK_KEYS as readonly string[]).includes(key)
         ? (key as GradingFeedbackKey)
         : null,
-    feedbackDetail:
-      typeof feedbackJson["feedback_detail"] === "string" ? feedbackJson["feedback_detail"] : null,
-    status: typeof feedbackJson["status"] === "string" ? feedbackJson["status"] : null,
-    testResults: Array.isArray(rawResults)
-      ? rawResults
-          .map((raw) => parseTestResult(raw))
-          .filter((r): r is FeedbackTestResult => r !== null)
-      : [],
-    logs: isRecord(rawLogs)
-      ? Object.fromEntries(
-          Object.entries(rawLogs).filter(
-            (entry): entry is [string, string] => typeof entry[1] === "string",
-          ),
-        )
-      : {},
-    validations: isRecord(validations) ? (validations as unknown as StyleValidationResult) : null,
-    valgrindFailed: feedbackJson["valgrind_failed"] === true,
+    feedbackDetail: typeof detail === "string" ? detail : null,
+    run: isRunResult(feedbackJson) ? feedbackJson : null,
+    validations: isStyleValidationResult(validations) ? validations : null,
   }
 }
 
@@ -117,7 +73,6 @@ const FEEDBACK_MESSAGE_KEYS = {
   interrupted: "feedback-interrupted",
   timed_out: "feedback-timed-out",
   style_check_failed: "feedback-style-check-failed",
-  valgrind_failed: "feedback-valgrind-failed",
   no_project_in_archive: "feedback-no-project-in-archive",
   langs_error: "feedback-langs-error",
   server_error: "feedback-server-error",

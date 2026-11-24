@@ -19,7 +19,6 @@
   "feedback-server-error": "Не вдалося оцінити відправлене рішення через помилку на сервері. Спробуйте надіслати пізніше.",
   "feedback-style-check-failed": "Перевірка стилю коду не пройдена, тому бали не нараховано",
   "feedback-timed-out": "Час виконання тестів вичерпано",
-  "feedback-valgrind-failed": "Valgrind виявив помилки, тому бали не нараховано",
   "file-upload-save-failure": "Не вдалося зберегти завантажений файл",
   "file-upload-save-success": "Файл успішно завантажено.",
   "filter-repository-exercises": "Фільтр завдань",

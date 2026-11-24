@@ -19,7 +19,6 @@
   "feedback-server-error": "Inlämningen kunde inte bedömas på grund av ett serverfel. Försök lämna in igen senare.",
   "feedback-style-check-failed": "Kodstilskontrollen misslyckades, så inga poäng gavs",
   "feedback-timed-out": "Testerna tog för lång tid",
-  "feedback-valgrind-failed": "Valgrind hittade fel, så inga poäng gavs",
   "file-upload-save-failure": "Misslyckades med att spara filuppladdning",
   "file-upload-save-success": "Filuppladdning sparades framgångsrikt.",
   "filter-repository-exercises": "Filtrera övningar",

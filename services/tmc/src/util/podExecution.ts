@@ -13,8 +13,6 @@ import type { Logger } from "@/util/logger"
 
 /** Bound for the setup commands (mkdir, tar, cat), not for the tests. */
 const SETUP_EXEC_TIMEOUT_MS = 60_000
-/** tmc-langs' own limit for a test run when the exercise sets no `tests_timeout_ms`. */
-const DEFAULT_TESTS_TIMEOUT_MS = 60_000
 /** Build and startup time `/tmc-run` needs on top of the tests, such as a Maven build. */
 const TEST_RUN_OVERHEAD_MS = 120_000
 const MAX_TEST_RUN_BUDGET_MS = 15 * 60_000
@@ -165,15 +163,9 @@ export async function execWithTimeout(
 /** Long enough for a cold node to pull a large sandbox image. */
 const WAIT_FOR_POD_RUNNING_MS = 10 * 60_000
 
-/**
- * How long to wait for `/tmc-run`: the exercise's `tests_timeout_ms` (tmc-langs' default when
- * unset) plus build overhead, capped.
- */
-export function testRunBudgetMs(testsTimeoutMs?: number): number {
-  return Math.min(
-    (testsTimeoutMs ?? DEFAULT_TESTS_TIMEOUT_MS) + TEST_RUN_OVERHEAD_MS,
-    MAX_TEST_RUN_BUDGET_MS,
-  )
+/** How long to wait for `/tmc-run`: the exercise's effective tests timeout plus build overhead, capped. */
+export function testRunBudgetMs(testsTimeoutMs: number): number {
+  return Math.min(testsTimeoutMs + TEST_RUN_OVERHEAD_MS, MAX_TEST_RUN_BUDGET_MS)
 }
 
 /**
@@ -381,7 +373,7 @@ export async function runTmcAndReadOutput(
   kubeExec: k8s.Exec,
   podName: string,
   logger: Logger,
-  runTimeoutMs: number = testRunBudgetMs(),
+  runTimeoutMs: number,
 ): Promise<TmcRunOutcome> {
   const out = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
   const err = captureStream(MAX_CAPTURED_RUN_LOG_BYTES)
@@ -511,7 +503,7 @@ export async function runInSandboxPod(
   sandboxImage: string,
   submissionPath: string,
   logger: Logger,
-  testsTimeoutMs?: number,
+  testsTimeoutMs: number,
 ): Promise<TmcRunOutcome> {
   const runTimeoutMs = testRunBudgetMs(testsTimeoutMs)
   const { config: kubeConfig, api: kubeApi } = initKube()

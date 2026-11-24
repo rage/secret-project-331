@@ -28,8 +28,8 @@ const GradingFeedback: React.FC<Props> = ({ grading, showMessage }) => {
   const feedback = parseFeedback(grading.feedback_json)
   const message = showMessage ? feedbackMessage(t, grading) : null
   const styleErrors = Object.entries(feedback?.validations?.validation_errors ?? {})
-  const logs = Object.entries(feedback?.logs ?? {}).filter(([, log]) => log.trim() !== "")
-  const testResults = feedback?.testResults ?? []
+  const logs = Object.entries(feedback?.run?.logs ?? {}).filter(([, log]) => log.trim() !== "")
+  const testResults = feedback?.run?.testResults ?? []
   if (
     message === null &&
     testResults.length === 0 &&

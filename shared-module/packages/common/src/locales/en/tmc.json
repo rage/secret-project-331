@@ -19,7 +19,6 @@
   "feedback-server-error": "The submission could not be graded because of an error on the server. Try submitting again later.",
   "feedback-style-check-failed": "The code style check failed, so no points were given",
   "feedback-timed-out": "Test timed out",
-  "feedback-valgrind-failed": "Valgrind found errors, so no points were given",
   "file-upload-save-failure": "Failed to save file upload",
   "file-upload-save-success": "File upload saved successfully.",
   "filter-repository-exercises": "Filter exercises",

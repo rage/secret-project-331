@@ -335,6 +335,16 @@ const actionsInRowCss = css`
   display: contents;
 `
 
+const ACTIONS_CSS: Record<ErrorNoticeDensity, string> = {
+  comfortable: actionsStackCss,
+  compact: actionsRowCss,
+}
+
+const ACTION_LINKS_CSS: Record<ErrorNoticeDensity, string> = {
+  comfortable: actionsRowCss,
+  compact: actionsInRowCss,
+}
+
 const linkCss = css`
   color: var(--color-blue-700);
 
@@ -556,18 +566,13 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
   )
 
   const actions = (
-    <div
-      className={cx(
-        isCompact ? actionsRowCss : actionsStackCss,
-        isCopyBesideTitle && compactActionsBesideTitleCss,
-      )}
-    >
-      {showRetry ? (
+    <div className={cx(ACTIONS_CSS[density], isCopyBesideTitle && compactActionsBesideTitleCss)}>
+      {showRetry && (
         <Button type="button" variant="secondary" size="small" onPress={retry}>
           {t("errorNotice.retry")}
         </Button>
-      ) : null}
-      <div className={isCompact ? actionsInRowCss : actionsRowCss}>
+      )}
+      <div className={ACTION_LINKS_CSS[density]}>
         <CopyButton
           value={report}
           label={t("errorNotice.copyReport")}
@@ -607,7 +612,7 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
           </dl>
         </div>
       ) : null}
-      {isCopyBesideTitle ? null : actions}
+      {!isCopyBesideTitle && actions}
 
       {details.length > 0 || blocks.length > 0 ? (
         <Disclosure title={t("errorNotice.technicalDetails")}>
@@ -630,13 +635,6 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
     </>
   )
 
-  const compactSummary = (
-    <div className={compactSummaryCss}>
-      {header}
-      <div className={cx(compactIndentCss, compactSummaryTextCss)}>{summaryText}</div>
-    </div>
-  )
-
   return (
     <div
       className={cx(
@@ -652,14 +650,13 @@ export const ErrorNotice: React.FC<ErrorNoticeProps> = ({
     >
       {isCompact ? (
         <>
-          {isCopyBesideTitle ? (
-            <div className={compactSummaryRowCss}>
-              {compactSummary}
-              {actions}
+          <div className={compactSummaryRowCss}>
+            <div className={compactSummaryCss}>
+              {header}
+              <div className={cx(compactIndentCss, compactSummaryTextCss)}>{summaryText}</div>
             </div>
-          ) : (
-            compactSummary
-          )}
+            {isCopyBesideTitle && actions}
+          </div>
           <div className={cx(compactIndentCss, compactBodyCss)}>{body}</div>
         </>
       ) : (

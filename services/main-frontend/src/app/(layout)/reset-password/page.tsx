@@ -2,13 +2,18 @@
 
 import { css } from "@emotion/css"
 import { Clock, InboxMailbox } from "@vectopus/atlas-icons-react"
-import { millisecondsInMinute } from "date-fns/constants"
+import { secondsInMinute } from "date-fns/constants"
 import i18n from "i18next"
 import { useEffect, useRef, useState } from "react"
-import { useForm } from "react-hook-form"
+import { type Control, useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
 
-import { AuthCard, AuthCardFooterLink, authCardStackCss } from "@/components/auth/AuthCard"
+import {
+  AuthCard,
+  AuthCardFooterLink,
+  type AuthCardProps,
+  authCardStackCss,
+} from "@/components/auth/AuthCard"
 import {
   RESET_EMAIL_RESEND_COOLDOWN_MS,
   RESET_LINK_LIFETIME_HOURS,
@@ -23,7 +28,13 @@ import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/red
 import { loginRoute } from "@/shared-module/common/utils/routes"
 import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, ErrorNotice, focusProgrammatically, TextField } from "@/shared-module/components"
+import {
+  Button,
+  ErrorNotice,
+  focusProgrammatically,
+  TextField,
+  useCooldown,
+} from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface SubmitEmailFormFields {
@@ -66,26 +77,103 @@ const resendNoteCss = css`
   }
 `
 
-/**
- * Milliseconds left of a cooldown that began at `startedAt`; 0 when over. Re-renders only when the
- * remaining whole minutes change, so callers should display it in minutes.
- */
-function useCooldownRemainingMs(startedAt: number | null, durationMs: number): number {
-  const [now, setNow] = useState(() => Date.now())
-  // Clamped because `now` only advances while a cooldown runs, so it can be stale when a new one starts.
-  const remainingMs =
-    startedAt === null ? 0 : Math.min(durationMs, Math.max(0, startedAt + durationMs - now))
+interface RequestLinkFormProps {
+  control: Control<SubmitEmailFormFields>
+  onSubmit: React.FormEventHandler<HTMLFormElement>
+  isSending: boolean
+  apiError: React.ReactNode
+}
 
-  useEffect(() => {
-    if (remainingMs <= 0) {
-      return
-    }
-    const msToNextMinuteChange = remainingMs % millisecondsInMinute || millisecondsInMinute
-    const timeout = setTimeout(() => setNow(Date.now()), msToNextMinuteChange)
-    return () => clearTimeout(timeout)
-  }, [remainingMs])
+const RequestLinkForm: React.FC<RequestLinkFormProps> = ({
+  control,
+  onSubmit,
+  isSending,
+  apiError,
+}) => {
+  const { t } = useTranslation()
+  return (
+    <form noValidate onSubmit={onSubmit} className={authCardStackCss}>
+      {apiError}
+      <TextField
+        name="email"
+        control={control}
+        label={t("email")}
+        type="email"
+        autoComplete="email"
+        isRequired
+        rules={{
+          required: t("required-field"),
+          pattern: {
+            value: EMAIL_PATTERN,
+            message: t("enter-a-valid-email"),
+          },
+        }}
+      />
+      <Button variant="primary" size="large" type="submit" isFullWidth isLoading={isSending}>
+        {t("password-reset-send-link")}
+      </Button>
+    </form>
+  )
+}
 
-  return remainingMs
+interface LinkSentDetailsProps {
+  onResend: () => void
+  isSending: boolean
+  isResent: boolean
+  cooldownSeconds: number
+  apiError: React.ReactNode
+}
+
+const LinkSentDetails: React.FC<LinkSentDetailsProps> = ({
+  onResend,
+  isSending,
+  isResent,
+  cooldownSeconds,
+  apiError,
+}) => {
+  const { t } = useTranslation()
+  const cooldownNote =
+    cooldownSeconds > 0
+      ? t("password-reset-send-again-wait", {
+          minutes: Math.ceil(cooldownSeconds / secondsInMinute),
+        })
+      : undefined
+  return (
+    <>
+      <ul className={factsListCss}>
+        <li>
+          <span className={factIconCss} aria-hidden="true">
+            <Clock size={16} />
+          </span>
+          <span>{t("password-reset-link-valid-for", { count: RESET_LINK_LIFETIME_HOURS })}</span>
+        </li>
+        <li>
+          <span className={factIconCss} aria-hidden="true">
+            <InboxMailbox size={16} />
+          </span>
+          <span>{t("password-reset-check-spam")}</span>
+        </li>
+      </ul>
+      {apiError}
+      <div>
+        <Button
+          variant="secondary"
+          size="large"
+          isFullWidth
+          isLoading={isSending}
+          disabledReason={cooldownNote}
+          onPress={onResend}
+        >
+          {t("password-reset-send-again")}
+        </Button>
+        {/* Stays mounted so screen readers have registered it before the message appears. */}
+        <p className={resendNoteCss} role="status">
+          {isResent && t("password-reset-sent-again")}
+        </p>
+        <p className={resendNoteCss}>{cooldownNote}</p>
+      </div>
+    </>
+  )
 }
 
 const ResetPassword: React.FC = () => {
@@ -94,14 +182,13 @@ const ResetPassword: React.FC = () => {
   const uncheckedReturnTo = useQueryParameter("return_to")
   const loginHref = loginRoute(validateReturnToRouteOrDefault(uncheckedReturnTo, "/"))
   const [sentEmail, setSentEmail] = useState<string | null>(null)
-  const [lastSentAt, setLastSentAt] = useState<number | null>(null)
   const [isResent, setIsResent] = useState(false)
+  const [cooldownSeconds, startCooldown] = useCooldown(0)
   const altchaRef = useRef<AltchaWidgetHandle>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
     defaultValues: { email: "" },
   })
-  const cooldownRemainingMs = useCooldownRemainingMs(lastSentAt, RESET_EMAIL_RESEND_COOLDOWN_MS)
 
   useEffect(() => {
     if (sentEmail !== null && headingRef.current) {
@@ -136,18 +223,10 @@ const ResetPassword: React.FC = () => {
           return
         }
         setSentEmail(variables.email)
-        setLastSentAt(Date.now())
+        startCooldown(Date.now() + RESET_EMAIL_RESEND_COOLDOWN_MS)
       },
     },
   )
-
-  const isSent = sentEmail !== null
-  const isCoolingDown = cooldownRemainingMs > 0
-  const cooldownNote = isCoolingDown
-    ? t("password-reset-send-again-wait", {
-        minutes: Math.ceil(cooldownRemainingMs / millisecondsInMinute),
-      })
-    : undefined
 
   const apiError = postResetPassword.isError && (
     // notify:true already announces the error via the toast; the notice is the persistent copy.
@@ -155,30 +234,70 @@ const ResetPassword: React.FC = () => {
     <ErrorNotice error={postResetPassword.error} announce="off" density="compact" />
   )
 
+  const returnToEmailForm = () => {
+    sendGenerationRef.current += 1
+    postResetPassword.reset()
+    setIsResent(false)
+    setSentEmail(null)
+  }
+
+  const resend = (email: string) => {
+    setIsResent(false)
+    postResetPassword.mutate(
+      { email, generation: sendGenerationRef.current },
+      { onSuccess: () => setIsResent(true) },
+    )
+  }
+
+  const {
+    content,
+    ...cardProps
+  }: Pick<AuthCardProps, "title" | "statusIcon" | "lede"> & {
+    content: React.ReactNode
+  } =
+    sentEmail === null
+      ? {
+          title: t("title-reset-password"),
+          lede: t("enter-email-for-password-reset-link"),
+          content: (
+            <RequestLinkForm
+              control={control}
+              onSubmit={handleSubmit((data) =>
+                postResetPassword.mutate({ ...data, generation: sendGenerationRef.current }),
+              )}
+              isSending={postResetPassword.isPending}
+              apiError={apiError}
+            />
+          ),
+        }
+      : {
+          title: t("password-reset-check-your-email"),
+          // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
+          statusIcon: "mail",
+          lede: (
+            <Trans t={t} i18nKey="password-reset-email-sent-to" values={{ email: sentEmail }} />
+          ),
+          content: (
+            <LinkSentDetails
+              onResend={() => resend(sentEmail)}
+              isSending={postResetPassword.isPending}
+              isResent={isResent}
+              cooldownSeconds={cooldownSeconds}
+              apiError={apiError}
+            />
+          ),
+        }
+
   return (
     <AuthCard
+      {...cardProps}
       headingRef={headingRef}
-      title={isSent ? t("password-reset-check-your-email") : t("title-reset-password")}
-      // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
-      statusIcon={isSent ? "mail" : undefined}
-      lede={
-        isSent ? (
-          <Trans t={t} i18nKey="password-reset-email-sent-to" values={{ email: sentEmail }} />
-        ) : (
-          t("enter-email-for-password-reset-link")
-        )
-      }
       footer={
         <>
-          {isSent && (
+          {sentEmail !== null && (
             <AuthCardFooterLink
               prompt={t("password-reset-wrong-address")}
-              onPress={() => {
-                sendGenerationRef.current += 1
-                postResetPassword.reset()
-                setIsResent(false)
-                setSentEmail(null)
-              }}
+              onPress={returnToEmailForm}
             >
               {t("password-reset-use-different-email")}
             </AuthCardFooterLink>
@@ -189,84 +308,7 @@ const ResetPassword: React.FC = () => {
         </>
       }
     >
-      {isSent ? (
-        <>
-          <ul className={factsListCss}>
-            <li>
-              <span className={factIconCss} aria-hidden="true">
-                <Clock size={16} />
-              </span>
-              <span>
-                {t("password-reset-link-valid-for", { count: RESET_LINK_LIFETIME_HOURS })}
-              </span>
-            </li>
-            <li>
-              <span className={factIconCss} aria-hidden="true">
-                <InboxMailbox size={16} />
-              </span>
-              <span>{t("password-reset-check-spam")}</span>
-            </li>
-          </ul>
-          {apiError}
-          <div>
-            <Button
-              variant="secondary"
-              size="large"
-              isFullWidth
-              isLoading={postResetPassword.isPending}
-              disabledReason={cooldownNote}
-              onPress={() => {
-                setIsResent(false)
-                postResetPassword.mutate(
-                  { email: sentEmail, generation: sendGenerationRef.current },
-                  { onSuccess: () => setIsResent(true) },
-                )
-              }}
-            >
-              {t("password-reset-send-again")}
-            </Button>
-            {/* Stays mounted so screen readers have registered it before the message appears. */}
-            <p className={resendNoteCss} role="status">
-              {isResent ? t("password-reset-sent-again") : null}
-            </p>
-            <p className={resendNoteCss}>{cooldownNote}</p>
-          </div>
-        </>
-      ) : (
-        <form
-          noValidate
-          onSubmit={handleSubmit((data) =>
-            postResetPassword.mutate({ ...data, generation: sendGenerationRef.current }),
-          )}
-          className={authCardStackCss}
-        >
-          {apiError}
-          <TextField
-            name="email"
-            control={control}
-            label={t("email")}
-            type="email"
-            autoComplete="email"
-            isRequired
-            rules={{
-              required: t("required-field"),
-              pattern: {
-                value: EMAIL_PATTERN,
-                message: t("enter-a-valid-email"),
-              },
-            }}
-          />
-          <Button
-            variant="primary"
-            size="large"
-            type="submit"
-            isFullWidth
-            isLoading={postResetPassword.isPending}
-          >
-            {t("password-reset-send-link")}
-          </Button>
-        </form>
-      )}
+      {content}
       {/* Rendered outside both states so its next solve survives the switch to the sent state. */}
       {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
       <AltchaWidget ref={altchaRef} purpose={"password_reset"} />

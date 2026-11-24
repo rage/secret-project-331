@@ -162,26 +162,26 @@ export const AuthCard: React.FC<AuthCardProps> = ({
   headingId,
   children,
 }) => {
-  const status = statusIcon ? STATUS_ICONS[statusIcon] : undefined
+  const status = statusIcon && STATUS_ICONS[statusIcon]
   return (
     <div className={cardCss}>
-      <div className={cx(contentCss, footer ? contentAboveFooterCss : undefined)}>
+      <div className={cx(contentCss, Boolean(footer) && contentAboveFooterCss)}>
         <div className={headCss}>
           <div className={titleRowCss}>
-            {status ? (
+            {status && (
               <span className={cx(statusIconBaseCss, status.className)} aria-hidden="true">
                 <status.Icon size={16} weight="bold" />
               </span>
-            ) : null}
+            )}
             <h1 ref={headingRef} id={headingId} className={titleCss}>
               {title}
             </h1>
           </div>
-          {lede ? <p className={ledeCss}>{lede}</p> : null}
+          {lede && <p className={ledeCss}>{lede}</p>}
         </div>
-        {children ? <div className={authCardStackCss}>{children}</div> : null}
+        {children && <div className={authCardStackCss}>{children}</div>}
       </div>
-      {footer ? <div className={footerCss}>{footer}</div> : null}
+      {footer && <div className={footerCss}>{footer}</div>}
     </div>
   )
 }

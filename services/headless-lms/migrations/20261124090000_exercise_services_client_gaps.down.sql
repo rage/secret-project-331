@@ -3,6 +3,8 @@ DROP INDEX exercise_task_gradings_pending_updated_at_idx;
 ALTER TABLE exercise_tasks DROP COLUMN repository_exercise_checksum,
   DROP COLUMN repository_exercise_id;
 DROP TABLE retired_repository_exercise_archives;
+ALTER TABLE exercise_service_info DROP COLUMN repository_preparation_endpoint_path;
+ALTER TABLE repository_exercises DROP COLUMN details;
 ALTER TABLE repository_exercises DROP COLUMN archive_path,
   ALTER COLUMN download_url TYPE VARCHAR(255);
 COMMENT ON COLUMN repository_exercises.download_url IS NULL;

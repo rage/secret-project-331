@@ -720,6 +720,7 @@ export const zRepositoryExercise = z.object({
   checksum: z.array(
     z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   ),
+  details: z.unknown().optional(),
   download_url: z.string(),
   id: z.uuid(),
   name: z.string(),

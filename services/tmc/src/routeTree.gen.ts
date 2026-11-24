@@ -13,6 +13,7 @@ import { Route as ApiExtractStubRouteImport } from "./routes/api/extract-stub"
 import { Route as ApiGradeRouteImport } from "./routes/api/grade"
 import { Route as ApiModelSolutionRouteImport } from "./routes/api/model-solution"
 import { Route as ApiPackBrowserAnswerRouteImport } from "./routes/api/pack-browser-answer"
+import { Route as ApiPrepareRepositoryRouteImport } from "./routes/api/prepare-repository"
 import { Route as ApiPublicSpecRouteImport } from "./routes/api/public-spec"
 import { Route as ApiSandboxResultsRouteImport } from "./routes/api/sandbox-results"
 import { Route as ApiServiceInfoRouteImport } from "./routes/api/service-info"
@@ -62,6 +63,11 @@ const ApiPackBrowserAnswerRoute = ApiPackBrowserAnswerRouteImport.update({
   path: "/api/pack-browser-answer",
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPrepareRepositoryRoute = ApiPrepareRepositoryRouteImport.update({
+  id: "/api/prepare-repository",
+  path: "/api/prepare-repository",
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiModelSolutionRoute = ApiModelSolutionRouteImport.update({
   id: "/api/model-solution",
   path: "/api/model-solution",
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
   "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
+  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
   "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
+  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   "/api/grade": typeof ApiGradeRoute
   "/api/model-solution": typeof ApiModelSolutionRoute
   "/api/pack-browser-answer": typeof ApiPackBrowserAnswerRoute
+  "/api/prepare-repository": typeof ApiPrepareRepositoryRoute
   "/api/public-spec": typeof ApiPublicSpecRoute
   "/api/sandbox-results": typeof ApiSandboxResultsRoute
   "/api/service-info": typeof ApiServiceInfoRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | "/api/grade"
     | "/api/model-solution"
     | "/api/pack-browser-answer"
+    | "/api/prepare-repository"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | "/api/grade"
     | "/api/model-solution"
     | "/api/pack-browser-answer"
+    | "/api/prepare-repository"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | "/api/grade"
     | "/api/model-solution"
     | "/api/pack-browser-answer"
+    | "/api/prepare-repository"
     | "/api/public-spec"
     | "/api/sandbox-results"
     | "/api/service-info"
@@ -178,6 +190,7 @@ export interface RootRouteChildren {
   ApiGradeRoute: typeof ApiGradeRoute
   ApiModelSolutionRoute: typeof ApiModelSolutionRoute
   ApiPackBrowserAnswerRoute: typeof ApiPackBrowserAnswerRoute
+  ApiPrepareRepositoryRoute: typeof ApiPrepareRepositoryRoute
   ApiPublicSpecRoute: typeof ApiPublicSpecRoute
   ApiSandboxResultsRoute: typeof ApiSandboxResultsRoute
   ApiServiceInfoRoute: typeof ApiServiceInfoRoute
@@ -244,6 +257,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof ApiPackBrowserAnswerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    "/api/prepare-repository": {
+      id: "/api/prepare-repository"
+      path: "/api/prepare-repository"
+      fullPath: "/api/prepare-repository"
+      preLoaderRoute: typeof ApiPrepareRepositoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     "/api/model-solution": {
       id: "/api/model-solution"
       path: "/api/model-solution"
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGradeRoute: ApiGradeRoute,
   ApiModelSolutionRoute: ApiModelSolutionRoute,
   ApiPackBrowserAnswerRoute: ApiPackBrowserAnswerRoute,
+  ApiPrepareRepositoryRoute: ApiPrepareRepositoryRoute,
   ApiPublicSpecRoute: ApiPublicSpecRoute,
   ApiSandboxResultsRoute: ApiSandboxResultsRoute,
   ApiServiceInfoRoute: ApiServiceInfoRoute,

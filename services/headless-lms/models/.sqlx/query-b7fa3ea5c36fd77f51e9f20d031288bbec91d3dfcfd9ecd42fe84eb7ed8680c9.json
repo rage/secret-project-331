@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO repository_exercises (\n    id,\n    repository_id,\n    part,\n    name,\n    checksum,\n    archive_path,\n    download_url,\n    details\n  )\nSELECT uuid_generate_v5($1, re.id::text),\n  uuid_generate_v5($1, re.repository_id::text),\n  re.part,\n  re.name,\n  re.checksum,\n  re.archive_path,\n  re.download_url,\n  re.details\nFROM repository_exercises re\n  JOIN exercise_repositories er ON er.id = re.repository_id\nWHERE (\n    er.course_id = $2\n    OR er.exam_id = $2\n  )\n  AND er.deleted_at IS NULL\n  AND re.deleted_at IS NULL;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b7fa3ea5c36fd77f51e9f20d031288bbec91d3dfcfd9ecd42fe84eb7ed8680c9"
+}

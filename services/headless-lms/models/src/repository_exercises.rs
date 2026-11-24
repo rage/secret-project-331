@@ -12,6 +12,8 @@ pub struct RepositoryExercise {
     pub repository_url: String,
     pub checksum: Vec<u8>,
     pub download_url: String,
+    /// What the exercise service that prepared the repository reported about the exercise.
+    pub details: Option<serde_json::Value>,
 }
 
 /// A repository exercise as a sync compares it with the clone.
@@ -23,6 +25,7 @@ pub struct StoredRepositoryExercise {
     pub checksum: Vec<u8>,
     pub archive_path: String,
     pub download_url: String,
+    pub details: Option<serde_json::Value>,
 }
 
 impl StoredRepositoryExercise {
@@ -41,6 +44,7 @@ pub struct RepositoryExerciseVersion<'a> {
     pub checksum: &'a [u8],
     pub archive_path: &'a str,
     pub download_url: &'a str,
+    pub details: &'a serde_json::Value,
 }
 
 pub async fn insert(
@@ -58,9 +62,10 @@ INSERT INTO repository_exercises (
     name,
     checksum,
     archive_path,
-    download_url
+    download_url,
+    details
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ",
         id,
         repository_id,
@@ -69,6 +74,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
         version.checksum,
         version.archive_path,
         version.download_url,
+        version.details,
     )
     .execute(conn)
     .await?;
@@ -87,7 +93,8 @@ SET part = $2,
   name = $3,
   checksum = $4,
   archive_path = $5,
-  download_url = $6
+  download_url = $6,
+  details = $7
 WHERE id = $1
 ",
         id,
@@ -96,6 +103,7 @@ WHERE id = $1
         version.checksum,
         version.archive_path,
         version.download_url,
+        version.details,
     )
     .execute(conn)
     .await?;
@@ -151,7 +159,8 @@ SELECT id,
   name,
   checksum,
   archive_path,
-  download_url
+  download_url,
+  details
 FROM repository_exercises
 WHERE repository_id = $1
   AND deleted_at IS NULL
@@ -176,7 +185,8 @@ SELECT re.id,
   re.name,
   er.url AS repository_url,
   re.checksum,
-  re.download_url
+  re.download_url,
+  re.details
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE repository_id = $1
@@ -205,7 +215,8 @@ SELECT re.id,
   re.name,
   er.url AS repository_url,
   re.checksum,
-  re.download_url
+  re.download_url,
+  re.details
 FROM repository_exercises AS re
 JOIN exercise_repositories AS er ON er.id = re.repository_id
 WHERE (
@@ -259,7 +270,8 @@ SELECT re.id,
   re.name,
   er.url AS repository_url,
   re.checksum,
-  re.download_url
+  re.download_url,
+  re.details
 FROM exercise_tasks et
   JOIN repository_exercises re ON re.id = et.repository_exercise_id
   JOIN exercise_repositories er ON er.id = re.repository_id
@@ -284,7 +296,8 @@ SELECT re.id,
   re.name,
   er.url AS repository_url,
   re.checksum,
-  re.download_url
+  re.download_url,
+  re.details
 FROM repository_exercises re
   JOIN exercise_repositories er ON er.id = re.repository_id
 WHERE re.id = $1

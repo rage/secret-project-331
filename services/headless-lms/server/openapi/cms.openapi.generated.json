@@ -3336,6 +3336,9 @@
               "minimum": 0
             }
           },
+          "details": {
+            "description": "What the exercise service that prepared the repository reported about the exercise."
+          },
           "download_url": {
             "type": "string"
           },

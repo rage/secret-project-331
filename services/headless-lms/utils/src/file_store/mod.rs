@@ -214,3 +214,11 @@ pub fn repository_exercise_archive_path(
         "repository_exercises/{repository_id}/{repository_exercise_id}-{archive_id}.tar.zst",
     ))
 }
+
+/// Where a repository checkout is stored while its exercise service prepares it. Removed again
+/// once the service has answered.
+pub fn repository_checkout_archive_path(repository_id: Uuid, checkout_id: Uuid) -> PathBuf {
+    PathBuf::from(format!(
+        "repository_exercises/{repository_id}/checkouts/{checkout_id}.tar.zst"
+    ))
+}

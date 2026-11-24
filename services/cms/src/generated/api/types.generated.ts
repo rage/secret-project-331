@@ -778,6 +778,10 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
  */
 export type RepositoryExercise = {
   checksum: Array<number>
+  /**
+   * What the exercise service that prepared the repository reported about the exercise.
+   */
+  details?: unknown
   download_url: string
   id: string
   name: string

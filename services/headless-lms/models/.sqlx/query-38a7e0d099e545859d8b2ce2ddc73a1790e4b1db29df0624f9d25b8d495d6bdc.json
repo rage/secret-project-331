@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  part,\n  name,\n  checksum,\n  archive_path,\n  download_url\nFROM repository_exercises\nWHERE repository_id = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  part,\n  name,\n  checksum,\n  archive_path,\n  download_url,\n  details\nFROM repository_exercises\nWHERE repository_id = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -68,6 +68,17 @@
             "name": "download_url"
           }
         }
+      },
+      {
+        "ordinal": 6,
+        "name": "details",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "details"
+          }
+        }
       }
     ],
     "parameters": {
@@ -81,8 +92,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "eb55beb1cd13a424b50ecefeec96a640aac0894d2ec0ae0591549d852c77756a"
+  "hash": "38a7e0d099e545859d8b2ce2ddc73a1790e4b1db29df0624f9d25b8d495d6bdc"
 }

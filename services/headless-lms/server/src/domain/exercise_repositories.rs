@@ -24,20 +24,27 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     file_store::{self, FileStore},
+    folder_checksum,
     periodic_worker::{PeriodicWorkerConfig, run_periodic_worker},
     prelude::{BackendError, UtilErrorType},
 };
 use itertools::Itertools;
 use secrecy::{ExposeSecret, SecretString};
+use serde::Deserialize;
 use sqlx::{Acquire, PgConnection, PgPool};
-use std::{cell::Cell, collections::HashMap, io::Cursor, path::Path, sync::Arc, time::Duration};
+use std::{
+    cell::Cell,
+    collections::{HashMap, HashSet},
+    io::Cursor,
+    path::{Component, Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
 use url::Url;
 use uuid::Uuid;
 
 use crate::domain::models_requests;
-use discovery::FoundExercise;
 
-mod discovery;
 mod pinned_stream;
 
 /// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that
@@ -292,6 +299,7 @@ pub async fn run_sync_worker(
                         Arc::clone(&jwt_key),
                     ),
                     models_requests::fetch_service_info,
+                    models_requests::prepare_repository,
                 )
                 .await
             }
@@ -312,6 +320,7 @@ pub async fn sync_queued(
     app_conf: &ApplicationConfiguration,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    prepare_repository: impl RepositoryPreparer,
 ) -> anyhow::Result<()> {
     let timeout = chrono::Duration::from_std(SYNC_TIMEOUT)?;
     let mut started = vec![];
@@ -327,6 +336,7 @@ pub async fn sync_queued(
             app_conf,
             &spec_fetcher,
             &fetch_service_info,
+            &prepare_repository,
         )
         .await
         {
@@ -355,6 +365,7 @@ async fn sync(
     app_conf: &ApplicationConfiguration,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    prepare_repository: impl RepositoryPreparer,
 ) -> anyhow::Result<ExerciseRepositorySyncReport> {
     let checkout = tempfile::tempdir()?;
     clone_repository(
@@ -367,13 +378,183 @@ async fn sync(
         checkout.path(),
     )
     .await?;
-    let mut report = sync_checkout(conn, job.id, checkout.path(), file_store, app_conf).await?;
+    let found = find_exercises(
+        conn,
+        job.id,
+        checkout.path(),
+        file_store,
+        app_conf,
+        prepare_repository,
+    )
+    .await?;
+    let mut report = sync_checkout(conn, job.id, found, file_store, app_conf).await?;
     refresh_exercise_tasks(conn, job.id, spec_fetcher, fetch_service_info, &mut report).await?;
     remove_unused_archives(conn, job.id, file_store).await;
     Ok(report)
 }
 
-/// Updates the repository's exercises to match `checkout`, keeping each exercise's id: one found
+/// Sends the repository's exercise service a checkout to find its exercises in, the way
+/// [`models_requests::prepare_repository`] does.
+pub trait RepositoryPreparer:
+    Fn(Url, String) -> BoxFuture<'static, ModelResult<PreparedRepository>>
+{
+}
+
+impl<T: Fn(Url, String) -> BoxFuture<'static, ModelResult<PreparedRepository>>> RepositoryPreparer
+    for T
+{
+}
+
+/// The exercises an exercise service found in a repository checkout.
+#[derive(Debug, Deserialize)]
+pub struct PreparedRepository {
+    pub exercises: Vec<PreparedRepositoryExercise>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PreparedRepositoryExercise {
+    pub part: String,
+    pub name: String,
+    /// The exercise directory, relative to the checkout root.
+    pub path: String,
+    /// Files to write into the exercise directory before archiving it, relative to it.
+    pub files: Vec<PreparedFile>,
+    pub details: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PreparedFile {
+    pub path: String,
+    pub contents: String,
+}
+
+/// An exercise directory of the checkout, ready to archive.
+#[derive(Debug)]
+struct FoundExercise {
+    part: String,
+    name: String,
+    checksum: blake3::Hash,
+    path: PathBuf,
+    details: serde_json::Value,
+}
+
+/// Has the repository's exercise service find the checkout's exercises, then writes the files it
+/// rewrote into the checkout. The checkout reaches the service through a file store object that
+/// lives only for the call.
+async fn find_exercises(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    checkout: &Path,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+    prepare_repository: impl RepositoryPreparer,
+) -> anyhow::Result<Vec<FoundExercise>> {
+    let url = exercise_services::get_internal_repository_preparation_url(conn).await?;
+    let archive_path = file_store::repository_checkout_archive_path(repository_id, Uuid::new_v4());
+    file_store
+        .upload(
+            &archive_path,
+            archive_checkout(checkout)?,
+            "application/zstd",
+        )
+        .await?;
+    let prepared =
+        prepare_repository(url, file_store.get_download_url(&archive_path, app_conf)).await;
+    if let Err(err) = file_store.delete(&archive_path).await {
+        error!("Failed to remove the checkout archive {archive_path:?}: {err}");
+    }
+    apply_prepared_exercises(checkout, prepared?.exercises).await
+}
+
+/// The checkout as a `.tar.zst`, without its `.git` directory.
+fn archive_checkout(checkout: &Path) -> anyhow::Result<Vec<u8>> {
+    let mut tar = tar::Builder::new(Cursor::new(vec![]));
+    // The repository is teacher-controlled; following its symlinks would archive server files.
+    tar.follow_symlinks(false);
+    for entry in std::fs::read_dir(checkout)? {
+        let entry = entry?;
+        let name = entry.file_name();
+        if name == ".git" {
+            continue;
+        }
+        if entry.file_type()?.is_dir() {
+            tar.append_dir_all(&name, entry.path())?;
+        } else {
+            tar.append_path_with_name(entry.path(), &name)?;
+        }
+    }
+    let mut tar = tar.into_inner()?;
+    tar.set_position(0);
+    Ok(zstd::encode_all(tar, 0)?)
+}
+
+/// Writes the prepared exercises' files into the checkout and checksums each exercise directory.
+/// Refuses paths that lead out of the checkout, also through the repository's symlinks.
+async fn apply_prepared_exercises(
+    checkout: &Path,
+    exercises: Vec<PreparedRepositoryExercise>,
+) -> anyhow::Result<Vec<FoundExercise>> {
+    let checkout = checkout.canonicalize()?;
+    let mut names = HashSet::new();
+    let mut found = vec![];
+    for exercise in exercises {
+        if !names.insert((exercise.part.clone(), exercise.name.clone())) {
+            anyhow::bail!(
+                "Two exercise directories are both named {}; rename one of them.",
+                display_name(&exercise.part, &exercise.name)
+            );
+        }
+        let path = resolve_inside(&checkout, &checkout.join(plain_path(&exercise.path)?))?;
+        if !path.is_dir() {
+            anyhow::bail!("The exercise directory {} does not exist", exercise.path);
+        }
+        for file in &exercise.files {
+            let file_path = path.join(plain_path(&file.path)?);
+            let parent = file_path.parent().unwrap_or(&path);
+            let file_path =
+                resolve_inside(&checkout, parent)?.join(file_path.file_name().unwrap_or_default());
+            // A symlink in its place is replaced, not written through.
+            if std::fs::symlink_metadata(&file_path).is_ok_and(|meta| !meta.is_dir()) {
+                std::fs::remove_file(&file_path)?;
+            }
+            std::fs::write(&file_path, &file.contents)?;
+        }
+        found.push(FoundExercise {
+            checksum: folder_checksum::hash_folder(&path).await?,
+            part: exercise.part,
+            name: exercise.name,
+            path,
+            details: exercise.details,
+        });
+    }
+    Ok(found)
+}
+
+/// `relative` if it is made of plain names, so it cannot climb out of the directory it is joined to.
+fn plain_path(relative: &str) -> anyhow::Result<&Path> {
+    let path = Path::new(relative);
+    if path.as_os_str().is_empty()
+        || !path
+            .components()
+            .all(|component| matches!(component, Component::Normal(_)))
+    {
+        anyhow::bail!("The exercise service named a path outside the checkout: {relative}");
+    }
+    Ok(path)
+}
+
+/// `path` with its symlinks resolved, refused unless that is inside the canonical `checkout`.
+fn resolve_inside(checkout: &Path, path: &Path) -> anyhow::Result<PathBuf> {
+    let resolved = path
+        .canonicalize()
+        .with_context(|| format!("{} does not exist", path.display()))?;
+    if !resolved.starts_with(checkout) {
+        anyhow::bail!("{} leads outside the checkout", path.display());
+    }
+    Ok(resolved)
+}
+
+/// Updates the repository's exercises to match `found`, keeping each exercise's id: one found
 /// at the same part and name is the same exercise, and failing that one with the same checksum.
 /// Each new version gets an archive at a new path; the replaced archives are retired, not
 /// deleted, since copies of the course may still use them. On error, nothing is
@@ -381,11 +562,10 @@ async fn sync(
 async fn sync_checkout(
     conn: &mut PgConnection,
     repository_id: Uuid,
-    checkout: &Path,
+    found: Vec<FoundExercise>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<ExerciseRepositorySyncReport> {
-    let found = discovery::find_exercises(checkout).await?;
     let mut unmatched =
         repository_exercises::get_stored_for_repository(conn, repository_id).await?;
     let mut matched = vec![];
@@ -440,7 +620,7 @@ async fn sync_checkout(
                 });
             }
             if stored.checksum == exercise.checksum.as_bytes() {
-                if renamed {
+                if renamed || stored.details.as_ref() != Some(&exercise.details) {
                     repository_exercises::update(
                         &mut tx,
                         stored.id,
@@ -511,6 +691,7 @@ fn version<'a>(
         checksum: exercise.checksum.as_bytes(),
         archive_path,
         download_url,
+        details: &exercise.details,
     }
 }
 
@@ -841,6 +1022,109 @@ mod test {
         assert!(check_ssh_host_key("git.example.org", 22, None, None).is_err());
     }
 
+    fn prepared(path: &str, files: &[(&str, &str)]) -> PreparedRepositoryExercise {
+        PreparedRepositoryExercise {
+            part: "part01".to_string(),
+            name: path.rsplit('/').next().unwrap().to_string(),
+            path: path.to_string(),
+            files: files
+                .iter()
+                .map(|(path, contents)| PreparedFile {
+                    path: path.to_string(),
+                    contents: contents.to_string(),
+                })
+                .collect(),
+            details: serde_json::json!({ "plugin": "python3" }),
+        }
+    }
+
+    #[tokio::test]
+    async fn prepared_files_replace_what_the_checkout_had() {
+        let checkout = tempfile::tempdir().unwrap();
+        let exercise = checkout.path().join("part01/ex");
+        std::fs::create_dir_all(&exercise).unwrap();
+        let outside = tempfile::NamedTempFile::new().unwrap();
+        std::os::unix::fs::symlink(outside.path(), exercise.join(".tmcproject.yml")).unwrap();
+
+        let found = apply_prepared_exercises(
+            checkout.path(),
+            vec![prepared(
+                "part01/ex",
+                &[(".tmcproject.yml", "tests_timeout_ms: 1\n")],
+            )],
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            std::fs::read_to_string(exercise.join(".tmcproject.yml")).unwrap(),
+            "tests_timeout_ms: 1\n"
+        );
+        assert_eq!(std::fs::read_to_string(outside.path()).unwrap(), "");
+        assert_eq!(
+            found[0].checksum,
+            folder_checksum::hash_folder(&exercise).await.unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn prepared_paths_cannot_leave_the_checkout() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        std::os::unix::fs::symlink(outside.path(), checkout.path().join("linked")).unwrap();
+        for exercise in [
+            prepared("../ex", &[]),
+            prepared("/tmp", &[]),
+            prepared("part01/../../ex", &[]),
+            prepared("linked", &[]),
+            prepared("part01/ex", &[("../escape", "")]),
+        ] {
+            assert!(
+                apply_prepared_exercises(checkout.path(), vec![exercise])
+                    .await
+                    .is_err()
+            );
+        }
+        assert!(std::fs::read_dir(outside.path()).unwrap().next().is_none());
+    }
+
+    #[tokio::test]
+    async fn two_prepared_exercises_with_one_name_are_refused() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        let result = apply_prepared_exercises(
+            checkout.path(),
+            vec![prepared("part01/ex", &[]), prepared("part01/ex", &[])],
+        )
+        .await;
+        assert!(result.unwrap_err().to_string().contains("part01/ex"));
+    }
+
+    #[test]
+    fn a_checkout_is_archived_without_its_git_directory() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join(".git/objects")).unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        std::fs::write(checkout.path().join("part01/ex/setup.py"), "").unwrap();
+
+        let archive =
+            zstd::decode_all(Cursor::new(archive_checkout(checkout.path()).unwrap())).unwrap();
+        let names: Vec<String> = tar::Archive::new(Cursor::new(archive))
+            .entries()
+            .unwrap()
+            .map(|entry| entry.unwrap().path().unwrap().display().to_string())
+            .collect();
+        assert!(
+            names.iter().any(|name| name == "part01/ex/setup.py"),
+            "{names:?}"
+        );
+        assert!(
+            !names.iter().any(|name| name.starts_with(".git")),
+            "{names:?}"
+        );
+    }
+
     mod sync {
         use super::super::*;
         use crate::test_helper::*;
@@ -857,6 +1141,34 @@ mod test {
             let path = root.join(relative);
             fs::create_dir_all(path.parent().unwrap()).unwrap();
             fs::write(path, contents).unwrap();
+        }
+
+        /// The directories under `root` that hold a `setup.py`, as an exercise service would
+        /// report them.
+        async fn found(root: &Path) -> Vec<FoundExercise> {
+            let mut found = vec![];
+            for entry in walkdir::WalkDir::new(root).min_depth(1) {
+                let entry = entry.unwrap();
+                if !entry.path().join("setup.py").is_file() {
+                    continue;
+                }
+                let relative = entry.path().strip_prefix(root).unwrap();
+                let part = relative
+                    .parent()
+                    .unwrap()
+                    .iter()
+                    .map(|c| c.to_str().unwrap())
+                    .collect::<Vec<_>>()
+                    .join("-");
+                found.push(FoundExercise {
+                    part,
+                    name: entry.file_name().to_str().unwrap().to_string(),
+                    checksum: folder_checksum::hash_folder(entry.path()).await.unwrap(),
+                    path: entry.path().to_path_buf(),
+                    details: serde_json::json!({ "plugin": "python3" }),
+                });
+            }
+            found
         }
 
         async fn insert_repository(conn: &mut PgConnection, course_id: Uuid) -> Uuid {
@@ -978,15 +1290,27 @@ mod test {
             let checkout = tempfile::tempdir().unwrap();
             let root = checkout.path();
             write(root, "part01/original/setup.py", "same");
-            sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
-                .await
-                .unwrap();
+            sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
             let original = exercise_named(tx.as_mut(), repository_id, "original").await;
 
             write(root, "part01/a_copy/setup.py", "same");
-            let report = sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
-                .await
-                .unwrap();
+            let report = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
 
             assert_eq!(report.added, vec!["part01/a_copy"]);
             assert!(report.renamed.is_empty());
@@ -1007,9 +1331,15 @@ mod test {
             write(root, "part01/dropped/setup.py", "dropped");
             write(root, "part01/kept_in_use/setup.py", "in use");
 
-            let first = sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
-                .await
-                .unwrap();
+            let first = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
             assert_eq!(first.added.len(), 4);
             let changed = exercise_named(tx.as_mut(), repository_id, "changed").await;
             let moved = exercise_named(tx.as_mut(), repository_id, "moved").await;
@@ -1040,9 +1370,15 @@ mod test {
             fs::remove_dir_all(root.join("part01/dropped")).unwrap();
             fs::remove_dir_all(root.join("part01/kept_in_use")).unwrap();
             write(root, "part03/new/setup.py", "new");
-            let second = sync_checkout(tx.as_mut(), repository_id, root, &file_store, &app_conf)
-                .await
-                .unwrap();
+            let second = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
 
             assert_eq!(second.added, vec!["part03/new"]);
             assert_eq!(second.updated, vec!["part01/changed"]);
@@ -1091,7 +1427,7 @@ mod test {
             sync_checkout(
                 tx.as_mut(),
                 repository_id,
-                checkout.path(),
+                found(checkout.path()).await,
                 &file_store,
                 &app_conf,
             )
@@ -1112,7 +1448,7 @@ mod test {
                 sync_checkout(
                     tx.as_mut(),
                     repository_id,
-                    checkout.path(),
+                    found(checkout.path()).await,
                     &file_store,
                     &app_conf
                 )
@@ -1142,7 +1478,7 @@ mod test {
             sync_checkout(
                 tx.as_mut(),
                 repository_id,
-                checkout.path(),
+                found(checkout.path()).await,
                 &file_store,
                 &app_conf,
             )
@@ -1174,7 +1510,7 @@ mod test {
             let mut report = sync_checkout(
                 tx.as_mut(),
                 repository_id,
-                checkout.path(),
+                found(checkout.path()).await,
                 &file_store,
                 &app_conf,
             )

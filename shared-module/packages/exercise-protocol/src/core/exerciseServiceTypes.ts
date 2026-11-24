@@ -42,6 +42,34 @@ export interface ExerciseServiceInfoApi {
    * every one forever. Opt-in for that reason: a service that omits this loses nothing.
    */
   declares_spec_files?: boolean
+  /**
+   * Where the host sends a cloned exercise repository to find its exercises
+   * (`PrepareRepositoryRequest` → `PreparedRepository`). Exercise repositories need exactly one
+   * service to declare it.
+   */
+  repository_preparation_endpoint_path?: string
+}
+
+/** Sent to `repository_preparation_endpoint_path`. */
+export interface PrepareRepositoryRequest {
+  /** A `.tar.zst` of the repository checkout, without its `.git` directory. */
+  checkout_download_url: string
+}
+
+export interface PreparedRepository {
+  exercises: PreparedRepositoryExercise[]
+}
+
+/** One exercise of a prepared repository, which the host archives from the checkout. */
+export interface PreparedRepositoryExercise {
+  part: string
+  name: string
+  /** The exercise directory, relative to the checkout root, `/`-separated. */
+  path: string
+  /** Files the host writes into the exercise directory before archiving it, relative to it. */
+  files: { path: string; contents: string }[]
+  /** Kept with the exercise and handed back as `RepositoryExercise.details`. */
+  details: unknown
 }
 
 /**
@@ -131,6 +159,11 @@ export interface RepositoryExercise {
   repository_url: string
   checksum: number[]
   download_url: string
+  /**
+   * What the service reported about the exercise when it prepared the repository. Null before the
+   * repository's first sync since the host started keeping it; absent from copies embedded before.
+   */
+  details?: unknown
 }
 
 export interface UserInfo {

@@ -21,6 +21,8 @@ use headless_lms_base::error::backend_error::BackendError;
 pub use headless_lms_base::jwt::{DOWNLOAD_CLAIM_PARAM, DownloadClaim, JwtKey};
 use headless_lms_base::jwt::{claimed_file_url, sign_hs256_claim, validate_hs256_claim};
 use models::{SpecFetcher, repository_exercises::RepositoryExercise};
+
+use super::exercise_repositories::PreparedRepository;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
@@ -393,6 +395,37 @@ fn fetch_service_info_with_timeout(
         }
         let res = parse_response_json(res).await?;
         Ok(res)
+    }
+    .boxed()
+}
+
+/// Asks the exercise service at `url`, its `repository_preparation_endpoint_path`, to find the
+/// exercises of the repository checkout archived at `checkout_download_url`.
+pub fn prepare_repository(
+    url: Url,
+    checkout_download_url: String,
+) -> BoxFuture<'static, ModelResult<PreparedRepository>> {
+    async move {
+        let res = reqwest::Client::new()
+            .post(url)
+            .timeout(std::time::Duration::from_secs(20 * 60))
+            .json(&serde_json::json!({ "checkout_download_url": checkout_download_url }))
+            .send()
+            .await
+            .map_err(ModelError::from)?;
+        let status = res.status();
+        if !status.is_success() {
+            let body = res.text().await.map_err(ModelError::from)?;
+            return Err(ModelError::new(
+                ModelErrorType::HttpRequest {
+                    status_code: status.as_u16(),
+                    response_body: body.clone(),
+                },
+                format!("The exercise service could not prepare the repository: {status} {body}"),
+                None,
+            ));
+        }
+        parse_response_json(res).await
     }
     .boxed()
 }

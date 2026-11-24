@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE repository_id = $1\nAND re.deleted_at IS NULL\nORDER BY re.part, re.name\n",
+  "query": "\nSELECT re.id,\n  er.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url,\n  re.details\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE (\n    er.course_id = $1\n    OR er.exam_id = $2\n  )\n  AND re.deleted_at IS NULL\n  AND er.deleted_at IS NULL\nORDER BY er.created_at, re.part, re.name\n",
   "describe": {
     "columns": [
       {
@@ -79,10 +79,22 @@
             "name": "download_url"
           }
         }
+      },
+      {
+        "ordinal": 7,
+        "name": "details",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "details"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
+        "Uuid",
         "Uuid"
       ]
     },
@@ -93,8 +105,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "53d1a83773755bb1a0d23dd6b9c8d4878695c29ca5080f1d288f696cdae8d1ce"
+  "hash": "bb317117578aa95a3de5d14dad3276d4edb7c7200acbeda887df7027bbec2016"
 }

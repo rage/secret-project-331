@@ -78,6 +78,12 @@ SET NOT NULL;
 
 COMMENT ON COLUMN repository_exercises.archive_path IS 'File store path of the exercise''s archive. Each version gets a new path. Copies of a course share their source''s archives.';
 COMMENT ON COLUMN repository_exercises.download_url IS 'The URL of the archive at archive_path.';
+ALTER TABLE repository_exercises
+ADD COLUMN details JSONB;
+COMMENT ON COLUMN repository_exercises.details IS 'What the exercise service that prepared the repository reported about the exercise, such as its language. Opaque to the host, which passes it back to exercise services with the exercise. NULL until the next sync after the column was added.';
+ALTER TABLE exercise_service_info
+ADD COLUMN repository_preparation_endpoint_path TEXT;
+COMMENT ON COLUMN exercise_service_info.repository_preparation_endpoint_path IS 'Where the service finds the exercises of a cloned exercise repository. Exercise repositories need exactly one service to declare it.';
 
 CREATE TABLE retired_repository_exercise_archives (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

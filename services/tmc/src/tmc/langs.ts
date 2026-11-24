@@ -6,7 +6,13 @@ import * as readline from "readline"
 import { temporaryDirectory, temporaryFile } from "tempy"
 import kill from "tree-kill"
 
-import type { Compression, ExercisePackagingConfiguration, OutputData, RunResult } from "./cli"
+import type {
+  Compression,
+  ExercisePackagingConfiguration,
+  OutputData,
+  RepositoryExercise,
+  RunResult,
+} from "./cli"
 import { isCliOutput } from "./cli.guard"
 
 /** A failure tmc-langs-cli reported. */
@@ -237,6 +243,25 @@ export const getTestsTimeoutMs = async (
   const { tests_timeout_ms } = await getExercisePackagingConfiguration(exercisePath, log)
   // Older CLIs do not report it.
   return tests_timeout_ms ?? DEFAULT_TESTS_TIMEOUT_MS
+}
+
+/**
+ * Finds the exercises of a course repository checkout and writes the root `.tmcproject.yml`, if
+ * any, into each, merged under the exercise's own.
+ */
+export const prepareExerciseRepository = async (
+  repositoryPath: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<RepositoryExercise[]> => {
+  const output = await execute(
+    "prepare-exercise-repository",
+    ["--repository-path", repositoryPath],
+    log,
+  )
+  if (output.data?.["output-data-kind"] === "repository-exercises") {
+    return output.data["output-data"]
+  }
+  throw new Error("Unexpected data")
 }
 
 export const fastAvailablePoints = async (

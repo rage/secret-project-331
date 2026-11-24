@@ -1876,7 +1876,8 @@ INSERT INTO repository_exercises (
     name,
     checksum,
     archive_path,
-    download_url
+    download_url,
+    details
   )
 SELECT uuid_generate_v5($1, re.id::text),
   uuid_generate_v5($1, re.repository_id::text),
@@ -1884,7 +1885,8 @@ SELECT uuid_generate_v5($1, re.id::text),
   re.name,
   re.checksum,
   re.archive_path,
-  re.download_url
+  re.download_url,
+  re.details
 FROM repository_exercises re
   JOIN exercise_repositories er ON er.id = re.repository_id
 WHERE (
@@ -2682,6 +2684,7 @@ mod tests {
                 checksum: &[1, 2],
                 archive_path: "repository_exercises/a/b-c.tar.zst",
                 download_url: "http://example.com/api/v0/files/repository_exercises/a/b-c.tar.zst",
+                details: &serde_json::json!({ "plugin": "python3" }),
             },
         )
         .await

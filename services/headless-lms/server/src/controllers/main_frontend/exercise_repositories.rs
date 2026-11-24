@@ -5,7 +5,7 @@ use models::{
 use secrecy::SecretString;
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain, prelude::*};
+use crate::{domain, domain::authorization::AuthorizationToken, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(new, get_for_course, get_for_exam, delete, update, sync))]
@@ -169,16 +169,7 @@ async fn delete(
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id =
-        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        user.map(|u| u.id),
-        Res::from_course_or_exam_id(course_or_exam_id),
-    )
-    .await?;
+    let token = authorize_repository_edit(&mut conn, *id, user.map(|u| u.id)).await?;
 
     domain::exercise_repositories::delete(&mut conn, *id, file_store.as_ref()).await?;
 
@@ -209,16 +200,7 @@ async fn update(
     update: web::Json<ExerciseRepositoryUpdate>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id =
-        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        user.map(|u| u.id),
-        Res::from_course_or_exam_id(course_or_exam_id),
-    )
-    .await?;
+    let token = authorize_repository_edit(&mut conn, *id, user.map(|u| u.id)).await?;
     let mut update = update.into_inner();
     update.branch = validate_url_and_branch(&update.url, update.branch.as_deref())
         .await?
@@ -250,18 +232,27 @@ async fn sync(
     user: AuthUser,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id =
-        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::from_course_or_exam_id(course_or_exam_id),
-    )
-    .await?;
+    let token = authorize_repository_edit(&mut conn, *id, Some(user.id)).await?;
     models::exercise_repositories::request_sync(&mut conn, *id).await?;
     token.authorized_ok(web::Json(true))
+}
+
+/// Authorizes editing the course or exam the repository belongs to.
+async fn authorize_repository_edit(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    user_id: Option<Uuid>,
+) -> Result<AuthorizationToken, ControllerError> {
+    let repository = models::exercise_repositories::get(conn, repository_id).await?;
+    let course_or_exam_id =
+        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
+    Ok(authorize(
+        conn,
+        Act::Edit,
+        user_id,
+        Res::from_course_or_exam_id(course_or_exam_id),
+    )
+    .await?)
 }
 
 /**

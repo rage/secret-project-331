@@ -71,21 +71,18 @@ const GRADING = {
 }
 
 describe("<ViewSubmission /> grading", () => {
-  it("shows each test's result, with its exception collapsed behind details", () => {
+  it("shows each test's result with its message and exception", () => {
     render(<ViewSubmission state={viewSubmissionState({ grading: GRADING })} />)
     expect(screen.getByText(/TestSum.test_adds/)).toBeInTheDocument()
     expect(screen.getByText(/TestSum.test_negative/)).toBeInTheDocument()
-    expect(screen.getByText("expected -1")).toBeInTheDocument()
-    const details = screen.getByText("test-details").closest("details")
-    expect(details).not.toHaveAttribute("open")
-    expect(details).toHaveTextContent("AssertionError")
+    expect(screen.getByText(/expected -1/)).toHaveTextContent("AssertionError")
   })
 
   it("shows the style check errors, the run logs and the message for the feedback key", () => {
     render(<ViewSubmission state={viewSubmissionState({ grading: GRADING })} />)
     expect(screen.getByText("src/Main.java")).toBeInTheDocument()
     expect(screen.getByText("3:7 Missing semicolon")).toBeInTheDocument()
-    expect(screen.getByText("building…")).toBeInTheDocument()
+    expect(screen.getByText(/building…/)).toBeInTheDocument()
     expect(screen.getByText("feedback-valgrind-failed")).toBeInTheDocument()
   })
 

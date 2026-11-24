@@ -1,4 +1,7 @@
+import type { TFunction } from "i18next"
+
 import type { StyleValidationResult } from "@/tmc/cli"
+import type { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 
 export const GRADING_FEEDBACK_KEYS = [
   "compile_failed",
@@ -106,4 +109,31 @@ export function parseFeedback(feedbackJson: unknown): ParsedFeedback | null {
     validations: isRecord(validations) ? (validations as unknown as StyleValidationResult) : null,
     valgrindFailed: feedbackJson["valgrind_failed"] === true,
   }
+}
+
+const FEEDBACK_MESSAGE_KEYS = {
+  compile_failed: "feedback-compile-failed",
+  generic_error: "feedback-generic-error",
+  interrupted: "feedback-interrupted",
+  timed_out: "feedback-timed-out",
+  style_check_failed: "feedback-style-check-failed",
+  valgrind_failed: "feedback-valgrind-failed",
+  no_project_in_archive: "feedback-no-project-in-archive",
+  langs_error: "feedback-langs-error",
+  server_error: "feedback-server-error",
+} as const satisfies Record<GradingFeedbackKey, string>
+
+/**
+ * The grading's message in the viewer's language, falling back to the English `feedback_text` of
+ * a grading that has no feedback key. Null when there is nothing to say.
+ */
+export function feedbackMessage(t: TFunction, grading: ExerciseTaskGradingResult): string | null {
+  const feedback = parseFeedback(grading.feedback_json)
+  if (feedback?.feedbackKey) {
+    return t(FEEDBACK_MESSAGE_KEYS[feedback.feedbackKey], {
+      detail: feedback.feedbackDetail ?? "",
+    })
+  }
+  const text = grading.feedback_text?.trim()
+  return text ? text : null
 }

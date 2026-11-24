@@ -2,7 +2,8 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { feedbackMessage } from "../GradingFeedback"
+import { feedbackMessage } from "@/util/gradingFeedback"
+
 import { ActionButtons, EditorSection, OutputPanel, ResetConfirmDialog } from "./components"
 import { useEditorState, useRunOutput, useTestRun } from "./hooks"
 import { Card } from "./styles"

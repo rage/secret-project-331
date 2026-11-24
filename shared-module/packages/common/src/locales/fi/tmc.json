@@ -53,7 +53,6 @@
   "submit-result-failed": "Testit epäonnistuivat. Pistemäärä: {{score}}/{{max}}. Voit muokata koodiasi ja lähettää uudelleen.",
   "submit-result-passed": "Kaikki testit läpäistiin! Pistemäärä: {{score}}/{{max}}.",
   "test": "Testi",
-  "test-details": "Lisätiedot",
   "test-logs": "Testien tuloste",
   "test-result-failed": "Hylätty",
   "test-result-passed": "Läpi",

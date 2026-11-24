@@ -53,7 +53,6 @@
   "submit-result-failed": "Testene feilet. Poengsum: {{score}}/{{max}}. Du kan redigere koden og sende inn på nytt.",
   "submit-result-passed": "Alle tester bestod! Poengsum: {{score}}/{{max}}.",
   "test": "Test",
-  "test-details": "Detaljer",
   "test-logs": "Testutdata",
   "test-result-failed": "Ikke bestått",
   "test-result-passed": "Bestått",

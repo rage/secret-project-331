@@ -53,7 +53,6 @@
   "submit-result-failed": "Tests failed. Score: {{score}}/{{max}}. You can edit your code and submit again.",
   "submit-result-passed": "All tests passed! Score: {{score}}/{{max}}.",
   "test": "Test",
-  "test-details": "Details",
   "test-logs": "Test output",
   "test-result-failed": "Failed",
   "test-result-passed": "Passed",

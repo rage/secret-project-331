@@ -53,7 +53,6 @@
   "submit-result-failed": "Тести не пройдено. Рахунок: {{score}}/{{max}}. Ви можете відредагувати код і надіслати знову.",
   "submit-result-passed": "Усі тести пройдені! Рахунок: {{score}}/{{max}}.",
   "test": "Тест",
-  "test-details": "Подробиці",
   "test-logs": "Вивід тестів",
   "test-result-failed": "Не пройдено",
   "test-result-passed": "Пройдено",

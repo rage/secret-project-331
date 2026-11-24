@@ -112,6 +112,7 @@ describe("runTmcAndReadOutput", () => {
     const { exec, commands } = fakeExec([
       { exitCode: 0 },
       { exitCode: 0, stdout: '{"status":"PASSED"}' },
+      { exitCode: 0, stdout: '{"strategy":"FAIL","validation_errors":null}' },
     ])
 
     const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
@@ -119,12 +120,26 @@ describe("runTmcAndReadOutput", () => {
     expect(commands).toEqual([
       ["sh", "-c", 'cd "$1" && exec /tmc-run', "sh", "/app/submission"],
       ["cat", "/app/test_output.txt"],
+      ["cat", "/app/validations.json"],
     ])
     expect(outcome).toEqual({
       timedOut: false,
       output: '{"status":"PASSED"}',
       parsed: { status: "PASSED" },
+      validations: { strategy: "FAIL", validation_errors: null },
     })
+  })
+
+  test("runs without a style check when /tmc-run wrote none", async () => {
+    const { exec } = fakeExec([
+      { exitCode: 0 },
+      { exitCode: 0, stdout: '{"status":"PASSED"}' },
+      { exitCode: 1, stderr: "cat: /app/validations.json: No such file or directory" },
+    ])
+
+    const outcome = await runTmcAndReadOutput(exec, "pod", silentLogger)
+
+    expect(outcome).toMatchObject({ timedOut: false, validations: null })
   })
 })
 
@@ -145,6 +160,7 @@ describe("runTmcAndReadOutput failures", () => {
         testResults: [],
         logs: { stdout: "building", stderr: "Rscript: not found" },
       },
+      validations: null,
     })
   })
 

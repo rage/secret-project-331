@@ -294,6 +294,9 @@ async function waitForPodRunning(
 const SUBMISSION_DIR = "/app/submission"
 /** `/tmc-run` writes here whatever directory it tests. */
 const TEST_OUTPUT_PATH = "/app/test_output.txt"
+/** `/tmc-run` has tmc-langs write its style check here, `null` for a language without one. */
+const VALIDATIONS_PATH = "/app/validations.json"
+const MAX_VALIDATIONS_BYTES = 1024 * 1024
 const MAX_CAPTURED_STDERR_BYTES = 4096
 
 /**
@@ -366,7 +369,8 @@ const trimmedLog = (buffer: Buffer) => buffer.toString().trim()
 
 export type TmcRunOutcome =
   | { timedOut: true }
-  | { timedOut: false; output: string; parsed: unknown }
+  /** `validations` is the style check as `/tmc-run` wrote it, null when it wrote none. */
+  | { timedOut: false; output: string; parsed: unknown; validations: unknown }
 
 /**
  * Run `/tmc-run` on the extracted submission, then read its output from the pod and parse it as
@@ -408,6 +412,7 @@ export async function runTmcAndReadOutput(
         testResults: [],
         logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
       },
+      validations: null,
     }
   }
   logger.log("tmc-run finished")
@@ -442,9 +447,10 @@ export async function runTmcAndReadOutput(
     const testOutputBuffer = await fs.readFile(testOutputPath)
     const testOutputString = testOutputBuffer.toString()
     logger.log("got test output", "length:", testOutputString.length)
+    const validations = await readValidations(kubeExec, podName, logger)
     try {
       const parsed = JSON.parse(testOutputString)
-      return { timedOut: false, output: testOutputString, parsed }
+      return { timedOut: false, output: testOutputString, parsed, validations }
     } catch (_e) {
       return {
         timedOut: false,
@@ -455,6 +461,7 @@ export async function runTmcAndReadOutput(
           testResults: [],
           logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
         },
+        validations,
       }
     }
   } finally {
@@ -462,6 +469,35 @@ export async function runTmcAndReadOutput(
       testOutputWriteStream.destroy()
     }
     await fs.rm(testOutputPath, { force: true }).catch(() => {})
+  }
+}
+
+/** The style check `/tmc-run` wrote, or null, logged as an error, when there is none to read. */
+async function readValidations(
+  kubeExec: k8s.Exec,
+  podName: string,
+  logger: Logger,
+): Promise<unknown> {
+  const out = captureStream(MAX_VALIDATIONS_BYTES)
+  const result = await execWithTimeout(
+    kubeExec,
+    podName,
+    CONTAINER_NAME,
+    ["cat", VALIDATIONS_PATH],
+    out.stream,
+    captureStream(0).stream,
+    null,
+    SETUP_EXEC_TIMEOUT_MS,
+  )
+  if (result.timedOut || (result.exitCode !== undefined && result.exitCode !== 0)) {
+    logger.error(`/tmc-run wrote no ${VALIDATIONS_PATH}, so the style check is skipped`)
+    return null
+  }
+  try {
+    return JSON.parse(out.getBuffer().toString())
+  } catch (e) {
+    logger.error(`Could not parse ${VALIDATIONS_PATH}, so the style check is skipped`, e)
+    return null
   }
 }
 

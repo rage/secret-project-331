@@ -6,8 +6,15 @@ CREATE TABLE teacher_newsletter_items (
   course_id UUID NOT NULL REFERENCES courses(id),
   period_start TIMESTAMP WITH TIME ZONE NOT NULL,
   period_end TIMESTAMP WITH TIME ZONE NOT NULL,
-  as_html TEXT NOT NULL,
-  as_text TEXT NOT NULL
+  returned_exercises_count BIGINT NOT NULL,
+  completed_course_count BIGINT NOT NULL,
+  started_course_count BIGINT NOT NULL,
+  flagged_cheaters_count_period BIGINT NOT NULL,
+  flagged_cheaters_count_total BIGINT NOT NULL,
+  unread_feedback_count_period BIGINT NOT NULL,
+  unread_feedback_count_total BIGINT NOT NULL,
+  proposal_count_period BIGINT NOT NULL,
+  proposal_count_total BIGINT NOT NULL
 );
 
 CREATE UNIQUE INDEX teacher_newsletter_items_course_period_uniqueness ON teacher_newsletter_items (course_id, period_start, period_end, deleted_at) NULLS NOT DISTINCT;
@@ -23,8 +30,15 @@ COMMENT ON COLUMN teacher_newsletter_items.deleted_at IS 'Timestamp when the rec
 COMMENT ON COLUMN teacher_newsletter_items.course_id IS 'The course whose information the newsletter item holds.';
 COMMENT ON COLUMN teacher_newsletter_items.period_start IS 'Start date of the period that the newsletter item content represents.';
 COMMENT ON COLUMN teacher_newsletter_items.period_end IS 'End date of the period that the newsletter item content represents.';
-COMMENT ON COLUMN teacher_newsletter_items.as_html IS 'Newsletter item content in HTML format.';
-COMMENT ON COLUMN teacher_newsletter_items.as_text IS 'Newsletter item content in text format.';
+COMMENT ON COLUMN teacher_newsletter_items.returned_exercises_count IS '';
+COMMENT ON COLUMN teacher_newsletter_items.completed_course_count IS '';
+COMMENT ON COLUMN teacher_newsletter_items.started_course_count IS '';
+COMMENT ON COLUMN teacher_newsletter_items.flagged_cheaters_count_period IS '';
+COMMENT ON COLUMN teacher_newsletter_items.flagged_cheaters_count_total IS '';
+COMMENT ON COLUMN teacher_newsletter_items.unread_feedback_count_period IS '';
+COMMENT ON COLUMN teacher_newsletter_items.unread_feedback_count_total IS '';
+COMMENT ON COLUMN teacher_newsletter_items.proposal_count_period IS '';
+COMMENT ON COLUMN teacher_newsletter_items.proposal_count_total IS '';
 
 CREATE TABLE teacher_newsletter_subscriptions (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,

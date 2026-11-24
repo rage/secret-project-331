@@ -3,6 +3,7 @@ use std::{error::Error as StdError, time::Duration};
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use crate::programs::teacher_newsletter::get_newsletter_period;
+use crate::programs::teacher_newsletter::newsletter_item::TeacherNewsletterItem;
 use crate::setup_tracing;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -452,43 +453,48 @@ async fn build_teacher_newsletter(
     let newsletter_items =
         get_newsletter_items(conn, &course_ids, &period_start, &period_end).await?;
 
-    let mut unread_feedback_count = 0;
-    let mut pending_proposals_count = 0;
-    let mut flagged_cheaters_count = 0;
+    let (html, text): (String, String) = newsletter_items
+        .iter()
+        .map(|i| {
+            let item = TeacherNewsletterItem {
+                base_url: BASE_URL.clone(),
+                course_id: i.course_id,
+                course_name: "GlobgloGabgalab".to_string(),
+                returned_exercises_count: i.returned_exercises_count,
+                completed_course_count: i.completed_course_count,
+                started_course_count: i.started_course_count,
+                flagged_cheaters_count_period: i.flagged_cheaters_count_period,
+                flagged_cheaters_count_total: i.flagged_cheaters_count_total,
+                unread_feedback_count_period: i64::from(i.unread_feedback_count_period),
+                unread_feedback_count_total: i64::from(i.unread_feedback_count_total),
+                proposal_count_period: i64::from(i.proposal_count_period),
+                proposal_count_total: i64::from(i.proposal_count_total),
+            };
+            (item.as_html(), item.as_text())
+        })
+        .unzip();
 
-    for course_id in course_ids {
-        unread_feedback_count +=
-            headless_lms_models::feedback::get_feedback_count_for_course(conn, course_id)
-                .await?
-                .unread;
-        pending_proposals_count +=
-            headless_lms_models::proposed_page_edits::get_proposal_count_for_course(
-                conn, course_id,
-            )
-            .await?
-            .pending;
-        flagged_cheaters_count +=
-            headless_lms_models::suspected_cheaters::get_count_in_course_by_status(
-                conn,
-                course_id,
-                headless_lms_models::suspected_cheaters::SuspectedCheaterStatus::Flagged,
-            )
-            .await?;
-    }
+    let unread_feedback_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.unread_feedback_count_total)
+        .sum();
+    let pending_proposals_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.proposal_count_total)
+        .sum();
+    let flagged_cheaters_count: i64 = newsletter_items
+        .iter()
+        .map(|i| i.flagged_cheaters_count_total)
+        .sum();
 
     let summary_html = if unread_feedback_count == 0
         && pending_proposals_count == 0
         && flagged_cheaters_count == 0
     {
-        format!(
-            r#"<h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
-            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>"#
-        )
+        String::new()
     } else {
         format!(
             r#"
-            <h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
-            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>
             <table style="width: 100%;">
                 <tbody>
                     <tr>
@@ -525,10 +531,10 @@ async fn build_teacher_newsletter(
         && pending_proposals_count == 0
         && flagged_cheaters_count == 0
     {
-        format!("Weekly update ({period_start} to {period_end})")
+        String::new()
     } else {
         format!(
-            "Weekly update ({period_start} to {period_end})\n\nItems waiting for review:\n{}{}{}\nSee individual courses below for details\n\n",
+            "Items waiting for review:\n{}{}{}\nSee individual courses below for details\n\n",
             if unread_feedback_count > 0 {
                 format!("* {unread_feedback_count} unread feedback\n")
             } else {
@@ -547,14 +553,15 @@ async fn build_teacher_newsletter(
         )
     };
 
-    let (html, text): (String, String) = newsletter_items
-        .into_iter()
-        .map(|i| (i.as_html, i.as_text))
-        .unzip();
-
     Ok(TeacherNewsletterContent {
-        html: format!("{summary_html}\n{html}"),
-        text: format!("{summary_text}\n{text}"),
+        html: format!(
+            r#"<h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
+            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>
+            {summary_html}
+            {html}
+            "#
+        ),
+        text: format!("Weekly update ({period_start} to {period_end})\n{summary_text}\n{text}"),
     })
 }
 

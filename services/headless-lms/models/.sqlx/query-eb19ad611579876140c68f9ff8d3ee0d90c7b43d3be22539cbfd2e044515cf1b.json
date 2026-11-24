@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO teacher_newsletter_items (\n    course_id,\n    period_start,\n    period_end,\n    returned_exercises_count,\n    completed_course_count,\n    started_course_count,\n    flagged_cheaters_count_period,\n    flagged_cheaters_count_total,\n    unread_feedback_count_period,\n    unread_feedback_count_total,\n    proposal_count_period,\n    proposal_count_total\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12\n  )",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Timestamptz",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eb19ad611579876140c68f9ff8d3ee0d90c7b43d3be22539cbfd2e044515cf1b"
+}

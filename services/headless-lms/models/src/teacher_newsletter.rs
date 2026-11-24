@@ -9,8 +9,15 @@ pub struct TeacherNewsletterItems {
     pub course_id: Uuid,
     pub period_start: DateTime<Utc>,
     pub period_end: DateTime<Utc>,
-    pub as_html: String,
-    pub as_text: String,
+    pub returned_exercises_count: i64,
+    pub completed_course_count: i64,
+    pub started_course_count: i64,
+    pub flagged_cheaters_count_period: i64,
+    pub flagged_cheaters_count_total: i64,
+    pub unread_feedback_count_period: i64,
+    pub unread_feedback_count_total: i64,
+    pub proposal_count_period: i64,
+    pub proposal_count_total: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -46,8 +53,15 @@ pub async fn create_newsletter_item(
     course_id: Uuid,
     period_start: &str,
     period_end: &str,
-    html: String,
-    text: String,
+    returned_exercises_count: i64,
+    completed_course_count: i64,
+    started_course_count: i64,
+    flagged_cheaters_count_period: i64,
+    flagged_cheaters_count_total: i64,
+    unread_feedback_count_period: i64,
+    unread_feedback_count_total: i64,
+    proposal_count_period: i64,
+    proposal_count_total: i64,
 ) -> ModelResult<()> {
     let from = DateTime::parse_from_rfc3339(&(period_start.to_owned() + "T00:00:00Z"))
         .map_err(|e| model_err!(InvalidRequest, format!("Invalid start date: {}", e)))?
@@ -63,16 +77,42 @@ INSERT INTO teacher_newsletter_items (
     course_id,
     period_start,
     period_end,
-    as_html,
-    as_text
+    returned_exercises_count,
+    completed_course_count,
+    started_course_count,
+    flagged_cheaters_count_period,
+    flagged_cheaters_count_total,
+    unread_feedback_count_period,
+    unread_feedback_count_total,
+    proposal_count_period,
+    proposal_count_total
   )
-VALUES ($1, $2, $3, $4, $5)
-        ",
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    $9,
+    $10,
+    $11,
+    $12
+  )",
         course_id,
         from,
         to,
-        html,
-        text
+        returned_exercises_count,
+        completed_course_count,
+        started_course_count,
+        flagged_cheaters_count_period,
+        flagged_cheaters_count_total,
+        unread_feedback_count_period,
+        unread_feedback_count_total,
+        proposal_count_period,
+        proposal_count_total
     )
     .execute(conn)
     .await?;

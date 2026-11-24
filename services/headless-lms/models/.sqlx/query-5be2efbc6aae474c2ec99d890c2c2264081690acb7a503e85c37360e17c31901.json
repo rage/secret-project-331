@@ -82,23 +82,100 @@
       },
       {
         "ordinal": 7,
-        "name": "as_html",
-        "type_info": "Text",
+        "name": "returned_exercises_count",
+        "type_info": "Int8",
         "origin": {
           "Table": {
             "table": "teacher_newsletter_items",
-            "name": "as_html"
+            "name": "returned_exercises_count"
           }
         }
       },
       {
         "ordinal": 8,
-        "name": "as_text",
-        "type_info": "Text",
+        "name": "completed_course_count",
+        "type_info": "Int8",
         "origin": {
           "Table": {
             "table": "teacher_newsletter_items",
-            "name": "as_text"
+            "name": "completed_course_count"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "started_course_count",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "started_course_count"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "flagged_cheaters_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "flagged_cheaters_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "flagged_cheaters_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "flagged_cheaters_count_total"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "unread_feedback_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "unread_feedback_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "unread_feedback_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "unread_feedback_count_total"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "proposal_count_period",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "proposal_count_period"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "proposal_count_total",
+        "type_info": "Int8",
+        "origin": {
+          "Table": {
+            "table": "teacher_newsletter_items",
+            "name": "proposal_count_total"
           }
         }
       }
@@ -115,6 +192,13 @@
       false,
       false,
       true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
       false,
       false,
       false,

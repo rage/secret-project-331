@@ -2,9 +2,8 @@ use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 
 mod blocks;
-mod newsletter_item;
+pub mod newsletter_item;
 
-use crate::programs::teacher_newsletter::newsletter_item::TeacherNewsletterItem;
 use chrono::Utc;
 use dotenvy::dotenv;
 use headless_lms_base::config::ApplicationConfiguration;
@@ -26,8 +25,6 @@ pub async fn main() -> anyhow::Result<()> {
     ProgramConfig::ensure_default_rust_log_for_workers();
     setup_tracing()?;
 
-    let app_conf = ApplicationConfiguration::try_from_env()?;
-    let base_url = app_conf.base_url;
     let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -58,7 +55,7 @@ pub async fn main() -> anyhow::Result<()> {
 
     info!("Period start: {}, Period end: {}", period_start, period_end);
 
-    create_newsletter_items(&mut conn, courses, &period_start, &period_end, base_url).await?;
+    create_newsletter_items(&mut conn, courses, &period_start, &period_end).await?;
 
     for teacher in teachers {
         models::email_deliveries::insert_email_delivery(
@@ -91,7 +88,6 @@ async fn create_newsletter_items(
     courses: Vec<Course>,
     period_start: &str,
     period_end: &str,
-    base_url: String,
 ) -> anyhow::Result<()> {
     for course in courses {
         let returned_exercises_count = get_total_users_returned_exercises_custom_time_period(
@@ -164,25 +160,22 @@ async fn create_newsletter_items(
                 .await?
                 .pending;
 
-        let newsletter_item = TeacherNewsletterItem {
-            base_url: base_url.clone(),
-            course_id: course.id,
-            course_name: course.name,
+        create_newsletter_item(
+            conn,
+            course.id,
+            period_start,
+            period_end,
             returned_exercises_count,
             completed_course_count,
             started_course_count,
             flagged_cheaters_count_period,
             flagged_cheaters_count_total,
-            unread_feedback_count_period: i64::from(unread_feedback_count_period),
-            unread_feedback_count_total: i64::from(unread_feedback_count_total),
-            proposal_count_period: i64::from(proposal_count_period),
-            proposal_count_total: i64::from(proposal_count_total),
-        };
-
-        let html = newsletter_item.as_html();
-        let text = newsletter_item.as_text();
-
-        create_newsletter_item(conn, course.id, period_start, period_end, html, text).await?;
+            i64::from(unread_feedback_count_period),
+            i64::from(unread_feedback_count_total),
+            i64::from(proposal_count_period),
+            i64::from(proposal_count_total),
+        )
+        .await?;
     }
     Ok(())
 }

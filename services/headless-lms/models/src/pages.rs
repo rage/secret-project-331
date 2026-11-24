@@ -2102,6 +2102,7 @@ RETURNING id,
         &existing_exercise_task_specs,
         &cms_page_update.exercise_tasks,
         page_update.retain_ids,
+        CourseOrExamId::from_course_and_exam_ids(page.course_id, page.exam_id)?,
         &spec_fetcher,
         fetch_service_info,
     )
@@ -2511,6 +2512,7 @@ async fn upsert_exercise_tasks(
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
+    course_or_exam_id: CourseOrExamId,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
@@ -2559,8 +2561,29 @@ async fn upsert_exercise_tasks(
             private_spec: task_update.private_spec.clone(),
             repository_exercise_id: task_update.repository_exercise_id,
         };
+        // A task keeps a repository exercise it already uses: courses copied before repositories
+        // were copied along still use their source course's. Picking one takes it from this
+        // course's or exam's own repositories.
+        let keeps_repository_exercise = existing_exercise_task.is_some_and(|existing| {
+            existing.repository_exercise_id == task_update.repository_exercise_id
+        });
         let repository_exercise = match task_update.repository_exercise_id {
-            Some(id) => Some(crate::repository_exercises::get_by_id(&mut *conn, id).await?),
+            Some(id) if keeps_repository_exercise => {
+                Some(crate::repository_exercises::get_by_id(&mut *conn, id).await?)
+            }
+            Some(id) => Some(
+                crate::repository_exercises::get_in_course_or_exam(&mut *conn, id, course_or_exam_id)
+                    .await?
+                    .ok_or_else(|| {
+                        model_err!(
+                            PreconditionFailedWithCMSAnchorBlockId {
+                                id: task_update.id,
+                                description: "The exercise task uses a repository exercise of another course or exam.",
+                            },
+                            "The exercise task uses a repository exercise of another course or exam.".to_string()
+                        )
+                    })?,
+            ),
             None => None,
         };
         let repository_exercise_checksum = match existing_exercise_task {

@@ -108,9 +108,21 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
   // oxlint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => requestRepositoryExercises(), [])
 
-  const selectExercise = (type: "browser" | "editor", repositoryExercise: RepositoryExercise) =>
+  const setAnswerType = (type: "browser" | "editor") =>
     setState((old) =>
-      old ? { ...old, private_spec: { type, repository_exercise: repositoryExercise } } : null,
+      old?.view_type === "exercise-editor" && old.private_spec
+        ? { ...old, private_spec: { ...old.private_spec, type } }
+        : old,
+    )
+  const pickExercise = (repositoryExercise: RepositoryExercise) =>
+    setState((old) =>
+      old
+        ? {
+            ...old,
+            private_spec: { type: EDITOR_ANSWER, repository_exercise: repositoryExercise },
+            picked_repository_exercise_id: repositoryExercise.id,
+          }
+        : null,
     )
 
   // cms editor view
@@ -122,13 +134,17 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
     return (
       <RepositoryExercisePicker
         repositoryExercises={state.repository_exercises}
-        onSelect={(exercise) => selectExercise(EDITOR_ANSWER, exercise)}
+        onSelect={pickExercise}
       />
     )
   }
   // exercise selected
   const repositoryExercise = state.private_spec.repository_exercise
-  const plugin = exercisePlugin(repositoryExercise)
+  // The host's listing carries the current details; the spec's copy may predate them.
+  const plugin = exercisePlugin(
+    state.repository_exercises?.find((exercise) => exercise.id === repositoryExercise.id) ??
+      repositoryExercise,
+  )
   const browserUnavailable = plugin !== null && plugin !== BROWSER_PLUGIN
   return (
     <div>
@@ -145,13 +161,13 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
       <CheckBox
         label={t("solve-in-editor-label")}
         checked={state.private_spec.type === "editor"}
-        onChange={() => selectExercise(EDITOR_ANSWER, repositoryExercise)}
+        onChange={() => setAnswerType(EDITOR_ANSWER)}
       />
       <CheckBox
         label={t("solve-in-browser")}
         checked={state.private_spec.type === "browser"}
         disabled={browserUnavailable && state.private_spec.type !== "browser"}
-        onChange={() => selectExercise(BROWSER_ANSWER, repositoryExercise)}
+        onChange={() => setAnswerType(BROWSER_ANSWER)}
       />
       <div>
         {browserUnavailable ? t("browser-solving-not-python") : t("browser-solving-python-only")}

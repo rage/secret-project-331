@@ -113,9 +113,13 @@ COMMENT ON COLUMN retired_repository_exercise_archives.download_url IS 'The URL 
 ALTER TABLE exercise_tasks
 ADD COLUMN repository_exercise_id UUID REFERENCES repository_exercises(id),
   ADD COLUMN repository_exercise_checksum BYTEA;
+-- A task whose spec embeds an older archive than the current one gets no checksum, so the next sync
+-- re-derives its specs.
 UPDATE exercise_tasks AS et
 SET repository_exercise_id = re.id,
-  repository_exercise_checksum = re.checksum
+  repository_exercise_checksum = CASE
+    WHEN (et.private_spec -> 'repository_exercise' ->> 'download_url') = re.download_url THEN re.checksum
+  END
 FROM repository_exercises AS re
 WHERE (et.private_spec -> 'repository_exercise' ->> 'id') = re.id::text;
 CREATE INDEX exercise_tasks_repository_exercise_id_idx ON exercise_tasks (repository_exercise_id)

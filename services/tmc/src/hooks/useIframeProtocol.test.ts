@@ -59,7 +59,7 @@ describe("currentStateMessage", () => {
     })
   })
 
-  it("reports the exercise editor's private spec, its repository exercise and no files", () => {
+  it("reports the exercise editor's private spec and that it references no files", () => {
     expect(
       currentStateMessage({
         view_type: "exercise-editor",
@@ -71,9 +71,20 @@ describe("currentStateMessage", () => {
       message: "current-state",
       data: { private_spec: PRIVATE_SPEC },
       private_spec_files: [],
-      repository_exercise_id: PRIVATE_SPEC.repository_exercise.id,
       valid: true,
     })
+  })
+
+  it("reports the repository exercise only once the teacher has picked one", () => {
+    expect(
+      currentStateMessage({
+        view_type: "exercise-editor",
+        exercise_task_id: "8a0a5d4c-5f0f-4d0e-9f2b-3b6dd2f1c002",
+        repository_exercises: null,
+        private_spec: PRIVATE_SPEC,
+        picked_repository_exercise_id: REPOSITORY_EXERCISE.id,
+      }),
+    ).toMatchObject({ repository_exercise_id: REPOSITORY_EXERCISE.id })
   })
 
   it("reports nothing for an exercise editor without a private spec", () => {

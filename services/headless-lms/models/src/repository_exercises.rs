@@ -309,6 +309,42 @@ WHERE re.id = $1
     Ok(exercise)
 }
 
+/// The current version of a repository exercise of a repository of the course or exam, also when
+/// it has since been removed from its repository. `None` for another's or an unknown exercise.
+pub async fn get_in_course_or_exam(
+    conn: &mut PgConnection,
+    id: Uuid,
+    course_or_exam_id: CourseOrExamId,
+) -> ModelResult<Option<RepositoryExercise>> {
+    let (course_id, exam_id) = course_or_exam_id.to_course_and_exam_ids();
+    let exercise = sqlx::query_as!(
+        RepositoryExercise,
+        "
+SELECT re.id,
+  er.id AS repository_id,
+  re.part,
+  re.name,
+  er.url AS repository_url,
+  re.checksum,
+  re.download_url,
+  re.details
+FROM repository_exercises re
+  JOIN exercise_repositories er ON er.id = re.repository_id
+WHERE re.id = $1
+  AND (
+    er.course_id = $2
+    OR er.exam_id = $3
+  )
+",
+        id,
+        course_id,
+        exam_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(exercise)
+}
+
 /// A live exercise task whose specs were derived from an older version of its repository exercise.
 #[derive(Debug)]
 pub struct OutdatedExerciseTask {

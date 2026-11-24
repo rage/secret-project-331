@@ -35,7 +35,7 @@ use sqlx::{Acquire, PgConnection, PgPool};
 use std::{
     cell::Cell,
     collections::{HashMap, HashSet},
-    io::Cursor,
+    io::{Cursor, Seek, SeekFrom},
     path::{Component, Path, PathBuf},
     sync::Arc,
     time::Duration,
@@ -452,9 +452,9 @@ async fn find_exercises(
     let url = exercise_services::get_internal_repository_preparation_url(conn).await?;
     let archive_path = file_store::repository_checkout_archive_path(repository_id, Uuid::new_v4());
     file_store
-        .upload(
+        .upload_stream(
             &archive_path,
-            archive_checkout(checkout)?,
+            file_store::file_utils::file_to_payload(archive_checkout(checkout)?),
             "application/zstd",
         )
         .await?;
@@ -466,9 +466,9 @@ async fn find_exercises(
     apply_prepared_exercises(checkout, prepared?.exercises).await
 }
 
-/// The checkout as a `.tar.zst`, without its `.git` directory.
-fn archive_checkout(checkout: &Path) -> anyhow::Result<Vec<u8>> {
-    let mut tar = tar::Builder::new(Cursor::new(vec![]));
+/// The checkout as a `.tar.zst` in a temporary file, without its `.git` directory.
+fn archive_checkout(checkout: &Path) -> anyhow::Result<std::fs::File> {
+    let mut tar = tar::Builder::new(zstd::Encoder::new(tempfile::tempfile()?, 0)?);
     // The repository is teacher-controlled; following its symlinks would archive server files.
     tar.follow_symlinks(false);
     for entry in std::fs::read_dir(checkout)? {
@@ -483,9 +483,9 @@ fn archive_checkout(checkout: &Path) -> anyhow::Result<Vec<u8>> {
             tar.append_path_with_name(entry.path(), &name)?;
         }
     }
-    let mut tar = tar.into_inner()?;
-    tar.set_position(0);
-    Ok(zstd::encode_all(tar, 0)?)
+    let mut archive = tar.into_inner()?.finish()?;
+    archive.seek(SeekFrom::Start(0))?;
+    Ok(archive)
 }
 
 /// Writes the prepared exercises' files into the checkout and checksums each exercise directory.
@@ -1108,8 +1108,7 @@ mod test {
         std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
         std::fs::write(checkout.path().join("part01/ex/setup.py"), "").unwrap();
 
-        let archive =
-            zstd::decode_all(Cursor::new(archive_checkout(checkout.path()).unwrap())).unwrap();
+        let archive = zstd::decode_all(archive_checkout(checkout.path()).unwrap()).unwrap();
         let names: Vec<String> = tar::Archive::new(Cursor::new(archive))
             .entries()
             .unwrap()

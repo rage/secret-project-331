@@ -6,7 +6,7 @@ use crate::domain::exercise_services::token::delete_user_and_invalidate_cached_t
 use crate::{
     OAuthClient,
     domain::{
-        authentication,
+        account_form_checks, authentication,
         authorization::{ActionOnResource, is_permitted, skip_authorize},
         email_ownership_verification::{self, MAX_CODE_ATTEMPTS, MIN_RESEND_INTERVAL_MINUTES},
         form_volume, mail_budget,
@@ -22,6 +22,7 @@ use actix_web::http::header::{CacheControl, CacheDirective};
 use anyhow::anyhow;
 use chrono::Duration;
 use headless_lms_models::ModelErrorType;
+use headless_lms_models::account_form_decisions::AccountFormAction;
 use headless_lms_models::{
     email_templates::EmailTemplateType,
     email_verification_tokens, user_email_codes,
@@ -32,7 +33,7 @@ use headless_lms_utils::{
     cache::Cache,
     ip_to_country::IpToCountryMapper,
     prelude::{UtilError, UtilErrorType},
-    services::tmc::{NewUserInfo, TmcAccountDeletion, TmcClient},
+    services::tmc::{NewUserInfo, TMC_UNREACHABLE_MESSAGE, TmcAccountDeletion, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use utoipa::{IntoParams, OpenApi, ToSchema};
@@ -114,6 +115,8 @@ pub struct CreateAccountDetails {
     pub email_communication_consent: bool,
     /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
     pub altcha: String,
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
 }
 
 /**
@@ -149,12 +152,14 @@ Content-Type: application/json
         (status = 429, description = "Too many attempts; see Retry-After")
     )
 )]
-#[instrument(skip(request, session, pool, payload, app_conf))]
+#[instrument(skip(request, session, pool, ip_to_country_mapper, payload, app_conf))]
+#[allow(clippy::too_many_arguments)]
 pub async fn signup(
     request: HttpRequest,
     session: Session,
     payload: web::Json<CreateAccountDetails>,
     pool: web::Data<PgPool>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
@@ -180,9 +185,6 @@ pub async fn signup(
     )
     .await?;
 
-    if app_conf.test_mode {
-        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
-    }
     if user.is_none() {
         signup::check_may_reveal_existing_account(&mut conn, client_ip).await?;
         match models::users::get_by_email(&mut conn, &user_details.email).await {
@@ -196,7 +198,32 @@ pub async fn signup(
                 ) => {}
             Err(error) => return Err(error.into()),
         }
+        let may_send_mail = account_form_checks::may_send_mail(
+            &mut conn,
+            &ip_to_country_mapper,
+            &account_form_checks::Submission {
+                action: AccountFormAction::Signup,
+                request: &request,
+                client_report: user_details.client_info.as_deref(),
+                email: Some(&user_details.email),
+                user_id: None,
+                profile: Some(account_form_checks::Profile {
+                    first_name: &user_details.first_name,
+                    last_name: &user_details.last_name,
+                    country: &user_details.country,
+                }),
+            },
+        )
+        .await;
+        if !may_send_mail {
+            return skip_authorize().authorized_ok(tmc_unreachable());
+        }
+    }
 
+    if app_conf.test_mode {
+        return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
+    }
+    if user.is_none() {
         let upstream_id = match tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
@@ -334,6 +361,11 @@ pub async fn signup(
     }
 }
 
+/// The answer to a signup that could not reach tmc.mooc.fi.
+fn tmc_unreachable() -> HttpResponse {
+    controller_err!(InternalServerError, TMC_UNREACHABLE_MESSAGE.to_string()).unreported_response()
+}
+
 /// Answers that the address has an account, counting the answer for
 /// [`signup::check_may_reveal_existing_account`].
 async fn email_already_exists(
@@ -407,20 +439,6 @@ async fn handle_test_mode_signup(
     );
 
     warn!("Handling signup in test mode. No real account is created.");
-
-    match models::users::get_by_email(conn, &user_details.email).await {
-        Ok(_) => {
-            let token = skip_authorize();
-            return token
-                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
-        }
-        Err(error)
-            if matches!(
-                error.error_type(),
-                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
-            ) => {}
-        Err(error) => return Err(error.into()),
-    }
 
     let user_id = models::users::insert(
         conn,

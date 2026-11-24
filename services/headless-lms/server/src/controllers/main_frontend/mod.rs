@@ -5,6 +5,7 @@ This documents all endpoints. Select a module below for a category.
 
 */
 
+pub mod account_forms;
 pub mod agent_changesets;
 pub mod agent_preview;
 pub mod certificates;
@@ -58,6 +59,7 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     nest(
+        (path = "/account-forms", api = account_forms::MainFrontendAccountFormsApiDoc),
         (path = "/agent-changesets", api = agent_changesets::MainFrontendAgentChangesetsApiDoc),
         (path = "/agent-preview", api = agent_preview::MainFrontendAgentPreviewApiDoc),
         (path = "/certificates", api = certificates::MainFrontendCertificatesApiDoc),
@@ -110,7 +112,8 @@ pub struct MainFrontendRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.service(web::scope("/agent-changesets").configure(agent_changesets::_add_routes))
+    cfg.service(web::scope("/account-forms").configure(account_forms::_add_routes))
+        .service(web::scope("/agent-changesets").configure(agent_changesets::_add_routes))
         .service(web::scope("/agent-preview").configure(agent_preview::_add_routes))
         .service(web::scope("/chapters").configure(chapters::_add_routes))
         .service(web::scope("/course-auditing").configure(course_auditing::_add_routes))

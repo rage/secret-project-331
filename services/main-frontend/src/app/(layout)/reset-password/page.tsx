@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
 import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
@@ -31,6 +32,7 @@ const ResetPassword: React.FC = () => {
   const [emailSent, setEmailSent] = useState(false)
   const [sentEmail, setSentEmail] = useState<string>("")
   const altchaRef = useRef<AltchaWidgetHandle>(null)
+  const accountFormReport = useAccountFormReport()
   const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
     defaultValues: { email: "" },
   })
@@ -49,6 +51,7 @@ const ResetPassword: React.FC = () => {
             email: data.email,
             language: i18n.language,
             altcha,
+            client_info: accountFormReport.report(),
           },
         }),
         isBoolean,
@@ -103,6 +106,7 @@ const ResetPassword: React.FC = () => {
 
       <form
         noValidate
+        ref={accountFormReport.formRef}
         onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}
         className={css`
           display: flex;

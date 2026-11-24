@@ -493,6 +493,40 @@ impl error::ResponseError for ControllerError {
                 });
             }
         }
+        self.unreported_response()
+    }
+
+    fn status_code(&self) -> StatusCode {
+        match self.error_type {
+            ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
+            ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
+            ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
+            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
+            ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
+            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
+            ControllerErrorType::OAuthError(_) => StatusCode::OK,
+            ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
+                StatusCode::BAD_REQUEST
+            }
+            ControllerErrorType::SisuError(SisuErrorType::GenericSisuError) => {
+                StatusCode::BAD_GATEWAY
+            }
+            ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound) => {
+                StatusCode::NOT_FOUND
+            }
+        }
+    }
+}
+
+impl ControllerError {
+    /// The response [`error::ResponseError::error_response`] gives, without logging or reporting
+    /// an internal error.
+    pub fn unreported_response(&self) -> HttpResponse {
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(location) = data.redirect_uri.as_deref().and_then(|redirect_uri| {
                 error_redirect_url(
@@ -563,7 +597,7 @@ impl error::ResponseError for ControllerError {
             }));
         }
 
-        let status = self.status_code();
+        let status = error::ResponseError::status_code(self);
 
         let metadata = match &self.error_type {
             ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
@@ -602,32 +636,6 @@ impl error::ResponseError for ControllerError {
                 error!("Error while serialising error response: {e}");
                 r#"{"type":"internal_error","message_key":"internal_error","message":"Internal server error"}"#.to_string()
             }))
-    }
-
-    fn status_code(&self) -> StatusCode {
-        match self.error_type {
-            ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
-            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            ControllerErrorType::BadRequestWithReason(_) => StatusCode::UNPROCESSABLE_ENTITY,
-            ControllerErrorType::UpgradeRequired => StatusCode::UPGRADE_REQUIRED,
-            ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
-            ControllerErrorType::TooManyRequests(_) => StatusCode::TOO_MANY_REQUESTS,
-            ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
-            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
-            ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
-            ControllerErrorType::ForbiddenWithReason(_) => StatusCode::FORBIDDEN,
-            ControllerErrorType::OAuthError(_) => StatusCode::OK,
-            ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
-                StatusCode::BAD_REQUEST
-            }
-            ControllerErrorType::SisuError(SisuErrorType::GenericSisuError) => {
-                StatusCode::BAD_GATEWAY
-            }
-            ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound) => {
-                StatusCode::NOT_FOUND
-            }
-        }
     }
 }
 

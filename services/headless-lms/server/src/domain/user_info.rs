@@ -1,10 +1,15 @@
 //! The profile form shared by the main frontend and the course material.
 
+use headless_lms_models::account_form_decisions::AccountFormAction;
+use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use headless_lms_utils::services::tmc::{TmcClient, email_change_reaches_tmc_now};
 use models::user_details::UserDetail;
 use utoipa::ToSchema;
 
-use crate::{domain::tmc_user_sync, prelude::*};
+use crate::{
+    domain::{account_form_checks, tmc_user_sync},
+    prelude::*,
+};
 
 /// The profile form as both frontends submit it.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -14,6 +19,37 @@ pub struct UserInfoPayload {
     pub last_name: String,
     pub country: String,
     pub email_communication_consent: bool,
+    /// The form's opaque report about the browser, for the account form log.
+    #[serde(default)]
+    pub client_info: Option<String>,
+}
+
+/// Whether the verification mail of a changed address may go out, from the
+/// [account form checks](account_form_checks). A payload that keeps the address may always mail.
+pub async fn may_mail_changed_email(
+    conn: &mut PgConnection,
+    ip_to_country: &IpToCountryMapper,
+    request: &HttpRequest,
+    user_id: Uuid,
+    payload: &UserInfoPayload,
+) -> ModelResult<bool> {
+    let current = models::user_details::get_user_details_by_user_id(conn, user_id).await?;
+    if current.email == payload.email {
+        return Ok(true);
+    }
+    Ok(account_form_checks::may_send_mail(
+        conn,
+        ip_to_country,
+        &account_form_checks::Submission {
+            action: AccountFormAction::EmailChange,
+            request,
+            client_report: payload.client_info.as_deref(),
+            email: Some(payload.email.trim()),
+            user_id: Some(user_id),
+            profile: None,
+        },
+    )
+    .await)
 }
 
 /// A saved profile form.

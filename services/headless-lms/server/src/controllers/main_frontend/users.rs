@@ -1,3 +1,4 @@
+use crate::domain::account_form_checks;
 use crate::domain::form_volume;
 use crate::domain::mail_budget;
 use crate::domain::progress_by_platform::{self, OldVersionProgress, ProgressByPlatform};
@@ -9,6 +10,7 @@ use crate::domain::shared_limits;
 use crate::prelude::*;
 use anyhow::anyhow;
 use chrono::Duration;
+use headless_lms_models::account_form_decisions::AccountFormAction;
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo,
@@ -940,9 +942,11 @@ pub struct EmailData {
     pub language: String,
     /// The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
     pub altcha: String,
+    /// The form's opaque report about the browser, for the account form log.
+    pub client_info: Option<String>,
 }
 
-#[instrument(skip(request, pool))]
+#[instrument(skip(request, pool, ip_to_country_mapper))]
 #[utoipa::path(
     post,
     path = "/request-password-reset",
@@ -959,6 +963,7 @@ pub async fn send_reset_password_email(
     pool: web::Data<PgPool>,
     payload: web::Json<EmailData>,
     tmc_client: web::Data<TmcClient>,
+    ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
@@ -973,6 +978,20 @@ pub async fn send_reset_password_email(
         &shared_limits::PASSWORD_RESET_NETWORK_LIMITS,
     )
     .await?;
+
+    let may_send_mail = account_form_checks::may_send_mail(
+        &mut conn,
+        &ip_to_country_mapper,
+        &account_form_checks::Submission {
+            action: AccountFormAction::PasswordReset,
+            request: &request,
+            client_report: payload.client_info.as_deref(),
+            email: Some(payload.email.trim()),
+            user_id: None,
+            profile: None,
+        },
+    )
+    .await;
 
     let email = &payload.email.trim().to_lowercase();
     let language = &payload.language;
@@ -1019,7 +1038,7 @@ pub async fn send_reset_password_email(
         }
     };
 
-    if let Some(user) = user {
+    if let Some(user) = user.filter(|_| may_send_mail) {
         let mut tx = conn.begin().await?;
         models::user_passwords::lock_password_reset_tokens_for_user(&mut tx, user.id).await?;
         let reset_mail_key = keyed_digest("reset_mail", &user.id.to_string());

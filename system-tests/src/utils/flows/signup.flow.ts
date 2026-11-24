@@ -20,13 +20,8 @@ export async function selectSignupCountry(page: Page, country: string): Promise<
   await page.getByRole("option", { name: country, exact: true }).click()
 }
 
-/**
- * Creates a fresh account through the signup page and clears the standard post-signup gates: the
- * research-consent form and the "confirm your email address" notice. Lands the browser on `returnTo`.
- *
- * Use this to get a guaranteed-fresh user (no prior enrollment or acknowledgements) for a course.
- */
-export async function signUp(
+/** Opens the signup page and fills in its form without sending it. */
+export async function fillSignupForm(
   page: Page,
   { firstName, lastName, email, password, country = "Andorra", returnTo }: SignUpOptions,
 ): Promise<void> {
@@ -39,10 +34,24 @@ export async function signUp(
   await page.getByRole("textbox", { name: "Email" }).fill(email)
   await page.getByRole("textbox", { name: "Password", exact: true }).fill(password)
   await page.getByRole("textbox", { name: "Confirm password" }).fill(password)
+}
 
+/** Fills in and sends the signup page's form. */
+export async function submitSignupForm(page: Page, options: SignUpOptions): Promise<void> {
+  await fillSignupForm(page, options)
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Create an account" }).click()
   })
+}
+
+/**
+ * Creates a fresh account through the signup page and clears the standard post-signup gates: the
+ * research-consent form and the "confirm your email address" notice. Lands the browser on `returnTo`.
+ *
+ * Use this to get a guaranteed-fresh user (no prior enrollment or acknowledgements) for a course.
+ */
+export async function signUp(page: Page, options: SignUpOptions): Promise<void> {
+  await submitSignupForm(page, options)
 
   // The research-consent form is shown to every new user and blocks the page until answered.
   await expect(page.getByRole("heading", { name: "Regarding research done on" })).toBeVisible()

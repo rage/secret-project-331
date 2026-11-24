@@ -153,6 +153,9 @@ const TMC_TOKEN_INFO_URL: &str = "https://tmc.mooc.fi/oauth/token/info";
 /// delete that upstream then completes, leaving the account gone there and present here.
 const DELETE_ACCOUNT_TIMEOUT: Duration = Duration::from_secs(150);
 
+/// The message of a [`UtilErrorType::TmcHttpError`]: a request that never reached tmc.mooc.fi.
+pub const TMC_UNREACHABLE_MESSAGE: &str = "Failed to send HTTP request";
+
 fn http_client() -> reqwest::Result<Client> {
     crate::http::base_client_builder()
         .timeout(Duration::from_secs(15))
@@ -397,7 +400,7 @@ impl TmcClient {
         builder.send().await.map_err(|e| {
             UtilError::new(
                 UtilErrorType::TmcHttpError,
-                "Failed to send HTTP request".to_string(),
+                TMC_UNREACHABLE_MESSAGE.to_string(),
                 Some(e.into()),
             )
         })

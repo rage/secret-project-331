@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import { AuthCard, AuthCardFooterLink } from "@/components/auth/AuthCard"
 import { RESET_LINK_LIFETIME_HOURS } from "@/components/auth/passwordReset"
-import { loginRoute } from "@/shared-module/common/utils/routes"
+import { loginRoute, resetPasswordRoute } from "@/shared-module/common/utils/routes"
 import { Link } from "@/shared-module/components"
 
 interface ResetLinkInvalidCardProps {
@@ -30,7 +30,7 @@ const ResetLinkInvalidCard: React.FC<ResetLinkInvalidCardProps> = ({ headingRef 
       }
     >
       {/* oxlint-disable-next-line i18next/no-literal-string -- route */}
-      <Link href="/reset-password" styledAsButton variant="primary" size="large" isFullWidth>
+      <Link href={resetPasswordRoute()} styledAsButton variant="primary" size="large" isFullWidth>
         {t("request-new-reset-link")}
       </Link>
     </AuthCard>

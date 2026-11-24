@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { authCardStackCss } from "@/components/auth/AuthCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
+import { resetPasswordRoute } from "@/shared-module/common/utils/routes"
 import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
@@ -78,7 +79,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         {error ? t("incorrect-email-or-password") : null}
       </div>
       <Link
-        href="/reset-password"
+        href={resetPasswordRoute()}
         className={css`
           align-self: flex-start;
           font-size: var(--font-size-1);

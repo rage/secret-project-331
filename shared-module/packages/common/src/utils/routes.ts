@@ -88,6 +88,10 @@ export function signUpRoute(returnTo: string, language?: string) {
   return `/signup?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
+export function resetPasswordRoute() {
+  return "/reset-password"
+}
+
 export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }

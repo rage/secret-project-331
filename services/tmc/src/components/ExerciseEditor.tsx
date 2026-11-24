@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import basePath from "@/lib/basePath"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -40,35 +39,21 @@ export function groupByPart(
 }
 
 /**
- * Whether the template has Python files, which is all the in-browser tests are built for. Null
- * while unknown, including when the template could not be read.
+ * The tmc-langs plugin the exercise service found the exercise to use, or null when the repository
+ * has not been synced since the service started reporting it.
  */
-function useIsPythonExercise(templateDownloadUrl: string | null): boolean | null {
-  const [isPython, setIsPython] = useState<boolean | null>(null)
-  useEffect(() => {
-    if (templateDownloadUrl === null) {
-      return undefined
-    }
-    let cancelled = false
-    setIsPython(null)
-    fetch(`${basePath()}/api/extract-stub`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ stub_download_url: templateDownloadUrl }),
-    })
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("no files"))))
-      .then((body: { files: { filepath: string }[] }) => {
-        if (!cancelled) {
-          setIsPython(body.files.some((file) => file.filepath.endsWith(".py")))
-        }
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [templateDownloadUrl])
-  return isPython
+export function exercisePlugin(exercise: RepositoryExercise): string | null {
+  const details = exercise.details
+  return typeof details === "object" &&
+    details !== null &&
+    "plugin" in details &&
+    typeof details.plugin === "string"
+    ? details.plugin
+    : null
 }
+
+/** Only Python exercises can be solved in the browser, whose tests run in Pyodide. */
+const BROWSER_PLUGIN = "python3"
 
 interface PickerProps {
   repositoryExercises: RepositoryExercise[]
@@ -119,7 +104,6 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
   requestRepositoryExercises,
 }) => {
   const { t } = useTranslation()
-  const isPython = useIsPythonExercise(state.private_spec?.repository_exercise.download_url ?? null)
 
   // oxlint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => requestRepositoryExercises(), [])
@@ -144,7 +128,8 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
   }
   // exercise selected
   const repositoryExercise = state.private_spec.repository_exercise
-  const browserUnavailable = isPython === false
+  const plugin = exercisePlugin(repositoryExercise)
+  const browserUnavailable = plugin !== null && plugin !== BROWSER_PLUGIN
   return (
     <div>
       {t("selected-repository-exercise")}

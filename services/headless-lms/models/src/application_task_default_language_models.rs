@@ -10,6 +10,7 @@ pub enum ApplicationTask {
     ChartSpecGeneration,
     PromptCreation,
     FeedbackCategorization,
+    LanguageVersionMatching,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

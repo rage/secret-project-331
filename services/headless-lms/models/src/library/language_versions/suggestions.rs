@@ -3,12 +3,13 @@
 use std::collections::{HashMap, HashSet};
 
 use super::{
+    ai_matching::AiPicksByCourse,
     counterpart_index::CounterpartIndex,
     snapshot::{LanguageGroupSnapshot, SnapshotExercise, SnapshotPage},
     types::{
-        ExerciseLinkSuggestion, LanguageVersionPage, LinkSuggestions, PageLinkSuggestion,
-        SuggestedExerciseCounterpart, SuggestedPageCounterpart, SuggestionReason,
-        SuggestionSureness,
+        AiSuggestionStatus, ExerciseLinkSuggestion, LanguageVersionPage, LinkSuggestions,
+        PageLinkSuggestion, SuggestedExerciseCounterpart, SuggestedPageCounterpart,
+        SuggestionReason, SuggestionSureness,
     },
 };
 use crate::prelude::*;
@@ -496,14 +497,95 @@ pub(crate) fn match_exercises<'a>(
     res
 }
 
+/// Each item's matched counterpart id, keyed by this course's item id.
+fn picked_ids<T>(
+    matches: &HashMap<Uuid, Match<'_, T>>,
+    id_of: impl Fn(&T) -> Uuid,
+) -> HashMap<Uuid, Uuid> {
+    matches
+        .iter()
+        .map(|(this, m)| (*this, id_of(m.item)))
+        .collect()
+}
+
+/// Puts the AI's picks for one other course over the heuristic `matches`, keyed by this course's
+/// item id. Links and copy history stay. An AI pick that agrees with `heuristic` (this item id →
+/// other item id, from heuristics alone, never shaped by AI picks) becomes very sure; any other
+/// pick replaces the match as an AI suggestion. Picks of items that are not live in the other
+/// course are ignored. Returns the items the AI says have no counterpart.
+fn apply_ai_picks<'a, T>(
+    matches: &mut HashMap<Uuid, Match<'a, T>>,
+    heuristic: &HashMap<Uuid, Uuid>,
+    picks: &HashMap<Uuid, Option<Uuid>>,
+    other_items: &HashMap<Uuid, &'a T>,
+    id_of: impl Fn(&T) -> Uuid,
+) -> HashSet<Uuid> {
+    let is_fixed =
+        |m: &Match<'a, T>| m.is_linked || m.reason == Some(SuggestionReason::CopyHistory);
+    let fixed_other: HashSet<Uuid> = matches
+        .values()
+        .filter(|m| is_fixed(m))
+        .map(|m| id_of(m.item))
+        .collect();
+    let mut no_counterpart = HashSet::new();
+    let mut answered = HashSet::new();
+    let mut picked_other = HashSet::new();
+    let mut ai_matches = Vec::new();
+    for (this, pick) in picks {
+        if matches.get(this).is_some_and(is_fixed) {
+            continue;
+        }
+        match pick {
+            None => {
+                no_counterpart.insert(*this);
+            }
+            Some(other) => {
+                let Some(item) = other_items.get(other).copied() else {
+                    continue;
+                };
+                if fixed_other.contains(other) || !picked_other.insert(*other) {
+                    continue;
+                }
+                let agrees = heuristic.get(this) == Some(other);
+                let (sureness, reason) = if agrees {
+                    (
+                        SuggestionSureness::VerySure,
+                        SuggestionReason::AiAndPosition,
+                    )
+                } else {
+                    (SuggestionSureness::AiSuggestion, SuggestionReason::Ai)
+                };
+                ai_matches.push((
+                    *this,
+                    Match {
+                        item,
+                        is_linked: false,
+                        sureness,
+                        reason: Some(reason),
+                    },
+                ));
+            }
+        }
+        answered.insert(*this);
+    }
+    matches.retain(|this, m| {
+        is_fixed(m) || (!answered.contains(this) && !picked_other.contains(&id_of(m.item)))
+    });
+    matches.extend(ai_matches);
+    no_counterpart
+}
+
 /// Suggested counterparts for `course_id`'s pages and exercises in every other course of the
 /// snapshot (load it with [super::snapshot::load_with_candidates] to include courses before a
-/// join). `chapter_number` limits the rows and unmatched items to one chapter number.
+/// join). `chapter_number` limits the rows and unmatched items to one chapter number. `ai` picks
+/// outrank every heuristic but links and copy history (see [super::ai_matching]); the caller sets
+/// `ai_status`.
 pub fn suggest_links(
     snapshot: &LanguageGroupSnapshot,
     lineage: &CopyLineage,
     course_id: Uuid,
     chapter_number: Option<i32>,
+    ai: Option<&AiPicksByCourse>,
 ) -> ModelResult<LinkSuggestions> {
     if !snapshot.courses.iter().any(|c| c.id == course_id) {
         return Err(model_err!(
@@ -522,12 +604,59 @@ pub fn suggest_links(
 
     let mut page_matches = Vec::new();
     let mut exercise_matches = Vec::new();
+    let mut ai_no_counterpart: HashSet<(Uuid, Uuid)> = HashSet::new();
     for other in &other_courses {
-        let pages = match_pages(&index, lineage, course_id, *other);
-        let exercises = match_exercises(&index, lineage, course_id, *other, &pages);
+        let picks = ai.and_then(|ai| ai.get(other));
+        let mut pages = match_pages(&index, lineage, course_id, *other);
+        // Agreement is judged against heuristics alone: exercises matched within AI-picked pages
+        // would otherwise "agree" with the AI and get accepted without review.
+        let heuristic_pages = picked_ids(&pages, |p| p.page.id);
+        let heuristic_exercises = picks.map(|_| {
+            picked_ids(
+                &match_exercises(&index, lineage, course_id, *other, &pages),
+                |e| e.exercise.id,
+            )
+        });
+        if let Some(picks) = picks {
+            let other_pages = index.live_pages(*other).map(|p| (p.page.id, p)).collect();
+            let none = apply_ai_picks(
+                &mut pages,
+                &heuristic_pages,
+                &picks.pages,
+                &other_pages,
+                |p| p.page.id,
+            );
+            ai_no_counterpart.extend(none.into_iter().map(|id| (id, *other)));
+        }
+        let mut exercises = match_exercises(&index, lineage, course_id, *other, &pages);
+        if let (Some(picks), Some(heuristic_exercises)) = (picks, &heuristic_exercises) {
+            let other_exercises = index
+                .live_exercises(*other)
+                .map(|e| (e.exercise.id, e))
+                .collect();
+            let none = apply_ai_picks(
+                &mut exercises,
+                heuristic_exercises,
+                &picks.exercises,
+                &other_exercises,
+                |e| e.exercise.id,
+            );
+            ai_no_counterpart.extend(none.into_iter().map(|id| (id, *other)));
+        }
         page_matches.push(pages);
         exercise_matches.push(exercises);
     }
+    // An explicit "no counterpart" from the AI is a suggestion too.
+    let ai_sureness = |item: Uuid, other: Uuid, sureness: Option<SuggestionSureness>| {
+        sureness.or(ai_no_counterpart
+            .contains(&(item, other))
+            .then_some(SuggestionSureness::AiSuggestion))
+    };
+    let ai_reason = |item: Uuid, other: Uuid, reason: Option<SuggestionReason>| {
+        reason.or(ai_no_counterpart
+            .contains(&(item, other))
+            .then_some(SuggestionReason::Ai))
+    };
     let mut pages_by_chapter: HashMap<(Uuid, Option<i32>), Vec<&SnapshotPage>> = HashMap::new();
     for other in &other_courses {
         for page in index.live_pages(*other) {
@@ -559,8 +688,8 @@ pub fn suggest_links(
                         course_id: *other,
                         page: found.map(|m| m.item.page.clone()),
                         is_linked: found.is_some_and(|m| m.is_linked),
-                        sureness: found.map(|m| m.sureness),
-                        reason: found.and_then(|m| m.reason),
+                        sureness: ai_sureness(reference.page.id, *other, found.map(|m| m.sureness)),
+                        reason: ai_reason(reference.page.id, *other, found.and_then(|m| m.reason)),
                         alternatives,
                     }
                 })
@@ -598,8 +727,16 @@ pub fn suggest_links(
                                 && counterpart_page_id
                                     .is_some_and(|id| id != m.item.exercise.page_id)
                         }),
-                        sureness: found.map(|m| m.sureness),
-                        reason: found.and_then(|m| m.reason),
+                        sureness: ai_sureness(
+                            reference.exercise.id,
+                            *other,
+                            found.map(|m| m.sureness),
+                        ),
+                        reason: ai_reason(
+                            reference.exercise.id,
+                            *other,
+                            found.and_then(|m| m.reason),
+                        ),
                         alternatives,
                     }
                 })
@@ -634,6 +771,7 @@ pub fn suggest_links(
         exercises,
         unmatched_pages,
         unmatched_exercises,
+        ai_status: AiSuggestionStatus::NotRequested,
     })
 }
 

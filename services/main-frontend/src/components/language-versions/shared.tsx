@@ -294,12 +294,14 @@ const SURENESS_TONE = {
   very_sure: "success",
   likely: "info",
   unsure: "warning",
+  ai_suggestion: "neutral",
 } as const
 
 const SURENESS_LABEL_KEY = {
   very_sure: "language-versions-sure-very-likely",
   likely: "language-versions-sure-likely",
   unsure: "language-versions-sure-unsure",
+  ai_suggestion: "language-versions-sure-ai",
 } as const
 
 const REASON_KEY = {
@@ -308,6 +310,8 @@ const REASON_KEY = {
   same_position_and_exercise_count: "language-versions-reason-same-position-and-exercise-count",
   same_position: "language-versions-reason-same-position",
   same_position_and_exercise_types: "language-versions-reason-same-position-and-exercise-types",
+  ai: "language-versions-reason-ai",
+  ai_and_position: "language-versions-reason-ai-and-position",
 } as const
 
 export function suggestionReasonText(t: TFunction, reason: SuggestionReason): string {

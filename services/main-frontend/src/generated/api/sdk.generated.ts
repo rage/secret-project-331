@@ -575,6 +575,8 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponses,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponses,
+  GetLanguageVersionAiSuggestionsData,
+  GetLanguageVersionAiSuggestionsResponses,
   GetLanguageVersionExerciseCounterpartsData,
   GetLanguageVersionExerciseCounterpartsResponses,
   GetLanguageVersionJoinCandidatesData,
@@ -1241,6 +1243,7 @@ import {
   zGetFirstExerciseSubmissionsByModuleResponse,
   zGetFirstExerciseSubmissionsHistoryByInstanceResponse,
   zGetFirstExerciseSubmissionsHistoryResponse,
+  zGetLanguageVersionAiSuggestionsResponse,
   zGetLanguageVersionExerciseCounterpartsResponse,
   zGetLanguageVersionJoinCandidatesResponse,
   zGetLanguageVersionJoinPreviewResponse,
@@ -4460,7 +4463,8 @@ export const getLanguageVersionStructure = <ThrowOnError extends boolean = true>
 /**
  * GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
  *
- * Candidate courses outside the language versions need `Edit` too.
+ * Candidate courses outside the language versions need `Edit` too. Heuristic only; see
+ * `/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.
  */
 export const getLanguageVersionSuggestions = <ThrowOnError extends boolean = true>(
   options: Options<GetLanguageVersionSuggestionsData, ThrowOnError>,
@@ -8726,6 +8730,28 @@ export const updateGlossaryTerm = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.
+ *
+ * Outside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the
+ * AI is unavailable, the heuristic suggestions come back with `ai_status` saying so.
+ */
+export const getLanguageVersionAiSuggestions = <ThrowOnError extends boolean = true>(
+  options: Options<GetLanguageVersionAiSuggestionsData, ThrowOnError>,
+): RequestResult<GetLanguageVersionAiSuggestionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetLanguageVersionAiSuggestionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetLanguageVersionAiSuggestionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/language-version-ai-suggestions/{course_id}",
+    ...options,
   })
 
 /**

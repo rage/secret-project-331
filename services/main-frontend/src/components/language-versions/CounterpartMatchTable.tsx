@@ -21,12 +21,16 @@ import {
 } from "./matchRows"
 import { hintCss, mutedCss, SurenessBadge } from "./shared"
 
-const SURENESS_ORDER: SuggestionSureness[] = ["unsure", "likely", "very_sure"]
+// An AI pick overruled the position heuristic, so it is the one to check first.
+const SURENESS_ORDER: SuggestionSureness[] = ["ai_suggestion", "unsure", "likely", "very_sure"]
 
 function rowSureness(row: MatchRow): MatchCounterpart | null {
+  // An AI "no counterpart" has no suggested id but is still a suggestion.
   const pending = row.counterparts.filter(
     (counterpart) =>
-      counterpart.suggestedId !== null && !counterpart.isLinked && counterpart.sureness,
+      !counterpart.isLinked &&
+      counterpart.sureness &&
+      (counterpart.suggestedId !== null || counterpart.sureness === "ai_suggestion"),
   )
   pending.sort(
     (a, b) =>

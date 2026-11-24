@@ -10,6 +10,7 @@ pub mod seed_material_reference_course;
 pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
 pub mod seed_credit_registration;
+pub mod seed_exercise_iframe_resilience;
 pub use seed_credit_registration::seed_credit_registration;
 pub mod seed_graded;
 pub mod seed_metadata_course;

@@ -9,12 +9,17 @@ use actix_http::{
 };
 use actix_web::{
     Error,
-    dev::{Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
+    dev::{ConnectionInfo, Service, ServiceRequest, ServiceResponse, Transform, forward_ready},
 };
 use futures_util::future::LocalBoxFuture;
 use std::future::{Ready, ready};
 use tracing::Instrument;
 use uuid::Uuid;
+
+/// The client address as seen through proxy headers, for log lines.
+pub fn client_ip(connection_info: &ConnectionInfo) -> Option<&str> {
+    connection_info.realip_remote_addr()
+}
 
 pub struct RequestSpan;
 
@@ -61,7 +66,7 @@ where
             info!(
                 method =?req.method(),
                 path=?req.path(),
-                ip=?req.connection_info().realip_remote_addr(),
+                ip=?client_ip(&req.connection_info()),
                 "Start handling request.",
             );
         });

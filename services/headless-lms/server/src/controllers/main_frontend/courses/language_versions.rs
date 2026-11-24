@@ -2,18 +2,20 @@
 
 use std::collections::HashSet;
 
+use headless_lms_chatbot::language_version_matching;
 use models::{
     agent_changesets,
+    application_task_default_language_models::{self, ApplicationTask},
     courses::Course,
     library::language_versions::{
-        counterpart, detection, dismissals, join_candidates,
+        ai_matching, counterpart, detection, dismissals, join_candidates,
         linking::{self, LinkedItemKind},
         membership::{self, MembershipChange},
         snapshot::{self, LanguageGroupSnapshot, StudentCounts},
         structure, suggestions,
         types::{
-            CounterpartLinksRequest, CounterpartLinksResult, CreateCounterpartRequest,
-            CreateCounterpartResult, ExerciseCounterparts, JoinCandidate,
+            AiSuggestionStatus, CounterpartLinksRequest, CounterpartLinksResult,
+            CreateCounterpartRequest, CreateCounterpartResult, ExerciseCounterparts, JoinCandidate,
             JoinLanguageVersionPreview, JoinLanguageVersionRequest, JoinLanguageVersionResult,
             LanguageVersionCourse, LanguageVersionReport, LanguageVersionStructure,
             LinkSuggestions, NewProblemDismissal, ProblemDismissal, RemoveLeftoverLinksRequest,
@@ -57,6 +59,10 @@ use crate::{
     get_exercise_counterparts
 ))]
 pub(crate) struct MainFrontendCourseLanguageVersionsApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_ai_suggestions))]
+pub(crate) struct MainFrontendLanguageVersionAiSuggestionsApiDoc;
 
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
@@ -327,10 +333,53 @@ async fn get_structure(
     token.authorized_ok(web::Json(structure::build_structure(&snapshot, *course_id)))
 }
 
+/// The snapshot and copy history that suggestions for `course_id` are made from, after
+/// authorizing the read and every candidate course.
+async fn load_for_suggestions(
+    conn: &mut PgConnection,
+    user: &AuthUser,
+    course_id: Uuid,
+    query: &SuggestionsQuery,
+) -> Result<
+    (
+        AuthorizationToken,
+        LanguageGroupSnapshot,
+        suggestions::CopyLineage,
+    ),
+    ControllerError,
+> {
+    let LanguageVersionsRequest {
+        token,
+        course_language_group_id,
+        roles,
+    } = authorize_read(conn, user.id, course_id).await?;
+    let candidate_course_ids = query.candidate_course_ids.clone().unwrap_or_default();
+    for candidate_course_id in &candidate_course_ids {
+        authorize_with_fetched_list_of_roles(
+            conn,
+            Act::Edit,
+            Res::Course(*candidate_course_id),
+            &roles,
+        )
+        .await?;
+    }
+    let (snapshot, _) = load_snapshot(
+        conn,
+        &roles,
+        course_language_group_id,
+        &candidate_course_ids,
+        StudentCounts::Omit,
+    )
+    .await?;
+    let lineage = suggestions::get_copy_lineage(conn, &snapshot).await?;
+    Ok((token, snapshot, lineage))
+}
+
 /**
 GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
 
-Candidate courses outside the language versions need `Edit` too.
+Candidate courses outside the language versions need `Edit` too. Heuristic only; see
+`/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.
 */
 #[utoipa::path(
     get,
@@ -348,31 +397,76 @@ async fn get_suggestions(
     user: AuthUser,
 ) -> ControllerResult<web::Json<LinkSuggestions>> {
     let mut conn = pool.acquire().await?;
-    let LanguageVersionsRequest {
-        token,
-        course_language_group_id,
-        roles,
-    } = authorize_read(&mut conn, user.id, *course_id).await?;
-    let candidate_course_ids = query.candidate_course_ids.clone().unwrap_or_default();
-    for candidate_course_id in &candidate_course_ids {
-        authorize_with_fetched_list_of_roles(
-            &mut conn,
-            Act::Edit,
-            Res::Course(*candidate_course_id),
-            &roles,
-        )
-        .await?;
-    }
-    let (snapshot, _) = load_snapshot(
+    let (token, snapshot, lineage) =
+        load_for_suggestions(&mut conn, &user, *course_id, &query).await?;
+    let res =
+        suggestions::suggest_links(&snapshot, &lineage, *course_id, query.chapter_number, None)?;
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.
+
+Outside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the
+AI is unavailable, the heuristic suggestions come back with `ai_status` saying so.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}",
+    operation_id = "getLanguageVersionAiSuggestions",
+    tag = "course-language-versions",
+    params(("course_id" = Uuid, Path, description = "Course id"), SuggestionsQuery),
+    responses((status = 200, description = "Suggested links", body = LinkSuggestions))
+)]
+#[instrument(skip(pool, app_conf))]
+async fn get_ai_suggestions(
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    course_id: web::Path<Uuid>,
+    query: MultiQuery<SuggestionsQuery>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<LinkSuggestions>> {
+    let mut conn = pool.acquire().await?;
+    let (token, snapshot, lineage) =
+        load_for_suggestions(&mut conn, &user, *course_id, &query).await?;
+    let task_lm = application_task_default_language_models::get_for_task(
         &mut conn,
-        &roles,
-        course_language_group_id,
-        &candidate_course_ids,
-        StudentCounts::Omit,
+        ApplicationTask::LanguageVersionMatching,
     )
-    .await?;
-    let lineage = suggestions::get_copy_lineage(&mut conn, &snapshot).await?;
-    let res = suggestions::suggest_links(&snapshot, &lineage, *course_id, query.chapter_number)?;
+    .await
+    .inspect_err(|e| warn!("No model for language version matching: {e}"))
+    .ok();
+    let mut tasks = ai_matching::ai_matching_tasks(&snapshot, &lineage, *course_id);
+    if let Some(chapter_number) = query.chapter_number {
+        tasks.retain(|t| t.chapter_number == Some(chapter_number));
+    }
+    let (picks, ai_status) = match task_lm {
+        None => (None, AiSuggestionStatus::Unavailable),
+        Some(_) if tasks.is_empty() => (None, AiSuggestionStatus::Used),
+        Some(task_lm) => {
+            ai_matching::fill_excerpts(&mut conn, &mut tasks).await?;
+            // The AI can take minutes; don't hold a connection meanwhile.
+            drop(conn);
+            let (picks, failed_count) =
+                language_version_matching::suggest_counterparts(&app_conf, &task_lm, &tasks).await;
+            let status = if failed_count == 0 {
+                AiSuggestionStatus::Used
+            } else if failed_count < tasks.len() {
+                AiSuggestionStatus::PartlyUnavailable
+            } else {
+                AiSuggestionStatus::Unavailable
+            };
+            (Some(picks), status)
+        }
+    };
+    let mut res = suggestions::suggest_links(
+        &snapshot,
+        &lineage,
+        *course_id,
+        query.chapter_number,
+        picks.as_ref(),
+    )?;
+    res.ai_status = ai_status;
     token.authorized_ok(web::Json(res))
 }
 
@@ -767,6 +861,12 @@ async fn get_exercise_counterparts(
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let res = counterpart::get_exercise_counterparts(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(res))
+}
+
+/// Routes of `/api/v0/main-frontend/language-version-ai-suggestions`, which has an ingress of its
+/// own (`kubernetes/base/ingress-ai-suggestions.yml`).
+pub fn _add_ai_suggestion_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/{course_id}", web::get().to(get_ai_suggestions));
 }
 
 /**

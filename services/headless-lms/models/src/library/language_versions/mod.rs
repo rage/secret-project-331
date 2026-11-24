@@ -1,6 +1,7 @@
 //! The language-version repair tool: detects and fixes wrong links between the language versions
 //! of a course and their pages and exercises.
 
+pub mod ai_matching;
 pub mod counterpart;
 mod counterpart_index;
 pub mod detection;

@@ -20,6 +20,7 @@ pub mod oauth;
 pub mod progress_by_platform;
 pub mod proof_of_work;
 pub mod rate_limit_middleware_builder;
+pub mod removed_routes;
 pub mod request_id;
 pub mod request_span_middleware;
 pub mod session_verification;

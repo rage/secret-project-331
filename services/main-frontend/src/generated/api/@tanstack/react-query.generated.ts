@@ -450,6 +450,7 @@ import {
   setMyExternalCompletionCreditJustification,
   setMyExternalCompletionEnrolmentRoute,
   softDeleteOrganization,
+  syncExerciseRepository,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
@@ -1306,6 +1307,8 @@ import type {
   SetMyExternalCompletionEnrolmentRouteData,
   SetMyExternalCompletionEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
+  SyncExerciseRepositoryData,
+  SyncExerciseRepositoryResponse,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
   TeacherSetStudentChapterStatusData,
@@ -10505,6 +10508,32 @@ export const updateExerciseRepositoryMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updateExerciseRepository({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's
+ * exercises from its current contents.
+ */
+export const syncExerciseRepositoryMutation = (
+  options?: Partial<Options<SyncExerciseRepositoryData>>,
+): UseMutationOptions<
+  SyncExerciseRepositoryResponse,
+  DefaultError,
+  Options<SyncExerciseRepositoryData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SyncExerciseRepositoryResponse,
+    DefaultError,
+    Options<SyncExerciseRepositoryData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await syncExerciseRepository({
         ...options,
         ...fnOptions,
         throwOnError: true,

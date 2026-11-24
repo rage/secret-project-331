@@ -1257,6 +1257,39 @@
         }
       }
     },
+    "/api/v0/cms/repository-exercises/exam/{exam_id}": {
+      "get": {
+        "tags": ["cms_repository_exercises"],
+        "operationId": "getCmsRepositoryExercisesForExam",
+        "parameters": [
+          {
+            "name": "exam_id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Repository exercises for exam",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RepositoryExercise"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/repository-exercises/{course_id}": {
       "get": {
         "tags": ["cms_repository_exercises"],
@@ -3279,6 +3312,7 @@
       },
       "RepositoryExercise": {
         "type": "object",
+        "description": "An exercise as the exercise editor's picker lists it. Serialized into tmc private specs as\n`repository_exercise`, so the field set is part of the tmc service's contract.",
         "required": [
           "id",
           "repository_id",

@@ -45,6 +45,23 @@ pub async fn main() -> anyhow::Result<()> {
     if let Ok(mut conn) = server_config.db_pool.acquire().await {
         crate::domain::oauth::native_client_check::warn_about_native_editor_client(&mut conn).await;
     }
+    // In the server process rather than a worker deployment of its own, because the syncs upload
+    // archives that this process serves, and a local file store is not shared between pods.
+    actix_web::rt::spawn({
+        let pool = server_config.db_pool.as_ref().clone();
+        let file_store = std::sync::Arc::clone(&server_config.file_store);
+        let app_conf = server_config.app_conf.as_ref().clone();
+        let jwt_key = server_config.jwt_key.clone().into_inner();
+        async move {
+            if let Err(err) = crate::domain::exercise_repositories::run_sync_worker(
+                pool, file_store, app_conf, jwt_key,
+            )
+            .await
+            {
+                error!("The exercise repository sync worker stopped: {err:#}");
+            }
+        }
+    });
     let mut server = HttpServer::new(move || {
         let server_config = server_config.clone();
         App::new()

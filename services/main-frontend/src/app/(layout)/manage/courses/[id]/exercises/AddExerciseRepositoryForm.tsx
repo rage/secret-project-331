@@ -17,6 +17,7 @@ interface Props {
 
 interface Fields {
   gitUrl: string
+  branch: string
   publicKey: string
   deployKey: string
 }
@@ -32,7 +33,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
   } = useForm<Fields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
-    defaultValues: { gitUrl: "", publicKey: "", deployKey: "" },
+    defaultValues: { gitUrl: "", branch: "", publicKey: "", deployKey: "" },
   })
   const mutation = useToastMutationOptions(
     addExerciseRepositoryMutationOptions(),
@@ -57,6 +58,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
             course_id: courseId,
             exam_id: examId,
             git_url: fields.gitUrl,
+            branch: fields.branch.trim().length > 0 ? fields.branch.trim() : null,
             public_key: fields.publicKey.length > 0 ? fields.publicKey : null,
             deploy_key: fields.deployKey.length > 0 ? fields.deployKey : null,
           },
@@ -69,6 +71,7 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
         label={t("exercise-repositories-git-url")}
         rules={{ required: t("required-field") }}
       />
+      <TextField name="branch" control={control} label={t("exercise-repositories-branch")} />
       <TextArea name="publicKey" control={control} label={t("public-key")} />
       <TextArea name="deployKey" control={control} label={t("exercise-repositories-deploy-key")} />
       <Button

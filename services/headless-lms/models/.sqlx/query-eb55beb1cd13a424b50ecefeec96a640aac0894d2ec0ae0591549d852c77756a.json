@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT re.id,\ner.id AS repository_id,\n  re.part,\n  re.name,\n  er.url AS repository_url,\n  re.checksum,\n  re.download_url\nFROM repository_exercises AS re\nJOIN exercise_repositories AS er ON er.id = re.repository_id\nWHERE er.course_id = $1\nAND re.deleted_at IS NULL\nand er.deleted_at IS NULL\n",
+  "query": "\nSELECT id,\n  part,\n  name,\n  checksum,\n  archive_path,\n  download_url\nFROM repository_exercises\nWHERE repository_id = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -16,17 +16,6 @@
       },
       {
         "ordinal": 1,
-        "name": "repository_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "exercise_repositories",
-            "name": "id"
-          }
-        }
-      },
-      {
-        "ordinal": 2,
         "name": "part",
         "type_info": "Varchar",
         "origin": {
@@ -37,7 +26,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 2,
         "name": "name",
         "type_info": "Varchar",
         "origin": {
@@ -48,18 +37,7 @@
         }
       },
       {
-        "ordinal": 4,
-        "name": "repository_url",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "exercise_repositories",
-            "name": "url"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
+        "ordinal": 3,
         "name": "checksum",
         "type_info": "Bytea",
         "origin": {
@@ -70,9 +48,20 @@
         }
       },
       {
-        "ordinal": 6,
+        "ordinal": 4,
+        "name": "archive_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "archive_path"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
         "name": "download_url",
-        "type_info": "Varchar",
+        "type_info": "Text",
         "origin": {
           "Table": {
             "table": "repository_exercises",
@@ -92,9 +81,8 @@
       false,
       false,
       false,
-      false,
       false
     ]
   },
-  "hash": "8e4790d294f0967409acff05c29f7c84dc45905de0e2ee90def15c1ad9c16704"
+  "hash": "eb55beb1cd13a424b50ecefeec96a640aac0894d2ec0ae0591549d852c77756a"
 }

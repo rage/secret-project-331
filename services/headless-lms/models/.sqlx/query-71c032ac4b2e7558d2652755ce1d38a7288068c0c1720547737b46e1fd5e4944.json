@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO retired_repository_exercise_archives (repository_id, archive_path, download_url)\nVALUES ($1, $2, $3)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "71c032ac4b2e7558d2652755ce1d38a7288068c0c1720547737b46e1fd5e4944"
+}

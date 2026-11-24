@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  url,\n  course_id,\n  exam_id,\n  status,\n  error_message\nFROM exercise_repositories\nWHERE id = $1\n  AND deleted_at IS NULL\n",
+  "query": "\nUPDATE exercise_repositories\nSET sync_started_at = clock_timestamp(),\n  sync_attempts = sync_attempts + 1\nWHERE id = (\n    SELECT id\n    FROM exercise_repositories\n    WHERE deleted_at IS NULL\n      AND status = 'pending'\n      AND sync_attempts < $1\n      AND (\n        sync_started_at IS NULL\n        OR sync_started_at < $2\n      )\n      AND id <> ALL($3)\n    ORDER BY sync_requested_at\n    LIMIT 1 FOR UPDATE SKIP LOCKED\n  )\nRETURNING id,\n  url,\n  branch,\n  public_key,\n  deploy_key,\n  sync_started_at AS \"sync_started_at!\"\n",
   "describe": {
     "columns": [
       {
@@ -27,63 +27,54 @@
       },
       {
         "ordinal": 2,
-        "name": "course_id",
-        "type_info": "Uuid",
+        "name": "branch",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "exercise_repositories",
-            "name": "course_id"
+            "name": "branch"
           }
         }
       },
       {
         "ordinal": 3,
-        "name": "exam_id",
-        "type_info": "Uuid",
+        "name": "public_key",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "exercise_repositories",
-            "name": "exam_id"
+            "name": "public_key"
           }
         }
       },
       {
         "ordinal": 4,
-        "name": "status",
-        "type_info": {
-          "Custom": {
-            "name": "exercise_repository_status",
-            "kind": {
-              "Enum": [
-                "pending",
-                "success",
-                "failure"
-              ]
-            }
-          }
-        },
+        "name": "deploy_key",
+        "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "exercise_repositories",
-            "name": "status"
+            "name": "deploy_key"
           }
         }
       },
       {
         "ordinal": 5,
-        "name": "error_message",
-        "type_info": "Text",
+        "name": "sync_started_at!",
+        "type_info": "Timestamptz",
         "origin": {
           "Table": {
             "table": "exercise_repositories",
-            "name": "error_message"
+            "name": "sync_started_at"
           }
         }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Int4",
+        "Timestamptz",
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -91,9 +82,9 @@
       false,
       true,
       true,
-      false,
+      true,
       true
     ]
   },
-  "hash": "bcc965e1ce3e3e86f3cd869c273709cb539ca2dff949d8c3efbc75db1acecf33"
+  "hash": "8a2e36a020856490b3fdec96059f914b18b2572e88d658dd8e2cf50bcb4e383e"
 }

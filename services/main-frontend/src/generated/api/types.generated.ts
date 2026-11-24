@@ -5118,18 +5118,56 @@ export type ExerciseLinkSuggestion = {
   reference: LanguageVersionExercise
 }
 
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
 export type ExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   error_message?: string | null
   exam_id?: string | null
+  /**
+   * Live exercise tasks that use one of the repository's exercises.
+   */
+  exercise_task_count: number
+  has_deploy_key: boolean
   id: string
+  last_sync_report?: ExerciseRepositorySyncReport | null
+  last_synced_at?: string | null
+  public_key?: string | null
   status: ExerciseRepositoryStatus
+  /**
+   * Syncs started since the last request or success, the running one included.
+   */
+  sync_attempts: number
   url: string
 }
 
 export type ExerciseRepositoryStatus = "Pending" | "Success" | "Failure"
 
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export type ExerciseRepositorySyncReport = {
+  added: Array<string>
+  failed_exercise_tasks: Array<FailedExerciseTaskRefresh>
+  /**
+   * Gone from the repository but kept, because exercise tasks still use them.
+   */
+  missing_but_in_use: Array<string>
+  refreshed_exercise_task_count: number
+  removed: Array<string>
+  renamed: Array<RenamedRepositoryExercise>
+  updated: Array<string>
+}
+
 export type ExerciseRepositoryUpdate = {
+  branch?: string | null
+  /**
+   * Replaces the stored key pair when set; the stored pair is kept otherwise.
+   */
+  deploy_key?: string | null
+  public_key?: string | null
   url: string
 }
 
@@ -5432,6 +5470,15 @@ export type ExternalGrading = "pass_fail" | "numeric"
  * How querying an external platform for the user's courses went.
  */
 export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
+
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export type FailedExerciseTaskRefresh = {
+  error: string
+  exercise_task_id: string
+  repository_exercise: string
+}
 
 export type Feedback = {
   blocks: Array<FeedbackBlock>
@@ -6773,6 +6820,7 @@ export type NewExam = {
 }
 
 export type NewExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   deploy_key?: string | null
   exam_id?: string | null
@@ -7889,6 +7937,11 @@ export type RemoveLeftoverLinksRequest = {
 
 export type RemoveLeftoverLinksResult = {
   removed_count: number
+}
+
+export type RenamedRepositoryExercise = {
+  from: string
+  to: string
 }
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
@@ -17173,6 +17226,28 @@ export type UpdateExerciseRepositoryResponses = {
 
 export type UpdateExerciseRepositoryResponse =
   UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses]
+
+export type SyncExerciseRepositoryData = {
+  body?: never
+  path: {
+    /**
+     * Exercise repository id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercise-repositories/{id}/sync"
+}
+
+export type SyncExerciseRepositoryResponses = {
+  /**
+   * Sync queued
+   */
+  200: boolean
+}
+
+export type SyncExerciseRepositoryResponse =
+  SyncExerciseRepositoryResponses[keyof SyncExerciseRepositoryResponses]
 
 export type GetExerciseServicesData = {
   body?: never

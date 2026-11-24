@@ -201,8 +201,16 @@ pub fn organization_file_path(organization_id: Uuid, file_name: &str) -> UtilRes
     Ok(path)
 }
 
-pub fn repository_exercise_path(repository_id: Uuid, repository_exercise_id: Uuid) -> PathBuf {
+/// Where one version of a repository exercise's archive is stored. Every version gets its own
+/// `archive_id`, so an upload never overwrites an archive something may still use. A sibling of
+/// the pre-versioning path `repository_exercises/{repository_id}/{repository_exercise_id}`, which
+/// a local file store could not hold as both a file and a directory.
+pub fn repository_exercise_archive_path(
+    repository_id: Uuid,
+    repository_exercise_id: Uuid,
+    archive_id: Uuid,
+) -> PathBuf {
     PathBuf::from(format!(
-        "repository_exercises/{repository_id}/{repository_exercise_id}",
+        "repository_exercises/{repository_id}/{repository_exercise_id}-{archive_id}.tar.zst",
     ))
 }

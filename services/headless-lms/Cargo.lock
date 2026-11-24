@@ -3280,6 +3280,7 @@ dependencies = [
  "rsa",
  "secrecy",
  "serde",
+ "serde-saphyr 1.3.0",
  "serde_json",
  "sha2 0.11.1",
  "socket2",

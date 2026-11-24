@@ -12562,6 +12562,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercise-repositories/{id}/sync": {
+      "post": {
+        "tags": ["exercise_repositories"],
+        "summary": "POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's\nexercises from its current contents.",
+        "operationId": "syncExerciseRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise repository id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync queued",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercise-services/": {
       "get": {
         "tags": ["exercise_services"],
@@ -29078,8 +29109,19 @@
       },
       "ExerciseRepository": {
         "type": "object",
-        "required": ["id", "url", "status"],
+        "description": "A repository as teachers see it. Never carries the deploy key.",
+        "required": [
+          "id",
+          "url",
+          "status",
+          "has_deploy_key",
+          "sync_attempts",
+          "exercise_task_count"
+        ],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -29091,12 +29133,42 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
+          "exercise_task_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live exercise tasks that use one of the repository's exercises."
+          },
+          "has_deploy_key": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
+          "last_sync_report": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExerciseRepositorySyncReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_synced_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "status": {
             "$ref": "#/components/schemas/ExerciseRepositoryStatus"
+          },
+          "sync_attempts": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Syncs started since the last request or success, the running one included."
           },
           "url": {
             "type": "string"
@@ -29107,10 +29179,76 @@
         "type": "string",
         "enum": ["Pending", "Success", "Failure"]
       },
+      "ExerciseRepositorySyncReport": {
+        "type": "object",
+        "description": "What a sync changed. Exercises are named `part/name`.",
+        "required": [
+          "added",
+          "updated",
+          "renamed",
+          "removed",
+          "missing_but_in_use",
+          "refreshed_exercise_task_count",
+          "failed_exercise_tasks"
+        ],
+        "properties": {
+          "added": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed_exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FailedExerciseTaskRefresh"
+            }
+          },
+          "missing_but_in_use": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gone from the repository but kept, because exercise tasks still use them."
+          },
+          "refreshed_exercise_task_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "removed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "renamed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenamedRepositoryExercise"
+            }
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ExerciseRepositoryUpdate": {
         "type": "object",
         "required": ["url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
+          "deploy_key": {
+            "type": ["string", "null"],
+            "description": "Replaces the stored key pair when set; the stored pair is kept otherwise."
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "url": {
             "type": "string"
           }
@@ -30016,6 +30154,23 @@
         "type": "string",
         "description": "How querying an external platform for the user's courses went.",
         "enum": ["loaded", "not_queried", "unavailable"]
+      },
+      "FailedExerciseTaskRefresh": {
+        "type": "object",
+        "description": "An exercise task whose specs could not be derived again; it keeps its previous version.",
+        "required": ["exercise_task_id", "repository_exercise", "error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "repository_exercise": {
+            "type": "string"
+          }
+        }
       },
       "Feedback": {
         "type": "object",
@@ -33209,6 +33364,9 @@
         "type": "object",
         "required": ["git_url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -36335,6 +36493,18 @@
           "removed_count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "RenamedRepositoryExercise": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
           }
         }
       },

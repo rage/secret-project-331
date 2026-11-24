@@ -3829,16 +3829,10 @@ export const zExerciseFieldOwner = z.object({
 
 export const zExerciseRepositoryStatus = z.enum(["Pending", "Success", "Failure"])
 
-export const zExerciseRepository = z.object({
-  course_id: z.uuid().nullish(),
-  error_message: z.string().nullish(),
-  exam_id: z.uuid().nullish(),
-  id: z.uuid(),
-  status: zExerciseRepositoryStatus,
-  url: z.string(),
-})
-
 export const zExerciseRepositoryUpdate = z.object({
+  branch: z.string().nullish(),
+  deploy_key: z.string().nullish(),
+  public_key: z.string().nullish(),
   url: z.string(),
 })
 
@@ -4040,6 +4034,15 @@ export const zExternalGrading = z.enum(["pass_fail", "numeric"])
  * How querying an external platform for the user's courses went.
  */
 export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
+
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export const zFailedExerciseTaskRefresh = z.object({
+  error: z.string(),
+  exercise_task_id: z.uuid(),
+  repository_exercise: z.string(),
+})
 
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
@@ -5078,6 +5081,7 @@ export const zNewExam = z.object({
 })
 
 export const zNewExerciseRepository = z.object({
+  branch: z.string().nullish(),
   course_id: z.uuid().nullish(),
   deploy_key: z.string().nullish(),
   exam_id: z.uuid().nullish(),
@@ -6142,6 +6146,56 @@ export const zRemoveLeftoverLinksResult = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+export const zRenamedRepositoryExercise = z.object({
+  from: z.string(),
+  to: z.string(),
+})
+
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export const zExerciseRepositorySyncReport = z.object({
+  added: z.array(z.string()),
+  failed_exercise_tasks: z.array(zFailedExerciseTaskRefresh),
+  missing_but_in_use: z.array(z.string()),
+  refreshed_exercise_task_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  removed: z.array(z.string()),
+  renamed: z.array(zRenamedRepositoryExercise),
+  updated: z.array(z.string()),
+})
+
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
+export const zExerciseRepository = z.object({
+  branch: z.string().nullish(),
+  course_id: z.uuid().nullish(),
+  error_message: z.string().nullish(),
+  exam_id: z.uuid().nullish(),
+  exercise_task_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  has_deploy_key: z.boolean(),
+  id: z.uuid(),
+  last_sync_report: zExerciseRepositorySyncReport.nullish(),
+  last_synced_at: z.iso.datetime().nullish(),
+  public_key: z.string().nullish(),
+  status: zExerciseRepositoryStatus,
+  sync_attempts: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string(),
 })
 
 export const zReportReason = z.enum(["Spam", "HarmfulContent", "AiGenerated"])
@@ -12935,6 +12989,15 @@ export const zUpdateExerciseRepositoryPath = z.object({
  * Updated exercise repository
  */
 export const zUpdateExerciseRepositoryResponse = z.boolean()
+
+export const zSyncExerciseRepositoryPath = z.object({
+  id: z.uuid(),
+})
+
+/**
+ * Sync queued
+ */
+export const zSyncExerciseRepositoryResponse = z.boolean()
 
 /**
  * Exercise services

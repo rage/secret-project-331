@@ -17,6 +17,7 @@ use headless_lms_models::{
     exercise_service_info::{self, ExerciseServiceInfo, ExerciseServiceInfoApi},
     exercise_services::{self, ExerciseService},
     exercise_task_spec_files::{self, SpecKind},
+    pages::{DerivedSpec, parse_derived_spec},
     repository_exercises::{
         self, ExerciseTaskUsingRepositoryExercise, RepositoryExercise, RepositoryExerciseVersion,
     },
@@ -28,7 +29,6 @@ use headless_lms_utils::{
 };
 use itertools::Itertools;
 use secrecy::{ExposeSecret, SecretString};
-use serde::Deserialize;
 use sqlx::{Acquire, PgConnection, PgPool};
 use std::{cell::Cell, collections::HashMap, io::Cursor, path::Path, sync::Arc, time::Duration};
 use url::Url;
@@ -184,6 +184,8 @@ async fn clone_repository(
     let mut fetch_opts = FetchOptions::new();
     // The clone must come from the URL the teacher saved, not from wherever that server redirects.
     fetch_opts.follow_redirects(RemoteRedirect::None);
+    // A sync reads only the working tree.
+    fetch_opts.depth(1);
     fetch_opts.remote_callbacks(remote_cbs);
     let mut builder = RepoBuilder::new();
     builder.fetch_options(fetch_opts);
@@ -568,9 +570,9 @@ async fn refresh_exercise_tasks(
         let Some(exercise) = embedded["id"].as_str().and_then(|id| current.get(id)) else {
             continue;
         };
-        let exercise = serde_json::to_value(exercise)?;
-        if *embedded != exercise {
-            outdated.push((task, exercise));
+        let exercise_json = serde_json::to_value(exercise)?;
+        if *embedded != exercise_json {
+            outdated.push((task, exercise, exercise_json));
         }
     }
     if outdated.is_empty() {
@@ -578,7 +580,7 @@ async fn refresh_exercise_tasks(
     }
     let exercise_types: Vec<String> = outdated
         .iter()
-        .map(|(task, _)| task.exercise_type.clone())
+        .map(|(task, _, _)| task.exercise_type.clone())
         .unique()
         .collect();
     let services = exercise_service_info::get_selected_exercise_services_by_type(
@@ -587,9 +589,9 @@ async fn refresh_exercise_tasks(
         fetch_service_info,
     )
     .await?;
-    for (task, exercise) in outdated {
+    for (task, exercise, exercise_json) in outdated {
         let mut private_spec = task.private_spec.clone();
-        private_spec["repository_exercise"] = exercise;
+        private_spec["repository_exercise"] = exercise_json;
         match refresh_exercise_task(conn, &task, &private_spec, &services, &spec_fetcher).await {
             Ok(true) => report.refreshed_exercise_task_count += 1,
             // The teacher saved the task meanwhile; the next sync looks at it again.
@@ -598,32 +600,12 @@ async fn refresh_exercise_tasks(
                 .failed_exercise_tasks
                 .push(FailedExerciseTaskRefresh {
                     exercise_task_id: task.id,
-                    repository_exercise: display_name(
-                        private_spec["repository_exercise"]["part"]
-                            .as_str()
-                            .unwrap_or_default(),
-                        private_spec["repository_exercise"]["name"]
-                            .as_str()
-                            .unwrap_or_default(),
-                    ),
+                    repository_exercise: display_name(&exercise.part, &exercise.name),
                     error: err.to_string(),
                 }),
         }
     }
     Ok(())
-}
-
-/// The body a service that declares its spec files answers the spec endpoints with, as
-/// `models::pages` reads it on a page save.
-#[derive(Deserialize)]
-struct DerivedSpecResponse {
-    spec: serde_json::Value,
-    files: Vec<Uuid>,
-}
-
-struct DerivedSpec {
-    spec: Option<serde_json::Value>,
-    declared_files: Option<Vec<Uuid>>,
 }
 
 async fn derive_spec(
@@ -633,22 +615,9 @@ async fn derive_spec(
     private_spec: &serde_json::Value,
     declares_spec_files: bool,
 ) -> anyhow::Result<DerivedSpec> {
-    let spec = spec_fetcher(url, exercise_type, Some(private_spec)).await?;
-    if !declares_spec_files {
-        return Ok(DerivedSpec {
-            spec: Some(spec),
-            declared_files: None,
-        });
-    }
-    let response: DerivedSpecResponse = serde_json::from_value(spec)
-        .context("The exercise service declares spec files but did not answer with them")?;
-    Ok(DerivedSpec {
-        spec: match response.spec {
-            serde_json::Value::Null => None,
-            spec => Some(spec),
-        },
-        declared_files: Some(response.files),
-    })
+    let response = spec_fetcher(url, exercise_type, Some(private_spec)).await?;
+    parse_derived_spec(response, declares_spec_files)
+        .context("The exercise service declares spec files but did not answer with them")
 }
 
 async fn refresh_exercise_task(
@@ -661,22 +630,22 @@ async fn refresh_exercise_task(
     let (service, info) = services
         .get(&task.exercise_type)
         .with_context(|| format!("No exercise service for {}", task.exercise_type))?;
-    let public = derive_spec(
-        spec_fetcher,
-        exercise_services::get_internal_public_spec_url(service, info)?,
-        &task.exercise_type,
-        private_spec,
-        info.declares_spec_files,
-    )
-    .await?;
-    let model_solution = derive_spec(
-        spec_fetcher,
-        exercise_services::get_model_solution_url(service, info)?,
-        &task.exercise_type,
-        private_spec,
-        info.declares_spec_files,
-    )
-    .await?;
+    let (public, model_solution) = futures::try_join!(
+        derive_spec(
+            spec_fetcher,
+            exercise_services::get_internal_public_spec_url(service, info)?,
+            &task.exercise_type,
+            private_spec,
+            info.declares_spec_files,
+        ),
+        derive_spec(
+            spec_fetcher,
+            exercise_services::get_model_solution_url(service, info)?,
+            &task.exercise_type,
+            private_spec,
+            info.declares_spec_files,
+        ),
+    )?;
     let mut tx = conn.begin().await?;
     let updated = repository_exercises::update_exercise_task_specs(
         &mut tx,

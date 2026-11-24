@@ -1,34 +1,25 @@
 import type { StyleValidationResult } from "@/tmc/cli"
 
-/**
- * Stable identifier of a grading outcome, so views can translate what `feedback_text` says in
- * English. Keys: `compile_failed`, `generic_error` (tests could not be run), `interrupted`,
- * `timed_out`, `style_check_failed`, `valgrind_failed`, `no_project_in_archive`, `langs_error`
- * (tmc-langs rejected the answer), `server_error` (the service's own fault). A run whose tests
- * merely failed has no key.
- */
-export type GradingFeedbackKey =
-  | "compile_failed"
-  | "generic_error"
-  | "interrupted"
-  | "timed_out"
-  | "style_check_failed"
-  | "valgrind_failed"
-  | "no_project_in_archive"
-  | "langs_error"
-  | "server_error"
-
-export const GRADING_FEEDBACK_KEYS: readonly GradingFeedbackKey[] = [
+export const GRADING_FEEDBACK_KEYS = [
   "compile_failed",
+  /** The tests could not be run. */
   "generic_error",
   "interrupted",
   "timed_out",
   "style_check_failed",
   "valgrind_failed",
   "no_project_in_archive",
+  /** tmc-langs rejected the answer. */
   "langs_error",
+  /** The service's own fault. */
   "server_error",
-]
+] as const
+
+/**
+ * Stable identifier of a grading outcome, so views can translate what `feedback_text` says in
+ * English. A run whose tests merely failed has no key.
+ */
+export type GradingFeedbackKey = (typeof GRADING_FEEDBACK_KEYS)[number]
 
 /**
  * `feedback_json` of a tmc grading: the sandbox's tmc-langs run result (`status`, `testResults`,

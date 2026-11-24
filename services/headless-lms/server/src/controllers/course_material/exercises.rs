@@ -138,9 +138,10 @@ async fn get_exercise(
 
     // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
     // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
-    let has_received_full_points = score_given
-        >= course_material_exercise.exercise.score_maximum as f32
-        || (score_given - course_material_exercise.exercise.score_maximum as f32).abs() < 0.0001;
+    let has_received_full_points = models::exercises::is_full_points(
+        score_given,
+        course_material_exercise.exercise.score_maximum,
+    );
     if !has_received_full_points
         && !out_of_tries
         && !course_releases_model_solution(&mut conn, &course_material_exercise.exercise).await?
@@ -151,7 +152,8 @@ async fn get_exercise(
 }
 
 /// Whether the exercise's course reveals its model solution to every student by now, per the
-/// course's model-solution settings.
+/// course's model-solution settings. `exercise.deadline` must already fall back to the chapter's,
+/// as in a course-material exercise.
 async fn course_releases_model_solution(
     conn: &mut PgConnection,
     exercise: &models::exercises::Exercise,
@@ -159,17 +161,9 @@ async fn course_releases_model_solution(
     let Some(course_id) = exercise.course_id else {
         return Ok(false);
     };
-    let chapter_deadline = match exercise.chapter_id {
-        Some(chapter_id) => {
-            models::chapters::get_chapter(conn, chapter_id)
-                .await?
-                .deadline
-        }
-        None => None,
-    };
     Ok(models::course_model_solution_settings::get(conn, course_id)
         .await?
-        .reveals(exercise.deadline.or(chapter_deadline), Utc::now()))
+        .reveals(exercise.deadline, Utc::now()))
 }
 
 /// Authorizes viewing or answering an exercise from the course material: a course exercise needs

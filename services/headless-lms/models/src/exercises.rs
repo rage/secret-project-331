@@ -52,6 +52,11 @@ pub struct Exercise {
     pub teacher_reviews_answer_after_locking: bool,
 }
 
+/// Whether a score is full points on an exercise worth `score_maximum`, tolerating float rounding.
+pub fn is_full_points(score_given: f32, score_maximum: i32) -> bool {
+    score_given >= score_maximum as f32 || (score_given - score_maximum as f32).abs() < 0.0001
+}
+
 impl Exercise {
     pub fn get_course_id(&self) -> ModelResult<Uuid> {
         self.course_id.ok_or_else(|| {

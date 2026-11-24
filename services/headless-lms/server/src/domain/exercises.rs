@@ -181,9 +181,10 @@ async fn grade_submission(
 
     // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
     // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
-    let has_received_full_points = score_given
-        >= exercise_with_user_state.exercise().score_maximum as f32
-        || (score_given - exercise_with_user_state.exercise().score_maximum as f32).abs() < 0.0001;
+    let has_received_full_points = models::exercises::is_full_points(
+        score_given,
+        exercise_with_user_state.exercise().score_maximum,
+    );
     // A failed grading gives the try back, so the last try reveals nothing until it is graded.
     let grading_may_give_try_back = result.exercise_task_submission_results.iter().any(|task| {
         task.grading.as_ref().is_some_and(|grading| {

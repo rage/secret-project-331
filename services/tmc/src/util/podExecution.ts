@@ -362,7 +362,7 @@ export async function copySubmissionToPod(
   }
 }
 
-const logTail = (buffer: Buffer) => buffer.toString().trim()
+const trimmedLog = (buffer: Buffer) => buffer.toString().trim()
 
 export type TmcRunOutcome =
   | { timedOut: true }
@@ -406,7 +406,7 @@ export async function runTmcAndReadOutput(
         status: "GENERIC_ERROR",
         exitCode: tmcExitCode,
         testResults: [],
-        logs: { stdout: logTail(out.getBuffer()), stderr: logTail(err.getBuffer()) },
+        logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
       },
     }
   }
@@ -453,7 +453,7 @@ export async function runTmcAndReadOutput(
           status: "GENERIC_ERROR",
           error: "INVALID_TEST_OUTPUT_JSON",
           testResults: [],
-          logs: { stdout: logTail(out.getBuffer()), stderr: logTail(err.getBuffer()) },
+          logs: { stdout: trimmedLog(out.getBuffer()), stderr: trimmedLog(err.getBuffer()) },
         },
       }
     }

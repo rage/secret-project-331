@@ -169,11 +169,7 @@ async fn has_passed(
     user_id: Uuid,
     exercise: &models::exercises::Exercise,
 ) -> ModelResult<bool> {
-    let Some(course_or_exam_id) = exercise
-        .course_id
-        .map(models::CourseOrExamId::Course)
-        .or(exercise.exam_id.map(models::CourseOrExamId::Exam))
-    else {
+    let Ok(course_or_exam_id) = models::CourseOrExamId::try_from(exercise) else {
         return Ok(false);
     };
     let score_given = models::user_exercise_states::get_user_exercise_state_if_exists(
@@ -184,7 +180,8 @@ async fn has_passed(
     )
     .await?
     .and_then(|state| state.score_given);
-    Ok(score_given.is_some_and(|score| score >= exercise.score_maximum as f32 - 0.0001))
+    Ok(score_given
+        .is_some_and(|score| models::exercises::is_full_points(score, exercise.score_maximum)))
 }
 
 /// The course material page the exercise is on, or `None` for an exam exercise or a deleted course.

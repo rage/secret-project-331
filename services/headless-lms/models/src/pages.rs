@@ -2960,13 +2960,35 @@ struct ExerciseTaskIdAndSpec {
 
 /// A derived spec, with the stored files the exercise service declared it references.
 #[derive(Debug)]
-struct DerivedSpec {
-    spec: Option<serde_json::Value>,
+pub struct DerivedSpec {
+    pub spec: Option<serde_json::Value>,
     /// `None` when this save declared nothing about the spec: either it was not re-derived, so the
     /// stored declarations still stand, or the service does not declare its spec files at all.
     /// Distinct from `Some(vec![])`, which says the spec references no files and releases whatever
     /// it referenced before.
-    declared_files: Option<Vec<Uuid>>,
+    pub declared_files: Option<Vec<Uuid>>,
+}
+
+/// Reads what an exercise service's public-spec or model-solution endpoint answered: the bare spec,
+/// or the spec and its files when the service declares its spec files.
+pub fn parse_derived_spec(
+    response: serde_json::Value,
+    declares_spec_files: bool,
+) -> Result<DerivedSpec, serde_json::Error> {
+    if !declares_spec_files {
+        return Ok(DerivedSpec {
+            spec: Some(response),
+            declared_files: None,
+        });
+    }
+    let response: DerivedSpecResponse = serde_json::from_value(response)?;
+    Ok(DerivedSpec {
+        spec: match response.spec {
+            serde_json::Value::Null => None,
+            spec => Some(spec),
+        },
+        declared_files: Some(response.files),
+    })
 }
 
 /// The body a service that declares its spec files returns from the public-spec and
@@ -3018,15 +3040,9 @@ async fn fetch_derived_spec(
                 task_update.private_spec.as_ref(),
             )
             .await?;
-            if !declares_spec_files {
-                return Ok(DerivedSpec {
-                    spec: Some(res),
-                    declared_files: None,
-                });
-            }
             // A declaring service answers with an envelope, so the same body cannot be read both
             // ways: failing loudly beats storing an envelope as if it were the spec.
-            let response: DerivedSpecResponse = serde_json::from_value(res).map_err(|err| {
+            parse_derived_spec(res, declares_spec_files).map_err(|err| {
                 model_err!(
                     PreconditionFailedWithCMSAnchorBlockId {
                         id: cms_block_id,
@@ -3037,13 +3053,6 @@ async fn fetch_derived_spec(
                         task_update.exercise_type
                     )
                 )
-            })?;
-            Ok(DerivedSpec {
-                spec: match response.spec {
-                    serde_json::Value::Null => None,
-                    spec => Some(spec),
-                },
-                declared_files: Some(response.files),
             })
         }
     }

@@ -16,6 +16,7 @@ import type {
   ExerciseRepositorySyncReport,
 } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { dateToString } from "@/shared-module/common/utils/time"
 import { Button, QueryResult } from "@/shared-module/components"
 
 import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
@@ -193,7 +194,7 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
                   <details>
                     <summary>
                       {t("exercise-repositories-last-sync", {
-                        time: new Date(er.last_synced_at).toLocaleString(),
+                        time: dateToString(er.last_synced_at),
                       })}
                     </summary>
                     <SyncReport report={er.last_sync_report} />

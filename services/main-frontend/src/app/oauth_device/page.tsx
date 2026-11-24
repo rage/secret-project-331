@@ -12,6 +12,7 @@ import {
   denyOauthDeviceVerification,
 } from "@/generated/api/sdk.generated"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
+import { formatUserName } from "@/hooks/useUserDetails"
 import SessionVerificationDialog from "@/shared-module/common/components/SessionVerificationDialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useLogout from "@/shared-module/common/hooks/useLogout"
@@ -200,10 +201,7 @@ const SignedInAccount: React.FC = () => {
   if (!details) {
     return null
   }
-  const name = [details.first_name, details.last_name]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(" ")
+  const name = formatUserName(details)
   return (
     <p data-testid="oauth-device-signed-in-account">
       {t("oauth-device-signed-in-as", {

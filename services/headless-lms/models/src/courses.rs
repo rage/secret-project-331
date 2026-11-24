@@ -675,8 +675,9 @@ pub struct ClientCourse {
 }
 
 /// Courses the user is enrolled on, through any of their instances, or is a teacher or assistant
-/// on, that contain at least one task of any of the given exercise types; each course once, ordered
-/// by name. An empty `exercise_types` matches nothing.
+/// on, that contain a slide all of whose tasks are of the given exercise types, so a client serving
+/// those types can answer it; each course once, ordered by name. An empty `exercise_types` matches
+/// nothing.
 pub async fn get_client_courses_with_exercise_types(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -743,12 +744,22 @@ WHERE c.deleted_at IS NULL
     SELECT 1
     FROM exercises AS e
       JOIN exercise_slides AS es ON es.exercise_id = e.id
-      JOIN exercise_tasks AS et ON et.exercise_slide_id = es.id
     WHERE e.course_id = c.id
-      AND et.exercise_type = ANY($2)
       AND e.deleted_at IS NULL
       AND es.deleted_at IS NULL
-      AND et.deleted_at IS NULL
+      AND EXISTS (
+        SELECT 1
+        FROM exercise_tasks AS et
+        WHERE et.exercise_slide_id = es.id
+          AND et.deleted_at IS NULL
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM exercise_tasks AS et
+        WHERE et.exercise_slide_id = es.id
+          AND et.deleted_at IS NULL
+          AND et.exercise_type <> ALL($2)
+      )
   )
 ORDER BY c.name,
   c.id

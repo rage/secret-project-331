@@ -156,19 +156,29 @@ fn is_client_capable(exercise_type: &str, capable_slugs: &[String]) -> bool {
     capable_slugs.iter().any(|slug| slug == exercise_type)
 }
 
-/// A slide's tasks in the client shape, or none when any task's exercise service cannot serve this
-/// client: a slide submission answers every task, so the client could never complete such a slide.
-/// Shared by the list and single-exercise views so their visibility rules cannot drift apart. Model
-/// solutions are stripped unless `reveal_model_solution`; the list view never reveals them.
+/// Whether the client can answer a slide with tasks of these types: a slide submission answers
+/// every task, so each one must be client-capable.
+fn is_slide_client_answerable<'a>(
+    task_exercise_types: impl IntoIterator<Item = &'a str>,
+    capable_slugs: &[String],
+) -> bool {
+    task_exercise_types
+        .into_iter()
+        .all(|exercise_type| is_client_capable(exercise_type, capable_slugs))
+}
+
+/// A slide's tasks in the client shape, or none when the client cannot answer the slide. Shared by
+/// the list and single-exercise views so their visibility rules cannot drift apart. Model solutions
+/// are stripped unless `reveal_model_solution`; the list view never reveals them.
 fn client_tasks_from_slide(
     tasks: Vec<models::exercise_tasks::CourseMaterialExerciseTask>,
     capable_slugs: &[String],
     reveal_model_solution: bool,
 ) -> Vec<api::ExerciseTask> {
-    if !tasks
-        .iter()
-        .all(|et| is_client_capable(&et.exercise_service_slug, capable_slugs))
-    {
+    if !is_slide_client_answerable(
+        tasks.iter().map(|et| et.exercise_service_slug.as_str()),
+        capable_slugs,
+    ) {
         return Vec::new();
     }
     tasks
@@ -203,18 +213,20 @@ async fn client_capable_exercise_ids(
             .map(|slide| (slide.id, slide.exercise_id))
             .collect();
     let slide_ids: Vec<Uuid> = exercise_by_slide.keys().copied().collect();
-    let mut is_slide_capable: HashMap<Uuid, bool> = HashMap::new();
+    let mut task_types_by_slide: HashMap<Uuid, Vec<String>> = HashMap::new();
     for task in
         models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &slide_ids).await?
     {
-        let is_capable = is_client_capable(&task.exercise_type, capable_slugs);
-        *is_slide_capable
+        task_types_by_slide
             .entry(task.exercise_slide_id)
-            .or_insert(true) &= is_capable;
+            .or_default()
+            .push(task.exercise_type);
     }
-    Ok(is_slide_capable
+    Ok(task_types_by_slide
         .into_iter()
-        .filter(|(_, is_capable)| *is_capable)
+        .filter(|(_, types)| {
+            is_slide_client_answerable(types.iter().map(String::as_str), capable_slugs)
+        })
         .filter_map(|(slide_id, _)| exercise_by_slide.get(&slide_id).copied())
         .collect())
 }
@@ -253,7 +265,7 @@ async fn can_view_unopened_chapters(
     user_id: Uuid,
     course_id: Uuid,
 ) -> Result<bool, ControllerError> {
-    is_permitted_on_course(conn, user_id, Act::ViewMaterial, course_id).await
+    user_may_act_on_course(conn, user_id, Act::ViewMaterial, course_id).await
 }
 
 /// Whether the user teaches or assists on the course.
@@ -262,12 +274,12 @@ async fn is_course_staff(
     user_id: Uuid,
     course_id: Uuid,
 ) -> Result<bool, ControllerError> {
-    is_permitted_on_course(conn, user_id, Act::Teach, course_id).await
+    user_may_act_on_course(conn, user_id, Act::Teach, course_id).await
 }
 
 /// Whether the user's roles permit `action` on the course. A check that cannot be completed
 /// permits nothing.
-async fn is_permitted_on_course(
+async fn user_may_act_on_course(
     conn: &mut PgConnection,
     user_id: Uuid,
     action: Act,
@@ -445,14 +457,7 @@ async fn get_current_user(
         .await
         .optional()?;
     let name = details.as_ref().and_then(|d| {
-        let name = [d.first_name.as_deref(), d.last_name.as_deref()]
-            .into_iter()
-            .flatten()
-            .map(str::trim)
-            .filter(|part| !part.is_empty())
-            .collect::<Vec<_>>()
-            .join(" ");
-        (!name.is_empty()).then_some(name)
+        models::user_details::full_name(d.first_name.as_deref(), d.last_name.as_deref())
     });
     token.authorized_ok(web::Json(api::CurrentUser {
         id: user.id,
@@ -956,12 +961,9 @@ fn is_in_peer_or_self_review(state: Option<&UserExerciseState>) -> bool {
     })
 }
 
-/// Full points as the course material judges them, tolerating float rounding. `None` (never
-/// graded) is not full points even when the exercise is worth 0.
+/// `None` (never graded) is not full points even when the exercise is worth 0.
 fn has_received_full_points(score_given: Option<f32>, score_maximum: i32) -> bool {
-    score_given.is_some_and(|score| {
-        score >= score_maximum as f32 || (score - score_maximum as f32).abs() < 0.0001
-    })
+    score_given.is_some_and(|score| models::exercises::is_full_points(score, score_maximum))
 }
 
 /// Mirrors the project-wide "solved" reveal rule (`controllers/course_material/exercises.rs`,
@@ -1645,10 +1647,10 @@ async fn verify_slide_is_client_answerable(
 ) -> Result<(), ControllerError> {
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_slide_ids(conn, &[slide_id]).await?;
-    if tasks
-        .iter()
-        .all(|task| is_client_capable(&task.exercise_type, capable_slugs))
-    {
+    if is_slide_client_answerable(
+        tasks.iter().map(|task| task.exercise_type.as_str()),
+        capable_slugs,
+    ) {
         return Ok(());
     }
     Err(controller_err!(
@@ -2107,6 +2109,9 @@ async fn get_submission_grading(
         *submission_id,
     )
     .await?;
+    let Some(grading) = grading else {
+        return token.authorized_ok(web::Json(api::ExerciseTaskSubmissionStatus::NoGradingYet));
+    };
     let (exercise_progress, submission_page_url) = match slide_submission.course_id {
         Some(course_id) => {
             let exercise =
@@ -2140,20 +2145,16 @@ async fn get_submission_grading(
         }
         None => (None, None),
     };
-    let status = match grading {
-        Some(grading) => api::ExerciseTaskSubmissionStatus::Grading {
-            grading_progress: map_grading_progress(grading.grading_progress),
-            score_given: grading.score_given,
-            grading_started_at: grading.grading_started_at,
-            grading_completed_at: grading.grading_completed_at,
-            feedback_json: grading.feedback_json,
-            feedback_text: grading.feedback_text,
-            exercise_progress,
-            submission_page_url,
-        },
-        None => api::ExerciseTaskSubmissionStatus::NoGradingYet,
-    };
-    token.authorized_ok(web::Json(status))
+    token.authorized_ok(web::Json(api::ExerciseTaskSubmissionStatus::Grading {
+        grading_progress: map_grading_progress(grading.grading_progress),
+        score_given: grading.score_given,
+        grading_started_at: grading.grading_started_at,
+        grading_completed_at: grading.grading_completed_at,
+        feedback_json: grading.feedback_json,
+        feedback_text: grading.feedback_text,
+        exercise_progress,
+        submission_page_url,
+    }))
 }
 
 /// Maps the internal grading-progress enum to the exercise-services-api one.

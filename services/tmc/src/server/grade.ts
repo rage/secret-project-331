@@ -225,9 +225,10 @@ export function gradingFailureKey(e: unknown): GradingFeedbackKey {
 function failedGrading(
   e: unknown,
 ): Pick<ExerciseTaskGradingResult, "feedback_text" | "feedback_json"> {
+  const feedbackKey = gradingFailureKey(e)
   const extras: GradingFeedbackExtras = {
-    feedback_key: gradingFailureKey(e),
-    ...(e instanceof LangsError && gradingFailureKey(e) === "langs_error"
+    feedback_key: feedbackKey,
+    ...(e instanceof LangsError && feedbackKey === "langs_error"
       ? { feedback_detail: withoutServerPaths(e.rootCause) }
       : {}),
   }

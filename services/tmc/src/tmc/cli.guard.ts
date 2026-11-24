@@ -2,7 +2,7 @@
  * Generated type guards for "cli.d.ts".
  * WARNING: Do not manually change this file.
  */
-import type { CliOutput, RunResult } from "./cli";
+import type { CliOutput, StyleValidationResult, RunResult } from "./cli";
 
 export function isCliOutput(obj: unknown): obj is CliOutput {
     const typedObj = obj as CliOutput
@@ -51,40 +51,47 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typedObj["data"]["output-data"]["kind"] === "chapter-not-open-yet" ||
                     typedObj["data"]["output-data"]["kind"] === "chapter-not-unlocked-yet" ||
                     typedObj["data"]["output-data"]["kind"] === "chapter-completed-and-locked" ||
-                    typedObj["data"]["output-data"]["kind"] === "exercise-locked") &&
+                    typedObj["data"]["output-data"]["kind"] === "exercise-locked" ||
+                    typedObj["data"]["output-data"]["kind"] === "invalid-request" ||
+                    typedObj["data"]["output-data"]["kind"] === "unexpected-response" ||
+                    typedObj["data"]["output-data"]["kind"] === "connection-timeout" ||
+                    typedObj["data"]["output-data"]["kind"] === "certificate-error" ||
+                    typedObj["data"]["output-data"]["kind"] === "proxy-error" ||
+                    typedObj["data"]["output-data"]["kind"] === "login-client-rejected" ||
+                    typedObj["data"]["output-data"]["kind"] === "tmc-login-not-accepted" ||
+                    typedObj["data"]["output-data"]["kind"] === "tmc-login-unconfirmed" ||
+                    typedObj["data"]["output-data"]["kind"] === "local-config-corrupt" ||
+                    typedObj["data"]["output-data"]["kind"] === "archive-too-large" ||
+                    typedObj["data"]["output-data"]["kind"] === "unsupported-exercise" ||
+                    typedObj["data"]["output-data"]["kind"] === "file-in-use" ||
+                    typedObj["data"]["output-data"]["kind"] === "permission-denied" ||
+                    typedObj["data"]["output-data"]["kind"] === "path-too-long" ||
+                    typedObj["data"]["output-data"]["kind"] === "disk-full" ||
+                    typedObj["data"]["output-data"]["kind"] === "toolchain-missing" ||
+                    typedObj["data"]["output-data"]["kind"] === "executable-blocked" ||
+                    typedObj["data"]["output-data"]["kind"] === "projects-dir-unreachable" ||
+                    typedObj["data"]["output-data"]["kind"] === "projects-dir-move-to-itself" ||
+                    typedObj["data"]["output-data"]["kind"] === "projects-dir-move-into-itself" ||
+                    typedObj["data"]["output-data"]["kind"] === "projects-restore-conflict" ||
+                    typedObj["data"]["output-data"]["kind"] === "projects-split") &&
                 Array.isArray(typedObj["data"]["output-data"]["trace"]) &&
                 typedObj["data"]["output-data"]["trace"].every((e: any) =>
                     typeof e === "string"
                 ) &&
                 (typeof typedObj["data"]["output-data"]["http_status"] === "undefined" ||
-                    typeof typedObj["data"]["output-data"]["http_status"] === "number") ||
+                    typeof typedObj["data"]["output-data"]["http_status"] === "number") &&
+                (typeof typedObj["data"]["output-data"]["request_id"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["request_id"] === "string") &&
+                (typeof typedObj["data"]["output-data"]["retry_after_secs"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["retry_after_secs"] === "number") &&
+                (typeof typedObj["data"]["output-data"]["path"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["path"] === "string") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
                 typedObj["data"]["output-data-kind"] === "validation" &&
                 (typedObj["data"]["output-data"] === null ||
-                    (typedObj["data"]["output-data"] !== null &&
-                        typeof typedObj["data"]["output-data"] === "object" ||
-                        typeof typedObj["data"]["output-data"] === "function") &&
-                    (typedObj["data"]["output-data"]["strategy"] === "FAIL" ||
-                        typedObj["data"]["output-data"]["strategy"] === "WARN" ||
-                        typedObj["data"]["output-data"]["strategy"] === "DISABLED") &&
-                    (typedObj["data"]["output-data"]["validation_errors"] === null ||
-                        (typedObj["data"]["output-data"]["validation_errors"] !== null &&
-                            typeof typedObj["data"]["output-data"]["validation_errors"] === "object" ||
-                            typeof typedObj["data"]["output-data"]["validation_errors"] === "function") &&
-                        Object.entries<any>(typedObj["data"]["output-data"]["validation_errors"])
-                            .every(([key, value]) => (Array.isArray(value) &&
-                                value.every((e: any) =>
-                                    (e !== null &&
-                                        typeof e === "object" ||
-                                        typeof e === "function") &&
-                                    typeof e["column"] === "number" &&
-                                    typeof e["line"] === "number" &&
-                                    typeof e["message"] === "string" &&
-                                    typeof e["source_name"] === "string"
-                                ) &&
-                                typeof key === "string")))) ||
+                    isStyleValidationResult(typedObj["data"]["output-data"]) as boolean) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -115,7 +122,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 Array.isArray(typedObj["data"]["output-data"]["exercise_file_paths"]) &&
                 typedObj["data"]["output-data"]["exercise_file_paths"].every((e: any) =>
                     typeof e === "string"
-                ) ||
+                ) &&
+                (typeof typedObj["data"]["output-data"]["tests_timeout_ms"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["tests_timeout_ms"] === "number") &&
+                (typeof typedObj["data"]["output-data"]["plugin"] === "undefined" ||
+                    typeof typedObj["data"]["output-data"]["plugin"] === "string") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -171,6 +182,19 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof e["tmcproject-yml"]["sandbox_image"] === "string") &&
                         (typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "undefined" ||
                             typeof e["tmcproject-yml"]["submission_size_limit_mb"] === "number"))
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "repository-exercises" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["path"] === "string" &&
+                    typeof e["part"] === "string" &&
+                    typeof e["name"] === "string"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -246,7 +270,16 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         Array.isArray(e[1]) &&
                         e[1].every((e: any) =>
                             typeof e === "string"
-                        )
+                        ) &&
+                        (e[2] === "connection-error" ||
+                            e[2] === "not-found" ||
+                            e[2] === "server-error" ||
+                            e[2] === "closed-chapter" ||
+                            e[2] === "browser-only" ||
+                            e[2] === "several-editor-tasks" ||
+                            e[2] === "file-missing" ||
+                            e[2] === "extract-failed" ||
+                            e[2] === "other")
                     )) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1022,7 +1055,12 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         Array.isArray(e[1]) &&
                         e[1].every((e: any) =>
                             typeof e === "string"
-                        )
+                        ) &&
+                        (e[2] === "connection-error" ||
+                            e[2] === "not-found" ||
+                            e[2] === "server-error" ||
+                            e[2] === "extract-failed" ||
+                            e[2] === "other")
                     )) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1053,7 +1091,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e === "object" ||
                         typeof e === "function") &&
                     typeof e["course_id"] === "string" &&
-                    (e["kind"] === "not-found" ||
+                    (e["kind"] === "forbidden" ||
+                        e["kind"] === "not-found" ||
                         e["kind"] === "insufficient-scope")
                 ) ||
                 (typedObj["data"] !== null &&
@@ -1078,7 +1117,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 (typedObj["data"]["output-data"] !== null &&
                     typeof typedObj["data"]["output-data"] === "object" ||
                     typeof typedObj["data"]["output-data"] === "function") &&
-                typeof typedObj["data"]["output-data"]["id"] === "string" ||
+                typeof typedObj["data"]["output-data"]["id"] === "string" &&
+                (typedObj["data"]["output-data"]["name"] === null ||
+                    typeof typedObj["data"]["output-data"]["name"] === "string") &&
+                (typedObj["data"]["output-data"]["email"] === null ||
+                    typeof typedObj["data"]["output-data"]["email"] === "string") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1098,7 +1141,23 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typedObj["data"]["output-data"]["ai_policy"] === "limited" ||
                     typedObj["data"]["output-data"]["ai_policy"] === "full_use" ||
                     typedObj["data"]["output-data"]["ai_policy"] === "required" ||
-                    typedObj["data"]["output-data"]["ai_policy"] === "unrecognized") ||
+                    typedObj["data"]["output-data"]["ai_policy"] === "unrecognized") &&
+                (typedObj["data"]["output-data"]["url"] === null ||
+                    typeof typedObj["data"]["output-data"]["url"] === "string") &&
+                (typedObj["data"]["output-data"]["language_code"] === null ||
+                    typeof typedObj["data"]["output-data"]["language_code"] === "string") &&
+                (typedObj["data"]["output-data"]["language_group_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["language_group_id"] === "string") &&
+                (typedObj["data"]["output-data"]["moved_to_course_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["moved_to_course_id"] === "string") &&
+                (typedObj["data"]["output-data"]["closed_at"] === null ||
+                    typeof typedObj["data"]["output-data"]["closed_at"] === "string") &&
+                (typedObj["data"]["output-data"]["successor_course_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["successor_course_id"] === "string") &&
+                (typedObj["data"]["output-data"]["is_enrolled"] === null ||
+                    typedObj["data"]["output-data"]["is_enrolled"] === false ||
+                    typedObj["data"]["output-data"]["is_enrolled"] === true) &&
+                typeof typedObj["data"]["output-data"]["is_staff"] === "boolean" ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1120,7 +1179,37 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["ai_policy"] === "limited" ||
                         e["ai_policy"] === "full_use" ||
                         e["ai_policy"] === "required" ||
-                        e["ai_policy"] === "unrecognized")
+                        e["ai_policy"] === "unrecognized") &&
+                    (e["url"] === null ||
+                        typeof e["url"] === "string") &&
+                    (e["language_code"] === null ||
+                        typeof e["language_code"] === "string") &&
+                    (e["language_group_id"] === null ||
+                        typeof e["language_group_id"] === "string") &&
+                    (e["moved_to_course_id"] === null ||
+                        typeof e["moved_to_course_id"] === "string") &&
+                    (e["closed_at"] === null ||
+                        typeof e["closed_at"] === "string") &&
+                    (e["successor_course_id"] === null ||
+                        typeof e["successor_course_id"] === "string") &&
+                    (e["is_enrolled"] === null ||
+                        e["is_enrolled"] === false ||
+                        e["is_enrolled"] === true) &&
+                    typeof e["is_staff"] === "boolean"
+                ) ||
+                (typedObj["data"] !== null &&
+                    typeof typedObj["data"] === "object" ||
+                    typeof typedObj["data"] === "function") &&
+                typedObj["data"]["output-data-kind"] === "mooc-exams" &&
+                Array.isArray(typedObj["data"]["output-data"]) &&
+                typedObj["data"]["output-data"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["id"] === "string" &&
+                    typeof e["name"] === "string" &&
+                    typeof e["started_at"] === "string" &&
+                    typeof e["answerable_until"] === "string"
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1134,6 +1223,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["slide_id"] === "string" &&
                     typeof e["exercise_id"] === "string" &&
                     typeof e["course_id"] === "string" &&
+                    (e["exam_id"] === null ||
+                        typeof e["exam_id"] === "string") &&
                     typeof e["exercise_name"] === "string" &&
                     typeof e["exercise_order_number"] === "number" &&
                     (e["deadline"] === null ||
@@ -1145,6 +1236,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof e === "function") &&
                         typeof e["task_id"] === "string" &&
                         typeof e["order_number"] === "number" &&
+                        (typeof e["instructions_text"] === "undefined" ||
+                            Array.isArray(e["instructions_text"]) &&
+                            e["instructions_text"].every((e: any) =>
+                                typeof e === "string"
+                            )) &&
                         (e["public_spec"] === null ||
                             (e["public_spec"] !== null &&
                                 typeof e["public_spec"] === "object" ||
@@ -1174,7 +1270,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                                 e["model_solution_spec"]["type"] === "editor") &&
                             typeof e["model_solution_spec"]["solution_download_url"] === "string") &&
                         (e["checksum"] === null ||
-                            typeof e["checksum"] === "string")
+                            typeof e["checksum"] === "string") &&
+                        typeof e["exercise_service_slug"] === "string"
                     ) &&
                     (e["page_url"] === null ||
                         typeof e["page_url"] === "string") &&
@@ -1188,7 +1285,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["chapter"]["locking_status"] === null ||
                             e["chapter"]["locking_status"] === "Unlocked" ||
                             e["chapter"]["locking_status"] === "CompletedAndLocked" ||
-                            e["chapter"]["locking_status"] === "NotUnlockedYet"))
+                            e["chapter"]["locking_status"] === "NotUnlockedYet")) &&
+                    (typeof e["unsupported"] === "undefined" ||
+                        e["unsupported"] === "connection-error" ||
+                        e["unsupported"] === "not-found" ||
+                        e["unsupported"] === "server-error" ||
+                        e["unsupported"] === "closed-chapter" ||
+                        e["unsupported"] === "browser-only" ||
+                        e["unsupported"] === "several-editor-tasks" ||
+                        e["unsupported"] === "file-missing" ||
+                        e["unsupported"] === "extract-failed" ||
+                        e["unsupported"] === "other")
                 ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
@@ -1200,6 +1307,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                 typeof typedObj["data"]["output-data"]["slide_id"] === "string" &&
                 typeof typedObj["data"]["output-data"]["exercise_id"] === "string" &&
                 typeof typedObj["data"]["output-data"]["course_id"] === "string" &&
+                (typedObj["data"]["output-data"]["exam_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["exam_id"] === "string") &&
                 typeof typedObj["data"]["output-data"]["exercise_name"] === "string" &&
                 typeof typedObj["data"]["output-data"]["exercise_order_number"] === "number" &&
                 (typedObj["data"]["output-data"]["deadline"] === null ||
@@ -1211,6 +1320,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e === "function") &&
                     typeof e["task_id"] === "string" &&
                     typeof e["order_number"] === "number" &&
+                    (typeof e["instructions_text"] === "undefined" ||
+                        Array.isArray(e["instructions_text"]) &&
+                        e["instructions_text"].every((e: any) =>
+                            typeof e === "string"
+                        )) &&
                     (e["public_spec"] === null ||
                         (e["public_spec"] !== null &&
                             typeof e["public_spec"] === "object" ||
@@ -1240,7 +1354,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             e["model_solution_spec"]["type"] === "editor") &&
                         typeof e["model_solution_spec"]["solution_download_url"] === "string") &&
                     (e["checksum"] === null ||
-                        typeof e["checksum"] === "string")
+                        typeof e["checksum"] === "string") &&
+                    typeof e["exercise_service_slug"] === "string"
                 ) &&
                 (typedObj["data"]["output-data"]["page_url"] === null ||
                     typeof typedObj["data"]["output-data"]["page_url"] === "string") &&
@@ -1254,7 +1369,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     (typedObj["data"]["output-data"]["chapter"]["locking_status"] === null ||
                         typedObj["data"]["output-data"]["chapter"]["locking_status"] === "Unlocked" ||
                         typedObj["data"]["output-data"]["chapter"]["locking_status"] === "CompletedAndLocked" ||
-                        typedObj["data"]["output-data"]["chapter"]["locking_status"] === "NotUnlockedYet")) ||
+                        typedObj["data"]["output-data"]["chapter"]["locking_status"] === "NotUnlockedYet")) &&
+                (typeof typedObj["data"]["output-data"]["unsupported"] === "undefined" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "connection-error" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "not-found" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "server-error" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "closed-chapter" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "browser-only" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "several-editor-tasks" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "file-missing" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "extract-failed" ||
+                    typedObj["data"]["output-data"]["unsupported"] === "other") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1285,7 +1410,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typedObj["data"]["output-data"]["grading"]["grading_progress"] === "NotReady" ||
                         typedObj["data"]["output-data"]["grading"]["grading_progress"] === "PendingManual" ||
                         typedObj["data"]["output-data"]["grading"]["grading_progress"] === "Pending" ||
-                        typedObj["data"]["output-data"]["grading"]["grading_progress"] === "FullyGraded") &&
+                        typedObj["data"]["output-data"]["grading"]["grading_progress"] === "FullyGraded" ||
+                        typedObj["data"]["output-data"]["grading"]["grading_progress"] === "Unrecognized") &&
                     (typedObj["data"]["output-data"]["grading"]["score_given"] === null ||
                         typeof typedObj["data"]["output-data"]["grading"]["score_given"] === "number") &&
                     (typedObj["data"]["output-data"]["grading"]["grading_started_at"] === null ||
@@ -1304,6 +1430,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["completed"] === "boolean" &&
                         typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["attempted"] === "boolean" &&
                         (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === null ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "Unrecognized" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "NotAttempted" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "Attempted" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["standing"] === "Passed" ||
@@ -1316,7 +1443,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "unrecognized" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "awaits_chapter_lock" ||
                             typedObj["data"]["output-data"]["grading"]["exercise_progress"]["pending_teacher_review"] === "awaits_teacher") &&
-                        typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["exercise_locked"] === "boolean") &&
+                        typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["exercise_locked"] === "boolean" &&
+                        (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === null ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "unrecognized" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "peer_review" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "self_review" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "waiting_for_peer_reviews" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "waiting_for_teacher" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "reviewed_and_locked" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "locked" ||
+                            typedObj["data"]["output-data"]["grading"]["exercise_progress"]["reviewing_stage"] === "not_answered_and_locked") &&
+                        (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"] === null ||
+                            (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"] !== null &&
+                                typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"] === "object" ||
+                                typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"] === "function") &&
+                            (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "other" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "unrecognized" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "zero_points" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "custom_points" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "suspected_plagiarism" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "reject_and_reset" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "unauthorized_ai_use" ||
+                                typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["decision"] === "bad_answer") &&
+                            typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["score_given"] === "number" &&
+                            (typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["justification"] === null ||
+                                typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["justification"] === "string") &&
+                            typeof typedObj["data"]["output-data"]["grading"]["exercise_progress"]["teacher_review"]["created_at"] === "string")) &&
                     (typedObj["data"]["output-data"]["grading"]["test_results"] === null ||
                         (typedObj["data"]["output-data"]["grading"]["test_results"] !== null &&
                             typeof typedObj["data"]["output-data"]["grading"]["test_results"] === "object" ||
@@ -1348,7 +1500,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof typedObj["data"]["output-data"]["grading"]["test_results"]["logs"] === "function") &&
                         Object.entries<any>(typedObj["data"]["output-data"]["grading"]["test_results"]["logs"])
                             .every(([key, value]) => (typeof value === "string" &&
-                                typeof key === "string")))) ||
+                                typeof key === "string"))) &&
+                    (typedObj["data"]["output-data"]["grading"]["submission_page_url"] === null ||
+                        typeof typedObj["data"]["output-data"]["grading"]["submission_page_url"] === "string") ||
+                    (typedObj["data"]["output-data"] !== null &&
+                        typeof typedObj["data"]["output-data"] === "object" ||
+                        typeof typedObj["data"]["output-data"] === "function") &&
+                    typedObj["data"]["output-data"]["status"] === "grading-hidden" ||
+                    (typedObj["data"]["output-data"] !== null &&
+                        typeof typedObj["data"]["output-data"] === "object" ||
+                        typeof typedObj["data"]["output-data"] === "function") &&
+                    typedObj["data"]["output-data"]["status"] === "unrecognized") ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&
@@ -1368,8 +1530,10 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["grading_progress"] === "NotReady" ||
                         e["grading_progress"] === "PendingManual" ||
                         e["grading_progress"] === "Pending" ||
-                        e["grading_progress"] === "FullyGraded") &&
-                    (e["kind"] === "submission" ||
+                        e["grading_progress"] === "FullyGraded" ||
+                        e["grading_progress"] === "Unrecognized") &&
+                    (e["kind"] === "unrecognized" ||
+                        e["kind"] === "submission" ||
                         e["kind"] === "paste" ||
                         e["kind"] === "backup") &&
                     typeof e["is_shared"] === "boolean"
@@ -1401,6 +1565,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["completed"] === "boolean" &&
                     typeof e["attempted"] === "boolean" &&
                     (e["standing"] === null ||
+                        e["standing"] === "Unrecognized" ||
                         e["standing"] === "NotAttempted" ||
                         e["standing"] === "Attempted" ||
                         e["standing"] === "Passed" ||
@@ -1413,7 +1578,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["pending_teacher_review"] === "unrecognized" ||
                         e["pending_teacher_review"] === "awaits_chapter_lock" ||
                         e["pending_teacher_review"] === "awaits_teacher") &&
-                    typeof e["exercise_locked"] === "boolean"
+                    typeof e["exercise_locked"] === "boolean" &&
+                    (e["reviewing_stage"] === null ||
+                        e["reviewing_stage"] === "unrecognized" ||
+                        e["reviewing_stage"] === "peer_review" ||
+                        e["reviewing_stage"] === "self_review" ||
+                        e["reviewing_stage"] === "waiting_for_peer_reviews" ||
+                        e["reviewing_stage"] === "waiting_for_teacher" ||
+                        e["reviewing_stage"] === "reviewed_and_locked" ||
+                        e["reviewing_stage"] === "locked" ||
+                        e["reviewing_stage"] === "not_answered_and_locked") &&
+                    (e["teacher_review"] === null ||
+                        (e["teacher_review"] !== null &&
+                            typeof e["teacher_review"] === "object" ||
+                            typeof e["teacher_review"] === "function") &&
+                        (e["teacher_review"]["decision"] === "other" ||
+                            e["teacher_review"]["decision"] === "unrecognized" ||
+                            e["teacher_review"]["decision"] === "zero_points" ||
+                            e["teacher_review"]["decision"] === "custom_points" ||
+                            e["teacher_review"]["decision"] === "suspected_plagiarism" ||
+                            e["teacher_review"]["decision"] === "reject_and_reset" ||
+                            e["teacher_review"]["decision"] === "unauthorized_ai_use" ||
+                            e["teacher_review"]["decision"] === "bad_answer") &&
+                        typeof e["teacher_review"]["score_given"] === "number" &&
+                        (e["teacher_review"]["justification"] === null ||
+                            typeof e["teacher_review"]["justification"] === "string") &&
+                        typeof e["teacher_review"]["created_at"] === "string")
                 ) &&
                 Array.isArray(typedObj["data"]["output-data"]["closed_chapters"]) &&
                 typedObj["data"]["output-data"]["closed_chapters"].every((e: any) =>
@@ -1435,6 +1625,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e["completed"] === "boolean" &&
                         typeof e["attempted"] === "boolean" &&
                         (e["standing"] === null ||
+                            e["standing"] === "Unrecognized" ||
                             e["standing"] === "NotAttempted" ||
                             e["standing"] === "Attempted" ||
                             e["standing"] === "Passed" ||
@@ -1447,7 +1638,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             e["pending_teacher_review"] === "unrecognized" ||
                             e["pending_teacher_review"] === "awaits_chapter_lock" ||
                             e["pending_teacher_review"] === "awaits_teacher") &&
-                        typeof e["exercise_locked"] === "boolean"
+                        typeof e["exercise_locked"] === "boolean" &&
+                        (e["reviewing_stage"] === null ||
+                            e["reviewing_stage"] === "unrecognized" ||
+                            e["reviewing_stage"] === "peer_review" ||
+                            e["reviewing_stage"] === "self_review" ||
+                            e["reviewing_stage"] === "waiting_for_peer_reviews" ||
+                            e["reviewing_stage"] === "waiting_for_teacher" ||
+                            e["reviewing_stage"] === "reviewed_and_locked" ||
+                            e["reviewing_stage"] === "locked" ||
+                            e["reviewing_stage"] === "not_answered_and_locked") &&
+                        (e["teacher_review"] === null ||
+                            (e["teacher_review"] !== null &&
+                                typeof e["teacher_review"] === "object" ||
+                                typeof e["teacher_review"] === "function") &&
+                            (e["teacher_review"]["decision"] === "other" ||
+                                e["teacher_review"]["decision"] === "unrecognized" ||
+                                e["teacher_review"]["decision"] === "zero_points" ||
+                                e["teacher_review"]["decision"] === "custom_points" ||
+                                e["teacher_review"]["decision"] === "suspected_plagiarism" ||
+                                e["teacher_review"]["decision"] === "reject_and_reset" ||
+                                e["teacher_review"]["decision"] === "unauthorized_ai_use" ||
+                                e["teacher_review"]["decision"] === "bad_answer") &&
+                            typeof e["teacher_review"]["score_given"] === "number" &&
+                            (e["teacher_review"]["justification"] === null ||
+                                typeof e["teacher_review"]["justification"] === "string") &&
+                            typeof e["teacher_review"]["created_at"] === "string")
                     )
                 ) ||
                 (typedObj["data"] !== null &&
@@ -1473,6 +1689,22 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typedObj["data"]["output-data"]["course"]["ai_policy"] === "full_use" ||
                     typedObj["data"]["output-data"]["course"]["ai_policy"] === "required" ||
                     typedObj["data"]["output-data"]["course"]["ai_policy"] === "unrecognized") &&
+                (typedObj["data"]["output-data"]["course"]["url"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["url"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["language_code"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["language_code"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["language_group_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["language_group_id"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["moved_to_course_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["moved_to_course_id"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["closed_at"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["closed_at"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["successor_course_id"] === null ||
+                    typeof typedObj["data"]["output-data"]["course"]["successor_course_id"] === "string") &&
+                (typedObj["data"]["output-data"]["course"]["is_enrolled"] === null ||
+                    typedObj["data"]["output-data"]["course"]["is_enrolled"] === false ||
+                    typedObj["data"]["output-data"]["course"]["is_enrolled"] === true) &&
+                typeof typedObj["data"]["output-data"]["course"]["is_staff"] === "boolean" &&
                 Array.isArray(typedObj["data"]["output-data"]["slides"]) &&
                 typedObj["data"]["output-data"]["slides"].every((e: any) =>
                     (e !== null &&
@@ -1481,6 +1713,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["slide_id"] === "string" &&
                     typeof e["exercise_id"] === "string" &&
                     typeof e["course_id"] === "string" &&
+                    (e["exam_id"] === null ||
+                        typeof e["exam_id"] === "string") &&
                     typeof e["exercise_name"] === "string" &&
                     typeof e["exercise_order_number"] === "number" &&
                     (e["deadline"] === null ||
@@ -1492,6 +1726,11 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             typeof e === "function") &&
                         typeof e["task_id"] === "string" &&
                         typeof e["order_number"] === "number" &&
+                        (typeof e["instructions_text"] === "undefined" ||
+                            Array.isArray(e["instructions_text"]) &&
+                            e["instructions_text"].every((e: any) =>
+                                typeof e === "string"
+                            )) &&
                         (e["public_spec"] === null ||
                             (e["public_spec"] !== null &&
                                 typeof e["public_spec"] === "object" ||
@@ -1521,7 +1760,8 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                                 e["model_solution_spec"]["type"] === "editor") &&
                             typeof e["model_solution_spec"]["solution_download_url"] === "string") &&
                         (e["checksum"] === null ||
-                            typeof e["checksum"] === "string")
+                            typeof e["checksum"] === "string") &&
+                        typeof e["exercise_service_slug"] === "string"
                     ) &&
                     (e["page_url"] === null ||
                         typeof e["page_url"] === "string") &&
@@ -1535,7 +1775,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         (e["chapter"]["locking_status"] === null ||
                             e["chapter"]["locking_status"] === "Unlocked" ||
                             e["chapter"]["locking_status"] === "CompletedAndLocked" ||
-                            e["chapter"]["locking_status"] === "NotUnlockedYet"))
+                            e["chapter"]["locking_status"] === "NotUnlockedYet")) &&
+                    (typeof e["unsupported"] === "undefined" ||
+                        e["unsupported"] === "connection-error" ||
+                        e["unsupported"] === "not-found" ||
+                        e["unsupported"] === "server-error" ||
+                        e["unsupported"] === "closed-chapter" ||
+                        e["unsupported"] === "browser-only" ||
+                        e["unsupported"] === "several-editor-tasks" ||
+                        e["unsupported"] === "file-missing" ||
+                        e["unsupported"] === "extract-failed" ||
+                        e["unsupported"] === "other")
                 ) &&
                 (typedObj["data"]["output-data"]["progress"] !== null &&
                     typeof typedObj["data"]["output-data"]["progress"] === "object" ||
@@ -1552,6 +1802,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                     typeof e["completed"] === "boolean" &&
                     typeof e["attempted"] === "boolean" &&
                     (e["standing"] === null ||
+                        e["standing"] === "Unrecognized" ||
                         e["standing"] === "NotAttempted" ||
                         e["standing"] === "Attempted" ||
                         e["standing"] === "Passed" ||
@@ -1564,7 +1815,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         e["pending_teacher_review"] === "unrecognized" ||
                         e["pending_teacher_review"] === "awaits_chapter_lock" ||
                         e["pending_teacher_review"] === "awaits_teacher") &&
-                    typeof e["exercise_locked"] === "boolean"
+                    typeof e["exercise_locked"] === "boolean" &&
+                    (e["reviewing_stage"] === null ||
+                        e["reviewing_stage"] === "unrecognized" ||
+                        e["reviewing_stage"] === "peer_review" ||
+                        e["reviewing_stage"] === "self_review" ||
+                        e["reviewing_stage"] === "waiting_for_peer_reviews" ||
+                        e["reviewing_stage"] === "waiting_for_teacher" ||
+                        e["reviewing_stage"] === "reviewed_and_locked" ||
+                        e["reviewing_stage"] === "locked" ||
+                        e["reviewing_stage"] === "not_answered_and_locked") &&
+                    (e["teacher_review"] === null ||
+                        (e["teacher_review"] !== null &&
+                            typeof e["teacher_review"] === "object" ||
+                            typeof e["teacher_review"] === "function") &&
+                        (e["teacher_review"]["decision"] === "other" ||
+                            e["teacher_review"]["decision"] === "unrecognized" ||
+                            e["teacher_review"]["decision"] === "zero_points" ||
+                            e["teacher_review"]["decision"] === "custom_points" ||
+                            e["teacher_review"]["decision"] === "suspected_plagiarism" ||
+                            e["teacher_review"]["decision"] === "reject_and_reset" ||
+                            e["teacher_review"]["decision"] === "unauthorized_ai_use" ||
+                            e["teacher_review"]["decision"] === "bad_answer") &&
+                        typeof e["teacher_review"]["score_given"] === "number" &&
+                        (e["teacher_review"]["justification"] === null ||
+                            typeof e["teacher_review"]["justification"] === "string") &&
+                        typeof e["teacher_review"]["created_at"] === "string")
                 ) &&
                 Array.isArray(typedObj["data"]["output-data"]["progress"]["closed_chapters"]) &&
                 typedObj["data"]["output-data"]["progress"]["closed_chapters"].every((e: any) =>
@@ -1586,6 +1862,7 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                         typeof e["completed"] === "boolean" &&
                         typeof e["attempted"] === "boolean" &&
                         (e["standing"] === null ||
+                            e["standing"] === "Unrecognized" ||
                             e["standing"] === "NotAttempted" ||
                             e["standing"] === "Attempted" ||
                             e["standing"] === "Passed" ||
@@ -1598,7 +1875,32 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             e["pending_teacher_review"] === "unrecognized" ||
                             e["pending_teacher_review"] === "awaits_chapter_lock" ||
                             e["pending_teacher_review"] === "awaits_teacher") &&
-                        typeof e["exercise_locked"] === "boolean"
+                        typeof e["exercise_locked"] === "boolean" &&
+                        (e["reviewing_stage"] === null ||
+                            e["reviewing_stage"] === "unrecognized" ||
+                            e["reviewing_stage"] === "peer_review" ||
+                            e["reviewing_stage"] === "self_review" ||
+                            e["reviewing_stage"] === "waiting_for_peer_reviews" ||
+                            e["reviewing_stage"] === "waiting_for_teacher" ||
+                            e["reviewing_stage"] === "reviewed_and_locked" ||
+                            e["reviewing_stage"] === "locked" ||
+                            e["reviewing_stage"] === "not_answered_and_locked") &&
+                        (e["teacher_review"] === null ||
+                            (e["teacher_review"] !== null &&
+                                typeof e["teacher_review"] === "object" ||
+                                typeof e["teacher_review"] === "function") &&
+                            (e["teacher_review"]["decision"] === "other" ||
+                                e["teacher_review"]["decision"] === "unrecognized" ||
+                                e["teacher_review"]["decision"] === "zero_points" ||
+                                e["teacher_review"]["decision"] === "custom_points" ||
+                                e["teacher_review"]["decision"] === "suspected_plagiarism" ||
+                                e["teacher_review"]["decision"] === "reject_and_reset" ||
+                                e["teacher_review"]["decision"] === "unauthorized_ai_use" ||
+                                e["teacher_review"]["decision"] === "bad_answer") &&
+                            typeof e["teacher_review"]["score_given"] === "number" &&
+                            (e["teacher_review"]["justification"] === null ||
+                                typeof e["teacher_review"]["justification"] === "string") &&
+                            typeof e["teacher_review"]["created_at"] === "string")
                     )
                 ) ||
                 (typedObj["data"] !== null &&
@@ -1712,6 +2014,34 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
             (typedObj["notification-kind"] === "warning" ||
                 typedObj["notification-kind"] === "info") &&
             typeof typedObj["message"] === "string")
+    )
+}
+
+export function isStyleValidationResult(obj: unknown): obj is StyleValidationResult {
+    const typedObj = obj as StyleValidationResult
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        (typedObj["strategy"] === "FAIL" ||
+            typedObj["strategy"] === "WARN" ||
+            typedObj["strategy"] === "DISABLED") &&
+        (typedObj["validation_errors"] === null ||
+            (typedObj["validation_errors"] !== null &&
+                typeof typedObj["validation_errors"] === "object" ||
+                typeof typedObj["validation_errors"] === "function") &&
+            Object.entries<any>(typedObj["validation_errors"])
+                .every(([key, value]) => (Array.isArray(value) &&
+                    value.every((e: any) =>
+                        (e !== null &&
+                            typeof e === "object" ||
+                            typeof e === "function") &&
+                        typeof e["column"] === "number" &&
+                        typeof e["line"] === "number" &&
+                        typeof e["message"] === "string" &&
+                        typeof e["source_name"] === "string"
+                    ) &&
+                    typeof key === "string")))
     )
 }
 

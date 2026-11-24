@@ -260,9 +260,10 @@ function regenerate_tmc_langs_bindings_guard() {
   local bindings_target="$2"
   local guard_target="$3"
 
-  # ts-auto-guard emits a guard only for annotated types, and the plugin uses exactly these two.
+  # ts-auto-guard emits a guard only for annotated types, and the plugin uses exactly these.
   run_command sed -i '/^export type CliOutput/i \/** @see {isCliOutput} ts-auto-guard:type-guard *\/' "$bindings_target"
   run_command sed -i '/^export type RunResult/i \/** @see {isRunResult} ts-auto-guard:type-guard *\/' "$bindings_target"
+  run_command sed -i '/^export type StyleValidationResult/i \/** @see {isStyleValidationResult} ts-auto-guard:type-guard *\/' "$bindings_target"
   # Under exactOptionalPropertyTypes ts-auto-guard checks an optional field as if it were required,
   # rejecting valid output that omits it, so the guard is generated without that option.
   local guard_project_dir

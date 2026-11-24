@@ -56,7 +56,7 @@ const AnswerShareList: React.FC<Props> = ({ exerciseId, courseId }) => {
           ),
         },
         {
-          header: t("label-submission-time"),
+          header: t("label-created-at"),
           cell: (share) => dateToString(share.created_at),
         },
         {

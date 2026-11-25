@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT period_start,\n  period_end\nFROM teacher_newsletter_delivery\nWHERE delivery_id = $1\n        ",
+  "query": "\nSELECT period_start,\n  period_end\nFROM teacher_newsletter_delivery_periods\nWHERE email_delivery_id = $1\n        ",
   "describe": {
     "columns": [
       {
@@ -9,7 +9,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "teacher_newsletter_delivery",
+            "table": "teacher_newsletter_delivery_periods",
             "name": "period_start"
           }
         }
@@ -20,7 +20,7 @@
         "type_info": "Timestamptz",
         "origin": {
           "Table": {
-            "table": "teacher_newsletter_delivery",
+            "table": "teacher_newsletter_delivery_periods",
             "name": "period_end"
           }
         }
@@ -36,5 +36,5 @@
       false
     ]
   },
-  "hash": "38b7090ac22a7eafc421ae85713b19961f45d7a38f1e0191873fbbddf6e157c6"
+  "hash": "ced022625b1f28b99421ca93bc9c5481dda9617a8206970c983e47d430dc6430"
 }

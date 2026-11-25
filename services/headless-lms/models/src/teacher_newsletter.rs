@@ -138,20 +138,20 @@ WHERE course_id = ANY($1)
 
 pub async fn save_teacher_newsletter_delivery(
     conn: &mut PgConnection,
-    delivery_id: Uuid,
+    email_delivery_id: Uuid,
     period_start: DateTime<Utc>,
     period_end: DateTime<Utc>,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
-INSERT INTO teacher_newsletter_delivery (
-    delivery_id,
+INSERT INTO teacher_newsletter_delivery_periods (
+    email_delivery_id,
     period_start,
     period_end
   )
 VALUES ($1, $2, $3)
         ",
-        delivery_id,
+        email_delivery_id,
         period_start,
         period_end
     )
@@ -175,8 +175,8 @@ pub async fn get_teacher_newsletter_period_by_email_delivery_id(
         "
 SELECT period_start,
   period_end
-FROM teacher_newsletter_delivery
-WHERE delivery_id = $1
+FROM teacher_newsletter_delivery_periods
+WHERE email_delivery_id = $1
         ",
         email_delivery_id
     )

@@ -60,7 +60,7 @@ pub async fn main() -> anyhow::Result<()> {
     let mut tx = conn.begin().await?;
 
     for teacher in teachers {
-        let delivery_id = models::email_deliveries::insert_email_delivery(
+        let email_delivery_id = models::email_deliveries::insert_email_delivery(
             &mut tx,
             teacher,
             teacher_newsletter_template.id,
@@ -69,7 +69,7 @@ pub async fn main() -> anyhow::Result<()> {
 
         models::teacher_newsletter::save_teacher_newsletter_delivery(
             &mut tx,
-            delivery_id,
+            email_delivery_id,
             period_start,
             period_end,
         )

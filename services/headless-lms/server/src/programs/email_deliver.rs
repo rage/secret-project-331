@@ -561,15 +561,20 @@ async fn build_teacher_newsletter(
         )
     };
 
+    let period_start_formatted = period_start.format("%Y-%m-%d");
+    let period_end_formatted = period_end.format("%Y-%m-%d");
+
     Ok(TeacherNewsletterContent {
         html: format!(
             r#"<h2 style="text-align: center; font-size: 32px; font-style: italic;">Weekly update</h2>
-            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start} to {period_end})<p>
+            <p style="text-align: center; margin-bottom: 32px; font-style: italic;">({period_start_formatted} to {period_end_formatted})<p>
             {summary_html}
             {html}
             "#
         ),
-        text: format!("Weekly update ({period_start} to {period_end})\n{summary_text}\n{text}"),
+        text: format!(
+            "Weekly update ({period_start_formatted} to {period_end_formatted})\n{summary_text}\n{text}"
+        ),
     })
 }
 

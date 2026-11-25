@@ -110,6 +110,7 @@ async fn report(
             completion_id: candidate.moocfi_completion_id,
             student_number: candidate.student_number.clone().into(),
             registration_date: candidate.registration_date,
+            course_code: candidate.uh_course_code.clone(),
         }],
     };
     if let Err(error) = client.register_completions(&request).await {
@@ -123,6 +124,7 @@ async fn report(
             organization_slug: Some(delegation.organization_slug.clone()),
             registration_date: Some(candidate.registration_date),
             created_at: chrono::Utc::now(),
+            course_code: candidate.uh_course_code.clone(),
         });
     Ok(Ok(()))
 }

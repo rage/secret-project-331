@@ -9040,7 +9040,7 @@
             }
           },
           "400": {
-            "description": "No active module or mooc.fi target with a course code"
+            "description": "No active module or mooc.fi code with a course code"
           },
           "404": {
             "description": "No such course or mooc.fi target"
@@ -9560,7 +9560,7 @@
             }
           },
           "422": {
-            "description": "Invalid configuration, overlapping tiers or a course code the mooc.fi course already has"
+            "description": "Invalid configuration, or a mooc.fi course that already has a target"
           }
         }
       }
@@ -9597,7 +9597,178 @@
             "description": "Saved"
           },
           "422": {
-            "description": "Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions"
+            "description": "Invalid configuration, a mooc.fi course that already has a target, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes": {
+      "get": {
+        "tags": ["credit-registration-admin"],
+        "summary": "GET `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`\n- The live course codes of a mooc.fi target, lowest minimum tier first.",
+        "operationId": "adminGetExternalCreditTargetCodes",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The target's codes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExternalCreditTargetCode"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`\n- Adds a course code to a mooc.fi target.",
+        "operationId": "adminCreateExternalCreditTargetCode",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminExternalCreditTargetCodePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The new code's id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}": {
+      "put": {
+        "tags": ["credit-registration-admin"],
+        "summary": "PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`\n- Replaces the configuration of one course code of a mooc.fi target.",
+        "operationId": "adminUpdateExternalCreditTargetCode",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "external_credit_target_code_id",
+            "in": "path",
+            "description": "Code id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminExternalCreditTargetCodePayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Saved"
+          },
+          "422": {
+            "description": "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target or leads back to this one"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete": {
+      "post": {
+        "tags": ["credit-registration-admin"],
+        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`\n- Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet\nsubmitted.",
+        "operationId": "adminDeleteExternalCreditTargetCode",
+        "parameters": [
+          {
+            "name": "external_credit_target_id",
+            "in": "path",
+            "description": "mooc.fi target id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "external_credit_target_code_id",
+            "in": "path",
+            "description": "Code id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminDeleteExternalCreditTargetPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "422": {
+            "description": "No reason given, or the code is another live code's prerequisite"
           }
         }
       }
@@ -10191,7 +10362,7 @@
           {
             "name": "course_module_id",
             "in": "query",
-            "description": "Course module or mooc.fi target filter",
+            "description": "Course module or mooc.fi code filter",
             "required": false,
             "schema": {
               "type": "string",
@@ -17387,7 +17558,7 @@
       },
       "AccountLinkingCodeModule": {
         "type": "object",
-        "description": "A module or mooc.fi target on a course code, which shares the code's enrolment list.",
+        "description": "A module or mooc.fi code on a course code, which shares the code's enrolment list.",
         "required": ["credit_unit_id", "course_name"],
         "properties": {
           "course_id": {
@@ -17406,7 +17577,7 @@
           "credit_unit_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The module's or target's id."
+            "description": "The module's or mooc.fi code's id."
           },
           "last_listed_at": {
             "type": ["string", "null"],
@@ -18441,7 +18612,7 @@
             "items": {
               "$ref": "#/components/schemas/AdminCreditUnitCourseCode"
             },
-            "description": "The course's modules that register credits, or the mooc.fi target alone."
+            "description": "The course's modules that register credits, or the mooc.fi target's codes."
           }
         }
       },
@@ -18816,7 +18987,7 @@
           },
           "current_uh_course_code": {
             "type": ["string", "null"],
-            "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+            "description": "The module's or mooc.fi code's course code now; differs from `uh_course_code` after a later\nedit."
           },
           "email": {
             "type": ["string", "null"],
@@ -19054,12 +19225,12 @@
       },
       "AdminCreditUnitCourseCode": {
         "type": "object",
-        "description": "One module that registers credits, or a mooc.fi target, with its course code.",
+        "description": "One module that registers credits, or a mooc.fi code, with its course code.",
         "required": ["credit_unit_id"],
         "properties": {
           "course_module_name": {
             "type": ["string", "null"],
-            "description": "`None` for a mooc.fi target or a course's default module."
+            "description": "The module's name, or the mooc.fi code's; `None` for a course's default module."
           },
           "credit_unit_id": {
             "type": "string",
@@ -19110,17 +19281,59 @@
           }
         }
       },
+      "AdminExternalCreditTargetCodePayload": {
+        "type": "object",
+        "description": "One course code of a mooc.fi target as the admin form sends it, with the audit reason.",
+        "required": ["name", "uh_course_code", "ects_credits", "grading", "reason"],
+        "properties": {
+          "ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"]
+          },
+          "equivalent_course_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Older course codes an attainment of which counts as holding this one."
+          },
+          "grading": {
+            "$ref": "#/components/schemas/ExternalGrading"
+          },
+          "minimum_tier": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The lowest completion tier that earns the code; higher tiers earn it too. `None` for a code\nevery completion earns, tiered or not."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name students see for these credits, such as \"Building AI, intermediate\"."
+          },
+          "prerequisite_code_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Another live code of the same target that must be in Sisu first. Must not lead back to\nthis code."
+          },
+          "reason": {
+            "type": "string"
+          },
+          "uh_course_code": {
+            "type": "string",
+            "description": "Unique among the target's live codes."
+          }
+        }
+      },
       "AdminExternalCreditTargetPayload": {
         "type": "object",
-        "description": "A mooc.fi target's configuration as the admin form sends it, with the audit reason.",
+        "description": "A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course\ncodes are configured apart; see [`AdminExternalCreditTargetCodePayload`].",
         "required": [
           "moocfi_course_id",
           "moocfi_course_slug",
           "name",
           "language_code",
-          "uh_course_code",
-          "ects_credits",
-          "grading",
           "delegated_at",
           "enabled",
           "reason"
@@ -19129,20 +19342,10 @@
           "delegated_at": {
             "type": "string",
             "format": "date-time",
-            "description": "Must equal mooc.fi's `credit_registration_delegated_at` and the other live targets' cutoff\nof the same mooc.fi course. Cannot change once the target has registrations."
-          },
-          "ects_credits": {
-            "type": "number",
-            "format": "float"
+            "description": "Must equal mooc.fi's `credit_registration_delegated_at`. Cannot change once the target has\nregistrations."
           },
           "enabled": {
             "type": "boolean"
-          },
-          "enrolment_link": {
-            "type": ["string", "null"]
-          },
-          "grading": {
-            "$ref": "#/components/schemas/ExternalGrading"
           },
           "language_code": {
             "type": "string",
@@ -19151,7 +19354,7 @@
           "moocfi_course_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The handler course on mooc.fi, which the completions are stored on."
+            "description": "The handler course on mooc.fi, which the completions are stored on. One live target each."
           },
           "moocfi_course_slug": {
             "type": "string"
@@ -19160,20 +19363,6 @@
             "type": "string"
           },
           "reason": {
-            "type": "string"
-          },
-          "tiers": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TierRange",
-                "description": "`None` for an untiered course."
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "uh_course_code": {
             "type": "string"
           }
         }
@@ -19684,7 +19873,7 @@
           "course_module_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "A course module, or a mooc.fi target."
+            "description": "A course module, or a mooc.fi code."
           },
           "external_credit_target_id": {
             "type": ["string", "null"],
@@ -26277,7 +26466,7 @@
       },
       "CreditRegistrationCourseStats": {
         "type": "object",
-        "description": "One row of the Courses tab: a course module or a mooc.fi target.",
+        "description": "One row of the Courses tab: a course module or a mooc.fi code.",
         "required": [
           "credit_unit_id",
           "course_or_target_id",
@@ -26311,14 +26500,15 @@
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "`None` for a mooc.fi target, as is `course_module_id`."
+            "description": "`None` for a mooc.fi code, as is `course_module_id`."
           },
           "course_module_id": {
             "type": ["string", "null"],
             "format": "uuid"
           },
           "course_module_name": {
-            "type": ["string", "null"]
+            "type": ["string", "null"],
+            "description": "The module's name, or the mooc.fi code's."
           },
           "course_name": {
             "type": "string",
@@ -26327,12 +26517,12 @@
           "course_or_target_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The course, or the mooc.fi target, which is its own credit unit."
+            "description": "The course, or the mooc.fi target."
           },
           "credit_unit_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The module's or target's id, which the Registrations list's `course_module_id` filter takes."
+            "description": "The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter\ntakes."
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -26341,7 +26531,7 @@
           "eligible_completion_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn\nones left out."
+            "description": "Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than\nwhat `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so\na module keeps a permanent gap against `registration_count` for the completions that predate\nthe push path. For a mooc.fi code, exactly the completions it is responsible for, withdrawn\nones left out."
           },
           "enrolment_link": {
             "type": ["string", "null"],
@@ -26351,7 +26541,18 @@
             "oneOf": [
               {
                 "$ref": "#/components/schemas/ExternalCreditTarget",
-                "description": "The target's configuration, for a mooc.fi target only."
+                "description": "The target's configuration, for a mooc.fi code only."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "external_credit_target_code": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExternalCreditTargetCode",
+                "description": "The code's configuration, for a mooc.fi code only."
               },
               {
                 "type": "null"
@@ -27255,12 +27456,12 @@
             "items": {
               "$ref": "#/components/schemas/CreditRegistrationCourseStats"
             },
-            "description": "Modules first, then mooc.fi targets."
+            "description": "Modules first, then mooc.fi codes."
           },
           "misconfigured_count": {
             "type": "integer",
             "format": "int64",
-            "description": "Modules and targets whose current facts fail the check, which is the tab badge."
+            "description": "Modules and mooc.fi codes whose current facts fail the check, which is the tab badge."
           }
         }
       },
@@ -30009,7 +30210,7 @@
       },
       "ExternalCreditTarget": {
         "type": "object",
-        "description": "A mooc.fi course, or a tier range of one, whose completions courses registers under one course\ncode.",
+        "description": "A mooc.fi course whose completions courses registers, under the course codes of its\n[`ExternalCreditTargetCode`](crate::external_credit_target_codes::ExternalCreditTargetCode)s.",
         "required": [
           "id",
           "created_at",
@@ -30018,35 +30219,9 @@
           "moocfi_course_slug",
           "name",
           "language_code",
-          "uh_course_code",
-          "ects_credits",
-          "grading",
-          "delegated_at",
-          "consecutive_listing_failures"
+          "delegated_at"
         ],
         "properties": {
-          "checked_course_code": {
-            "type": ["string", "null"],
-            "description": "The course code `course_code_allowed` is a verdict on."
-          },
-          "config_check_message": {
-            "type": ["string", "null"]
-          },
-          "config_checked_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "consecutive_listing_failures": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "course_code_allowed": {
-            "type": ["boolean", "null"],
-            "description": "`None` means never checked, which is not the same as a failed check."
-          },
-          "course_code_rejection": {
-            "type": ["string", "null"]
-          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -30060,20 +30235,10 @@
             "type": ["string", "null"],
             "format": "date-time"
           },
-          "ects_credits": {
-            "type": "number",
-            "format": "float"
-          },
           "enabled_at": {
             "type": ["string", "null"],
             "format": "date-time",
             "description": "`None` keeps every phase away from the target."
-          },
-          "enrolment_link": {
-            "type": ["string", "null"]
-          },
-          "grading": {
-            "$ref": "#/components/schemas/ExternalGrading"
           },
           "id": {
             "type": "string",
@@ -30081,24 +30246,6 @@
           },
           "language_code": {
             "type": "string"
-          },
-          "last_listed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "last_listing_attempted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "last_listing_error": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
-              },
-              {
-                "type": "null"
-              }
-            ]
           },
           "moocfi_course_checked_at": {
             "type": ["string", "null"],
@@ -30130,16 +30277,114 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "tiers": {
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExternalCreditTargetCode": {
+        "type": "object",
+        "description": "One course code of a mooc.fi target, and the completion tiers that earn it.",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "external_credit_target_id",
+          "name",
+          "uh_course_code",
+          "ects_credits",
+          "grading",
+          "equivalent_course_codes",
+          "consecutive_listing_failures"
+        ],
+        "properties": {
+          "checked_course_code": {
+            "type": ["string", "null"],
+            "description": "The course code `course_code_allowed` is a verdict on."
+          },
+          "config_check_message": {
+            "type": ["string", "null"]
+          },
+          "config_checked_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "consecutive_listing_failures": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_code_allowed": {
+            "type": ["boolean", "null"],
+            "description": "`None` means never checked, which is not the same as a failed check."
+          },
+          "course_code_rejection": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "enrolment_link": {
+            "type": ["string", "null"]
+          },
+          "equivalent_course_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Older codes an attainment of which counts as holding this one."
+          },
+          "external_credit_target_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grading": {
+            "$ref": "#/components/schemas/ExternalGrading"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_listed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_attempted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "last_listing_error": {
             "oneOf": [
               {
-                "$ref": "#/components/schemas/TierRange",
-                "description": "`None` for an untiered course, which registers every completion."
+                "$ref": "#/components/schemas/CreditRegistrationErrorCode"
               },
               {
                 "type": "null"
               }
             ]
+          },
+          "minimum_tier": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The lowest tier that earns the code; every higher tier earns it too. `None` for a code every\ncompletion earns, tiered or not."
+          },
+          "name": {
+            "type": "string",
+            "description": "What students see the credits called, such as the course and its level."
+          },
+          "prerequisite_code_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "A code of the same target that must be in Sisu before this one is sent there."
           },
           "uh_course_code": {
             "type": "string"
@@ -30152,7 +30397,7 @@
       },
       "ExternalGrading": {
         "type": "string",
-        "description": "How a mooc.fi completion with no grade reads on a target.",
+        "description": "How a mooc.fi completion with no grade reads under a code.",
         "enum": ["pass_fail", "numeric"]
       },
       "ExternalPlatformStatus": {
@@ -32274,8 +32519,13 @@
       },
       "MoocfiCompletionRegistration": {
         "type": "object",
-        "description": "One mooc.fi completion and what is happening to its credits.",
-        "required": ["moocfi_completion_id", "completion_date", "status", "offers_certificate"],
+        "description": "One mooc.fi completion and what is happening to the credits its tier earns.",
+        "required": [
+          "moocfi_completion_id",
+          "completion_date",
+          "credit_units",
+          "offers_certificate"
+        ],
         "properties": {
           "completion_date": {
             "type": "string",
@@ -32285,26 +32535,12 @@
             "type": ["string", "null"],
             "description": "The student's saved reason for needing the credits rather than the certificate."
           },
-          "credit_registration_id": {
-            "type": ["string", "null"],
-            "format": "uuid",
-            "description": "The live ledger row, once the pipeline has created one."
-          },
-          "credit_unit": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/MoocfiCreditUnit",
-                "description": "The course code the completion registers as, when a target covers its tier."
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "external_completion_id": {
-            "type": ["string", "null"],
-            "format": "uuid",
-            "description": "Set for completions courses has taken up."
+          "credit_units": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MoocfiCreditUnitRegistration"
+            },
+            "description": "One per course code the tier earns, lowest minimum tier first, each registered on its own.\nEmpty when the tier earns none. A code the tier no longer earns is listed while it has a\nledger row, so credits already registered do not vanish."
           },
           "moocfi_completion_id": {
             "type": "string",
@@ -32314,19 +32550,6 @@
             "type": "boolean",
             "description": "Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's\nanswer is unknown: its certificate page copes with a course that has none."
           },
-          "status": {
-            "$ref": "#/components/schemas/MoocfiCompletionStatus"
-          },
-          "student_facing_status": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "tier": {
             "type": ["integer", "null"],
             "format": "int32"
@@ -32335,7 +32558,7 @@
       },
       "MoocfiCompletionStatus": {
         "type": "string",
-        "description": "Why a completion is or is not registered through courses.",
+        "description": "Why a completion is or is not registered under a code through courses.",
         "enum": [
           "registering_on_courses",
           "registration_paused",
@@ -32343,7 +32566,6 @@
           "not_eligible",
           "registered_on_moocfi",
           "equivalent_registered",
-          "no_credit_unit",
           "removed_from_moocfi"
         ]
       },
@@ -32396,8 +32618,8 @@
       },
       "MoocfiCreditUnit": {
         "type": "object",
-        "description": "The study-registry course a completion registers as.",
-        "required": ["external_credit_target_id", "name", "uh_course_code", "ects_credits"],
+        "description": "A study-registry course a completion registers as.",
+        "required": ["external_credit_target_code_id", "name", "uh_course_code", "ects_credits"],
         "properties": {
           "ects_credits": {
             "type": "number",
@@ -32407,15 +32629,54 @@
             "type": ["string", "null"],
             "description": "Where an Open University student enrols."
           },
-          "external_credit_target_id": {
+          "external_credit_target_code_id": {
             "type": "string",
             "format": "uuid"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "description": "The name students see for these credits."
+          },
+          "prerequisite_code_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "A code of the same completion that must be registered before this one is sent to Sisu."
           },
           "uh_course_code": {
             "type": "string"
+          }
+        }
+      },
+      "MoocfiCreditUnitRegistration": {
+        "type": "object",
+        "description": "One course code of a completion and what is happening to its credits.",
+        "required": ["credit_unit", "status"],
+        "properties": {
+          "credit_registration_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The live ledger row, once the pipeline has created one."
+          },
+          "credit_unit": {
+            "$ref": "#/components/schemas/MoocfiCreditUnit"
+          },
+          "external_completion_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "Set once courses has taken the completion up under this code."
+          },
+          "status": {
+            "$ref": "#/components/schemas/MoocfiCompletionStatus"
+          },
+          "student_facing_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },
@@ -34576,7 +34837,7 @@
                 },
                 "current_uh_course_code": {
                   "type": ["string", "null"],
-                  "description": "The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit."
+                  "description": "The module's or mooc.fi code's course code now; differs from `uh_course_code` after a later\nedit."
                 },
                 "email": {
                   "type": ["string", "null"],
@@ -37816,6 +38077,7 @@
           "looking_for_enrolment",
           "needs_enrolment",
           "waiting_for_course_setup",
+          "waiting_for_prerequisite",
           "sending",
           "waiting_for_sisu",
           "registered",
@@ -38840,20 +39102,6 @@
         "properties": {
           "duration_seconds": {
             "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "TierRange": {
-        "type": "object",
-        "description": "The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.",
-        "properties": {
-          "highest": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "lowest": {
-            "type": ["integer", "null"],
             "format": "int32"
           }
         }

@@ -35,6 +35,8 @@ pub struct MoocfiReportCandidate {
     /// When the credit landed in the study registry, as first claimed; see
     /// `moocfi_registration_reports.registration_date`.
     pub registration_date: DateTime<Utc>,
+    /// The course code the row was sent to the study registry under.
+    pub uh_course_code: Option<String>,
 }
 
 /// Leases the next due, unreported registration for [`MOOCFI_REPORT_LEASE`]. `None` when nothing
@@ -147,7 +149,8 @@ SELECT claimed.credit_registration_id,
   t.moocfi_course_id,
   claimed.attempt_count,
   cr.student_number AS "student_number!: DbSecret",
-  claimed.registration_date
+  claimed.registration_date,
+  cr.uh_course_code
 FROM claimed
   JOIN credit_registrations cr ON cr.id = claimed.credit_registration_id
   JOIN external_completions ec ON ec.id = cr.external_completion_id
@@ -166,8 +169,9 @@ FROM claimed
     }
 }
 
-/// Marks the registration reported and releases its lease, and records on the completion that our
-/// registration is on mooc.fi.
+/// Marks the registration reported and releases its lease, and records on the completion's row for
+/// the registration's code that our registration is on mooc.fi. Its rows for other codes are left
+/// alone, or reporting one code would keep the others from ever registering.
 pub async fn mark_reported(
     conn: &mut PgConnection,
     candidate: &MoocfiReportCandidate,
@@ -190,10 +194,13 @@ WHERE credit_registration_id = $1
         r#"
 UPDATE external_completions
 SET reported_at = COALESCE(reported_at, now())
-WHERE moocfi_completion_id = $1
-  AND deleted_at IS NULL
+WHERE id = (
+    SELECT external_completion_id
+    FROM credit_registrations
+    WHERE id = $1
+  )
         "#,
-        candidate.moocfi_completion_id,
+        candidate.credit_registration_id,
     )
     .execute(&mut *tx)
     .await?;

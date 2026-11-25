@@ -171,7 +171,9 @@ WHERE id = ANY($1)
 /// course code claimed together only the first comes back; the other stays claimable where it is.
 ///
 /// A mooc.fi row is claimed only while its completion is live and was read from mooc.fi within
-/// [`MOOCFI_IMPORT_MAX_CHECK_AGE`]; a stale one waits where it is for the next re-check.
+/// [`MOOCFI_IMPORT_MAX_CHECK_AGE`]; a stale one waits where it is for the next re-check. One whose
+/// code's prerequisite the student does not have yet (`credit_registration_prerequisite_met`)
+/// waits where it is too, and is claimed on the first tick after they get it.
 pub async fn claim_due_for_import(
     conn: &mut PgConnection,
     scope: &RegistrationScope,
@@ -348,6 +350,7 @@ WITH due AS (
               WHERE ec.id = cr.external_completion_id
                 AND ec.upstream_checked_at > now() - $14::interval
             )
+            AND credit_registration_prerequisite_met(cr)
           )
         )
         AND NOT EXISTS (

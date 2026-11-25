@@ -14,8 +14,8 @@ pub struct CompletionRegistrationCreditJustification {
     pub deleted_at: Option<DateTime<Utc>>,
     /// `None` on an answer about a mooc.fi completion.
     pub course_module_completion_id: Option<Uuid>,
-    /// mooc.fi's own completion id, stable across the `external_completions` rows a tier change
-    /// replaces. `None` on an answer about a course module completion.
+    /// mooc.fi's own completion id, shared by its `external_completions` rows, one per code. `None`
+    /// on an answer about a course module completion.
     pub moocfi_completion_id: Option<Uuid>,
     pub user_id: Uuid,
     pub justification: String,

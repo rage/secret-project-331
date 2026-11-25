@@ -54,7 +54,7 @@ ORDER BY cm.course_id,
     Ok(res)
 }
 
-/// Modules with a course code and mooc.fi targets the last check found broken. Unchecked ones are
+/// Modules with a course code and mooc.fi codes the last check found broken. Unchecked ones are
 /// not counted: unknown is not a failure.
 ///
 /// Counts the stored message, not the boolean, so the tab badge matches the Courses tab's
@@ -65,7 +65,7 @@ ORDER BY cm.course_id,
 /// crate::library::credit_registration::config_validation::check_module_config
 pub async fn count_credit_units_failing_config_check(conn: &mut PgConnection) -> ModelResult<i64> {
     let modules = get_module_ids_failing_config_check(conn).await?.len();
-    let targets = crate::external_credit_targets::get_ids_failing_config_check(conn)
+    let targets = crate::external_credit_target_codes::get_ids_failing_config_check(conn)
         .await?
         .len();
     Ok((modules + targets) as i64)

@@ -2,15 +2,16 @@
 
 use std::collections::{HashMap, HashSet};
 
-use headless_lms_utils::services::moocfi::DelegatedCompletion;
+use headless_lms_utils::services::moocfi::{DelegatedCompletion, DelegatedCompletionRegistration};
 use utoipa::ToSchema;
 
 use crate::credit_registrations::CreditRegistrationState;
-use crate::external_credit_targets::{self, ExternalGrading, TierRange};
+use crate::external_credit_target_codes::{self, ExternalCreditTargetCode, ExternalGrading};
+use crate::external_credit_targets;
 use crate::library::credit_registration::moocfi_grade::parse_moocfi_grade;
 use crate::prelude::*;
 
-/// A mooc.fi completion as last read, under the target its tier mapped to then.
+/// A mooc.fi completion as last read, under one code its tier earned then.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ExternalCompletion {
     pub id: Uuid,
@@ -42,12 +43,14 @@ pub struct ExternalCompletion {
     pub upstream_missing_at: Option<DateTime<Utc>>,
     pub registered_upstream_at: Option<DateTime<Utc>>,
     pub reported_at: Option<DateTime<Utc>>,
+    pub external_credit_target_code_id: Uuid,
 }
 
 /// What one successful read of a completion from mooc.fi says, for [`upsert`].
 #[derive(Debug, Clone, PartialEq)]
 pub struct ExternalCompletionFacts {
     pub external_credit_target_id: Uuid,
+    pub external_credit_target_code_id: Uuid,
     pub user_id: Uuid,
     pub moocfi_completion_id: Uuid,
     pub moocfi_user_upstream_id: i32,
@@ -58,13 +61,13 @@ pub struct ExternalCompletionFacts {
     pub raw_grade: Option<String>,
     pub passed: Option<bool>,
     pub grade: Option<i32>,
-    /// Another mooc.fi organization has registered the completion.
+    /// Another mooc.fi organization has registered the completion under the code.
     pub is_registered_upstream: bool,
-    /// Our own organization's registration of the completion is on mooc.fi.
+    /// Our own organization's registration of the completion under the code is on mooc.fi.
     pub is_reported: bool,
 }
 
-/// Records a completion as mooc.fi just returned it, under the target its tier maps to, and returns
+/// Records a completion as mooc.fi just returned it, under one code of its target, and returns
 /// the row's id. Marks it checked now and present upstream. `registered_upstream_at` and
 /// `reported_at` are set the first time their fact is seen and never cleared. `None`, changing
 /// nothing, when another account's row already holds the completion.
@@ -88,7 +91,8 @@ INSERT INTO external_completions (
     grade,
     upstream_checked_at,
     registered_upstream_at,
-    reported_at
+    reported_at,
+    external_credit_target_code_id
   )
 VALUES (
     $1,
@@ -108,8 +112,9 @@ VALUES (
     END,
     CASE
       WHEN $13 THEN now()
-    END
-  ) ON CONFLICT (moocfi_completion_id, external_credit_target_id)
+    END,
+    $14
+  ) ON CONFLICT (moocfi_completion_id, external_credit_target_code_id)
 WHERE deleted_at IS NULL DO
 UPDATE
 SET moocfi_user_upstream_id = EXCLUDED.moocfi_user_upstream_id,
@@ -166,6 +171,7 @@ RETURNING id
         facts.grade,
         facts.is_registered_upstream,
         facts.is_reported,
+        facts.external_credit_target_code_id,
     )
     .fetch_optional(conn)
     .await?;
@@ -216,7 +222,7 @@ WHERE id = $1
     Ok(res)
 }
 
-/// The live rows of one user on any target of one mooc.fi course, newest completion first.
+/// The live rows of one user on any code of one mooc.fi course, newest completion first.
 pub async fn get_by_user_and_moocfi_course(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -258,38 +264,58 @@ pub struct UpstreamCompletions<'a> {
 
 /// Brings the student's stored rows for one mooc.fi course in line with a fresh lookup.
 ///
-/// A completion gets a new row only under the live target its tier maps to, and only when it is
-/// ECTS-eligible and dated on or after the target's cutoff, or registered on mooc.fi, which a later
-/// completion with the same grade and tier is checked against. Existing rows are always updated,
-/// on whichever target they are, so a completion that turned ineligible, moved before the cutoff or
-/// changed tier is withdrawn by the subjects view rather than left stale. Stored completions absent
-/// from the answer are marked missing upstream.
+/// A completion gets a new row under every live code of the course's target that its tier earns,
+/// but only when it is ECTS-eligible and dated on or after the cutoff, or registered under the
+/// code on mooc.fi, which a later completion with the same grade is checked against. Existing rows
+/// are always updated, so a completion that turned ineligible, moved before the cutoff or dropped
+/// below a code's tier is withdrawn by the subjects view rather than left stale. Stored
+/// completions absent from the answer are marked missing upstream.
 pub async fn sync_from_upstream(
     conn: &mut PgConnection,
     upstream: UpstreamCompletions<'_>,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
-    let targets =
+    let target =
         external_credit_targets::get_by_moocfi_course_id(&mut tx, upstream.moocfi_course_id)
             .await?;
-    let stored = get_stored_targets(&mut tx, upstream.user_id, upstream.moocfi_course_id).await?;
+    let codes = match &target {
+        Some(target) => external_credit_target_codes::get_by_target_id(&mut tx, target.id).await?,
+        None => Vec::new(),
+    };
+    let stored = get_stored_rows(&mut tx, upstream.user_id, upstream.moocfi_course_id).await?;
+    let our_reports =
+        get_our_report_codes(&mut tx, upstream.user_id, upstream.moocfi_course_id).await?;
 
     for completion in upstream.completions {
-        let matching_target = targets
+        let earned: Vec<&ExternalCreditTargetCode> = codes
             .iter()
-            .find(|target| admits_tier(target.tiers, completion.tier));
-        if let Some(target) = matching_target {
+            .filter(|code| code.is_earned_by(completion.tier))
+            .collect();
+        for code in &earned {
+            let Some(target) = &target else { break };
             let has_row = stored.iter().any(|row| {
                 row.moocfi_completion_id == completion.id
-                    && row.external_credit_target_id == target.id
+                    && row.external_credit_target_code_id == code.id
             });
+            let registrations =
+                registrations_under(completion, code.id, &code.uh_course_code, &our_reports);
             let is_new_and_ours = completion.eligible_for_ects == Some(true)
                 && completion.effective_date() >= target.delegated_at;
-            let is_registered = !completion.registrations.is_empty();
-            if (has_row || is_new_and_ours || is_registered)
+            if (has_row || is_new_and_ours || !registrations.is_empty())
                 && upsert(
                     &mut tx,
-                    &completion_facts(&upstream, completion, target.id, target.grading),
+                    &completion_facts(
+                        &upstream,
+                        completion,
+                        StoredRow {
+                            moocfi_completion_id: completion.id,
+                            external_credit_target_id: target.id,
+                            external_credit_target_code_id: code.id,
+                            uh_course_code: code.uh_course_code.clone(),
+                            grading: code.grading,
+                        },
+                        &registrations,
+                    ),
                 )
                 .await?
                 .is_none()
@@ -302,16 +328,19 @@ pub async fn sync_from_upstream(
         }
         for row in stored.iter().filter(|row| {
             row.moocfi_completion_id == completion.id
-                && matching_target.is_none_or(|target| target.id != row.external_credit_target_id)
+                && !earned
+                    .iter()
+                    .any(|code| code.id == row.external_credit_target_code_id)
         }) {
+            let registrations = registrations_under(
+                completion,
+                row.external_credit_target_code_id,
+                &row.uh_course_code,
+                &our_reports,
+            );
             upsert(
                 &mut tx,
-                &completion_facts(
-                    &upstream,
-                    completion,
-                    row.external_credit_target_id,
-                    row.grading,
-                ),
+                &completion_facts(&upstream, completion, row.clone(), &registrations),
             )
             .await?;
         }
@@ -360,6 +389,8 @@ pub struct ExternalCompletionRegistrationState {
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
     pub course_code_allowed: bool,
+    /// See `credit_registration_prerequisite_met`.
+    pub prerequisite_met: bool,
 }
 
 /// [`ExternalCompletionRegistrationState`] for each of the user's external completions on one
@@ -378,7 +409,8 @@ SELECT DISTINCT ON (cr.external_completion_id) cr.external_completion_id AS "ext
   cr.selected_enrolment_id IS NOT NULL AS "enrolment_resolved!",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
-  p.course_code_allowed AS "course_code_allowed!"
+  p.course_code_allowed AS "course_code_allowed!",
+  p.prerequisite_met AS "prerequisite_met!"
 FROM credit_registrations cr
   JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
   JOIN credit_registration_preconditions p ON p.credit_registration_id = cr.id
@@ -397,9 +429,9 @@ ORDER BY cr.external_completion_id,
     Ok(res)
 }
 
-/// For each of the completions that has one, the mooc.fi id of its registered equivalent: an
-/// earlier completion with the same grade and tier that is already registered, which keeps this one
-/// from being registered again. See the `moocfi_registered_equivalent` SQL function.
+/// For each of the rows that has one, the mooc.fi id of its registered equivalent: an earlier
+/// completion with the same grade already registered under the same code, which keeps this one from
+/// being registered under it again. See the `moocfi_registered_equivalent` SQL function.
 pub async fn get_registered_equivalents(
     conn: &mut PgConnection,
     external_completion_ids: &[Uuid],
@@ -422,38 +454,32 @@ WHERE ec.id = ANY($1)
         .collect())
 }
 
-/// Whether a target with `tiers` registers a completion of `tier`.
-pub fn admits_tier(tiers: Option<TierRange>, tier: Option<i32>) -> bool {
-    let Some(tiers) = tiers else {
-        return true;
-    };
-    let Some(tier) = tier else {
-        return false;
-    };
-    tiers.lowest.is_none_or(|lowest| tier >= lowest)
-        && tiers.highest.is_none_or(|highest| tier <= highest)
-}
-
 /// A stored row's place, for deciding which rows a sync updates.
-struct StoredTarget {
+#[derive(Debug, Clone)]
+struct StoredRow {
     moocfi_completion_id: Uuid,
     external_credit_target_id: Uuid,
+    external_credit_target_code_id: Uuid,
+    uh_course_code: String,
     grading: ExternalGrading,
 }
 
-async fn get_stored_targets(
+async fn get_stored_rows(
     conn: &mut PgConnection,
     user_id: Uuid,
     moocfi_course_id: Uuid,
-) -> ModelResult<Vec<StoredTarget>> {
+) -> ModelResult<Vec<StoredRow>> {
     let res = sqlx::query_as!(
-        StoredTarget,
+        StoredRow,
         r#"
 SELECT ec.moocfi_completion_id,
   ec.external_credit_target_id,
-  t.grading AS "grading: ExternalGrading"
+  ec.external_credit_target_code_id,
+  code.uh_course_code,
+  code.grading AS "grading: ExternalGrading"
 FROM external_completions ec
   JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+  JOIN external_credit_target_codes code ON code.id = ec.external_credit_target_code_id
 WHERE ec.user_id = $1
   AND t.moocfi_course_id = $2
   AND ec.deleted_at IS NULL
@@ -464,6 +490,69 @@ WHERE ec.user_id = $1
     .fetch_all(conn)
     .await?;
     Ok(res)
+}
+
+/// A registration we reported to mooc.fi, and the code it was for.
+struct OurReport {
+    moocfi_completion_id: Uuid,
+    registration_date: DateTime<Utc>,
+    external_credit_target_code_id: Uuid,
+}
+
+async fn get_our_report_codes(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_course_id: Uuid,
+) -> ModelResult<Vec<OurReport>> {
+    let res = sqlx::query_as!(
+        OurReport,
+        r#"
+SELECT report.moocfi_completion_id,
+  report.registration_date,
+  ec.external_credit_target_code_id
+FROM moocfi_registration_reports report
+  JOIN credit_registrations cr ON cr.id = report.credit_registration_id
+  JOIN external_completions ec ON ec.id = cr.external_completion_id
+  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
+WHERE ec.user_id = $1
+  AND t.moocfi_course_id = $2
+  AND report.deleted_at IS NULL
+        "#,
+        user_id,
+        moocfi_course_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The registrations of `completion` on mooc.fi under one code: those naming its course code, and
+/// those naming none unless they are our report of another code. A registration from before mooc.fi
+/// kept codes is taken to cover every code.
+fn registrations_under<'a>(
+    completion: &'a DelegatedCompletion,
+    external_credit_target_code_id: Uuid,
+    uh_course_code: &str,
+    our_reports: &[OurReport],
+) -> Vec<&'a DelegatedCompletionRegistration> {
+    completion
+        .registrations
+        .iter()
+        .filter(|registration| match &registration.course_code {
+            Some(course_code) => course_code
+                .trim()
+                .eq_ignore_ascii_case(uh_course_code.trim()),
+            None => our_reports
+                .iter()
+                .find(|report| {
+                    report.moocfi_completion_id == completion.id
+                        && Some(report.registration_date) == registration.registration_date
+                })
+                .is_none_or(|report| {
+                    report.external_credit_target_code_id == external_credit_target_code_id
+                }),
+        })
+        .collect()
 }
 
 /// Whether mooc.fi's free-text completion language is a locale such as `fi` or `fi_FI`; anything
@@ -483,13 +572,14 @@ fn is_locale(language: &str) -> bool {
 fn completion_facts(
     upstream: &UpstreamCompletions<'_>,
     completion: &DelegatedCompletion,
-    external_credit_target_id: Uuid,
-    grading: ExternalGrading,
+    row: StoredRow,
+    registrations: &[&DelegatedCompletionRegistration],
 ) -> ExternalCompletionFacts {
-    let parsed = parse_moocfi_grade(completion.grade.as_deref(), grading);
+    let parsed = parse_moocfi_grade(completion.grade.as_deref(), row.grading);
     let is_ours = |slug: &Option<String>| slug.as_deref() == Some(upstream.organization_slug);
     ExternalCompletionFacts {
-        external_credit_target_id,
+        external_credit_target_id: row.external_credit_target_id,
+        external_credit_target_code_id: row.external_credit_target_code_id,
         user_id: upstream.user_id,
         moocfi_completion_id: completion.id,
         moocfi_user_upstream_id: upstream.moocfi_user_upstream_id,
@@ -503,12 +593,10 @@ fn completion_facts(
         raw_grade: completion.grade.clone(),
         passed: parsed.passed,
         grade: parsed.grade,
-        is_registered_upstream: completion
-            .registrations
+        is_registered_upstream: registrations
             .iter()
             .any(|registration| !is_ours(&registration.organization_slug)),
-        is_reported: completion
-            .registrations
+        is_reported: registrations
             .iter()
             .any(|registration| is_ours(&registration.organization_slug)),
     }

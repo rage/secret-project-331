@@ -9,6 +9,9 @@ mod answer;
 mod request;
 mod resolution;
 
+use headless_lms_models::credit_registration_sisu_code_checks::{
+    EquivalentHolding, get_equivalent_holdings,
+};
 use headless_lms_models::credit_registrations::claim_due_for_resolve;
 use headless_lms_models::library::credit_registration::enrolment_checks::EnrolmentCheckAnswer;
 use headless_lms_models::library::credit_registration::enrolment_selection::{
@@ -44,6 +47,9 @@ pub(super) struct ResolveEnrolments;
 pub(super) struct LookupBasis {
     submission: SubmissionContext,
     criteria: EnrolmentCriteria,
+    /// Sisu holds one of the equivalent older codes of the row's code, which counts as holding the
+    /// code itself.
+    holds_equivalent: bool,
 }
 
 /// A row claimed for its enrolment lookup.
@@ -66,6 +72,7 @@ impl RegistryBatchFlow for ResolveEnrolments {
                 .await?;
         let ids: Vec<_> = claimed.iter().map(|row| row.id).collect();
         let mut contexts = get_submission_contexts(conn, &ids).await?;
+        let holdings = get_equivalent_holdings(conn, &ids).await?;
 
         let mut prepared = Prepared::new();
         for row in claimed {
@@ -89,6 +96,14 @@ impl RegistryBatchFlow for ResolveEnrolments {
                 );
                 continue;
             }
+            let holding = holdings.get(&row.id);
+            if context.student_number.is_some() && holding == Some(&EquivalentHolding::Unchecked) {
+                debug!(
+                    credit_registration_id = %row.id,
+                    "Leaving row claimable: Sisu has not been asked about its equivalent codes"
+                );
+                continue;
+            }
             match enrolment_lookup(&context) {
                 Ok(Askable { request, criteria }) => {
                     let row = Claimed {
@@ -96,6 +111,10 @@ impl RegistryBatchFlow for ResolveEnrolments {
                         extra: LookupBasis {
                             submission: context,
                             criteria,
+                            holds_equivalent: matches!(
+                                holding,
+                                Some(EquivalentHolding::Held { .. })
+                            ),
                         },
                     };
                     prepared.send(row, request);
@@ -167,7 +186,14 @@ impl RegistryBatchFlow for ResolveEnrolments {
             EnrolmentLookupResult::read(answer, chosen),
             &answer.existing_attainments,
         );
-        apply_enrolment_answer(conn, &lookup, check, audit).await
+        apply_enrolment_answer(
+            conn,
+            &lookup,
+            resolvable.extra.holds_equivalent,
+            check,
+            audit,
+        )
+        .await
     }
 
     async fn keep_in_flight(
@@ -183,13 +209,23 @@ impl RegistryBatchFlow for ResolveEnrolments {
 /// payload and queues the row for import.
 ///
 /// What Sisu itself holds is weighed first: if the attainment exists the credit does, so sending
-/// the student off to re-enrol would be wrong as well as unnecessary.
+/// the student off to re-enrol would be wrong as well as unnecessary. An attainment of an
+/// equivalent older code counts as one of the row's own; its grade is not compared.
 async fn apply_enrolment_answer(
     conn: &mut PgConnection,
     lookup: &AnsweredLookup<'_>,
+    holds_equivalent: bool,
     check: Option<EnrolmentCheckAnswer<'_>>,
     audit: &ExchangeAudit,
 ) -> CreditRegistrationResult<Applied> {
+    if holds_equivalent {
+        let decision = unsent_duplicate(
+            lookup,
+            "Sisu already has an older course that counts as this one, so nothing was submitted.",
+        )
+        .with_enrolment_check(check);
+        return write_decision(conn, lookup.claim(), decision, audit).await;
+    }
     // Before the transaction below: a Sisu attainment must not be written inside one.
     if let Some(attained) = lookup.held_in_sisu() {
         let decision = unsent_duplicate(
@@ -255,6 +291,7 @@ mod fixtures {
             extra: LookupBasis {
                 submission: context,
                 criteria: askable.criteria,
+                holds_equivalent: false,
             },
         }
     }

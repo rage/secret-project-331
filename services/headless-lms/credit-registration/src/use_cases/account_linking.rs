@@ -9,13 +9,14 @@ use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_models::course_module_suotar_configurations::get_active_modules_for_course;
 use headless_lms_models::credit_registration_account_linking_emails::LinkingMailSource;
-use headless_lms_models::external_credit_targets;
 use headless_lms_models::library::credit_registration::account_linking::{
     DiscoveredPerson, LinkingMailClaim, RetiredMails, claim_linking_mail, retire_capped_mails,
 };
 use headless_lms_models::library::credit_registration::study_registry::RosterPerson;
 use headless_lms_models::verified_student_numbers;
+use headless_lms_models::{external_credit_target_codes, external_credit_targets};
 use headless_lms_utils::prelude::{DateTime, Utc};
+use itertools::Itertools;
 use sqlx::{Connection, PgPool};
 use std::collections::BTreeSet;
 use uuid::Uuid;
@@ -196,10 +197,18 @@ async fn source_course_codes(
         LinkingMailSource::ExternalCreditTarget(id) => {
             let mut conn = pool.acquire().await?;
             let target = external_credit_targets::get_by_id(&mut conn, id).await?;
-            Ok(CourseCode::parse(&target.uh_course_code)
-                .into_iter()
-                .filter(|_| target.is_active())
-                .collect())
+            if !target.is_active() {
+                return Ok(Vec::new());
+            }
+            Ok(
+                external_credit_target_codes::get_by_target_id(&mut conn, id)
+                    .await?
+                    .iter()
+                    .filter_map(|code| CourseCode::parse(&code.uh_course_code))
+                    .sorted()
+                    .dedup()
+                    .collect(),
+            )
         }
     }
 }

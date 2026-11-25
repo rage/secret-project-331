@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT code.id\nFROM external_credit_target_codes code\n  JOIN external_credit_targets t ON t.id = code.external_credit_target_id\nWHERE t.enabled_at IS NOT NULL\n  AND t.deleted_at IS NULL\n  AND code.deleted_at IS NULL\n  AND code.config_checked_at IS NOT NULL\n  AND code.config_check_message IS NOT NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_target_codes",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "09fa59af1555b9072815e5ba4af32ab79e6eb878f0751d51853184987a25246a"
+}

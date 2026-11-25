@@ -6,12 +6,11 @@ read from mooc.fi on every load. Per-registration detail is behind the routes ke
 completion's `external_completion_id`, which only completions courses registers have.
 */
 
-use std::collections::HashSet;
-
 use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::{
     completion_registration_credit_justifications,
     external_completions::{self, ExternalCompletion, UpstreamCompletions},
+    external_credit_target_codes::{self, ExternalCreditTargetCode},
     external_credit_targets::{self, ExternalCreditTarget},
     library::credit_registration::{PendingPreconditions, StudentFacingCreditRegistrationStatus},
 };
@@ -46,20 +45,16 @@ pub struct MoocfiCreditRegistrations {
     pub completions: Vec<MoocfiCompletionRegistration>,
 }
 
-/// One mooc.fi completion and what is happening to its credits.
+/// One mooc.fi completion and what is happening to the credits its tier earns.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MoocfiCompletionRegistration {
     pub moocfi_completion_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub tier: Option<i32>,
-    pub status: MoocfiCompletionStatus,
-    /// Set for completions courses has taken up.
-    pub external_completion_id: Option<Uuid>,
-    /// The course code the completion registers as, when a target covers its tier.
-    pub credit_unit: Option<MoocfiCreditUnit>,
-    /// The live ledger row, once the pipeline has created one.
-    pub credit_registration_id: Option<Uuid>,
-    pub student_facing_status: Option<StudentFacingCreditRegistrationStatus>,
+    /// One per course code the tier earns, lowest minimum tier first, each registered on its own.
+    /// Empty when the tier earns none. A code the tier no longer earns is listed while it has a
+    /// ledger row, so credits already registered do not vanish.
+    pub credit_units: Vec<MoocfiCreditUnitRegistration>,
     /// Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
     /// answer is unknown: its certificate page copes with a course that has none.
     pub offers_certificate: bool,
@@ -67,7 +62,19 @@ pub struct MoocfiCompletionRegistration {
     pub credit_justification: Option<String>,
 }
 
-/// Why a completion is or is not registered through courses.
+/// One course code of a completion and what is happening to its credits.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct MoocfiCreditUnitRegistration {
+    pub credit_unit: MoocfiCreditUnit,
+    pub status: MoocfiCompletionStatus,
+    /// Set once courses has taken the completion up under this code.
+    pub external_completion_id: Option<Uuid>,
+    /// The live ledger row, once the pipeline has created one.
+    pub credit_registration_id: Option<Uuid>,
+    pub student_facing_status: Option<StudentFacingCreditRegistrationStatus>,
+}
+
+/// Why a completion is or is not registered under a code through courses.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum MoocfiCompletionStatus {
@@ -78,36 +85,38 @@ pub enum MoocfiCompletionStatus {
     /// Dated before the cutoff, so mooc.fi's own registration process handles it.
     BeforeCutoff,
     NotEligible,
-    /// Another organization has registered it on mooc.fi.
+    /// Another organization has registered it under the code on mooc.fi.
     RegisteredOnMoocfi,
-    /// An earlier completion with the same grade and tier is registered, so this one is not
-    /// registered again.
+    /// An earlier completion with the same grade is registered under the code, so this one is not
+    /// registered under it again.
     EquivalentRegistered,
-    /// No target registers the completion's tier.
-    NoCreditUnit,
     /// Taken up earlier, but mooc.fi no longer has it.
     RemovedFromMoocfi,
 }
 
-/// The study-registry course a completion registers as.
+/// A study-registry course a completion registers as.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct MoocfiCreditUnit {
-    pub external_credit_target_id: Uuid,
+    pub external_credit_target_code_id: Uuid,
+    /// The name students see for these credits.
     pub name: String,
     pub uh_course_code: String,
     pub ects_credits: f32,
     /// Where an Open University student enrols.
     pub enrolment_link: Option<String>,
+    /// A code of the same completion that must be registered before this one is sent to Sisu.
+    pub prerequisite_code_id: Option<Uuid>,
 }
 
-impl From<&ExternalCreditTarget> for MoocfiCreditUnit {
-    fn from(target: &ExternalCreditTarget) -> Self {
+impl From<&ExternalCreditTargetCode> for MoocfiCreditUnit {
+    fn from(code: &ExternalCreditTargetCode) -> Self {
         Self {
-            external_credit_target_id: target.id,
-            name: target.name.clone(),
-            uh_course_code: target.uh_course_code.clone(),
-            ects_credits: target.ects_credits,
-            enrolment_link: target.enrolment_link.clone(),
+            external_credit_target_code_id: code.id,
+            name: code.name.clone(),
+            uh_course_code: code.uh_course_code.clone(),
+            ects_credits: code.ects_credits,
+            enrolment_link: code.enrolment_link.clone(),
+            prerequisite_code_id: code.prerequisite_code_id,
         }
     }
 }
@@ -148,8 +157,14 @@ pub async fn get_my_moocfi_credit_registrations(
     let signed_in_email = models::user_details::get_user_details_by_user_id(&mut conn, user.id)
         .await?
         .email;
-    let targets =
+    let target =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, moocfi_course_id).await?;
+    let codes = match &target {
+        Some(target) => {
+            external_credit_target_codes::get_by_target_id(&mut conn, target.id).await?
+        }
+        None => Vec::new(),
+    };
     // Not held across the lookup, which may take its whole 10 s timeout.
     drop(conn);
 
@@ -157,7 +172,7 @@ pub async fn get_my_moocfi_credit_registrations(
         (None, _) => Lookup::Unavailable,
         // A courses-only account has no mooc.fi completions.
         (Some(_), None) => Lookup::NothingToLookUp,
-        (Some(_), Some(_)) if targets.is_empty() => Lookup::NothingToLookUp,
+        (Some(_), Some(_)) if target.is_none() => Lookup::NothingToLookUp,
         (Some(delegation), Some(upstream_id)) => match MoocfiClient::new(delegation)
             .get_user_completions(moocfi_course_id, upstream_id)
             .await
@@ -178,7 +193,8 @@ pub async fn get_my_moocfi_credit_registrations(
     // failed completions lookup, so an unreachable mooc.fi costs one timeout, not two.
     let course_lookup = match &moocfi.delegation {
         Some(delegation)
-            if are_course_details_stale(&targets) && !matches!(lookup, Lookup::Unavailable) =>
+            if are_course_details_stale(target.as_ref())
+                && !matches!(lookup, Lookup::Unavailable) =>
         {
             Some(
                 match MoocfiClient::new(delegation)
@@ -216,9 +232,9 @@ pub async fn get_my_moocfi_credit_registrations(
         .flatten()
         .map(|course| course.has_certificate)
         .or_else(|| {
-            targets
-                .iter()
-                .find_map(|target| target.moocfi_has_certificate)
+            target
+                .as_ref()
+                .and_then(|target| target.moocfi_has_certificate)
         });
     if let Lookup::Fetched {
         delegation,
@@ -270,78 +286,100 @@ pub async fn get_my_moocfi_credit_registrations(
     };
     let offers_certificate = has_certificate != Some(false);
 
-    let mut completions = Vec::new();
-    let mut listed = HashSet::new();
-    for row in preferred_rows(&stored, &targets) {
-        listed.insert(row.moocfi_completion_id);
-        let target = targets
-            .iter()
-            .find(|target| target.id == row.external_credit_target_id);
-        let registration_state = registration_states
-            .iter()
-            .find(|state| state.external_completion_id == row.id);
-        let student_facing_status = registration_state.map(|state| {
-            StudentFacingCreditRegistrationStatus::of(
-                state.state,
-                PendingPreconditions {
-                    completion_eligible: state.completion_eligible,
-                    has_verified_student_number: state.has_verified_student_number,
-                    course_code_allowed: state.course_code_allowed,
-                },
-                state.enrolment_resolved,
-            )
-        });
-        completions.push(MoocfiCompletionRegistration {
-            moocfi_completion_id: row.moocfi_completion_id,
-            completion_date: row.completion_date,
-            tier: row.tier,
-            status: held_by_pause(
-                stored_status(row, target, registered_equivalents.contains_key(&row.id)),
-                target,
-                student_facing_status,
-            ),
-            external_completion_id: Some(row.id),
-            credit_unit: target.map(MoocfiCreditUnit::from),
-            credit_registration_id: registration_state.map(|state| state.credit_registration_id),
-            student_facing_status,
-            offers_certificate,
-            credit_justification: justification_of(row.moocfi_completion_id),
-        });
+    let fetched = match &lookup {
+        Lookup::Fetched {
+            delegation,
+            completions,
+            ..
+        } => Some((
+            completions.as_slice(),
+            delegation.organization_slug.as_str(),
+        )),
+        _ => None,
+    };
+    let mut moocfi_completion_ids: Vec<Uuid> = fetched
+        .map(|(completions, _)| completions.iter().map(|completion| completion.id).collect())
+        .unwrap_or_default();
+    for row in &stored {
+        if !moocfi_completion_ids.contains(&row.moocfi_completion_id) {
+            moocfi_completion_ids.push(row.moocfi_completion_id);
+        }
     }
-    if let Lookup::Fetched {
-        delegation,
-        completions: fetched_completions,
-        ..
-    } = &lookup
-    {
-        for completion in fetched_completions
-            .iter()
-            .filter(|completion| !listed.contains(&completion.id))
-        {
-            let target = targets
+
+    let mut completions = Vec::new();
+    for moocfi_completion_id in moocfi_completion_ids {
+        let upstream = fetched.and_then(|(completions, _)| {
+            completions
                 .iter()
-                .find(|target| external_completions::admits_tier(target.tiers, completion.tier));
-            completions.push(MoocfiCompletionRegistration {
-                moocfi_completion_id: completion.id,
-                completion_date: completion.effective_date(),
-                tier: completion.tier,
-                status: held_by_pause(
-                    unstored_status(completion, target, &delegation.organization_slug),
+                .find(|completion| completion.id == moocfi_completion_id)
+        });
+        let rows: Vec<&ExternalCompletion> = stored
+            .iter()
+            .filter(|row| row.moocfi_completion_id == moocfi_completion_id)
+            .collect();
+        let (completion_date, tier) = match (upstream, rows.first()) {
+            (Some(completion), _) => (completion.effective_date(), completion.tier),
+            (None, Some(row)) => (row.completion_date, row.tier),
+            (None, None) => continue,
+        };
+        let mut credit_units = Vec::new();
+        for code in &codes {
+            let row = rows
+                .iter()
+                .find(|row| row.external_credit_target_code_id == code.id);
+            let registration_state = row.and_then(|row| {
+                registration_states
+                    .iter()
+                    .find(|state| state.external_completion_id == row.id)
+            });
+            if !code.is_earned_by(tier) && registration_state.is_none() {
+                continue;
+            }
+            let student_facing_status = registration_state.map(|state| {
+                StudentFacingCreditRegistrationStatus::of(
+                    state.state,
+                    PendingPreconditions {
+                        completion_eligible: state.completion_eligible,
+                        has_verified_student_number: state.has_verified_student_number,
+                        course_code_allowed: state.course_code_allowed,
+                    },
+                    state.enrolment_resolved,
+                )
+                .held_for_prerequisite(state.state, state.prerequisite_met)
+            });
+            let status = match (row, upstream, &target) {
+                (Some(row), _, Some(target)) => {
+                    stored_status(row, target, registered_equivalents.contains_key(&row.id))
+                }
+                (None, Some(completion), Some(target)) => unstored_status(
+                    completion,
+                    code,
                     target,
-                    None,
+                    fetched.map(|(_, slug)| slug).unwrap_or_default(),
                 ),
-                external_completion_id: None,
-                credit_unit: target.map(MoocfiCreditUnit::from),
-                credit_registration_id: None,
-                student_facing_status: None,
-                offers_certificate,
-                credit_justification: None,
+                _ => continue,
+            };
+            credit_units.push(MoocfiCreditUnitRegistration {
+                credit_unit: MoocfiCreditUnit::from(code),
+                status: held_by_pause(status, target.as_ref(), student_facing_status),
+                external_completion_id: row.map(|row| row.id),
+                credit_registration_id: registration_state
+                    .map(|state| state.credit_registration_id),
+                student_facing_status,
             });
         }
+        completions.push(MoocfiCompletionRegistration {
+            moocfi_completion_id,
+            completion_date,
+            tier,
+            credit_units,
+            offers_certificate,
+            credit_justification: justification_of(moocfi_completion_id),
+        });
     }
     completions.sort_by_key(|completion| std::cmp::Reverse(completion.completion_date));
 
-    let link = MoocfiCourseLink::of(&app_conf, &targets, language.ui_language.as_deref());
+    let link = MoocfiCourseLink::of(&app_conf, target.as_ref(), language.ui_language.as_deref());
     token.authorized_ok(web::Json(MoocfiCreditRegistrations {
         moocfi_course_id,
         signed_in_email,
@@ -363,13 +401,12 @@ pub struct MoocfiCourseLink {
 impl MoocfiCourseLink {
     fn of(
         app_conf: &ApplicationConfiguration,
-        targets: &[ExternalCreditTarget],
+        target: Option<&ExternalCreditTarget>,
         ui_language: Option<&str>,
     ) -> Self {
-        let first_target = targets.first();
         Self {
-            course_name: first_target.map(|target| target.name.clone()),
-            moocfi_course_url: first_target.and_then(|target| {
+            course_name: target.map(|target| target.name.clone()),
+            moocfi_course_url: target.and_then(|target| {
                 app_conf
                     .moocfi_configuration
                     .localized_frontend_url(ui_language)
@@ -413,20 +450,20 @@ pub async fn get_moocfi_course_link(
 ) -> ControllerResult<web::Json<MoocfiCourseLink>> {
     let token = skip_authorize();
     let mut conn = pool.acquire().await?;
-    let targets =
+    let target =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, *moocfi_course_id).await?;
     token.authorized_ok(web::Json(MoocfiCourseLink::of(
         &app_conf,
-        &targets,
+        target.as_ref(),
         language.ui_language.as_deref(),
     )))
 }
 
-/// Whether any target of the course lacks mooc.fi's details or has them older than
+/// Whether the course's target lacks mooc.fi's details or has them older than
 /// [`COURSE_DETAILS_MAX_AGE`].
-fn are_course_details_stale(targets: &[ExternalCreditTarget]) -> bool {
+fn are_course_details_stale(target: Option<&ExternalCreditTarget>) -> bool {
     let fresh_since = Utc::now() - COURSE_DETAILS_MAX_AGE;
-    targets.iter().any(|target| {
+    target.is_some_and(|target| {
         target
             .moocfi_course_checked_at
             .is_none_or(|checked_at| checked_at < fresh_since)
@@ -452,36 +489,10 @@ enum Lookup<'a> {
     Unavailable,
 }
 
-/// One row per completion: after a tier change a completion has a withdrawn row on its old target
-/// beside the live one, and only the one whose target still covers its tier is shown.
-fn preferred_rows<'a>(
-    stored: &'a [ExternalCompletion],
-    targets: &[ExternalCreditTarget],
-) -> Vec<&'a ExternalCompletion> {
-    let covers = |row: &ExternalCompletion| {
-        targets.iter().any(|target| {
-            target.id == row.external_credit_target_id
-                && external_completions::admits_tier(target.tiers, row.tier)
-        })
-    };
-    let mut rows: Vec<&ExternalCompletion> = Vec::new();
-    for row in stored {
-        match rows
-            .iter_mut()
-            .find(|kept| kept.moocfi_completion_id == row.moocfi_completion_id)
-        {
-            Some(kept) if !covers(kept) && covers(row) => *kept = row,
-            Some(_) => {}
-            None => rows.push(row),
-        }
-    }
-    rows
-}
-
 /// Mirrors the order in which the subjects view withdraws a stored row.
 fn stored_status(
     row: &ExternalCompletion,
-    target: Option<&ExternalCreditTarget>,
+    target: &ExternalCreditTarget,
     has_registered_equivalent: bool,
 ) -> MoocfiCompletionStatus {
     if row.upstream_missing_at.is_some() {
@@ -490,11 +501,6 @@ fn stored_status(
     if row.registered_upstream_at.is_some() {
         return MoocfiCompletionStatus::RegisteredOnMoocfi;
     }
-    let Some(target) =
-        target.filter(|target| external_completions::admits_tier(target.tiers, row.tier))
-    else {
-        return MoocfiCompletionStatus::NoCreditUnit;
-    };
     if !row.eligible_for_ects {
         return MoocfiCompletionStatus::NotEligible;
     }
@@ -529,22 +535,28 @@ fn held_by_pause(
     }
 }
 
-/// Why a completion mooc.fi returned has no row: the sync takes up every other one.
+/// Why a completion mooc.fi returned has no row under a code its tier earns: the sync takes up
+/// every other one.
 fn unstored_status(
     completion: &DelegatedCompletion,
-    target: Option<&ExternalCreditTarget>,
+    code: &ExternalCreditTargetCode,
+    target: &ExternalCreditTarget,
     organization_slug: &str,
 ) -> MoocfiCompletionStatus {
-    if completion
-        .registrations
-        .iter()
-        .any(|registration| registration.organization_slug.as_deref() != Some(organization_slug))
-    {
+    let is_registered_elsewhere = completion.registrations.iter().any(|registration| {
+        registration.organization_slug.as_deref() != Some(organization_slug)
+            && registration
+                .course_code
+                .as_deref()
+                .is_none_or(|course_code| {
+                    course_code
+                        .trim()
+                        .eq_ignore_ascii_case(code.uh_course_code.trim())
+                })
+    });
+    if is_registered_elsewhere {
         return MoocfiCompletionStatus::RegisteredOnMoocfi;
     }
-    let Some(target) = target else {
-        return MoocfiCompletionStatus::NoCreditUnit;
-    };
     if completion.eligible_for_ects != Some(true) {
         return MoocfiCompletionStatus::NotEligible;
     }

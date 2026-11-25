@@ -834,6 +834,17 @@
       },
       {
         "ordinal": 68,
+        "name": "external_credit_target_code_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "external_credit_target_code_id"
+          }
+        }
+      },
+      {
+        "ordinal": 69,
         "name": "credit_unit_id",
         "type_info": "Uuid",
         "origin": {
@@ -951,6 +962,7 @@
       true,
       true,
       false,
+      true,
       false
     ]
   },

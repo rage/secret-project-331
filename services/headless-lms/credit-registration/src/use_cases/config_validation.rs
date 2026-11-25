@@ -1,5 +1,5 @@
 //! The `config-validation` phase: the daily pass over the configuration of every module with a
-//! course code and every enabled mooc.fi target.
+//! course code and every code of an enabled mooc.fi target.
 //!
 //! Asks Suotar's `course-codes/validate` about every distinct course code, and mooc.fi about each
 //! target's course; the rest of the check reads the database.
@@ -9,11 +9,12 @@ use headless_lms_models::course_module_suotar_configurations::{
     SuotarConfigCheck, SuotarModuleConfigFacts, get_config_facts_for_modules_with_course_code,
     record_config_check,
 };
-use headless_lms_models::external_credit_targets::{
-    self, ExternalCreditTargetConfigFacts, get_config_facts_for_enabled_targets,
+use headless_lms_models::external_credit_target_codes::{
+    self, ExternalCreditTargetCodeConfigFacts, get_config_facts_for_enabled_targets,
 };
+use headless_lms_models::external_credit_targets;
 use headless_lms_models::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config, check_target_config,
+    CourseCodeVerdict, check_module_config, check_target_code_config,
 };
 use headless_lms_utils::services::moocfi::{MoocfiClient, MoocfiError};
 use itertools::Itertools;
@@ -182,9 +183,9 @@ fn check_modules(
         .collect()
 }
 
-/// Each target's check, in target order, with the same fallback to the stored verdict as modules.
+/// Each mooc.fi code's check, in order, with the same fallback to the stored verdict as modules.
 fn check_targets(
-    targets: &[ExternalCreditTargetConfigFacts],
+    targets: &[ExternalCreditTargetCodeConfigFacts],
     verdicts: &CourseCodeVerdicts,
 ) -> Vec<SuotarConfigCheck> {
     targets
@@ -192,22 +193,22 @@ fn check_targets(
         .map(|target| {
             let verdict = CourseCode::parse(&target.uh_course_code)
                 .and_then(|code| verdicts.get(&code).cloned())
-                .or_else(|| CourseCodeVerdict::stored_for_target(target));
-            check_target_config(target, verdict.as_ref())
+                .or_else(|| CourseCodeVerdict::stored_for_target_code(target));
+            check_target_code_config(target, verdict.as_ref())
         })
         .collect()
 }
 
 async fn record_target_checks(
     pool: &PgPool,
-    targets: &[ExternalCreditTargetConfigFacts],
+    targets: &[ExternalCreditTargetCodeConfigFacts],
     checks: &[SuotarConfigCheck],
 ) -> CreditRegistrationResult<()> {
     let mut conn = pool.acquire().await?;
     for (target, check) in targets.iter().zip(checks) {
-        external_credit_targets::record_config_check(
+        external_credit_target_codes::record_config_check(
             &mut conn,
-            target.external_credit_target_id,
+            target.external_credit_target_code_id,
             check,
         )
         .await?;

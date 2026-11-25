@@ -1,34 +1,14 @@
-//! mooc.fi courses whose credits courses registers: each target stands in for a course module and
-//! its credit registration configuration on the mooc.fi ledger rows it owns.
-
-use std::collections::HashMap;
+//! mooc.fi courses whose credits courses registers: each target stands in for a course and its
+//! credit registration switches on the mooc.fi ledger rows it owns. The course codes it registers
+//! under are its [`crate::external_credit_target_codes`].
 
 use utoipa::ToSchema;
 
-use crate::course_module_suotar_configurations::{SuotarConfigCheck, SuotarPause};
-use crate::credit_registrations::CreditRegistrationErrorCode;
+use crate::course_module_suotar_configurations::SuotarPause;
 use crate::prelude::*;
 
-/// How a mooc.fi completion with no grade reads on a target.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
-#[sqlx(type_name = "external_grading", rename_all = "snake_case")]
-#[serde(rename_all = "snake_case")]
-pub enum ExternalGrading {
-    /// No grade is a pass.
-    PassFail,
-    /// No grade is unrecognised, and the row waits until the grade is fixed on mooc.fi.
-    Numeric,
-}
-
-/// The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-pub struct TierRange {
-    pub lowest: Option<i32>,
-    pub highest: Option<i32>,
-}
-
-/// A mooc.fi course, or a tier range of one, whose completions courses registers under one course
-/// code.
+/// A mooc.fi course whose completions courses registers, under the course codes of its
+/// [`ExternalCreditTargetCode`](crate::external_credit_target_codes::ExternalCreditTargetCode)s.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct ExternalCreditTarget {
     pub id: Uuid,
@@ -40,12 +20,6 @@ pub struct ExternalCreditTarget {
     pub moocfi_course_slug: String,
     pub name: String,
     pub language_code: String,
-    /// `None` for an untiered course, which registers every completion.
-    pub tiers: Option<TierRange>,
-    pub uh_course_code: String,
-    pub ects_credits: f32,
-    pub grading: ExternalGrading,
-    pub enrolment_link: Option<String>,
     /// The cutoff: completions dated at or after it are ours, earlier ones mooc.fi's pull path's.
     pub delegated_at: DateTime<Utc>,
     /// `None` keeps every phase away from the target.
@@ -53,17 +27,6 @@ pub struct ExternalCreditTarget {
     pub paused_at: Option<DateTime<Utc>>,
     pub paused_by_user_id: Option<Uuid>,
     pub pause_reason: Option<String>,
-    pub config_checked_at: Option<DateTime<Utc>>,
-    /// The course code `course_code_allowed` is a verdict on.
-    pub checked_course_code: Option<String>,
-    /// `None` means never checked, which is not the same as a failed check.
-    pub course_code_allowed: Option<bool>,
-    pub course_code_rejection: Option<String>,
-    pub config_check_message: Option<String>,
-    pub last_listing_attempted_at: Option<DateTime<Utc>>,
-    pub last_listed_at: Option<DateTime<Utc>>,
-    pub last_listing_error: Option<CreditRegistrationErrorCode>,
-    pub consecutive_listing_failures: i32,
     /// What mooc.fi last said; `None` until it has answered.
     pub moocfi_has_certificate: Option<bool>,
     pub moocfi_course_checked_at: Option<DateTime<Utc>>,
@@ -88,97 +51,17 @@ pub struct ExternalCreditTargetConfiguration {
     pub moocfi_course_slug: String,
     pub name: String,
     pub language_code: String,
-    pub tiers: Option<TierRange>,
-    pub uh_course_code: String,
-    pub ects_credits: f32,
-    pub grading: ExternalGrading,
-    pub enrolment_link: Option<String>,
     pub delegated_at: DateTime<Utc>,
     pub enabled_at: Option<DateTime<Utc>>,
 }
 
-/// One row as the queries below read it; `tiers` comes split, since `INT4RANGE` has no serde form.
-struct ExternalCreditTargetRow {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
-    moocfi_course_id: Uuid,
-    moocfi_course_slug: String,
-    name: String,
-    language_code: String,
-    is_tiered: bool,
-    lowest_tier: Option<i32>,
-    highest_tier: Option<i32>,
-    uh_course_code: String,
-    ects_credits: f32,
-    grading: ExternalGrading,
-    enrolment_link: Option<String>,
-    delegated_at: DateTime<Utc>,
-    enabled_at: Option<DateTime<Utc>>,
-    paused_at: Option<DateTime<Utc>>,
-    paused_by_user_id: Option<Uuid>,
-    pause_reason: Option<String>,
-    config_checked_at: Option<DateTime<Utc>>,
-    checked_course_code: Option<String>,
-    course_code_allowed: Option<bool>,
-    course_code_rejection: Option<String>,
-    config_check_message: Option<String>,
-    last_listing_attempted_at: Option<DateTime<Utc>>,
-    last_listed_at: Option<DateTime<Utc>>,
-    last_listing_error: Option<CreditRegistrationErrorCode>,
-    consecutive_listing_failures: i32,
-    moocfi_has_certificate: Option<bool>,
-    moocfi_course_checked_at: Option<DateTime<Utc>>,
-}
-
-impl From<ExternalCreditTargetRow> for ExternalCreditTarget {
-    fn from(row: ExternalCreditTargetRow) -> Self {
-        Self {
-            id: row.id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            deleted_at: row.deleted_at,
-            moocfi_course_id: row.moocfi_course_id,
-            moocfi_course_slug: row.moocfi_course_slug,
-            name: row.name,
-            language_code: row.language_code,
-            tiers: row.is_tiered.then_some(TierRange {
-                lowest: row.lowest_tier,
-                highest: row.highest_tier,
-            }),
-            uh_course_code: row.uh_course_code,
-            ects_credits: row.ects_credits,
-            grading: row.grading,
-            enrolment_link: row.enrolment_link,
-            delegated_at: row.delegated_at,
-            enabled_at: row.enabled_at,
-            paused_at: row.paused_at,
-            paused_by_user_id: row.paused_by_user_id,
-            pause_reason: row.pause_reason,
-            config_checked_at: row.config_checked_at,
-            checked_course_code: row.checked_course_code,
-            course_code_allowed: row.course_code_allowed,
-            course_code_rejection: row.course_code_rejection,
-            config_check_message: row.config_check_message,
-            last_listing_attempted_at: row.last_listing_attempted_at,
-            last_listed_at: row.last_listed_at,
-            last_listing_error: row.last_listing_error,
-            consecutive_listing_failures: row.consecutive_listing_failures,
-            moocfi_has_certificate: row.moocfi_has_certificate,
-            moocfi_course_checked_at: row.moocfi_course_checked_at,
-        }
-    }
-}
-
-/// Creates a target. A tier range overlapping another live target of the same mooc.fi course fails
-/// with the `external_credit_targets_tier_overlap` constraint error.
+/// Creates a target. A second live target for the same mooc.fi course fails with the
+/// `uq_external_credit_targets_moocfi_course` constraint error.
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
     configuration: &ExternalCreditTargetConfiguration,
 ) -> ModelResult<Uuid> {
-    let tiers = configuration.tiers;
     let id = sqlx::query_scalar!(
         r#"
 INSERT INTO external_credit_targets (
@@ -187,30 +70,10 @@ INSERT INTO external_credit_targets (
     moocfi_course_slug,
     name,
     language_code,
-    tiers,
-    uh_course_code,
-    ects_credits,
-    grading,
-    enrolment_link,
     delegated_at,
     enabled_at
   )
-VALUES (
-    $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    CASE
-      WHEN $6 THEN int4range($7::int, $8::int, '[]')
-    END,
-    $9,
-    $10,
-    $11,
-    $12,
-    $13,
-    $14
-  )
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
         "#,
         pkey_policy.into_uuid(),
@@ -218,13 +81,6 @@ RETURNING id
         configuration.moocfi_course_slug,
         configuration.name,
         configuration.language_code,
-        tiers.is_some(),
-        tiers.and_then(|tiers| tiers.lowest),
-        tiers.and_then(|tiers| tiers.highest),
-        configuration.uh_course_code,
-        configuration.ects_credits,
-        configuration.grading as ExternalGrading,
-        configuration.enrolment_link,
         configuration.delegated_at,
         configuration.enabled_at,
     )
@@ -233,13 +89,13 @@ RETURNING id
     Ok(id)
 }
 
-/// Replaces a live target's configuration. Fails like [`insert`] on overlapping tiers.
+/// Replaces a live target's configuration. Fails like [`insert`] on a mooc.fi course that already
+/// has another live target.
 pub async fn update(
     conn: &mut PgConnection,
     id: Uuid,
     configuration: &ExternalCreditTargetConfiguration,
 ) -> ModelResult<()> {
-    let tiers = configuration.tiers;
     sqlx::query!(
         r#"
 UPDATE external_credit_targets
@@ -247,15 +103,8 @@ SET moocfi_course_id = $2,
   moocfi_course_slug = $3,
   name = $4,
   language_code = $5,
-  tiers = CASE
-    WHEN $6 THEN int4range($7::int, $8::int, '[]')
-  END,
-  uh_course_code = $9,
-  ects_credits = $10,
-  grading = $11,
-  enrolment_link = $12,
-  delegated_at = $13,
-  enabled_at = $14
+  delegated_at = $6,
+  enabled_at = $7
 WHERE id = $1
   AND deleted_at IS NULL
 RETURNING id
@@ -265,13 +114,6 @@ RETURNING id
         configuration.moocfi_course_slug,
         configuration.name,
         configuration.language_code,
-        tiers.is_some(),
-        tiers.and_then(|tiers| tiers.lowest),
-        tiers.and_then(|tiers| tiers.highest),
-        configuration.uh_course_code,
-        configuration.ects_credits,
-        configuration.grading as ExternalGrading,
-        configuration.enrolment_link,
         configuration.delegated_at,
         configuration.enabled_at,
     )
@@ -282,40 +124,10 @@ RETURNING id
 
 /// A live target by id.
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExternalCreditTarget> {
-    let row = sqlx::query_as!(
-        ExternalCreditTargetRow,
+    let res = sqlx::query_as!(
+        ExternalCreditTarget,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  moocfi_course_id,
-  moocfi_course_slug,
-  name,
-  language_code,
-  tiers IS NOT NULL AS "is_tiered!",
-  LOWER(tiers) AS lowest_tier,
-  UPPER(tiers) - 1 AS highest_tier,
-  uh_course_code,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  delegated_at,
-  enabled_at,
-  paused_at,
-  paused_by_user_id,
-  pause_reason,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures,
-  moocfi_has_certificate,
-  moocfi_course_checked_at
+SELECT *
 FROM external_credit_targets
 WHERE id = $1
   AND deleted_at IS NULL
@@ -324,59 +136,49 @@ WHERE id = $1
     )
     .fetch_one(conn)
     .await?;
-    Ok(row.into())
+    Ok(res)
 }
 
-/// The live targets of one mooc.fi course, lowest tiers first, the untiered one alone if there is
-/// one.
+/// [`get_by_id`], locking the row until the transaction ends, which serializes changes to the
+/// target's codes.
+pub async fn get_by_id_for_update(
+    conn: &mut PgConnection,
+    id: Uuid,
+) -> ModelResult<ExternalCreditTarget> {
+    let res = sqlx::query_as!(
+        ExternalCreditTarget,
+        r#"
+SELECT *
+FROM external_credit_targets
+WHERE id = $1
+  AND deleted_at IS NULL
+FOR UPDATE
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The live target of one mooc.fi course, if it has one.
 pub async fn get_by_moocfi_course_id(
     conn: &mut PgConnection,
     moocfi_course_id: Uuid,
-) -> ModelResult<Vec<ExternalCreditTarget>> {
-    let rows = sqlx::query_as!(
-        ExternalCreditTargetRow,
+) -> ModelResult<Option<ExternalCreditTarget>> {
+    let res = sqlx::query_as!(
+        ExternalCreditTarget,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  moocfi_course_id,
-  moocfi_course_slug,
-  name,
-  language_code,
-  tiers IS NOT NULL AS "is_tiered!",
-  LOWER(tiers) AS lowest_tier,
-  UPPER(tiers) - 1 AS highest_tier,
-  uh_course_code,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  delegated_at,
-  enabled_at,
-  paused_at,
-  paused_by_user_id,
-  pause_reason,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures,
-  moocfi_has_certificate,
-  moocfi_course_checked_at
+SELECT *
 FROM external_credit_targets
 WHERE moocfi_course_id = $1
   AND deleted_at IS NULL
-ORDER BY LOWER(tiers) NULLS FIRST
         "#,
         moocfi_course_id,
     )
-    .fetch_all(conn)
+    .fetch_optional(conn)
     .await?;
-    Ok(rows.into_iter().map(Into::into).collect())
+    Ok(res)
 }
 
 /// Soft-deletes a target, which withdraws its completions not yet submitted.
@@ -396,7 +198,7 @@ RETURNING id
     Ok(())
 }
 
-/// The mooc.fi course id of the live targets with this mooc.fi course slug.
+/// The mooc.fi course id of the live target with this mooc.fi course slug.
 pub async fn get_moocfi_course_id_by_slug(
     conn: &mut PgConnection,
     moocfi_course_slug: &str,
@@ -416,97 +218,7 @@ LIMIT 1
     Ok(res)
 }
 
-/// What the configuration check reads about one enabled target.
-#[derive(Debug, Clone, PartialEq)]
-pub struct ExternalCreditTargetConfigFacts {
-    pub external_credit_target_id: Uuid,
-    pub uh_course_code: String,
-    /// Suotar's verdict on the current course code from the last check; `None` if there is none or
-    /// the code has changed since.
-    pub stored_course_code_allowed: Option<bool>,
-    pub stored_course_code_rejection: Option<String>,
-}
-
-/// Every enabled live target's configuration facts, optionally only one target's. Paused targets
-/// are included, as paused modules are.
-pub async fn get_config_facts_for_enabled_targets(
-    conn: &mut PgConnection,
-    external_credit_target_id: Option<Uuid>,
-) -> ModelResult<Vec<ExternalCreditTargetConfigFacts>> {
-    let res = sqlx::query_as!(
-        ExternalCreditTargetConfigFacts,
-        r#"
-SELECT id AS external_credit_target_id,
-  uh_course_code,
-  CASE
-    WHEN checked_course_code = TRIM(uh_course_code) THEN course_code_allowed
-  END AS "stored_course_code_allowed?",
-  CASE
-    WHEN checked_course_code = TRIM(uh_course_code) THEN course_code_rejection
-  END AS "stored_course_code_rejection?"
-FROM external_credit_targets
-WHERE enabled_at IS NOT NULL
-  AND deleted_at IS NULL
-  AND ($1::uuid IS NULL OR id = $1)
-ORDER BY moocfi_course_id,
-  LOWER(tiers) NULLS FIRST
-        "#,
-        external_credit_target_id,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// Stamps a configuration check result on the target.
-pub async fn record_config_check(
-    conn: &mut PgConnection,
-    id: Uuid,
-    check: &SuotarConfigCheck,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-UPDATE external_credit_targets
-SET config_checked_at = now(),
-  course_code_allowed = $2,
-  config_check_message = $3,
-  checked_course_code = $4,
-  course_code_rejection = $5
-WHERE id = $1
-        "#,
-        id,
-        check.course_code_allowed,
-        check.message,
-        check.checked_course_code,
-        check.course_code_rejection,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// Moves the cutoff of every live target of the mooc.fi course, which must share one.
-pub async fn set_delegated_at_for_moocfi_course(
-    conn: &mut PgConnection,
-    moocfi_course_id: Uuid,
-    delegated_at: DateTime<Utc>,
-) -> ModelResult<()> {
-    sqlx::query!(
-        r#"
-UPDATE external_credit_targets
-SET delegated_at = $2
-WHERE moocfi_course_id = $1
-  AND deleted_at IS NULL
-        "#,
-        moocfi_course_id,
-        delegated_at,
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-/// Stores what mooc.fi said about the course on every live target of it.
+/// Stores what mooc.fi said about the course on its live target.
 pub async fn record_moocfi_course_details(
     conn: &mut PgConnection,
     moocfi_course_id: Uuid,
@@ -568,91 +280,20 @@ WHERE enabled_at IS NOT NULL
     Ok(ids)
 }
 
-/// Enabled live targets the last configuration check found broken; never-checked ones are not.
-pub async fn get_ids_failing_config_check(conn: &mut PgConnection) -> ModelResult<Vec<Uuid>> {
-    let ids = sqlx::query_scalar!(
-        r#"
-SELECT id
-FROM external_credit_targets
-WHERE enabled_at IS NOT NULL
-  AND deleted_at IS NULL
-  AND config_checked_at IS NOT NULL
-  AND config_check_message IS NOT NULL
-        "#,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(ids)
-}
-
 /// Every live target, enabled or not, for the admin Courses tab.
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<ExternalCreditTarget>> {
-    let rows = sqlx::query_as!(
-        ExternalCreditTargetRow,
+    let res = sqlx::query_as!(
+        ExternalCreditTarget,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  moocfi_course_id,
-  moocfi_course_slug,
-  name,
-  language_code,
-  tiers IS NOT NULL AS "is_tiered!",
-  LOWER(tiers) AS lowest_tier,
-  UPPER(tiers) - 1 AS highest_tier,
-  uh_course_code,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  delegated_at,
-  enabled_at,
-  paused_at,
-  paused_by_user_id,
-  pause_reason,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures,
-  moocfi_has_certificate,
-  moocfi_course_checked_at
+SELECT *
 FROM external_credit_targets
 WHERE deleted_at IS NULL
-ORDER BY name,
-  LOWER(tiers) NULLS FIRST
+ORDER BY name
         "#,
     )
     .fetch_all(conn)
     .await?;
-    Ok(rows.into_iter().map(Into::into).collect())
-}
-
-/// Completions per target that registration is responsible for, whether or not they have a ledger
-/// row: passed, ECTS-eligible and not withdrawn, by the same rule as
-/// `credit_registration_eligible_completions`.
-pub async fn count_eligible_completions_by_target(
-    conn: &mut PgConnection,
-) -> ModelResult<HashMap<Uuid, i64>> {
-    let rows = sqlx::query!(
-        r#"
-SELECT external_credit_target_id AS "external_credit_target_id!",
-  COUNT(*) AS "count!"
-FROM credit_registration_eligible_completions
-WHERE kind = 'mooc_fi'
-GROUP BY external_credit_target_id
-        "#,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(rows
-        .into_iter()
-        .map(|row| (row.external_credit_target_id, row.count))
-        .collect())
+    Ok(res)
 }
 
 /// Whether any mooc.fi completion or ledger row, live or not, was ever stored under the target.
@@ -736,10 +377,12 @@ WHERE id = $1
     if pause.is_none()
         && let Some(paused_at) = previously_paused_at
     {
-        crate::library::credit_registration::enrolment_checks::shift_past_pause(
-            &mut tx, id, paused_at,
-        )
-        .await?;
+        for code in crate::external_credit_target_codes::get_by_target_id(&mut tx, id).await? {
+            crate::library::credit_registration::enrolment_checks::shift_past_pause(
+                &mut tx, code.id, paused_at,
+            )
+            .await?;
+        }
     }
     tx.commit().await?;
     Ok(())

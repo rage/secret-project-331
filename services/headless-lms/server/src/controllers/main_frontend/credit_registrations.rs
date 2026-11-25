@@ -892,6 +892,7 @@ async fn build_my_credit_registrations(
                 row.preconditions(),
                 row.enrolment_resolved,
             )
+            .held_for_prerequisite(state, row.prerequisite_met)
         };
         let linking_email = if status == StudentFacingCreditRegistrationStatus::NeedsStudentNumber {
             resolve_linking_email(conn, user_id, &row, &mut linking_mails).await?

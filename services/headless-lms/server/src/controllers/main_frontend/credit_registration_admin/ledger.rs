@@ -116,7 +116,8 @@ pub struct AdminCreditRegistrationRow {
     pub sisu_person_id: Option<String>,
     /// The code submitted, frozen with `student_number`.
     pub uh_course_code: Option<String>,
-    /// The module's or mooc.fi target's code now; differs from `uh_course_code` after a later edit.
+    /// The module's or mooc.fi code's course code now; differs from `uh_course_code` after a later
+    /// edit.
     pub current_uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
     pub grade_scale_id: Option<String>,
@@ -438,7 +439,7 @@ pub struct AdminBulkTransitionResult {
 pub struct AdminRequeueRetryablePayload {
     pub course_id: Option<Uuid>,
     pub external_credit_target_id: Option<Uuid>,
-    /// A course module, or a mooc.fi target.
+    /// A course module, or a mooc.fi code.
     pub course_module_id: Option<Uuid>,
     pub reason: String,
 }
@@ -457,7 +458,7 @@ pub struct ListCreditRegistrationsQuery {
     error_code: Option<Vec<CreditRegistrationErrorCode>>,
     /// A course or a mooc.fi target.
     course_id: Option<Uuid>,
-    /// A module or a mooc.fi target.
+    /// A module or a mooc.fi code.
     course_module_id: Option<Uuid>,
     user_id: Option<Uuid>,
     student_number: Option<SecretString>,
@@ -489,7 +490,7 @@ and sorted.
         ("state" = Option<Vec<CreditRegistrationState>>, Query, description = "Ledger states; repeat the parameter for several"),
         ("error_code" = Option<Vec<CreditRegistrationErrorCode>>, Query, description = "Error codes; repeat the parameter for several"),
         ("course_id" = Option<Uuid>, Query, description = "Course or mooc.fi target filter"),
-        ("course_module_id" = Option<Uuid>, Query, description = "Course module or mooc.fi target filter"),
+        ("course_module_id" = Option<Uuid>, Query, description = "Course module or mooc.fi code filter"),
         ("user_id" = Option<Uuid>, Query, description = "Student filter"),
         ("student_number" = Option<String>, Query, description = "Exact student number, frozen on the row or linked to the account"),
         ("step" = Option<Vec<TimelineStep>>, Query, description = "Timeline steps; repeat the parameter for several. A row waiting for a student number matches only if it completed since account linking began, as the overview counts it"),

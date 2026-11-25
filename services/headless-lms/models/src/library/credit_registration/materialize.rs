@@ -38,6 +38,7 @@ WITH registrable_completion AS (
       enrolment.course_instance_id,
       NULL::uuid AS external_completion_id,
       NULL::uuid AS external_credit_target_id,
+      NULL::uuid AS external_credit_target_code_id,
       c.created_at
     FROM credit_registration_registrable_completions c
       -- The completion does not name an instance, and the ledger row must. An inner join, so a
@@ -66,6 +67,7 @@ WITH registrable_completion AS (
       NULL::uuid,
       c.external_completion_id,
       c.external_credit_target_id,
+      c.external_credit_target_code_id,
       c.created_at
     FROM credit_registration_registrable_completions c
       JOIN external_credit_targets t ON t.id = c.external_credit_target_id
@@ -87,7 +89,8 @@ inserted AS (
       course_module_id,
       course_instance_id,
       external_completion_id,
-      external_credit_target_id
+      external_credit_target_id,
+      external_credit_target_code_id
     )
   SELECT id,
     course_module_completion_id,
@@ -96,7 +99,8 @@ inserted AS (
     course_module_id,
     course_instance_id,
     external_completion_id,
-    external_credit_target_id
+    external_credit_target_id,
+    external_credit_target_code_id
   FROM registrable_completion ON CONFLICT DO NOTHING
   RETURNING id
 ),
@@ -406,13 +410,6 @@ WHERE cr.deleted_at IS NULL
     FROM external_completions ec
     WHERE ec.id = cr.external_completion_id
       AND ec.reported_at IS NOT NULL
-      AND NOT EXISTS (
-        SELECT 1
-        FROM external_completions sibling
-          JOIN credit_registrations sibling_cr ON sibling_cr.external_completion_id = sibling.id
-        WHERE sibling.moocfi_completion_id = ec.moocfi_completion_id
-          AND sibling.id <> ec.id
-      )
   )
   AND ($2::uuid IS NULL OR cr.course_id = $2)
   AND ($4::uuid IS NULL OR cr.external_credit_target_id = $4)

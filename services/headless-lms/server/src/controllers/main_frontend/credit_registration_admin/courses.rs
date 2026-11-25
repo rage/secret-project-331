@@ -1,5 +1,5 @@
-//! The Courses tab: one row per course module with a course code and per mooc.fi target, with its
-//! configuration validated, and the mooc.fi targets' configuration.
+//! The Courses tab: one row per course module with a course code and per mooc.fi code, with its
+//! configuration validated, and the configuration of the mooc.fi targets and their codes.
 
 use std::collections::HashMap;
 
@@ -15,11 +15,14 @@ use headless_lms_models::credit_registration_admin_actions::{
 use headless_lms_models::credit_registrations::{
     self, AttentionStanding, CreditRegistrationErrorCode,
 };
+use headless_lms_models::external_credit_target_codes::{
+    self, ExternalCreditTargetCode, ExternalCreditTargetCodeConfiguration, ExternalGrading,
+};
 use headless_lms_models::external_credit_targets::{
-    self, ExternalCreditTarget, ExternalCreditTargetConfiguration, ExternalGrading, TierRange,
+    self, ExternalCreditTarget, ExternalCreditTargetConfiguration,
 };
 use headless_lms_models::library::credit_registration::config_validation::{
-    CourseCodeVerdict, check_module_config, check_target_config,
+    CourseCodeVerdict, check_module_config, check_target_code_config,
 };
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use utoipa::ToSchema;
@@ -55,21 +58,25 @@ pub struct CreditRegistrationCourseConfigCheck {
     pub message: Option<String>,
 }
 
-/// One row of the Courses tab: a course module or a mooc.fi target.
+/// One row of the Courses tab: a course module or a mooc.fi code.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseStats {
-    /// The module's or target's id, which the Registrations list's `course_module_id` filter takes.
+    /// The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter
+    /// takes.
     pub credit_unit_id: Uuid,
-    /// The course, or the mooc.fi target, which is its own credit unit.
+    /// The course, or the mooc.fi target.
     pub course_or_target_id: Uuid,
-    /// `None` for a mooc.fi target, as is `course_module_id`.
+    /// `None` for a mooc.fi code, as is `course_module_id`.
     pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_module_id: Option<Uuid>,
+    /// The module's name, or the mooc.fi code's.
     pub course_module_name: Option<String>,
-    /// The target's configuration, for a mooc.fi target only.
+    /// The target's configuration, for a mooc.fi code only.
     pub external_credit_target: Option<ExternalCreditTarget>,
+    /// The code's configuration, for a mooc.fi code only.
+    pub external_credit_target_code: Option<ExternalCreditTargetCode>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     /// Where a student with no usable enrolment is sent to enrol.
@@ -88,7 +95,7 @@ pub struct CreditRegistrationCourseStats {
     /// Every passed, ECTS-eligible completion on the module, whichever path owns it. Wider than
     /// what `materialize` takes, which is only the ones carrying `register_credits_via_suotar`, so
     /// a module keeps a permanent gap against `registration_count` for the completions that predate
-    /// the push path. For a mooc.fi target, exactly the completions it is responsible for, withdrawn
+    /// the push path. For a mooc.fi code, exactly the completions it is responsible for, withdrawn
     /// ones left out.
     pub eligible_completion_count: i64,
     pub registration_count: i64,
@@ -113,9 +120,9 @@ pub struct CreditRegistrationCourseStats {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationStatsByCourse {
-    /// Modules first, then mooc.fi targets.
+    /// Modules first, then mooc.fi codes.
     pub credit_units: Vec<CreditRegistrationCourseStats>,
-    /// Modules and targets whose current facts fail the check, which is the tab badge.
+    /// Modules and mooc.fi codes whose current facts fail the check, which is the tab badge.
     pub misconfigured_count: i64,
 }
 
@@ -129,23 +136,18 @@ pub struct AdminResumeCourseModulePayload {
     pub reason: Option<String>,
 }
 
-/// A mooc.fi target's configuration as the admin form sends it, with the audit reason.
+/// A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course
+/// codes are configured apart; see [`AdminExternalCreditTargetCodePayload`].
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminExternalCreditTargetPayload {
-    /// The handler course on mooc.fi, which the completions are stored on.
+    /// The handler course on mooc.fi, which the completions are stored on. One live target each.
     pub moocfi_course_id: Uuid,
     pub moocfi_course_slug: String,
     pub name: String,
     /// BCP 47, e.g. `fi-FI`.
     pub language_code: String,
-    /// `None` for an untiered course.
-    pub tiers: Option<TierRange>,
-    pub uh_course_code: String,
-    pub ects_credits: f32,
-    pub grading: ExternalGrading,
-    pub enrolment_link: Option<String>,
-    /// Must equal mooc.fi's `credit_registration_delegated_at` and the other live targets' cutoff
-    /// of the same mooc.fi course. Cannot change once the target has registrations.
+    /// Must equal mooc.fi's `credit_registration_delegated_at`. Cannot change once the target has
+    /// registrations.
     pub delegated_at: DateTime<Utc>,
     pub enabled: bool,
     pub reason: String,
@@ -156,11 +158,33 @@ pub struct AdminDeleteExternalCreditTargetPayload {
     pub reason: String,
 }
 
-/// One module that registers credits, or a mooc.fi target, with its course code.
+/// One course code of a mooc.fi target as the admin form sends it, with the audit reason.
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminExternalCreditTargetCodePayload {
+    /// The name students see for these credits, such as "Building AI, intermediate".
+    pub name: String,
+    /// Unique among the target's live codes.
+    pub uh_course_code: String,
+    /// The lowest completion tier that earns the code; higher tiers earn it too. `None` for a code
+    /// every completion earns, tiered or not.
+    pub minimum_tier: Option<i32>,
+    pub ects_credits: f32,
+    pub grading: ExternalGrading,
+    pub enrolment_link: Option<String>,
+    /// Another live code of the same target that must be in Sisu first. Must not lead back to
+    /// this code.
+    pub prerequisite_code_id: Option<Uuid>,
+    /// Older course codes an attainment of which counts as holding this one.
+    #[serde(default)]
+    pub equivalent_course_codes: Vec<String>,
+    pub reason: String,
+}
+
+/// One module that registers credits, or a mooc.fi code, with its course code.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditUnitCourseCode {
     pub credit_unit_id: Uuid,
-    /// `None` for a mooc.fi target or a course's default module.
+    /// The module's name, or the mooc.fi code's; `None` for a course's default module.
     pub course_module_name: Option<String>,
     pub uh_course_code: Option<String>,
 }
@@ -172,7 +196,7 @@ pub struct AdminCreditRegistrationCourseSummary {
     pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
-    /// The course's modules that register credits, or the mooc.fi target alone.
+    /// The course's modules that register credits, or the mooc.fi target's codes.
     pub credit_units: Vec<AdminCreditUnitCourseCode>,
 }
 
@@ -227,11 +251,15 @@ pub async fn get_credit_registration_course_summary(
         CourseOrTarget::Target(target) => AdminCreditRegistrationCourseSummary {
             course_id: None,
             course_name: target.display_name(),
-            credit_units: vec![AdminCreditUnitCourseCode {
-                credit_unit_id: target.id,
-                course_module_name: None,
-                uh_course_code: Some(target.uh_course_code),
-            }],
+            credit_units: external_credit_target_codes::get_by_target_id(&mut conn, target.id)
+                .await?
+                .into_iter()
+                .map(|code| AdminCreditUnitCourseCode {
+                    credit_unit_id: code.id,
+                    course_module_name: Some(code.name),
+                    uh_course_code: Some(code.uh_course_code),
+                })
+                .collect(),
         },
     };
 
@@ -314,25 +342,37 @@ pub async fn get_credit_registration_stats_by_course(
         })
         .collect();
 
-    let mut target_checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
-        external_credit_targets::get_config_facts_for_enabled_targets(&mut conn, None)
+    let mut code_checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
+        external_credit_target_codes::get_config_facts_for_enabled_targets(&mut conn, None)
             .await?
             .into_iter()
             .map(|facts| {
-                let check = check_target_config(
+                let check = check_target_code_config(
                     &facts,
-                    CourseCodeVerdict::stored_for_target(&facts).as_ref(),
+                    CourseCodeVerdict::stored_for_target_code(&facts).as_ref(),
                 );
-                (facts.external_credit_target_id, config_check_stats(check))
+                (
+                    facts.external_credit_target_code_id,
+                    config_check_stats(check),
+                )
             })
             .collect();
     let mut eligible_counts =
-        external_credit_targets::count_eligible_completions_by_target(&mut conn).await?;
-    for target in external_credit_targets::get_all(&mut conn).await? {
-        let id = target.id;
-        let mut stats = target_course_stats(
-            target,
-            target_checks.remove(&id).unwrap_or(NO_CHECK),
+        external_credit_target_codes::count_eligible_completions_by_code(&mut conn).await?;
+    let targets: HashMap<Uuid, ExternalCreditTarget> = external_credit_targets::get_all(&mut conn)
+        .await?
+        .into_iter()
+        .map(|target| (target.id, target))
+        .collect();
+    for code in external_credit_target_codes::get_all(&mut conn).await? {
+        let Some(target) = targets.get(&code.external_credit_target_id) else {
+            continue;
+        };
+        let id = code.id;
+        let mut stats = target_code_course_stats(
+            target.clone(),
+            code,
+            code_checks.remove(&id).unwrap_or(NO_CHECK),
             eligible_counts.remove(&id).unwrap_or(0),
             totals.remove(&id),
         );
@@ -505,6 +545,7 @@ fn to_course_stats(
         course_module_id: Some(overview.course_module_id),
         course_module_name: overview.course_module_name,
         external_credit_target: None,
+        external_credit_target_code: None,
         uh_course_code: overview.uh_course_code,
         ects_credits: overview.ects_credits,
         enrolment_link: overview.enrolment_link,
@@ -528,29 +569,30 @@ fn to_course_stats(
     }
 }
 
-fn target_course_stats(
+fn target_code_course_stats(
     target: ExternalCreditTarget,
+    code: ExternalCreditTargetCode,
     check: CreditRegistrationCourseConfigCheck,
     eligible_completion_count: i64,
     totals: Option<credit_registrations::CreditUnitRegistrationTotals>,
 ) -> CreditRegistrationCourseStats {
     let totals = totals.unwrap_or_default();
     CreditRegistrationCourseStats {
-        credit_unit_id: target.id,
+        credit_unit_id: code.id,
         course_or_target_id: target.id,
         course_id: None,
         course_name: target.display_name(),
         course_module_id: None,
-        course_module_name: None,
-        uh_course_code: Some(target.uh_course_code.clone()),
-        ects_credits: Some(target.ects_credits),
-        enrolment_link: target.enrolment_link.clone(),
+        course_module_name: Some(code.name.clone()),
+        uh_course_code: Some(code.uh_course_code.clone()),
+        ects_credits: Some(code.ects_credits),
+        enrolment_link: code.enrolment_link.clone(),
         paused_at: target.paused_at,
         pause_reason: target.pause_reason.clone(),
-        last_listed_at: target.last_listed_at,
+        last_listed_at: code.last_listed_at,
         check,
-        config_checked_at: target.config_checked_at,
-        stored_config_check_message: target.config_check_message.clone(),
+        config_checked_at: code.config_checked_at,
+        stored_config_check_message: code.config_check_message.clone(),
         eligible_completion_count,
         registration_count: totals.total_count,
         success_count: totals.success_count,
@@ -563,6 +605,7 @@ fn target_course_stats(
         last_registered_at: totals.last_registered_at,
         top_error_code: totals.top_error_code,
         external_credit_target: Some(target),
+        external_credit_target_code: Some(code),
     }
 }
 
@@ -579,7 +622,7 @@ course whose credits courses registers.
     request_body = AdminExternalCreditTargetPayload,
     responses(
         (status = 200, description = "The new target's id", body = Uuid),
-        (status = 422, description = "Invalid configuration, overlapping tiers or a course code the mooc.fi course already has")
+        (status = 422, description = "Invalid configuration, or a mooc.fi course that already has a target")
     )
 )]
 pub async fn admin_create_external_credit_target(
@@ -594,7 +637,6 @@ pub async fn admin_create_external_credit_target(
     let configuration = target_configuration(&payload, None)?;
 
     let mut tx = conn.begin().await?;
-    require_shared_cutoff(&mut tx, &configuration, None).await?;
     let id = external_credit_targets::insert(&mut tx, PKeyPolicy::Generate, &configuration).await?;
     record_target_action(
         &mut tx,
@@ -624,7 +666,7 @@ PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{e
     request_body = AdminExternalCreditTargetPayload,
     responses(
         (status = 200, description = "Saved"),
-        (status = 422, description = "Invalid configuration, overlapping tiers, a course code the mooc.fi course already has, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions")
+        (status = 422, description = "Invalid configuration, a mooc.fi course that already has a target, a cutoff change on a target with registrations, or a mooc.fi course change on a target with completions")
     )
 )]
 pub async fn admin_update_external_credit_target(
@@ -642,9 +684,10 @@ pub async fn admin_update_external_credit_target(
     let mut tx = conn.begin().await?;
     let before = external_credit_targets::get_by_id(&mut tx, id).await?;
     let configuration = target_configuration(&payload, Some(&before))?;
-    let is_cutoff_moved = configuration.delegated_at != before.delegated_at;
     // Moving the cutoff of a target with registrations is a hand-run procedure on both platforms.
-    if is_cutoff_moved && external_credit_targets::has_credit_registrations(&mut tx, id).await? {
+    if configuration.delegated_at != before.delegated_at
+        && external_credit_target_codes::has_credit_registrations(&mut tx, id).await?
+    {
         return Err(controller_err!(
             BadRequest,
             "The cutoff cannot change once the target has registrations.".to_string()
@@ -652,42 +695,13 @@ pub async fn admin_update_external_credit_target(
     }
     // Its completions and their ledger rows were read from the old course.
     if configuration.moocfi_course_id != before.moocfi_course_id
-        && external_credit_targets::has_completions(&mut tx, id).await?
+        && external_credit_target_codes::has_completions(&mut tx, id, None).await?
     {
         return Err(bad_request_with_reason(
             BadRequestReason::ExternalCreditTargetMoocfiCourseFixed,
             "The mooc.fi course cannot change once the target has completions.".to_string(),
         ));
     }
-    // mooc.fi has one cutoff per course, so a move takes the course's other targets along;
-    // otherwise each would refuse the change for disagreeing with the others.
-    let mut moved_sibling_ids = Vec::new();
-    if is_cutoff_moved && configuration.moocfi_course_id == before.moocfi_course_id {
-        for sibling in external_credit_targets::get_by_moocfi_course_id(
-            &mut tx,
-            configuration.moocfi_course_id,
-        )
-        .await?
-        .into_iter()
-        .filter(|sibling| sibling.id != id)
-        {
-            if external_credit_targets::has_credit_registrations(&mut tx, sibling.id).await? {
-                return Err(controller_err!(
-                    BadRequest,
-                    "The cutoff cannot change once a target of the mooc.fi course has registrations."
-                        .to_string()
-                ));
-            }
-            moved_sibling_ids.push(sibling.id);
-        }
-        external_credit_targets::set_delegated_at_for_moocfi_course(
-            &mut tx,
-            configuration.moocfi_course_id,
-            configuration.delegated_at,
-        )
-        .await?;
-    }
-    require_shared_cutoff(&mut tx, &configuration, Some(id)).await?;
     external_credit_targets::update(&mut tx, id, &configuration).await?;
     record_target_action(
         &mut tx,
@@ -699,7 +713,6 @@ pub async fn admin_update_external_credit_target(
             "change": "update",
             "before": before,
             "after": configuration,
-            "moved_sibling_cutoffs": moved_sibling_ids,
         })),
     )
     .await?;
@@ -851,12 +864,275 @@ pub async fn admin_resume_external_credit_target(
     token.authorized_ok(web::Json(true))
 }
 
-/// The payload as a configuration to store, trimmed and checked. `existing` keeps the time an
-/// already enabled target was switched on.
-fn target_configuration(
-    payload: &AdminExternalCreditTargetPayload,
-    existing: Option<&ExternalCreditTarget>,
-) -> Result<ExternalCreditTargetConfiguration, ControllerError> {
+/**
+GET `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+- The live course codes of a mooc.fi target, lowest minimum tier first.
+*/
+#[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/courses/external-targets/{external_credit_target_id}/codes",
+    operation_id = "adminGetExternalCreditTargetCodes",
+    tag = "credit-registration-admin",
+    params(("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id")),
+    responses(
+        (status = 200, description = "The target's codes", body = Vec<ExternalCreditTargetCode>)
+    )
+)]
+pub async fn admin_get_external_credit_target_codes(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_credit_target_id: web::Path<Uuid>,
+) -> ControllerResult<web::Json<Vec<ExternalCreditTargetCode>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+    let target = external_credit_targets::get_by_id(&mut conn, *external_credit_target_id).await?;
+    let codes = external_credit_target_codes::get_by_target_id(&mut conn, target.id).await?;
+    token.authorized_ok(web::Json(codes))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+- Adds a course code to a mooc.fi target.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/courses/external-targets/{external_credit_target_id}/codes",
+    operation_id = "adminCreateExternalCreditTargetCode",
+    tag = "credit-registration-admin",
+    params(("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id")),
+    request_body = AdminExternalCreditTargetCodePayload,
+    responses(
+        (status = 200, description = "The new code's id", body = Uuid),
+        (status = 422, description = "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target")
+    )
+)]
+pub async fn admin_create_external_credit_target_code(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    external_credit_target_id: web::Path<Uuid>,
+    payload: web::Json<AdminExternalCreditTargetCodePayload>,
+) -> ControllerResult<web::Json<Uuid>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+    let target_id = *external_credit_target_id;
+    let configuration = code_configuration(&payload)?;
+
+    let mut tx = conn.begin().await?;
+    external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
+    require_valid_prerequisite(&mut tx, target_id, None, configuration.prerequisite_code_id)
+        .await?;
+    let id = external_credit_target_codes::insert(
+        &mut tx,
+        PKeyPolicy::Generate,
+        target_id,
+        &configuration,
+    )
+    .await?;
+    record_target_action(
+        &mut tx,
+        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+        target_id,
+        user.id,
+        Some(reason),
+        Some(serde_json::json!({
+            "change": "create_code",
+            "external_credit_target_code_id": id,
+            "after": configuration,
+        })),
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(id))
+}
+
+/**
+PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`
+- Replaces the configuration of one course code of a mooc.fi target.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    put,
+    path = "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}",
+    operation_id = "adminUpdateExternalCreditTargetCode",
+    tag = "credit-registration-admin",
+    params(
+        ("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id"),
+        ("external_credit_target_code_id" = Uuid, Path, description = "Code id")
+    ),
+    request_body = AdminExternalCreditTargetCodePayload,
+    responses(
+        (status = 200, description = "Saved"),
+        (status = 422, description = "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target or leads back to this one")
+    )
+)]
+pub async fn admin_update_external_credit_target_code(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    path: web::Path<(Uuid, Uuid)>,
+    payload: web::Json<AdminExternalCreditTargetCodePayload>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+    let (target_id, id) = path.into_inner();
+    let configuration = code_configuration(&payload)?;
+
+    let mut tx = conn.begin().await?;
+    external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
+    let before = target_code(&mut tx, target_id, id).await?;
+    require_valid_prerequisite(
+        &mut tx,
+        target_id,
+        Some(id),
+        configuration.prerequisite_code_id,
+    )
+    .await?;
+    external_credit_target_codes::update(&mut tx, id, &configuration).await?;
+    record_target_action(
+        &mut tx,
+        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+        target_id,
+        user.id,
+        Some(reason),
+        Some(serde_json::json!({
+            "change": "update_code",
+            "external_credit_target_code_id": id,
+            "before": before,
+            "after": configuration,
+        })),
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(true))
+}
+
+/**
+POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`
+- Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet
+submitted.
+*/
+#[instrument(skip(pool, payload))]
+#[utoipa::path(
+    post,
+    path = "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete",
+    operation_id = "adminDeleteExternalCreditTargetCode",
+    tag = "credit-registration-admin",
+    params(
+        ("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id"),
+        ("external_credit_target_code_id" = Uuid, Path, description = "Code id")
+    ),
+    request_body = AdminDeleteExternalCreditTargetPayload,
+    responses(
+        (status = 200, description = "Deleted"),
+        (status = 422, description = "No reason given, or the code is another live code's prerequisite")
+    )
+)]
+pub async fn admin_delete_external_credit_target_code(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    path: web::Path<(Uuid, Uuid)>,
+    payload: web::Json<AdminDeleteExternalCreditTargetPayload>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
+
+    let reason = required_reason(&payload.reason)?;
+    let (target_id, id) = path.into_inner();
+
+    let mut tx = conn.begin().await?;
+    external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
+    let before = target_code(&mut tx, target_id, id).await?;
+    if !external_credit_target_codes::get_dependent_codes(&mut tx, id)
+        .await?
+        .is_empty()
+    {
+        return Err(controller_err!(
+            BadRequest,
+            "Another code has this one as its prerequisite. Change that code first.".to_string()
+        ));
+    }
+    external_credit_target_codes::delete(&mut tx, id).await?;
+    record_target_action(
+        &mut tx,
+        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+        target_id,
+        user.id,
+        Some(reason),
+        Some(serde_json::json!({
+            "change": "delete_code",
+            "external_credit_target_code_id": id,
+            "before": before,
+        })),
+    )
+    .await?;
+    tx.commit().await?;
+
+    token.authorized_ok(web::Json(true))
+}
+
+/// A live code of the target; not found when the code belongs to another target.
+async fn target_code(
+    conn: &mut PgConnection,
+    target_id: Uuid,
+    id: Uuid,
+) -> Result<ExternalCreditTargetCode, ControllerError> {
+    let code = external_credit_target_codes::get_by_id(conn, id).await?;
+    if code.external_credit_target_id != target_id {
+        return Err(controller_err!(NotFound, "No such code.".to_string()));
+    }
+    Ok(code)
+}
+
+/// Refuses a prerequisite that is not a live code of the target, or whose own chain of
+/// prerequisites leads back to `own_id`. The target row must be locked, so the chain cannot change
+/// meanwhile.
+async fn require_valid_prerequisite(
+    conn: &mut PgConnection,
+    target_id: Uuid,
+    own_id: Option<Uuid>,
+    prerequisite_code_id: Option<Uuid>,
+) -> Result<(), ControllerError> {
+    let Some(prerequisite_code_id) = prerequisite_code_id else {
+        return Ok(());
+    };
+    let codes = external_credit_target_codes::get_by_target_id(conn, target_id).await?;
+    let mut next = Some(prerequisite_code_id);
+    // At most one step per code: a longer walk has gone round a cycle.
+    for _ in 0..=codes.len() {
+        let Some(id) = next else {
+            return Ok(());
+        };
+        if Some(id) == own_id {
+            return Err(controller_err!(
+                BadRequest,
+                "The prerequisite leads back to this code.".to_string()
+            ));
+        }
+        let Some(code) = codes.iter().find(|code| code.id == id) else {
+            return Err(controller_err!(
+                BadRequest,
+                "The prerequisite must be another code of the same course.".to_string()
+            ));
+        };
+        next = code.prerequisite_code_id;
+    }
+    Err(controller_err!(
+        BadRequest,
+        "The prerequisites of this course go round in a circle.".to_string()
+    ))
+}
+
+/// The payload as a code configuration to store, trimmed and checked.
+fn code_configuration(
+    payload: &AdminExternalCreditTargetCodePayload,
+) -> Result<ExternalCreditTargetCodeConfiguration, ControllerError> {
     let required = |value: &str, field: &str| -> Result<String, ControllerError> {
         let trimmed = value.trim();
         if trimmed.is_empty() {
@@ -870,28 +1146,66 @@ fn target_configuration(
             "ECTS credits must be more than zero.".to_string()
         ));
     }
-    if let Some(TierRange {
-        lowest: Some(lowest),
-        highest: Some(highest),
-    }) = payload.tiers
-        && lowest > highest
-    {
+    if payload.minimum_tier.is_some_and(|tier| tier < 0) {
         return Err(controller_err!(
             BadRequest,
-            "The lowest tier is above the highest.".to_string()
+            "The minimum tier cannot be negative.".to_string()
         ));
     }
-    // Postgres stores the inclusive range with an exclusive upper bound of `highest + 1`.
-    if let Some(TierRange {
-        highest: Some(i32::MAX),
-        ..
-    }) = payload.tiers
-    {
+    let uh_course_code = required(&payload.uh_course_code, "The course code")?;
+    let mut equivalent_course_codes: Vec<String> = Vec::new();
+    for equivalent in &payload.equivalent_course_codes {
+        let equivalent = equivalent.trim();
+        if equivalent.is_empty()
+            || equivalent.eq_ignore_ascii_case(&uh_course_code)
+            || equivalent_course_codes
+                .iter()
+                .any(|kept| kept.eq_ignore_ascii_case(equivalent))
+        {
+            continue;
+        }
+        equivalent_course_codes.push(equivalent.to_string());
+    }
+    Ok(ExternalCreditTargetCodeConfiguration {
+        name: required(&payload.name, "The name")?,
+        uh_course_code,
+        minimum_tier: payload.minimum_tier,
+        ects_credits: payload.ects_credits,
+        grading: payload.grading,
+        enrolment_link: enrolment_link(payload.enrolment_link.as_deref())?,
+        prerequisite_code_id: payload.prerequisite_code_id,
+        equivalent_course_codes,
+    })
+}
+
+/// The link trimmed, `None` when blank. Students open it as a link, where a `javascript:` URL
+/// would run as our page.
+fn enrolment_link(link: Option<&str>) -> Result<Option<String>, ControllerError> {
+    let Some(link) = link.map(str::trim).filter(|link| !link.is_empty()) else {
+        return Ok(None);
+    };
+    if !url::Url::parse(link).is_ok_and(|url| url.scheme() == "https" && url.has_host()) {
         return Err(controller_err!(
             BadRequest,
-            "The highest tier is too large.".to_string()
+            "The enrolment link must be a web address that starts with https://.".to_string()
         ));
     }
+    Ok(Some(link.to_string()))
+}
+
+/// The payload as a configuration to store, trimmed and checked. `existing` keeps the time an
+/// already enabled target was switched on.
+fn target_configuration(
+    payload: &AdminExternalCreditTargetPayload,
+    existing: Option<&ExternalCreditTarget>,
+) -> Result<ExternalCreditTargetConfiguration, ControllerError> {
+    let required = |value: &str, field: &str| -> Result<String, ControllerError> {
+        let trimmed = value.trim();
+        if trimmed.is_empty() {
+            return Err(controller_err!(BadRequest, format!("{field} is required.")));
+        }
+        Ok(trimmed.to_string())
+    };
     let language_code = required(&payload.language_code, "The language")?;
     if !is_ietf_language_code_like(&language_code) {
         return Err(controller_err!(
@@ -906,31 +1220,11 @@ fn target_configuration(
             "The mooc.fi course slug may only have letters, numbers, - and _.".to_string()
         ));
     }
-    let enrolment_link = payload
-        .enrolment_link
-        .as_deref()
-        .map(str::trim)
-        .filter(|link| !link.is_empty())
-        .map(str::to_string);
-    // Students open it as a link, where a `javascript:` URL would run as our page.
-    if let Some(link) = &enrolment_link
-        && !url::Url::parse(link).is_ok_and(|url| url.scheme() == "https" && url.has_host())
-    {
-        return Err(controller_err!(
-            BadRequest,
-            "The enrolment link must be a web address that starts with https://.".to_string()
-        ));
-    }
     Ok(ExternalCreditTargetConfiguration {
         moocfi_course_id: payload.moocfi_course_id,
         moocfi_course_slug,
         name: required(&payload.name, "The name")?,
         language_code,
-        tiers: payload.tiers,
-        uh_course_code: required(&payload.uh_course_code, "The course code")?,
-        ects_credits: payload.ects_credits,
-        grading: payload.grading,
-        enrolment_link,
         delegated_at: payload.delegated_at,
         enabled_at: payload.enabled.then(|| {
             existing
@@ -946,32 +1240,6 @@ fn is_plain_slug(slug: &str) -> bool {
         && slug
             .bytes()
             .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
-}
-
-/// Refuses a cutoff that differs from the other live targets' of the same mooc.fi course: mooc.fi
-/// has one cutoff per course, and the handoff checks every target against it.
-async fn require_shared_cutoff(
-    conn: &mut PgConnection,
-    configuration: &ExternalCreditTargetConfiguration,
-    own_id: Option<Uuid>,
-) -> Result<(), ControllerError> {
-    let siblings =
-        external_credit_targets::get_by_moocfi_course_id(conn, configuration.moocfi_course_id)
-            .await?;
-    match siblings
-        .iter()
-        .find(|sibling| Some(sibling.id) != own_id)
-        .map(|sibling| sibling.delegated_at)
-    {
-        Some(cutoff) if cutoff != configuration.delegated_at => Err(controller_err!(
-            BadRequest,
-            format!(
-                "Every target of one mooc.fi course has the same cutoff, here {}.",
-                cutoff.to_rfc3339()
-            )
-        )),
-        _ => Ok(()),
-    }
 }
 
 async fn record_target_action(
@@ -1057,5 +1325,21 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     .route(
         "/courses/external-targets/{external_credit_target_id}/resume",
         web::post().to(admin_resume_external_credit_target),
+    )
+    .route(
+        "/courses/external-targets/{external_credit_target_id}/codes",
+        web::get().to(admin_get_external_credit_target_codes),
+    )
+    .route(
+        "/courses/external-targets/{external_credit_target_id}/codes",
+        web::post().to(admin_create_external_credit_target_code),
+    )
+    .route(
+        "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}",
+        web::put().to(admin_update_external_credit_target_code),
+    )
+    .route(
+        "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete",
+        web::post().to(admin_delete_external_credit_target_code),
     );
 }

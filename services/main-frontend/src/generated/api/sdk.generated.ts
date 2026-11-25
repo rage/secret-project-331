@@ -30,9 +30,15 @@ import type {
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsErrors,
   AdminBulkTransitionCreditRegistrationsResponses,
+  AdminCreateExternalCreditTargetCodeData,
+  AdminCreateExternalCreditTargetCodeErrors,
+  AdminCreateExternalCreditTargetCodeResponses,
   AdminCreateExternalCreditTargetData,
   AdminCreateExternalCreditTargetErrors,
   AdminCreateExternalCreditTargetResponses,
+  AdminDeleteExternalCreditTargetCodeData,
+  AdminDeleteExternalCreditTargetCodeErrors,
+  AdminDeleteExternalCreditTargetCodeResponses,
   AdminDeleteExternalCreditTargetData,
   AdminDeleteExternalCreditTargetErrors,
   AdminDeleteExternalCreditTargetResponses,
@@ -42,6 +48,8 @@ import type {
   AdminDismissStudyRegistryConflictData,
   AdminDismissStudyRegistryConflictErrors,
   AdminDismissStudyRegistryConflictResponses,
+  AdminGetExternalCreditTargetCodesData,
+  AdminGetExternalCreditTargetCodesResponses,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberErrors,
   AdminManuallyLinkStudentNumberResponses,
@@ -85,6 +93,9 @@ import type {
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberErrors,
   AdminUnlinkStudentNumberResponses,
+  AdminUpdateExternalCreditTargetCodeData,
+  AdminUpdateExternalCreditTargetCodeErrors,
+  AdminUpdateExternalCreditTargetCodeResponses,
   AdminUpdateExternalCreditTargetData,
   AdminUpdateExternalCreditTargetErrors,
   AdminUpdateExternalCreditTargetResponses,
@@ -1031,8 +1042,10 @@ import {
   zAddTeacherGradingForExamSubmissionResponse,
   zAdjustCourseDesignerScheduleResponse,
   zAdminBulkTransitionCreditRegistrationsResponse,
+  zAdminCreateExternalCreditTargetCodeResponse,
   zAdminCreateExternalCreditTargetResponse,
   zAdminDismissCreditRegistrationAttentionResponse,
+  zAdminGetExternalCreditTargetCodesResponse,
   zAdminManuallyLinkStudentNumberResponse,
   zAdminMaterializeCreditRegistrationsResponse,
   zAdminPausePhaseResponse,
@@ -6402,6 +6415,110 @@ export const adminUpdateExternalCreditTarget = <ThrowOnError extends boolean = t
   >({
     responseStyle: "data",
     url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+ * - The live course codes of a mooc.fi target, lowest minimum tier first.
+ */
+export const adminGetExternalCreditTargetCodes = <ThrowOnError extends boolean = true>(
+  options: Options<AdminGetExternalCreditTargetCodesData, ThrowOnError>,
+): RequestResult<AdminGetExternalCreditTargetCodesResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    AdminGetExternalCreditTargetCodesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminGetExternalCreditTargetCodesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+ * - Adds a course code to a mooc.fi target.
+ */
+export const adminCreateExternalCreditTargetCode = <ThrowOnError extends boolean = true>(
+  options: Options<AdminCreateExternalCreditTargetCodeData, ThrowOnError>,
+): RequestResult<
+  AdminCreateExternalCreditTargetCodeResponses,
+  AdminCreateExternalCreditTargetCodeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminCreateExternalCreditTargetCodeResponses,
+    AdminCreateExternalCreditTargetCodeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zAdminCreateExternalCreditTargetCodeResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`
+ * - Replaces the configuration of one course code of a mooc.fi target.
+ */
+export const adminUpdateExternalCreditTargetCode = <ThrowOnError extends boolean = true>(
+  options: Options<AdminUpdateExternalCreditTargetCodeData, ThrowOnError>,
+): RequestResult<
+  AdminUpdateExternalCreditTargetCodeResponses,
+  AdminUpdateExternalCreditTargetCodeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).put<
+    AdminUpdateExternalCreditTargetCodeResponses,
+    AdminUpdateExternalCreditTargetCodeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`
+ * - Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet
+ * submitted.
+ */
+export const adminDeleteExternalCreditTargetCode = <ThrowOnError extends boolean = true>(
+  options: Options<AdminDeleteExternalCreditTargetCodeData, ThrowOnError>,
+): RequestResult<
+  AdminDeleteExternalCreditTargetCodeResponses,
+  AdminDeleteExternalCreditTargetCodeErrors,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).post<
+    AdminDeleteExternalCreditTargetCodeResponses,
+    AdminDeleteExternalCreditTargetCodeErrors,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete",
     ...options,
     headers: {
       "Content-Type": "application/json",

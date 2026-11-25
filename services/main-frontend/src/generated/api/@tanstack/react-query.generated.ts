@@ -21,9 +21,12 @@ import {
   adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminCreateExternalCreditTarget,
+  adminCreateExternalCreditTargetCode,
   adminDeleteExternalCreditTarget,
+  adminDeleteExternalCreditTargetCode,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
+  adminGetExternalCreditTargetCodes,
   adminManuallyLinkStudentNumber,
   adminMaterializeCreditRegistrations,
   adminPauseCourseModuleCreditRegistration,
@@ -40,6 +43,7 @@ import {
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
   adminUpdateExternalCreditTarget,
+  adminUpdateExternalCreditTargetCode,
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
@@ -505,12 +509,17 @@ import type {
   AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
+  AdminCreateExternalCreditTargetCodeData,
+  AdminCreateExternalCreditTargetCodeResponse,
   AdminCreateExternalCreditTargetData,
   AdminCreateExternalCreditTargetResponse,
+  AdminDeleteExternalCreditTargetCodeData,
   AdminDeleteExternalCreditTargetData,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionResponse,
   AdminDismissStudyRegistryConflictData,
+  AdminGetExternalCreditTargetCodesData,
+  AdminGetExternalCreditTargetCodesResponse,
   AdminManuallyLinkStudentNumberData,
   AdminManuallyLinkStudentNumberResponse,
   AdminMaterializeCreditRegistrationsData,
@@ -537,6 +546,7 @@ import type {
   AdminTransitionCreditRegistrationResponse,
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberResponse,
+  AdminUpdateExternalCreditTargetCodeData,
   AdminUpdateExternalCreditTargetData,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
@@ -8138,6 +8148,104 @@ export const adminUpdateExternalCreditTargetMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await adminUpdateExternalCreditTarget({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const adminGetExternalCreditTargetCodesQueryKey = (
+  options: Options<AdminGetExternalCreditTargetCodesData>,
+) => createQueryKey("adminGetExternalCreditTargetCodes", options)
+
+/**
+ * GET `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+ * - The live course codes of a mooc.fi target, lowest minimum tier first.
+ */
+export const adminGetExternalCreditTargetCodesOptions = (
+  options: Options<AdminGetExternalCreditTargetCodesData>,
+) =>
+  queryOptions<
+    AdminGetExternalCreditTargetCodesResponse,
+    DefaultError,
+    AdminGetExternalCreditTargetCodesResponse,
+    ReturnType<typeof adminGetExternalCreditTargetCodesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await adminGetExternalCreditTargetCodes({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: adminGetExternalCreditTargetCodesQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+ * - Adds a course code to a mooc.fi target.
+ */
+export const adminCreateExternalCreditTargetCodeMutation = (
+  options?: Partial<Options<AdminCreateExternalCreditTargetCodeData>>,
+): UseMutationOptions<
+  AdminCreateExternalCreditTargetCodeResponse,
+  DefaultError,
+  Options<AdminCreateExternalCreditTargetCodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdminCreateExternalCreditTargetCodeResponse,
+    DefaultError,
+    Options<AdminCreateExternalCreditTargetCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminCreateExternalCreditTargetCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`
+ * - Replaces the configuration of one course code of a mooc.fi target.
+ */
+export const adminUpdateExternalCreditTargetCodeMutation = (
+  options?: Partial<Options<AdminUpdateExternalCreditTargetCodeData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminUpdateExternalCreditTargetCodeData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminUpdateExternalCreditTargetCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminUpdateExternalCreditTargetCode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`
+ * - Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet
+ * submitted.
+ */
+export const adminDeleteExternalCreditTargetCodeMutation = (
+  options?: Partial<Options<AdminDeleteExternalCreditTargetCodeData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminDeleteExternalCreditTargetCodeData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<AdminDeleteExternalCreditTargetCodeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await adminDeleteExternalCreditTargetCode({
         ...options,
         ...fnOptions,
         throwOnError: true,

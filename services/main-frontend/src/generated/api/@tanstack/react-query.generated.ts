@@ -209,7 +209,8 @@ import {
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
   getCourseModuleCompletionsForUser,
-  getCourseModuleEndQuestionsForUser,
+  getCourseModuleEndQuestionAnswersForSuspectedCheaters,
+  getCourseModuleEndQuestionAnswersForUser,
   getCourseModuleStatsByCompletionsRegisteredToStudyRegistry,
   getCourseModuleUserCompletion,
   getCoursePages,
@@ -826,8 +827,10 @@ import type {
   GetCourseModuleCompletionsForUserData,
   GetCourseModuleCompletionsForUserResponse,
   GetCourseModuleData,
-  GetCourseModuleEndQuestionsForUserData,
-  GetCourseModuleEndQuestionsForUserResponse,
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersData,
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse,
+  GetCourseModuleEndQuestionAnswersForUserData,
+  GetCourseModuleEndQuestionAnswersForUserResponse,
   GetCourseModuleResponse,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse,
@@ -4488,30 +4491,56 @@ export const getCourseModuleCompletionsForUserOptions = (
     queryKey: getCourseModuleCompletionsForUserQueryKey(options),
   })
 
-export const getCourseModuleEndQuestionsForUserQueryKey = (
-  options: Options<GetCourseModuleEndQuestionsForUserData>,
-) => createQueryKey("getCourseModuleEndQuestionsForUser", options)
+export const getCourseModuleEndQuestionAnswersForSuspectedCheatersQueryKey = (
+  options: Options<GetCourseModuleEndQuestionAnswersForSuspectedCheatersData>,
+) => createQueryKey("getCourseModuleEndQuestionAnswersForSuspectedCheaters", options)
 
 /**
- * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions-suspected-cheaters` - Returns all course module completions for a given user for this course.
  */
-export const getCourseModuleEndQuestionsForUserOptions = (
-  options: Options<GetCourseModuleEndQuestionsForUserData>,
+export const getCourseModuleEndQuestionAnswersForSuspectedCheatersOptions = (
+  options: Options<GetCourseModuleEndQuestionAnswersForSuspectedCheatersData>,
 ) =>
   queryOptions<
-    GetCourseModuleEndQuestionsForUserResponse,
+    GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse,
     DefaultError,
-    GetCourseModuleEndQuestionsForUserResponse,
-    ReturnType<typeof getCourseModuleEndQuestionsForUserQueryKey>
+    GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse,
+    ReturnType<typeof getCourseModuleEndQuestionAnswersForSuspectedCheatersQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getCourseModuleEndQuestionsForUser({
+      await getCourseModuleEndQuestionAnswersForSuspectedCheaters({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getCourseModuleEndQuestionsForUserQueryKey(options),
+    queryKey: getCourseModuleEndQuestionAnswersForSuspectedCheatersQueryKey(options),
+  })
+
+export const getCourseModuleEndQuestionAnswersForUserQueryKey = (
+  options: Options<GetCourseModuleEndQuestionAnswersForUserData>,
+) => createQueryKey("getCourseModuleEndQuestionAnswersForUser", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-question-answers/:user_id` - Returns all course module end question answers for a given user for this course.
+ */
+export const getCourseModuleEndQuestionAnswersForUserOptions = (
+  options: Options<GetCourseModuleEndQuestionAnswersForUserData>,
+) =>
+  queryOptions<
+    GetCourseModuleEndQuestionAnswersForUserResponse,
+    DefaultError,
+    GetCourseModuleEndQuestionAnswersForUserResponse,
+    ReturnType<typeof getCourseModuleEndQuestionAnswersForUserQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseModuleEndQuestionAnswersForUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseModuleEndQuestionAnswersForUserQueryKey(options),
   })
 
 export const updateCourseModulesMutation = (

@@ -11246,7 +11246,29 @@ export type GetCourseModuleCompletionsForUserResponses = {
 export type GetCourseModuleCompletionsForUserResponse =
   GetCourseModuleCompletionsForUserResponses[keyof GetCourseModuleCompletionsForUserResponses]
 
-export type GetCourseModuleEndQuestionsForUserData = {
+export type GetCourseModuleEndQuestionAnswersForSuspectedCheatersData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers-suspected-cheaters"
+}
+
+export type GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses = {
+  /**
+   * Course module end questions and answers for suspected cheaters
+   */
+  200: Array<CourseModuleEndingQuestionWithAnswer>
+}
+
+export type GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse =
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses[keyof GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses]
+
+export type GetCourseModuleEndQuestionAnswersForUserData = {
   body?: never
   path: {
     /**
@@ -11259,18 +11281,18 @@ export type GetCourseModuleEndQuestionsForUserData = {
     user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers/{user_id}"
 }
 
-export type GetCourseModuleEndQuestionsForUserResponses = {
+export type GetCourseModuleEndQuestionAnswersForUserResponses = {
   /**
    * Course module end questions and answers for course user
    */
   200: Array<CourseModuleEndingQuestionWithAnswer>
 }
 
-export type GetCourseModuleEndQuestionsForUserResponse =
-  GetCourseModuleEndQuestionsForUserResponses[keyof GetCourseModuleEndQuestionsForUserResponses]
+export type GetCourseModuleEndQuestionAnswersForUserResponse =
+  GetCourseModuleEndQuestionAnswersForUserResponses[keyof GetCourseModuleEndQuestionAnswersForUserResponses]
 
 export type UpdateCourseModulesData = {
   body: ModuleUpdates

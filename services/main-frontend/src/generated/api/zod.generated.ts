@@ -10047,7 +10047,18 @@ export const zGetCourseModuleCompletionsForUserPath = z.object({
  */
 export const zGetCourseModuleCompletionsForUserResponse = z.array(zCourseModuleCompletion)
 
-export const zGetCourseModuleEndQuestionsForUserPath = z.object({
+export const zGetCourseModuleEndQuestionAnswersForSuspectedCheatersPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course module end questions and answers for suspected cheaters
+ */
+export const zGetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse = z.array(
+  zCourseModuleEndingQuestionWithAnswer,
+)
+
+export const zGetCourseModuleEndQuestionAnswersForUserPath = z.object({
   course_id: z.uuid(),
   user_id: z.uuid(),
 })
@@ -10055,7 +10066,7 @@ export const zGetCourseModuleEndQuestionsForUserPath = z.object({
 /**
  * Course module end questions and answers for course user
  */
-export const zGetCourseModuleEndQuestionsForUserResponse = z.array(
+export const zGetCourseModuleEndQuestionAnswersForUserResponse = z.array(
   zCourseModuleEndingQuestionWithAnswer,
 )
 

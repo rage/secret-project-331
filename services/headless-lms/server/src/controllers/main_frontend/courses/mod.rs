@@ -78,6 +78,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_all_exercise_statuses_by_course_id,
         get_all_course_module_completions_for_user_by_course_id,
         get_all_course_module_end_question_answers_for_user_by_course_id,
+        get_all_course_module_end_question_answers_for_suspected_cheaters,
         get_user_progress_for_course,
         get_user_course_settings,
         post_reprocess_module_completions,
@@ -284,12 +285,12 @@ async fn get_all_course_module_completions_for_user_by_course_id(
 }
 
 /**
-GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+GET `/api/v0/main-frontend/courses/:course_id/course-module-end-question-answers/:user_id` - Returns all course module end question answers for a given user for this course.
 */
 #[utoipa::path(
     get,
-    path = "/{course_id}/course-module-end-questions/{user_id}",
-    operation_id = "getCourseModuleEndQuestionsForUser",
+    path = "/{course_id}/course-module-end-question-answers/{user_id}",
+    operation_id = "getCourseModuleEndQuestionAnswersForUser",
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
@@ -317,6 +318,45 @@ async fn get_all_course_module_end_question_answers_for_user_by_course_id(
 
     let res = models::course_module_ending_questions_answers::get_all_for_user_by_course_id(
         &mut conn, &course_id, &user_id,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(res))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions-suspected-cheaters` - Returns all course module completions for a given user for this course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-module-end-question-answers-suspected-cheaters",
+    operation_id = "getCourseModuleEndQuestionAnswersForSuspectedCheaters",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course module end questions and answers for suspected cheaters", body = [CourseModuleEndingQuestionWithAnswer])
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_all_course_module_end_question_answers_for_suspected_cheaters(
+    params: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseModuleEndingQuestionWithAnswer>>> {
+    let course_id = params.into_inner();
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
+
+    let res = models::course_module_ending_questions_answers::get_all_for_suspected_cheaters_by_course_id(
+        &mut conn, &course_id,
     )
     .await?;
 
@@ -3152,8 +3192,12 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_course_module_completions_for_user_by_course_id),
         )
         .route(
-            "/{course_id}/course-module-end-questions/{user_id}",
+            "/{course_id}/course-module-end-question-answers/{user_id}",
             web::get().to(get_all_course_module_end_question_answers_for_user_by_course_id),
+        )
+        .route(
+            "/{course_id}/course-module-end-question-answers-suspected-cheaters",
+            web::get().to(get_all_course_module_end_question_answers_for_suspected_cheaters),
         )
         .route(
             "/{course_id}/daily-submission-counts",

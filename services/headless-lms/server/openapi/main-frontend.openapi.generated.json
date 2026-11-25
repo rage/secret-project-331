@@ -4272,11 +4272,45 @@
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}": {
+    "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers-suspected-cheaters": {
       "get": {
         "tags": ["courses"],
-        "summary": "GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.",
-        "operationId": "getCourseModuleEndQuestionsForUser",
+        "summary": "GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions-suspected-cheaters` - Returns all course module completions for a given user for this course.",
+        "operationId": "getCourseModuleEndQuestionAnswersForSuspectedCheaters",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course module end questions and answers for suspected cheaters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleEndingQuestionWithAnswer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers/{user_id}": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:course_id/course-module-end-question-answers/:user_id` - Returns all course module end question answers for a given user for this course.",
+        "operationId": "getCourseModuleEndQuestionAnswersForUser",
         "parameters": [
           {
             "name": "course_id",

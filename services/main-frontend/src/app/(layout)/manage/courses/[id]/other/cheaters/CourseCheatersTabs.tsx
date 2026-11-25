@@ -3,10 +3,12 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { useMemo } from "react"
+import { Label } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
-import { LINK_QUIET } from "@/components/credit-registration/constants"
+import EndQuestionAnswerCard from "@/app/(layout)/manage/course-instances/[id]/points/user_id/EndQuestionAnswerCard"
+import { UserDisplay } from "@/components/UserDisplay"
 import {
   getCourseFlaggedSuspectedCheatersCountQueryKey,
   getCourseSuspectedCheatersOptions,
@@ -16,12 +18,12 @@ import {
   dismissCourseSuspectedCheater,
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
+import { useCourseEndQuestionsWithAnswersForCheaters } from "@/hooks/useCourseEndQuestionsWithAnswersForCheaters"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, typography } from "@/shared-module/common/styles"
-import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
-  Link,
   QueryResult,
   Table,
   useDialog,
@@ -40,6 +42,8 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { confirm } = useDialog()
+  const endAnswersQuery = useCourseEndQuestionsWithAnswersForCheaters(courseId)
+  const courseStructureQuery = useCourseStructure(courseId)
 
   // Each tab can move a student to the other states. Confirm is offered on the flagged and
   // dismissed tabs; dismiss on the flagged and confirmed tabs. (On the flagged tab both apply.)
@@ -64,6 +68,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       },
     }),
   })
+
+  const endAnswers = useMemo(() => {
+    return endAnswersQuery.data?.map((x) => (x.user_id, x))
+  }, [endAnswersQuery])
 
   // Confirm and dismiss move the student to a different status. Refetch this list (the student
   // leaves it) and invalidate the flagged-count badge (course tabs) and overview review banner,
@@ -192,20 +200,28 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           <Table
             caption={listTitle}
             showCaption
+            expandableRow={(row) => {
+              const userAnswers = endAnswers
+                ?.filter(
+                  (x) => x.user_id === row.user_id && x.course_module_id === row.course_module_id,
+                )
+                .toSorted((x) => x.question_serial_number)
+              if (!userAnswers) {
+                return null
+              }
+              return (
+                <>
+                  <Label>{t("module-end-question-answers", row.course_id)}</Label>
+                  <EndQuestionAnswerCard endAnswers={userAnswers} />
+                </>
+              )
+            }}
             rows={data}
             rowKey={(row) => row.user_id}
             columns={[
               {
-                header: t("student-id"),
-                cell: ({ user_id }) => (
-                  <Link
-                    href={courseUserStatusSummaryRoute(courseId, user_id)}
-                    appearance={LINK_QUIET}
-                    aria-label={`${t("student-id")}: ${user_id}`}
-                  >
-                    {user_id}
-                  </Link>
-                ),
+                header: t("label-student"),
+                cell: ({ user_id }) => <UserDisplay userId={user_id} courseId={courseId} />,
               },
               { header: t("points"), cell: ({ total_points }) => total_points },
               {

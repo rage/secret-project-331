@@ -436,8 +436,10 @@ import type {
   GetCourseModuleCompletionsForUserData,
   GetCourseModuleCompletionsForUserResponses,
   GetCourseModuleData,
-  GetCourseModuleEndQuestionsForUserData,
-  GetCourseModuleEndQuestionsForUserResponses,
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersData,
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses,
+  GetCourseModuleEndQuestionAnswersForUserData,
+  GetCourseModuleEndQuestionAnswersForUserResponses,
   GetCourseModuleResponses,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData,
   GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses,
@@ -1143,7 +1145,8 @@ import {
   zGetCourseModuleCompletionRegistrationLinkResponse,
   zGetCourseModuleCompletionResponse,
   zGetCourseModuleCompletionsForUserResponse,
-  zGetCourseModuleEndQuestionsForUserResponse,
+  zGetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse,
+  zGetCourseModuleEndQuestionAnswersForUserResponse,
   zGetCourseModuleResponse,
   zGetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse,
   zGetCourseModuleUserCompletionResponse,
@@ -3660,21 +3663,52 @@ export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean =
   })
 
 /**
- * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions/:user_id` - Returns all course module completions for a given user for this course.
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-questions-suspected-cheaters` - Returns all course module completions for a given user for this course.
  */
-export const getCourseModuleEndQuestionsForUser = <ThrowOnError extends boolean = true>(
-  options: Options<GetCourseModuleEndQuestionsForUserData, ThrowOnError>,
-): RequestResult<GetCourseModuleEndQuestionsForUserResponses, unknown, ThrowOnError, "data"> =>
+export const getCourseModuleEndQuestionAnswersForSuspectedCheaters = <
+  ThrowOnError extends boolean = true,
+>(
+  options: Options<GetCourseModuleEndQuestionAnswersForSuspectedCheatersData, ThrowOnError>,
+): RequestResult<
+  GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).get<
-    GetCourseModuleEndQuestionsForUserResponses,
+    GetCourseModuleEndQuestionAnswersForSuspectedCheatersResponses,
     unknown,
     ThrowOnError,
     "data"
   >({
     responseValidator: async (data) =>
-      await zGetCourseModuleEndQuestionsForUserResponse.parseAsync(data),
+      await zGetCourseModuleEndQuestionAnswersForSuspectedCheatersResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-questions/{user_id}",
+    url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers-suspected-cheaters",
+    ...options,
+  })
+
+/**
+ * GET `/api/v0/main-frontend/courses/:course_id/course-module-end-question-answers/:user_id` - Returns all course module end question answers for a given user for this course.
+ */
+export const getCourseModuleEndQuestionAnswersForUser = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseModuleEndQuestionAnswersForUserData, ThrowOnError>,
+): RequestResult<
+  GetCourseModuleEndQuestionAnswersForUserResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
+  (options.client ?? client).get<
+    GetCourseModuleEndQuestionAnswersForUserResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseModuleEndQuestionAnswersForUserResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/course-module-end-question-answers/{user_id}",
     ...options,
   })
 

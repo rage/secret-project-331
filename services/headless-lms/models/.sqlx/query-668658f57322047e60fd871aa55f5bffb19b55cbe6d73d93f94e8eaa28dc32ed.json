@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  external_credit_target_id,\n  name,\n  uh_course_code,\n  minimum_tier,\n  ects_credits,\n  grading AS \"grading: ExternalGrading\",\n  enrolment_link,\n  prerequisite_code_id,\n  equivalent_course_codes,\n  config_checked_at,\n  checked_course_code,\n  course_code_allowed,\n  course_code_rejection,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM external_credit_target_codes\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT code.id,\n  code.created_at,\n  code.updated_at,\n  code.deleted_at,\n  code.external_credit_target_id,\n  code.name,\n  code.uh_course_code,\n  code.minimum_tier,\n  code.ects_credits,\n  code.grading,\n  code.enrolment_link,\n  code.prerequisite_code_id,\n  code.equivalent_course_codes,\n  code.config_checked_at,\n  code.checked_course_code,\n  code.course_code_allowed,\n  code.course_code_rejection,\n  code.config_check_message,\n  code.last_listing_attempted_at,\n  code.last_listed_at,\n  code.last_listing_error,\n  code.consecutive_listing_failures\nFROM external_credit_target_codes code\n  JOIN external_credit_targets t ON t.id = code.external_credit_target_id\nWHERE code.deleted_at IS NULL\n  AND t.deleted_at IS NULL\nORDER BY t.name,\n  code.minimum_tier NULLS FIRST,\n  code.uh_course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "grading: ExternalGrading",
+        "name": "grading",
         "type_info": {
           "Custom": {
             "name": "external_grading",
@@ -235,7 +235,7 @@
       },
       {
         "ordinal": 20,
-        "name": "last_listing_error: CreditRegistrationErrorCode",
+        "name": "last_listing_error",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -288,9 +288,7 @@
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -317,5 +315,5 @@
       false
     ]
   },
-  "hash": "ab2c73ec9a0d4362bda203cf0cd703830970d0f5b77259b593ead437c51a7081"
+  "hash": "668658f57322047e60fd871aa55f5bffb19b55cbe6d73d93f94e8eaa28dc32ed"
 }

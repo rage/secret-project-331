@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  external_credit_target_id,\n  name,\n  uh_course_code,\n  minimum_tier,\n  ects_credits,\n  grading AS \"grading: ExternalGrading\",\n  enrolment_link,\n  prerequisite_code_id,\n  equivalent_course_codes,\n  config_checked_at,\n  checked_course_code,\n  course_code_allowed,\n  course_code_rejection,\n  config_check_message,\n  last_listing_attempted_at,\n  last_listed_at,\n  last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  consecutive_listing_failures\nFROM external_credit_target_codes\nWHERE external_credit_target_id = $1\n  AND deleted_at IS NULL\nORDER BY minimum_tier NULLS FIRST,\n  uh_course_code\n        ",
+  "query": "\nSELECT *\nFROM external_credit_target_codes\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "grading: ExternalGrading",
+        "name": "grading",
         "type_info": {
           "Custom": {
             "name": "external_grading",
@@ -235,7 +235,7 @@
       },
       {
         "ordinal": 20,
-        "name": "last_listing_error: CreditRegistrationErrorCode",
+        "name": "last_listing_error",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -317,5 +317,5 @@
       false
     ]
   },
-  "hash": "b038662160ab101f2aa0e5a4694b955fffdc85d0676ffc2ee3612ad79ce6e764"
+  "hash": "dff1403c15988dbfa09dff59dc3e9d6730b33583d6bbad4e23e611d7278d3814"
 }

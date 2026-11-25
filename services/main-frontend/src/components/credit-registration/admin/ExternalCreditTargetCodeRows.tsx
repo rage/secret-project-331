@@ -161,7 +161,7 @@ const ExternalCreditTargetCodeRows: React.FC = () => {
                 name={`codes.${index}.minimum_tier`}
                 control={control}
                 label={t("label-minimum-tier")}
-                minValue={1}
+                minValue={0}
                 step={1}
                 description={t("credit-registration-admin-minimum-tier-description")}
               />

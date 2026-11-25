@@ -23,6 +23,7 @@ struct CodeCheck {
     course_code: String,
 }
 
+/// Asks about up to the registry's allowance of due student and code pairs and records each answer.
 pub(super) async fn run<R: StudyRegistry>(
     ctx: &BatchFlowContext<'_>,
     registry: &mut R,

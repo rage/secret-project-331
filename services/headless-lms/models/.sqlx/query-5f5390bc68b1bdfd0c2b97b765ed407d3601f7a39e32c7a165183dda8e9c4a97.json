@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT code.id,\n  code.created_at,\n  code.updated_at,\n  code.deleted_at,\n  code.external_credit_target_id,\n  code.name,\n  code.uh_course_code,\n  code.minimum_tier,\n  code.ects_credits,\n  code.grading AS \"grading: ExternalGrading\",\n  code.enrolment_link,\n  code.prerequisite_code_id,\n  code.equivalent_course_codes,\n  code.config_checked_at,\n  code.checked_course_code,\n  code.course_code_allowed,\n  code.course_code_rejection,\n  code.config_check_message,\n  code.last_listing_attempted_at,\n  code.last_listed_at,\n  code.last_listing_error AS \"last_listing_error: CreditRegistrationErrorCode\",\n  code.consecutive_listing_failures\nFROM external_credit_target_codes code\n  JOIN external_credit_targets t ON t.id = code.external_credit_target_id\nWHERE code.deleted_at IS NULL\n  AND t.deleted_at IS NULL\nORDER BY t.name,\n  code.minimum_tier NULLS FIRST,\n  code.uh_course_code\n        ",
+  "query": "\nSELECT *\nFROM external_credit_target_codes\nWHERE external_credit_target_id = $1\n  AND deleted_at IS NULL\nORDER BY minimum_tier NULLS FIRST,\n  uh_course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -104,7 +104,7 @@
       },
       {
         "ordinal": 9,
-        "name": "grading: ExternalGrading",
+        "name": "grading",
         "type_info": {
           "Custom": {
             "name": "external_grading",
@@ -235,7 +235,7 @@
       },
       {
         "ordinal": 20,
-        "name": "last_listing_error: CreditRegistrationErrorCode",
+        "name": "last_listing_error",
         "type_info": {
           "Custom": {
             "name": "credit_registration_error_code",
@@ -288,7 +288,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -315,5 +317,5 @@
       false
     ]
   },
-  "hash": "8e39c27214c5917fef367bd0b42ba8edddcc970ac2717ff9c194f16190b834b0"
+  "hash": "5f5390bc68b1bdfd0c2b97b765ed407d3601f7a39e32c7a165183dda8e9c4a97"
 }

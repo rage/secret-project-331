@@ -395,8 +395,7 @@ CREATE TABLE credit_registration_sisu_code_checks (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON credit_registration_sisu_code_checks FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE UNIQUE INDEX uq_credit_registration_sisu_code_checks ON credit_registration_sisu_code_checks (user_id, course_code)
-WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX uq_credit_registration_sisu_code_checks ON credit_registration_sisu_code_checks (user_id, course_code, deleted_at) NULLS NOT DISTINCT;
 
 COMMENT ON TABLE credit_registration_sisu_code_checks IS 'Whether Sisu holds an attainment of a course code for a student, asked by resolve-enrolments for codes no ledger row of the student is under: the equivalent older codes of a mooc.fi row''s code, and the prerequisite of its code with that one''s equivalents.';
 COMMENT ON COLUMN credit_registration_sisu_code_checks.id IS 'A unique, stable identifier for the record.';

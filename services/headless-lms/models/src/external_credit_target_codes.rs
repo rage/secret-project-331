@@ -64,9 +64,7 @@ impl ExternalCreditTargetCode {
             (Some(_), None) => false,
         }
     }
-}
 
-impl ExternalCreditTargetCode {
     /// The code as an admin configured it, to compare with a new configuration.
     pub fn configuration(&self) -> ExternalCreditTargetCodeConfiguration {
         ExternalCreditTargetCodeConfiguration {
@@ -216,28 +214,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Externa
     let res = sqlx::query_as!(
         ExternalCreditTargetCode,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  external_credit_target_id,
-  name,
-  uh_course_code,
-  minimum_tier,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  prerequisite_code_id,
-  equivalent_course_codes,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+SELECT *
 FROM external_credit_target_codes
 WHERE id = $1
   AND deleted_at IS NULL
@@ -257,28 +234,7 @@ pub async fn get_by_target_id(
     let res = sqlx::query_as!(
         ExternalCreditTargetCode,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  external_credit_target_id,
-  name,
-  uh_course_code,
-  minimum_tier,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  prerequisite_code_id,
-  equivalent_course_codes,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+SELECT *
 FROM external_credit_target_codes
 WHERE external_credit_target_id = $1
   AND deleted_at IS NULL
@@ -301,28 +257,7 @@ pub async fn get_by_ids_including_deleted(
     let res = sqlx::query_as!(
         ExternalCreditTargetCode,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  external_credit_target_id,
-  name,
-  uh_course_code,
-  minimum_tier,
-  ects_credits,
-  grading AS "grading: ExternalGrading",
-  enrolment_link,
-  prerequisite_code_id,
-  equivalent_course_codes,
-  config_checked_at,
-  checked_course_code,
-  course_code_allowed,
-  course_code_rejection,
-  config_check_message,
-  last_listing_attempted_at,
-  last_listed_at,
-  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
-  consecutive_listing_failures
+SELECT *
 FROM external_credit_target_codes
 WHERE id = ANY($1)
 ORDER BY minimum_tier NULLS FIRST,
@@ -349,7 +284,7 @@ SELECT code.id,
   code.uh_course_code,
   code.minimum_tier,
   code.ects_credits,
-  code.grading AS "grading: ExternalGrading",
+  code.grading,
   code.enrolment_link,
   code.prerequisite_code_id,
   code.equivalent_course_codes,
@@ -360,7 +295,7 @@ SELECT code.id,
   code.config_check_message,
   code.last_listing_attempted_at,
   code.last_listed_at,
-  code.last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
+  code.last_listing_error,
   code.consecutive_listing_failures
 FROM external_credit_target_codes code
   JOIN external_credit_targets t ON t.id = code.external_credit_target_id

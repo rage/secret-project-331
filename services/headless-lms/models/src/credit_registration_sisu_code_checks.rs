@@ -144,8 +144,7 @@ VALUES (
     CASE
       WHEN $3 THEN now()
     END
-  ) ON CONFLICT (user_id, course_code)
-WHERE deleted_at IS NULL DO
+  ) ON CONFLICT (user_id, course_code, deleted_at) DO
 UPDATE
 SET checked_at = EXCLUDED.checked_at,
   attained_at = COALESCE(

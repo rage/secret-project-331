@@ -45,6 +45,7 @@ import type {
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { moocfiCompletionRegistrationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Infobox, Link, QueryResult, RelativeTime } from "@/shared-module/components"
@@ -323,7 +324,7 @@ const MoocfiCompletion: React.FC<{
         uhCourseCode={firstUnit.credit_unit.uh_course_code}
         enrolmentLink={firstUnit.credit_unit.enrolment_link}
         signedInEmail={signedInEmail}
-        {...(isSeveral ? { courses: creditCoursesOf(registeringUnits, completion) } : {})}
+        {...includeIf(isSeveral, { courses: creditCoursesOf(registeringUnits, completion) })}
       />
     )
   }

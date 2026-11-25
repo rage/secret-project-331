@@ -87,7 +87,6 @@ const openAddDialog = async (page: Page, fields: TargetFields): Promise<Locator>
   await dialog.getByRole("textbox", { name: "mooc.fi course slug" }).fill("system-test-course")
   await dialog.getByRole("textbox", { name: TARGET_NAME_LABEL }).fill(fields.name)
   await dialog.getByRole("textbox", { name: "Language code" }).fill("fi-FI")
-  // Every target of one mooc.fi course must share the cutoff, so the form's default of now will not do.
   // Focused, not clicked: a click opens the calendar, which then takes the typing.
   await dialog.getByRole("spinbutton", { name: "year, Cutoff (Helsinki time)" }).focus()
   await page.keyboard.type(CUTOFF_SEGMENTS)

@@ -476,7 +476,7 @@ SELECT ec.moocfi_completion_id,
   ec.external_credit_target_id,
   ec.external_credit_target_code_id,
   code.uh_course_code,
-  code.grading AS "grading: ExternalGrading"
+  code.grading
 FROM external_completions ec
   JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
   JOIN external_credit_target_codes code ON code.id = ec.external_credit_target_code_id

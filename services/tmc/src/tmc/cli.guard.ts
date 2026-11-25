@@ -286,7 +286,17 @@ export function isCliOutput(obj: unknown): obj is CliOutput {
                             e[2] === "file-missing" ||
                             e[2] === "extract-failed" ||
                             e[2] === "other")
-                    )) ||
+                    )) &&
+                Array.isArray(typedObj["data"]["output-data"]["closed_chapters"]) &&
+                typedObj["data"]["output-data"]["closed_chapters"].every((e: any) =>
+                    (e !== null &&
+                        typeof e === "object" ||
+                        typeof e === "function") &&
+                    typeof e["exercise-id"] === "string" &&
+                    typeof e["chapter-name"] === "string" &&
+                    typeof e["chapter-number"] === "number" &&
+                    typeof e["opens-at"] === "string"
+                ) ||
                 (typedObj["data"] !== null &&
                     typeof typedObj["data"] === "object" ||
                     typeof typedObj["data"] === "function") &&

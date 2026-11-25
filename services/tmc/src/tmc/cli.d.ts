@@ -1,5 +1,5 @@
-// VERSION=0.42.1
-// Type surface regenerated from tmc-langs-rust 8069d8e6f9c (tmc-langs-cli 0.42.1) by bin/tmc-langs-update-bindings-from-checkout
+// VERSION=0.43.1
+// https://raw.githubusercontent.com/rage/tmc-langs-rust/0.43.1/crates/tmc-langs-cli/bindings.d.ts
 
 export type Locale = string
 
@@ -475,6 +475,10 @@ export type DownloadOrUpdateMoocCourseExercisesResult = {
    * Each failure with its error chain, outermost first, and why it failed.
    */
   failed?: Array<[MoocExerciseDownload, Array<string>, MoocDownloadFailure]>
+  /**
+   * The chapter of each `failed` entry whose failure is `closed-chapter`.
+   */
+  closed_chapters: Array<MoocExerciseClosedChapter>
 }
 
 export type TmcExerciseDownload = {
@@ -491,6 +495,16 @@ export type MoocExerciseDownload = {
    */
   "exercise-id": string
   path: string
+}
+
+export type MoocExerciseClosedChapter = {
+  "exercise-id": string
+  "chapter-name": string
+  /**
+   * The chapter's position in the course, from 1.
+   */
+  "chapter-number": number
+  "opens-at": string
 }
 
 export type CombinedCourseData = {

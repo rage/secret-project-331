@@ -1,22 +1,3 @@
--- Tier ranges were exclusive per target; codes have only a minimum tier, so a capped range or two
--- live targets on one mooc.fi course have no faithful translation.
-DO $$ BEGIN IF EXISTS (
-  SELECT 1
-  FROM external_credit_targets
-  WHERE deleted_at IS NULL
-    AND tiers IS NOT NULL
-    AND NOT upper_inf(tiers)
-)
-OR EXISTS (
-  SELECT 1
-  FROM external_credit_targets
-  WHERE deleted_at IS NULL
-  GROUP BY moocfi_course_id
-  HAVING COUNT(*) > 1
-) THEN RAISE EXCEPTION 'external_credit_targets has a live target with a capped tier range, or several live targets on one mooc.fi course. Merge them into one target by hand before migrating.';
-END IF;
-END $$;
-
 CREATE TABLE external_credit_target_codes (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
@@ -133,6 +114,80 @@ UPDATE external_completions ec
 SET external_credit_target_code_id = code.id
 FROM external_credit_target_codes code
 WHERE code.external_credit_target_id = ec.external_credit_target_id;
+
+DROP INDEX uq_external_completions_completion_target;
+CREATE UNIQUE INDEX uq_external_completions_completion_code ON external_completions (moocfi_completion_id, external_credit_target_code_id)
+WHERE deleted_at IS NULL;
+
+-- A mooc.fi course may now have only one live target, so live targets that split its tiers
+-- become codes of its earliest one. A capped tier range turns into a minimum tier, so a higher
+-- tier now earns the merged code too.
+CREATE TEMPORARY TABLE merged_external_credit_targets ON COMMIT DROP AS
+SELECT t.id AS merged_id,
+  parent.id AS parent_id
+FROM external_credit_targets t
+  CROSS JOIN LATERAL (
+    SELECT p.id
+    FROM external_credit_targets p
+    WHERE p.moocfi_course_id = t.moocfi_course_id
+      AND p.deleted_at IS NULL
+    ORDER BY p.created_at,
+      p.id
+    LIMIT 1
+  ) parent
+WHERE t.deleted_at IS NULL
+  AND parent.id <> t.id;
+
+UPDATE external_credit_target_codes code
+SET external_credit_target_id = m.parent_id
+FROM merged_external_credit_targets m
+WHERE code.external_credit_target_id = m.merged_id;
+UPDATE external_completions ec
+SET external_credit_target_id = m.parent_id
+FROM merged_external_credit_targets m
+WHERE ec.external_credit_target_id = m.merged_id;
+UPDATE credit_registrations cr
+SET external_credit_target_id = m.parent_id
+FROM merged_external_credit_targets m
+WHERE cr.external_credit_target_id = m.merged_id;
+UPDATE credit_registration_enrolment_check_outcomes o
+SET external_credit_target_id = m.parent_id
+FROM merged_external_credit_targets m
+WHERE o.external_credit_target_id = m.merged_id;
+-- Mails to the same person and address under two merged targets would collide on
+-- uq_account_linking_email_person_course_address; the parent's or the earliest one stays.
+UPDATE credit_registration_account_linking_emails e
+SET deleted_at = now()
+FROM merged_external_credit_targets m
+WHERE e.external_credit_target_id = m.merged_id
+  AND e.deleted_at IS NULL
+  AND e.replaced_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM credit_registration_account_linking_emails other
+      LEFT JOIN merged_external_credit_targets other_m ON other_m.merged_id = other.external_credit_target_id
+    WHERE COALESCE(other_m.parent_id, other.external_credit_target_id) = m.parent_id
+      AND other.id <> e.id
+      AND other.sisu_person_id = e.sisu_person_id
+      AND LOWER(other.emailed_to) = LOWER(e.emailed_to)
+      AND other.deleted_at IS NULL
+      AND other.replaced_at IS NULL
+      AND (
+        other_m.merged_id IS NULL
+        OR (other.created_at, other.id) < (e.created_at, e.id)
+      )
+  );
+UPDATE credit_registration_account_linking_emails e
+SET external_credit_target_id = m.parent_id
+FROM merged_external_credit_targets m
+WHERE e.external_credit_target_id = m.merged_id;
+UPDATE external_credit_targets t
+SET deleted_at = now()
+FROM merged_external_credit_targets m
+WHERE t.id = m.merged_id;
+
+DROP TABLE merged_external_credit_targets;
+
 ALTER TABLE external_completions
 ALTER COLUMN external_credit_target_code_id
 SET NOT NULL,
@@ -140,10 +195,6 @@ SET NOT NULL,
     external_credit_target_code_id,
     external_credit_target_id
   ) REFERENCES external_credit_target_codes (id, external_credit_target_id);
-
-DROP INDEX uq_external_completions_completion_target;
-CREATE UNIQUE INDEX uq_external_completions_completion_code ON external_completions (moocfi_completion_id, external_credit_target_code_id)
-WHERE deleted_at IS NULL;
 
 COMMENT ON TABLE external_completions IS 'A mooc.fi completion as courses last read it, one row per completion and code of its target that its tier earns. The subject of a mooc.fi ledger row, as course_module_completions is of a native one. Facts are copied from mooc.fi when the student opens the registration page and on re-check; mooc.fi stays the source of truth.';
 COMMENT ON COLUMN external_completions.external_credit_target_id IS 'The target of external_credit_target_code_id, kept for course-level reads.';

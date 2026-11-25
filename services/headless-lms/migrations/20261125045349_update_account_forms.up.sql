@@ -89,7 +89,7 @@ CREATE TABLE account_form_rule_versions (
   enabled BOOLEAN NOT NULL,
   log_only BOOLEAN NOT NULL,
   deleted BOOLEAN NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT clock_timestamp(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 CREATE INDEX account_form_rule_versions_rule ON account_form_rule_versions (account_form_rule_id, created_at);
@@ -107,7 +107,7 @@ COMMENT ON COLUMN account_form_rule_versions.outcome IS 'The rule''s outcome as 
 COMMENT ON COLUMN account_form_rule_versions.enabled IS 'Whether the rule was enabled.';
 COMMENT ON COLUMN account_form_rule_versions.log_only IS 'Whether the rule was log-only.';
 COMMENT ON COLUMN account_form_rule_versions.deleted IS 'Whether this save deleted the rule.';
-COMMENT ON COLUMN account_form_rule_versions.created_at IS 'When the version was saved.';
+COMMENT ON COLUMN account_form_rule_versions.created_at IS 'When the version was saved. clock_timestamp(), so versions saved under the rule''s row lock sort in save order.';
 COMMENT ON COLUMN account_form_rule_versions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 
 CREATE TABLE account_form_decisions (
@@ -125,7 +125,7 @@ CREATE TABLE account_form_decisions (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
-CREATE INDEX account_form_decisions_created_at ON account_form_decisions (created_at);
+CREATE INDEX account_form_decisions_created_at ON account_form_decisions (created_at, id);
 CREATE INDEX account_form_decisions_address_digest ON account_form_decisions (address_digest, created_at);
 CREATE INDEX account_form_decisions_recipient_domain ON account_form_decisions (recipient_domain, created_at);
 CREATE INDEX account_form_decisions_profile_digest ON account_form_decisions (profile_digest, created_at);
@@ -145,3 +145,10 @@ COMMENT ON COLUMN account_form_decisions.profile_digest IS 'HMAC-SHA-256, under 
 COMMENT ON COLUMN account_form_decisions.network_prefix IS 'The requester''s /24 (IPv4) or /48 (IPv6) network.';
 COMMENT ON COLUMN account_form_decisions.created_at IS 'Timestamp when the record was created.';
 COMMENT ON COLUMN account_form_decisions.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+
+ALTER TABLE password_reset_tokens
+ADD COLUMN mailed_at TIMESTAMP WITH TIME ZONE [] NOT NULL DEFAULT '{}';
+UPDATE password_reset_tokens
+SET mailed_at = ARRAY [created_at]
+WHERE expires_at > now() - INTERVAL '1 day';
+COMMENT ON COLUMN password_reset_tokens.mailed_at IS 'When the link was mailed, once per mail. A link that is still valid long enough is mailed again instead of being replaced.';

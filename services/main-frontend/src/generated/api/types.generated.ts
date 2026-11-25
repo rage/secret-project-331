@@ -9551,9 +9551,13 @@ export type GetAccountFormDecisionsData = {
   path?: never
   query?: {
     /**
-     * Only submissions logged before this time, for paging back.
+     * The `created_at` of the previous page's last submission, given together with `before_id`.
      */
     before?: string
+    /**
+     * The `id` of the previous page's last submission.
+     */
+    before_id?: string
   }
   url: "/api/v0/main-frontend/account-forms/decisions"
 }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -18,6 +18,7 @@ import type {
   AccountFormRuleUpdate,
 } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import {
   Button,
   Checkbox,
@@ -96,7 +97,7 @@ const RuleFormDialog: React.FC<RuleFormDialogProps> = ({ existing, onClose }) =>
   const { control, handleSubmit, getValues, watch } = useForm<Fields>({
     defaultValues: toFields(existing),
   })
-  const matcher = watch("matcher")
+  const [matcher, expression, entries] = watch(["matcher", "expression", "entries"])
 
   const onSuccess = async () => {
     await queryClient.invalidateQueries({ queryKey: getAccountFormRulesQueryKey() })
@@ -113,6 +114,27 @@ const RuleFormDialog: React.FC<RuleFormDialogProps> = ({ existing, onClose }) =>
     { onSuccess },
   )
   const dryRun = useMutation(dryRunAccountFormRuleMutation())
+  const { reset: resetDryRun } = dryRun
+  const dryRunGeneration = useRef(0)
+
+  useEffect(() => {
+    dryRunGeneration.current += 1
+    resetDryRun()
+  }, [matcher, expression, entries, resetDryRun])
+
+  const startDryRun = () => {
+    const generation = dryRunGeneration.current
+    dryRun.mutate(
+      { body: toMatcher(getValues()) },
+      {
+        onSuccess: () => {
+          if (generation !== dryRunGeneration.current) {
+            resetDryRun()
+          }
+        },
+      },
+    )
+  }
 
   const submit = handleSubmit((fields) => {
     const body: AccountFormRuleUpdate = {
@@ -199,7 +221,7 @@ const RuleFormDialog: React.FC<RuleFormDialogProps> = ({ existing, onClose }) =>
             variant="secondary"
             size="medium"
             isLoading={dryRun.isPending}
-            onClick={() => dryRun.mutate({ body: toMatcher(getValues()) })}
+            onClick={startDryRun}
           >
             {t("account-forms-dry-run-button")}
           </Button>
@@ -214,7 +236,7 @@ const RuleFormDialog: React.FC<RuleFormDialogProps> = ({ existing, onClose }) =>
                 {
                   label: t("account-forms-dry-run-errors"),
                   value: result.errors,
-                  ...(result.first_error ? { secondary: result.first_error } : {}),
+                  ...includeIf(result.first_error, { secondary: result.first_error }),
                 },
               ]}
             />

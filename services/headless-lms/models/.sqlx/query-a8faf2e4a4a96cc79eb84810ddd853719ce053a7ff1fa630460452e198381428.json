@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  changed_by_user_id,\n  name,\n  description,\n  expression,\n  list_kind AS \"list_kind: AccountFormListKind\",\n  list_entries,\n  outcome AS \"outcome: AccountFormOutcome\",\n  enabled,\n  log_only,\n  deleted\nFROM account_form_rule_versions\nWHERE account_form_rule_id = $1\nORDER BY created_at DESC\n",
+  "query": "\nSELECT id,\n  created_at,\n  changed_by_user_id,\n  name,\n  description,\n  expression,\n  list_kind,\n  list_entries,\n  outcome,\n  enabled,\n  log_only,\n  deleted\nFROM account_form_rule_versions\nWHERE account_form_rule_id = $1\nORDER BY created_at DESC,\n  id DESC\n",
   "describe": {
     "columns": [
       {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "list_kind: AccountFormListKind",
+        "name": "list_kind",
         "type_info": {
           "Custom": {
             "name": "account_form_list_kind",
@@ -105,7 +105,7 @@
       },
       {
         "ordinal": 8,
-        "name": "outcome: AccountFormOutcome",
+        "name": "outcome",
         "type_info": {
           "Custom": {
             "name": "account_form_outcome",
@@ -178,5 +178,5 @@
       false
     ]
   },
-  "hash": "75ac18c3a3febcc793de2685f9ae4181a09c5a11b7edaea735d8de0cd0081676"
+  "hash": "a8faf2e4a4a96cc79eb84810ddd853719ce053a7ff1fa630460452e198381428"
 }

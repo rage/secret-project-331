@@ -180,10 +180,11 @@ WHERE address_digest = $1
     Ok(latest)
 }
 
-/// The latest logged submissions, newest first, optionally only those before `before`.
+/// The latest logged submissions, newest first. `before` is the `(created_at, id)` of the last row
+/// of the previous page.
 pub async fn list(
     conn: &mut PgConnection,
-    before: Option<DateTime<Utc>>,
+    before: Option<(DateTime<Utc>, Uuid)>,
     limit: i64,
 ) -> ModelResult<Vec<AccountFormDecision>> {
     let rows = sqlx::query_as!(
@@ -191,8 +192,8 @@ pub async fn list(
         r#"
 SELECT id,
   created_at,
-  action AS "action: AccountFormAction",
-  outcome AS "outcome: AccountFormOutcome",
+  action,
+  outcome,
   matched_rule_ids,
   signals,
   user_id,
@@ -203,12 +204,14 @@ SELECT id,
 FROM account_form_decisions
 WHERE (
     $1::timestamptz IS NULL
-    OR created_at < $1
+    OR (created_at, id) < ($1, $2::uuid)
   )
-ORDER BY created_at DESC
-LIMIT $2
+ORDER BY created_at DESC,
+  id DESC
+LIMIT $3
 "#,
-        before,
+        before.map(|(created_at, _)| created_at),
+        before.map(|(_, id)| id),
         limit,
     )
     .fetch_all(conn)
@@ -227,8 +230,8 @@ pub async fn list_for_address(
         r#"
 SELECT id,
   created_at,
-  action AS "action: AccountFormAction",
-  outcome AS "outcome: AccountFormOutcome",
+  action,
+  outcome,
   matched_rule_ids,
   signals,
   user_id,
@@ -238,7 +241,8 @@ SELECT id,
   mailbox_digest
 FROM account_form_decisions
 WHERE address_digest = $1
-ORDER BY created_at DESC
+ORDER BY created_at DESC,
+  id DESC
 LIMIT $2
 "#,
         address_digest,

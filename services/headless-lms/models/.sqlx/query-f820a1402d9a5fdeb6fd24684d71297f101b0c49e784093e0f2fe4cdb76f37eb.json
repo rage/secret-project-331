@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  action AS \"action: AccountFormAction\",\n  outcome AS \"outcome: AccountFormOutcome\",\n  matched_rule_ids,\n  signals,\n  user_id,\n  recipient_domain,\n  network_prefix::text AS network_prefix,\n  address_digest,\n  mailbox_digest\nFROM account_form_decisions\nWHERE address_digest = $1\nORDER BY created_at DESC\nLIMIT $2\n",
+  "query": "\nSELECT id,\n  created_at,\n  action,\n  outcome,\n  matched_rule_ids,\n  signals,\n  user_id,\n  recipient_domain,\n  network_prefix::text AS network_prefix,\n  address_digest,\n  mailbox_digest\nFROM account_form_decisions\nWHERE (\n    $1::timestamptz IS NULL\n    OR (created_at, id) < ($1, $2::uuid)\n  )\nORDER BY created_at DESC,\n  id DESC\nLIMIT $3\n",
   "describe": {
     "columns": [
       {
@@ -27,7 +27,7 @@
       },
       {
         "ordinal": 2,
-        "name": "action: AccountFormAction",
+        "name": "action",
         "type_info": {
           "Custom": {
             "name": "account_form_action",
@@ -50,7 +50,7 @@
       },
       {
         "ordinal": 3,
-        "name": "outcome: AccountFormOutcome",
+        "name": "outcome",
         "type_info": {
           "Custom": {
             "name": "account_form_outcome",
@@ -144,7 +144,8 @@
     ],
     "parameters": {
       "Left": [
-        "Bytea",
+        "Timestamptz",
+        "Uuid",
         "Int8"
       ]
     },
@@ -162,5 +163,5 @@
       true
     ]
   },
-  "hash": "b0498d837271e75aa04d8431d54f6c1acb25efb6d55a8e719348c8e9c8529b59"
+  "hash": "f820a1402d9a5fdeb6fd24684d71297f101b0c49e784093e0f2fe4cdb76f37eb"
 }

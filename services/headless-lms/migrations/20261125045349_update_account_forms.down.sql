@@ -1,3 +1,4 @@
+ALTER TABLE password_reset_tokens DROP COLUMN mailed_at;
 DROP TABLE account_form_decisions;
 DROP TABLE account_form_rule_versions;
 DROP TABLE account_form_rules;

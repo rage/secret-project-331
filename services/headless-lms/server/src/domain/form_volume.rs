@@ -3,6 +3,7 @@
 //! stays at 1.
 
 use std::sync::LazyLock;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use headless_lms_models::shared_rate_counts;
 use sqlx::PgPool;
@@ -47,8 +48,10 @@ impl LevelSteps {
 struct VolumeConfig {
     /// Usual requests per window.
     baseline: f64,
-    /// Levels by the ratio of the current window to the baseline.
+    /// Levels by the ratio of the last window's requests to the baseline.
     steps: LevelSteps,
+    /// The level last computed on this instance, so a change is logged once.
+    last_level: AtomicU32,
 }
 
 fn volume_config(prefix: &str) -> VolumeConfig {
@@ -60,6 +63,7 @@ fn volume_config(prefix: &str) -> VolumeConfig {
             .filter(|baseline: &f64| *baseline > 0.0)
             .unwrap_or(f64::INFINITY),
         steps: LevelSteps::parse(&form_safety_env(&format!("{prefix}_VOLUME_LEVELS"))),
+        last_level: AtomicU32::new(1),
     }
 }
 
@@ -90,13 +94,18 @@ pub async fn count(
 /// The level everybody's challenges for `purpose` get from the form's current volume.
 pub async fn level(conn: &mut PgConnection, purpose: ChallengePurpose) -> ModelResult<u32> {
     let config = config_for(purpose);
-    let current = shared_rate_counts::current(conn, &volume_key(purpose), &[VOLUME_WINDOW_SECONDS])
-        .await?
-        .first()
-        .map_or(0, |window| window.count);
-    let level = config.steps.level(current as f64 / config.baseline);
-    if level > 1 {
-        warn!("The {purpose:?} form gets unusually many requests; its level is raised to {level}");
+    let recent =
+        shared_rate_counts::sliding_count(conn, &volume_key(purpose), VOLUME_WINDOW_SECONDS)
+            .await?;
+    let level = config.steps.level(recent / config.baseline);
+    if config.last_level.swap(level, Ordering::Relaxed) != level {
+        if level > 1 {
+            warn!(
+                "The {purpose:?} form gets unusually many requests; its level is raised to {level}"
+            );
+        } else {
+            info!("The {purpose:?} form's level is back to 1");
+        }
     }
     Ok(level)
 }

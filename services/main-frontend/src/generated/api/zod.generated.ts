@@ -9912,6 +9912,7 @@ export const zUploadFilesFromExerciseServiceResponse = z.array(zExerciseServiceU
 
 export const zGetAccountFormDecisionsQuery = z.object({
   before: z.iso.datetime().optional(),
+  before_id: z.uuid().optional(),
 })
 
 /**

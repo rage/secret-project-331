@@ -88,6 +88,42 @@ ORDER BY w.position
         .collect())
 }
 
+/// Estimated events of `key` in the last `window_seconds`, without counting: the current window plus
+/// the previous one, weighted by how much of it the last `window_seconds` still cover.
+pub async fn sliding_count(
+    conn: &mut PgConnection,
+    key: &[u8],
+    window_seconds: i64,
+) -> ModelResult<f64> {
+    let window_seconds = window_lengths(&[window_seconds])?[0];
+    let count = sqlx::query_scalar!(
+        r#"
+WITH w AS (
+  SELECT to_timestamp(floor(extract(epoch FROM now()) / $2::integer) * $2::integer) AS start,
+    extract(epoch FROM now()) / $2::integer - floor(extract(epoch FROM now()) / $2::integer) AS elapsed_fraction
+)
+SELECT coalesce(
+    sum(
+      t.count * CASE
+        WHEN t.window_start = w.start THEN 1
+        ELSE 1 - w.elapsed_fraction
+      END
+    ),
+    0
+  )::float8 AS "count!"
+FROM w
+  LEFT JOIN shared_rate_counts t ON t.key_digest = $1
+  AND t.window_seconds = $2::integer
+  AND t.window_start >= w.start - make_interval(secs => $2::integer)
+"#,
+        key,
+        window_seconds,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// Hard-deletes windows that ended over a day ago.
 pub async fn delete_old(conn: &mut PgConnection) -> ModelResult<u64> {
     let result = sqlx::query!(

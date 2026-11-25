@@ -3,8 +3,8 @@
 //! submission's action as `action`, e.g. `"signup"`. A list rule matches the address, mailbox,
 //! account or domain the submission is about.
 
-use std::collections::HashSet;
-use std::sync::{Arc, LazyLock};
+use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, LazyLock, Mutex, PoisonError};
 use std::time::Duration;
 
 use cel::{Context, Deadline, Env, Program, RuntimeOptions, Value as CelValue};
@@ -143,18 +143,66 @@ pub fn normalize_list_entry(kind: AccountFormListKind, entry: &str) -> Option<St
     }
 }
 
-/// Whether `rule` matches. Errors when its expression cannot be evaluated.
-pub fn rule_matches(
-    rule: &AccountFormRule,
-    action: AccountFormAction,
-    signals: &Signals,
-    subject: &RuleSubject,
-) -> Result<bool, String> {
-    match (&rule.expression, rule.list_kind) {
-        (Some(expression), _) => evaluate(&compile(expression)?, action, signals),
-        (None, Some(kind)) => Ok(ListMatcher::new(kind, &rule.list_entries).matches(subject)),
-        (None, None) => Err("the rule has neither an expression nor a list".to_string()),
+/// A rule's expression or list, ready to evaluate.
+pub enum RuleMatcher {
+    Expression(Program),
+    List(ListMatcher),
+}
+
+impl RuleMatcher {
+    /// Errors when the expression does not parse or the rule has neither an expression nor a list.
+    pub fn new(
+        expression: Option<&str>,
+        list_kind: Option<AccountFormListKind>,
+        list_entries: &[String],
+    ) -> Result<Self, String> {
+        match (expression, list_kind) {
+            (Some(expression), _) => compile(expression).map(Self::Expression),
+            (None, Some(kind)) => Ok(Self::List(ListMatcher::new(kind, list_entries))),
+            (None, None) => Err("the rule has neither an expression nor a list".to_string()),
+        }
     }
+
+    /// Whether the submission matches. Errors when the expression cannot be evaluated.
+    pub fn matches(
+        &self,
+        action: AccountFormAction,
+        signals: &Signals,
+        subject: &RuleSubject,
+    ) -> Result<bool, String> {
+        match self {
+            Self::Expression(program) => evaluate(program, action, signals),
+            Self::List(list) => Ok(list.matches(subject)),
+        }
+    }
+}
+
+type CachedMatcher = Arc<Result<RuleMatcher, String>>;
+
+/// Matchers by rule id, with the `updated_at` they were built from.
+type MatcherCache = HashMap<Uuid, (DateTime<Utc>, CachedMatcher)>;
+
+static MATCHERS: LazyLock<Mutex<MatcherCache>> = LazyLock::new(Default::default);
+
+/// The matchers of `rules`, in the same order, rebuilt only for rules saved since the last call.
+fn matchers(rules: &[&AccountFormRule]) -> Vec<CachedMatcher> {
+    let mut cache = MATCHERS.lock().unwrap_or_else(PoisonError::into_inner);
+    cache.retain(|id, _| rules.iter().any(|rule| rule.id == *id));
+    rules
+        .iter()
+        .map(|rule| match cache.get(&rule.id) {
+            Some((updated_at, matcher)) if *updated_at == rule.updated_at => matcher.clone(),
+            _ => {
+                let matcher = Arc::new(RuleMatcher::new(
+                    rule.expression.as_deref(),
+                    rule.list_kind,
+                    &rule.list_entries,
+                ));
+                cache.insert(rule.id, (rule.updated_at, matcher.clone()));
+                matcher
+            }
+        })
+        .collect()
 }
 
 /// What the rules decided for a submission.
@@ -177,8 +225,13 @@ pub fn decide(
 ) -> Decision {
     let mut matched_rule_ids = Vec::new();
     let mut enforced = Vec::new();
-    for rule in rules.iter().filter(|rule| rule.enabled) {
-        match rule_matches(rule, action, signals, subject) {
+    let rules: Vec<&AccountFormRule> = rules.iter().filter(|rule| rule.enabled).collect();
+    for (rule, matcher) in rules.iter().zip(matchers(&rules)) {
+        let matched = match matcher.as_ref() {
+            Ok(matcher) => matcher.matches(action, signals, subject),
+            Err(e) => Err(e.clone()),
+        };
+        match matched {
             Ok(true) => {
                 matched_rule_ids.push(rule.id);
                 if !rule.log_only && !rules_log_only {

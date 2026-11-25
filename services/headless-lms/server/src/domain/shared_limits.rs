@@ -3,6 +3,7 @@
 
 use std::net::IpAddr;
 use std::sync::LazyLock;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration as StdDuration;
 
 use chrono::Duration;
@@ -45,6 +46,7 @@ pub static CHALLENGE_NETWORK_LIMITS: LazyLock<Vec<(i64, i64)>> = LazyLock::new(|
 static EXEMPT_NETWORKS: LazyLock<Vec<IpNet>> = LazyLock::new(network_limit_exempt_networks);
 
 const CLEANUP_PROBABILITY: f64 = 0.01;
+static CLEANUP_RUNNING: AtomicBool = AtomicBool::new(false);
 
 /// Counts a request from `ip` for `name` and returns when the last window it is over ends, if any.
 /// Requests without a known address, from an exempt network or in test mode are never over: many
@@ -126,8 +128,8 @@ pub async fn count(
 /// it, in the same order. Every count in `shared_rate_counts` goes through here.
 ///
 /// On a small fraction of calls it also deletes the account forms' expired data in the background,
-/// on a connection from `pool` rather than `conn`, so the caller's transaction and response never
-/// wait for it.
+/// one deletion at a time per instance, on a connection from `pool` rather than `conn`, so the
+/// caller's transaction and response never wait for it.
 pub async fn increment(
     conn: &mut PgConnection,
     pool: &PgPool,
@@ -135,12 +137,17 @@ pub async fn increment(
     window_lengths: &[i64],
 ) -> ModelResult<Vec<shared_rate_counts::WindowCount>> {
     let counts = shared_rate_counts::increment(conn, key, window_lengths).await?;
-    if rand::rng().random_bool(CLEANUP_PROBABILITY) {
+    if rand::rng().random_bool(CLEANUP_PROBABILITY)
+        && CLEANUP_RUNNING
+            .compare_exchange(false, true, Ordering::Acquire, Ordering::Relaxed)
+            .is_ok()
+    {
         let pool = pool.clone();
         tokio::spawn(async move {
             if let Err(error) = delete_expired_form_data(&pool).await {
                 warn!("Deleting expired account form data failed: {error}");
             }
+            CLEANUP_RUNNING.store(false, Ordering::Release);
         });
     }
     Ok(counts)

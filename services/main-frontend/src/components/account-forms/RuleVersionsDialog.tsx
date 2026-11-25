@@ -27,6 +27,7 @@ const RuleVersionsDialog: React.FC<RuleVersionsDialogProps> = ({ rule, onClose }
       open
       onClose={onClose}
       size="wide"
+      showCloseButton={false}
       title={title}
       actions={[{ label: t("button-text-close"), variant: "secondary", onPress: onClose }]}
     >

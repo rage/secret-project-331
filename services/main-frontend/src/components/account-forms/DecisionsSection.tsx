@@ -1,12 +1,13 @@
 "use client"
 
-import { useInfiniteQuery, useMutation } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { lookupAccountFormDecisionsMutation } from "@/generated/api/@tanstack/react-query.generated"
-import { getAccountFormDecisions } from "@/generated/api/sdk.generated"
+import { getAccountFormDecisions, lookupAccountFormDecisions } from "@/generated/api/sdk.generated"
+import type { AccountFormDecision } from "@/generated/api/types.generated"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import {
   Button,
   EmptyState,
@@ -23,9 +24,22 @@ const DECISION_PAGE_SIZE = 100
 
 const DECISIONS_QUERY_KEY = ["account-form-decisions"]
 
-async function fetchDecisions(before: string | null) {
-  const page = await getAccountFormDecisions({ query: before ? { before } : {} })
+/** The previous page's last row, where the next page continues. */
+interface DecisionCursor {
+  before: string
+  before_id: string
+}
+
+async function fetchDecisions(cursor: DecisionCursor | null) {
+  const page = await getAccountFormDecisions({ query: cursor ?? {} })
   return page ?? []
+}
+
+function nextCursor(page: AccountFormDecision[]): DecisionCursor | undefined {
+  const last = page[page.length - 1]
+  return page.length === DECISION_PAGE_SIZE && last
+    ? { before: last.created_at, before_id: last.id }
+    : undefined
 }
 
 interface LookupFields {
@@ -37,18 +51,18 @@ const DecisionsSection: React.FC = () => {
   const { t } = useTranslation()
   const decisionsQuery = useInfiniteQuery({
     queryKey: DECISIONS_QUERY_KEY,
-    initialPageParam: null as string | null,
+    initialPageParam: null as DecisionCursor | null,
     queryFn: ({ pageParam }) => fetchDecisions(pageParam),
-    getNextPageParam: (lastPage) =>
-      lastPage.length === DECISION_PAGE_SIZE
-        ? lastPage[lastPage.length - 1]?.created_at
-        : undefined,
+    getNextPageParam: nextCursor,
   })
-  const lookup = useMutation(lookupAccountFormDecisionsMutation())
+  const lookup = useToastMutation(
+    (email: string) => lookupAccountFormDecisions({ body: { email } }),
+    { notify: false },
+  )
   const { control, handleSubmit } = useForm<LookupFields>({ defaultValues: { email: "" } })
 
   const submitLookup = handleSubmit((fields) => {
-    lookup.mutate({ body: { email: fields.email.trim() } })
+    lookup.mutate(fields.email.trim())
   })
 
   const decisions = decisionsQuery.data?.pages.flat() ?? []

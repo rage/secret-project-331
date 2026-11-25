@@ -98,8 +98,10 @@ async fn update_settings(
 #[derive(Debug, Deserialize, IntoParams)]
 #[into_params(parameter_in = Query)]
 pub struct DecisionsQuery {
-    /// Only submissions logged before this time, for paging back.
+    /// The `created_at` of the previous page's last submission, given together with `before_id`.
     pub before: Option<DateTime<Utc>>,
+    /// The `id` of the previous page's last submission.
+    pub before_id: Option<Uuid>,
 }
 
 /**
@@ -127,8 +129,17 @@ async fn get_decisions(
         Res::GlobalPermissions,
     )
     .await?;
-    let decisions =
-        account_form_decisions::list(&mut conn, query.before, DECISION_PAGE_SIZE).await?;
+    let before = match (query.before, query.before_id) {
+        (Some(created_at), Some(id)) => Some((created_at, id)),
+        (None, None) => None,
+        _ => {
+            return Err(controller_err!(
+                BadRequest,
+                "Give both before and before_id, or neither.".to_string()
+            ));
+        }
+    };
+    let decisions = account_form_decisions::list(&mut conn, before, DECISION_PAGE_SIZE).await?;
     token.authorized_ok(web::Json(decisions))
 }
 
@@ -434,11 +445,15 @@ async fn dry_run_rule(
     )
     .await?;
     let matcher = match (&payload.expression, payload.list_kind) {
-        (Some(expression), None) => Ok(compile_expression(expression)?),
-        (None, Some(kind)) => Err(rules::ListMatcher::new(
-            kind,
-            &normalized_entries(kind, &payload.list_entries)?,
-        )),
+        (Some(expression), None) => rules::RuleMatcher::Expression(compile_expression(expression)?),
+        (None, Some(kind)) => {
+            let entries = normalized_entries(kind, &payload.list_entries)?;
+            rules::RuleMatcher::List(
+                tokio::task::spawn_blocking(move || rules::ListMatcher::new(kind, &entries))
+                    .await
+                    .context("Building the list failed")?,
+            )
+        }
         _ => {
             return Err(controller_err!(
                 BadRequest,
@@ -447,6 +462,13 @@ async fn dry_run_rule(
         }
     };
     let decisions = account_form_decisions::list(&mut conn, None, DRY_RUN_DECISION_LIMIT).await?;
+    let result = tokio::task::spawn_blocking(move || dry_run(&matcher, decisions))
+        .await
+        .context("The dry run failed")?;
+    token.authorized_ok(web::Json(result))
+}
+
+fn dry_run(matcher: &rules::RuleMatcher, decisions: Vec<AccountFormDecision>) -> RuleDryRunResult {
     let mut result = RuleDryRunResult {
         evaluated: 0,
         matched: 0,
@@ -456,20 +478,17 @@ async fn dry_run_rule(
     };
     for decision in decisions {
         result.evaluated += 1;
-        let matched = match &matcher {
-            Ok(program) => rules::evaluate(
-                program,
-                decision.action,
-                &Signals::from_json(&decision.signals),
-            ),
-            Err(list) => Ok(list.matches(&RuleSubject {
-                address_digest: decision.address_digest.clone(),
-                mailbox_digest: decision.mailbox_digest.clone(),
-                user_id: decision.user_id,
-                domain: decision.recipient_domain.clone(),
-            })),
+        let subject = RuleSubject {
+            address_digest: decision.address_digest.clone(),
+            mailbox_digest: decision.mailbox_digest.clone(),
+            user_id: decision.user_id,
+            domain: decision.recipient_domain.clone(),
         };
-        match matched {
+        match matcher.matches(
+            decision.action,
+            &Signals::from_json(&decision.signals),
+            &subject,
+        ) {
             Ok(true) => {
                 result.matched += 1;
                 if result.examples.len() < DRY_RUN_EXAMPLE_LIMIT {
@@ -483,7 +502,7 @@ async fn dry_run_rule(
             }
         }
     }
-    token.authorized_ok(web::Json(result))
+    result
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

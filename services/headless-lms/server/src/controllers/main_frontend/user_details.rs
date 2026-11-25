@@ -385,19 +385,20 @@ pub async fn update_user_info(
     ip_to_country_mapper: web::Data<IpToCountryMapper>,
 ) -> ControllerResult<web::Json<UserDetail>> {
     let mut conn = pool.acquire().await?;
-    let may_send_mail = domain::user_info::may_mail_changed_email(
+    let updated =
+        domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
+            .await?;
+
+    if domain::user_info::may_mail_changed_email(
         &mut conn,
         &ip_to_country_mapper,
         &request,
         user.id,
         &payload,
+        &updated,
     )
-    .await?;
-    let updated =
-        domain::user_info::update_user_info(&mut conn, user.id, &payload, &tmc_client, &app_conf)
-            .await?;
-
-    if updated.email_changed && may_send_mail {
+    .await
+    {
         // After the commit: a rolled-back edit must not mail a code for an address the account lacks.
         domain::email_ownership_verification::queue_verification_email_best_effort(
             &mut conn,

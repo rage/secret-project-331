@@ -89,9 +89,9 @@ SELECT id,
   name,
   description,
   expression,
-  list_kind AS "list_kind: AccountFormListKind",
+  list_kind,
   list_entries,
-  outcome AS "outcome: AccountFormOutcome",
+  outcome,
   enabled,
   log_only
 FROM account_form_rules
@@ -115,9 +115,9 @@ SELECT id,
   name,
   description,
   expression,
-  list_kind AS "list_kind: AccountFormListKind",
+  list_kind,
   list_entries,
-  outcome AS "outcome: AccountFormOutcome",
+  outcome,
   enabled,
   log_only
 FROM account_form_rules
@@ -222,9 +222,9 @@ WHERE id = $1
 RETURNING name,
   description,
   expression,
-  list_kind AS "list_kind: AccountFormListKind",
+  list_kind,
   list_entries,
-  outcome AS "outcome: AccountFormOutcome",
+  outcome,
   enabled,
   log_only
 "#,
@@ -292,15 +292,16 @@ SELECT id,
   name,
   description,
   expression,
-  list_kind AS "list_kind: AccountFormListKind",
+  list_kind,
   list_entries,
-  outcome AS "outcome: AccountFormOutcome",
+  outcome,
   enabled,
   log_only,
   deleted
 FROM account_form_rule_versions
 WHERE account_form_rule_id = $1
-ORDER BY created_at DESC
+ORDER BY created_at DESC,
+  id DESC
 "#,
         rule_id,
     )

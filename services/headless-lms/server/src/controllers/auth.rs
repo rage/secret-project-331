@@ -173,7 +173,6 @@ pub async fn signup(
     )?;
     let mut conn = pool.acquire().await?;
     let client_ip = session_verification::client_ip(&request);
-    form_volume::count(&mut conn, &pool, ChallengePurpose::Signup).await?;
     proof_of_work::verify_and_spend(&mut conn, &user_details.altcha, ChallengePurpose::Signup)
         .await?;
     shared_limits::check_and_count(
@@ -184,6 +183,7 @@ pub async fn signup(
         &shared_limits::SIGNUP_NETWORK_LIMITS,
     )
     .await?;
+    form_volume::count(&mut conn, &pool, ChallengePurpose::Signup).await?;
 
     if user.is_none() {
         signup::check_may_reveal_existing_account(&mut conn, client_ip).await?;

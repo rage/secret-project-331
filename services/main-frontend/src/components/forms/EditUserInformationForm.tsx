@@ -16,6 +16,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { includeIf } from "@/shared-module/common/utils/nullability"
 import { Button, Checkbox, ComboBox, TextField, useToggleFocus } from "@/shared-module/components"
 import { settingsCardCss } from "@/styles/sharedStyles"
 
@@ -105,7 +106,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           last_name,
           country: submittedCountry,
           email_communication_consent: submittedEmailConsent,
-          ...(submittedEmail !== email ? { client_info: accountFormReport.report() } : {}),
+          ...includeIf(submittedEmail !== email, { client_info: accountFormReport.report() }),
         },
       })
     },

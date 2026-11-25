@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT m.mailed_at AS \"mailed_at!\"\nFROM password_reset_tokens t,\n  unnest(t.mailed_at) AS m(mailed_at)\nWHERE t.user_id = $1\n  AND t.expires_at > $2\n  AND m.mailed_at > $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "mailed_at!",
+        "type_info": "Timestamptz",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "116c994ebf2f4e5a993f57867b9881756c810711958e211c64aaf728cd98c445"
+}

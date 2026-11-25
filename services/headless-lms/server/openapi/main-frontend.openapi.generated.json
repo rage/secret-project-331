@@ -124,11 +124,21 @@
           {
             "name": "before",
             "in": "query",
-            "description": "Only submissions logged before this time, for paging back.",
+            "description": "The `created_at` of the previous page's last submission, given together with `before_id`.",
             "required": false,
             "schema": {
               "type": "string",
               "format": "date-time"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "description": "The `id` of the previous page's last submission.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],

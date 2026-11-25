@@ -90,6 +90,17 @@
             "name": "deleted_at"
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "mailed_at",
+        "type_info": "TimestamptzArray",
+        "origin": {
+          "Table": {
+            "table": "password_reset_tokens",
+            "name": "mailed_at"
+          }
+        }
       }
     ],
     "parameters": {
@@ -106,7 +117,8 @@
       true,
       false,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "7ee49dcb71f3f4ae9f6bd1dcaa1edca57c4128c1b5828dbca9af4c062fcb3479"

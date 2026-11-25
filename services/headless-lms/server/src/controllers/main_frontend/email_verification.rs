@@ -176,7 +176,7 @@ pub async fn request_email_verification_code(
         &mut conn,
         &ip_to_country_mapper,
         &account_form_checks::Submission {
-            action: AccountFormAction::EmailChange,
+            action: AccountFormAction::SignupCodeResend,
             request: &request,
             client_report: None,
             email: Some(&email),

@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import React from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -19,7 +19,16 @@ import { stackCss } from "./shared"
 const SettingsForm: React.FC<{ settings: AccountFormSettings }> = ({ settings }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const { control, handleSubmit } = useForm<AccountFormSettings>({ defaultValues: settings })
+  const { control, handleSubmit, reset, formState } = useForm<AccountFormSettings>({
+    defaultValues: settings,
+  })
+  const { isDirty } = formState
+
+  useEffect(() => {
+    if (!isDirty) {
+      reset(settings)
+    }
+  }, [settings, isDirty, reset])
   const save = useToastMutationOptions(
     updateAccountFormSettingsMutation(),
     { notify: true, method: "PUT" },

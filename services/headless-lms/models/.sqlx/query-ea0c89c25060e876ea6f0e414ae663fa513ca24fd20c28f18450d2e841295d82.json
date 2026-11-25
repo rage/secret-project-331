@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  description,\n  expression,\n  list_kind AS \"list_kind: AccountFormListKind\",\n  list_entries,\n  outcome AS \"outcome: AccountFormOutcome\",\n  enabled,\n  log_only\nFROM account_form_rules\nWHERE deleted_at IS NULL\nORDER BY created_at\n",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  name,\n  description,\n  expression,\n  list_kind,\n  list_entries,\n  outcome,\n  enabled,\n  log_only\nFROM account_form_rules\nWHERE deleted_at IS NULL\n  AND enabled\nORDER BY created_at\n",
   "describe": {
     "columns": [
       {
@@ -71,7 +71,7 @@
       },
       {
         "ordinal": 6,
-        "name": "list_kind: AccountFormListKind",
+        "name": "list_kind",
         "type_info": {
           "Custom": {
             "name": "account_form_list_kind",
@@ -105,7 +105,7 @@
       },
       {
         "ordinal": 8,
-        "name": "outcome: AccountFormOutcome",
+        "name": "outcome",
         "type_info": {
           "Custom": {
             "name": "account_form_outcome",
@@ -164,5 +164,5 @@
       false
     ]
   },
-  "hash": "9b5bd7b0b879d0f556b4336df85647b132c086726f115ccd893a8d6dfe7c14e7"
+  "hash": "ea0c89c25060e876ea6f0e414ae663fa513ca24fd20c28f18450d2e841295d82"
 }

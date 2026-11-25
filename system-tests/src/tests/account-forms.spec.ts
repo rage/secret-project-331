@@ -53,7 +53,7 @@ test.describe("Account form rules", () => {
           async () => {
             await visitorPage.getByRole("button", { name: "Create an account" }).click()
           },
-          /Something went wrong/,
+          /Please try again in a moment/,
         )
         await expect(visitorPage.getByText("You already have an account")).toHaveCount(0)
       }
@@ -87,9 +87,13 @@ test.describe("Account form rules", () => {
     await test.step("Delete the rule, and its history stays", async () => {
       const ruleRow = rulesTable(page).getByRole("row").filter({ hasText: RULE_NAME })
       await ruleRow.getByRole("button", { name: "Delete" }).click()
-      await waitForSuccessNotification(page, async () => {
-        await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
-      })
+      await waitForSuccessNotification(
+        page,
+        async () => {
+          await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
+        },
+        /Successfully deleted/,
+      )
       await expect(rulesTable(page).getByRole("cell", { name: RULE_NAME })).toHaveCount(0)
     })
   })
@@ -131,8 +135,12 @@ test.describe("Account form rules", () => {
 
     const ruleRow = rulesTable(page).getByRole("row").filter({ hasText: ruleName })
     await ruleRow.getByRole("button", { name: "Delete" }).click()
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
-    })
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
+      },
+      /Successfully deleted/,
+    )
   })
 })

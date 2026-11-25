@@ -24,32 +24,30 @@ pub struct UserInfoPayload {
     pub client_info: Option<String>,
 }
 
-/// Whether the verification mail of a changed address may go out, from the
-/// [account form checks](account_form_checks). A payload that keeps the address may always mail.
+/// Whether the save that returned `updated` may mail a verification code: only when it changed the
+/// address, and the [account form checks](account_form_checks) allow mailing the stored one.
 pub async fn may_mail_changed_email(
     conn: &mut PgConnection,
     ip_to_country: &IpToCountryMapper,
     request: &HttpRequest,
     user_id: Uuid,
     payload: &UserInfoPayload,
-) -> ModelResult<bool> {
-    let current = models::user_details::get_user_details_by_user_id(conn, user_id).await?;
-    if current.email == payload.email {
-        return Ok(true);
-    }
-    Ok(account_form_checks::may_send_mail(
-        conn,
-        ip_to_country,
-        &account_form_checks::Submission {
-            action: AccountFormAction::EmailChange,
-            request,
-            client_report: payload.client_info.as_deref(),
-            email: Some(payload.email.trim()),
-            user_id: Some(user_id),
-            profile: None,
-        },
-    )
-    .await)
+    updated: &UpdatedUserInfo,
+) -> bool {
+    updated.email_changed
+        && account_form_checks::may_send_mail(
+            conn,
+            ip_to_country,
+            &account_form_checks::Submission {
+                action: AccountFormAction::EmailChange,
+                request,
+                client_report: payload.client_info.as_deref(),
+                email: Some(&updated.user_details.email),
+                user_id: Some(user_id),
+                profile: None,
+            },
+        )
+        .await
 }
 
 /// A saved profile form.

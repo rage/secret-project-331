@@ -202,22 +202,14 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
       </h2>
       {facts}
       <p className={captionCss}>{t("credit-registration-link-only-once")}</p>
-      {courseCodes.length === 1 && courseCodes[0] ? (
+      {courseCodes.length > 0 ? (
         <p className={noteBoxCss}>
           <Trans
             t={t}
             i18nKey="credit-registration-linking-wrong-course"
-            components={{ courseCode: <SisuCourseCode code={courseCodes[0]} /> }}
-          />
-        </p>
-      ) : null}
-      {courseCodes.length > 1 ? (
-        <p className={noteBoxCss}>
-          <Trans
-            t={t}
-            i18nKey="credit-registration-linking-wrong-course-several"
+            count={courseCodes.length}
             components={{
-              courseCodes: (
+              courseCode: (
                 <SisuCourseCode code={formatConjunctionList(i18n.language, courseCodes)} />
               ),
             }}

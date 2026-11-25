@@ -48,7 +48,9 @@ import {
   underCourseMarkCss,
 } from "./stepperStyles"
 import {
+  courseCodeOf,
   type CourseStage,
+  enrolmentLinkOf,
   isEnrollingStage,
   isRegisteringStage,
   type StepperCourse,
@@ -115,7 +117,7 @@ export const CoursesStatusPage: React.FC<CoursesStatusPageProps> = ({
         <p className={captionCss}>{t("credit-registration-waiting-for-enrolment-timing")}</p>
         <CourseBlocks>
           {rows.map(({ course }) => (
-            <CourseBlock key={course.uhCourseCode} course={course} stage={AWAITING_ENROLMENT}>
+            <CourseBlock key={course.key} course={course} stage={AWAITING_ENROLMENT}>
               <p>{t("credit-registration-course-enrolment-not-found-yet")}</p>
             </CourseBlock>
           ))}
@@ -234,7 +236,7 @@ export const CoursesStatusPage: React.FC<CoursesStatusPageProps> = ({
       {head}
       <CourseBlocks>
         {rows.map(({ course, stage }) => (
-          <CourseBlock key={course.uhCourseCode} course={course} stage={stage}>
+          <CourseBlock key={course.key} course={course} stage={stage}>
             <CourseStatus
               course={course}
               stage={stage}
@@ -270,6 +272,8 @@ const CourseBlock: React.FC<{
   children: React.ReactNode
 }> = ({ course, stage, children }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  // Only mooc.fi codes reach this page, and each has its credits set.
+  const ectsCredits = course.ectsCredits ?? 0
   return (
     <section className={courseBlockCss}>
       <div className={statusHeadCss}>
@@ -281,9 +285,9 @@ const CourseBlock: React.FC<{
               t={t}
               i18nKey="credit-registration-course-code-and-credits"
               values={{
-                credits: t("ects-n", { count: course.ectsCredits, n: course.ectsCredits }),
+                credits: t("ects-n", { count: ectsCredits, n: ectsCredits }),
               }}
-              components={{ courseCode: <SisuCourseCode code={course.uhCourseCode} /> }}
+              components={{ courseCode: <SisuCourseCode code={courseCodeOf(course) ?? ""} /> }}
             />
           </p>
         </div>
@@ -389,8 +393,8 @@ const EnrolToContinue: React.FC<{
   showsIdentification: boolean
 }> = ({ course, isDegreeStudent, showsIdentification }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const enrolmentLink = httpsUrlOrNull(course.enrolmentLink)
-  const courseCode = { courseCode: <SisuCourseCode code={course.uhCourseCode} /> }
+  const enrolmentLink = httpsUrlOrNull(enrolmentLinkOf(course))
+  const courseCode = { courseCode: <SisuCourseCode code={courseCodeOf(course) ?? ""} /> }
   return (
     <>
       <p>

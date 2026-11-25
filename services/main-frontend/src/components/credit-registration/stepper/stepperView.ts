@@ -215,13 +215,15 @@ export const stepOf = (page: StepperPage): Step | null => {
 export const isStepperPage = (value: string | null): value is StepperPage =>
   STEPPER_PAGES.some((page) => page === value)
 
-/** One Sisu course of a completion that earns several, with where its registration stands. */
+/** One Sisu course a completion earns, with where its registration stands. */
 export interface StepperCourse {
   /** Distinct among the completion's courses. */
   key: string
   name: string
-  uhCourseCode: string
-  ectsCredits: number
+  /** Known before the registration exists; blank or missing when the course has none. */
+  uhCourseCode: string | null | undefined
+  ectsCredits: number | null | undefined
+  /** Where an Open University student enrols, known before the registration exists. */
   enrolmentLink: string | null | undefined
   /** The course that has to be registered before this one is sent to Sisu. */
   prerequisiteName: string | null
@@ -242,7 +244,7 @@ export type CourseStage =
   /** Failed, on hold or not registering: told in the status's own words. */
   | "stopped"
 
-/** Where `course` stands, read the way the single-course stepper reads one registration. */
+/** Where `course` stands among several, read the way a single course's registration is read. */
 export const courseStageOf = (
   course: StepperCourse,
   shared: Omit<StepperInput, "registration" | "enrolmentRoute">,
@@ -301,5 +303,27 @@ export const laterCoursesOf = <Course extends { prerequisiteName: string | null 
     course.prerequisiteName ? [{ ...course, prerequisiteName: course.prerequisiteName }] : [],
   )
 
-/** A course of a completion that earns several, as configured, before its registration is read. */
+/** A course a completion earns, as configured, before its registration is read. */
 export type CreditCourse = Omit<StepperCourse, "registration" | "enrolmentRoute">
+
+/** The code to enrol on: the registration's, else the configured one; `null` when blank. */
+export const courseCodeOf = (course: StepperCourse): string | null =>
+  (course.registration?.uh_course_code ?? course.uhCourseCode)?.trim() || null
+
+/** Where an Open University student enrols: the registration's link, else the configured one. */
+export const enrolmentLinkOf = (course: StepperCourse): string | null | undefined =>
+  course.registration?.enrolment_link ?? course.enrolmentLink
+
+/** What the courses are worth together; `null` when any has no credits set. */
+export const ectsCreditsOf = (
+  courses: readonly { ectsCredits: number | null | undefined }[],
+): number | null => {
+  let sum = 0
+  for (const { ectsCredits } of courses) {
+    if (typeof ectsCredits !== "number") {
+      return null
+    }
+    sum += ectsCredits
+  }
+  return sum
+}

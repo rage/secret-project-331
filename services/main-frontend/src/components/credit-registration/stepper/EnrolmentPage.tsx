@@ -13,7 +13,6 @@ import {
   BUTTON_SECONDARY,
   BUTTON_TERTIARY,
   CREDIT_REGISTRATION_NS,
-  type CreditRegistrationTFunction,
   ICON_AT_END,
   openUniversityEnrolmentInfoUrl,
   sisuEnrolmentInstructionsUrl,
@@ -36,7 +35,7 @@ import {
   underNumberedHeadingCss,
   wideActionCss,
 } from "./stepperStyles"
-import { laterCoursesOf, type StepperCourse } from "./stepperView"
+import { courseCodeOf, enrolmentLinkOf, type StepperCourse } from "./stepperView"
 
 const EXTERNAL_ICON_SIZE = 16
 
@@ -50,21 +49,10 @@ const courseEnrolmentCss = css`
   gap: var(--space-3);
 `
 
-/** The "have you enrolled" question; with several courses, enrolling on one is enough to say yes. */
-const confirmEnrolledBody = (
-  t: CreditRegistrationTFunction,
-  isSisu: boolean,
-  hasSeveralCourses: boolean,
-): string => {
-  if (hasSeveralCourses) {
-    return isSisu
-      ? t("credit-registration-confirm-enrolled-body-sisu-courses")
-      : t("credit-registration-confirm-enrolled-body-open-university-courses")
-  }
-  return isSisu
-    ? t("credit-registration-confirm-enrolled-body-sisu")
-    : t("credit-registration-confirm-enrolled-body-open-university")
-}
+/** The `courseCode` slot of a `Trans` that names `course`. */
+const courseCodeSlot = (course: StepperCourse) => ({
+  courseCode: <SisuCourseCode code={courseCodeOf(course) ?? ""} />,
+})
 
 const NumberedHeading: React.FC<{
   n: number
@@ -106,12 +94,13 @@ export const OpenUniversityIdentificationCaption: React.FC = () => {
 
 export interface EnrolmentPageProps {
   isSisu: boolean
-  /** Every course of a completion that earns several, each enrolled on separately; else `null`. */
-  courses?: readonly StepperCourse[] | null
-  /** The course to enrol on; without one a Sisu student is sent to support instead. */
-  courseCode: string | null
-  /** Where an Open University student enrols, when the module names one. */
-  openUniversityEnrolmentLink: string | null | undefined
+  /**
+   * Every course the completion earns, each enrolled on separately. Without a course code for each,
+   * a Sisu student is sent to support instead.
+   */
+  courses: readonly [StepperCourse, ...StepperCourse[]]
+  /** The courses that wait for another before they go to Sisu. */
+  laterCourses: readonly (StepperCourse & { prerequisiteName: string })[]
   /** What the support mail says when there is no course code to enrol on. */
   missingCourseCodeSupportMail: SupportMailContents
   isConfirming: boolean
@@ -122,9 +111,8 @@ export interface EnrolmentPageProps {
 /** How to enrol, and the student's word that they have. */
 export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
   isSisu,
-  courses = null,
-  courseCode,
-  openUniversityEnrolmentLink,
+  courses,
+  laterCourses,
   missingCourseCodeSupportMail,
   isConfirming,
   onConfirm,
@@ -133,15 +121,20 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isDemoMode = useIsDemoMode()
   const { alert, confirm } = useDialog()
-  const enrolmentLink = httpsUrlOrNull(openUniversityEnrolmentLink)
   const externalIcon = <ArrowUpFromSquare size={EXTERNAL_ICON_SIZE} aria-hidden="true" />
+  const count = courses.length
+  const hasSeveralCourses = count > 1
+  const [firstCourse] = courses
+  const firstCourseCode = courseCodeOf(firstCourse)
 
   // A "yes" too early sends the student to wait for an email that is not coming, so "Not yet" is
   // the answer the dialog leans on.
   const askAndConfirm = async () => {
     const hasEnrolled = await confirm({
       title: t("credit-registration-confirm-enrolled-title"),
-      message: confirmEnrolledBody(t, isSisu, courses !== null),
+      message: isSisu
+        ? t("credit-registration-confirm-enrolled-body-sisu", { count })
+        : t("credit-registration-confirm-enrolled-body-open-university", { count }),
       confirmLabel: t("credit-registration-confirm-enrolled-yes"),
       cancelLabel: t("credit-registration-confirm-enrolled-not-yet"),
       emphasizesCancel: true,
@@ -158,6 +151,34 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
       </Button>
     </div>
   )
+
+  if (isSisu && courses.some((course) => !courseCodeOf(course))) {
+    return (
+      <div className={pageCss}>
+        <NumberedHeading n={1} isPageHeading>
+          {t("credit-registration-enrol-in-sisu-heading")}
+        </NumberedHeading>
+        <div className={underNumberedHeadingCss}>
+          <p>
+            {t("credit-registration-sisu-course-code-missing")}{" "}
+            <SupportMailLink
+              appearance={SUPPORT_MAIL_INLINE}
+              label={SUPPORT_EMAIL}
+              subject={missingCourseCodeSupportMail.subject}
+              bodyLines={missingCourseCodeSupportMail.bodyLines}
+            />
+          </p>
+          <SupportMailLink
+            referenceOnly
+            reference={missingCourseCodeSupportMail.reference ?? null}
+            subject={missingCourseCodeSupportMail.subject}
+            bodyLines={missingCourseCodeSupportMail.bodyLines}
+          />
+        </div>
+        {footer}
+      </div>
+    )
+  }
 
   const enrolButton = (link: string | null, label: string) =>
     isDemoMode ? (
@@ -198,127 +219,14 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
       <p>{t("credit-registration-no-enrolment-link-available")}</p>
     )
 
-  const laterCaptions = laterCoursesOf(courses ?? []).map((course) => (
-    <p key={course.uhCourseCode} className={captionCss}>
+  const laterCaptions = laterCourses.map((course) => (
+    <p key={course.key} className={captionCss}>
       {t("credit-registration-courses-registered-after", {
         course: course.name,
         prerequisite: course.prerequisiteName,
       })}
     </p>
   ))
-
-  if (courses && !(isSisu && courses.some((course) => !course.uhCourseCode.trim()))) {
-    return (
-      <div className={pageCss}>
-        <NumberedHeading n={1} isPageHeading>
-          {isSisu
-            ? t("credit-registration-enrol-in-sisu-heading")
-            : t("credit-registration-enrol-at-open-university-heading")}
-        </NumberedHeading>
-        <div className={underNumberedHeadingCss}>
-          {isSisu ? (
-            <>
-              <p className={leadCss}>
-                {t("credit-registration-courses-enrol-in-sisu-lead", { count: courses.length })}
-              </p>
-              <ul className={courseListCss}>
-                {courses.map((course) => (
-                  <li key={course.uhCourseCode}>
-                    <Trans
-                      t={t}
-                      i18nKey="credit-registration-courses-list-item"
-                      values={{ course: course.name }}
-                      components={{ courseCode: <SisuCourseCode code={course.uhCourseCode} /> }}
-                    />
-                  </li>
-                ))}
-              </ul>
-              {laterCaptions}
-              <p>
-                <TransLink
-                  href={sisuEnrolmentInstructionsUrl(i18n.language)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t("credit-registration-how-to-enrol-in-sisu")}
-                </TransLink>
-              </p>
-            </>
-          ) : (
-            <>
-              <p>{t("credit-registration-courses-enrol-intro", { count: courses.length })}</p>
-              {courses.map((course) => (
-                <div key={course.uhCourseCode} className={courseEnrolmentCss}>
-                  <p className={leadCss}>
-                    <Trans
-                      t={t}
-                      i18nKey="credit-registration-courses-enrol-on-course-lead"
-                      values={{ course: course.name }}
-                      components={{ courseCode: <SisuCourseCode code={course.uhCourseCode} /> }}
-                    />
-                  </p>
-                  {enrolButton(
-                    httpsUrlOrNull(course.enrolmentLink),
-                    t("credit-registration-action-enrol-on-course", { course: course.name }),
-                  )}
-                </div>
-              ))}
-              {laterCaptions}
-              <OpenUniversityIdentificationCaption />
-            </>
-          )}
-        </div>
-        <div className={sectionDividerCss}>
-          <NumberedHeading n={2}>
-            {t("credit-registration-finished-enrolling-heading")}
-          </NumberedHeading>
-          <div className={underNumberedHeadingCss}>
-            <div>
-              <Button
-                variant={BUTTON_SECONDARY}
-                size="large"
-                className={wideActionCss}
-                isLoading={isConfirming}
-                onClick={() => void askAndConfirm()}
-              >
-                {t("button-i-have-enrolled")}
-              </Button>
-            </div>
-            <p className={captionCss}>{t("credit-registration-courses-enrolled-on-some")}</p>
-          </div>
-        </div>
-        {footer}
-      </div>
-    )
-  }
-
-  if (isSisu && !courseCode) {
-    return (
-      <div className={pageCss}>
-        <NumberedHeading n={1} isPageHeading>
-          {t("credit-registration-enrol-in-sisu-heading")}
-        </NumberedHeading>
-        <div className={underNumberedHeadingCss}>
-          <p>
-            {t("credit-registration-sisu-course-code-missing")}{" "}
-            <SupportMailLink
-              appearance={SUPPORT_MAIL_INLINE}
-              label={SUPPORT_EMAIL}
-              subject={missingCourseCodeSupportMail.subject}
-              bodyLines={missingCourseCodeSupportMail.bodyLines}
-            />
-          </p>
-          <SupportMailLink
-            referenceOnly
-            reference={missingCourseCodeSupportMail.reference ?? null}
-            subject={missingCourseCodeSupportMail.subject}
-            bodyLines={missingCourseCodeSupportMail.bodyLines}
-          />
-        </div>
-        {footer}
-      </div>
-    )
-  }
 
   return (
     <div className={pageCss}>
@@ -332,9 +240,25 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
               <Trans
                 t={t}
                 i18nKey="credit-registration-enrol-in-sisu-lead"
-                components={{ courseCode: <SisuCourseCode code={courseCode ?? ""} /> }}
+                count={count}
+                components={courseCodeSlot(firstCourse)}
               />
             </p>
+            {hasSeveralCourses ? (
+              <ul className={courseListCss}>
+                {courses.map((course) => (
+                  <li key={course.key}>
+                    <Trans
+                      t={t}
+                      i18nKey="credit-registration-courses-list-item"
+                      values={{ course: course.name }}
+                      components={courseCodeSlot(course)}
+                    />
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {laterCaptions}
             <p>
               <TransLink
                 href={sisuEnrolmentInstructionsUrl(i18n.language)}
@@ -352,16 +276,44 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
             {t("credit-registration-enrol-at-open-university-heading")}
           </NumberedHeading>
           <div className={underNumberedHeadingCss}>
-            {courseCode ? (
-              <p className={leadCss}>
-                <Trans
-                  t={t}
-                  i18nKey="credit-registration-enrol-at-open-university-lead"
-                  components={{ courseCode: <SisuCourseCode code={courseCode} /> }}
-                />
-              </p>
-            ) : null}
-            {enrolButton(enrolmentLink, t("credit-registration-action-enrol"))}
+            {hasSeveralCourses ? (
+              <>
+                <p>{t("credit-registration-courses-enrol-intro", { count })}</p>
+                {courses.map((course) => (
+                  <div key={course.key} className={courseEnrolmentCss}>
+                    <p className={leadCss}>
+                      <Trans
+                        t={t}
+                        i18nKey="credit-registration-courses-enrol-on-course-lead"
+                        values={{ course: course.name }}
+                        components={courseCodeSlot(course)}
+                      />
+                    </p>
+                    {enrolButton(
+                      httpsUrlOrNull(enrolmentLinkOf(course)),
+                      t("credit-registration-action-enrol-on-course", { course: course.name }),
+                    )}
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                {firstCourseCode ? (
+                  <p className={leadCss}>
+                    <Trans
+                      t={t}
+                      i18nKey="credit-registration-enrol-at-open-university-lead"
+                      components={courseCodeSlot(firstCourse)}
+                    />
+                  </p>
+                ) : null}
+                {enrolButton(
+                  httpsUrlOrNull(enrolmentLinkOf(firstCourse)),
+                  t("credit-registration-action-enrol"),
+                )}
+              </>
+            )}
+            {laterCaptions}
             <OpenUniversityIdentificationCaption />
           </div>
         </>
@@ -383,6 +335,9 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
               {t("button-i-have-enrolled")}
             </Button>
           </div>
+          {hasSeveralCourses ? (
+            <p className={captionCss}>{t("credit-registration-courses-enrolled-on-some")}</p>
+          ) : null}
         </div>
       </div>
       {footer}

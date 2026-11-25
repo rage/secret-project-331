@@ -6,13 +6,13 @@ import { useParams } from "next/navigation"
 import React, { useContext, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
+import { CardHeading } from "@/components/credit-registration/CardHeading"
 import {
   BUTTON_PRIMARY,
   BUTTON_SECONDARY,
   CREDIT_REGISTRATION_NS,
   TONE,
 } from "@/components/credit-registration/constants"
-import { CardHeading } from "@/components/credit-registration/CreditRegistrationStatus"
 import {
   bandCss,
   bandedCardCss,

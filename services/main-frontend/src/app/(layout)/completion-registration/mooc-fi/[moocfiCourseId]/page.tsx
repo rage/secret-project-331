@@ -7,6 +7,7 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { CardHeading } from "@/components/credit-registration/CardHeading"
 import {
   CREDIT_REGISTRATION_NS,
   QUIET_REFRESH,
@@ -17,9 +18,7 @@ import {
   moocfiCompletionStatusCopy,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import CreditRegistrationStatus, {
-  CardHeading,
-} from "@/components/credit-registration/CreditRegistrationStatus"
+import CreditRegistrationStatus from "@/components/credit-registration/CreditRegistrationStatus"
 import {
   moocfiCertificateOffer,
   moocfiSubject,
@@ -295,29 +294,22 @@ const MoocfiCompletion: React.FC<{
   signedInEmail: string
 }> = ({ completion, courseName, signedInEmail }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
-  const registeringUnits = registeringUnitsOf(completion)
-  const [firstUnit] = registeringUnits
+  const [firstUnit, ...laterUnits] = registeringUnitsOf(completion)
 
   if (firstUnit) {
-    const isSeveral = registeringUnits.length > 1
     return (
       <CreditRegistrationStatus
         subject={moocfiSubject(completion.moocfi_completion_id)}
-        courseName={(isSeveral ? courseName : (firstUnit.credit_unit.name ?? courseName)) ?? ""}
+        courseName={courseName ?? ""}
         moduleName={null}
-        ectsCredits={
-          isSeveral ? ectsCreditsOf(registeringUnits) : firstUnit.credit_unit.ects_credits
-        }
+        courses={[creditCourseOf(firstUnit), ...laterUnits.map((unit) => creditCourseOf(unit))]}
         statusBeforeRegistration={STATUS_BEFORE_REGISTRATION}
         certificate={moocfiCertificateOffer(
           completion.moocfi_completion_id,
           completion.offers_certificate,
           completion.credit_justification,
         )}
-        uhCourseCode={firstUnit.credit_unit.uh_course_code}
-        enrolmentLink={firstUnit.credit_unit.enrolment_link}
         signedInEmail={signedInEmail}
-        courses={creditCoursesOf(registeringUnits)}
       />
     )
   }
@@ -337,16 +329,15 @@ const MoocfiCompletion: React.FC<{
   )
 }
 
-/** The completion's registering courses for the stepper. */
-const creditCoursesOf = (units: readonly RegisteringUnit[]): CreditCourse[] =>
-  units.map((unit) => ({
-    key: unit.external_completion_id,
-    name: unit.credit_unit.name,
-    uhCourseCode: unit.credit_unit.uh_course_code,
-    ectsCredits: unit.credit_unit.ects_credits,
-    enrolmentLink: unit.credit_unit.enrolment_link,
-    prerequisiteName: unit.prerequisite_name ?? null,
-  }))
+/** A registering course of the completion, for the stepper. */
+const creditCourseOf = (unit: RegisteringUnit): CreditCourse => ({
+  key: unit.external_completion_id,
+  name: unit.credit_unit.name,
+  uhCourseCode: unit.credit_unit.uh_course_code,
+  ectsCredits: unit.credit_unit.ects_credits,
+  enrolmentLink: unit.credit_unit.enrolment_link,
+  prerequisiteName: unit.prerequisite_name ?? null,
+})
 
 /** A completion courses does not register, in the same card the stepper uses. */
 const StatusCard: React.FC<{

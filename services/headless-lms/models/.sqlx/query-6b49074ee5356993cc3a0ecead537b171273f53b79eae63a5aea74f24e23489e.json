@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE course_designer_plan_stage_tasks t\nSET assignee_user_id = $4\nFROM course_designer_plan_stages s\nJOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id\n  AND m.user_id = $2 AND m.deleted_at IS NULL\nWHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1\n  AND s.deleted_at IS NULL\n  AND t.id = $3 AND t.deleted_at IS NULL\nRETURNING\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id,\n  t.assignee_user_id\n",
+  "query": "\nSELECT\n  t.id,\n  t.created_at,\n  t.updated_at,\n  t.course_designer_plan_stage_id,\n  t.title,\n  t.description,\n  t.order_number,\n  t.is_completed,\n  t.completed_at,\n  t.completed_by_user_id,\n  t.is_auto_generated,\n  t.created_by_user_id,\n  t.assignee_user_id,\n  t.automatic_check AS \"automatic_check: CourseDesignerAutomaticCheck\"\nFROM course_designer_plan_stage_tasks t\nJOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL\nWHERE s.course_designer_plan_id = $1\n  AND t.deleted_at IS NULL\nORDER BY s.id, t.order_number, t.id\n",
   "describe": {
     "columns": [
       {
@@ -145,13 +145,32 @@
             "name": "assignee_user_id"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "automatic_check: CourseDesignerAutomaticCheck",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_automatic_check",
+            "kind": {
+              "Enum": [
+                "content_filled",
+                "exercises_exist",
+                "course_published"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stage_tasks",
+            "name": "automatic_check"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Uuid",
-        "Uuid",
         "Uuid"
       ]
     },
@@ -168,8 +187,9 @@
       true,
       false,
       true,
+      true,
       true
     ]
   },
-  "hash": "4b3fd93d7c40cedd53e1257fb1c3864f7e5c13085bb54e1788062a380dfe4994"
+  "hash": "6b49074ee5356993cc3a0ecead537b171273f53b79eae63a5aea74f24e23489e"
 }

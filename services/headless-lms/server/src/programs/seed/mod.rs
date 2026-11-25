@@ -101,6 +101,7 @@ pub async fn main() -> anyhow::Result<()> {
     )
     .await?;
 
+    let uh_cs_organization_id = uh_cs_organization_result.uh_cs_organization_id;
     try_join!(
         run_parallelly(seed_roles::seed_roles(
             db_pool.clone(),
@@ -121,7 +122,9 @@ pub async fn main() -> anyhow::Result<()> {
         run_parallelly(seed_oauth_clients(db_pool.clone())),
         run_parallelly(seed_course_designer_plans::seed_course_designer_plans(
             db_pool.clone(),
-            seed_users_result
+            app_config.clone(),
+            seed_users_result,
+            uh_cs_organization_id
         )),
         run_parallelly(
             seed_courses::seed_language_versions::seed_language_version_sets(

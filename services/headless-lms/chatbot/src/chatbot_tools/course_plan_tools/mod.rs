@@ -16,32 +16,10 @@ use crate::prelude::*;
 pub mod get_course_plan;
 pub mod propose_add_task;
 pub mod propose_schedule_adjustment;
-pub mod propose_section_status;
 pub mod propose_update_task;
 pub mod propose_vision_edit;
 pub mod propose_workspace_edit;
 mod workspace_json;
-
-/// Section keys the plan pages mark as ready or unfinished. Mirrored by hand in the course plan
-/// forms of main-frontend; a key missing there is stored but shown nowhere.
-pub const KNOWN_SECTION_KEYS: [&str; 16] = [
-    "analysis.my_course",
-    "analysis.needs_analysis",
-    "analysis.wishes",
-    "analysis.market_analysis",
-    "analysis.resources",
-    "analysis.key_contributors",
-    "design.learning_goals",
-    "design.core_content",
-    "design.course_structure",
-    "design.content_format",
-    "design.style_guide",
-    "design.exercises",
-    "design.learning_types",
-    "development.stage",
-    "implementation.stage",
-    "evaluation.stage",
-];
 
 /// What every plan tool requires: membership in the turn's plan.
 pub(crate) fn plan_member_requirements() -> Vec<ToolRequirement> {

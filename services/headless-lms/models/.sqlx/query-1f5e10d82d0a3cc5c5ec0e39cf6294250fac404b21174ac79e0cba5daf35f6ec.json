@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ch.id AS chapter_id,\n  ch.name,\n  ch.chapter_number\nFROM chapters ch\nWHERE ch.course_id = $1\n  AND ch.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercises e\n    WHERE e.chapter_id = ch.id\n      AND e.deleted_at IS NULL\n  )\nORDER BY ch.chapter_number\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapter_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "chapter_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chapters",
+            "name": "chapter_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1f5e10d82d0a3cc5c5ec0e39cf6294250fac404b21174ac79e0cba5daf35f6ec"
+}

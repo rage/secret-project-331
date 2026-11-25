@@ -69,6 +69,7 @@ use utoipa::OpenApi;
         (path = "/course-credit-registrations", api = course_credit_registrations::MainFrontendCourseCreditRegistrationsApiDoc),
         (path = "/course-plans", api = course_designer::MainFrontendCourseDesignerApiDoc),
         (path = "/course-plans/{plan_id}/assistant", api = course_designer_assistant::MainFrontendCourseDesignerAssistantApiDoc),
+        (path = "/course-plan-courses", api = course_designer::MainFrontendCoursePlanCoursesApiDoc),
         (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
         (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
@@ -126,6 +127,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(course_designer_assistant::_add_routes),
         )
         .service(web::scope("/course-plans").configure(course_designer::_add_routes))
+        .service(
+            web::scope("/course-plan-courses")
+                .configure(course_designer::_add_course_creation_routes),
+        )
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
         .service(

@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use actix_web::HttpResponse;
 use chrono::NaiveDate;
+use models::application_task_default_language_models::{self, ApplicationTask};
 use models::chatbot_configurations::CourseChatbotOption;
 use models::course_designer_plans::{
     CourseDesignerCourseSize, CourseDesignerPlan, CourseDesignerPlanDetails,
@@ -13,14 +14,12 @@ use models::course_designer_plans::{
     CourseDesignerScheduleStageInput, CourseDesignerStage, CourseDesignerSupportPlan,
     PlanMemberWithDetails,
 };
-use models::course_designer_section_statuses::{
-    CourseDesignerPlanSectionStatus, CourseDesignerSectionStatus,
-};
 use models::course_designer_stage_workspace::CourseDesignerStageWorkspace;
 use models::courses::Course;
 use models::library::course_designer::CourseFromPlanOptions;
 use utoipa::{OpenApi, ToSchema};
 
+use crate::domain::error::{BadRequestReason, bad_request_with_reason};
 use crate::domain::models_requests::{self, JwtKey};
 use crate::prelude::*;
 
@@ -42,18 +41,19 @@ use crate::prelude::*;
     post_plan_member,
     delete_plan_member,
     put_great_mooc_vision,
-    get_section_statuses,
-    put_section_status,
     get_support_plans,
     get_support_assistant_chatbots,
     put_task_assignee,
     put_schedule_adjustment,
     post_archive_plan,
     post_unarchive_plan,
-    put_weekly_digest_subscription,
-    post_create_course_from_plan
+    put_weekly_digest_subscription
 ))]
 pub(crate) struct MainFrontendCourseDesignerApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(paths(post_create_course_from_plan))]
+pub(crate) struct MainFrontendCoursePlanCoursesApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CreateCourseDesignerPlanRequest {
@@ -111,16 +111,6 @@ pub struct SetGreatMoocVisionRequest {
     pub great_mooc_vision: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-pub struct SetCourseDesignerSectionStatusRequest {
-    pub stage: CourseDesignerStage,
-    /// Stable key defined by the frontend form, e.g. `design.learning_goals`. At most 255 characters.
-    pub section_key: String,
-    pub status: CourseDesignerSectionStatus,
-    /// Blank or `null` stores no comment.
-    pub comment: Option<String>,
-}
-
 /// The whole schedule in stage order. Completed stages must keep their dates, and later stages
 /// must already be shifted so there are no gaps or overlaps.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
@@ -141,6 +131,9 @@ pub struct CreateCourseFromPlanRequest {
     pub name: Option<String>,
     /// Defaults to the Analysis form's language when it reads as one, else English.
     pub language_code: Option<String>,
+    /// Gives every other plan member the Teacher role on the new course.
+    #[serde(default)]
+    pub give_members_course_roles: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
@@ -630,60 +623,6 @@ async fn put_great_mooc_vision(
     token.authorized_ok(web::Json(plan))
 }
 
-#[instrument(skip(pool))]
-#[utoipa::path(
-    get,
-    path = "/{plan_id}/section-statuses",
-    operation_id = "getCourseDesignerSectionStatuses",
-    tag = "course-plans",
-    params(("plan_id" = Uuid, Path, description = "Plan id")),
-    responses((status = 200, description = "Section statuses", body = [CourseDesignerPlanSectionStatus]))
-)]
-async fn get_section_statuses(
-    plan_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Vec<CourseDesignerPlanSectionStatus>>> {
-    let mut conn = pool.acquire().await?;
-    models::course_designer_plan_members::get_plan_for_user(&mut conn, *plan_id, user.id).await?;
-    let statuses =
-        models::course_designer_section_statuses::get_for_plan(&mut conn, *plan_id).await?;
-    let token = skip_authorize();
-    token.authorized_ok(web::Json(statuses))
-}
-
-#[instrument(skip(pool))]
-#[utoipa::path(
-    put,
-    path = "/{plan_id}/section-statuses",
-    operation_id = "setCourseDesignerSectionStatus",
-    tag = "course-plans",
-    params(("plan_id" = Uuid, Path, description = "Plan id")),
-    request_body = SetCourseDesignerSectionStatusRequest,
-    responses((status = 200, description = "Saved section status", body = CourseDesignerPlanSectionStatus))
-)]
-async fn put_section_status(
-    plan_id: web::Path<Uuid>,
-    payload: web::Json<SetCourseDesignerSectionStatusRequest>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<CourseDesignerPlanSectionStatus>> {
-    let mut conn = pool.acquire().await?;
-    let payload = payload.into_inner();
-    let status = models::course_designer_section_statuses::upsert_for_user(
-        &mut conn,
-        *plan_id,
-        user.id,
-        payload.stage,
-        &payload.section_key,
-        payload.status,
-        payload.comment,
-    )
-    .await?;
-    let token = skip_authorize();
-    token.authorized_ok(web::Json(status))
-}
-
 /// Read-only overview of every plan for global admins doing MOOC support.
 #[instrument(skip(pool))]
 #[utoipa::path(
@@ -863,11 +802,16 @@ async fn put_weekly_digest_subscription(
     token.authorized_ok(web::Json(member))
 }
 
-/// Creates a draft course from the plan's course structure. A plan creates at most one course.
+/// Creates a draft course from the plan once Design is done, with texts an AI drafts from the plan
+/// first. A plan creates at most one course.
+///
+/// Waits for the AI, so it has an ingress with a longer timeout of its own
+/// (`kubernetes/base/ingress-ai-suggestions.yml`). When drafting fails or times out, nothing is
+/// created and the error has the reason `course_drafting_failed`; the request can be retried.
 #[instrument(skip(pool, app_conf, jwt_key))]
 #[utoipa::path(
     post,
-    path = "/{plan_id}/course",
+    path = "/{plan_id}",
     operation_id = "createCourseFromCourseDesignerPlan",
     tag = "course-plans",
     params(("plan_id" = Uuid, Path, description = "Plan id")),
@@ -883,8 +827,14 @@ async fn post_create_course_from_plan(
     app_conf: web::Data<ApplicationConfiguration>,
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<Course>> {
-    let mut conn = pool.acquire().await?;
     let payload = payload.into_inner();
+    let options = CourseFromPlanOptions {
+        organization_id: payload.organization_id,
+        name: payload.name,
+        language_code: payload.language_code,
+        should_give_members_course_roles: payload.give_members_course_roles,
+    };
+    let mut conn = pool.acquire().await?;
     let token = authorize(
         &mut conn,
         Act::CreateCoursesOrExams,
@@ -892,16 +842,45 @@ async fn post_create_course_from_plan(
         Res::Organization(payload.organization_id),
     )
     .await?;
+    let source = models::library::course_designer::get_course_from_plan_source(
+        &mut conn, *plan_id, user.id, &options,
+    )
+    .await?;
+    let task_lm = application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::CoursePlanDrafting,
+    )
+    .await
+    .map_err(|e| {
+        controller_err!(
+            InternalServerError,
+            "No AI model is configured for drafting courses from plans.".to_string(),
+            e
+        )
+    })?;
+    // Drafting takes minutes; don't hold a connection meanwhile.
+    drop(conn);
+    let drafts = headless_lms_chatbot::course_plan_drafting::draft_course_from_plan(
+        app_conf.as_ref(),
+        &task_lm,
+        &source,
+    )
+    .await
+    .map_err(|e| {
+        error!("Drafting a course from plan {} failed: {e}", *plan_id);
+        bad_request_with_reason(
+            BadRequestReason::CourseDraftingFailed,
+            "Drafting the course with AI failed. Nothing was created; try again.".to_string(),
+        )
+    })?;
+    let mut conn = pool.acquire().await?;
     let course = models::library::course_designer::create_course_from_plan(
         &mut conn,
         app_conf.as_ref(),
-        *plan_id,
         user.id,
-        CourseFromPlanOptions {
-            organization_id: payload.organization_id,
-            name: payload.name,
-            language_code: payload.language_code,
-        },
+        &options,
+        &source,
+        &drafts,
         models_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
@@ -911,6 +890,12 @@ async fn post_create_course_from_plan(
     )
     .await?;
     token.authorized_ok(web::Json(course))
+}
+
+/// Routes of `/api/v0/main-frontend/course-plan-courses`, which has an ingress of its own
+/// (`kubernetes/base/ingress-ai-suggestions.yml`).
+pub fn _add_course_creation_routes(cfg: &mut ServiceConfig) {
+    cfg.route("/{plan_id}", web::post().to(post_create_course_from_plan));
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
@@ -957,14 +942,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{plan_id}/vision", web::put().to(put_great_mooc_vision))
         .route(
-            "/{plan_id}/section-statuses",
-            web::get().to(get_section_statuses),
-        )
-        .route(
-            "/{plan_id}/section-statuses",
-            web::put().to(put_section_status),
-        )
-        .route(
             "/{plan_id}/tasks/{task_id}/assignee",
             web::put().to(put_task_assignee),
         )
@@ -977,9 +954,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{plan_id}/weekly-digest-subscription",
             web::put().to(put_weekly_digest_subscription),
-        )
-        .route(
-            "/{plan_id}/course",
-            web::post().to(post_create_course_from_plan),
         );
 }

@@ -14,6 +14,7 @@ pub mod cms_ai_suggestion;
 pub mod content_cleaner;
 pub mod conversation_context;
 pub mod course_description_summary;
+pub mod course_plan_drafting;
 pub mod feedback_categorization;
 pub mod language_version_matching;
 pub mod llm_utils;

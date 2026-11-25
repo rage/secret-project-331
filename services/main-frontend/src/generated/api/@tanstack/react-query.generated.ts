@@ -182,7 +182,6 @@ import {
   getCourseDesignerAssistantStatus,
   getCourseDesignerPlan,
   getCourseDesignerPlans,
-  getCourseDesignerSectionStatuses,
   getCourseDesignerSupportAssistantChatbots,
   getCourseDesignerSupportPlans,
   getCourseExercises,
@@ -439,7 +438,6 @@ import {
   setCourseChatbotAsDefault,
   setCourseChatbotAsNonDefault,
   setCourseDesignerGreatMoocVision,
-  setCourseDesignerSectionStatus,
   setCourseDesignerTaskAssignee,
   setCourseDesignerWeeklyDigestSubscription,
   setCourseJoinCode,
@@ -794,8 +792,6 @@ import type {
   GetCourseDesignerPlanResponse,
   GetCourseDesignerPlansData,
   GetCourseDesignerPlansResponse,
-  GetCourseDesignerSectionStatusesData,
-  GetCourseDesignerSectionStatusesResponse,
   GetCourseDesignerSupportAssistantChatbotsData,
   GetCourseDesignerSupportAssistantChatbotsResponse,
   GetCourseDesignerSupportPlansData,
@@ -1288,8 +1284,6 @@ import type {
   SetCourseChatbotAsNonDefaultResponse,
   SetCourseDesignerGreatMoocVisionData,
   SetCourseDesignerGreatMoocVisionResponse,
-  SetCourseDesignerSectionStatusData,
-  SetCourseDesignerSectionStatusResponse,
   SetCourseDesignerTaskAssigneeData,
   SetCourseDesignerTaskAssigneeResponse,
   SetCourseDesignerWeeklyDigestSubscriptionData,
@@ -3468,6 +3462,36 @@ export const getCourseModuleUserCompletionOptions = (
     queryKey: getCourseModuleUserCompletionQueryKey(options),
   })
 
+/**
+ * Creates a draft course from the plan once Design is done, with texts an AI drafts from the plan
+ * first. A plan creates at most one course.
+ *
+ * Waits for the AI, so it has an ingress with a longer timeout of its own
+ * (`kubernetes/base/ingress-ai-suggestions.yml`). When drafting fails or times out, nothing is
+ * created and the error has the reason `course_drafting_failed`; the request can be retried.
+ */
+export const createCourseFromCourseDesignerPlanMutation = (
+  options?: Partial<Options<CreateCourseFromCourseDesignerPlanData>>,
+): UseMutationOptions<
+  CreateCourseFromCourseDesignerPlanResponse,
+  DefaultError,
+  Options<CreateCourseFromCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseFromCourseDesignerPlanResponse,
+    DefaultError,
+    Options<CreateCourseFromCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseFromCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getCourseDesignerPlansQueryKey = (options?: Options<GetCourseDesignerPlansData>) =>
   createQueryKey("getCourseDesignerPlans", options)
 
@@ -3770,31 +3794,6 @@ export const sendCourseDesignerAssistantToolResponseMutation = (
   return mutationOptions
 }
 
-/**
- * Creates a draft course from the plan's course structure. A plan creates at most one course.
- */
-export const createCourseFromCourseDesignerPlanMutation = (
-  options?: Partial<Options<CreateCourseFromCourseDesignerPlanData>>,
-): UseMutationOptions<
-  CreateCourseFromCourseDesignerPlanResponse,
-  DefaultError,
-  Options<CreateCourseFromCourseDesignerPlanData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateCourseFromCourseDesignerPlanResponse,
-    DefaultError,
-    Options<CreateCourseFromCourseDesignerPlanData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await createCourseFromCourseDesignerPlan({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
 export const getCoursePlanMembersQueryKey = (options: Options<GetCoursePlanMembersData>) =>
   createQueryKey("getCoursePlanMembers", options)
 
@@ -3942,51 +3941,6 @@ export const createCourseDesignerScheduleSuggestionMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await createCourseDesignerScheduleSuggestion({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-export const getCourseDesignerSectionStatusesQueryKey = (
-  options: Options<GetCourseDesignerSectionStatusesData>,
-) => createQueryKey("getCourseDesignerSectionStatuses", options)
-
-export const getCourseDesignerSectionStatusesOptions = (
-  options: Options<GetCourseDesignerSectionStatusesData>,
-) =>
-  queryOptions<
-    GetCourseDesignerSectionStatusesResponse,
-    DefaultError,
-    GetCourseDesignerSectionStatusesResponse,
-    ReturnType<typeof getCourseDesignerSectionStatusesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getCourseDesignerSectionStatuses({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getCourseDesignerSectionStatusesQueryKey(options),
-  })
-
-export const setCourseDesignerSectionStatusMutation = (
-  options?: Partial<Options<SetCourseDesignerSectionStatusData>>,
-): UseMutationOptions<
-  SetCourseDesignerSectionStatusResponse,
-  DefaultError,
-  Options<SetCourseDesignerSectionStatusData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SetCourseDesignerSectionStatusResponse,
-    DefaultError,
-    Options<SetCourseDesignerSectionStatusData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await setCourseDesignerSectionStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,

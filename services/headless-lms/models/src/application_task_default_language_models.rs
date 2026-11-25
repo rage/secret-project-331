@@ -11,6 +11,7 @@ pub enum ApplicationTask {
     PromptCreation,
     FeedbackCategorization,
     LanguageVersionMatching,
+    CoursePlanDrafting,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

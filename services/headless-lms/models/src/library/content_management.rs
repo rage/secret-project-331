@@ -59,6 +59,9 @@ pub fn default_course_front_page_content() -> Vec<GutenbergBlock> {
     ]
 }
 
+/// Default module credits of a course made with [`create_new_course`].
+const DEFAULT_MODULE_ECTS_CREDITS: f32 = 5.0;
+
 /// Creates a new course with a front page and default instances.
 pub async fn create_new_course(
     conn: &mut PgConnection,
@@ -66,6 +69,33 @@ pub async fn create_new_course(
     pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
     new_course: NewCourse,
     user: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
+    create_new_course_with_content(
+        conn,
+        app_config,
+        pkey_policy,
+        new_course,
+        user,
+        default_course_front_page_content(),
+        DEFAULT_MODULE_ECTS_CREDITS,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await
+}
+
+/// Like [`create_new_course`], with the given front page content and default module credits.
+#[allow(clippy::too_many_arguments)]
+pub async fn create_new_course_with_content(
+    conn: &mut PgConnection,
+    app_config: &ApplicationConfiguration,
+    pkey_policy: PKeyPolicy<CreateNewCourseFixedIds>,
+    new_course: NewCourse,
+    user: Uuid,
+    front_page_content: Vec<GutenbergBlock>,
+    default_module_ects_credits: f32,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<(Course, Page, CourseInstance, CourseModule)> {
@@ -86,7 +116,7 @@ pub async fn create_new_course(
 
     let course_front_page = NewPage {
         chapter_id: None,
-        content: default_course_front_page_content(),
+        content: front_page_content,
         course_id: Some(course.id),
         exam_id: None,
         front_page_of_chapter_id: None,
@@ -128,7 +158,8 @@ pub async fn create_new_course(
     let default_module = crate::course_modules::insert(
         &mut tx,
         PKeyPolicy::Generate,
-        &NewCourseModule::new_course_default(course.id).set_ects_credits(Some(5.0)),
+        &NewCourseModule::new_course_default(course.id)
+            .set_ects_credits(Some(default_module_ects_credits)),
     )
     .await?;
 

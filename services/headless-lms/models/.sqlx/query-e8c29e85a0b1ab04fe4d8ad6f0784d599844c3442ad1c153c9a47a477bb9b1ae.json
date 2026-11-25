@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(*)::BIGINT AS \"count!\"\nFROM chapters\nWHERE course_id = $1\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "e8c29e85a0b1ab04fe4d8ad6f0784d599844c3442ad1c153c9a47a477bb9b1ae"
+}

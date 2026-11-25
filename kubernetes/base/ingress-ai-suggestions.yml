@@ -1,4 +1,4 @@
-# The AI suggestion endpoints are on their own ingress only so that they can have a longer timeout
+# The AI endpoints are on their own ingress only so that they can have a longer timeout
 # than the rest of the API: they wait on a thinking model, which takes minutes on a large prompt.
 #
 # Every overlay that rewrites the host needs a patch entry for this ingress too -- without one it
@@ -33,6 +33,13 @@ spec:
                 port:
                   number: 3001
           - path: /api/v0/main-frontend/language-version-ai-suggestions
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001
+          - path: /api/v0/main-frontend/course-plan-courses
             pathType: Prefix
             backend:
               service:

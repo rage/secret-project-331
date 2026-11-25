@@ -77,11 +77,15 @@ impl EmailTemplateType {
                 ("SCHEDULE_STATUS", "The phase is on schedule.".to_string()),
                 (
                     "COMPLETED_TASKS_LAST_WEEK",
-                    "Write the learning goals; Choose the content formats".to_string(),
+                    "Learning goals; Content format".to_string(),
                 ),
                 ("COMPLETED_TASK_COUNT", "7".to_string()),
                 ("TASK_COUNT", "24".to_string()),
-                ("UNFINISHED_SECTIONS", "Design (2)".to_string()),
+                (
+                    "COURSE_STATUS",
+                    "3 pages still need content. 1 chapter has no exercises. The course is not published yet."
+                        .to_string(),
+                ),
                 (
                     "PLAN_LINK",
                     format!("{base_url}/manage/course-plans/{sample_id}/workspace?stage=design"),

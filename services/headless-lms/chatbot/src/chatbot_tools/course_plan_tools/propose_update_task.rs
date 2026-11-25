@@ -70,7 +70,7 @@ impl ChatbotToolDeclaration for ProposeUpdateTaskTool {
         AzureLLMFunctionToolDefinition {
             tool_type: LLMToolType::Function,
             name: Self::NAME.to_string(),
-            description: "Propose changing an existing task: rename it, change or clear its description, mark it done or not done, or assign it to a member. The user applies or discards the changes; nothing is saved before that.".to_string(),
+            description: "Propose changing an existing task: rename it, change or clear its description, mark it done or not done (not automatic tasks, which tick themselves from the course), or assign it to a member. The user applies or discards the changes; nothing is saved before that.".to_string(),
             parameters: Schema::strict_object(
                 IndexMap::from([
                     ("task_id".to_string(), text_property("The task's id from get_course_plan.")),
@@ -215,6 +215,13 @@ impl ConfirmableActionTool for ProposeUpdateTaskTool {
                     description = Some(change.proposed_value.trim().to_string());
                 }
                 TaskField::IsCompleted => {
+                    if task.automatic_check.is_some() {
+                        return Err(chatbot_err!(
+                            ToolUseError,
+                            "This task ticks itself from the course and cannot be marked done by hand."
+                                .to_string()
+                        ));
+                    }
                     if parse_bool(&change.current_value).ok() != Some(task.is_completed) {
                         return Err(stale_proposal_error("task's completion"));
                     }

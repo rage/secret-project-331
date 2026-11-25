@@ -11,22 +11,22 @@ import type { AnalysisWorkspaceV1 } from "@/generated/api/types.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import { baseTheme } from "@/shared-module/common/styles"
-import { manageCourseRoute } from "@/shared-module/common/utils/routes"
 import {
   Button,
   Dialog,
+  Checkbox,
   ErrorNotice,
   Infobox,
-  Link,
   LoadingRegion,
   Select,
+  Spinner,
   TextField,
   TONE,
 } from "@/shared-module/components"
 
-import { useInvalidatePlan } from "../../../../hooks/useInvalidatePlan"
-import { LANGUAGE_OPTIONS } from "../analysis-form/analysisFormDomain"
-import GuidanceText from "../GuidanceText"
+import { useInvalidatePlan } from "../../../hooks/useInvalidatePlan"
+import { LANGUAGE_OPTIONS } from "./analysis-form/analysisFormDomain"
+import GuidanceText from "./GuidanceText"
 
 const createBlockStyles = css`
   display: flex;
@@ -35,6 +35,16 @@ const createBlockStyles = css`
   gap: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid ${baseTheme.colors.gray[200]};
+`
+
+const progressStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: ${baseTheme.colors.gray[700]};
+  line-height: 1.5;
+  margin: 0;
 `
 
 const hintStyles = css`
@@ -54,6 +64,7 @@ interface CreateCourseFormValues {
   organization_id: string
   name: string
   language_code: string
+  give_members_course_roles: boolean
 }
 
 function languageCodeFromAnalysis(language: string | null | undefined): string {
@@ -67,11 +78,9 @@ function CreateCourseDialog(props: {
   planId: string
   defaultName: string
   defaultLanguageCode: string
-  /** Saves pending Design form edits so the course is built from the latest structure. */
-  savePendingChanges: () => Promise<boolean>
   onClose: () => void
 }) {
-  const { planId, defaultName, defaultLanguageCode, savePendingChanges, onClose } = props
+  const { planId, defaultName, defaultLanguageCode, onClose } = props
   const { t } = useTranslation()
   const invalidatePlan = useInvalidatePlan(planId)
   const organizationsQuery = useAllOrganizationsQuery()
@@ -87,7 +96,12 @@ function CreateCourseDialog(props: {
   )
 
   const { control, handleSubmit } = useForm<CreateCourseFormValues>({
-    defaultValues: { organization_id: "", name: defaultName, language_code: defaultLanguageCode },
+    defaultValues: {
+      organization_id: "",
+      name: defaultName,
+      language_code: defaultLanguageCode,
+      give_members_course_roles: false,
+    },
   })
 
   const mutation = useMutation({
@@ -98,59 +112,76 @@ function CreateCourseDialog(props: {
     },
   })
 
-  const [hasPendingSaveFailed, setHasPendingSaveFailed] = useState(false)
-
-  const onSubmit = async (values: CreateCourseFormValues) => {
-    const isSaved = await savePendingChanges()
-    setHasPendingSaveFailed(!isSaved)
-    if (!isSaved) {
-      return
-    }
+  const onSubmit = (values: CreateCourseFormValues) => {
     mutation.mutate({
       path: { plan_id: planId },
       body: {
         organization_id: values.organization_id,
         name: values.name.trim() === "" ? null : values.name,
         language_code: values.language_code,
+        give_members_course_roles: values.give_members_course_roles,
       },
     })
   }
 
   const isLoadingOrganizations = organizationsQuery.isLoading || permissionQuery.isLoading
+  const isDrafting = mutation.isPending
 
   return (
     <Dialog
       open
-      onClose={onClose}
-      title={t("course-plans-design-create-course-dialog-title")}
+      onClose={() => {
+        if (!isDrafting) {
+          onClose()
+        }
+      }}
+      isDismissable={false}
+      isKeyboardDismissDisabled={isDrafting}
+      showCloseButton={!isDrafting}
+      title={t("course-plans-create-course-dialog-title")}
       actions={[
         {
-          label: t("course-plans-design-create-course-cancel"),
+          label: t("course-plans-create-course-cancel"),
           variant: "secondary",
+          disabled: isDrafting,
           onPress: onClose,
         },
         {
-          label: t("course-plans-design-create-course-confirm"),
+          label: mutation.isError
+            ? t("course-plans-create-course-retry")
+            : t("course-plans-create-course-confirm"),
           variant: "primary",
-          isLoading: mutation.isPending,
+          isLoading: isDrafting,
           disabled: allowedOrganizations.length === 0,
           onPress: () => void handleSubmit(onSubmit)(),
         },
       ]}
     >
       <div className={dialogBodyStyles}>
-        <Infobox tone={TONE.WARNING}>{t("course-plans-design-create-course-one-way")}</Infobox>
+        {isDrafting ? (
+          <p className={progressStyles} role="status">
+            <Spinner />
+            <span>
+              <strong>{t("course-plans-create-course-progress-title")}</strong>
+              <br />
+              {t("course-plans-create-course-progress-body")}
+            </span>
+          </p>
+        ) : null}
+        <Infobox tone={TONE.INFO}>{t("course-plans-create-course-ai-drafts")}</Infobox>
+        <Infobox tone={TONE.WARNING}>{t("course-plans-create-course-one-way")}</Infobox>
         {isLoadingOrganizations ? (
           <LoadingRegion />
         ) : allowedOrganizations.length === 0 ? (
-          <p className={hintStyles}>{t("course-plans-design-create-course-no-organizations")}</p>
+          <p className={hintStyles}>{t("course-plans-create-course-no-organizations")}</p>
         ) : (
           <Select
             name="organization_id"
             control={control}
-            rules={{ required: t("course-plans-design-create-course-organization-required") }}
-            label={t("course-plans-design-create-course-organization")}
-            placeholder={t("course-plans-design-create-course-organization-placeholder")}
+            rules={{ required: t("course-plans-create-course-organization-required") }}
+            label={t("course-plans-create-course-organization")}
+            placeholder={t("course-plans-create-course-organization-placeholder")}
+            isDisabled={isDrafting}
             options={allowedOrganizations.map((organization) => ({
               value: organization.id,
               label: organization.name,
@@ -160,72 +191,61 @@ function CreateCourseDialog(props: {
         <TextField
           name="name"
           control={control}
-          label={t("course-plans-design-create-course-name")}
-          description={t("course-plans-design-create-course-name-description")}
+          label={t("course-plans-create-course-name")}
+          description={t("course-plans-create-course-name-description")}
+          isDisabled={isDrafting}
         />
         <Select
           name="language_code"
           control={control}
-          label={t("course-plans-design-create-course-language")}
+          label={t("course-plans-create-course-language")}
+          isDisabled={isDrafting}
           options={LANGUAGE_OPTIONS.map((option) => ({
             value: option.key,
             label: t(`course-plans-analysis-lang-${option.key}`),
           }))}
         />
-        {hasPendingSaveFailed ? (
-          <Infobox tone={TONE.DANGER} announce>
-            {t("course-plans-design-create-course-save-failed")}
-          </Infobox>
-        ) : null}
+        <Checkbox
+          name="give_members_course_roles"
+          control={control}
+          label={t("course-plans-create-course-give-members-access")}
+          description={t("course-plans-create-course-give-members-access-description")}
+          isDisabled={isDrafting}
+        />
         {mutation.isError ? <ErrorNotice error={mutation.error} /> : null}
       </div>
     </Dialog>
   )
 }
 
-/**
- * "Create course" for the planned course structure, or a link to the course once the plan has
- * created one. Creating is one-way: later structure edits do not reach the course.
- */
-export default function CreateCourseFromPlan(props: {
+/** The Development stage's offer to create the plan's course, which every later stage needs. */
+export default function CreateCourseOffer(props: {
   planId: string
   planName: string | null | undefined
-  createdCourseId: string | null | undefined
   analysis: AnalysisWorkspaceV1
-  savePendingChanges: () => Promise<boolean>
+  /** Creating is allowed only once the Design stage is done. */
+  isDesignCompleted: boolean
+  isReadOnly: boolean
 }) {
-  const { planId, planName, createdCourseId, analysis, savePendingChanges } = props
+  const { planId, planName, analysis, isDesignCompleted, isReadOnly } = props
   const { t } = useTranslation()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  if (createdCourseId) {
-    return (
-      <div className={createBlockStyles}>
-        <p className={hintStyles}>{t("course-plans-design-course-created")}</p>
-        <Link
-          href={manageCourseRoute(createdCourseId)}
-          styledAsButton
-          variant="primary"
-          size="medium"
-        >
-          {t("course-plans-design-open-course")}
-        </Link>
-      </div>
-    )
-  }
-
   return (
     <div className={createBlockStyles}>
-      <Button type="button" variant="primary" size="medium" onClick={() => setIsDialogOpen(true)}>
-        {t("course-plans-design-create-course")}
-      </Button>
-      <GuidanceText text={t("course-plans-design-create-course-hint")} />
+      <GuidanceText text={t("course-plans-create-course-hint")} />
+      {isReadOnly ? null : isDesignCompleted ? (
+        <Button type="button" variant="primary" size="medium" onClick={() => setIsDialogOpen(true)}>
+          {t("course-plans-create-course")}
+        </Button>
+      ) : (
+        <p className={hintStyles}>{t("course-plans-create-course-design-not-done")}</p>
+      )}
       {isDialogOpen ? (
         <CreateCourseDialog
           planId={planId}
           defaultName={analysis.course_title?.trim() || planName || ""}
           defaultLanguageCode={languageCodeFromAnalysis(analysis.language)}
-          savePendingChanges={savePendingChanges}
           onClose={() => setIsDialogOpen(false)}
         />
       ) : null}

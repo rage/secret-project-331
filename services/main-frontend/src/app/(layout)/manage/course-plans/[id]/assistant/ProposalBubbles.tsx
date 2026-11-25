@@ -14,11 +14,9 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 import { formatPlanShortDate } from "../../coursePlanDates"
 import { stageFromName, stageLabel } from "../../coursePlanStages"
-import { sectionKeyLabel } from "../workspace/components/section-status/sectionKeys"
 import type {
   AddTaskCall,
   ScheduleAdjustmentCall,
-  SectionStatusCall,
   StageDates,
   UpdateTaskCall,
   VisionEditCall,
@@ -27,18 +25,12 @@ import type {
 import {
   PROPOSE_ADD_TASK_TOOL,
   PROPOSE_SCHEDULE_ADJUSTMENT_TOOL,
-  PROPOSE_SECTION_STATUS_TOOL,
   PROPOSE_UPDATE_TASK_TOOL,
   PROPOSE_VISION_EDIT_TOOL,
   PROPOSE_WORKSPACE_EDIT_TOOL,
 } from "./coursePlanProposalCalls"
 import ProposalBubble from "./ProposalBubble"
-import {
-  labelKeyOf,
-  SECTION_STATUS_LABEL_KEYS,
-  TASK_FIELD_LABEL_KEYS,
-  workspaceFieldLabel,
-} from "./proposalLabels"
+import { labelKeyOf, TASK_FIELD_LABEL_KEYS, workspaceFieldLabel } from "./proposalLabels"
 import { JsonValue, ProposedChange, TextValue } from "./ProposalValues"
 
 const summaryStyle = css`
@@ -276,43 +268,6 @@ export const ScheduleAdjustmentBubble: React.FC<ClientToolBubbleProps<ScheduleAd
       call={call}
       toolName={PROPOSE_SCHEDULE_ADJUSTMENT_TOOL}
       title={t("course-plans-assistant-schedule-title")}
-      rows={rows}
-    />
-  )
-}
-
-export const SectionStatusBubble: React.FC<ClientToolBubbleProps<SectionStatusCall>> = ({
-  call,
-  ...rest
-}) => {
-  const { t } = useTranslation()
-  const statusLabel = (status: string) => {
-    const labelKey = labelKeyOf(SECTION_STATUS_LABEL_KEYS, status.trim())
-    return labelKey ? t(labelKey) : status
-  }
-  const rows = (
-    <>
-      <ProposedChange
-        label={t("course-plans-assistant-section-status-mark")}
-        current={statusLabel(call.current_status)}
-        proposed={statusLabel(call.proposed_status)}
-      />
-      <ProposedChange
-        label={t("course-plans-assistant-section-status-comment")}
-        current={<TextValue text={call.current_comment} />}
-        proposed={<TextValue text={call.proposed_comment} />}
-      />
-    </>
-  )
-  return (
-    <ProposalBubble
-      {...rest}
-      call={call}
-      toolName={PROPOSE_SECTION_STATUS_TOOL}
-      title={t("course-plans-assistant-section-status-title", {
-        section: sectionKeyLabel(call.section_key, t),
-        stage: stageNameLabel(call.section_key.split(".")[0] ?? "", t),
-      })}
       rows={rows}
     />
   )

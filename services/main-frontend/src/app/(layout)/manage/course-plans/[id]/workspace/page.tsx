@@ -29,9 +29,9 @@ import { useInvalidatePlan } from "../../hooks/useInvalidatePlan"
 import { CoursePlanAssistantPanel } from "../assistant/CoursePlanAssistant"
 import { SCHEDULE_STAGE_ORDER } from "../schedule/scheduleConstants"
 import ActiveStageDeadlineCard from "./components/ActiveStageDeadlineCard"
+import CourseStatusCard from "./components/CourseStatusCard"
 import MoocDesignOverview from "./components/overview/MoocDesignOverview"
 import PlanOverviewPanel from "./components/PlanOverviewPanel"
-import { SectionStatusProvider } from "./components/section-status/SectionStatusContext"
 import { MOOC_DESIGN_TAB } from "./components/stageTimelineShared"
 import StageTimelineTabStrip from "./components/StageTimelineTabStrip"
 import StageWorkspaceContent from "./components/StageWorkspaceContent"
@@ -556,7 +556,7 @@ function CoursePlanWorkspacePage() {
       <div className={pageRootStyles}>
         <div className={workspaceShellStyles}>
           <QueryResult query={planQuery}>
-            {({ plan, stages, section_statuses }) => {
+            {({ plan, stages, course_status }) => {
               const currentStage = plan.active_stage ?? null
               const currentStageData = currentStage
                 ? stages.find((s) => s.stage === currentStage)
@@ -627,6 +627,7 @@ function CoursePlanWorkspacePage() {
                     key={viewedStageData.id}
                     planId={planId}
                     stage={viewedStageData}
+                    courseStatus={course_status ?? null}
                     stageLabel={stageLabel(viewedStage)}
                     isActive={viewedStage === currentStage}
                     showStageTitle={false}
@@ -634,6 +635,12 @@ function CoursePlanWorkspacePage() {
                     onInvalidate={() => void invalidatePlan()}
                   />
                 ) : null
+
+              const isCourseStage =
+                viewedStage === "Development" ||
+                viewedStage === "Implementation" ||
+                viewedStage === "Evaluation"
+              const isAwaitingCourse = viewedStage === "Development" && !course_status
 
               const stageDescriptionItems = buildStageDescriptionItems(viewedStage, t)
               const stageRelation = computeStageRelation(viewedStage, currentStage ?? null)
@@ -660,7 +667,7 @@ function CoursePlanWorkspacePage() {
                     ]
 
               return (
-                <SectionStatusProvider planId={planId} sectionStatuses={section_statuses}>
+                <>
                   <PlanOverviewPanel
                     isOpen={isOverviewOpen}
                     onClose={() => setIsOverviewOpen(false)}
@@ -839,15 +846,24 @@ function CoursePlanWorkspacePage() {
                           <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
                         </section>
 
-                        <section
-                          className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
-                          aria-label={t("course-plans-tasks-aria-label")}
-                        >
-                          <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
-                          {currentStageSection ?? (
-                            <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
-                          )}
-                        </section>
+                        {isAwaitingCourse ? null : (
+                          <section
+                            className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
+                            aria-label={t("course-plans-tasks-aria-label")}
+                          >
+                            <h3 className={sectionTitleStyles}>
+                              {t("course-plans-tasks-heading")}
+                            </h3>
+                            {isCourseStage && course_status ? (
+                              <CourseStatusCard status={course_status} />
+                            ) : null}
+                            {currentStageSection ?? (
+                              <p className={emptyStateStyles}>
+                                {t("course-plans-no-active-stage")}
+                              </p>
+                            )}
+                          </section>
+                        )}
 
                         <section
                           className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
@@ -880,7 +896,7 @@ function CoursePlanWorkspacePage() {
                       )}
                     />
                   </StageTimelineTabStrip>
-                </SectionStatusProvider>
+                </>
               )
             }}
           </QueryResult>

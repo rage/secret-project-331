@@ -29,7 +29,6 @@ import {
   ROWS_LONG,
   ROWS_SHORT,
   ROWS_STANDARD,
-  STAGE_ANALYSIS,
   staticTextStyles,
   subsectionTitleStyles,
   twoColGridStyles,
@@ -71,7 +70,6 @@ export default function AnalysisWorkspaceForm(props: {
   })
   const { sectionNav, sectionLinks, sectionProps } = useWorkspaceFormSections(
     ANALYSIS_SECTIONS,
-    STAGE_ANALYSIS,
     isReadOnly,
   )
 
@@ -85,7 +83,6 @@ export default function AnalysisWorkspaceForm(props: {
       noValidate
     >
       <WorkspaceFormToolbar
-        stage={STAGE_ANALYSIS}
         sections={sectionLinks}
         activeSectionId={sectionNav.activeSectionId}
         scrollToSection={sectionNav.scrollToSection}

@@ -21,6 +21,10 @@
       "message": "Det här kapitlet är inte öppet ännu.",
       "title": "Kapitlet är stängt"
     },
+    "course_drafting_failed": {
+      "message": "AI:n hann inte skriva utkast till kursens texter, så ingen kurs skapades. Försök igen.",
+      "title": "Kursen kunde inte skrivas som utkast"
+    },
     "course_slug_already_taken": {
       "message": "En annan kurs använder redan den här slugen. Välj en annan.",
       "title": "Slugen används redan"

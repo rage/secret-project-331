@@ -17,7 +17,6 @@ import GuidanceText from "../GuidanceText"
 import WorkspaceFormSection from "../WorkspaceFormSection"
 import WorkspaceFormToolbar from "../WorkspaceFormToolbar"
 import CourseStructureEditor from "./CourseStructureEditor"
-import CreateCourseFromPlan from "./CreateCourseFromPlan"
 import {
   DESIGN_SECTIONS,
   PLANNED_CONTENT_FORMATS,
@@ -41,8 +40,6 @@ import WorkloadCalculator from "./WorkloadCalculator"
 /** The Design stage form: goals, content, structure, formats, style guide, exercises and workload. */
 export default function DesignWorkspaceForm(props: {
   planId: string
-  planName: string | null | undefined
-  createdCourseId: string | null | undefined
   workspaceData: unknown
   workspaceRevision: number
   isReadOnly: boolean
@@ -50,16 +47,7 @@ export default function DesignWorkspaceForm(props: {
   analysis: AnalysisWorkspaceV1
   onDirtyChange?: (dirty: boolean) => void
 }) {
-  const {
-    planId,
-    planName,
-    createdCourseId,
-    workspaceData,
-    workspaceRevision,
-    isReadOnly,
-    analysis,
-    onDirtyChange,
-  } = props
+  const { planId, workspaceData, workspaceRevision, isReadOnly, analysis, onDirtyChange } = props
   const { t } = useTranslation()
   const { form, saveStatus, saveNow, loadLatest } = useStageWorkspaceForm({
     planId,
@@ -74,7 +62,6 @@ export default function DesignWorkspaceForm(props: {
   const { control, setValue } = form
   const { sectionNav, sectionLinks, sectionProps } = useWorkspaceFormSections(
     DESIGN_SECTIONS,
-    STAGE_DESIGN,
     isReadOnly,
   )
 
@@ -88,7 +75,6 @@ export default function DesignWorkspaceForm(props: {
       noValidate
     >
       <WorkspaceFormToolbar
-        stage={STAGE_DESIGN}
         sections={sectionLinks}
         activeSectionId={sectionNav.activeSectionId}
         scrollToSection={sectionNav.scrollToSection}
@@ -140,13 +126,6 @@ export default function DesignWorkspaceForm(props: {
       <WorkspaceFormSection {...sectionProps(2)}>
         <GuidanceText text={t("course-plans-design-course-structure-guidance")} />
         <CourseStructureEditor control={control} />
-        <CreateCourseFromPlan
-          planId={planId}
-          planName={planName}
-          createdCourseId={createdCourseId}
-          analysis={analysis}
-          savePendingChanges={saveNow}
-        />
       </WorkspaceFormSection>
 
       <WorkspaceFormSection {...sectionProps(3)}>

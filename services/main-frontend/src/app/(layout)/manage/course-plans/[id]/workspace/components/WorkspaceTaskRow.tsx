@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import type {
+  CourseDesignerCourseStatus,
   CourseDesignerPlanStageTask,
   PlanMemberWithDetails,
 } from "@/generated/api/types.generated"
@@ -16,6 +17,7 @@ import {
   Button,
   Checkbox,
   itemHeadingProps,
+  Link,
   Select,
   TextArea,
   TextField,
@@ -24,6 +26,7 @@ import {
 
 import { formatPlanMemberName } from "../../../coursePlanMembers"
 import { useWorkspaceTaskCompletionField } from "../hooks/useWorkspaceTaskCompletionField"
+import { automaticTaskLink, automaticTaskReason } from "./automaticTasks"
 
 const taskRowStyles = css`
   display: flex;
@@ -113,6 +116,13 @@ const taskDescriptionStyles = css`
   overflow-wrap: break-word;
 `
 
+const automaticReasonStyles = css`
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: ${baseTheme.colors.gray[600]};
+`
+
 const taskMetaStyles = css`
   display: flex;
   flex-wrap: wrap;
@@ -157,6 +167,8 @@ export interface TaskChanges {
 interface WorkspaceTaskRowProps {
   task: CourseDesignerPlanStageTask
   members: PlanMemberWithDetails[]
+  /** The plan's course, for automatic tasks; `null` before it is created. */
+  courseStatus: CourseDesignerCourseStatus | null
   onToggle: (is_completed: boolean) => void
   onDelete: () => void
   /** Saves an edit; rejects when the save fails so the editor stays open. */
@@ -171,6 +183,7 @@ interface WorkspaceTaskRowProps {
 export default function WorkspaceTaskRow({
   task,
   members,
+  courseStatus,
   onToggle,
   onDelete,
   onSave,
@@ -183,6 +196,12 @@ export default function WorkspaceTaskRow({
     task.is_completed,
     onToggle,
   )
+  const automaticCheck = task.automatic_check ?? null
+  const isAutomatic = automaticCheck !== null
+  const automaticLink =
+    automaticCheck !== null && courseStatus !== null
+      ? automaticTaskLink(automaticCheck, courseStatus.course_id, t)
+      : null
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const editButtonRef = useRef<HTMLButtonElement>(null)
@@ -329,8 +348,18 @@ export default function WorkspaceTaskRow({
         name="isCompleted"
         control={completionControl}
         label=""
-        aria-label={task.title}
+        aria-label={
+          isAutomatic
+            ? t(
+                task.is_completed
+                  ? "course-plans-task-automatic-label-done"
+                  : "course-plans-task-automatic-label-open",
+                { task: task.title },
+              )
+            : task.title
+        }
         isDisabled={isUpdating || isReadOnly}
+        isReadOnly={isAutomatic}
         className={taskRowCheckboxWrapperStyles}
       />
       <div className={taskContentStyles}>
@@ -342,11 +371,31 @@ export default function WorkspaceTaskRow({
           {task.title}
         </span>
         {task.description && <p className={taskDescriptionStyles}>{task.description}</p>}
-        {(assignee !== null || task.is_auto_generated) && (
+        {automaticCheck !== null && (
+          <p className={automaticReasonStyles}>
+            {automaticTaskReason(automaticCheck, courseStatus, t)}
+            {automaticLink !== null && (
+              <>
+                {" "}
+                <Link href={automaticLink.href}>{automaticLink.label}</Link>
+              </>
+            )}
+          </p>
+        )}
+        {(assignee !== null || task.is_auto_generated || isAutomatic) && (
           <div className={taskMetaStyles}>
             {assignee !== null && (
               <Badge tone={TONE.INFO} size="compact">
                 {t("course-plans-task-assigned-to", { name: formatPlanMemberName(assignee) })}
+              </Badge>
+            )}
+            {isAutomatic && (
+              <Badge
+                tone={TONE.NEUTRAL}
+                size="compact"
+                description={t("course-plans-task-automatic-description")}
+              >
+                {t("course-plans-task-automatic")}
               </Badge>
             )}
             {task.is_auto_generated && (

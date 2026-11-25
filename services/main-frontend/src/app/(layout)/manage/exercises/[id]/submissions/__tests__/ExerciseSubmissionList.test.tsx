@@ -8,9 +8,10 @@ import ExerciseSubmissionList from "../ExerciseSubmissionList"
 
 jest.mock("@/hooks/useUserDetails", () => ({
   ...jest.requireActual("@/hooks/useUserDetails"),
-  useBulkUserDetails: () => ({
-    data: [{ user_id: "u1", first_name: "Elsa", last_name: "Partanen", email: "e@example.com" }],
-  }),
+  useUserDetailsLookup: () => (userId: string) =>
+    userId === "u1"
+      ? { user_id: "u1", first_name: "Elsa", last_name: "Partanen", email: "e@example.com" }
+      : undefined,
 }))
 
 jest.mock("react-i18next", () => ({

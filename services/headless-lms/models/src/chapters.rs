@@ -1642,7 +1642,7 @@ mod tests {
                     can_add_chatbot: false,
                 },
                 user,
-                |_, _, _| unimplemented!(),
+                |_, _, _, _| unimplemented!(),
                 |_| unimplemented!(),
             )
             .await

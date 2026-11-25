@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE exercise_slide_submission_shares SET deleted_at = now() WHERE created_by = $1 AND deleted_at IS NULL",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9c8cbf15eeff69e1de9d39c1a6bdb1c1fad5910b0604f307b10f1a5745f8a44d"
+}

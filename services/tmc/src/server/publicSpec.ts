@@ -19,7 +19,7 @@ import { createScopedLogger } from "@/util/logger"
 import type { PublicSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
-import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { currentRepositoryExercise, privateSpecSchema, specRequestSchema } from "./requestSchemas"
 import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
@@ -68,10 +68,11 @@ async function processPublicSpec(
       return badRequest("Invalid private spec")
     }
     const privateSpec = privateSpecResult.data
+    const repositoryExercise = currentRepositoryExercise(specRequest, privateSpec)
 
     debug("preparing stub dir")
     const { stubDir, templateDir, paths } = await prepareStubDir(
-      privateSpec.repository_exercise.download_url,
+      repositoryExercise.download_url,
       log,
     )
     tempPaths.push(...paths)
@@ -86,7 +87,7 @@ async function processPublicSpec(
       log,
       debug,
       stubDir,
-      privateSpec.repository_exercise,
+      repositoryExercise,
       upload_url,
       uploadClaim,
     )

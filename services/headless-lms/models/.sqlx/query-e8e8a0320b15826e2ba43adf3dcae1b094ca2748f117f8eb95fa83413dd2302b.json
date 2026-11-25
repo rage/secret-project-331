@@ -1,0 +1,100 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT s.*\nFROM exercise_slide_submission_shares AS s\n  JOIN users AS u ON u.id = s.created_by\nWHERE s.id = $1\n  AND s.deleted_at IS NULL\n  AND u.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "exercise_slide_submission_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_by",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "created_by"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "exercise_answer_snapshot_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submission_shares",
+            "name": "exercise_answer_snapshot_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "e8e8a0320b15826e2ba43adf3dcae1b094ca2748f117f8eb95fa83413dd2302b"
+}

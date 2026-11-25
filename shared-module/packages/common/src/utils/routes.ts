@@ -88,6 +88,11 @@ export function signUpRoute(returnTo: string, language?: string) {
   return `/signup?return_to=${encodeURIComponent(returnTo)}${langParam}`
 }
 
+/** The page that emails a reset link; its "Log in" link returns to login with `returnTo`. */
+export function resetPasswordRoute(returnTo: string) {
+  return `/reset-password?return_to=${encodeURIComponent(returnTo)}`
+}
+
 export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }

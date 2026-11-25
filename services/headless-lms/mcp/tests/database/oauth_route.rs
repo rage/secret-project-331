@@ -37,6 +37,7 @@ async fn issue_token(fixture: &Fixture, scopes: &[&str]) -> String {
             dpop_jkt: None,
             metadata: Map::new(),
             expires_at: Utc::now() + Duration::minutes(15),
+            refresh_token_family_id: None,
         },
     )
     .await

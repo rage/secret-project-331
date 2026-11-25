@@ -94,6 +94,7 @@ export const zCmsPageExerciseTask = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
   private_spec_files: z.array(z.uuid()).optional(),
+  repository_exercise_id: z.uuid().nullish(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -712,10 +713,15 @@ export const zContentManagementPage = z.object({
 
 export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
+/**
+ * An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+ * it as `repository_exercise`, so the field set is part of the exercise services' contract.
+ */
 export const zRepositoryExercise = z.object({
   checksum: z.array(
     z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   ),
+  details: z.unknown().optional(),
   download_url: z.string(),
   id: z.uuid(),
   name: z.string(),
@@ -1214,6 +1220,15 @@ export const zGetCmsPagePendingAgentChangesPath = z.object({
  * The open changeset changing the page, if any
  */
 export const zGetCmsPagePendingAgentChangesResponse = zAgentChangeset.nullable()
+
+export const zGetCmsRepositoryExercisesForExamPath = z.object({
+  exam_id: z.uuid(),
+})
+
+/**
+ * Repository exercises for exam
+ */
+export const zGetCmsRepositoryExercisesForExamResponse = z.array(zRepositoryExercise)
 
 export const zGetCmsRepositoryExercisesForCoursePath = z.object({
   course_id: z.uuid(),

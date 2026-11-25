@@ -1,0 +1,42 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_model_solution_settings (course_id, reveal_after_deadline, reveal_at)\nVALUES ($1, $2, $3) ON CONFLICT (course_id) DO\nUPDATE\nSET reveal_after_deadline = $2,\n  reveal_at = $3\nRETURNING reveal_after_deadline,\n  reveal_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reveal_after_deadline",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_model_solution_settings",
+            "name": "reveal_after_deadline"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "reveal_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_model_solution_settings",
+            "name": "reveal_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Bool",
+        "Timestamptz"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "e5c39c2be4adb4a20cb74eaa8abd335b321866faf3bf38802426089872d2f433"
+}

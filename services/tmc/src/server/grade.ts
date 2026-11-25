@@ -7,14 +7,24 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
-import { LangsError, extractProject, fastAvailablePoints, prepareSubmission } from "@/tmc/langs"
+import type { Compression, RunStatus, StyleValidationResult, TestResult } from "@/tmc/cli"
+import { isRunResult, isStyleValidationResult } from "@/tmc/cli.guard"
+import {
+  LangsError,
+  extractProject,
+  fastAvailablePoints,
+  getTestsTimeoutMs,
+  prepareSubmission,
+} from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
+import { ZIP_ARCHIVE_EXTENSION } from "@/util/archiveTypes"
 import type { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
+import type { GradingFeedbackExtras, GradingFeedbackKey } from "@/util/gradingFeedback"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 
-import type { GradeRequest } from "./requestSchemas"
-import { gradeRequestSchema } from "./requestSchemas"
+import type { GradeRequest, GradingRequestFile } from "./requestSchemas"
+import { currentRepositoryExercise, gradeRequestSchema } from "./requestSchemas"
 
 const { log, debug, error } = createLogger("grade")
 
@@ -32,55 +42,6 @@ const GRADING_UPDATE_RETRY_DELAY_MS = 2000
 
 /** tmc-langs' naive submission extraction, which a project archive never needs. */
 const EXTRACT_SUBMISSION_NAIVELY = false
-
-const RUN_STATUSES = new Set([
-  "PASSED",
-  "TESTS_FAILED",
-  "COMPILE_FAILED",
-  "TESTRUN_INTERRUPTED",
-  "GENERIC_ERROR",
-] as const)
-
-interface NormalizedTestResult {
-  successful: boolean
-  points: string[]
-}
-/** A tmc-langs run result reduced to what scoring needs. */
-export interface NormalizedRunResult {
-  status: "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
-  testResults: NormalizedTestResult[]
-}
-
-/** Normalize pod JSON: accept test_results/testResults and successful/passed. */
-function normalizePodOutput(parsed: unknown): NormalizedRunResult | null {
-  if (parsed === null || typeof parsed !== "object") {
-    return null
-  }
-  const obj = parsed as Record<string, unknown>
-  const rawStatus = obj["status"] ?? obj["Status"]
-  const statusStr = typeof rawStatus === "string" ? rawStatus.toUpperCase() : null
-  const validStatus = statusStr && (RUN_STATUSES as Set<string>).has(statusStr)
-  if (!validStatus) {
-    return null
-  }
-  const rawResults = obj["test_results"] ?? obj["testResults"]
-  const rawList = Array.isArray(rawResults) ? rawResults : []
-  const testResults: NormalizedTestResult[] = rawList.map((r: unknown) => {
-    if (r === null || typeof r !== "object") {
-      return { successful: false, points: [] }
-    }
-    const row = r as Record<string, unknown>
-    const successful = row["successful"] === true || row["passed"] === true
-    const points = Array.isArray(row["points"])
-      ? (row["points"] as unknown[]).filter((p): p is string => typeof p === "string")
-      : []
-    return { successful, points }
-  })
-  return {
-    status: statusStr as NormalizedRunResult["status"],
-    testResults,
-  }
-}
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -108,28 +69,72 @@ async function postImpl(request: Request): Promise<Response> {
   }
   // The playground authorises its grading update URL itself and sends no claim header.
   const gradingUpdateClaim = request.headers.get(EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER)
-  void gradeAndReport(req, answerArchive.download_url, gradingUpdateClaim)
+  void gradeAndReport(req, answerArchive, gradingUpdateClaim)
   return jsonOk(PENDING_RESULT)
 }
 
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
+/**
+ * Gradings run at once in this process. Each holds a sandbox pod and its archives in memory, and the
+ * service's own memory limit is small; the rest wait their turn, which the host's stale-grading
+ * timeout bounds.
+ */
+const MAX_CONCURRENT_GRADINGS = 4
+let runningGradings = 0
+const waitingGradings: (() => void)[] = []
+
+/**
+ * The host fails a grading whose result has not arrived in this time (`STALE_GRADING_AFTER` in
+ * headless-lms' regrader) and discards a later result, so one that waited this long is not run.
+ */
+const HOST_GIVES_UP_AFTER_MS = 60 * 60_000
+
+async function withGradingSlot<T>(grade: () => Promise<T>): Promise<T> {
+  if (runningGradings >= MAX_CONCURRENT_GRADINGS) {
+    await new Promise<void>((resolve) => {
+      waitingGradings.push(resolve)
+    })
+  } else {
+    runningGradings++
+  }
+  try {
+    return await grade()
+  } finally {
+    const next = waitingGradings.shift()
+    if (next) {
+      next()
+    } else {
+      runningGradings--
+    }
+  }
+}
+
 /** Grades an answer after /grade has answered, and sends the result to the host's grading-update URL. */
 async function gradeAndReport(
   req: GradeRequest,
-  answerArchiveUrl: string,
+  answerArchive: GradingRequestFile,
   gradingUpdateClaim: string | null,
 ): Promise<void> {
-  let result: ExerciseTaskGradingResult
+  const queuedAt = Date.now()
+  let result: ExerciseTaskGradingResult | null
   try {
-    result = await gradeAnswer(req, answerArchiveUrl)
+    result = await withGradingSlot(() =>
+      Date.now() - queuedAt < HOST_GIVES_UP_AFTER_MS
+        ? gradeAnswer(req, answerArchive)
+        : Promise.resolve(null),
+    )
   } catch (e) {
     error("Failed to grade", e)
     result = {
       ...PENDING_RESULT,
       grading_progress: "Failed",
-      feedback_text: gradingFailureFeedback(e),
+      ...failedGrading(e),
     }
+  }
+  if (result === null) {
+    log("Skipped a grading that waited longer than the host waits for its result")
+    return
   }
   await sendGradingUpdate(req.grading_update_url, gradingUpdateClaim, result)
 }
@@ -143,6 +148,15 @@ export class TemplateError extends Error {
     super("Failed to prepare the exercise template", { cause })
     this.name = "TemplateError"
   }
+}
+
+/** How an answer archive is compressed: a zip upload by its name or mime, else the `.tar.zst` the service packs. */
+export function answerCompression(file: Pick<GradingRequestFile, "name" | "mime">): Compression {
+  const isZip =
+    file.name.toLowerCase().endsWith(ZIP_ARCHIVE_EXTENSION) ||
+    file.mime === "application/zip" ||
+    file.mime === "application/x-zip-compressed"
+  return isZip ? "zip" : "zstd"
 }
 
 /** The cause tmc-langs gives when an answer archive holds nothing it recognises as the exercise. */
@@ -161,6 +175,28 @@ export function gradingFailureFeedback(e: unknown): string {
     return `The submission could not be graded: ${withoutServerPaths(e.rootCause)}`
   }
   return "The submission could not be graded because of an error on the server. Try submitting again later."
+}
+
+/** The feedback key that says which kind of failure `gradingFailureFeedback` describes. */
+export function gradingFailureKey(e: unknown): GradingFeedbackKey {
+  if (e instanceof LangsError) {
+    return e.rootCause === NO_PROJECT_IN_ARCHIVE ? "no_project_in_archive" : "langs_error"
+  }
+  return "server_error"
+}
+
+/** The result fields of a grading that could not run, shared by every such outcome. */
+function failedGrading(
+  e: unknown,
+): Pick<ExerciseTaskGradingResult, "feedback_text" | "feedback_json"> {
+  const feedbackKey = gradingFailureKey(e)
+  const extras: GradingFeedbackExtras = {
+    feedback_key: feedbackKey,
+    ...(e instanceof LangsError && feedbackKey === "langs_error"
+      ? { feedback_detail: withoutServerPaths(e.rootCause) }
+      : {}),
+  }
+  return { feedback_text: gradingFailureFeedback(e), feedback_json: extras }
 }
 
 /**
@@ -220,29 +256,39 @@ async function sendGradingUpdate(
 
 const gradeAnswer = async (
   req: GradeRequest,
-  answerArchiveUrl: string,
+  answerArchive: GradingRequestFile,
 ): Promise<ExerciseTaskGradingResult> => {
   const tempPaths: string[] = []
   try {
     const { exercise_spec } = req
 
-    debug("downloading the submitted archive")
+    debug("downloading the submitted archive and the exercise template")
     const submissionArchivePath = temporaryFile()
-    tempPaths.push(submissionArchivePath)
-    await downloadStream(answerArchiveUrl, submissionArchivePath)
-
-    debug("downloading exercise template")
     const templateArchivePath = temporaryFile()
-    tempPaths.push(templateArchivePath)
-    await downloadStream(exercise_spec.repository_exercise.download_url, templateArchivePath)
+    tempPaths.push(submissionArchivePath, templateArchivePath)
+    const repositoryExercise = currentRepositoryExercise(req, exercise_spec)
+    // Both settle before a failure is thrown, so neither writes a temp file after its removal.
+    const downloads = await Promise.allSettled([
+      downloadStream(answerArchive.download_url, submissionArchivePath),
+      downloadStream(repositoryExercise.download_url, templateArchivePath),
+    ])
+    for (const download of downloads) {
+      if (download.status === "rejected") {
+        throw download.reason
+      }
+    }
 
     debug("extracting template")
     const extractedTemplatePath = temporaryDirectory()
     tempPaths.push(extractedTemplatePath)
     let points: string[]
+    let testsTimeoutMs: number
     try {
       await extractProject(templateArchivePath, extractedTemplatePath, log)
-      points = await fastAvailablePoints(extractedTemplatePath, log)
+      ;[points, testsTimeoutMs] = await Promise.all([
+        fastAvailablePoints(extractedTemplatePath, log),
+        getTestsTimeoutMs(extractedTemplatePath, log),
+      ])
     } catch (e) {
       throw new TemplateError(e)
     }
@@ -252,13 +298,18 @@ const gradeAnswer = async (
       extractedTemplatePath,
       preparedSubmissionArchivePath,
       submissionArchivePath,
-      "zstd",
+      answerCompression(answerArchive),
       EXTRACT_SUBMISSION_NAIVELY,
       log,
     )
 
     log("grading in pod")
-    const gradingResult = await gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
+    const gradingResult = await gradeInPod(
+      preparedSubmissionArchivePath,
+      sandboxImage,
+      points,
+      testsTimeoutMs,
+    )
     log("grading finished")
     return gradingResult
   } finally {
@@ -270,20 +321,15 @@ const gradeInPod = async (
   submissionPath: string,
   sandboxImage: string,
   points: string[],
+  testsTimeoutMs: number,
 ): Promise<ExerciseTaskGradingResult> => {
   const logger = createLogger("grade")
   let outcome
   try {
-    outcome = await runInSandboxPod(sandboxImage, submissionPath, logger)
+    outcome = await runInSandboxPod(sandboxImage, submissionPath, logger, testsTimeoutMs)
   } catch (e) {
     logger.error("Failed to grade in pod", e)
-    return {
-      grading_progress: "Failed",
-      score_given: 0,
-      score_maximum: 0,
-      feedback_text: gradingFailureFeedback(e),
-      feedback_json: null,
-    }
+    return { grading_progress: "Failed", score_given: 0, score_maximum: 0, ...failedGrading(e) }
   }
 
   if (outcome.timedOut) {
@@ -291,49 +337,89 @@ const gradeInPod = async (
       grading_progress: "Failed",
       score_given: 0,
       score_maximum: 0,
-      feedback_text: "Test timed out",
-      feedback_json: null,
+      feedback_text: TIMED_OUT_FEEDBACK,
+      feedback_json: { feedback_key: "timed_out" } satisfies GradingFeedbackExtras,
     }
   }
 
-  const normalized = normalizePodOutput(outcome.parsed)
-  if (!normalized) {
-    throw new Error(`normalizePodOutput failed; received: ${JSON.stringify(outcome.parsed)}`)
+  const run = outcome.parsed
+  if (!isRunResult(run)) {
+    throw new Error(`/tmc-run wrote no tmc-langs run result: ${JSON.stringify(run)}`)
   }
-
+  const validations = isStyleValidationResult(outcome.validations) ? outcome.validations : null
+  const styleFailed = isStyleFailure(validations)
+  // "Failed" is for runs that say nothing about the answer: the host does not count them as tries.
   let gradingProgress: GradingProgress = "Failed"
-  let feedbackText: string | null = null
-  if (normalized.status === "COMPILE_FAILED") {
-    feedbackText = "Could not compile the submission"
-  } else if (normalized.status === "GENERIC_ERROR") {
-    feedbackText = "The tests could not be run"
-  } else if (normalized.status === "TESTRUN_INTERRUPTED") {
-    feedbackText = "Tests were interrupted"
+  let feedback: { text: string; key: GradingFeedbackKey } | null = null
+  if (run.status === "COMPILE_FAILED") {
+    gradingProgress = "FullyGraded"
+    feedback = { text: "Could not compile the submission", key: "compile_failed" }
+  } else if (run.status === "GENERIC_ERROR") {
+    feedback = { text: "The tests could not be run", key: "generic_error" }
+  } else if (run.status === "TESTRUN_INTERRUPTED") {
+    feedback = { text: "Tests were interrupted", key: "interrupted" }
   } else {
     // The score already says whether the tests passed; clients show it as the result.
     gradingProgress = "FullyGraded"
+    if (run.timedOutAfterMs !== undefined) {
+      feedback = { text: TIMED_OUT_FEEDBACK, key: "timed_out" }
+    } else if (styleFailed) {
+      feedback = {
+        text: "The code style check failed, so no points were given",
+        key: "style_check_failed",
+      }
+    }
   }
 
+  const extras: GradingFeedbackExtras = {
+    feedback_key: feedback?.key ?? null,
+    validations,
+  }
   return {
     grading_progress: gradingProgress,
-    ...runScore(normalized, points.length),
-    feedback_text: feedbackText,
-    feedback_json: outcome.parsed,
+    ...runScore(run, points, { styleFailed }),
+    feedback_text: feedback?.text ?? null,
+    feedback_json: { ...run, ...extras },
   }
 }
 
+const TIMED_OUT_FEEDBACK = "Test timed out"
+
+function isStyleFailure(validations: StyleValidationResult | null): boolean {
+  return (
+    validations?.strategy === "FAIL" && Object.keys(validations.validation_errors ?? {}).length > 0
+  )
+}
+
 /**
- * All of the exercise's points when every test passed, else none. An exercise that declares no
- * points, such as a no-tests one, is scored out of one point: the host awards nothing for 0 of 0.
+ * Points as tmc-server awards them: each available point whose tests all passed. An exercise that
+ * declares no points, such as a no-tests one, is scored out of one point, because the host awards
+ * nothing for 0 of 0. A failed style check, or a run that did not finish the tests, earns nothing.
  */
 export function runScore(
-  run: NormalizedRunResult,
-  availablePointCount: number,
+  run: { status: RunStatus; testResults: Pick<TestResult, "successful" | "points">[] },
+  availablePoints: string[],
+  checks: { styleFailed?: boolean } = {},
 ): { score_given: number; score_maximum: number } {
-  const allPassed =
-    run.status === "PASSED" &&
-    run.testResults.length > 0 &&
-    run.testResults.every((tr) => tr.successful)
-  const scoreMaximum = Math.max(availablePointCount, 1)
-  return { score_given: allPassed ? scoreMaximum : 0, score_maximum: scoreMaximum }
+  const available = new Set(availablePoints)
+  const scoreMaximum = Math.max(available.size, 1)
+  const ranTests = run.status === "PASSED" || run.status === "TESTS_FAILED"
+  if (!ranTests || checks.styleFailed === true) {
+    return { score_given: 0, score_maximum: scoreMaximum }
+  }
+  if (available.size === 0) {
+    const allPassed =
+      run.status === "PASSED" &&
+      run.testResults.length > 0 &&
+      run.testResults.every((tr) => tr.successful)
+    return { score_given: allPassed ? 1 : 0, score_maximum: 1 }
+  }
+  const pointPassed = new Map<string, boolean>()
+  for (const test of run.testResults) {
+    for (const point of test.points) {
+      pointPassed.set(point, (pointPassed.get(point) ?? true) && test.successful)
+    }
+  }
+  const earned = [...available].filter((point) => pointPassed.get(point) === true)
+  return { score_given: earned.length, score_maximum: scoreMaximum }
 }

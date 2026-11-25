@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ets.id AS task_submission_id,\n  etg.id AS grading_id\nFROM exercise_task_gradings AS etg\n  JOIN exercise_task_submissions AS ets ON ets.exercise_task_grading_id = etg.id\n  JOIN exercise_slides AS es ON es.id = ets.exercise_slide_id\n  JOIN exercises AS e ON e.id = es.exercise_id\nWHERE etg.grading_progress = 'pending'\n  AND etg.deleted_at IS NULL\n  AND ets.deleted_at IS NULL\n  AND es.deleted_at IS NULL\n  AND e.deleted_at IS NULL\n  AND etg.updated_at < now() - make_interval(secs => $1)\n  -- The regrader re-sends its own lost gradings.\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_regrading_submissions AS etrs\n    WHERE etrs.grading_after_regrading = etg.id\n      AND etrs.deleted_at IS NULL\n  )\nORDER BY etg.updated_at\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "task_submission_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_submissions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "grading_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_task_gradings",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Float8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "5586a30fc879fc7705f17f4d167cd8912043028aba6f1d1ddc4d4e1c65079ef3"
+}

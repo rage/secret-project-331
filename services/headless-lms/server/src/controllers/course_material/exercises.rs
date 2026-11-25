@@ -129,19 +129,15 @@ async fn get_exercise(
         .get(&course_material_exercise.current_exercise_slide.id)
         .unwrap_or(&0);
 
-    let out_of_tries = course_material_exercise.exercise.limit_number_of_tries
-        && *submission_count as i32
-            >= course_material_exercise
-                .exercise
-                .max_tries_per_slide
-                .unwrap_or(i32::MAX);
-
-    // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
-    // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
-    let has_received_full_points = score_given
-        >= course_material_exercise.exercise.score_maximum as f32
-        || (score_given - course_material_exercise.exercise.score_maximum as f32).abs() < 0.0001;
-    if !has_received_full_points && !out_of_tries {
+    if !crate::domain::exercises::reveals_model_solution(
+        &mut conn,
+        &course_material_exercise.exercise,
+        course_material_exercise.exercise.deadline,
+        score_given,
+        *submission_count,
+    )
+    .await?
+    {
         course_material_exercise.clear_model_solution_specs();
     }
     token.authorized_ok(web::Json(course_material_exercise))

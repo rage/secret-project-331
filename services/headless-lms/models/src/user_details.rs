@@ -70,12 +70,8 @@ pub struct UserDetail {
     pub email_verified_method: Option<EmailVerificationMethod>,
 }
 
-/// How course design plans name a person: their full name, or their email when they have none.
-pub fn full_name_or_email(
-    first_name: Option<&str>,
-    last_name: Option<&str>,
-    email: &str,
-) -> String {
+/// The person's first and last name joined, or `None` when both are blank.
+pub fn full_name(first_name: Option<&str>, last_name: Option<&str>) -> Option<String> {
     let name = [first_name, last_name]
         .into_iter()
         .flatten()
@@ -83,11 +79,16 @@ pub fn full_name_or_email(
         .filter(|part| !part.is_empty())
         .collect::<Vec<_>>()
         .join(" ");
-    if name.is_empty() {
-        email.to_string()
-    } else {
-        name
-    }
+    (!name.is_empty()).then_some(name)
+}
+
+/// How course design plans name a person: their full name, or their email when they have none.
+pub fn full_name_or_email(
+    first_name: Option<&str>,
+    last_name: Option<&str>,
+    email: &str,
+) -> String {
+    full_name(first_name, last_name).unwrap_or_else(|| email.to_string())
 }
 
 pub async fn get_user_details_by_user_id(

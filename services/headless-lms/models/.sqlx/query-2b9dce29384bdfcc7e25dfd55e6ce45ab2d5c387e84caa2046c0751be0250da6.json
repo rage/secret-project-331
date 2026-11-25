@@ -144,6 +144,17 @@
             "name": "updated_at"
           }
         }
+      },
+      {
+        "ordinal": 12,
+        "name": "refresh_token_family_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "refresh_token_family_id"
+          }
+        }
       }
     ],
     "parameters": {
@@ -163,7 +174,8 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "2b9dce29384bdfcc7e25dfd55e6ce45ab2d5c387e84caa2046c0751be0250da6"

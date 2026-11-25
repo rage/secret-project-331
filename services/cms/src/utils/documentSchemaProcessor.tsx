@@ -84,7 +84,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
       score_maximum: exerciseAttributes.score_maximum,
       max_tries_per_slide: exerciseAttributes.max_tries_per_slide ?? null,
       limit_number_of_tries: exerciseAttributes.limit_number_of_tries,
-      deadline: null,
+      deadline: exerciseAttributes.deadline ?? null,
       needs_peer_review: exerciseAttributes.needs_peer_review,
       needs_self_review: exerciseAttributes.needs_self_review,
       peer_or_self_review_config: peerOrSelfReviewConfig,
@@ -129,6 +129,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
           private_spec: JSON.parse(block3.attributes.private_spec),
           order_number: exerciseTaskCount,
           private_spec_files: block3.attributes.private_spec_files ?? [],
+          repository_exercise_id: block3.attributes.repository_exercise_id ?? null,
         })
         exerciseTaskCount = exerciseTaskCount + 1
       })
@@ -221,6 +222,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
                 // release every file the spec references. Sorted like the editor's own list, since
                 // these arrive in no particular order and the unsaved-changes check deep-compares.
                 private_spec_files: (task.private_spec_files ?? []).toSorted(),
+                repository_exercise_id: task.repository_exercise_id ?? null,
                 show_editor: false,
                 order_number: task.order_number,
               },
@@ -279,6 +281,9 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
             : "null",
         use_course_default_peer_review: exercise.use_course_default_peer_or_self_review_config,
         teacher_reviews_answer_after_locking: exercise.teacher_reviews_answer_after_locking,
+        ...includeIf(exercise.deadline !== null && exercise.deadline !== undefined, {
+          deadline: exercise.deadline ?? undefined,
+        }),
       },
     }
 

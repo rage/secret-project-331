@@ -5,6 +5,9 @@ import React from "react"
 import { mergeProps, useButton, useHover, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+/** `link` draws the button as quiet underlined text, for a secondary action in running content. */
+export type CopyButtonAppearance = "button" | "link"
+
 export interface CopyButtonProps {
   /** Text placed on the clipboard when pressed. */
   value: string
@@ -16,6 +19,7 @@ export interface CopyButtonProps {
   disabled?: boolean
   /** Tooltip shown in place of `label` while `disabled`. Required together with `disabled`. */
   disabledReason?: string
+  appearance?: CopyButtonAppearance
   className?: string
   /** Lands on the button, the element a test presses. */
   "data-testid"?: string | undefined
@@ -87,6 +91,20 @@ const rootCss = css`
   &[aria-disabled="true"]:hover {
     color: var(--color-gray-500);
     border-color: var(--color-clear-400);
+  }
+`
+
+const linkAppearanceCss = css`
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--font-size-0);
+  line-height: 1.4;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &[data-pressed="true"] {
+    background: none;
   }
 `
 
@@ -163,6 +181,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
   children,
   disabled = false,
   disabledReason,
+  appearance = "button",
   className,
   "data-testid": dataTestId,
 }) => {
@@ -227,7 +246,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
       <button
         {...mergeProps(buttonProps, hoverProps)}
         ref={ref}
-        className={cx(rootCss, className)}
+        className={cx(rootCss, appearance === "link" && linkAppearanceCss, className)}
         type="button"
         aria-disabled={disabled || undefined}
         data-pressed={isPressed}

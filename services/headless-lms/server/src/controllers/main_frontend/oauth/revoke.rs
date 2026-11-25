@@ -203,12 +203,13 @@ async fn revoke_access_token_of_client(
 }
 
 /// Revokes the presented refresh token if it belongs to the authenticated client, together with
-/// everything else issued from the same (user, client) grant.
+/// everything else issued from the same login (its token family).
 ///
 /// RFC 7009 §2.1: the authorization server SHOULD revoke all tokens issued from the same grant.
 /// Revoking only the refresh-token row would leave the paired access token authenticating the
 /// exercise-services client API — from the Redis cache even after the row is gone — for its full
-/// remaining lifetime, so "log out" would not log the user out.
+/// remaining lifetime, so "log out" would not log the user out. The user's logins on other
+/// computers are separate grants and stay.
 ///
 /// `Ok(false)` means no live refresh token has that digest.
 async fn revoke_refresh_grant_of_client(
@@ -223,8 +224,7 @@ async fn revoke_refresh_grant_of_client(
         Ok(refresh_token) => {
             if refresh_token.client_id == client.id {
                 let revoked_access_digests =
-                    OAuthRefreshTokens::revoke_grant(conn, refresh_token.user_id, client.id)
-                        .await?;
+                    OAuthRefreshTokens::revoke_family(conn, refresh_token.family_id).await?;
                 invalidate_cached_users(cache, &revoked_access_digests, token_hmac_key).await;
             }
             Ok(true)

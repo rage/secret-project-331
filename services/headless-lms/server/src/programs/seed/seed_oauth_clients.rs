@@ -7,6 +7,8 @@ use headless_lms_models::{
 use sqlx::{Pool, Postgres};
 use uuid::Uuid;
 
+use crate::domain::oauth::native_client_check::NATIVE_EDITOR_CLIENT_ID;
+
 pub struct SeedOAuthClientsResult {
     pub client_db_id: Uuid,
 }
@@ -134,7 +136,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
     let device_redirect_uris = vec!["urn:ietf:wg:oauth:2.0:oob".to_string()];
     let exercise_services_scopes = vec!["exercise-services".to_string()];
     let tmc_vscode_params = oauth_client::NewClientParams {
-        client_id: "tmc-vscode",
+        client_id: NATIVE_EDITOR_CLIENT_ID,
         client_name: "TestMyCode for VS Code",
         application_type: oauth_client::ApplicationType::Native,
         token_endpoint_auth_method: oauth_client::TokenEndpointAuthMethod::None,
@@ -149,7 +151,7 @@ pub async fn seed_oauth_clients(db_pool: Pool<Postgres>) -> anyhow::Result<SeedO
         allowed_origins: None,
         bearer_allowed: true,
     };
-    if oauth_client::OAuthClient::find_by_client_id_optional(&mut conn, "tmc-vscode")
+    if oauth_client::OAuthClient::find_by_client_id_optional(&mut conn, NATIVE_EDITOR_CLIENT_ID)
         .await?
         .is_none()
     {

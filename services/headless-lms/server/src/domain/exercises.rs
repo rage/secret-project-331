@@ -7,7 +7,7 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     prelude::*,
 };
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use futures_util::future::OptionFuture;
 use models::{
     exercises::Exercise,
@@ -181,10 +181,21 @@ async fn grade_submission(
 
     // Model solution spec should only be shown when this is the last try for the current slide or they have gotten full points from the current slide.
     // TODO: this uses points for the whole exercise, change this to slide points when slide grading finalized
-    let has_received_full_points = score_given
-        >= exercise_with_user_state.exercise().score_maximum as f32
-        || (score_given - exercise_with_user_state.exercise().score_maximum as f32).abs() < 0.0001;
-    if !has_received_full_points && !last_try {
+    let has_received_full_points = models::exercises::is_full_points(
+        score_given,
+        exercise_with_user_state.exercise().score_maximum,
+    );
+    // A failed grading gives the try back, so the last try reveals nothing until it is graded.
+    let grading_may_give_try_back = result.exercise_task_submission_results.iter().any(|task| {
+        task.grading.as_ref().is_some_and(|grading| {
+            matches!(
+                grading.grading_progress,
+                models::exercises::GradingProgress::Pending
+                    | models::exercises::GradingProgress::Failed
+            )
+        })
+    });
+    if !has_received_full_points && (!last_try || grading_may_give_try_back) {
         result.clear_model_solution_specs();
     }
     Ok(result)
@@ -255,7 +266,7 @@ pub async fn is_out_of_tries(
     exercise: &Exercise,
     course_or_exam_id: CourseOrExamId,
 ) -> models::ModelResult<bool> {
-    let Some(max_tries_per_slide) = try_limit(exercise) else {
+    let Some(max_tries_per_slide) = exercise.try_limit() else {
         return Ok(false);
     };
     let submission_counts =
@@ -293,13 +304,38 @@ fn out_of_tries_error() -> ControllerError {
     )
 }
 
-/// The per-slide try limit, or `None` when the exercise does not limit tries.
-fn try_limit(exercise: &Exercise) -> Option<i64> {
-    exercise
-        .limit_number_of_tries
-        .then_some(exercise.max_tries_per_slide)
-        .flatten()
-        .map(i64::from)
+/// Whether a student may see the exercise's model solution: full points, the slide's try limit
+/// used up, or the course's model-solution settings releasing it by `deadline`, the exercise's
+/// effective deadline. Course staff see it regardless; checking that is the caller's.
+pub async fn reveals_model_solution(
+    conn: &mut PgConnection,
+    exercise: &Exercise,
+    deadline: Option<DateTime<Utc>>,
+    score_given: f32,
+    slide_submission_count: i64,
+) -> models::ModelResult<bool> {
+    if has_earned_model_solution(exercise, score_given, slide_submission_count) {
+        return Ok(true);
+    }
+    let Some(course_id) = exercise.course_id else {
+        return Ok(false);
+    };
+    Ok(models::course_model_solution_settings::get(conn, course_id)
+        .await?
+        .reveals(deadline, Utc::now()))
+}
+
+// TODO: this uses points for the whole exercise, change this to slide points when slide grading
+// is finalized.
+fn has_earned_model_solution(
+    exercise: &Exercise,
+    score_given: f32,
+    slide_submission_count: i64,
+) -> bool {
+    models::exercises::is_full_points(score_given, exercise.score_maximum)
+        || exercise
+            .try_limit()
+            .is_some_and(|limit| slide_submission_count >= limit)
 }
 
 /// Rejects answering in a chapter the user has not unlocked yet, or has already locked, on courses
@@ -348,10 +384,7 @@ async fn enforce_deadline(
         .into();
     let chapter = chapter_option_future.await.transpose()?;
 
-    // Exercise deadlines takes precedence to chapter deadlines
-    if let Some(deadline) = exercise
-        .deadline
-        .or_else(|| chapter.and_then(|c| c.deadline))
+    if let Some(deadline) = exercise.effective_deadline(chapter.and_then(|c| c.deadline))
         && Utc::now() + Duration::seconds(1) >= deadline
     {
         return Err(bad_request_with_reason(
@@ -453,7 +486,7 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
     let mut last_try = false;
     let course_id_or_exam_id =
         resolve_course_or_exam_id_for_submitting(conn, user_id, exercise).await?;
-    if let Some(max_tries_per_slide) = try_limit(exercise) {
+    if let Some(max_tries_per_slide) = exercise.try_limit() {
         // check if the user has attempts remaining
         let slide_id_to_submissions_count =
                 models::exercise_slide_submissions::get_exercise_slide_submission_counts_for_exercise_user(
@@ -483,6 +516,65 @@ async fn resolve_course_or_exam_id_and_verify_that_user_can_submit(
         }
     }
     Ok((course_id_or_exam_id, last_try))
+}
+
+#[cfg(test)]
+mod model_solution_tests {
+    use super::*;
+
+    fn exercise_with(
+        score_maximum: i32,
+        limit_number_of_tries: bool,
+        max_tries_per_slide: Option<i32>,
+    ) -> Exercise {
+        let now = Utc::now();
+        Exercise {
+            id: Uuid::new_v4(),
+            created_at: now,
+            updated_at: now,
+            name: "Test exercise".to_string(),
+            course_id: Some(Uuid::new_v4()),
+            exam_id: None,
+            page_id: Uuid::new_v4(),
+            chapter_id: None,
+            deadline: None,
+            deleted_at: None,
+            score_maximum,
+            order_number: 0,
+            copied_from: None,
+            max_tries_per_slide,
+            limit_number_of_tries,
+            needs_peer_review: false,
+            needs_self_review: false,
+            use_course_default_peer_or_self_review_config: false,
+            exercise_language_group_id: None,
+            teacher_reviews_answer_after_locking: false,
+        }
+    }
+
+    #[test]
+    fn model_solution_hidden_until_full_points() {
+        let ex = exercise_with(5, false, None);
+        assert!(!has_earned_model_solution(&ex, 0.0, 3));
+        assert!(!has_earned_model_solution(&ex, 4.0, 99));
+        assert!(has_earned_model_solution(&ex, 5.0, 0));
+        // Floating-point full points still count via the epsilon comparison.
+        assert!(has_earned_model_solution(&ex, 4.99995, 0));
+    }
+
+    #[test]
+    fn model_solution_revealed_when_out_of_tries() {
+        let ex = exercise_with(5, true, Some(3));
+        assert!(!has_earned_model_solution(&ex, 0.0, 2));
+        assert!(has_earned_model_solution(&ex, 0.0, 3));
+        assert!(has_earned_model_solution(&ex, 0.0, 4));
+    }
+
+    #[test]
+    fn out_of_tries_ignored_when_limit_disabled() {
+        let ex = exercise_with(5, false, Some(3));
+        assert!(!has_earned_model_solution(&ex, 0.0, 100));
+    }
 }
 
 /// A submit with a file-typed answer: the checks that decide whether a student may claim the

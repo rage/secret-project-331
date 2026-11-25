@@ -1119,6 +1119,8 @@ SELECT counts.*, exercises.name exercise_name
     Ok(res)
 }
 
+/// The user's tries used on each slide of the exercise. A submission whose grading failed uses no
+/// try: an exercise service reports a failure only when it could not grade the answer at all.
 pub async fn get_exercise_slide_submission_counts_for_exercise_user(
     conn: &mut PgConnection,
     exercise_id: Uuid,
@@ -1131,14 +1133,23 @@ pub async fn get_exercise_slide_submission_counts_for_exercise_user(
     };
     let res = sqlx::query!(
         r#"
-SELECT exercise_slide_id,
+SELECT ess.exercise_slide_id,
   COUNT(*) as count
-FROM exercise_slide_submissions
-WHERE exercise_id = $1
-  AND (course_id = $2 OR exam_id = $2)
-  AND user_id = $3
-  AND deleted_at IS NULL
-GROUP BY exercise_slide_id;
+FROM exercise_slide_submissions AS ess
+WHERE ess.exercise_id = $1
+  AND (ess.course_id = $2 OR ess.exam_id = $2)
+  AND ess.user_id = $3
+  AND ess.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_task_submissions AS ets
+      JOIN exercise_task_gradings AS etg ON etg.id = ets.exercise_task_grading_id
+    WHERE ets.exercise_slide_submission_id = ess.id
+      AND ets.deleted_at IS NULL
+      AND etg.deleted_at IS NULL
+      AND etg.grading_progress = 'failed'
+  )
+GROUP BY ess.exercise_slide_id;
     "#,
         exercise_id,
         ci_id_or_e_id,

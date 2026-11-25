@@ -36,7 +36,7 @@ const sizeValues = {
     labelFloatTop: "0.5rem",
     labelRestFontSize: "1.0625rem",
     labelFloatFontSize: "0.75rem",
-    messageFontSize: "0.875rem",
+    messageFontSize: "0.84375rem",
     borderRadius: "0.4375rem",
   },
   lg: {
@@ -55,6 +55,12 @@ const sizeValues = {
 } as const
 
 type SizeValues = (typeof sizeValues)[FieldSize]
+
+/** Inset rings, so changing their width on focus or error never shifts layout. */
+const FOCUSED_RING = "inset 0 0 0 2px var(--field-border-focus), 0 0 0 4px var(--field-focus-halo)"
+const INVALID_RING = "inset 0 0 0 1.5px var(--field-border-color-invalid)"
+const INVALID_FOCUSED_RING =
+  "inset 0 0 0 2px var(--field-border-color-invalid), 0 0 0 4px var(--field-invalid-halo)"
 export const fieldRootCss = css`
   width: 100%;
   min-width: 0;
@@ -94,23 +100,16 @@ const inputBaseCss = css`
   }
 
   &:focus {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-focus),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+    box-shadow: ${FOCUSED_RING};
   }
 
   &[aria-invalid="true"] {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-color-invalid),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color);
+    background: var(--field-bg-invalid);
+    box-shadow: ${INVALID_RING};
   }
 
   &[aria-invalid="true"]:focus {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-color-invalid),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) rgba(130, 38, 48, 0.4);
+    box-shadow: ${INVALID_FOCUSED_RING};
   }
 
   &:disabled {
@@ -214,16 +213,16 @@ const selectTriggerBaseCss = css`
     box-shadow ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
   [data-field-control][data-focused="true"] & {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-focus),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
-      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
+    box-shadow: ${FOCUSED_RING};
   }
 
   [data-field-control][data-invalid="true"] & {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-color-invalid),
-      0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color);
+    background: var(--field-bg-invalid);
+    box-shadow: ${INVALID_RING};
+  }
+
+  [data-field-control][data-invalid="true"][data-focused="true"] & {
+    box-shadow: ${INVALID_FOCUSED_RING};
   }
 
   &:disabled [data-select-placeholder="true"] {
@@ -459,6 +458,8 @@ export const textareaIconSlotEndStyles: Record<FieldSize, string> = {
 
 const messageBaseCss = css`
   margin: 0.375rem 0 0;
+  padding-left: 2px;
+  line-height: 1.4;
   max-width: 100%;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -469,7 +470,23 @@ const messageDescriptionCss = css`
 `
 
 const messageErrorCss = css`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
   color: var(--field-message-color-invalid);
+  font-weight: 500;
+
+  &::before {
+    content: "";
+    flex: none;
+    width: 1em;
+    height: 1em;
+    /* Centres the icon on the first line of a wrapped message. */
+    margin-top: calc((1lh - 1em) / 2);
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9.5'/%3E%3Cpath d='M12 7v6M12 16.5v.01'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
 `
 
 function makeMessageSizeCss(s: SizeValues): string {
@@ -525,23 +542,16 @@ export const controlSurfaceBaseCss = css`
     color ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
   &:focus-within {
-    box-shadow:
-      inset 0 0 0 1px var(--field-border-focus),
-      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.14),
-      var(--field-shadow);
+    box-shadow: ${FOCUSED_RING}, var(--field-shadow);
   }
 
   &[data-invalid="true"] {
-    box-shadow:
-      inset 0 0 0 1px var(--field-error-border),
-      var(--field-shadow);
+    background: var(--field-bg-invalid);
+    box-shadow: ${INVALID_RING}, var(--field-shadow);
   }
 
   &[data-invalid="true"]:focus-within {
-    box-shadow:
-      inset 0 0 0 1px var(--field-error-border),
-      0 0 0 var(--focus-ring-width) rgba(158, 52, 31, 0.14),
-      var(--field-shadow);
+    box-shadow: ${INVALID_FOCUSED_RING}, var(--field-shadow);
   }
 
   &[data-disabled="true"] {

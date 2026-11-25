@@ -29,6 +29,7 @@ export interface PressHandlers {
 interface ResolveStylesInput {
   size: ButtonSize
   variant: ButtonVariant
+  isFullWidth?: boolean | undefined
 }
 
 /** Used for non-React/CSS-only screen-reader text; prefer `VisuallyHidden` in components. */
@@ -168,6 +169,10 @@ const sizeLgCss = css`
   height: var(--control-height-lg);
   padding: 0 var(--control-padding-x-lg);
   font-size: var(--font-size-lg);
+`
+
+const fullWidthCss = css`
+  width: 100%;
 `
 
 const iconSizeSmCss = css`
@@ -328,5 +333,6 @@ export function resolveButtonRootCss(input: ResolveStylesInput): string {
     input.variant === "link" ? undefined : sizeStyles[input.size],
     resolveVariantCss(input.variant),
     input.variant === "icon" ? iconSizeStyles[input.size] : undefined,
+    input.isFullWidth && input.variant !== "link" ? fullWidthCss : undefined,
   )
 }

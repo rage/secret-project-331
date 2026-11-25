@@ -35,6 +35,7 @@ export {
 } from "./components/RouteFocusManager"
 export type { RouteFocusManagerProps } from "./components/RouteFocusManager"
 export { itemHeadingProps, useFocusAfterRemoval } from "./lib/hooks/useFocusAfterRemoval"
+export { useCooldown } from "./lib/hooks/useCooldown"
 export { useToggleFocus } from "./lib/hooks/useToggleFocus"
 export { Select } from "./components/Select"
 export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"

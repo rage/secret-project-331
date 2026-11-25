@@ -2115,6 +2115,10 @@ export type CmsPageExerciseTask = {
    * endpoint that produced it, since a derivation may upload files of its own.
    */
   private_spec_files?: Array<string>
+  /**
+   * The repository exercise the exercise editor picked, as it reported it beside the spec.
+   */
+  repository_exercise_id?: string | null
 }
 
 export type CmsPeerOrSelfReviewConfig = {
@@ -3020,6 +3024,22 @@ export type CourseMetadataUpdate = {
   course_audiences: Array<EditCourseAudience>
   course_description?: string | null
   course_prerequisites: Array<EditCoursePrerequisite>
+}
+
+/**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export type CourseModelSolutionSettings = {
+  /**
+   * Reveal an exercise's model solution to everyone once its deadline (its own, else its
+   * chapter's) has passed.
+   */
+  reveal_after_deadline: boolean
+  /**
+   * Reveal every model solution to everyone from this moment on.
+   */
+  reveal_at?: string | null
 }
 
 /**
@@ -5018,6 +5038,25 @@ export type Exercise = {
   use_course_default_peer_or_self_review_config: boolean
 }
 
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export type ExerciseAnswerShare = {
+  created_at: string
+  /**
+   * `false` for a paste, which is never graded.
+   */
+  is_graded: boolean
+  /**
+   * The token the shared view takes.
+   */
+  share_id: string
+  /**
+   * The student whose answer it is.
+   */
+  user_id: string
+}
+
 export type ExerciseAnswersInCourseRequiringAttentionCount = {
   chapter_id?: string | null
   count?: number | null
@@ -5087,18 +5126,56 @@ export type ExerciseLinkSuggestion = {
   reference: LanguageVersionExercise
 }
 
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
 export type ExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   error_message?: string | null
   exam_id?: string | null
+  /**
+   * Live exercise tasks that use one of the repository's exercises.
+   */
+  exercise_task_count: number
+  has_deploy_key: boolean
   id: string
+  last_sync_report?: ExerciseRepositorySyncReport | null
+  last_synced_at?: string | null
+  public_key?: string | null
   status: ExerciseRepositoryStatus
+  /**
+   * Syncs started since the last request or success, the running one included.
+   */
+  sync_attempts: number
   url: string
 }
 
 export type ExerciseRepositoryStatus = "Pending" | "Success" | "Failure"
 
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export type ExerciseRepositorySyncReport = {
+  added: Array<string>
+  failed_exercise_tasks: Array<FailedExerciseTaskRefresh>
+  /**
+   * Gone from the repository but kept, because exercise tasks still use them.
+   */
+  missing_but_in_use: Array<string>
+  refreshed_exercise_task_count: number
+  removed: Array<string>
+  renamed: Array<RenamedRepositoryExercise>
+  updated: Array<string>
+}
+
 export type ExerciseRepositoryUpdate = {
+  branch?: string | null
+  /**
+   * Replaces the stored key pair when set; the stored pair is kept otherwise.
+   */
+  deploy_key?: string | null
+  public_key?: string | null
   url: string
 }
 
@@ -5401,6 +5478,15 @@ export type ExternalGrading = "pass_fail" | "numeric"
  * How querying an external platform for the user's courses went.
  */
 export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
+
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export type FailedExerciseTaskRefresh = {
+  error: string
+  exercise_task_id: string
+  repository_exercise: string
+}
 
 export type Feedback = {
   blocks: Array<FeedbackBlock>
@@ -6742,11 +6828,12 @@ export type NewExam = {
 }
 
 export type NewExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   deploy_key?: string | null
   exam_id?: string | null
-  git_url: string
   public_key?: string | null
+  url: string
 }
 
 export type NewExternalCourse = {
@@ -7862,6 +7949,11 @@ export type RemoveLeftoverLinksRequest = {
 
 export type RemoveLeftoverLinksResult = {
   removed_count: number
+}
+
+export type RenamedRepositoryExercise = {
+  from: string
+  to: string
 }
 
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
@@ -12876,6 +12968,50 @@ export type GetCourseLinkableExamsResponses = {
 export type GetCourseLinkableExamsResponse =
   GetCourseLinkableExamsResponses[keyof GetCourseLinkableExamsResponses]
 
+export type GetCourseModelSolutionSettingsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type GetCourseModelSolutionSettingsResponses = {
+  /**
+   * The course's model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type GetCourseModelSolutionSettingsResponse =
+  GetCourseModelSolutionSettingsResponses[keyof GetCourseModelSolutionSettingsResponses]
+
+export type UpdateCourseModelSolutionSettingsData = {
+  body: CourseModelSolutionSettings
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type UpdateCourseModelSolutionSettingsResponses = {
+  /**
+   * The stored model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type UpdateCourseModelSolutionSettingsResponse =
+  UpdateCourseModelSolutionSettingsResponses[keyof UpdateCourseModelSolutionSettingsResponses]
+
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>
   path: {
@@ -17103,6 +17239,28 @@ export type UpdateExerciseRepositoryResponses = {
 export type UpdateExerciseRepositoryResponse =
   UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses]
 
+export type SyncExerciseRepositoryData = {
+  body?: never
+  path: {
+    /**
+     * Exercise repository id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercise-repositories/{id}/sync"
+}
+
+export type SyncExerciseRepositoryResponses = {
+  /**
+   * Sync queued
+   */
+  200: boolean
+}
+
+export type SyncExerciseRepositoryResponse =
+  SyncExerciseRepositoryResponses[keyof SyncExerciseRepositoryResponses]
+
 export type GetExerciseServicesData = {
   body?: never
   path?: never
@@ -17337,6 +17495,28 @@ export type GetExerciseResponses = {
 }
 
 export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses]
+
+export type GetExerciseAnswerSharesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares"
+}
+
+export type GetExerciseAnswerSharesResponses = {
+  /**
+   * The exercise's live answer shares, newest first
+   */
+  200: Array<ExerciseAnswerShare>
+}
+
+export type GetExerciseAnswerSharesResponse =
+  GetExerciseAnswerSharesResponses[keyof GetExerciseAnswerSharesResponses]
 
 export type GetExerciseAnswersRequiringAttentionData = {
   body?: never
@@ -19429,6 +19609,13 @@ export type GetSharedSubmissionInfoData = {
   }
   query?: never
   url: "/api/v0/main-frontend/shared-submissions/{token}"
+}
+
+export type GetSharedSubmissionInfoErrors = {
+  /**
+   * The shared answer passed the exercise and the viewer has not passed it themselves
+   */
+  403: unknown
 }
 
 export type GetSharedSubmissionInfoResponses = {

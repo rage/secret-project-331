@@ -1,0 +1,37 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT ess.exercise_slide_id,\n  COUNT(*) as count\nFROM exercise_slide_submissions AS ess\nWHERE ess.exercise_id = $1\n  AND (ess.course_id = $2 OR ess.exam_id = $2)\n  AND ess.user_id = $3\n  AND ess.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercise_task_submissions AS ets\n      JOIN exercise_task_gradings AS etg ON etg.id = ets.exercise_task_grading_id\n    WHERE ets.exercise_slide_submission_id = ess.id\n      AND ets.deleted_at IS NULL\n      AND etg.deleted_at IS NULL\n      AND etg.grading_progress = 'failed'\n  )\nGROUP BY ess.exercise_slide_id;\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exercise_slide_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exercise_slide_id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "count",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "57967bd159c4179458f5c7f1b29b547cb31abe5e85af142fd9a1e5ce422f6427"
+}

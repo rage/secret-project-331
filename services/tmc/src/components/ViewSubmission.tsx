@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next"
 
 import type { ViewSubmissionState } from "@/util/stateInterfaces"
 
+import GradingFeedback from "./GradingFeedback"
 import SourceFiles from "./SourceFiles"
 
 interface Props {
@@ -22,6 +23,7 @@ const ViewSubmission: React.FC<React.PropsWithChildren<Props>> = ({ state }) => 
           <a href={state.submitted_archive_url}>{t("download-button")}</a>
         </div>
       )}
+      <GradingFeedback grading={state.grading} showMessage />
     </>
   )
 }

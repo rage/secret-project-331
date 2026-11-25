@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM oauth_access_tokens WHERE refresh_token_family_id = $1 RETURNING digest",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "digest",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_access_tokens",
+            "name": "digest"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "6059734fcd4dfb0e764af02a4298a3f86fd5bfdf8db1714b37332fec02ac92e1"
+}

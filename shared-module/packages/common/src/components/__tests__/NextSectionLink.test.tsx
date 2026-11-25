@@ -29,7 +29,7 @@ const base = {
   nextTitle: "Runestones",
   url: "/next",
   currentPageRead: false,
-  onPageReadChange: () => null,
+  onPageReadChange: async () => {},
   isUpdatingPageReadStatus: false,
 }
 

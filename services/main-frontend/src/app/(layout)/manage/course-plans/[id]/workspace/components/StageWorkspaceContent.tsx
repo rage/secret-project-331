@@ -20,15 +20,15 @@ import StageGuidance, { type FormlessStage } from "./stage-guidance/StageGuidanc
  */
 export default function StageWorkspaceContent(props: {
   plan: CourseDesignerPlan
+  hasCourse: boolean
   stage: CourseDesignerStage
   stages: readonly CourseDesignerPlanStageWithTasks[]
   onDirtyChange: (dirty: boolean) => void
 }) {
-  const { plan, stage, stages, onDirtyChange } = props
+  const { plan, hasCourse, stage, stages, onDirtyChange } = props
   const stageData = stages.find((candidate) => candidate.stage === stage)
   const workspaceData = stageData?.workspace_data
   const workspaceRevision = stageData?.workspace_revision ?? 0
-  const hasCourse = Boolean(plan.created_course_id)
   const isReadOnly = plan.status === "Archived"
   switch (stage) {
     case "Analysis":

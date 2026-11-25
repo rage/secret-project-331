@@ -962,6 +962,7 @@
   "course-plans-course-status-draft": "Чернетка",
   "course-plans-course-status-heading": "Стан курсу",
   "course-plans-course-status-manage-course": "Керувати курсом «{{name}}»",
+  "course-plans-course-status-no-chapters": "У курсі ще немає розділів.",
   "course-plans-course-status-no-exercises-heading": "Розділи без вправ",
   "course-plans-course-status-no-unfilled": "Усі сторінки мають вміст.",
   "course-plans-course-status-page-count_few": "{{count}} сторінки",

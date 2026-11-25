@@ -156,6 +156,9 @@ pub async fn get_course_from_plan_source(
             .await?;
     ensure_course_can_be_created(&mut tx, &plan).await?;
     let (analysis, design) = get_analysis_and_design(&mut tx, plan_id).await?;
+    if design.planned_content_formats.chatbots {
+        default_chatbot_model(&mut tx).await?;
+    }
     tx.commit().await?;
 
     let course_name = options
@@ -195,12 +198,27 @@ pub async fn get_course_from_plan_source(
     })
 }
 
-/// A plan creates at most one course, and only once Design is done.
+/// A plan has at most one live course, and gets one only once Design is done.
 async fn ensure_course_can_be_created(
     conn: &mut PgConnection,
     plan: &CourseDesignerPlan,
 ) -> ModelResult<()> {
-    if plan.created_course_id.is_some() {
+    let has_live_course = match plan.created_course_id {
+        Some(course_id) => {
+            sqlx::query_scalar!(
+                r#"
+SELECT EXISTS (
+  SELECT 1 FROM courses WHERE id = $1 AND deleted_at IS NULL
+) AS "exists!"
+"#,
+                course_id
+            )
+            .fetch_one(&mut *conn)
+            .await?
+        }
+        None => false,
+    };
+    if has_live_course {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "A course has already been created from this plan.".to_string(),
@@ -227,6 +245,21 @@ WHERE course_designer_plan_id = $1
         ));
     }
     Ok(())
+}
+
+async fn default_chatbot_model(
+    conn: &mut PgConnection,
+) -> ModelResult<crate::chatbot_configurations_models::ChatbotConfigurationModel> {
+    crate::chatbot_configurations_models::get_default(conn)
+        .await
+        .map_err(|e| {
+            ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "No default chatbot model is configured, so the planned chatbot cannot be created."
+                    .to_string(),
+                Some(e.into()),
+            )
+        })
 }
 
 /// Creates a draft course from a plan read with [`get_course_from_plan_source`] and the texts an
@@ -313,12 +346,9 @@ pub async fn create_course_from_plan(
     )
     .await?;
     if options.should_give_members_course_roles {
-        let member_user_ids =
+        let members =
             crate::course_designer_plan_members::get_plan_members(&mut tx, plan_id).await?;
-        for member in member_user_ids
-            .iter()
-            .filter(|member| member.user_id != user_id)
-        {
+        for member in members.iter().filter(|member| member.user_id != user_id) {
             roles::insert(
                 &mut tx,
                 member.user_id,
@@ -446,16 +476,7 @@ pub async fn create_course_from_plan(
         .as_ref()
         .filter(|_| source.has_planned_chatbot())
     {
-        let model = crate::chatbot_configurations_models::get_default(&mut tx)
-            .await
-            .map_err(|e| {
-                ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    "No default chatbot model is configured, so the planned chatbot cannot be created."
-                        .to_string(),
-                    Some(e.into()),
-                )
-            })?;
+        let model = default_chatbot_model(&mut tx).await?;
         chatbot_configurations::insert(
             &mut tx,
             PKeyPolicy::Generate,

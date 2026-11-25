@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT p.id,\n  p.title,\n  p.url_path,\n  p.chapter_id,\n  p.content\nFROM pages p\nLEFT JOIN chapters ch ON ch.id = p.chapter_id\nWHERE p.course_id = $1\n  AND p.deleted_at IS NULL\n  AND NOT p.hidden\nORDER BY ch.chapter_number NULLS FIRST,\n  p.order_number,\n  p.id\n",
+  "query": "\nSELECT p.id,\n  p.course_id AS \"course_id!\",\n  p.title,\n  p.url_path,\n  p.chapter_id,\n  p.content\nFROM pages p\nLEFT JOIN chapters ch ON ch.id = p.chapter_id\nWHERE p.course_id = ANY($1)\n  AND p.deleted_at IS NULL\n  AND NOT p.hidden\nORDER BY ch.chapter_number NULLS FIRST,\n  p.order_number,\n  p.id\n",
   "describe": {
     "columns": [
       {
@@ -16,6 +16,17 @@
       },
       {
         "ordinal": 1,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "pages",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
         "name": "title",
         "type_info": "Varchar",
         "origin": {
@@ -26,7 +37,7 @@
         }
       },
       {
-        "ordinal": 2,
+        "ordinal": 3,
         "name": "url_path",
         "type_info": "Varchar",
         "origin": {
@@ -37,7 +48,7 @@
         }
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "chapter_id",
         "type_info": "Uuid",
         "origin": {
@@ -48,7 +59,7 @@
         }
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "content",
         "type_info": "Jsonb",
         "origin": {
@@ -61,16 +72,17 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
       false,
+      true,
       false,
       false,
       true,
       false
     ]
   },
-  "hash": "a08d3233ba33c7c80b27db7f4bcbc3cefbbd7a33ccffe2844fa3b7ead70baa2b"
+  "hash": "5ff3dda8ce27afdc76cb33a10a6742385f5adedf29109ba4ab06baa319f2de7f"
 }

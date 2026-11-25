@@ -881,6 +881,7 @@ function CoursePlanWorkspacePage() {
                             <StageWorkspaceContent
                               key={viewedStage}
                               plan={plan}
+                              hasCourse={Boolean(course_status)}
                               stage={viewedStage}
                               stages={stages}
                               onDirtyChange={setWorkspaceDirty}

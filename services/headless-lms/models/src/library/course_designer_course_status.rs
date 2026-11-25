@@ -2,6 +2,7 @@
 
 use headless_lms_utils::strings::{decode_html_entities, strip_html_tags};
 use serde_json::Value;
+use std::collections::HashMap;
 use utoipa::ToSchema;
 
 use crate::{
@@ -87,63 +88,76 @@ pub async fn get_for_plan(
     conn: &mut PgConnection,
     plan_id: Uuid,
 ) -> ModelResult<Option<CourseDesignerCourseStatus>> {
-    let course = sqlx::query!(
+    Ok(get_for_plans(conn, &[plan_id]).await?.remove(&plan_id))
+}
+
+/// [`get_for_plan`] for many plans in one pass; plans without a live course are absent.
+pub async fn get_for_plans(
+    conn: &mut PgConnection,
+    plan_ids: &[Uuid],
+) -> ModelResult<HashMap<Uuid, CourseDesignerCourseStatus>> {
+    let courses = sqlx::query!(
         r#"
-SELECT c.id,
+SELECT p.id AS plan_id,
+  c.id,
   c.name,
   c.slug,
   c.is_draft
 FROM course_designer_plans p
 JOIN courses c ON c.id = p.created_course_id
   AND c.deleted_at IS NULL
-WHERE p.id = $1
+WHERE p.id = ANY($1)
 "#,
-        plan_id
+        plan_ids
     )
-    .fetch_optional(&mut *conn)
+    .fetch_all(&mut *conn)
     .await?;
-    let Some(course) = course else {
-        return Ok(None);
-    };
-    let pages = sqlx::query!(
+    if courses.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
+    let page_rows = sqlx::query!(
         r#"
 SELECT p.id,
+  p.course_id AS "course_id!",
   p.title,
   p.url_path,
   p.chapter_id,
   p.content
 FROM pages p
 LEFT JOIN chapters ch ON ch.id = p.chapter_id
-WHERE p.course_id = $1
+WHERE p.course_id = ANY($1)
   AND p.deleted_at IS NULL
   AND NOT p.hidden
 ORDER BY ch.chapter_number NULLS FIRST,
   p.order_number,
   p.id
 "#,
-        course.id
+        &course_ids
     )
     .fetch_all(&mut *conn)
     .await?;
-    let chapter_count = sqlx::query_scalar!(
+    let chapter_counts = sqlx::query!(
         r#"
-SELECT COUNT(*)::BIGINT AS "count!"
+SELECT course_id AS "course_id!",
+  COUNT(*)::BIGINT AS "count!"
 FROM chapters
-WHERE course_id = $1
+WHERE course_id = ANY($1)
   AND deleted_at IS NULL
+GROUP BY course_id
 "#,
-        course.id
+        &course_ids
     )
-    .fetch_one(&mut *conn)
+    .fetch_all(&mut *conn)
     .await?;
-    let chapters_without_exercises = sqlx::query_as!(
-        CourseDesignerChapterWithoutExercises,
+    let chapters_without_exercises = sqlx::query!(
         r#"
-SELECT ch.id AS chapter_id,
+SELECT ch.course_id AS "course_id!",
+  ch.id AS chapter_id,
   ch.name,
   ch.chapter_number
 FROM chapters ch
-WHERE ch.course_id = $1
+WHERE ch.course_id = ANY($1)
   AND ch.deleted_at IS NULL
   AND NOT EXISTS (
     SELECT 1
@@ -153,34 +167,53 @@ WHERE ch.course_id = $1
   )
 ORDER BY ch.chapter_number
 "#,
-        course.id
+        &course_ids
     )
     .fetch_all(&mut *conn)
     .await?;
 
-    let page_count = pages.len() as i64;
-    let unfilled_pages = pages
-        .into_iter()
-        .filter_map(|page| {
-            unfilled_reason(&page.content).map(|reason| CourseDesignerUnfilledPage {
-                page_id: page.id,
-                title: page.title,
-                url_path: page.url_path,
-                chapter_id: page.chapter_id,
-                reason,
-            })
-        })
-        .collect();
-    Ok(Some(CourseDesignerCourseStatus {
-        course_id: course.id,
-        name: course.name,
-        slug: course.slug,
-        is_draft: course.is_draft,
-        chapter_count,
-        page_count,
-        unfilled_pages,
-        chapters_without_exercises,
-    }))
+    let mut statuses = HashMap::new();
+    for course in courses {
+        let mut page_count = 0;
+        let mut unfilled_pages = vec![];
+        for page in page_rows.iter().filter(|page| page.course_id == course.id) {
+            page_count += 1;
+            if let Some(reason) = unfilled_reason(&page.content) {
+                unfilled_pages.push(CourseDesignerUnfilledPage {
+                    page_id: page.id,
+                    title: page.title.clone(),
+                    url_path: page.url_path.clone(),
+                    chapter_id: page.chapter_id,
+                    reason,
+                });
+            }
+        }
+        statuses.insert(
+            course.plan_id,
+            CourseDesignerCourseStatus {
+                course_id: course.id,
+                name: course.name,
+                slug: course.slug,
+                is_draft: course.is_draft,
+                chapter_count: chapter_counts
+                    .iter()
+                    .find(|row| row.course_id == course.id)
+                    .map_or(0, |row| row.count),
+                page_count,
+                unfilled_pages,
+                chapters_without_exercises: chapters_without_exercises
+                    .iter()
+                    .filter(|row| row.course_id == course.id)
+                    .map(|row| CourseDesignerChapterWithoutExercises {
+                        chapter_id: row.chapter_id,
+                        name: row.name.clone(),
+                        chapter_number: row.chapter_number,
+                    })
+                    .collect(),
+            },
+        );
+    }
+    Ok(statuses)
 }
 
 /// Walks stored page content as JSON so that content an older block version wrote cannot make the

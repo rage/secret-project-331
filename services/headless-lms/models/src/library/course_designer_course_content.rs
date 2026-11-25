@@ -188,7 +188,7 @@ pub fn chapter_front_page_content(
     objectives: &[&str],
     color: Option<&str>,
 ) -> Vec<GutenbergBlock> {
-    let mut hero = GutenbergBlock::hero_section(chapter_name, "");
+    let mut hero = GutenbergBlock::hero_section(&text(chapter_name), "");
     if let Some(color) = color {
         hero.attributes
             .insert("backgroundColor".to_string(), color.into());
@@ -329,6 +329,11 @@ pub fn how_to_study_content(
     if !activities.is_empty() {
         let total_minutes: u64 = workload_activities
             .iter()
+            .filter(|activity| {
+                activity.count > 0
+                    && activity.minutes_each > 0
+                    && non_empty_trimmed(&activity.title).is_some()
+            })
             .map(|activity| u64::from(activity.count) * u64::from(activity.minutes_each))
             .sum();
         let total_hours = u32::try_from(total_minutes.div_ceil(60)).unwrap_or(u32::MAX);

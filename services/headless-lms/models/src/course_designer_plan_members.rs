@@ -444,9 +444,8 @@ RETURNING
         )
         .await?;
     }
-    let task = with_course_status(&mut tx, plan_id, task).await?;
     tx.commit().await?;
-    Ok(task)
+    with_course_status(conn, plan_id, task).await
 }
 
 /// The task as the plan pages show it: an automatic task's completion computed from the course.
@@ -538,9 +537,8 @@ RETURNING
             None,
         )
     })?;
-    let task = with_course_status(&mut tx, plan_id, task).await?;
     tx.commit().await?;
-    Ok(task)
+    with_course_status(conn, plan_id, task).await
 }
 
 /// Soft-deletes a task after membership validation.

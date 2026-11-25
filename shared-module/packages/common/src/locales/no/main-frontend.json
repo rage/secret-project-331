@@ -913,6 +913,7 @@
   "course-plans-course-status-draft": "Utkast",
   "course-plans-course-status-heading": "Status for kurset",
   "course-plans-course-status-manage-course": "Administrer kurset «{{name}}»",
+  "course-plans-course-status-no-chapters": "Kurset har ingen kapitler ennå.",
   "course-plans-course-status-no-exercises-heading": "Kapitler uten oppgaver",
   "course-plans-course-status-no-unfilled": "Alle sidene har innhold.",
   "course-plans-course-status-page-count_one": "{{count}} side",

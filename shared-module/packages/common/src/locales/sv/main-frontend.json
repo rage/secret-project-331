@@ -913,6 +913,7 @@
   "course-plans-course-status-draft": "Utkast",
   "course-plans-course-status-heading": "Kursens status",
   "course-plans-course-status-manage-course": "Hantera kursen ”{{name}}”",
+  "course-plans-course-status-no-chapters": "Kursen har inga kapitel än.",
   "course-plans-course-status-no-exercises-heading": "Kapitel utan uppgifter",
   "course-plans-course-status-no-unfilled": "Alla sidor har innehåll.",
   "course-plans-course-status-page-count_one": "{{count}} sida",

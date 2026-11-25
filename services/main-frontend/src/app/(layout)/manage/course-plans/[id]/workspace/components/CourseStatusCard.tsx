@@ -124,7 +124,9 @@ export default function CourseStatusCard(props: { status: CourseDesignerCourseSt
       </div>
       <div>
         <h5 className={subheadingStyles}>{t("course-plans-course-status-no-exercises-heading")}</h5>
-        {status.chapters_without_exercises.length === 0 ? (
+        {status.chapter_count === 0 ? (
+          <p className={mutedStyles}>{t("course-plans-course-status-no-chapters")}</p>
+        ) : status.chapters_without_exercises.length === 0 ? (
           <p className={mutedStyles}>{t("course-plans-course-status-all-have-exercises")}</p>
         ) : (
           <ul className={itemListStyles}>

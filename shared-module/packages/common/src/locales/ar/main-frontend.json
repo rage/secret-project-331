@@ -1006,6 +1006,7 @@
   "course-plans-course-status-draft": "مسودة",
   "course-plans-course-status-heading": "حالة الدورة",
   "course-plans-course-status-manage-course": "إدارة الدورة «{{name}}»",
+  "course-plans-course-status-no-chapters": "لا يحتوي المقرر على فصول بعد.",
   "course-plans-course-status-no-exercises-heading": "فصول بلا تمارين",
   "course-plans-course-status-no-unfilled": "كل الصفحات تحتوي على محتوى.",
   "course-plans-course-status-page-count_few": "{{count}} صفحات",

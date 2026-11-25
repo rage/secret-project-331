@@ -912,6 +912,7 @@
   "course-plans-course-status-draft": "Luonnos",
   "course-plans-course-status-heading": "Kurssin tila",
   "course-plans-course-status-manage-course": "Hallinnoi kurssia ”{{name}}”",
+  "course-plans-course-status-no-chapters": "Kurssilla ei ole vielä lukuja.",
   "course-plans-course-status-no-exercises-heading": "Luvut, joissa ei ole tehtäviä",
   "course-plans-course-status-no-unfilled": "Jokaisella sivulla on sisältöä.",
   "course-plans-course-status-page-count_one": "{{count}} sivu",

@@ -26,6 +26,9 @@ export function automaticTaskReason(
         : t("course-plans-task-reason-content-filled-open", { count })
     }
     case "ExercisesExist": {
+      if (courseStatus.chapter_count === 0) {
+        return t("course-plans-course-status-no-chapters")
+      }
       const count = courseStatus.chapters_without_exercises.length
       return count === 0
         ? t("course-plans-task-reason-exercises-done")

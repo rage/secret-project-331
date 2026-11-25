@@ -881,12 +881,13 @@ ORDER BY
     )
     .fetch_all(&mut *conn)
     .await?;
-    let mut course_statuses = std::collections::HashMap::new();
-    for plan in plans.iter().filter(|p| p.created_course_id.is_some()) {
-        if let Some(status) = course_designer_course_status::get_for_plan(conn, plan.id).await? {
-            course_statuses.insert(plan.id, status);
-        }
-    }
+    let plan_ids_with_course: Vec<Uuid> = plans
+        .iter()
+        .filter(|p| p.created_course_id.is_some())
+        .map(|p| p.id)
+        .collect();
+    let course_statuses =
+        course_designer_course_status::get_for_plans(conn, &plan_ids_with_course).await?;
 
     let mut support_plans: Vec<CourseDesignerSupportPlan> = plans
         .into_iter()

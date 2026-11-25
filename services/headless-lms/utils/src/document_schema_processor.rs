@@ -245,7 +245,7 @@ impl GutenbergBlock {
             attributes! {
                 "content": content,
                 "level": level,
-                "anchor": crate::strings::slugify(&strip_html_tags(content)),
+                "anchor": crate::strings::slugify(&crate::strings::decode_html_entities(&strip_html_tags(content))),
             },
         )
     }

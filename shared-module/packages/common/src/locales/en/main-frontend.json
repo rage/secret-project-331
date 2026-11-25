@@ -912,6 +912,7 @@
   "course-plans-course-status-draft": "Draft",
   "course-plans-course-status-heading": "Course status",
   "course-plans-course-status-manage-course": "Manage course “{{name}}”",
+  "course-plans-course-status-no-chapters": "The course has no chapters yet.",
   "course-plans-course-status-no-exercises-heading": "Chapters without exercises",
   "course-plans-course-status-no-unfilled": "Every page has content.",
   "course-plans-course-status-page-count_one": "{{count}} page",

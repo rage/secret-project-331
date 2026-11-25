@@ -215,6 +215,7 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
               </ChapterProgress>
             )}
             <NextSectionLink
+              key={currentPageId}
               {...nextPageProps}
               onPageReadChange={(checked) => updatePageReadStatusMutation.mutateAsync(checked)}
               isUpdatingPageReadStatus={updatePageReadStatusMutation.isPending}

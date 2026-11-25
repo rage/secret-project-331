@@ -101,7 +101,7 @@ pub async fn upsert_block_statuses(
     if !blocks.is_object() {
         return Err(model_err!(
             Json,
-            format!("Input must be a valid JSON object.")
+            ("Input must be a valid JSON object.").to_string()
         ));
     }
     let res = sqlx::query_as!(

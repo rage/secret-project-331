@@ -28,11 +28,12 @@ const Wrapper = styled.div`
   margin: 0 auto;
   padding: 1rem;
 `
-const Question = styled.span`
+const Question = styled.h4`
   font-size: 16px;
+  font-weight: 500;
   color: #215887;
   line-height: 1.4;
-  margin-bottom: 0.8rem;
+  margin: 0;
 `
 const IconContainer = styled.div`
   min-height: 100px;
@@ -104,8 +105,9 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
   return (
     <Wrapper>
       <Question>{questionLabel}</Question>
-      {/* role="img" makes this a leaf in the a11y tree so the decorative icon grid isn't exposed. */}
-      <IconContainer role="img" aria-label={`${questionLabel}. ${selectedAnswerText}`}>
+      {/* role="img" makes this a leaf in the a11y tree so the decorative icon grid isn't exposed.
+          The question is the heading above, so the label carries only the answer. */}
+      <IconContainer role="img" aria-label={selectedAnswerText}>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n + 1}>
             {<option.svg />}

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
@@ -50,6 +50,7 @@ const ErrorList = styled.ul`
 
 const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, port }) => {
   const { t } = useTranslation()
+  const [focusNewId, setFocusNewId] = useState<string | null>(null)
 
   // `validatePrivateSpec` is the single validity authority: its result drives both the `valid` flag
   // the host uses to gate saving AND the errors shown to the author below.
@@ -77,9 +78,11 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
           ))}
         </ErrorList>
       )}
-      {state.map((o) => (
+      {state.map((o, index) => (
         <ButtonEditor
           key={o.id}
+          index={index}
+          focusOnMount={o.id === focusNewId}
           item={o}
           onDelete={() => {
             const newState = state.filter((e) => e.id !== o.id)
@@ -100,7 +103,9 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
       ))}
       <NewButton
         onClick={() => {
-          const newState = [...state, { name: "", correct: false, id: generateUuid() }]
+          const newOption = { name: "", correct: false, id: generateUuid() }
+          const newState = [...state, newOption]
+          setFocusNewId(newOption.id)
           // oxlint-disable-next-line i18next/no-literal-string
           setState({ view_type: "exercise-editor", private_spec: newState })
         }}

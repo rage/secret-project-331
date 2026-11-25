@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE language_version_problem_dismissals\nSET deleted_at = now()\nWHERE course_language_group_id = $1\n  AND problem_key = $2\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "92db6a1f0ea686feda800768d7b9dd0dff09698fe9b0d5dff9675e5276a46064"
+}

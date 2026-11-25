@@ -48,6 +48,9 @@ type OwnedButtonDomKeys =
   | "iconPosition"
   | "isLoading"
   | "loadingLabel"
+  | "autoFocus"
+  | "disabledReason"
+  | "isFullWidth"
 
 export type ButtonDomProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, OwnedButtonDomKeys>
 
@@ -58,11 +61,20 @@ export type ButtonProps = PressHandlers & {
   iconPosition?: IconPosition
   isLoading?: boolean
   loadingLabel?: string
+  /** Stretches the button across its container. Ignored by the `link` variant. */
+  isFullWidth?: boolean
   disabled?: boolean
+  /**
+   * Disables the button but keeps it focusable (aria-disabled), with this reason as its
+   * description, so keyboard and screen reader users can find out why.
+   */
+  disabledReason?: string | undefined
   type?: "button" | "submit" | "reset"
   name?: string
   value?: string | number | readonly string[]
   formAction?: string
+  /** Focuses the button on mount, before an enclosing dialog's own initial focus. */
+  autoFocus?: boolean
   /**
    * An alternative to onPress. onPress is preferred, as it works better for
    * non-mouse interactions, but using onClick is required when using our
@@ -95,7 +107,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       iconPosition = "start",
       isLoading = false,
       loadingLabel: loadingLabelProp,
+      isFullWidth = false,
       disabled = false,
+      disabledReason,
       children,
       onPress,
       onPressStart,
@@ -106,6 +120,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       "aria-labelledby": ariaLabelledByProp,
       "aria-label": ariaLabelProp,
       formAction,
+      autoFocus,
       onClick,
       onPointerDown,
       onPointerUp,
@@ -124,12 +139,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const loadingLabel = loadingLabelProp ?? t("button.loading")
 
     const isDisabled = disabled || isLoading
+    const hasDisabledReason = !isDisabled && Boolean(disabledReason)
 
     const loadingDescId = React.useId()
+    const disabledReasonId = React.useId()
     const labelId = React.useId()
     const describedBy = joinAriaDescribedBy(
       ariaDescribedByProp,
       isLoading ? loadingDescId : undefined,
+      hasDisabledReason ? disabledReasonId : undefined,
     )
     const userAriaLabel = ariaLabelProp
     const userLabelledBy = ariaLabelledByProp
@@ -140,31 +158,42 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const ariaOptions: AriaButtonOptions<"button"> = {
       isDisabled,
       ...omitUndefined({
-        onPress,
-        onClick,
-        onPressStart,
-        onPressEnd,
-        onPressChange,
-        onPressUp,
+        ...(hasDisabledReason
+          ? {}
+          : { onPress, onClick, onPressStart, onPressEnd, onPressChange, onPressUp }),
         "aria-label": userAriaLabel,
         "aria-describedby": describedBy,
         "aria-labelledby": labelledBy,
+        autoFocus,
       }),
     }
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)
 
-    const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
+    const rootClassName = cx(resolveButtonRootCss({ size, variant, isFullWidth }), className)
 
-    const mergedButtonProps = mergeProps(buttonProps, domProps ?? {}, {
-      onPointerDown,
-      onPointerUp,
-      onPointerCancel,
-      onKeyDown,
-      onKeyUp,
-      onFocus,
-      onBlur,
-    } satisfies React.ButtonHTMLAttributes<HTMLButtonElement>)
+    const disabledReasonProps: React.ButtonHTMLAttributes<HTMLButtonElement> = hasDisabledReason
+      ? {
+          "aria-disabled": true,
+          // Keeps a submit button from submitting its form.
+          onClick: (e) => e.preventDefault(),
+        }
+      : {}
+
+    const mergedButtonProps = mergeProps(
+      buttonProps,
+      domProps ?? {},
+      {
+        onPointerDown,
+        onPointerUp,
+        onPointerCancel,
+        onKeyDown,
+        onKeyUp,
+        onFocus,
+        onBlur,
+      } satisfies React.ButtonHTMLAttributes<HTMLButtonElement>,
+      disabledReasonProps,
+    )
 
     return (
       <button
@@ -172,7 +201,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={rootClassName}
         data-pressed={isPressed ? "true" : "false"}
-        data-disabled-reason={isLoading ? "loading" : isDisabled ? "disabled" : undefined}
+        data-disabled-reason={
+          isLoading ? "loading" : isDisabled || hasDisabledReason ? "disabled" : undefined
+        }
         data-testid={dataTestId}
         aria-busy={isLoading ? "true" : undefined}
         formAction={formAction}
@@ -193,6 +224,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             </span>
             <VisuallyHidden id={loadingDescId}>{loadingLabel}</VisuallyHidden>
           </>
+        ) : null}
+        {hasDisabledReason ? (
+          <VisuallyHidden id={disabledReasonId}>{disabledReason}</VisuallyHidden>
         ) : null}
       </button>
     )

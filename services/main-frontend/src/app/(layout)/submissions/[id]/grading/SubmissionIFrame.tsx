@@ -10,6 +10,7 @@ import {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import {
   exerciseTaskGradingToExerciseTaskGradingResult,
@@ -17,10 +18,7 @@ import {
 } from "@/shared-module/common/utils/typeMappter"
 import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
-import {
-  EXERCISE_IFRAME_QUEUE_CONFIG,
-  EXERCISE_IFRAME_QUEUE_ID,
-} from "@/stores/course-material/throttledRendererStore"
+import { EXERCISE_IFRAME_QUEUE_ID } from "@/stores/course-material/throttledRendererStore"
 
 const VIEW_SUBMISSION = "view-submission" as const
 const TITLE = "VIEW SUBMISSION"
@@ -30,6 +28,8 @@ interface SubmissionIFrameProps {
   throttled?: boolean
   /** `false` for an ungraded answer snapshot, which has no grading to show. */
   isGraded?: boolean
+  /** Accessible name of the frame, e.g. "Answer by <student>". */
+  title?: string
 }
 
 interface SubmissionState {
@@ -42,6 +42,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   coursematerialExerciseTask,
   throttled = false,
   isGraded = true,
+  title = TITLE,
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
@@ -100,6 +101,12 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   }, [state, previousSubmission, coursematerialExerciseTask, loginStateContext.signedIn])
 
   const url = `${coursematerialExerciseTask.exercise_iframe_url ?? ""}`
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url,
+    exerciseServiceSlug: coursematerialExerciseTask.exercise_service_slug,
+    viewType: VIEW_SUBMISSION,
+    exerciseTaskId: coursematerialExerciseTask.id,
+  })
 
   const throttledChildFactory = useCallback<ChildFactoryWithCallback>(
     (onReady) => (
@@ -108,11 +115,12 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         url={url}
         onMessageFromIframe={handleMessageFromIframe}
         postThisStateToIFrame={postThisStateToIFrame}
-        title={TITLE}
+        title={title}
         onReady={onReady}
+        {...failureReportHandlers}
       />
     ),
-    [url, handleMessageFromIframe, postThisStateToIFrame, dialog],
+    [url, handleMessageFromIframe, postThisStateToIFrame, dialog, title, failureReportHandlers],
   )
 
   if (missingUrl) {
@@ -134,7 +142,6 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       <ThrottledChildRenderer
         qid={EXERCISE_IFRAME_QUEUE_ID}
         id={`submission-iframe-${coursematerialExerciseTask.id}`}
-        queueConfig={EXERCISE_IFRAME_QUEUE_CONFIG}
       >
         {throttledChildFactory}
       </ThrottledChildRenderer>
@@ -147,7 +154,8 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
       url={url}
       onMessageFromIframe={handleMessageFromIframe}
       postThisStateToIFrame={postThisStateToIFrame}
-      title={TITLE}
+      title={title}
+      {...failureReportHandlers}
     />
   )
 }

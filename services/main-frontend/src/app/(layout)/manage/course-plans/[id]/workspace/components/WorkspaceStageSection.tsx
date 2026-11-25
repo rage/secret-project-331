@@ -15,10 +15,11 @@ import {
 import type { CourseDesignerPlanStageWithTasks } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, TextField } from "@/shared-module/components"
+import { announceAfterFocus } from "@/shared-module/common/utils/announceAfterFocus"
+import { Button, TextField, useFocusAfterRemoval } from "@/shared-module/components"
 
 import { formatPlanDateRange } from "../../../coursePlanDates"
-import WorkspaceTaskRow, { type TaskChanges } from "./WorkspaceTaskRow"
+import WorkspaceTaskRow, { taskHeadingId, type TaskChanges } from "./WorkspaceTaskRow"
 
 const cardStyles = css`
   background: white;
@@ -178,6 +179,7 @@ export default function WorkspaceStageSection({
   const {
     control: newTaskControl,
     setValue: setNewTaskValue,
+    setFocus: setNewTaskFocus,
     watch: watchNewTask,
   } = useForm<{
     newTaskTitle: string
@@ -234,10 +236,29 @@ export default function WorkspaceStageSection({
     }
   }
 
+  // After a delete, focus the task now at the deleted one's position, else the new-task field.
+  const { containerRef: taskListRef, remember } = useFocusAfterRemoval<HTMLUListElement>(
+    stage.tasks,
+    () => setNewTaskFocus(NEW_TASK_FIELD_NAME),
+  )
+
   const deleteMutation = useToastMutationOptions(
     deleteCourseDesignerStageTaskMutation(),
     { notify: true, method: "DELETE" },
-    { onSuccess: onInvalidate },
+    {
+      onSuccess: (_data, variables) => {
+        const deleted = stage.tasks.find((task) => task.id === variables.path.task_id)
+        // Announced after the focus move, which would otherwise cut it.
+        remember(taskHeadingId(variables.path.task_id), () =>
+          announceAfterFocus(
+            t("course-plans-task-deleted", {
+              task: deleted?.title ?? "",
+            }),
+          ),
+        )
+        onInvalidate()
+      },
+    },
   )
 
   const handleAddTask = () => {
@@ -337,7 +358,7 @@ export default function WorkspaceStageSection({
           </Button>
         </form>
       )}
-      <ul className={taskListStyles}>
+      <ul className={taskListStyles} ref={taskListRef}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>
         ) : (

@@ -629,6 +629,16 @@ export const zAgentPreviewLink = z.object({
   preview_path: z.string(),
 })
 
+/**
+ * Whether AI picks went into the suggestions.
+ */
+export const zAiSuggestionStatus = z.enum([
+  "not_requested",
+  "used",
+  "partly_unavailable",
+  "unavailable",
+])
+
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
 
 /**
@@ -778,6 +788,27 @@ export const zCertificateGenerationRequest = z.object({
   certificate_configuration_id: z.uuid(),
   grade: z.string().nullish(),
   name_on_certificate: z.string(),
+})
+
+export const zCertificateGrade = z.object({
+  grade: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  passed: z.boolean(),
+})
+
+/**
+ * The text a certificate image shows, for readers who cannot see the image.
+ */
+export const zCertificateDetails = z.object({
+  completion_date: z.iso.datetime(),
+  course_module_name: z.string().nullish(),
+  course_name: z.string(),
+  grade: zCertificateGrade.nullish(),
+  name_on_certificate: z.string(),
+  verification_id: z.string(),
 })
 
 export const zCertificateGridRow = z.object({
@@ -1031,6 +1062,7 @@ export const zCmsPageExerciseTask = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
   private_spec_files: z.array(z.uuid()).optional(),
+  repository_exercise_id: z.uuid().nullish(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -1240,6 +1272,49 @@ export const zCountResult = z.object({
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
   period: z.iso.datetime().nullish(),
+})
+
+/**
+ * One change to page or exercise links.
+ */
+export const zCounterpartLinkChange = z.union([
+  z.object({
+    action: z.enum(["link"]),
+    ids: z.array(z.uuid()),
+  }),
+  z.object({
+    action: z.enum(["unlink"]),
+    id: z.uuid(),
+  }),
+])
+
+/**
+ * Body of POST /page-links and /exercise-links. Applied in one transaction, in order.
+ */
+export const zCounterpartLinksRequest = z.object({
+  changes: z.array(zCounterpartLinkChange),
+})
+
+/**
+ * What POST /page-links or /exercise-links changed.
+ */
+export const zCounterpartLinksResult = z.object({
+  linked_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  unlinked_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 /**
@@ -1726,6 +1801,15 @@ export const zCourseInstanceForm = z.object({
   teacher_in_charge_name: z.string(),
 })
 
+/**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export const zCourseModelSolutionSettings = z.object({
+  reveal_after_deadline: z.boolean(),
+  reveal_at: z.iso.datetime().nullish(),
+})
+
 export const zCourseModuleCompletion = z.object({
   completion_date: z.iso.datetime(),
   completion_granter_user_id: z.uuid().nullish(),
@@ -1868,6 +1952,17 @@ export const zCreateChatbotRequest = z.object({
   name: z.string(),
   purpose: z.string(),
   skip_azure_stuff: z.boolean(),
+})
+
+/**
+ * Body of POST /counterparts: copies a page into another language version and links the copy.
+ */
+export const zCreateCounterpartRequest = z.object({
+  insert_after_page_id: z.uuid().nullish(),
+  source_page_id: z.uuid(),
+  target_chapter_id: z.uuid().nullish(),
+  target_course_id: z.uuid(),
+  title: z.string(),
 })
 
 export const zCreateCourseDesignerPlanRequest = z.object({
@@ -3085,6 +3180,7 @@ export const zEditProposalInfo = z.object({
 })
 
 export const zEmailData = z.object({
+  altcha: z.string(),
   email: z.string(),
   language: z.string(),
 })
@@ -3678,6 +3774,16 @@ export const zExercise = z.object({
   use_course_default_peer_or_self_review_config: z.boolean(),
 })
 
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export const zExerciseAnswerShare = z.object({
+  created_at: z.iso.datetime(),
+  is_graded: z.boolean(),
+  share_id: z.uuid(),
+  user_id: z.uuid(),
+})
+
 export const zExerciseAnswersInCourseRequiringAttentionCount = z.object({
   chapter_id: z.uuid().nullish(),
   count: z
@@ -3692,6 +3798,14 @@ export const zExerciseAnswersInCourseRequiringAttentionCount = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   page_id: z.uuid(),
+})
+
+/**
+ * Which exercises of this course lack counterparts (GET /exercise-counterparts).
+ */
+export const zExerciseCounterparts = z.object({
+  language_codes: z.array(z.string()),
+  missing_language_codes_by_exercise_id: z.record(z.string(), z.array(z.string())),
 })
 
 export const zExerciseCsvExportTaskOption = z.object({
@@ -3717,16 +3831,10 @@ export const zExerciseFieldOwner = z.object({
 
 export const zExerciseRepositoryStatus = z.enum(["Pending", "Success", "Failure"])
 
-export const zExerciseRepository = z.object({
-  course_id: z.uuid().nullish(),
-  error_message: z.string().nullish(),
-  exam_id: z.uuid().nullish(),
-  id: z.uuid(),
-  status: zExerciseRepositoryStatus,
-  url: z.string(),
-})
-
 export const zExerciseRepositoryUpdate = z.object({
+  branch: z.string().nullish(),
+  deploy_key: z.string().nullish(),
+  public_key: z.string().nullish(),
   url: z.string(),
 })
 
@@ -3928,6 +4036,15 @@ export const zExternalGrading = z.enum(["pass_fail", "numeric"])
  * How querying an external platform for the user's courses went.
  */
 export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
+
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export const zFailedExerciseTaskRefresh = z.object({
+  error: z.string(),
+  exercise_task_id: z.uuid(),
+  repository_exercise: z.string(),
+})
 
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
@@ -4157,8 +4274,211 @@ export const zJobInfo = z.object({
     .nullish(),
 })
 
+/**
+ * Why a course can't join the language versions.
+ */
+export const zJoinBlockedReason = z.enum(["already_language_version", "language_already_present"])
+
+/**
+ * Why a course looks like a translation of this course.
+ */
+export const zJoinCandidateReason = z.enum([
+  "copied_from_this_course",
+  "copied_from_same_course",
+  "same_chapter_and_page_counts",
+  "same_teachers",
+  "created_on_same_day",
+  "similar_name",
+])
+
 export const zJoinCourseWithJoinCodePayload = z.object({
   join_code: z.string(),
+})
+
+/**
+ * Body of POST /join.
+ */
+export const zJoinLanguageVersionRequest = z.object({
+  course_id: z.uuid(),
+  expected_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
+ * A chapter of one language version. Chapters have no link of their own; they correspond by number.
+ */
+export const zLanguageVersionChapter = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_id: z.uuid(),
+  id: z.uuid(),
+  name: z.string(),
+  page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
+ * A course in, or a candidate for, a course language group, with the counts the tool shows.
+ */
+export const zLanguageVersionCourse = z.object({
+  can_edit: z.boolean(),
+  chapter_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  course_language_group_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  id: z.uuid(),
+  is_draft: z.boolean(),
+  language_code: z.string(),
+  name: z.string(),
+  page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  slug: z.string(),
+  student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    })
+    .nullish(),
+})
+
+/**
+ * A course that could join this course's language versions (GET /join-candidates).
+ */
+export const zJoinCandidate = z.object({
+  blocked_reason: zJoinBlockedReason.nullish(),
+  course: zLanguageVersionCourse,
+  reasons: z.array(zJoinCandidateReason),
+})
+
+/**
+ * An exercise as the tool shows and matches it. Deleted exercises appear only in leftover links.
+ */
+export const zLanguageVersionExercise = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_id: z.uuid(),
+  exercise_language_group_id: z.uuid().nullish(),
+  exercise_types: z.array(z.string()),
+  id: z.uuid(),
+  is_deleted: z.boolean(),
+  language_code: z.string(),
+  name: z.string(),
+  page_id: z.uuid(),
+  page_title: z.string(),
+  position: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * A page as the tool shows and matches it. Deleted pages appear only in leftover links.
+ */
+export const zLanguageVersionPage = z.object({
+  chapter_id: z.uuid().nullish(),
+  chapter_name: z.string().nullish(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_id: z.uuid(),
+  exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  id: z.uuid(),
+  is_chapter_front_page: z.boolean(),
+  is_deleted: z.boolean(),
+  language_code: z.string(),
+  page_language_group_id: z.uuid().nullish(),
+  position: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+export const zCreateCounterpartResult = z.object({
+  copied_exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  page: zLanguageVersionPage,
+})
+
+/**
+ * How urgent a problem is; the report groups problems by this.
+ */
+export const zLanguageVersionProblemSeverity = z.enum([
+  "affects_students",
+  "should_fix",
+  "check_intended",
+])
+
+/**
+ * A live exercise still linked to a deleted exercise.
+ */
+export const zLeftoverExerciseLink = z.object({
+  deleted_exercise: zLanguageVersionExercise,
+  exercise: zLanguageVersionExercise,
+})
+
+/**
+ * A live page still linked to a deleted page.
+ */
+export const zLeftoverPageLink = z.object({
+  deleted_page: zLanguageVersionPage,
+  page: zLanguageVersionPage,
 })
 
 /**
@@ -4212,6 +4532,14 @@ export const zLinkedExam = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
   starts_at: z.iso.datetime().nullish(),
+})
+
+/**
+ * Two linked pages.
+ */
+export const zLinkedPagePair = z.object({
+  counterpart: zLanguageVersionPage,
+  page: zLanguageVersionPage,
 })
 
 /**
@@ -4403,6 +4731,19 @@ export const zChatbotConversationMessageMessage = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
+ * Chapter numbers a language version lacks.
+ */
+export const zMissingChapterNumbers = z.object({
+  chapter_numbers: z.array(
+    z
+      .int()
+      .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+      .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  ),
+  course_id: z.uuid(),
 })
 
 export const zModelType = z.enum(["GPTThinking", "GPTNonThinking", "GPTHardThinking", "Mistral"])
@@ -4742,11 +5083,12 @@ export const zNewExam = z.object({
 })
 
 export const zNewExerciseRepository = z.object({
+  branch: z.string().nullish(),
   course_id: z.uuid().nullish(),
   deploy_key: z.string().nullish(),
   exam_id: z.uuid().nullish(),
-  git_url: z.string(),
   public_key: z.string().nullish(),
+  url: z.string(),
 })
 
 export const zNewExternalCourse = z.object({
@@ -4782,6 +5124,14 @@ export const zModuleUpdates = z.object({
   modified_modules: z.array(zModifiedModule),
   moved_chapters: z.array(z.tuple([z.uuid(), z.uuid()])),
   new_modules: z.array(zNewModule),
+})
+
+/**
+ * Body of POST /dismissals: marks a problem, as reported, as intended.
+ */
+export const zNewProblemDismissal = z.object({
+  fingerprint: z.string(),
+  problem_key: z.string(),
 })
 
 export const zNewRegradingIdType = z.enum(["ExerciseTaskSubmissionId", "ExerciseId"])
@@ -4931,6 +5281,17 @@ export const zPageInfo = z.object({
   organization_slug: z.string().nullish(),
   page_id: z.uuid(),
   page_title: z.string(),
+})
+
+/**
+ * A page whose position differs from its counterparts' position.
+ */
+export const zPagePositionDifference = z.object({
+  page: zLanguageVersionPage,
+  reference_position: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zPageVisitDatumSummaryByCourse = z.object({
@@ -5510,6 +5871,16 @@ export const zPagePreview = z.object({
   references: z.array(zPreviewReference),
 })
 
+/**
+ * A problem the teacher marked as intended.
+ */
+export const zProblemDismissal = z.object({
+  created_at: z.iso.datetime(),
+  created_by: z.uuid(),
+  fingerprint: z.string(),
+  problem_key: z.string(),
+})
+
 export const zProposalStatus = z.enum(["Pending", "Accepted", "Rejected"])
 
 export const zEditedBlockNoLongerExistsData = z.object({
@@ -5760,6 +6131,75 @@ export const zRegradingSubmissionInfo = z.object({
   grading_before_regrading: zExerciseTaskGrading,
 })
 
+/**
+ * Body of POST /remove-leftover-links: the deleted pages and exercises whose links to remove.
+ */
+export const zRemoveLeftoverLinksRequest = z.object({
+  deleted_exercise_ids: z.array(z.uuid()),
+  deleted_page_ids: z.array(z.uuid()),
+})
+
+export const zRemoveLeftoverLinksResult = z.object({
+  removed_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+export const zRenamedRepositoryExercise = z.object({
+  from: z.string(),
+  to: z.string(),
+})
+
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export const zExerciseRepositorySyncReport = z.object({
+  added: z.array(z.string()),
+  failed_exercise_tasks: z.array(zFailedExerciseTaskRefresh),
+  missing_but_in_use: z.array(z.string()),
+  refreshed_exercise_task_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  removed: z.array(z.string()),
+  renamed: z.array(zRenamedRepositoryExercise),
+  updated: z.array(z.string()),
+})
+
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
+export const zExerciseRepository = z.object({
+  branch: z.string().nullish(),
+  course_id: z.uuid().nullish(),
+  error_message: z.string().nullish(),
+  exam_id: z.uuid().nullish(),
+  exercise_task_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  has_deploy_key: z.boolean(),
+  id: z.uuid(),
+  last_sync_report: zExerciseRepositorySyncReport.nullish(),
+  last_synced_at: z.iso.datetime().nullish(),
+  public_key: z.string().nullish(),
+  status: zExerciseRepositoryStatus,
+  sync_attempts: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string(),
+})
+
 export const zReportReason = z.enum(["Spam", "HarmfulContent", "AiGenerated"])
 
 export const zFlaggedAnswer = z.object({
@@ -5813,6 +6253,7 @@ export const zRequestEmailVerificationOutcome = z.enum([
   "queued",
   "already_verified",
   "recently_sent",
+  "daily_limit_reached",
 ])
 
 export const zRequestEmailVerificationPayload = z.object({
@@ -6508,6 +6949,41 @@ export const zSisuDescriptionResponse = z.object({
   modules: z.array(zModule),
 })
 
+/**
+ * Body of POST /split.
+ */
+export const zSplitLanguageVersionRequest = z.object({
+  course_id: z.uuid(),
+  expected_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+export const zSplitLanguageVersionResult = z.object({
+  course_language_group_id: z.uuid(),
+  unlinked_exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  unlinked_page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
 export const zStreamEventError = z.object({
   details: z.string().nullish(),
   message: z.string(),
@@ -6557,6 +7033,97 @@ export const zChatbotChatStreamEvent = z.union([
 ])
 
 /**
+ * An exercise in the structure comparison.
+ */
+export const zStructureExercise = z.object({
+  exercise: zLanguageVersionExercise,
+  is_on_other_page: z.boolean(),
+})
+
+/**
+ * Linked exercises, at most one per language version.
+ */
+export const zStructureExerciseRow = z.object({
+  exercises: z.array(zStructureExercise),
+})
+
+/**
+ * Something the structure comparison highlights on a page.
+ */
+export const zStructureNote = z.union([
+  z.object({
+    kind: z.enum(["different_position"]),
+    reference_position: z
+      .int()
+      .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+      .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  }),
+  z.object({
+    kind: z.enum(["in_other_chapter_number"]),
+    reference_chapter_number: z
+      .int()
+      .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+      .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  }),
+  z.object({
+    kind: z.enum(["duplicate_in_group"]),
+    other_page_id: z.uuid(),
+  }),
+  z.object({
+    kind: z.enum(["foreign_course_link"]),
+  }),
+  z.object({
+    exercise_count: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    kind: z.enum(["exercises_on_other_page"]),
+  }),
+])
+
+/**
+ * A page in the structure comparison.
+ */
+export const zStructurePage = z.object({
+  notes: z.array(zStructureNote),
+  page: zLanguageVersionPage,
+})
+
+/**
+ * Linked pages, at most one per language version. A course without a page here has none.
+ */
+export const zStructurePageRow = z.object({
+  exercise_rows: z.array(zStructureExerciseRow),
+  pages: z.array(zStructurePage),
+})
+
+/**
+ * One chapter number across the language versions.
+ */
+export const zStructureChapterRow = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  chapters: z.array(zLanguageVersionChapter),
+  rows: z.array(zStructurePageRow),
+})
+
+/**
+ * The language versions side by side, chapters matched by number and pages by their links
+ * (GET /structure).
+ */
+export const zLanguageVersionStructure = z.object({
+  chapters: z.array(zStructureChapterRow),
+  courses: z.array(zLanguageVersionCourse),
+})
+
+/**
  * How long a row may sit in one state before it counts as stuck. Seconds, per state.
  *
  * Also the wire payload the health endpoint reports as thresholds: field names are the
@@ -6601,6 +7168,122 @@ export const zCreditRegistrationHealth = z.object({
   alerts: z.array(zCreditRegistrationAlert),
   status: zHealthStatus,
   thresholds: zStuckThresholds,
+})
+
+/**
+ * Kinds of per-course-group student data that join and split move.
+ */
+export const zStudentDataKind = z.enum([
+  "enrolment_settings",
+  "hidden_from_my_courses",
+  "completions",
+  "marketing_consents",
+  "ai_notice_acknowledgements",
+  "mailing_list_access_tokens",
+  "mailchimp_tags",
+])
+
+export const zStudentDataCount = z.object({
+  count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  kind: zStudentDataKind,
+})
+
+/**
+ * What joining a course into this course's language versions would change
+ * (GET /join-preview/{joined_course_id}). Changes nothing.
+ */
+export const zJoinLanguageVersionPreview = z.object({
+  blocked_reason: zJoinBlockedReason.nullish(),
+  course: zLanguageVersionCourse,
+  expected_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  language_versions: z.array(zLanguageVersionCourse),
+  left_language_versions: z.array(zLanguageVersionCourse),
+  moved_data: z.array(zStudentDataCount),
+  students_in_both_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  unlinked_exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  unlinked_page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+export const zJoinLanguageVersionResult = z.object({
+  course_language_group_id: z.uuid(),
+  moved_data: z.array(zStudentDataCount),
+  removed_enrolment_settings_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
+ * What removing a course from the language versions would change
+ * (GET /split-preview/{split_course_id}). Changes nothing.
+ */
+export const zSplitLanguageVersionPreview = z.object({
+  course: zLanguageVersionCourse,
+  expected_student_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  moved_data: z.array(zStudentDataCount),
+  remaining_courses: z.array(zLanguageVersionCourse),
+  unlinked_exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  unlinked_page_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
 })
 
 /**
@@ -6900,6 +7583,194 @@ export const zStudyRegistryStudentNumberConflict = z.object({
   reported_student_number: z.string(),
   user_email: z.string().nullish(),
   user_id: z.uuid(),
+})
+
+/**
+ * Why the tool suggests a counterpart.
+ */
+export const zSuggestionReason = z.enum([
+  "already_linked",
+  "copy_history",
+  "same_position_and_exercise_count",
+  "same_position",
+  "same_position_and_exercise_types",
+  "ai",
+  "ai_and_position",
+])
+
+/**
+ * What is wrong, with the rows the fix dialog shows.
+ */
+export const zLanguageVersionProblemKind = z.union([
+  z.object({
+    counterpart_course_id: z.uuid(),
+    course_id: z.uuid(),
+    kind: z.enum(["missing_page_counterpart"]),
+    pages: z.array(zLanguageVersionPage),
+  }),
+  z.object({
+    course_id: z.uuid(),
+    kind: z.enum(["duplicate_pages_in_group"]),
+    linked_pages: z.array(zLanguageVersionPage),
+    pages: z.array(zLanguageVersionPage),
+    suggested_page_id: z.uuid().nullish(),
+    suggestion_reason: zSuggestionReason.nullish(),
+  }),
+  z.object({
+    foreign_course_name: z.string(),
+    foreign_page: zLanguageVersionPage,
+    kind: z.enum(["foreign_course_link"]),
+    linked_pages: z.array(zLanguageVersionPage),
+    page: zLanguageVersionPage,
+  }),
+  z.object({
+    counterpart: zLanguageVersionExercise,
+    exercise: zLanguageVersionExercise,
+    expected_page: zLanguageVersionPage.nullish(),
+    kind: z.enum(["exercise_counterpart_on_other_page"]),
+  }),
+  z.object({
+    course_id: z.uuid(),
+    exercise_count: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+    kind: z.enum(["unlinked_exercises"]),
+    suggestion_count: z.coerce
+      .bigint()
+      .min(BigInt("-9223372036854775808"), {
+        error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+      })
+      .max(BigInt("9223372036854775807"), {
+        error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+      }),
+  }),
+  z.object({
+    exercises: z.array(zLeftoverExerciseLink),
+    kind: z.enum(["leftover_links"]),
+    pages: z.array(zLeftoverPageLink),
+  }),
+  z.object({
+    course_id: z.uuid(),
+    exercises: z.array(zLanguageVersionExercise),
+    kind: z.enum(["duplicate_exercises_in_group"]),
+    linked_exercises: z.array(zLanguageVersionExercise),
+  }),
+  z.object({
+    candidates: z.array(zJoinCandidate),
+    kind: z.enum(["likely_separate_language_versions"]),
+  }),
+  z.object({
+    chapter_name: z.string(),
+    chapter_number: z
+      .int()
+      .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+      .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+    course_id: z.uuid(),
+    kind: z.enum(["page_order_differs"]),
+    pages: z.array(zPagePositionDifference),
+  }),
+  z.object({
+    kind: z.enum(["chapter_count_differs"]),
+    missing_chapters: z.array(zMissingChapterNumbers),
+  }),
+  z.object({
+    counterpart_course_id: z.uuid(),
+    course_id: z.uuid(),
+    kind: z.enum(["page_in_other_chapter_number"]),
+    pages: z.array(zLinkedPagePair),
+  }),
+  z.object({
+    counterpart_course_id: z.uuid(),
+    course_id: z.uuid(),
+    exercises: z.array(zLanguageVersionExercise),
+    kind: z.enum(["missing_exercise_counterparts"]),
+  }),
+])
+
+/**
+ * One detected problem in a course language group.
+ */
+export const zLanguageVersionProblem = z.object({
+  dismissal: zProblemDismissal.nullish(),
+  fingerprint: z.string(),
+  key: z.string(),
+  kind: zLanguageVersionProblemKind,
+  severity: zLanguageVersionProblemSeverity,
+})
+
+/**
+ * The result of checking a course language group (GET /report).
+ */
+export const zLanguageVersionReport = z.object({
+  can_edit_all_courses: z.boolean(),
+  checked_at: z.iso.datetime(),
+  course_language_group_id: z.uuid(),
+  courses: z.array(zLanguageVersionCourse),
+  courses_with_open_agent_changesets: z.array(z.uuid()),
+  problems: z.array(zLanguageVersionProblem),
+})
+
+/**
+ * How sure a suggestion is.
+ */
+export const zSuggestionSureness = z.enum(["very_sure", "likely", "unsure", "ai_suggestion"])
+
+/**
+ * The current or suggested counterpart of an exercise in one course.
+ */
+export const zSuggestedExerciseCounterpart = z.object({
+  alternatives: z.array(zLanguageVersionExercise),
+  course_id: z.uuid(),
+  exercise: zLanguageVersionExercise.nullish(),
+  is_linked: z.boolean(),
+  is_on_other_page: z.boolean(),
+  reason: zSuggestionReason.nullish(),
+  sureness: zSuggestionSureness.nullish(),
+})
+
+/**
+ * An exercise of this course and its counterpart in each other course.
+ */
+export const zExerciseLinkSuggestion = z.object({
+  counterparts: z.array(zSuggestedExerciseCounterpart),
+  reference: zLanguageVersionExercise,
+})
+
+/**
+ * The current or suggested counterpart of a page in one course.
+ */
+export const zSuggestedPageCounterpart = z.object({
+  alternatives: z.array(zLanguageVersionPage),
+  course_id: z.uuid(),
+  is_linked: z.boolean(),
+  page: zLanguageVersionPage.nullish(),
+  reason: zSuggestionReason.nullish(),
+  sureness: zSuggestionSureness.nullish(),
+})
+
+/**
+ * A page of this course and its counterpart in each other course.
+ */
+export const zPageLinkSuggestion = z.object({
+  counterparts: z.array(zSuggestedPageCounterpart),
+  reference: zLanguageVersionPage,
+})
+
+/**
+ * Suggested counterparts for this course's pages and exercises (GET /suggestions).
+ */
+export const zLinkSuggestions = z.object({
+  ai_status: zAiSuggestionStatus,
+  courses: z.array(zLanguageVersionCourse),
+  exercises: z.array(zExerciseLinkSuggestion),
+  pages: z.array(zPageLinkSuggestion),
+  unmatched_exercises: z.array(zLanguageVersionExercise),
+  unmatched_pages: z.array(zLanguageVersionPage),
 })
 
 /**
@@ -9026,6 +9897,15 @@ export const zGetCertificateByVerificationIdQuery = z.object({
   test_certificate_configuration_id: z.uuid().optional(),
 })
 
+export const zGetCertificateDetailsByVerificationIdPath = z.object({
+  certificate_verification_id: z.string(),
+})
+
+/**
+ * Certificate details
+ */
+export const zGetCertificateDetailsByVerificationIdResponse = zCertificateDetails
+
 export const zCreateChapterBody = zNewChapter
 
 /**
@@ -10243,6 +11123,169 @@ export const zGetCourseLanguageVersionsPath = z.object({
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse)
 
+export const zPostLanguageVersionCounterpartBody = zCreateCounterpartRequest
+
+export const zPostLanguageVersionCounterpartPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Counterpart created and linked
+ */
+export const zPostLanguageVersionCounterpartResponse = zCreateCounterpartResult
+
+export const zDeleteLanguageVersionProblemDismissalPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zDeleteLanguageVersionProblemDismissalQuery = z.object({
+  problem_key: z.string(),
+})
+
+export const zPostLanguageVersionProblemDismissalBody = zNewProblemDismissal
+
+export const zPostLanguageVersionProblemDismissalPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Problem marked as intended
+ */
+export const zPostLanguageVersionProblemDismissalResponse = zProblemDismissal
+
+export const zGetLanguageVersionExerciseCounterpartsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Missing exercise counterparts
+ */
+export const zGetLanguageVersionExerciseCounterpartsResponse = zExerciseCounterparts
+
+export const zPostLanguageVersionExerciseLinksBody = zCounterpartLinksRequest
+
+export const zPostLanguageVersionExerciseLinksPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Links changed
+ */
+export const zPostLanguageVersionExerciseLinksResponse = zCounterpartLinksResult
+
+export const zPostLanguageVersionJoinBody = zJoinLanguageVersionRequest
+
+export const zPostLanguageVersionJoinPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course joined
+ */
+export const zPostLanguageVersionJoinResponse = zJoinLanguageVersionResult
+
+export const zGetLanguageVersionJoinCandidatesPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zGetLanguageVersionJoinCandidatesQuery = z.object({
+  search: z.string().optional(),
+})
+
+/**
+ * Join candidates
+ */
+export const zGetLanguageVersionJoinCandidatesResponse = z.array(zJoinCandidate)
+
+export const zGetLanguageVersionJoinPreviewPath = z.object({
+  course_id: z.uuid(),
+  joined_course_id: z.uuid(),
+})
+
+/**
+ * Join preview
+ */
+export const zGetLanguageVersionJoinPreviewResponse = zJoinLanguageVersionPreview
+
+export const zPostLanguageVersionPageLinksBody = zCounterpartLinksRequest
+
+export const zPostLanguageVersionPageLinksPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Links changed
+ */
+export const zPostLanguageVersionPageLinksResponse = zCounterpartLinksResult
+
+export const zPostLanguageVersionRemoveLeftoverLinksBody = zRemoveLeftoverLinksRequest
+
+export const zPostLanguageVersionRemoveLeftoverLinksPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Leftover links removed
+ */
+export const zPostLanguageVersionRemoveLeftoverLinksResponse = zRemoveLeftoverLinksResult
+
+export const zGetLanguageVersionReportPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Problems found in the language versions
+ */
+export const zGetLanguageVersionReportResponse = zLanguageVersionReport
+
+export const zPostLanguageVersionSplitBody = zSplitLanguageVersionRequest
+
+export const zPostLanguageVersionSplitPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course split off
+ */
+export const zPostLanguageVersionSplitResponse = zSplitLanguageVersionResult
+
+export const zGetLanguageVersionSplitPreviewPath = z.object({
+  course_id: z.uuid(),
+  split_course_id: z.uuid(),
+})
+
+/**
+ * Split preview
+ */
+export const zGetLanguageVersionSplitPreviewResponse = zSplitLanguageVersionPreview
+
+export const zGetLanguageVersionStructurePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Structure comparison
+ */
+export const zGetLanguageVersionStructureResponse = zLanguageVersionStructure
+
+export const zGetLanguageVersionSuggestionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zGetLanguageVersionSuggestionsQuery = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  candidate_course_ids: z.array(z.uuid()).optional(),
+})
+
+/**
+ * Suggested links
+ */
+export const zGetLanguageVersionSuggestionsResponse = zLinkSuggestions
+
 export const zGetCourseLinkableExamsPath = z.object({
   course_id: z.uuid(),
 })
@@ -10251,6 +11294,26 @@ export const zGetCourseLinkableExamsPath = z.object({
  * Exams the user can link to the course
  */
 export const zGetCourseLinkableExamsResponse = z.array(zLinkableExam)
+
+export const zGetCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The course's model solution settings
+ */
+export const zGetCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsBody = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The stored model solution settings
+ */
+export const zUpdateCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
 
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 
@@ -11929,6 +12992,15 @@ export const zUpdateExerciseRepositoryPath = z.object({
  */
 export const zUpdateExerciseRepositoryResponse = z.boolean()
 
+export const zSyncExerciseRepositoryPath = z.object({
+  id: z.uuid(),
+})
+
+/**
+ * Sync queued
+ */
+export const zSyncExerciseRepositoryResponse = z.boolean()
+
 /**
  * Exercise services
  */
@@ -12031,6 +13103,15 @@ export const zGetExercisePath = z.object({
  * Exercise
  */
 export const zGetExerciseResponse = zExercise
+
+export const zGetExerciseAnswerSharesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * The exercise's live answer shares, newest first
+ */
+export const zGetExerciseAnswerSharesResponse = z.array(zExerciseAnswerShare)
 
 export const zGetExerciseAnswersRequiringAttentionPath = z.object({
   exercise_id: z.uuid(),
@@ -12273,6 +13354,24 @@ export const zUpdateGlossaryTermBody = zTermUpdate
 export const zUpdateGlossaryTermPath = z.object({
   term_id: z.uuid(),
 })
+
+export const zGetLanguageVersionAiSuggestionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+export const zGetLanguageVersionAiSuggestionsQuery = z.object({
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .optional(),
+  candidate_course_ids: z.array(z.uuid()).optional(),
+})
+
+/**
+ * Suggested links
+ */
+export const zGetLanguageVersionAiSuggestionsResponse = zLinkSuggestions
 
 export const zGetMyMoocfiCreditRegistrationsPath = z.object({
   moocfi_course_id: z.uuid(),
@@ -13096,6 +14195,13 @@ export const zGetMyProgressByPlatformResponse = zProgressByPlatform
  */
 export const zGetMyStudiesResponse = zMyStudies
 
+export const zSendResetPasswordEmailBody = zEmailData
+
+/**
+ * Reset password email accepted
+ */
+export const zSendResetPasswordEmailResponse = z.boolean()
+
 export const zResetUserPasswordBody = zResetPasswordData
 
 /**
@@ -13109,13 +14215,6 @@ export const zGetResetPasswordTokenStatusBody = zResetPasswordTokenPayload
  * Reset password token validity
  */
 export const zGetResetPasswordTokenStatusResponse = z.boolean()
-
-export const zSendResetPasswordEmailBody = zEmailData
-
-/**
- * Reset password email accepted
- */
-export const zSendResetPasswordEmailResponse = z.boolean()
 
 export const zCreateUserResearchConsentBody = zConsentData
 

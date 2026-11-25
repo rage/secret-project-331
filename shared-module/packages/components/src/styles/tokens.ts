@@ -6,7 +6,7 @@ export const tokensGlobal = injectGlobal`
   :root {
     /* sizing */
     --control-gap: var(--space-3);
-    --control-radius: var(--radius-2);
+    --control-radius: var(--radius-3);
     --surface-radius: var(--radius-3);
 
     --control-height-sm: var(--space-5);
@@ -123,7 +123,7 @@ export const tokensGlobal = injectGlobal`
     --focus-ring-width: 2px;
     --focus-ring-offset: 2px;
     --focus-ring-offset-color: transparent;
-    --focus-ring-color: rgba(31, 105, 100, 0.6);
+    --focus-ring-color: rgb(31, 105, 100);
 
     /* disabled */
     --btn-disabled-opacity: 0.55;
@@ -136,8 +136,15 @@ export const tokensGlobal = injectGlobal`
     --btn-pressed-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 
     /* transitions */
-    --btn-transition: all 0.2s;
-    --btn-press-transition: all 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Not "all": animating visibility delays focus() after a hidden ancestor is shown. */
+    --btn-transition:
+      background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, outline-color 0.2s,
+      opacity 0.2s, transform 0.2s;
+    --btn-press-transition:
+      background-color 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.1s cubic-bezier(0.34, 1.56, 0.64, 1),
+      border-color 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s cubic-bezier(0.34, 1.56, 0.64, 1),
+      outline-color 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.1s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     /* palette */
     --color-blue-25: #fbfcfd;
@@ -321,8 +328,11 @@ export const tokensGlobal = injectGlobal`
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);
     --field-border-color: var(--color-gray-400);
-    --field-border-color-focus: var(--color-green-500);
+    --field-border-color-focus: var(--color-green-600);
     --field-border-color-invalid: var(--color-crimson-600);
+    --field-focus-halo: rgb(31 105 100 / 0.16);
+    --field-invalid-halo: rgb(130 38 48 / 0.16);
+    --field-bg-invalid: var(--color-crimson-25);
     --field-text-color: var(--color-gray-800);
     --field-text-color-disabled: var(--color-gray-400);
     --field-label-color: var(--color-gray-500);

@@ -8,6 +8,7 @@ import { mergeProps, Overlay, useDialog, useModalOverlay } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { omitUndefined } from "../lib/utils/nullability"
+import { registerOpenModal } from "../lib/utils/openModals"
 import { below } from "../styles/breakpoints"
 import { DURATION_MS } from "../styles/motion"
 import { Button, type ButtonProps } from "./Button"
@@ -359,8 +360,10 @@ const OpenDialog: React.FC<DialogProps> = ({
   // that replaces this one can take focus while both are briefly mounted. Restoration stays armed.
   const isExiting = !useIsPresent()
 
+  // Closed as soon as the exit starts: that lifts the inert outside, so focus moved to the page
+  // meanwhile (see runWhenNoModalOpen) lands.
   const state = useOverlayTriggerState({
-    isOpen: true,
+    isOpen: !isExiting,
     onOpenChange: (isOpen) => {
       if (!isOpen) {
         onClose()
@@ -383,6 +386,15 @@ const OpenDialog: React.FC<DialogProps> = ({
   const dialogProps = hasDescription
     ? dialogPropsFromHook
     : omitUndefined({ ...dialogPropsFromHook, "aria-describedby": undefined })
+
+  // Declared after the modal hooks so their cleanup (lifting the inert) runs first.
+  React.useEffect(() => {
+    const surface = ref.current
+    if (isExiting || surface === null) {
+      return
+    }
+    return registerOpenModal(surface)
+  }, [isExiting])
 
   const underlayTransition = shouldReduceMotion ? reducedTransition : exitTransition
 
@@ -408,7 +420,8 @@ const OpenDialog: React.FC<DialogProps> = ({
   } = mergeProps(modalProps, dialogProps)
 
   return (
-    <Overlay isExiting={isExiting}>
+    // The hooks above run outside the Overlay, so its own containment is never switched on by them.
+    <Overlay isExiting={isExiting} shouldContainFocus>
       <motion.div
         {...motionSafeUnderlayProps}
         className={underlayCss}

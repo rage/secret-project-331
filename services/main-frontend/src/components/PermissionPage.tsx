@@ -7,7 +7,7 @@ import type { TFunction } from "i18next"
 import { t as globalT } from "i18next"
 import { useRouter, useSearchParams } from "next/navigation"
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import type { Equals } from "tsafe"
 import { assert } from "tsafe"
@@ -24,8 +24,10 @@ import {
   removeRole as removeRoleFromApi,
 } from "@/generated/api/sdk.generated"
 import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
+import { formatUserName } from "@/hooks/useUserDetails"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -92,6 +94,8 @@ type rolesInTheForm = (typeof _allRoles)[number]
 // Check if two string unions are the same. If this fails, you have changed the UserRole type and need to update the options function above.
 assert<Equals<rolesInTheForm, UserRole>>()
 
+const userLabel = (ur: RoleUser) => formatUserName(ur) || ur.email
+
 interface EditingRole {
   userId: string
   currentRole: UserRole
@@ -148,6 +152,8 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     control: addRoleControl,
     setValue: setAddRoleValue,
     getValues: getAddRoleValues,
+    trigger: triggerAddRole,
+    setFocus: setAddRoleFocus,
   } = useForm<{ email: string; role: UserRole }>({
     defaultValues: { email: "", role: ASSISTANT },
   })
@@ -168,9 +174,16 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
       query,
     }),
   })
+  const emailToAdd = useWatch({ control: addRoleControl, name: "email" })
   const addMutation = useToastMutationOptions(
     addRoleMutationOptions(),
-    { notify: true, method: "POST" },
+    {
+      notify: true,
+      method: "POST",
+      successMessage: t("role-added-for", {
+        email: emailToAdd,
+      }),
+    },
     {
       onSuccess: () => {
         // oxlint-disable-next-line i18next/no-literal-string
@@ -236,7 +249,7 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   const columns: TableColumn<RoleUser>[] = [
     {
       header: t("text-field-label-name"),
-      cell: (ur) => (ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name),
+      cell: (ur) => formatUserName(ur),
       ...sortColumn(SORT_KEY_NAME),
     },
     { header: t("label-email"), cell: (ur) => ur.email, ...sortColumn(SORT_KEY_EMAIL) },
@@ -273,36 +286,36 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                 setEditingRole(null)
               }}
             >
-              <CheckCircle />
+              <CheckCircle aria-hidden />
             </button>
             <button
               aria-label={t("cancel-editing-role")}
               className={iconButtonCss}
               onClick={() => setEditingRole(null)}
             >
-              <XmarkCircle />
+              <XmarkCircle aria-hidden />
             </button>
           </>
         ) : (
           <>
             <button
-              aria-label={t("edit-role")}
+              aria-label={t("edit-role-for", { name: userLabel(ur) })}
               className={iconButtonCss}
               onClick={() => {
                 setEditingRole({ userId: ur.user_id, currentRole: ur.role })
                 resetEditRoleForm({ role: ur.role })
               }}
             >
-              <Pencil size={20} color={"#1A2333"} />
+              <Pencil aria-hidden size={20} color={"#1A2333"} />
             </button>
             <button
-              aria-label={t("remove-role")}
+              aria-label={t("remove-role-for", { name: userLabel(ur) })}
               className={iconButtonCss}
               onClick={() =>
                 removeMutation.mutate({ body: { email: ur.email, role: ur.role, domain } })
               }
             >
-              <XmarkCircle size={20} color={"#1A2333"} />
+              <XmarkCircle aria-hidden size={20} color={"#1A2333"} />
             </button>
           </>
         ),
@@ -344,7 +357,18 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
             min-width: 0;
           `}
         >
-          <TextField name="email" control={addRoleControl} label={t("label-email")} />
+          <TextField
+            name="email"
+            control={addRoleControl}
+            label={t("label-email")}
+            rules={{
+              required: t("required-field"),
+              pattern: {
+                value: EMAIL_PATTERN,
+                message: t("enter-a-valid-email"),
+              },
+            }}
+          />
         </div>
         <div
           className={css`
@@ -361,14 +385,21 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
           />
         </div>
         <Button
-          onClick={() =>
+          onClick={async () => {
+            // oxlint-disable-next-line i18next/no-literal-string
+            if (!(await triggerAddRole("email"))) {
+              // Moves focus to the invalid field so the error is announced.
+              // oxlint-disable-next-line i18next/no-literal-string
+              setAddRoleFocus("email")
+              return
+            }
             addMutation.mutate({
               body: {
                 ...getAddRoleValues(),
                 domain,
               },
             })
-          }
+          }}
           size="medium"
           variant="primary"
         >

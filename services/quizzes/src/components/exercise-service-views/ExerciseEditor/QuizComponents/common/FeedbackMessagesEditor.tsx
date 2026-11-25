@@ -28,6 +28,8 @@ interface FeedbackMessagesEditorProps<V extends string> {
   value: FeedbackMessage<V>[]
   visibilityOptions: FeedbackVisibilityOption<V>[]
   onChange: (value: FeedbackMessage<V>[]) => void
+  /** Option title, so the add button names its option when several editors are on the page. */
+  optionTitle?: string
 }
 
 const Title = styled.div`
@@ -109,6 +111,7 @@ const FeedbackMessagesEditor = <V extends string>({
   value,
   visibilityOptions,
   onChange,
+  optionTitle,
 }: FeedbackMessagesEditorProps<V>): React.ReactElement => {
   const { t } = useTranslation()
   // Several editor instances render on one page (quiz level + every item + expanded options), so
@@ -122,7 +125,7 @@ const FeedbackMessagesEditor = <V extends string>({
         <FeedbackCard key={index}>
           <DeleteButtonContainer>
             <Button
-              aria-label={t("remove")}
+              aria-label={t("remove-feedback-message-n", { number: index + 1 })}
               variant="icon"
               size="small"
               onClick={() => {
@@ -167,6 +170,11 @@ const FeedbackMessagesEditor = <V extends string>({
       <Button
         variant="tertiary"
         size="medium"
+        aria-label={
+          optionTitle === undefined
+            ? undefined
+            : t("add-feedback-message-named", { title: optionTitle })
+        }
         onClick={() => {
           const firstVisibility = visibilityOptions[0]
           if (!firstVisibility) {

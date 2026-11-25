@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT et.id,\n  et.exercise_type,\n  et.private_spec,\n  re.id AS repository_exercise_id\nFROM exercise_tasks et\n  JOIN repository_exercises re ON re.id = et.repository_exercise_id\n  AND re.repository_id = $1\n  AND re.deleted_at IS NULL\n  JOIN exercise_slides es ON es.id = et.exercise_slide_id\n  AND es.deleted_at IS NULL\n  JOIN exercises e ON e.id = es.exercise_id\n  AND e.deleted_at IS NULL\nWHERE et.deleted_at IS NULL\n  AND et.repository_exercise_checksum IS DISTINCT FROM re.checksum\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "exercise_type",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "exercise_type"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "private_spec",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "private_spec"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "repository_exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "repository_exercises",
+            "name": "id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "d16fc2473a2f2f289e9adedef20b35bcdef9611ef694f2a543c29815e6e5162b"
+}

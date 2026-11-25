@@ -103,11 +103,12 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
+    const variant = getButtonTypeFromClassName(className)
     return (
       <Link
         key={button.clientId}
         styledAsButton
-        variant={getButtonTypeFromClassName(className)}
+        variant={variant}
         size="medium"
         href={url ?? ""}
         isDisabled={!url}

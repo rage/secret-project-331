@@ -75,6 +75,18 @@ describe("currentStateMessage", () => {
     })
   })
 
+  it("reports the repository exercise only once the teacher has picked one", () => {
+    expect(
+      currentStateMessage({
+        view_type: "exercise-editor",
+        exercise_task_id: "8a0a5d4c-5f0f-4d0e-9f2b-3b6dd2f1c002",
+        repository_exercises: null,
+        private_spec: PRIVATE_SPEC,
+        picked_repository_exercise_id: REPOSITORY_EXERCISE.id,
+      }),
+    ).toMatchObject({ repository_exercise_id: REPOSITORY_EXERCISE.id })
+  })
+
   it("reports nothing for an exercise editor without a private spec", () => {
     expect(
       currentStateMessage({

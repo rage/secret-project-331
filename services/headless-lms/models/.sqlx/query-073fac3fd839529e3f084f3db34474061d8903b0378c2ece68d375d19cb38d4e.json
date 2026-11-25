@@ -1,0 +1,173 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH course_counts AS (\n  SELECT c.id,\n    (\n      SELECT COUNT(*)\n      FROM chapters ch\n      WHERE ch.course_id = c.id\n        AND ch.deleted_at IS NULL\n    ) AS chapter_count,\n    (\n      SELECT COUNT(*)\n      FROM pages p\n      WHERE p.course_id = c.id\n        AND p.deleted_at IS NULL\n    ) AS page_count,\n    (\n      SELECT COUNT(*)\n      FROM exercises e\n      WHERE e.course_id = c.id\n        AND e.deleted_at IS NULL\n    ) AS exercise_count\n  FROM courses c\n  WHERE c.deleted_at IS NULL\n    AND (\n      c.course_language_group_id = $1\n      OR (\n        $2::TEXT IS NULL\n        AND c.organization_id IN (\n          SELECT organization_id\n          FROM courses\n          WHERE course_language_group_id = $1\n            AND deleted_at IS NULL\n        )\n      )\n      OR c.name ILIKE $2\n      OR c.slug ILIKE $2\n    )\n),\ngroup_courses AS (\n  SELECT c.id,\n    c.copied_from,\n    c.created_at,\n    c.name,\n    cc.chapter_count,\n    cc.page_count,\n    cc.exercise_count\n  FROM courses c\n    JOIN course_counts cc ON cc.id = c.id\n  WHERE c.course_language_group_id = $1\n),\ngroup_teachers AS (\n  SELECT DISTINCT r.user_id\n  FROM roles r\n  WHERE r.course_id IN (\n      SELECT id\n      FROM group_courses\n    )\n    AND r.role IN ('teacher', 'course_or_exam_creator')\n    AND r.deleted_at IS NULL\n),\nscored AS (\n  SELECT c.id,\n    c.name,\n    c.slug,\n    c.language_code,\n    c.course_language_group_id,\n    c.is_draft,\n    c.created_at,\n    cc.chapter_count,\n    cc.page_count,\n    cc.exercise_count,\n    EXISTS (\n      SELECT 1\n      FROM group_courses g\n      WHERE g.id = c.copied_from\n        OR g.copied_from = c.id\n    ) AS copied_from_this_course,\n    EXISTS (\n      SELECT 1\n      FROM group_courses g\n      WHERE g.copied_from = c.copied_from\n    ) AS copied_from_same_course,\n    EXISTS (\n      SELECT 1\n      FROM group_courses g\n      WHERE g.chapter_count > 0\n        AND g.chapter_count = cc.chapter_count\n        AND ABS(g.page_count - cc.page_count) <= GREATEST(2, g.page_count / 10)\n        AND ABS(g.exercise_count - cc.exercise_count) <= GREATEST(5, g.exercise_count / 4)\n    ) AS same_chapter_and_page_counts,\n    EXISTS (\n      SELECT 1\n      FROM roles r\n      WHERE r.course_id = c.id\n        AND r.role IN ('teacher', 'course_or_exam_creator')\n        AND r.deleted_at IS NULL\n        AND r.user_id IN (\n          SELECT user_id\n          FROM group_teachers\n        )\n    ) AS same_teachers,\n    EXISTS (\n      SELECT 1\n      FROM group_courses g\n      WHERE g.created_at::DATE = c.created_at::DATE\n    ) AS created_on_same_day,\n    EXISTS (\n      SELECT 1\n      FROM group_courses g\n      WHERE similarity(g.name, c.name) >= $3\n    ) AS similar_name\n  FROM courses c\n    JOIN course_counts cc ON cc.id = c.id\n  WHERE c.course_language_group_id <> $1\n)\nSELECT id,\n  name,\n  slug,\n  language_code,\n  course_language_group_id,\n  is_draft,\n  created_at,\n  chapter_count AS \"chapter_count!\",\n  page_count AS \"page_count!\",\n  exercise_count AS \"exercise_count!\",\n  (\n    SELECT COUNT(*)\n    FROM user_course_settings ucs\n    WHERE ucs.current_course_id = scored.id\n      AND ucs.deleted_at IS NULL\n  ) AS \"student_count!\",\n  copied_from_this_course AS \"copied_from_this_course!\",\n  copied_from_same_course AS \"copied_from_same_course!\",\n  same_chapter_and_page_counts AS \"same_chapter_and_page_counts!\",\n  same_teachers AS \"same_teachers!\",\n  created_on_same_day AS \"created_on_same_day!\",\n  similar_name AS \"similar_name!\"\nFROM scored\nWHERE $2::TEXT IS NOT NULL\n  OR copied_from_this_course\n  OR copied_from_same_course\n  OR same_chapter_and_page_counts\nORDER BY name,\n  slug\nLIMIT $4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "language_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_language_group_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "is_draft",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_draft"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "chapter_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 8,
+        "name": "page_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 9,
+        "name": "exercise_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 10,
+        "name": "student_count!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
+        "name": "copied_from_this_course!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 12,
+        "name": "copied_from_same_course!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 13,
+        "name": "same_chapter_and_page_counts!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 14,
+        "name": "same_teachers!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 15,
+        "name": "created_on_same_day!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 16,
+        "name": "similar_name!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Float4",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "073fac3fd839529e3f084f3db34474061d8903b0378c2ece68d375d19cb38d4e"
+}

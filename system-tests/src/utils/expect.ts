@@ -1,5 +1,7 @@
 import type { Page } from "@playwright/test"
 
+import { escapeForRegExp } from "./regex"
+
 /**
  * Check if path is correct by skipping specific ids. For example `await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")` would expect the path to match the given structure, but it would allow the id to be any uuid.
  * @param page Page from playwright
@@ -9,13 +11,13 @@ const expectUrlPathWithRandomUuid = async (page: Page, path: string): Promise<vo
   // e.g. http://project-331.local
   const urlBeginning = new URL(page.url()).origin
   const items = path.startsWith("/") ? path.split("/").slice(1) : path.split("/")
-  let regexBuffer = `${urlBeginning}/`.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  let regexBuffer = escapeForRegExp(`${urlBeginning}/`)
   for (let i = 0; i < items.length; i++) {
     if (items[i] === "[id]") {
       regexBuffer += "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
     } else {
       // safe: i is a valid index into items (0 <= i < items.length)
-      regexBuffer += items[i]!.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      regexBuffer += escapeForRegExp(items[i]!)
     }
     if (i !== items.length - 1) {
       regexBuffer += "/"

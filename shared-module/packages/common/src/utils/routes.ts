@@ -56,6 +56,20 @@ export function manageCourseLanguageVersionsRoute(courseId: string) {
   return `/manage/courses/${courseId}/language-versions`
 }
 
+export function manageLanguageVersionsRoute(courseId?: string) {
+  return courseId
+    ? `/manage/language-versions?course=${encodeURIComponent(courseId)}`
+    : "/manage/language-versions"
+}
+
+export function manageCreateCounterpartRoute(
+  courseId: string,
+  pageId: string,
+  languageCode: string,
+) {
+  return `/manage/courses/${courseId}/pages/${pageId}/create-counterpart?language=${encodeURIComponent(languageCode)}`
+}
+
 export function manageCoursePermissionsRoute(courseId: string) {
   return `/manage/courses/${courseId}/permissions`
 }
@@ -72,6 +86,11 @@ export function loginRoute(returnTo: string, language?: string) {
 export function signUpRoute(returnTo: string, language?: string) {
   const langParam = language ? `&lang=${language}` : ""
   return `/signup?return_to=${encodeURIComponent(returnTo)}${langParam}`
+}
+
+/** The page that emails a reset link; its "Log in" link returns to login with `returnTo`. */
+export function resetPasswordRoute(returnTo: string) {
+  return `/reset-password?return_to=${encodeURIComponent(returnTo)}`
 }
 
 export function manageExerciseServicesRoute() {

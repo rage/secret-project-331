@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
+import accessibilityCheck, { NO_H1 } from "@/utils/accessibilityCheck"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 import { getLocatorForNthExerciseServiceIframe, waitForViewType } from "../../utils/iframeLocators"
@@ -22,7 +22,7 @@ test.describe("Choose N exercise accessibility", () => {
     const quizzesIframe = await getLocatorForNthExerciseServiceIframe(page, "quizzes", 1)
     await waitForViewType(quizzesIframe, "answer-exercise")
 
-    await accessibilityCheck(page, "Choose N initial state")
+    await accessibilityCheck(page, "Choose N initial state", [NO_H1])
 
     const firstButton = quizzesIframe.getByRole("button", { name: "Option 1" })
     const secondButton = quizzesIframe.getByRole("button", { name: "Option 2" })
@@ -92,6 +92,6 @@ test.describe("Choose N exercise accessibility", () => {
       await expect(firstButton).toHaveAttribute("aria-pressed", "true")
     })
 
-    await accessibilityCheck(page, "Choose N after interactions")
+    await accessibilityCheck(page, "Choose N after interactions", [NO_H1])
   })
 })

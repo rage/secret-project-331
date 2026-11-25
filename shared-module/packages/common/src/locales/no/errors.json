@@ -33,6 +33,10 @@
       "message": "Innsetting eller oppdatering i tabellen «{{table}}» feilet på grunn av begrensningen «{{constraint}}». Kontroller dataene som hører til begrensningen, og prøv igjen.",
       "title": "Brudd på fremmednøkkel"
     },
+    "form_verification_failed": {
+      "message": "Send skjemaet på nytt.",
+      "title": "Skjemaet kunne ikke bekreftes"
+    },
     "generic_sisu_error": {
       "message": "Noe gikk galt under opprettelsen av beskrivelsen",
       "title": "Kunne ikke opprette beskrivelsen"

@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -57,11 +58,12 @@ test.describe("Quizzes open feedback", () => {
       )
       .fill("19999-01-01")
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await page.getByText("Try again").waitFor()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,
@@ -83,9 +85,10 @@ test.describe("Quizzes open feedback", () => {
       )
       .fill("1999-01-01")
 
-    await page.getByText("Submit").click()
+    await page.getByRole("button", { name: "Submit" }).click()
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

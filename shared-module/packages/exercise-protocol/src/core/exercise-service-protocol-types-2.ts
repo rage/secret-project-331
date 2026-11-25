@@ -1,3 +1,5 @@
+import type { RepositoryExercise } from "./exerciseServiceTypes"
+
 // This file is here because the grading request types does not play nice with the type guard generation.
 
 /**
@@ -8,6 +10,11 @@
 export interface GradingRequest<S = unknown, D = unknown> {
   grading_update_url: string
   exercise_spec: S
+  /**
+   * The current version of the repository exercise the task uses, absent for a task that uses
+   * none. Supersedes any copy the spec embeds.
+   */
+  repository_exercise?: RepositoryExercise
   /** The whole answer for a JSON-typed submission; the plugin's metadata for a file-typed one. */
   submission_data: D
   /** The answer's files, in answer order. Empty for a JSON-typed submission. */

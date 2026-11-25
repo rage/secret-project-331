@@ -246,7 +246,7 @@ const CourseActivityTimeline: React.FC<CourseActivityTimelineProps> = ({ courseI
           </p>
         ) : (
           <>
-            <Echarts options={options} height={180} />
+            <Echarts label={t("completion-timeline-caption")} options={options} height={180} />
             <p className={moduleTimingLegendCss}>{t("submission-legend")}</p>
             {submissionsTruncated ? (
               <p className={noteCss}>{t("submissions-capped", { count: SUBMISSION_CAP })}</p>

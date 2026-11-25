@@ -94,6 +94,7 @@ export const zCmsPageExerciseTask = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
   private_spec_files: z.array(z.uuid()).optional(),
+  repository_exercise_id: z.uuid().nullish(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -396,6 +397,46 @@ export const zGutenbergBlock = z.object({
   name: z.string(),
 })
 
+/**
+ * A page as the tool shows and matches it. Deleted pages appear only in leftover links.
+ */
+export const zLanguageVersionPage = z.object({
+  chapter_id: z.uuid().nullish(),
+  chapter_name: z.string().nullish(),
+  chapter_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_id: z.uuid(),
+  exercise_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  id: z.uuid(),
+  is_chapter_front_page: z.boolean(),
+  is_deleted: z.boolean(),
+  language_code: z.string(),
+  page_language_group_id: z.uuid().nullish(),
+  position: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  url_path: z.string(),
+})
+
+/**
+ * Body of CMS POST /pages/{page_id}/language-versions/link.
+ */
+export const zLinkPageCounterpartRequest = z.object({
+  counterpart_page_id: z.uuid(),
+})
+
 export const zNewResearchForm = z.object({
   content: z.unknown(),
   course_id: z.uuid(),
@@ -428,6 +469,33 @@ export const zPageInfo = z.object({
   organization_slug: z.string().nullish(),
   page_id: z.uuid(),
   page_title: z.string(),
+})
+
+export const zPageLinkCandidate = z.object({
+  is_linked: z.boolean(),
+  is_suggested: z.boolean(),
+  page: zLanguageVersionPage,
+})
+
+/**
+ * The page's counterpart in one other language version.
+ */
+export const zPageLanguageVersion = z.object({
+  can_edit: z.boolean(),
+  counterpart: zLanguageVersionPage.nullish(),
+  course_id: z.uuid(),
+  course_name: z.string(),
+  language_code: z.string(),
+  link_candidates: z.array(zPageLinkCandidate),
+})
+
+/**
+ * A page's counterparts in the other language versions (CMS GET /pages/{page_id}/language-versions).
+ */
+export const zPageLanguageVersions = z.object({
+  can_edit_all_courses: z.boolean(),
+  page: zLanguageVersionPage,
+  versions: z.array(zPageLanguageVersion),
 })
 
 export const zPageRoutingData = z.object({
@@ -645,10 +713,15 @@ export const zContentManagementPage = z.object({
 
 export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
+/**
+ * An exercise as the exercise editor's picker lists it, and as spec and grading requests carry
+ * it as `repository_exercise`, so the field set is part of the exercise services' contract.
+ */
 export const zRepositoryExercise = z.object({
   checksum: z.array(
     z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   ),
+  details: z.unknown().optional(),
   download_url: z.string(),
   id: z.uuid(),
   name: z.string(),
@@ -1110,6 +1183,26 @@ export const zGetCmsPageInfoPath = z.object({
  */
 export const zGetCmsPageInfoResponse = zPageInfo
 
+export const zGetCmsPageLanguageVersionsPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The page's counterparts
+ */
+export const zGetCmsPageLanguageVersionsResponse = zPageLanguageVersions
+
+export const zLinkCmsPageCounterpartBody = zLinkPageCounterpartRequest
+
+export const zLinkCmsPageCounterpartPath = z.object({
+  page_id: z.uuid(),
+})
+
+/**
+ * The page's counterparts after linking
+ */
+export const zLinkCmsPageCounterpartResponse = zPageLanguageVersions
+
 export const zGetCmsPageNavigationPath = z.object({
   page_id: z.uuid(),
 })
@@ -1127,6 +1220,15 @@ export const zGetCmsPagePendingAgentChangesPath = z.object({
  * The open changeset changing the page, if any
  */
 export const zGetCmsPagePendingAgentChangesResponse = zAgentChangeset.nullable()
+
+export const zGetCmsRepositoryExercisesForExamPath = z.object({
+  exam_id: z.uuid(),
+})
+
+/**
+ * Repository exercises for exam
+ */
+export const zGetCmsRepositoryExercisesForExamResponse = z.array(zRepositoryExercise)
 
 export const zGetCmsRepositoryExercisesForCoursePath = z.object({
   course_id: z.uuid(),

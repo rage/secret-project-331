@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -10,11 +11,12 @@ import {
   processEditProposalMutation as processProposalMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { BlockProposalInfo } from "@/generated/api/types.generated"
+import { useUserNames } from "@/hooks/useUserDetails"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResult, useFocusAfterRemoval } from "@/shared-module/components"
 
-import EditProposalView from "./EditProposalView"
+import EditProposalView, { changeRequestHeadingId } from "./EditProposalView"
 
 interface Props {
   courseId: string
@@ -45,6 +47,11 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
       },
     }),
   })
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getEditProposalList.data)
+  const senderName = useUserNames(
+    courseId,
+    getEditProposalList.data?.map((p) => p.user_id),
+  )
   const processProposalMutation = useToastMutationOptions(
     processProposalMutationOptions(),
     {
@@ -72,6 +79,7 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
         block_proposals: blockProposals,
       },
     })
+    remember(changeRequestHeadingId(pageProposalId))
     await getEditProposalList.refetch()
     await onChange()
   }
@@ -88,7 +96,12 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
         )
 
         return (
-          <>
+          <div ref={containerRef}>
+            <VisuallyHidden>
+              <h2 ref={listHeadingRef} tabIndex={-1}>
+                {t("link-change-requests")}
+              </h2>
+            </VisuallyHidden>
             <ul
               className={css`
                 list-style: none;
@@ -98,7 +111,11 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
               {editProposalList &&
                 editProposalList.map((p) => (
                   <li key={p.id}>
-                    <EditProposalView proposal={p} handleProposal={handleProposal} />
+                    <EditProposalView
+                      proposal={p}
+                      senderName={senderName(p.user_id)}
+                      handleProposal={handleProposal}
+                    />
                   </li>
                 ))}
             </ul>
@@ -106,14 +123,14 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
             {proposalsForDeletedBlocks?.length !== 0 && (
               <>
                 {pending === true && (
-                  <h5
+                  <h2
                     className={css`
                       font-size: ${typography.h5};
                       font-weight: ${fontWeights.semibold};
                     `}
                   >
                     {t("change-request-for-deleted-block")}
-                  </h5>
+                  </h2>
                 )}
 
                 <ul
@@ -124,13 +141,17 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
                 >
                   {proposalsForDeletedBlocks?.map((p) => (
                     <li key={p.id}>
-                      <EditProposalView proposal={p} handleProposal={handleProposal} />
+                      <EditProposalView
+                        proposal={p}
+                        senderName={senderName(p.user_id)}
+                        handleProposal={handleProposal}
+                      />
                     </li>
                   ))}
                 </ul>
               </>
             )}
-          </>
+          </div>
         )
       }}
     </QueryResult>

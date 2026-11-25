@@ -20,6 +20,7 @@ import {
   resolveChoiceIndicatorCss,
 } from "../primitives/checkableStyles"
 import { CheckIcon } from "../primitives/CheckIcon"
+import { FieldError } from "../primitives/FieldError"
 import { descriptionCss, errorCss } from "../primitives/fieldShellStyles"
 import { radioListRevealCss } from "../RadioGroup"
 import { Reveal } from "../Reveal"
@@ -98,9 +99,9 @@ const RadioNotes: React.FC<{
       </span>
     ) : null}
     {errorMessage ? (
-      <span className={errorCss} id={errorMessageId} role="alert">
+      <FieldError inline className={errorCss} id={errorMessageId}>
         {errorMessage}
-      </span>
+      </FieldError>
     ) : null}
   </>
 )
@@ -153,8 +154,8 @@ export function RadioInGroup({
     inputRef,
   )
 
+  // The group's own description is wired to the radiogroup; react-aria's copy on every radio is dropped.
   const describedBy = joinAriaDescribedBy(
-    typeof inputProps["aria-describedby"] === "string" ? inputProps["aria-describedby"] : undefined,
     ariaDescribedBy,
     description ? descriptionId : undefined,
     errorMessage ? errorMessageId : undefined,

@@ -12,7 +12,7 @@ import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRende
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { QueryResult, Link } from "@/shared-module/components"
+import { ErrorNotice, QueryResult, Link } from "@/shared-module/components"
 import { viewParamsAtom } from "@/state/course-material/params"
 
 import CourseList from "./CourseList"
@@ -40,7 +40,12 @@ const Organization: React.FC = () => {
 
   return (
     <div>
-      <QueryResult query={organizationQuery}>
+      <QueryResult
+        query={organizationQuery}
+        renderBlockingError={({ error, retry }) => (
+          <ErrorNotice error={error} retry={retry} headingLevel={1} />
+        )}
+      >
         {(organization) => (
           <>
             <h1

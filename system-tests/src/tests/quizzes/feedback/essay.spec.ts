@@ -1,6 +1,7 @@
 /* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -59,6 +60,7 @@ test.describe("Quizzes essay feedback", () => {
     await frame.locator(`text=This is an extra submit message from the teacher.`).waitFor()
 
     await expectScreenshotsToMatchSnapshots({
+      axeSkip: [NO_H1],
       screenshotTarget: page,
       headless,
       testInfo,

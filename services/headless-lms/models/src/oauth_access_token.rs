@@ -42,6 +42,8 @@ pub struct OAuthAccessToken {
     pub expires_at: DateTime<Utc>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    /// The refresh-token family (login) the token was issued with; ending it ends this token too.
+    pub refresh_token_family_id: Option<Uuid>,
 }
 
 #[derive(Debug, Clone)]
@@ -59,6 +61,8 @@ pub struct NewAccessTokenParams<'a> {
 
     pub metadata: serde_json::Map<String, serde_json::Value>,
     pub expires_at: DateTime<Utc>,
+    /// The refresh-token family issued alongside, if any.
+    pub refresh_token_family_id: Option<Uuid>,
 }
 
 impl OAuthAccessToken {
@@ -93,9 +97,9 @@ impl OAuthAccessToken {
         sqlx::query!(
             r#"
             INSERT INTO oauth_access_tokens
-              (digest, user_id, client_id, scopes, audience, token_type, dpop_jkt, metadata, expires_at)
+              (digest, user_id, client_id, scopes, audience, token_type, dpop_jkt, metadata, expires_at, refresh_token_family_id)
             VALUES
-              ($1,    $2,     $3,       $4,     $5,       $6,         $7,       $8,       $9)
+              ($1,    $2,     $3,       $4,     $5,       $6,         $7,       $8,       $9,         $10)
             "#,
             params.digest.as_bytes(),
             params.user_id,
@@ -105,7 +109,8 @@ impl OAuthAccessToken {
             params.token_type as TokenType,
             params.dpop_jkt,
             serde_json::Value::Object(params.metadata),
-            params.expires_at
+            params.expires_at,
+            params.refresh_token_family_id
         )
         .execute(conn)
         .await?;

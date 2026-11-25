@@ -62,8 +62,9 @@ export const StatTileList: React.FC<StatTileListProps> = ({
 }) => (
   // oxlint-disable-next-line jsx-a11y/no-redundant-roles -- list-style: none makes VoiceOver drop the implicit list role; this restores it
   <ul className={cx(listCss, columnsCss(maxColumns, size))} role="list" aria-label={ariaLabel}>
-    {React.Children.map(children, (child, index) => (
-      <li key={index}>{child}</li>
+    {/* toArray drops `false` and `null`, so a conditional tile leaves no empty grid cell. */}
+    {React.Children.toArray(children).map((child, index) => (
+      <li key={React.isValidElement(child) ? (child.key ?? index) : index}>{child}</li>
     ))}
   </ul>
 )

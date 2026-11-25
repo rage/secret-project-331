@@ -75,6 +75,7 @@ import {
 } from "../../utils/Gutenberg/editorHistory"
 import { normalizePasteEvent } from "../../utils/Gutenberg/paste/normalizePasteEvent"
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
+import withAccessibilityInspectors from "../../utils/Gutenberg/withAccessibilityInspectors"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withFileIframePreview from "../../utils/Gutenberg/withFileIframePreview"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
@@ -112,6 +113,16 @@ interface RichTextActions {
 // oxlint-disable-next-line i18next/no-literal-string
 const EDITOR_STYLES_SCOPE = ":where(.editor-styles-wrapper)"
 
+/** Value of an extra sidebar view; the prefix keeps it apart from the built-in views. */
+export type ExtraSidebarViewValue = `extra-${string}`
+
+/** A view a page editor adds to the sidebar's "Toggle view" select. */
+export interface ExtraSidebarView {
+  value: ExtraSidebarViewValue
+  label: string
+  render: () => React.JSX.Element
+}
+
 interface GutenbergEditorProps {
   content: BlockInstance[]
   onContentChange: React.Dispatch<BlockInstance[]>
@@ -141,6 +152,8 @@ interface GutenbergEditorProps {
   needToRunMigrationsAndValidations: boolean
   setNeedToRunMigrationsAndValidations: React.Dispatch<boolean>
   showSidebar?: boolean
+  /** Extra choices in the sidebar's "Toggle view" select. */
+  extraSidebarViews?: ExtraSidebarView[] | undefined
 }
 
 interface GutenbergEditorChangeOptions {
@@ -153,7 +166,7 @@ interface EditorCanvasProps {
   contentRef: React.RefObject<HTMLDivElement | null>
 }
 
-type SidebarView = "block-props" | "block-list" | "block-menu"
+type SidebarView = "block-props" | "block-list" | "block-menu" | ExtraSidebarViewValue
 
 interface SidebarViewFormFields {
   sidebarView: SidebarView
@@ -206,6 +219,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   needToRunMigrationsAndValidations,
   setNeedToRunMigrationsAndValidations,
   showSidebar = true,
+  extraSidebarViews,
 }: GutenbergEditorProps) => {
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
@@ -380,6 +394,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     defaultValues: { sidebarView: DEFAULT_SIDEBAR_VIEW },
   })
   const sidebarView = useWatch({ control: sidebarViewControl, name: SIDEBAR_VIEW_FIELD_NAME })
+  const extraSidebarView = extraSidebarViews?.find((view) => view.value === sidebarView)
 
   useEffect(() => {
     addFilter(
@@ -403,6 +418,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors", withAccessibilityInspectors)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/accessibilityInspectors")
     }
   }, [])
 
@@ -551,6 +573,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                         />
                       </div>
                     )}
+                    {extraSidebarView?.render()}
                     {sidebarView === "block-menu" && (
                       <div
                         className={css`
@@ -585,6 +608,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                         { value: "block-list", label: t("block-list") },
                         // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
+                        ...(extraSidebarViews ?? []).map(({ value, label }) => ({ value, label })),
                       ]}
                     />
                   </div>

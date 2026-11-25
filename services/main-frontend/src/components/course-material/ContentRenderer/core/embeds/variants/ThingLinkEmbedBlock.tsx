@@ -40,7 +40,7 @@ export const ThingLinkEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribut
             font-size: ${baseTheme.fontSizes[0]}px;
             margin-top: 0.5em;
             margin-bottom: 1em;
-            color: ${baseTheme.colors.gray[400]};
+            color: ${baseTheme.colors.gray[500]};
           `}
         >
           {props.caption && (

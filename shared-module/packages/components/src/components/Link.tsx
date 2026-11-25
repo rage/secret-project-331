@@ -96,6 +96,8 @@ interface ButtonLikeStyling {
   size?: ButtonSize
   icon?: React.ReactNode
   iconPosition?: IconPosition
+  /** As `Button`'s `isFullWidth`. */
+  isFullWidth?: boolean
 }
 
 type NextProps = React.ComponentProps<typeof NextLink>
@@ -140,6 +142,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       size,
       icon,
       iconPosition,
+      isFullWidth,
       isLoading: isLoadingProp,
       isDisabled: isDisabledProp,
       loadingLabel: loadingLabelProp,
@@ -246,6 +249,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       ? resolveButtonRootCss({
           size: (styledAsButtonResolved ? size : undefined) ?? "medium",
           variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
+          isFullWidth,
         })
       : cx(
           plainLinkCss[appearance ?? DEFAULT_APPEARANCE],
@@ -291,6 +295,9 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         className: rootClassName,
         tabIndex: finalTabIndex,
         "data-pressed": isPressed,
+        // Lets content wrappers exclude button-styled links from their plain link colours.
+        // oxlint-disable-next-line i18next/no-literal-string
+        "data-button-variant": styledAsButtonResolved ? (variant ?? "primary") : undefined,
         "data-disabled-reason": disabledReason,
         "data-testid": dataTestId,
         "aria-busy": isLoading || undefined,

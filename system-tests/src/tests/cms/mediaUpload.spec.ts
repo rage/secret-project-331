@@ -6,6 +6,7 @@ import type {
 } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
@@ -38,7 +39,7 @@ test.describe("Uploading media as admin", () => {
 
     await page
       .getByRole("row", { name: /Welcome to Introduction to Everything/ })
-      .getByRole("button", { name: "Edit page" })
+      .getByRole("link", { name: "Edit page" })
       .click()
 
     await page.locator(`[aria-label="Add default block"]`).click()
@@ -66,13 +67,7 @@ test.describe("Uploading media as admin", () => {
     })
 
     await expectScreenshotsToMatchSnapshots({
-      axeSkip: [
-        "html-has-lang",
-        "image-alt",
-        "landmark-one-main",
-        "page-has-heading-one",
-        "region",
-      ],
+      axeSkip: ["html-has-lang", "image-alt", "landmark-one-main", NO_H1, "region"],
       screenshotTarget: newPage,
       snapshotName: "uploadMediaPicture",
       headless,

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,11 +15,18 @@ import type {
   FeedbackEditProposalCounts,
 } from "@/generated/api/types.generated"
 import useFeedbackCategoryToggleInfo from "@/hooks/useFeedbackCategoryToggleInfo"
+import { useUserNames } from "@/hooks/useUserDetails"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
-import { Pagination, QueryResult, ToggleGroup, type ToggleInfo } from "@/shared-module/components"
+import {
+  Pagination,
+  QueryResult,
+  ToggleGroup,
+  type ToggleInfo,
+  useFocusAfterRemoval,
+} from "@/shared-module/components"
 
-import FeedbackView from "./FeedbackView"
+import FeedbackView, { feedbackHeadingId } from "./FeedbackView"
 
 const listCss = css`
   list-style: none;
@@ -57,6 +65,11 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
       }),
     }),
   })
+  const { containerRef, listHeadingRef, remember } = useFocusAfterRemoval(getFeedbackList.data)
+  const senderName = useUserNames(
+    courseId,
+    getFeedbackList.data?.map((f) => f.user_id),
+  )
   const getFeedbackCategories = useQuery({
     ...getCourseFeedbackCategoriesOptions({
       path: {
@@ -94,7 +107,12 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
         }
         const pageCount = Math.ceil(items / paginationInfo.limit)
         return (
-          <div>
+          <div ref={containerRef}>
+            <VisuallyHidden>
+              <h2 ref={listHeadingRef} tabIndex={-1}>
+                {t("link-feedback")}
+              </h2>
+            </VisuallyHidden>
             <QueryResult query={getFeedbackCategories} emptyFallback={AllButton}>
               {(data) => {
                 const categories: ToggleInfo[] = data.map((c) => {
@@ -117,8 +135,10 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
                       <FeedbackView
                         courseId={courseId}
                         feedback={f}
+                        senderName={senderName(f.user_id)}
                         read={read}
                         setRead={async () => {
+                          remember(feedbackHeadingId(f.id))
                           await getFeedbackList.refetch()
                           await getFeedbackCount.refetch()
                         }}

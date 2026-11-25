@@ -49,6 +49,9 @@ export function currentStateMessage(state: ExerciseIframeState | null): MessageT
           message: "current-state",
           data: { private_spec: state.private_spec },
           private_spec_files: [],
+          ...(state.picked_repository_exercise_id === undefined
+            ? {}
+            : { repository_exercise_id: state.picked_repository_exercise_id }),
           valid: true,
         }
   }
@@ -269,12 +272,8 @@ export function useIframeProtocol() {
       } else if (messageData.message === "test-results") {
         setTestRequestResponse(messageData.test_result as RunResult)
       } else if (messageData.message === "set-language") {
-        const language =
-          (messageData as { language?: string }).language ??
-          (messageData as { data?: { language?: string } }).data?.language
-        if (typeof language === "string") {
-          void changeLanguage(language)
-        }
+        document.documentElement.lang = messageData.data
+        void changeLanguage(messageData.data)
       } else {
         logError("Unexpected message from parent")
       }

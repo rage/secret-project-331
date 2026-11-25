@@ -1,4 +1,5 @@
 use crate::jwt::DEVELOPMENT_JWT_PASSWORD;
+use crate::version::Version;
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use secrecy::{ExposeSecret, SecretBox, SecretString};
@@ -76,6 +77,11 @@ pub struct ApplicationConfiguration {
     /// owns the claims.
     pub jwt_password: SecretString,
     pub mcp_configuration: Option<McpConfiguration>,
+    /// Oldest client the exercise-services client API serves, from
+    /// `EXERCISE_SERVICES_CLIENT_MINIMUM_VERSION`; older ones get `426 Upgrade Required`. `None`
+    /// serves every client. Compared against `X-Client-Version`, which is the tmc-langs-cli
+    /// version, not the editor extension's.
+    pub exercise_services_client_minimum_version: Option<Version>,
 }
 
 impl ApplicationConfiguration {
@@ -162,6 +168,10 @@ impl ApplicationConfiguration {
                 .into(),
         );
         let mcp_configuration = McpConfiguration::try_from_env()?;
+        let exercise_services_client_minimum_version = parse_minimum_version(
+            non_empty_env("EXERCISE_SERVICES_CLIENT_MINIMUM_VERSION").as_deref(),
+        )
+        .context("Invalid EXERCISE_SERVICES_CLIENT_MINIMUM_VERSION")?;
 
         Ok(Self {
             base_url,
@@ -181,6 +191,7 @@ impl ApplicationConfiguration {
             oauth_server_configuration,
             jwt_password,
             mcp_configuration,
+            exercise_services_client_minimum_version,
         })
     }
 
@@ -211,6 +222,7 @@ impl ApplicationConfiguration {
         };
         let jwt_password = SecretString::new(DEVELOPMENT_JWT_PASSWORD.to_string().into());
         let mcp_configuration = None;
+        let exercise_services_client_minimum_version = None;
         Ok(Self {
             base_url,
             test_mode,
@@ -229,8 +241,18 @@ impl ApplicationConfiguration {
             oauth_server_configuration,
             jwt_password,
             mcp_configuration,
+            exercise_services_client_minimum_version,
         })
     }
+}
+
+/// Parses an optional minimum version, failing rather than returning `None` on a malformed one so a
+/// typo cannot switch the version check off.
+fn parse_minimum_version(raw: Option<&str>) -> anyhow::Result<Option<Version>> {
+    raw.map(|raw| {
+        Version::parse(raw).with_context(|| format!("{raw:?} is not a MAJOR.MINOR.PATCH version"))
+    })
+    .transpose()
 }
 
 /// What the MCP server at `/api/v0/mcp` needs to validate agent writes: the CMS's block validator.
@@ -784,6 +806,16 @@ mod tests {
         ] {
             assert!(!is_local_development_base_url(url), "{url}");
         }
+    }
+
+    #[test]
+    fn minimum_version_is_optional_but_must_parse_when_set() {
+        assert_eq!(parse_minimum_version(None).unwrap(), None);
+        assert_eq!(
+            parse_minimum_version(Some("0.41.1")).unwrap(),
+            Some(Version(0, 41, 1))
+        );
+        assert!(parse_minimum_version(Some("0.41.1-beta")).is_err());
     }
 
     #[test]

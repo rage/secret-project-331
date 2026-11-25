@@ -516,6 +516,7 @@ const ChatbotConversationView: React.FC<ChatbotConversationViewProps> = ({
 const ChatbotChatBody: React.FC = () => {
   const scrollContainerRef = useRef<HTMLUListElement>(null)
   const composerRef = useRef<HTMLTextAreaElement>(null)
+  const agreedRef = useRef(false)
   const { t } = useTranslation()
 
   const {
@@ -640,6 +641,15 @@ const ChatbotChatBody: React.FC = () => {
     [classifiedFetched, classifiedStreamed, resolveClientToolCall],
   )
 
+  // The Agree button unmounts with the disclaimer, so move focus to the message box.
+  const hasConversation = !!currentConversationInfo.data?.current_conversation
+  useEffect(() => {
+    if (hasConversation && agreedRef.current) {
+      agreedRef.current = false
+      composerRef.current?.focus()
+    }
+  }, [hasConversation])
+
   // Starts armed so the first paint of a conversation lands on its newest message.
   const isFollowingRef = useRef(true)
 
@@ -704,6 +714,7 @@ const ChatbotChatBody: React.FC = () => {
               size="medium"
               variant="secondary"
               onClick={() => {
+                agreedRef.current = true
                 newConversationMutation.mutate()
               }}
               disabled={newConversationMutation.isPending}

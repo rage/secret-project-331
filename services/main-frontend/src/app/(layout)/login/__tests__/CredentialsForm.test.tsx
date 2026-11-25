@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { render } from "@testing-library/react"
+import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { CredentialsForm } from "../CredentialsForm"
 
@@ -17,7 +17,12 @@ const noop = async () => {
 describe("CredentialsForm error live region", () => {
   it("keeps the aria-live region in the DOM before any error appears", () => {
     const { container } = render(
-      <CredentialsForm onSubmit={noop} error={false} isSubmitting={false} />,
+      <CredentialsForm
+        onSubmit={noop}
+        error={false}
+        isSubmitting={false}
+        resetPasswordHref="/reset-password"
+      />,
     )
     const liveRegion = container.querySelector('[aria-live="assertive"]')
     expect(liveRegion).not.toBeNull()
@@ -26,16 +31,47 @@ describe("CredentialsForm error live region", () => {
 
   it("populates the pre-existing live region when the error appears", () => {
     const { container, rerender } = render(
-      <CredentialsForm onSubmit={noop} error={false} isSubmitting={false} />,
+      <CredentialsForm
+        onSubmit={noop}
+        error={false}
+        isSubmitting={false}
+        resetPasswordHref="/reset-password"
+      />,
     )
     const liveRegionBefore = container.querySelector('[aria-live="assertive"]')
     expect(liveRegionBefore).not.toBeNull()
 
-    rerender(<CredentialsForm onSubmit={noop} error={true} isSubmitting={false} />)
+    rerender(
+      <CredentialsForm
+        onSubmit={noop}
+        error={true}
+        isSubmitting={false}
+        resetPasswordHref="/reset-password"
+      />,
+    )
 
     const liveRegionAfter = container.querySelector('[aria-live="assertive"]')
     // The live region element must not be re-created when the error appears.
     expect(liveRegionAfter).toBe(liveRegionBefore)
     expect(liveRegionAfter).toHaveTextContent("incorrect-email-or-password")
+  })
+})
+
+describe("CredentialsForm submit button", () => {
+  it("stays enabled on an empty form and shows the errors on submit", async () => {
+    render(
+      <CredentialsForm
+        onSubmit={noop}
+        error={false}
+        isSubmitting={false}
+        resetPasswordHref="/reset-password"
+      />,
+    )
+    const button = screen.getByRole("button", { name: "login" })
+    expect(button).toBeEnabled()
+    fireEvent.click(button)
+    await waitFor(() =>
+      expect(screen.getByLabelText("label-email")).toHaveAttribute("aria-invalid", "true"),
+    )
   })
 })

@@ -105,6 +105,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
               `}
             >
               <Echarts
+                label={t("stats-heading-submission-timing")}
                 height={1000}
                 options={{
                   title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {

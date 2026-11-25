@@ -231,6 +231,7 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
             styledAsButton
             variant="tertiary"
             size="small"
+            aria-label={t("go-to-course-named", { name: course.course_name })}
           >
             {t("go-to-course")}
           </Link>
@@ -338,9 +339,6 @@ const ModuleRow: React.FC<{
               href={completionRegistrationRoute(module.course_module_id)}
               className={statusTriggerCss}
               appearance={LINK_INHERIT}
-              aria-label={t("credit-registration-status-link-label", {
-                status: registrationStatusText,
-              })}
             >
               <RegistrationStatusBadge state={registrationStatusState(registrationStatus)}>
                 {registrationStatusText}

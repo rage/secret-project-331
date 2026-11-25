@@ -1,7 +1,7 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 
 import type { CourseInstanceForm } from "@/generated/api/types.generated"
 
@@ -51,5 +51,34 @@ describe("NewCourseInstanceForm", () => {
     const submitted = onSubmit.mock.calls[0][0] as CourseInstanceForm
     expect(submitted.opening_time).toBeNull()
     expect(submitted.closing_time).toBeNull()
+  })
+})
+
+describe("NewCourseInstanceForm field errors", () => {
+  it("marks an invalid support email on the field and does not submit", async () => {
+    const onSubmit = jest.fn()
+    render(<NewCourseInstanceForm initialData={null} onSubmit={onSubmit} />)
+    const input = screen.getByRole("textbox", { name: /support-email/ })
+    fireEvent.change(input, { target: { value: "nope" } })
+    await act(() => {
+      fireEvent.submit(document.querySelector("form") as HTMLFormElement)
+      return Promise.resolve()
+    })
+    await waitFor(() => expect(input).toHaveAttribute("aria-invalid", "true"))
+    expect(screen.getByText("enter-a-valid-email")).toBeInTheDocument()
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it("shows a server issue on the field it names", async () => {
+    render(
+      <NewCourseInstanceForm
+        initialData={null}
+        onSubmit={jest.fn()}
+        serverIssues={[{ path: "support_email", message: "Support email is not valid" }]}
+      />,
+    )
+    const input = screen.getByRole("textbox", { name: /support-email/ })
+    await waitFor(() => expect(input).toHaveAttribute("aria-invalid", "true"))
+    expect(screen.getByText("Support email is not valid")).toBeInTheDocument()
   })
 })

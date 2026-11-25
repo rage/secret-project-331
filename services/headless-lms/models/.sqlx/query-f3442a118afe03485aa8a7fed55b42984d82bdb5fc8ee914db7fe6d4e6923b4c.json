@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_language_groups\nSET course_language_group_id = $2\nWHERE id = $1\n  AND course_language_group_id <> $2\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f3442a118afe03485aa8a7fed55b42984d82bdb5fc8ee914db7fe6d4e6923b4c"
+}

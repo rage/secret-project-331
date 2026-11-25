@@ -117,4 +117,17 @@ describe("NewChapterForm", () => {
       new Date(initialData.opens_at!).toISOString(),
     )
   })
+
+  it("marks Name required and keeps submit enabled, showing the error on an empty submit", async () => {
+    const onCanSubmitChange = jest.fn()
+    renderForm({ onCanSubmitChange })
+
+    expect(document.querySelector('input[name="name"]')).toHaveAttribute("aria-required", "true")
+    expect(onCanSubmitChange).toHaveBeenLastCalledWith(true)
+
+    submitForm()
+
+    await waitFor(() => expect(screen.getByText("required-field")).toBeInTheDocument())
+    expect(mockCreateChapter).not.toHaveBeenCalled()
+  })
 })

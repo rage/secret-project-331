@@ -12,6 +12,8 @@ export interface ExamInfoHeaderProps {
   examData: ExamData
 }
 
+export const EXAM_HEADING_ID = "exam-heading"
+
 const dateValueClass = css`
   font-weight: 600;
 `
@@ -32,6 +34,8 @@ export default function ExamInfoHeader({ examData }: ExamInfoHeaderProps) {
       `}
     >
       <h1
+        id={EXAM_HEADING_ID}
+        tabIndex={-1}
         className={css`
           font-family: ${headingFont};
           font-size: ${typography.h4};

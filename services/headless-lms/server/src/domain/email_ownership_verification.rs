@@ -11,13 +11,15 @@ use headless_lms_models::{
     user_email_codes::UserEmailCodePurpose,
 };
 
-use crate::prelude::*;
+use crate::{domain::mail_budget, prelude::*};
 
 /// Language for the automatic sends, which have no UI language to work from.
 pub const FALLBACK_EMAIL_LANGUAGE: &str = "en";
 
 /// Mail-bomb guard, not a quota: how soon after mailing a code we refuse another.
 pub const MIN_RESEND_INTERVAL_MINUTES: i64 = 2;
+
+const MAX_CODES_PER_DAY: i64 = 5;
 
 /// Wrong guesses one code tolerates before it is retired. Six digits are only safe with a cap.
 pub const MAX_CODE_ATTEMPTS: i32 = 5;
@@ -54,6 +56,7 @@ pub enum VerificationEmailOutcome {
     AlreadyVerified,
     /// A code was mailed to this address less than the resend interval ago.
     RecentlySent,
+    DailyLimitReached,
 }
 
 /// Mails a fresh verification code to the address the account holds now.
@@ -71,26 +74,46 @@ pub async fn queue_verification_email(
 
     // The live code is the record of the last send to the current address: an address change retires
     // it in the database trigger, so a genuine change can be mailed immediately.
+    let mut tx = conn.begin().await?;
+    user_email_codes::lock_for_user_and_purpose(&mut tx, user_id, PURPOSE).await?;
     let live_code =
-        user_email_codes::get_unused_user_email_code_with_user_id(conn, user_id, PURPOSE).await?;
+        user_email_codes::get_unused_user_email_code_with_user_id(&mut tx, user_id, PURPOSE)
+            .await?;
     if let Some(live_code) = live_code
         && Utc::now() - live_code.created_at < Duration::minutes(MIN_RESEND_INTERVAL_MINUTES)
     {
         return Ok(VerificationEmailOutcome::RecentlySent);
     }
-
-    mail_new_code(
-        conn,
+    // Per account rather than per address, so address changes share the allowance.
+    let sent_today = user_email_codes::count_created_since(
+        &mut tx,
         user_id,
         PURPOSE,
-        EmailTemplateType::VerifyEmailAddress,
-        language,
+        Utc::now() - Duration::days(1),
     )
     .await?;
+    if sent_today >= MAX_CODES_PER_DAY {
+        return Ok(VerificationEmailOutcome::DailyLimitReached);
+    }
+
+    // Queued also when the inbox budget refuses the mail, so the outcome does not depend on mails
+    // other accounts caused to the inbox. Checked before minting: minting retires the live code.
+    if mail_budget::try_consume_for_user(&mut tx, user_id).await? {
+        mail_new_code(
+            &mut tx,
+            user_id,
+            PURPOSE,
+            EmailTemplateType::VerifyEmailAddress,
+            language,
+        )
+        .await?;
+    }
+    tx.commit().await?;
     Ok(VerificationEmailOutcome::Queued)
 }
 
-/// Mints a code for `purpose` and queues the `template_type` mail that carries it.
+/// Mints a code for `purpose` and queues the `template_type` mail that carries it. Does not check the
+/// [daily mail budget](crate::domain::mail_budget); callers must first.
 ///
 /// Errors when the deployment has no such template: the lookup falls back to English, so no row
 /// means none at all.

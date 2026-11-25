@@ -35,6 +35,11 @@ import { exerciseButtonStyles, getExerciseBlockBeginningScrollingId } from ".."
 import ContentRenderer from "../../.."
 import ExerciseTaskIframe from "../ExerciseTaskIframe"
 import PeerOrSelfReviewQuestionComponent from "./PeerOrSelfReviewQuestion"
+import {
+  focusPeerReviewHeading,
+  requestPeerReviewHeadingFocus,
+  usePendingPeerReviewHeadingFocus,
+} from "./peerReviewFocus"
 import MarkAsSpamDialog from "./PeerReviewMarkingSpam/MarkAsSpamDialog"
 import { reviewerAnswerFields, reviewerDownloadFileName } from "./reviewerAnswer"
 
@@ -51,6 +56,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     new Map(),
   )
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
+  const [focusRequest, setFocusRequest] = useState(0)
+  usePendingPeerReviewHeadingFocus(exerciseId, focusRequest)
 
   const query = useQuery({
     ...fetchPeerOrSelfReviewDataByExerciseIdOptions({
@@ -126,6 +133,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
+        requestPeerReviewHeadingFocus(exerciseId)
         // still old data because we have't refetched yet
         const givenEnoughReviews =
           (peerOrSelfReviewData?.peer_or_self_review_config.peer_reviews_to_give ??
@@ -158,6 +166,8 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
         }
 
         setAnswers(new Map())
+        // Focuses once the refetched view renders; a swapped-in view focuses on mount instead.
+        setFocusRequest((n) => n + 1)
       },
     },
   )
@@ -188,10 +198,12 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
     },
     { notify: true, method: "POST" },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
+        requestPeerReviewHeadingFocus(exerciseId)
         setIsReportDialogOpen(false)
         setAnswers(new Map())
-        query.refetch()
+        await query.refetch()
+        setFocusRequest((n) => n + 1)
       },
     },
   )
@@ -309,6 +321,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                 <ExerciseTaskIframe
                   exerciseTaskId={course_material_exercise_task.id}
                   key={course_material_exercise_task.id}
+                  exerciseServiceSlug={course_material_exercise_task.exercise_service_slug}
                   postThisStateToIFrame={{
                     // oxlint-disable-next-line i18next/no-literal-string
                     view_type: "view-submission",
@@ -426,24 +439,29 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
       >
         {t("submit-button")}
       </button>
-      <Button
-        className={css`
-          display: flex !important;
-          align-items: center;
-          gap: 6px;
-        `}
-        variant={"icon"}
-        size={"small"}
-        onClick={() => setIsReportDialogOpen(true)}
-      >
-        <ExclamationMessage /> {t("button-text-report")}
-      </Button>
+      {!selfReview && (
+        <>
+          <Button
+            className={css`
+              display: flex !important;
+              align-items: center;
+              gap: 6px;
+            `}
+            variant={"icon"}
+            size={"small"}
+            onClick={() => setIsReportDialogOpen(true)}
+          >
+            <ExclamationMessage /> {t("button-text-report")}
+          </Button>
 
-      <MarkAsSpamDialog
-        isOpen={isReportDialogOpen}
-        onClose={() => setIsReportDialogOpen(false)}
-        onSubmit={handleReportSubmit}
-      />
+          <MarkAsSpamDialog
+            isOpen={isReportDialogOpen}
+            onClose={() => setIsReportDialogOpen(false)}
+            onSubmit={handleReportSubmit}
+            onExitComplete={() => focusPeerReviewHeading(exerciseId)}
+          />
+        </>
+      )}
     </div>
   )
 }

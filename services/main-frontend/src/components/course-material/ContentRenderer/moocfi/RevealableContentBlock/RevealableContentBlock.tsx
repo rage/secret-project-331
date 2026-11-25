@@ -2,12 +2,12 @@
 
 import { css } from "@emotion/css"
 import { t } from "i18next"
-import React, { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button } from "@/shared-module/components"
+import { Button, focusProgrammatically } from "@/shared-module/components"
 import type { Block } from "@/types/courseMaterialBlock"
 
 import type { BlockRendererProps } from "../.."
@@ -20,6 +20,14 @@ const RevealableContentBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<RevealableContentProps>>
 > = (props) => {
   const [open, setOpen] = useState(false)
+  const revealedRef = useRef<HTMLDivElement>(null)
+
+  // The button unmounts on reveal, so move focus to the revealed content.
+  useEffect(() => {
+    if (open && revealedRef.current) {
+      focusProgrammatically(revealedRef.current)
+    }
+  }, [open])
 
   const reveleadContent: Block<RevealableContentProps>[] = []
   const hiddenContent: Block<RevealableContentProps>[] = []
@@ -49,10 +57,13 @@ const RevealableContentBlock: React.FC<
               {t("button-text-proceed-after-thinking")}
             </Button>
           )}
-          {open &&
-            hiddenContent.map((content) => (
-              <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
-            ))}
+          {open && (
+            <div ref={revealedRef} tabIndex={-1}>
+              {hiddenContent.map((content) => (
+                <ContentRenderer key={content.clientId} data={[content]} isExam={false} />
+              ))}
+            </div>
+          )}
         </Centered>
       </div>
     </BreakFromCentered>

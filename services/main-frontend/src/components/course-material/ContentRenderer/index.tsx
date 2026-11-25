@@ -330,7 +330,7 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
           font-size: 20px;
           text-underline-offset: 4.6px;
           text-decoration-thickness: 1.6px;
-          a {
+          a:not([data-button-variant]) {
             color: #1072ea;
             &:hover {
               color: #096df1;
@@ -348,6 +348,13 @@ const ContentRenderer: React.FC<React.PropsWithChildren<ContentRendererProps>> =
             background: #e5e5e5;
             padding: 0 0.4rem 0.2rem 0.4rem;
             border-radius: 3px;
+          }
+
+          /* The grey fill is unreadable under a button's light text; keep the button's own contrast. */
+          a[data-button-variant] code:not(pre code) {
+            background: transparent;
+            color: inherit;
+            box-shadow: inset 0 0 0 1px currentColor;
           }
 
           /* Styling for highlighted text */

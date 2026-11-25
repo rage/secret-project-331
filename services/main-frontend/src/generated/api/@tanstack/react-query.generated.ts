@@ -100,6 +100,7 @@ import {
   deleteExerciseService,
   deleteExternalCourse,
   deleteGlossaryTerm,
+  deleteLanguageVersionProblemDismissal,
   deleteOrganizationImage,
   deletePage,
   deletePageAudioFile,
@@ -147,6 +148,7 @@ import {
   getBulkUserDetails,
   getCertificateByConfigurationId,
   getCertificateByVerificationId,
+  getCertificateDetailsByVerificationId,
   getChatbotConfiguration,
   getChatbotEmbedConf,
   getChatbotModel,
@@ -204,6 +206,7 @@ import {
   getCourseLinkableExams,
   getCourseLinkedExams,
   getCourseMetadata,
+  getCourseModelSolutionSettings,
   getCourseModule,
   getCourseModuleCompletion,
   getCourseModuleCompletionRegistrationLink,
@@ -259,6 +262,7 @@ import {
   getExamSubmissionsWithExerciseId,
   getExamUserExerciseStateInfo,
   getExercise,
+  getExerciseAnswerShares,
   getExerciseAnswersRequiringAttention,
   getExerciseCsvExportTaskOptions,
   getExerciseRepositoriesForCourse,
@@ -273,6 +277,14 @@ import {
   getFirstExerciseSubmissionsByModule,
   getFirstExerciseSubmissionsHistory,
   getFirstExerciseSubmissionsHistoryByInstance,
+  getLanguageVersionAiSuggestions,
+  getLanguageVersionExerciseCounterparts,
+  getLanguageVersionJoinCandidates,
+  getLanguageVersionJoinPreview,
+  getLanguageVersionReport,
+  getLanguageVersionSplitPreview,
+  getLanguageVersionStructure,
+  getLanguageVersionSuggestions,
   getMoocfiCourseLink,
   getMyCertificates,
   getMyCourses,
@@ -383,6 +395,13 @@ import {
   markFeedbackAsRead,
   newCourseDesignerAssistantConversation,
   type Options,
+  postLanguageVersionCounterpart,
+  postLanguageVersionExerciseLinks,
+  postLanguageVersionJoin,
+  postLanguageVersionPageLinks,
+  postLanguageVersionProblemDismissal,
+  postLanguageVersionRemoveLeftoverLinks,
+  postLanguageVersionSplit,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
   previewStudentNumberVerificationToken,
@@ -431,6 +450,7 @@ import {
   setMyExternalCompletionCreditJustification,
   setMyExternalCompletionEnrolmentRoute,
   softDeleteOrganization,
+  syncExerciseRepository,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
@@ -446,6 +466,7 @@ import {
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
+  updateCourseModelSolutionSettings,
   updateCourseModules,
   updateCoursePageOrdering,
   updateCoursePeerReviewQueueReviewsReceived,
@@ -620,6 +641,7 @@ import type {
   DeleteExternalCourseData,
   DeleteExternalCourseResponse,
   DeleteGlossaryTermData,
+  DeleteLanguageVersionProblemDismissalData,
   DeleteOrganizationImageData,
   DeletePageAudioFileData,
   DeletePageData,
@@ -706,6 +728,8 @@ import type {
   GetCertificateByConfigurationIdData,
   GetCertificateByConfigurationIdResponse,
   GetCertificateByVerificationIdData,
+  GetCertificateDetailsByVerificationIdData,
+  GetCertificateDetailsByVerificationIdResponse,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponse,
   GetChatbotEmbedConfData,
@@ -815,6 +839,8 @@ import type {
   GetCourseLinkedExamsResponse,
   GetCourseMetadataData,
   GetCourseMetadataResponse,
+  GetCourseModelSolutionSettingsData,
+  GetCourseModelSolutionSettingsResponse,
   GetCourseModuleCompletionData,
   GetCourseModuleCompletionRegistrationLinkData,
   GetCourseModuleCompletionRegistrationLinkResponse,
@@ -923,6 +949,8 @@ import type {
   GetExamSubmissionsWithExerciseIdResponse,
   GetExamUserExerciseStateInfoData,
   GetExamUserExerciseStateInfoResponse,
+  GetExerciseAnswerSharesData,
+  GetExerciseAnswerSharesResponse,
   GetExerciseAnswersRequiringAttentionData,
   GetExerciseAnswersRequiringAttentionResponse,
   GetExerciseCsvExportTaskOptionsData,
@@ -953,6 +981,22 @@ import type {
   GetFirstExerciseSubmissionsHistoryByInstanceResponse,
   GetFirstExerciseSubmissionsHistoryData,
   GetFirstExerciseSubmissionsHistoryResponse,
+  GetLanguageVersionAiSuggestionsData,
+  GetLanguageVersionAiSuggestionsResponse,
+  GetLanguageVersionExerciseCounterpartsData,
+  GetLanguageVersionExerciseCounterpartsResponse,
+  GetLanguageVersionJoinCandidatesData,
+  GetLanguageVersionJoinCandidatesResponse,
+  GetLanguageVersionJoinPreviewData,
+  GetLanguageVersionJoinPreviewResponse,
+  GetLanguageVersionReportData,
+  GetLanguageVersionReportResponse,
+  GetLanguageVersionSplitPreviewData,
+  GetLanguageVersionSplitPreviewResponse,
+  GetLanguageVersionStructureData,
+  GetLanguageVersionStructureResponse,
+  GetLanguageVersionSuggestionsData,
+  GetLanguageVersionSuggestionsResponse,
   GetMoocfiCourseLinkData,
   GetMoocfiCourseLinkResponse,
   GetMyCertificatesData,
@@ -1164,6 +1208,20 @@ import type {
   MarkFeedbackAsReadData,
   NewCourseDesignerAssistantConversationData,
   NewCourseDesignerAssistantConversationResponse,
+  PostLanguageVersionCounterpartData,
+  PostLanguageVersionCounterpartResponse,
+  PostLanguageVersionExerciseLinksData,
+  PostLanguageVersionExerciseLinksResponse,
+  PostLanguageVersionJoinData,
+  PostLanguageVersionJoinResponse,
+  PostLanguageVersionPageLinksData,
+  PostLanguageVersionPageLinksResponse,
+  PostLanguageVersionProblemDismissalData,
+  PostLanguageVersionProblemDismissalResponse,
+  PostLanguageVersionRemoveLeftoverLinksData,
+  PostLanguageVersionRemoveLeftoverLinksResponse,
+  PostLanguageVersionSplitData,
+  PostLanguageVersionSplitResponse,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
@@ -1249,6 +1307,8 @@ import type {
   SetMyExternalCompletionEnrolmentRouteData,
   SetMyExternalCompletionEnrolmentRouteResponse,
   SoftDeleteOrganizationData,
+  SyncExerciseRepositoryData,
+  SyncExerciseRepositoryResponse,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
   TeacherSetStudentChapterStatusData,
@@ -1275,6 +1335,8 @@ import type {
   UpdateCourseDesignerStageTaskResponse,
   UpdateCourseDesignerStageWorkspaceData,
   UpdateCourseDesignerStageWorkspaceResponse,
+  UpdateCourseModelSolutionSettingsData,
+  UpdateCourseModelSolutionSettingsResponse,
   UpdateCourseModulesData,
   UpdateCoursePageOrderingData,
   UpdateCoursePeerReviewQueueReviewsReceivedData,
@@ -1842,6 +1904,34 @@ export const getCertificateByVerificationIdOptions = (
         throwOnError: true,
       }),
     queryKey: getCertificateByVerificationIdQueryKey(options),
+  })
+
+export const getCertificateDetailsByVerificationIdQueryKey = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) => createQueryKey("getCertificateDetailsByVerificationId", options)
+
+/**
+ * GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`
+ *
+ * The certificate's holder, course, module, completion date and printed grade as JSON.
+ */
+export const getCertificateDetailsByVerificationIdOptions = (
+  options: Options<GetCertificateDetailsByVerificationIdData>,
+) =>
+  queryOptions<
+    GetCertificateDetailsByVerificationIdResponse,
+    DefaultError,
+    GetCertificateDetailsByVerificationIdResponse,
+    ReturnType<typeof getCertificateDetailsByVerificationIdQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCertificateDetailsByVerificationId({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCertificateDetailsByVerificationIdQueryKey(options),
   })
 
 /**
@@ -5130,14 +5220,6 @@ export const getCourseLanguageVersionsQueryKey = (
 
 /**
  * GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
- *
- * # Example
- *
- * Request:
- * ```http
- * GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
- * Content-Type: application/json
- * ```
  */
 export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLanguageVersionsData>) =>
   queryOptions<
@@ -5154,6 +5236,392 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
         throwOnError: true,
       }),
     queryKey: getCourseLanguageVersionsQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/counterparts` - Copies a page into another language version and links the copy.
+ */
+export const postLanguageVersionCounterpartMutation = (
+  options?: Partial<Options<PostLanguageVersionCounterpartData>>,
+): UseMutationOptions<
+  PostLanguageVersionCounterpartResponse,
+  DefaultError,
+  Options<PostLanguageVersionCounterpartData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionCounterpartResponse,
+    DefaultError,
+    Options<PostLanguageVersionCounterpartData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionCounterpart({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * DELETE `/api/v0/main-frontend/courses/:id/language-versions/dismissals?problem_key=...` - Reports a dismissed problem again.
+ */
+export const deleteLanguageVersionProblemDismissalMutation = (
+  options?: Partial<Options<DeleteLanguageVersionProblemDismissalData>>,
+): UseMutationOptions<
+  unknown,
+  DefaultError,
+  Options<DeleteLanguageVersionProblemDismissalData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<DeleteLanguageVersionProblemDismissalData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteLanguageVersionProblemDismissal({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/dismissals` - Marks a problem as intended.
+ */
+export const postLanguageVersionProblemDismissalMutation = (
+  options?: Partial<Options<PostLanguageVersionProblemDismissalData>>,
+): UseMutationOptions<
+  PostLanguageVersionProblemDismissalResponse,
+  DefaultError,
+  Options<PostLanguageVersionProblemDismissalData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionProblemDismissalResponse,
+    DefaultError,
+    Options<PostLanguageVersionProblemDismissalData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionProblemDismissal({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionExerciseCounterpartsQueryKey = (
+  options: Options<GetLanguageVersionExerciseCounterpartsData>,
+) => createQueryKey("getLanguageVersionExerciseCounterparts", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/exercise-counterparts` - Which exercises of this course lack counterparts.
+ */
+export const getLanguageVersionExerciseCounterpartsOptions = (
+  options: Options<GetLanguageVersionExerciseCounterpartsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionExerciseCounterpartsResponse,
+    DefaultError,
+    GetLanguageVersionExerciseCounterpartsResponse,
+    ReturnType<typeof getLanguageVersionExerciseCounterpartsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionExerciseCounterparts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionExerciseCounterpartsQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/exercise-links` - Links or unlinks exercises across the language versions.
+ */
+export const postLanguageVersionExerciseLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionExerciseLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionExerciseLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionExerciseLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionExerciseLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionExerciseLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionExerciseLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/join` - Joins a course into the language versions, moving its students' data.
+ */
+export const postLanguageVersionJoinMutation = (
+  options?: Partial<Options<PostLanguageVersionJoinData>>,
+): UseMutationOptions<
+  PostLanguageVersionJoinResponse,
+  DefaultError,
+  Options<PostLanguageVersionJoinData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionJoinResponse,
+    DefaultError,
+    Options<PostLanguageVersionJoinData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionJoin({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionJoinCandidatesQueryKey = (
+  options: Options<GetLanguageVersionJoinCandidatesData>,
+) => createQueryKey("getLanguageVersionJoinCandidates", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-candidates` - Courses that could join the language versions.
+ *
+ * Only courses the user can edit are returned.
+ */
+export const getLanguageVersionJoinCandidatesOptions = (
+  options: Options<GetLanguageVersionJoinCandidatesData>,
+) =>
+  queryOptions<
+    GetLanguageVersionJoinCandidatesResponse,
+    DefaultError,
+    GetLanguageVersionJoinCandidatesResponse,
+    ReturnType<typeof getLanguageVersionJoinCandidatesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionJoinCandidates({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionJoinCandidatesQueryKey(options),
+  })
+
+export const getLanguageVersionJoinPreviewQueryKey = (
+  options: Options<GetLanguageVersionJoinPreviewData>,
+) => createQueryKey("getLanguageVersionJoinPreview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/join-preview/:joined_course_id` - What joining the course would change.
+ */
+export const getLanguageVersionJoinPreviewOptions = (
+  options: Options<GetLanguageVersionJoinPreviewData>,
+) =>
+  queryOptions<
+    GetLanguageVersionJoinPreviewResponse,
+    DefaultError,
+    GetLanguageVersionJoinPreviewResponse,
+    ReturnType<typeof getLanguageVersionJoinPreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionJoinPreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionJoinPreviewQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/page-links` - Links or unlinks pages across the language versions.
+ */
+export const postLanguageVersionPageLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionPageLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionPageLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionPageLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionPageLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionPageLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionPageLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/remove-leftover-links` - Removes links to deleted pages and exercises.
+ */
+export const postLanguageVersionRemoveLeftoverLinksMutation = (
+  options?: Partial<Options<PostLanguageVersionRemoveLeftoverLinksData>>,
+): UseMutationOptions<
+  PostLanguageVersionRemoveLeftoverLinksResponse,
+  DefaultError,
+  Options<PostLanguageVersionRemoveLeftoverLinksData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionRemoveLeftoverLinksResponse,
+    DefaultError,
+    Options<PostLanguageVersionRemoveLeftoverLinksData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionRemoveLeftoverLinks({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionReportQueryKey = (options: Options<GetLanguageVersionReportData>) =>
+  createQueryKey("getLanguageVersionReport", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/report` - Checks the language versions for problems.
+ *
+ * Needs `Edit` on this course only; `can_edit` per course tells which fixes the user may apply.
+ */
+export const getLanguageVersionReportOptions = (options: Options<GetLanguageVersionReportData>) =>
+  queryOptions<
+    GetLanguageVersionReportResponse,
+    DefaultError,
+    GetLanguageVersionReportResponse,
+    ReturnType<typeof getLanguageVersionReportQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionReport({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionReportQueryKey(options),
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/:id/language-versions/split` - Removes a course from the language versions, moving its students' data with it.
+ */
+export const postLanguageVersionSplitMutation = (
+  options?: Partial<Options<PostLanguageVersionSplitData>>,
+): UseMutationOptions<
+  PostLanguageVersionSplitResponse,
+  DefaultError,
+  Options<PostLanguageVersionSplitData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    PostLanguageVersionSplitResponse,
+    DefaultError,
+    Options<PostLanguageVersionSplitData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await postLanguageVersionSplit({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getLanguageVersionSplitPreviewQueryKey = (
+  options: Options<GetLanguageVersionSplitPreviewData>,
+) => createQueryKey("getLanguageVersionSplitPreview", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/split-preview/:split_course_id` - What removing the course from the language versions would change.
+ */
+export const getLanguageVersionSplitPreviewOptions = (
+  options: Options<GetLanguageVersionSplitPreviewData>,
+) =>
+  queryOptions<
+    GetLanguageVersionSplitPreviewResponse,
+    DefaultError,
+    GetLanguageVersionSplitPreviewResponse,
+    ReturnType<typeof getLanguageVersionSplitPreviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionSplitPreview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionSplitPreviewQueryKey(options),
+  })
+
+export const getLanguageVersionStructureQueryKey = (
+  options: Options<GetLanguageVersionStructureData>,
+) => createQueryKey("getLanguageVersionStructure", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/structure` - The language versions' chapters, pages and exercises side by side.
+ */
+export const getLanguageVersionStructureOptions = (
+  options: Options<GetLanguageVersionStructureData>,
+) =>
+  queryOptions<
+    GetLanguageVersionStructureResponse,
+    DefaultError,
+    GetLanguageVersionStructureResponse,
+    ReturnType<typeof getLanguageVersionStructureQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionStructure({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionStructureQueryKey(options),
+  })
+
+export const getLanguageVersionSuggestionsQueryKey = (
+  options: Options<GetLanguageVersionSuggestionsData>,
+) => createQueryKey("getLanguageVersionSuggestions", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.
+ *
+ * Candidate courses outside the language versions need `Edit` too. Heuristic only; see
+ * `/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.
+ */
+export const getLanguageVersionSuggestionsOptions = (
+  options: Options<GetLanguageVersionSuggestionsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionSuggestionsResponse,
+    DefaultError,
+    GetLanguageVersionSuggestionsResponse,
+    ReturnType<typeof getLanguageVersionSuggestionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionSuggestions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionSuggestionsQueryKey(options),
   })
 
 export const getCourseLinkableExamsQueryKey = (options: Options<GetCourseLinkableExamsData>) =>
@@ -5178,6 +5646,59 @@ export const getCourseLinkableExamsOptions = (options: Options<GetCourseLinkable
       }),
     queryKey: getCourseLinkableExamsQueryKey(options),
   })
+
+export const getCourseModelSolutionSettingsQueryKey = (
+  options: Options<GetCourseModelSolutionSettingsData>,
+) => createQueryKey("getCourseModelSolutionSettings", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals
+ * model solutions to students who have neither solved the exercise nor used up its tries.
+ */
+export const getCourseModelSolutionSettingsOptions = (
+  options: Options<GetCourseModelSolutionSettingsData>,
+) =>
+  queryOptions<
+    GetCourseModelSolutionSettingsResponse,
+    DefaultError,
+    GetCourseModelSolutionSettingsResponse,
+    ReturnType<typeof getCourseModelSolutionSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseModelSolutionSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseModelSolutionSettingsQueryKey(options),
+  })
+
+/**
+ * PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals
+ * model solutions to every student.
+ */
+export const updateCourseModelSolutionSettingsMutation = (
+  options?: Partial<Options<UpdateCourseModelSolutionSettingsData>>,
+): UseMutationOptions<
+  UpdateCourseModelSolutionSettingsResponse,
+  DefaultError,
+  Options<UpdateCourseModelSolutionSettingsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseModelSolutionSettingsResponse,
+    DefaultError,
+    Options<UpdateCourseModelSolutionSettingsData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseModelSolutionSettings({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  * POST `/api/v0/main-frontend/courses/:id/new-chapter-ordering` - Reorders chapters based on modified chapter number.#
@@ -9995,6 +10516,32 @@ export const updateExerciseRepositoryMutation = (
   return mutationOptions
 }
 
+/**
+ * POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's
+ * exercises from its current contents.
+ */
+export const syncExerciseRepositoryMutation = (
+  options?: Partial<Options<SyncExerciseRepositoryData>>,
+): UseMutationOptions<
+  SyncExerciseRepositoryResponse,
+  DefaultError,
+  Options<SyncExerciseRepositoryData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SyncExerciseRepositoryResponse,
+    DefaultError,
+    Options<SyncExerciseRepositoryData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await syncExerciseRepository({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const getExerciseServicesQueryKey = (options?: Options<GetExerciseServicesData>) =>
   createQueryKey("getExerciseServices", options)
 
@@ -10259,6 +10806,30 @@ export const getExerciseOptions = (options: Options<GetExerciseData>) =>
         throwOnError: true,
       }),
     queryKey: getExerciseQueryKey(options),
+  })
+
+export const getExerciseAnswerSharesQueryKey = (options: Options<GetExerciseAnswerSharesData>) =>
+  createQueryKey("getExerciseAnswerShares", options)
+
+/**
+ * GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of
+ * the exercise's answers, including the pastes students made from the editor, so staff can find them.
+ */
+export const getExerciseAnswerSharesOptions = (options: Options<GetExerciseAnswerSharesData>) =>
+  queryOptions<
+    GetExerciseAnswerSharesResponse,
+    DefaultError,
+    GetExerciseAnswerSharesResponse,
+    ReturnType<typeof getExerciseAnswerSharesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getExerciseAnswerShares({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getExerciseAnswerSharesQueryKey(options),
   })
 
 export const getExerciseAnswersRequiringAttentionQueryKey = (
@@ -10917,6 +11488,35 @@ export const updateGlossaryTermMutation = (
   }
   return mutationOptions
 }
+
+export const getLanguageVersionAiSuggestionsQueryKey = (
+  options: Options<GetLanguageVersionAiSuggestionsData>,
+) => createQueryKey("getLanguageVersionAiSuggestions", options)
+
+/**
+ * GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.
+ *
+ * Outside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the
+ * AI is unavailable, the heuristic suggestions come back with `ai_status` saying so.
+ */
+export const getLanguageVersionAiSuggestionsOptions = (
+  options: Options<GetLanguageVersionAiSuggestionsData>,
+) =>
+  queryOptions<
+    GetLanguageVersionAiSuggestionsResponse,
+    DefaultError,
+    GetLanguageVersionAiSuggestionsResponse,
+    ReturnType<typeof getLanguageVersionAiSuggestionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getLanguageVersionAiSuggestions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getLanguageVersionAiSuggestionsQueryKey(options),
+  })
 
 export const getMyMoocfiCreditRegistrationsQueryKey = (
   options: Options<GetMyMoocfiCreditRegistrationsData>,
@@ -13149,9 +13749,10 @@ export const getSharedSubmissionInfoQueryKey = (options: Options<GetSharedSubmis
  * GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to
  * render a shared submission or ungraded snapshot.
  *
- * The `token` is the unguessable share id minted by the client share endpoint. Login is
- * required, but holding the token is the only capability needed to view the submission —
- * no teacher or course role.
+ * The `token` is the unguessable share id minted by the client share endpoint. Who may open it
+ * follows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff
+ * always; any logged-in user while the student has not passed the exercise; once they have, only
+ * users who have passed it themselves.
  */
 export const getSharedSubmissionInfoOptions = (options: Options<GetSharedSubmissionInfoData>) =>
   queryOptions<
@@ -13948,6 +14549,28 @@ export const getMyStudiesOptions = (options?: Options<GetMyStudiesData>) =>
     queryKey: getMyStudiesQueryKey(options),
   })
 
+export const sendResetPasswordEmailMutation = (
+  options?: Partial<Options<SendResetPasswordEmailData>>,
+): UseMutationOptions<
+  SendResetPasswordEmailResponse,
+  DefaultError,
+  Options<SendResetPasswordEmailData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SendResetPasswordEmailResponse,
+    DefaultError,
+    Options<SendResetPasswordEmailData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await sendResetPasswordEmail({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
 export const resetUserPasswordMutation = (
   options?: Partial<Options<ResetUserPasswordData>>,
 ): UseMutationOptions<ResetUserPasswordResponse, DefaultError, Options<ResetUserPasswordData>> => {
@@ -13980,28 +14603,6 @@ export const getResetPasswordTokenStatusMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await getResetPasswordTokenStatus({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-export const sendResetPasswordEmailMutation = (
-  options?: Partial<Options<SendResetPasswordEmailData>>,
-): UseMutationOptions<
-  SendResetPasswordEmailResponse,
-  DefaultError,
-  Options<SendResetPasswordEmailData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SendResetPasswordEmailResponse,
-    DefaultError,
-    Options<SendResetPasswordEmailData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await sendResetPasswordEmail({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -1,21 +1,20 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { usePathname } from "next/navigation"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { authCardStackCss } from "@/components/auth/AuthCard"
 import { PasswordField } from "@/components/forms/PasswordField"
 import { baseTheme } from "@/shared-module/common/styles"
-import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
-import { signUpRoute } from "@/shared-module/common/utils/routes"
 import { Button, TextField, Link } from "@/shared-module/components"
 
 interface CredentialsFormProps {
   onSubmit: (email: string, password: string) => Promise<void>
   error: boolean
   isSubmitting: boolean
+  resetPasswordHref: string
 }
 
 interface CredentialsFields {
@@ -23,16 +22,16 @@ interface CredentialsFields {
   password: string
 }
 
-// CredentialsForm renders the login credentials form for email and password.
+// CredentialsForm renders the login credentials form for email and password; the page supplies the
+// heading and the sign-up link around it.
 export const CredentialsForm: React.FC<CredentialsFormProps> = ({
   onSubmit,
   error,
   isSubmitting,
+  resetPasswordHref,
 }) => {
   const { t } = useTranslation()
-  const pathname = usePathname()
-  const returnToForLinkToSignupPage = useCurrentPagePathForReturnTo(pathname)
-  const { control, handleSubmit, watch, setFocus } = useForm<CredentialsFields>({
+  const { control, handleSubmit, setFocus } = useForm<CredentialsFields>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: { email: "", password: "" },
@@ -43,36 +42,11 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
     setFocus("email")
   }, [setFocus])
 
-  const email = watch("email")
-  const password = watch("password")
-
   return (
     <form
       onSubmit={handleSubmit((data) => onSubmit(data.email, data.password))}
-      className={css`
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 3rem 0rem;
-      `}
+      className={authCardStackCss}
     >
-      <h1>{t("login")}</h1>
-      <div
-        className={css`
-          margin-bottom: 1rem;
-        `}
-      >
-        {t("login-description")}{" "}
-        <a
-          className={css`
-            color: ${baseTheme.colors.blue[600]};
-          `}
-          href="https://mooc.fi"
-        >
-          {t("login.linkMooc")}
-        </a>{" "}
-        {t("login-description2")}
-      </div>
       <TextField
         name="email"
         control={control}
@@ -99,40 +73,32 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
             padding: 1rem;
             border: 2px solid ${baseTheme.colors.red[500]};
             font-weight: bold;
-            color: ${baseTheme.colors.red[500]};
+            color: ${baseTheme.colors.red[700]};
           }
         `}
       >
         {error ? t("incorrect-email-or-password") : null}
       </div>
-      <Button
+      <Link
+        href={resetPasswordHref}
         className={css`
-          margin: 1rem 0rem;
+          align-self: flex-start;
+          font-size: var(--font-size-1);
         `}
+      >
+        {t("forgot-password")}
+      </Link>
+      <Button
         variant="primary"
-        size="medium"
+        size="large"
         type="submit"
+        isFullWidth
         // oxlint-disable-next-line i18next/no-literal-string
         domProps={{ id: "login-button" }}
         isLoading={isSubmitting}
-        disabled={!email || !password}
       >
         {t("login")}
       </Button>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-
-          a {
-            color: ${baseTheme.colors.blue[600]};
-          }
-        `}
-      >
-        <Link href="/reset-password">{t("forgot-password")}</Link>
-        <a href={signUpRoute(returnToForLinkToSignupPage)}>{t("create-an-account")}</a>
-      </div>
     </form>
   )
 }

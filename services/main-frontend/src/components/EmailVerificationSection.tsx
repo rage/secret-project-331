@@ -39,6 +39,7 @@ const OUTCOME_KEYS = {
   queued: null,
   already_verified: "message-email-is-already-verified",
   recently_sent: "message-email-verification-code-was-just-sent",
+  daily_limit_reached: "message-code-daily-limit-reached",
 } as const satisfies Record<RequestEmailVerificationOutcome, string | null>
 
 const bodyCss = css`
@@ -183,6 +184,11 @@ const Body: React.FC<{ status: EmailVerificationStatus }> = ({ status }) => {
           {t("button-send-a-verification-code")}
         </Button>
       )}
+
+      {/* Without a pending code there is no dialog to carry the outcome. */}
+      {!verified && !pendingCode && outcome && OUTCOME_KEYS[outcome] ? (
+        <p data-testid="email-verification-request-outcome">{t(OUTCOME_KEYS[outcome])}</p>
+      ) : null}
 
       {verified || !pendingCode ? null : (
         <Dialog

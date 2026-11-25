@@ -22,6 +22,7 @@ const PageNotFound: React.FC<React.PropsWithChildren<PageNotFoundProps>> = ({
   return (
     <>
       <ErrorNotice
+        headingLevel={1}
         error={new Error(`${t("404-not-found")} ${t("course-has-no-page-at-path", { path })}`)}
       />
       {path === "/" && (

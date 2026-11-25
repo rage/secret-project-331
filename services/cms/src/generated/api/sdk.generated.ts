@@ -50,6 +50,8 @@ import type {
   GetCmsPageData,
   GetCmsPageInfoData,
   GetCmsPageInfoResponses,
+  GetCmsPageLanguageVersionsData,
+  GetCmsPageLanguageVersionsResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
   GetCmsPagePendingAgentChangesData,
@@ -57,8 +59,12 @@ import type {
   GetCmsPageResponses,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponses,
+  GetCmsRepositoryExercisesForExamData,
+  GetCmsRepositoryExercisesForExamResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
+  LinkCmsPageCounterpartData,
+  LinkCmsPageCounterpartResponses,
   PreviewCmsEmailTemplateData,
   PreviewCmsEmailTemplateResponses,
   RequestChartSpecGenerationData,
@@ -107,11 +113,14 @@ import {
   zGetCmsExamInstructionsResponse,
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
+  zGetCmsPageLanguageVersionsResponse,
   zGetCmsPageNavigationResponse,
   zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
+  zGetCmsRepositoryExercisesForExamResponse,
   zGetExercisesWithSubmissionsResponse,
+  zLinkCmsPageCounterpartResponse,
   zPreviewCmsEmailTemplateResponse,
   zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
@@ -760,6 +769,41 @@ export const getCmsPageInfo = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.
+ */
+export const getCmsPageLanguageVersions = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPageLanguageVersionsData, ThrowOnError>,
+): RequestResult<GetCmsPageLanguageVersionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPageLanguageVersionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCmsPageLanguageVersionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.
+ */
+export const linkCmsPageCounterpart = <ThrowOnError extends boolean = true>(
+  options: Options<LinkCmsPageCounterpartData, ThrowOnError>,
+): RequestResult<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zLinkCmsPageCounterpartResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions/link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
  * GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
 export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
@@ -789,6 +833,22 @@ export const getCmsPagePendingAgentChanges = <ThrowOnError extends boolean = tru
       await zGetCmsPagePendingAgentChangesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/pending-agent-changes",
+    ...options,
+  })
+
+export const getCmsRepositoryExercisesForExam = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsRepositoryExercisesForExamData, ThrowOnError>,
+): RequestResult<GetCmsRepositoryExercisesForExamResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsRepositoryExercisesForExamResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCmsRepositoryExercisesForExamResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/repository-exercises/exam/{exam_id}",
     ...options,
   })
 

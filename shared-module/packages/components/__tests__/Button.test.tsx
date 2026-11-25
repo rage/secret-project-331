@@ -91,6 +91,25 @@ describe("Button", () => {
     expect(button).not.toHaveAttribute("aria-busy")
   })
 
+  test("disabledReason keeps the button focusable, blocks presses and describes the reason", () => {
+    const onPress = jest.fn()
+    renderUi(
+      <Button disabledReason="Finish the module first" onPress={onPress}>
+        Register
+      </Button>,
+    )
+
+    const button = screen.getByRole("button", { name: "Register" })
+    expect(button).not.toBeDisabled()
+    expect(button).toHaveAttribute("aria-disabled", "true")
+    expect(button).toHaveAccessibleDescription("Finish the module first")
+    button.focus()
+    expect(button).toHaveFocus()
+    pressEnter(button)
+    fireEvent.click(button)
+    expect(onPress).not.toHaveBeenCalled()
+  })
+
   test("fires both onPress and onClick handlers", () => {
     const onPress = jest.fn()
     const onClick = jest.fn()

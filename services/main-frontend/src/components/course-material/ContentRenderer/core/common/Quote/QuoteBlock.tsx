@@ -49,17 +49,19 @@ const QuoteBlock: React.FC<BlockRendererProps<QuoteAttributes & ExtraAttributes>
         {value && (!props.data.innerBlocks || props.data.innerBlocks.length === 0) && value}
         <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
       </div>
-      <ParsedText
-        text={citation}
-        tag="cite"
-        tagProps={{
-          className: css`
-            font-style: normal;
-            font-size: 0.8125rem;
-          `,
-        }}
-        useWrapperElement={true}
-      />
+      {citation && (
+        <ParsedText
+          text={citation}
+          tag="footer"
+          tagProps={{
+            className: css`
+              font-style: normal;
+              font-size: 0.8125rem;
+            `,
+          }}
+          useWrapperElement={true}
+        />
+      )}
     </blockquote>
   )
 }

@@ -8,6 +8,7 @@ Each submodule corresponds to a database table.
 pub mod agent_changeset_calls;
 pub mod agent_changeset_entities;
 pub mod agent_changesets;
+pub mod altcha_spent_challenges;
 pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
@@ -43,6 +44,7 @@ pub mod course_exams;
 pub mod course_instance_enrollments;
 pub mod course_instances;
 pub mod course_language_groups;
+pub mod course_model_solution_settings;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_module_suotar_configurations;
@@ -60,6 +62,7 @@ pub mod credit_registration_events;
 pub mod credit_registration_phase_state;
 pub mod credit_registration_roster_schedules;
 pub mod credit_registrations;
+pub mod email_address_mail_budgets;
 pub mod email_deliveries;
 pub mod email_layouts;
 pub mod email_templates;
@@ -338,11 +341,13 @@ impl PKeyPolicy<Uuid> {
 ///   `Url`: The URL that the request is sent to (the exercise service's endpoint)
 ///   `&str`: Exercise type/service slug
 ///   `Option<Value>`: The Json for the request, for example the private spec in a public spec request
+///   `Option<RepositoryExercise>`: The current version of the repository exercise the task uses
 pub trait SpecFetcher:
     for<'a> Fn(
     Url,
     &'a str,
     Option<&'a serde_json::Value>,
+    Option<&'a repository_exercises::RepositoryExercise>,
 ) -> BoxFuture<'a, ModelResult<serde_json::Value>>
 {
 }
@@ -352,6 +357,7 @@ impl<
         Url,
         &'a str,
         Option<&'a serde_json::Value>,
+        Option<&'a repository_exercises::RepositoryExercise>,
     ) -> BoxFuture<'a, ModelResult<serde_json::Value>>,
 > SpecFetcher for T
 {

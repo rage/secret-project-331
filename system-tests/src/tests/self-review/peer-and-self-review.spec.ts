@@ -3,7 +3,10 @@ import { expect, test } from "@playwright/test"
 
 import { expandPeerAndSelfReviewConfig } from "@/utils/cmsUtils"
 import { Checkbox } from "@/utils/components/Checkbox"
-import { waitForExerciseServiceIframeToBeStable } from "@/utils/iframeLocators"
+import {
+  waitForExerciseServiceIframeToBeStable,
+  getExerciseTaskFrame,
+} from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
@@ -63,8 +66,7 @@ test.describe("Peer review followed by self review works", () => {
       await teacherPage.getByRole("tab", { name: "Pages" }).click()
       await teacherPage
         .getByRole("row", { name: "The timeline /chapter-1/the-" })
-        .getByRole("button")
-        .first()
+        .getByRole("link", { name: "Edit page" })
         .click()
       await expandPeerAndSelfReviewConfig(teacherPage)
       await Checkbox.labelled(teacherPage, "Add peer review").setChecked(true)
@@ -102,18 +104,13 @@ test.describe("Peer review followed by self review works", () => {
       )
       await selectCourseInstanceIfPrompted(student1Page)
       await student1Page.getByText("After you submit this").waitFor()
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student1Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student1Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student1Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student1Page.getByRole("button", { name: "Submit" }).click()
@@ -126,18 +123,13 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student2Page)
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student2Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student2Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student2Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student2Page.getByRole("button", { name: "Submit" }).click()
@@ -162,25 +154,17 @@ test.describe("Peer review followed by self review works", () => {
         "http://project-331.local/org/uh-mathstat/courses/self-review/chapter-1/the-timeline",
       )
       await selectCourseInstanceIfPrompted(student3Page)
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("1995")
         .selectOption({ label: "Finland joins the European Union" })
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByLabel("1998")
-        .selectOption({
-          label: "Finland joins the Economic and Monetary Union of the European Union",
-        })
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
+      await getExerciseTaskFrame(student3Page, 1).getByLabel("1998").selectOption({
+        label: "Finland joins the Economic and Monetary Union of the European Union",
+      })
+      await getExerciseTaskFrame(student3Page, 1)
         .getByLabel("2002")
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student3Page.getByRole("button", { name: "Submit" }).click()
-      await student3Page
-        .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')
-        .getByText("Your answer was correct.")
-        .waitFor()
+      await getExerciseTaskFrame(student3Page, 1).getByText("Your answer was correct.").waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
       await refreshUntilPeerReviewCandidate(student3Page, "0 / 2")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()

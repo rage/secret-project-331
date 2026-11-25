@@ -699,7 +699,7 @@ mod test {
                 history_change_reason: HistoryChangeReason::PageSaved,
                 is_exam_page: false,
             },
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -758,7 +758,7 @@ mod test {
                         ),
                     }],
                     user,
-                    |_, _, _| unimplemented!(),
+                    |_, _, _, _| unimplemented!(),
                     |_| unimplemented!(),
                 )
                 .await
@@ -819,7 +819,7 @@ mod test {
                         action: BlockProposalAction::Reject,
                     }],
                     user,
-                    |_, _, _| unimplemented!(),
+                    |_, _, _, _| unimplemented!(),
                     |_| unimplemented!(),
                 )
                 .await

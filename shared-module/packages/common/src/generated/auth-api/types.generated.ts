@@ -75,7 +75,16 @@ export type ActionOnResource = {
   resource: Resource
 }
 
+/**
+ * What a challenge may be redeemed for.
+ */
+export type ChallengePurpose = "signup" | "password_reset"
+
 export type CreateAccountDetails = {
+  /**
+   * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+   */
+  altcha: string
   country: string
   email: string
   email_communication_consent: boolean
@@ -238,6 +247,9 @@ export type SendDeleteUserEmailCodeResult =
       type: "recently_sent"
     }
   | {
+      type: "daily_limit_reached"
+    }
+  | {
       type: "incorrect_password"
     }
 
@@ -361,6 +373,25 @@ export type VerifyEmailRequest = {
   email_verification_token: string
 }
 
+export type GetAuthAltchaChallengeData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * The form the challenge is for; a solution is accepted only there.
+     */
+    purpose: ChallengePurpose
+  }
+  url: "/api/v0/auth/altcha-challenge"
+}
+
+export type GetAuthAltchaChallengeResponses = {
+  /**
+   * A signed ALTCHA challenge
+   */
+  200: unknown
+}
+
 export type PostAuthAuthorizeData = {
   body: ActionOnResource
   path?: never
@@ -393,6 +424,29 @@ export type PostAuthAuthorizeMultipleResponses = {
 
 export type PostAuthAuthorizeMultipleResponse =
   PostAuthAuthorizeMultipleResponses[keyof PostAuthAuthorizeMultipleResponses]
+
+export type PostAuthSignupData = {
+  body: CreateAccountDetails
+  path?: never
+  query?: never
+  url: "/api/v0/auth/create-account"
+}
+
+export type PostAuthSignupErrors = {
+  /**
+   * Cannot sign up (e.g. already signed in or validation error)
+   */
+  400: unknown
+}
+
+export type PostAuthSignupResponses = {
+  /**
+   * Signup outcome
+   */
+  200: SignupResponse
+}
+
+export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
 
 export type PostAuthDeleteUserAccountData = {
   body: EmailCode
@@ -524,29 +578,6 @@ export type PostAuthSessionStatusVerifyResponses = {
 
 export type PostAuthSessionStatusVerifyResponse =
   PostAuthSessionStatusVerifyResponses[keyof PostAuthSessionStatusVerifyResponses]
-
-export type PostAuthSignupData = {
-  body: CreateAccountDetails
-  path?: never
-  query?: never
-  url: "/api/v0/auth/signup"
-}
-
-export type PostAuthSignupErrors = {
-  /**
-   * Cannot sign up (e.g. already signed in or validation error)
-   */
-  400: unknown
-}
-
-export type PostAuthSignupResponses = {
-  /**
-   * Signup outcome
-   */
-  200: SignupResponse
-}
-
-export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
 
 export type GetAuthUserInfoData = {
   body?: never

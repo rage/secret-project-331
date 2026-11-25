@@ -55,6 +55,16 @@ pub(crate) struct MainFrontendCourseStatsApiDoc;
 
 const CACHE_DURATION: Duration = Duration::from_secs(3600);
 
+/// Endpoint name prefix of the stats cached per course language group rather than per course.
+const ALL_LANGUAGE_VERSIONS_ENDPOINT_PREFIX: &str = "all-language-versions-";
+
+fn stats_cache_key(endpoint: &str, id: Uuid, extra_params: Option<&str>) -> String {
+    match extra_params {
+        Some(params) => format!("stats:{}:{}:{}", endpoint, id, params),
+        None => format!("stats:{}:{}", endpoint, id),
+    }
+}
+
 /// Helper function to handle caching for stats endpoints
 async fn cached_stats_query<F, Fut, T>(
     cache: &Cache,
@@ -69,10 +79,7 @@ where
     Fut: std::future::Future<Output = Result<T, ModelError>>,
     T: serde::Serialize + serde::de::DeserializeOwned,
 {
-    let cache_key = match extra_params {
-        Some(params) => format!("stats:{}:{}:{}", endpoint, course_id, params),
-        None => format!("stats:{}:{}", endpoint, course_id),
-    };
+    let cache_key = stats_cache_key(endpoint, course_id, extra_params);
 
     let wrapped_f = || async {
         f().await.map_err(|err| {
@@ -90,6 +97,20 @@ where
                 None,
             )
         })
+}
+
+/// Drops the cached all-language-versions stats of the group, e.g. after a course joins or leaves
+/// it.
+pub(crate) async fn invalidate_all_language_versions_stats(
+    cache: &Cache,
+    course_language_group_id: Uuid,
+) {
+    let pattern = stats_cache_key(
+        &format!("{ALL_LANGUAGE_VERSIONS_ENDPOINT_PREFIX}*"),
+        course_language_group_id,
+        None,
+    );
+    cache.invalidate_matching(&pattern).await;
 }
 
 /// GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course`
@@ -363,7 +384,7 @@ async fn get_total_users_started_all_language_versions(
 
     let res = cached_stats_query(
         &cache,
-        "all-language-versions-total-users-started",
+        &format!("{ALL_LANGUAGE_VERSIONS_ENDPOINT_PREFIX}total-users-started"),
         language_group_id,
         None,
         CACHE_DURATION,
@@ -419,7 +440,7 @@ async fn get_unique_users_starting_history_all_language_versions(
     let language_group_id = course.course_language_group_id;
 
     let cache_key = format!(
-        "all-language-versions-users-starting-{}-{}",
+        "{ALL_LANGUAGE_VERSIONS_ENDPOINT_PREFIX}users-starting-{}-{}",
         granularity, time_window
     );
     let res = cached_stats_query(
@@ -482,7 +503,7 @@ async fn get_course_completions_history_all_language_versions(
     let language_group_id = course.course_language_group_id;
 
     let cache_key = format!(
-        "all-language-versions-completions-{}-{}",
+        "{ALL_LANGUAGE_VERSIONS_ENDPOINT_PREFIX}completions-{}-{}",
         granularity, time_window
     );
     let res = cached_stats_query(

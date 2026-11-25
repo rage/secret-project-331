@@ -4,6 +4,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useBlockProps } from "@wordpress/block-editor"
+import { useMergeRefs } from "@wordpress/compose"
 import React, { useContext, useState } from "react"
 
 import ExerciseServiceBadges from "@/components/ExerciseServiceBadges"
@@ -11,7 +12,6 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
-import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
 import { includeIf } from "@/shared-module/common/utils/nullability"
 import { ErrorNotice } from "@/shared-module/components"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
@@ -25,6 +25,7 @@ import { gutenbergControlsVisible } from "../../../styles/EditorStyles"
 import breakFromCenteredProps from "../../../utils/breakfromCenteredProps"
 import ChooseExerciseTaskType from "./ChooseExerciseTaskType"
 import ExerciseTaskIFrameEditor from "./IFrameEditor"
+import { useTabKeyContainment } from "./useTabKeyContainment"
 
 const ExerciseTaskEditorCard = styled.div`
   padding: 2rem 0;
@@ -37,6 +38,13 @@ const svgSquare = css`
   flex: 0 0 4rem;
   height: 4rem;
   justify-content: center;
+`
+
+const iconButton = css`
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
 `
 
 const gray400WithHover = css`
@@ -93,6 +101,8 @@ export interface ExerciseTaskAttributes {
    * so a save keeps them: they are what stops the files being reclaimed as abandoned uploads.
    */
   private_spec_files: string[]
+  /** The repository exercise the exercise service reported the spec is built on. */
+  repository_exercise_id: string | null
   show_editor: boolean
   order_number: number
 }
@@ -104,6 +114,8 @@ const ExerciseTaskEditor: React.FC<
 
   const exerciseServicesQuery = useAllExerciseServices()
   const blockProps = useBlockProps()
+  const tabContainmentRef = useTabKeyContainment()
+  const mergedRef = useMergeRefs([blockProps.ref, tabContainmentRef])
 
   // Updated on the first render or when we collapse the editor. We use this to prevent posting the existing state back to the iframe when the iframe's internal state is updated. (The iframe input and output types are the same in this case.)
   const [privateSpecToPostToIframe, setPrivateSpecToPostToIframe] = useState(
@@ -163,14 +175,13 @@ const ExerciseTaskEditor: React.FC<
               {t("task")}
               {exerciseService && <ExerciseServiceBadges exerciseService={exerciseService} />}
             </div>
-            <div
-              className={cx(svgSquare, gray500WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, toggleEditor)}
+            <button
+              type="button"
+              data-exercise-task-edit=""
+              className={cx(svgSquare, iconButton, gray500WithHover)}
               onClick={toggleEditor}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={attributes.show_editor ? t("close") : t("edit")}
+              aria-label={t("edit-task")}
+              aria-expanded={attributes.show_editor}
             >
               {attributes.show_editor ? (
                 <XmarkCircle
@@ -189,15 +200,12 @@ const ExerciseTaskEditor: React.FC<
                   `}
                 />
               )}
-            </div>
-            <div
-              className={cx(svgSquare, gray400WithHover)}
-              onKeyDown={(e) => runCallbackIfEnterPressed(e, handleDeleteTask)}
+            </button>
+            <button
+              type="button"
+              className={cx(svgSquare, iconButton, gray400WithHover)}
               onClick={handleDeleteTask}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- styled div button; native button changes styling/keyboard
-              role="button"
-              tabIndex={0}
-              aria-label={t("delete")}
+              aria-label={t("delete-task")}
             >
               <Trash
                 size={16}
@@ -206,7 +214,7 @@ const ExerciseTaskEditor: React.FC<
                   margin: 1.5rem;
                 `}
               />
-            </div>
+            </button>
           </div>
         </div>
         {attributes.show_editor ? (
@@ -235,10 +243,13 @@ const ExerciseTaskEditor: React.FC<
                     <ExerciseTaskIFrameEditor
                       exerciseServiceSlug={exerciseType}
                       exerciseTaskId={attributes.id}
-                      onPrivateSpecChange={(privateSpec, specFiles) =>
+                      onPrivateSpecChange={(privateSpec, specFiles, repositoryExerciseId) =>
                         setAttributes({
                           private_spec: privateSpec,
                           ...includeIf(specFiles !== undefined, { private_spec_files: specFiles }),
+                          ...includeIf(repositoryExerciseId !== undefined, {
+                            repository_exercise_id: repositoryExerciseId,
+                          }),
                         })
                       }
                       privateSpec={privateSpecToPostToIframe}
@@ -255,7 +266,7 @@ const ExerciseTaskEditor: React.FC<
   }
 
   return (
-    <div {...blockProps}>
+    <div {...blockProps} ref={mergedRef}>
       <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
         {(exerciseServices) => renderEditor(exerciseServices)}
       </QueryResult>

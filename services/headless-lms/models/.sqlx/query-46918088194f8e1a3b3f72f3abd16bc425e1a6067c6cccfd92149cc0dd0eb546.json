@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT course_id\nFROM agent_changesets\nWHERE course_id = ANY($1)\n  AND status = 'open'\n  AND expires_at > now()\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "agent_changesets",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "46918088194f8e1a3b3f72f3abd16bc425e1a6067c6cccfd92149cc0dd0eb546"
+}

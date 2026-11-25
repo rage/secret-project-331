@@ -23,6 +23,8 @@ export interface ExerciseAttributes {
   peer_or_self_review_questions_config: string
   use_course_default_peer_review: boolean
   teacher_reviews_answer_after_locking?: boolean
+  /** The exercise's own deadline as an ISO timestamp; absent to use the chapter's. */
+  deadline?: string | undefined
 }
 
 /**
@@ -84,6 +86,10 @@ const ExerciseConfiguration: BlockConfiguration<ExerciseAttributes> = {
     teacher_reviews_answer_after_locking: {
       type: "boolean",
       default: true,
+    },
+    deadline: {
+      type: "string",
+      default: undefined,
     },
   },
   allowedBlocks: ["moocfi/exercise-settings", "moocfi/exercise-slides"],

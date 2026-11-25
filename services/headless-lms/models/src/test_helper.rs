@@ -216,7 +216,7 @@ macro_rules! insert_data {
                 can_add_chatbot: false,
             },
             $user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -258,7 +258,7 @@ macro_rules! insert_data {
                 course_module_id: Some($course_module.id),
             },
             $user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -282,7 +282,7 @@ macro_rules! insert_data {
                 hidden: false,
             },
             $user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await

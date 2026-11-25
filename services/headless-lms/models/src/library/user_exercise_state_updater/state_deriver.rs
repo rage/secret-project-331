@@ -135,14 +135,13 @@ fn derive_new_score_given(
         return Some(teacher_grading_decision.score_given);
     };
 
-    // In chapter-locking courses, suppress automatic points only when this exercise
-    // requires teacher review after locking.
+    // In chapter-locking courses, a new answer to an exercise the teacher reviews after locking
+    // gets no automatic points; points the user already has stay.
     if let Some(course) = &input_data.course
         && course.chapter_locking_enabled
         && input_data.exercise.teacher_reviews_answer_after_locking
     {
-        // Don't give automatic points - wait for teacher manual review
-        return None;
+        return input_data.current_user_exercise_state.score_given;
     }
     // We want to give or remove points only when the peer review/self review completes. If the answer receives reviews after this, we won't take away or we won't give more points.
     // If would be confusing for the student if we afterwards changed the peer review outcome due to an additional review. That's why we haved the locked state. If the state is and stays locked, the score won't be changed.

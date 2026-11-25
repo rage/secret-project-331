@@ -88,6 +88,7 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
               <NoDataMessage />
             ) : (
               <Echarts
+                label={t("students-by-chosen-country")}
                 height={chartHeight}
                 options={{
                   yAxis: {

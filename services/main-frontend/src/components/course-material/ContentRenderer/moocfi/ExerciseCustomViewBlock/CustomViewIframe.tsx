@@ -13,6 +13,7 @@ import {
   getCourseMaterialModuleIdByChapterId,
 } from "@/generated/course-material-api/sdk.generated"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
+import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { useDialog, ErrorNotice } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
@@ -52,6 +53,14 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   const courseInstanceId = materialInstance?.id
   const courseId = materialSettings?.current_course_id
   const userId = userInfo.data?.user_id
+  const failureReportHandlers = useReportExerciseIframeFailure({
+    url: url ?? "",
+    exerciseServiceSlug,
+    // oxlint-disable-next-line i18next/no-literal-string
+    viewType: "custom-view",
+    courseId,
+    pageId: pageData?.id,
+  })
 
   const courseModuleCompletionsQuery = useQuery({
     queryKey: [COURSE_MODULE_COMPLETIONS_FOR_USER_QUERY_KEY, courseInstanceId, userId] as const,
@@ -200,6 +209,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
         // NOP
       }}
       title={title}
+      {...failureReportHandlers}
     />
   )
 }

@@ -11,7 +11,14 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { Button, TextArea, TextField } from "@/shared-module/components"
+import {
+  Button,
+  itemHeadingProps,
+  TextArea,
+  TextField,
+  useDialog,
+  useToggleFocus,
+} from "@/shared-module/components"
 
 const entryCss = css`
   display: grid;
@@ -41,15 +48,27 @@ interface TermItemProps {
   onEdit: () => void
   onCancel: () => void
   refetch: () => void
+  /** Called once a delete succeeds, before the refetch, so the list can move focus once it is gone. */
+  onBeforeDelete?: (headingId: string) => void
 }
 
-const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, refetch }) => {
+const TermItem: React.FC<TermItemProps> = ({
+  term,
+  isEditing,
+  onEdit,
+  onCancel,
+  refetch,
+  onBeforeDelete,
+}) => {
   const { t } = useTranslation()
+  const { confirm } = useDialog()
+  const headingId = `term-heading-${term.id}`
   const {
     control,
     handleSubmit,
     formState: { isValid },
     reset,
+    setFocus,
   } = useForm<UpdateTermForm>({
     // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
@@ -65,6 +84,9 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       updatedDefinition: term.definition,
     })
   }, [term, reset])
+
+  // oxlint-disable-next-line i18next/no-literal-string
+  const editButtonRef = useToggleFocus(isEditing, () => setFocus("updatedTerm"))
 
   const updateMutation = useToastMutationOptions(
     updateGlossaryTermMutation(),
@@ -86,8 +108,29 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
       notify: true,
       method: "DELETE",
     },
-    { onSuccess: () => refetch() },
+    {
+      onSuccess: () => {
+        // Only a delete that succeeded moves focus; the heading is still in the list here.
+        onBeforeDelete?.(headingId)
+        refetch()
+      },
+    },
   )
+
+  const onDelete = async () => {
+    const confirmed = await confirm({
+      title: t("delete-term-named", { name: term.term }),
+      message: t("confirm-delete-term", {
+        term: term.term,
+      }),
+      confirmLabel: t("button-text-delete"),
+      isDestructive: true,
+    })
+    if (!confirmed) {
+      return
+    }
+    deleteMutation.mutate({ path: { term_id: term.id } })
+  }
 
   const onUpdate = (data: UpdateTermForm) => {
     updateMutation.mutate({
@@ -140,23 +183,28 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
         </form>
       ) : (
         <div className={entryCss}>
-          <h2 className={termCss}>{term.term}</h2>
+          <h2 id={headingId} {...itemHeadingProps} className={termCss}>
+            {term.term}
+          </h2>
           <p>{term.definition}</p>
           <div className={actionsCss}>
-            <Button variant="primary" size="medium" onClick={onEdit}>
+            <Button
+              ref={editButtonRef}
+              variant="primary"
+              size="medium"
+              onClick={onEdit}
+              aria-label={t("edit-term-named", {
+                term: term.term,
+              })}
+            >
               {t("edit")}
             </Button>
             <Button
               variant="tertiary"
               size="medium"
-              onClick={() =>
-                deleteMutation.mutate({
-                  path: {
-                    term_id: term.id,
-                  },
-                })
-              }
+              onClick={onDelete}
               disabled={deleteMutation.isPending}
+              aria-label={t("delete-term-named", { name: term.term })}
             >
               {t("button-text-delete")}
             </Button>

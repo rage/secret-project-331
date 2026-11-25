@@ -1,5 +1,6 @@
 import { type Page, test } from "@playwright/test"
 
+import { NO_H1 } from "@/utils/accessibilityCheck"
 import { Checkbox } from "@/utils/components/Checkbox"
 import { Select } from "@/utils/components/Select"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
@@ -23,8 +24,7 @@ async function openPeerReviewConfig(page: Page) {
 
   await page
     .getByRole("row", { name: "Page One /chapter-1/page-1" })
-    .getByRole("button")
-    .first()
+    .getByRole("link", { name: "Edit page" })
     .click()
 
   await page.getByText("Peer and self review configuration").click()
@@ -60,6 +60,7 @@ test("default peer review editing", async ({ page, headless }, testInfo) => {
   ])
 
   await expectScreenshotsToMatchSnapshots({
+    axeSkip: [NO_H1],
     screenshotTarget: page1,
     headless,
     testInfo,

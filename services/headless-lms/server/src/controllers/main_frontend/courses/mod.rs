@@ -2,6 +2,7 @@
 
 pub mod chatbots;
 pub mod completion_overview;
+pub mod language_versions;
 pub mod stats;
 pub mod students;
 
@@ -73,6 +74,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
 #[openapi(
     paths(
         get_course,
+        get_model_solution_settings,
+        update_model_solution_settings,
         get_course_breadcrumb_info,
         get_all_exercise_statuses_by_course_id,
         get_all_course_module_completions_for_user_by_course_id,
@@ -88,7 +91,6 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_linked_exams,
         get_linkable_exams,
         get_all_exercises_and_count_of_answers_requiring_attention,
-        get_all_course_language_versions,
         create_course_copy,
         get_daily_submission_counts,
         get_daily_user_counts_with_submissions,
@@ -144,6 +146,7 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
         (path = "/{course_id}/completion-overview", api = completion_overview::MainFrontendCourseCompletionOverviewApiDoc),
+        (path = "/{course_id}/language-versions", api = language_versions::MainFrontendCourseLanguageVersionsApiDoc),
         (path = "/{course_id}/stats", api = stats::MainFrontendCourseStatsApiDoc),
         (path = "/{course_id}/students", api = students::MainFrontendCourseStudentsApiDoc)
     )
@@ -320,6 +323,73 @@ async fn get_user_progress_for_course(
     )
     .await?;
     token.authorized_ok(web::Json(user_course_progress))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals
+model solutions to students who have neither solved the exercise nor used up its tries.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/model-solution-settings",
+    operation_id = "getCourseModelSolutionSettings",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "The course's model solution settings", body = models::course_model_solution_settings::CourseModelSolutionSettings)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_model_solution_settings(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>>
+{
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let settings = models::course_model_solution_settings::get(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(settings))
+}
+
+/**
+PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals
+model solutions to every student.
+*/
+#[utoipa::path(
+    put,
+    path = "/{course_id}/model-solution-settings",
+    operation_id = "updateCourseModelSolutionSettings",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = models::course_model_solution_settings::CourseModelSolutionSettings,
+    responses(
+        (status = 200, description = "The stored model solution settings", body = models::course_model_solution_settings::CourseModelSolutionSettings)
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_model_solution_settings(
+    course_id: web::Path<Uuid>,
+    settings: web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>>
+{
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let settings =
+        models::course_model_solution_settings::upsert(&mut conn, *course_id, &settings).await?;
+    token.authorized_ok(web::Json(settings))
 }
 
 /**
@@ -895,44 +965,6 @@ async fn get_all_exercises_and_count_of_answers_requiring_attention(
     let _exercises = models::exercises::get_exercises_by_course_id(&mut conn, *course_id).await?;
     let count_of_answers_requiring_attention = models::exercise_slide_submissions::get_count_of_answers_requiring_attention_in_exercise_by_course_id(&mut conn, *course_id).await?;
     token.authorized_ok(web::Json(count_of_answers_requiring_attention))
-}
-
-/**
-GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.
-
-# Example
-
-Request:
-```http
-GET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1
-Content-Type: application/json
-```
-*/
-#[utoipa::path(
-    get,
-    path = "/{course_id}/language-versions",
-    operation_id = "getCourseLanguageVersions",
-    tag = "courses",
-    params(
-        ("course_id" = Uuid, Path, description = "Course id")
-    ),
-    responses(
-        (status = 200, description = "Course language versions", body = [Course])
-    )
-)]
-#[instrument(skip(pool))]
-async fn get_all_course_language_versions(
-    pool: web::Data<PgPool>,
-    course_id: web::Path<Uuid>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<Vec<Course>>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
-    let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let language_versions =
-        models::courses::get_all_language_versions_of_course(&mut conn, &course).await?;
-
-    token.authorized_ok(web::Json(language_versions))
 }
 
 #[derive(Deserialize, Debug, utoipa::ToSchema)]
@@ -3097,7 +3129,18 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 .configure(completion_overview::_add_routes),
         )
         .service(web::scope("/{course_id}/students").configure(students::_add_routes))
+        .service(
+            web::scope("/{course_id}/language-versions").configure(language_versions::_add_routes),
+        )
         .route("/{course_id}", web::get().to(get_course))
+        .route(
+            "/{course_id}/model-solution-settings",
+            web::get().to(get_model_solution_settings),
+        )
+        .route(
+            "/{course_id}/model-solution-settings",
+            web::put().to(update_model_solution_settings),
+        )
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))
@@ -3130,10 +3173,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/structure",
             web::get().to(get_course_structure),
-        )
-        .route(
-            "/{course_id}/language-versions",
-            web::get().to(get_all_course_language_versions),
         )
         .route(
             "/{course_id}/create-copy",

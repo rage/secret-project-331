@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { ALIGN_CENTER } from "@/components/credit-registration/constants"
 import type { ExerciseSlideSubmission, UserDetail } from "@/generated/api/types.generated"
-import { useBulkUserDetails } from "@/hooks/useUserDetails"
+import { formatUserName, useUserDetailsLookup } from "@/hooks/useUserDetails"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { EmptyState, Link, Table } from "@/shared-module/components"
 
@@ -22,31 +22,18 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
 
-  // Extract unique user IDs from submissions
-  const userIds = useMemo(() => {
-    const uniqueUserIds = Array.from(
-      new Set(exerciseSubmissions.map((submission) => submission.user_id)),
-    )
-    return uniqueUserIds
-  }, [exerciseSubmissions])
-
-  // Fetch user details for all unique users
-  const userDetailsQuery = useBulkUserDetails(courseId, userIds)
-
-  // Create a map for quick user lookup
-  const userDetailsMap = useMemo(() => {
-    if (!userDetailsQuery.data) {
-      return new Map<string, UserDetail>()
-    }
-    return new Map(userDetailsQuery.data.map((user) => [user.user_id, user]))
-  }, [userDetailsQuery.data])
+  const userIds = useMemo(
+    () => exerciseSubmissions.map((submission) => submission.user_id),
+    [exerciseSubmissions],
+  )
+  const userDetails = useUserDetailsLookup(courseId, userIds)
 
   if (exerciseSubmissions.length === 0) {
     return <EmptyState title={t("no-submissions")} />
   }
 
   const userOf = (submission: ExerciseSlideSubmission): UserDetail | undefined =>
-    userDetailsMap.get(submission.user_id)
+    userDetails(submission.user_id)
 
   return (
     <Table
@@ -61,8 +48,15 @@ const ExerciseSubmissionList: React.FC<React.PropsWithChildren<Props>> = ({
           header: t("label-link"),
           align: ALIGN_CENTER,
           cell: (submission) => (
-            <Link href={`/submissions/${submission.id}`}>
+            <Link
+              href={`/submissions/${submission.id}`}
+              aria-label={t("view-submission-by", {
+                name: formatUserName(userOf(submission)) || submission.user_id,
+                time: dateToString(submission.created_at),
+              })}
+            >
               <LinkIcon
+                aria-hidden
                 size={20}
                 className={css`
                   color: #868b93;

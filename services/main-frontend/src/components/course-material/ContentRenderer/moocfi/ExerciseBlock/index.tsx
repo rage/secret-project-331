@@ -4,9 +4,9 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { useAtomValue } from "jotai"
+import { uniqBy } from "lodash"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useReducer, useRef, useState } from "react"
-import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import UserOnWrongCourseNotification from "@/components/course-material/notifications/UserOnWrongCourseNotification"
@@ -23,7 +23,10 @@ import {
   postStartPeerOrSelfReview,
   postSubmission,
 } from "@/generated/course-material-api/sdk.generated"
-import type { StudentExerciseSlideSubmission } from "@/generated/course-material-api/types.generated"
+import type {
+  CourseMaterialExerciseTask,
+  StudentExerciseSlideSubmission,
+} from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
@@ -41,6 +44,7 @@ import { storedAnswerToCapturedAnswerFields } from "@/shared-module/common/utils
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult, ErrorNotice } from "@/shared-module/components"
+import type { IframeConnectionState } from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import { courseMaterialAtom } from "@/state/course-material"
 import {
   type CapturedExerciseTaskAnswer,
@@ -49,12 +53,14 @@ import {
 
 import type { BlockRendererProps } from "../.."
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
-import ExerciseSubmitButton from "./ExerciseSubmitButton"
-import ExerciseTask from "./ExerciseTask"
+import ExerciseSubmitButton, { type SubmissionBlocker } from "./ExerciseSubmitButton"
+import ExerciseTask, { type ExerciseTaskHandle, showsExerciseTaskIframe } from "./ExerciseTask"
+import { focusHeadingAndAnnounce } from "./focusHeadingAndAnnounce"
 import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
+import { getSubmissionScore } from "./submissionScore"
 
 interface ExerciseBlockAttributes {
   id: string
@@ -152,6 +158,34 @@ const DeadlineText = styled.div<DeadlineProps>`
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
 
+type CapturedAnswers = Map<string, CapturedExerciseTaskAnswer>
+
+/**
+ * Seeds answers from the tasks' previous submissions, keeping answers the iframes reported since:
+ * a refetch doesn't re-send state to the iframes, so they wouldn't report them again. A task in
+ * `changedSubmissionTaskIds` (its previous submission was replaced or removed, e.g. by a reset)
+ * drops its captured answer, since its iframe is sent a new state.
+ */
+function mergePreviousSubmissionAnswers(
+  answers: CapturedAnswers,
+  tasks: CourseMaterialExerciseTask[],
+  changedSubmissionTaskIds: ReadonlySet<string>,
+): CapturedAnswers {
+  const merged: CapturedAnswers = new Map()
+  for (const task of tasks) {
+    const captured = changedSubmissionTaskIds.has(task.id) ? undefined : answers.get(task.id)
+    if (captured) {
+      merged.set(task.id, captured)
+    } else if (task.previous_submission) {
+      merged.set(task.id, {
+        valid: true,
+        ...storedAnswerToCapturedAnswerFields(task.previous_submission),
+      })
+    }
+  }
+  return merged
+}
+
 // Special care taken here to ensure exercise content can have full width of
 // the page.
 const ExerciseBlock: React.FC<
@@ -160,13 +194,17 @@ const ExerciseBlock: React.FC<
   const sectionRef = useRef<HTMLElement>(null)
   const exerciseTitleRef = useRef<HTMLHeadingElement>(null)
   const exerciseTitleId = useId()
-  const [submissionAnnouncement, setSubmissionAnnouncement] = useState<string | null>(null)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const returnTo = useCurrentPagePathForReturnTo(
     pathname + (searchParams.toString() ? `?${searchParams.toString()}` : ""),
   )
-  const [answers, setAnswers] = useState<Map<string, CapturedExerciseTaskAnswer>>(new Map())
+  const [answers, setAnswers] = useState<CapturedAnswers>(new Map())
+  const previousSubmissionIdsRef = useRef<Map<string, string>>(new Map())
+  const [connectionStatuses, setConnectionStatuses] = useState<
+    Map<string, IframeConnectionState["status"]>
+  >(new Map())
+  const taskHandlesRef = useRef<Map<string, ExerciseTaskHandle>>(new Map())
   const [points, setPoints] = useState<number | null>(null)
   const { t } = useTranslation()
   const loginState = useContext(LoginStateContext)
@@ -213,16 +251,19 @@ const ExerciseBlock: React.FC<
       signedIn: Boolean(loginState.signedIn),
       isChapterLocked: Boolean(isChapterLocked),
     })
-    const a = new Map()
-    getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
-      if (et.previous_submission) {
-        a.set(et.id, {
-          valid: true,
-          ...storedAnswerToCapturedAnswerFields(et.previous_submission),
-        })
-      }
-    })
-    setAnswers(a)
+    const tasks = getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks
+    const seenSubmissionIds = previousSubmissionIdsRef.current
+    const changedSubmissionTaskIds = new Set(
+      tasks
+        .filter((task) => seenSubmissionIds.get(task.id) !== task.previous_submission?.id)
+        .map((task) => task.id),
+    )
+    previousSubmissionIdsRef.current = new Map(
+      tasks.flatMap((task) =>
+        task.previous_submission ? [[task.id, task.previous_submission.id] as const] : [],
+      ),
+    )
+    setAnswers((prev) => mergePreviousSubmissionAnswers(prev, tasks, changedSubmissionTaskIds))
   }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
@@ -247,9 +288,10 @@ const ExerciseBlock: React.FC<
           signedIn: Boolean(loginState.signedIn),
         })
         // Announce grading to screen readers and move focus to the exercise heading.
-        const scoreGiven = data.exercise_status?.score_given
+        const scoreGiven = getSubmissionScore(data)
         const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
-        setSubmissionAnnouncement(
+        focusHeadingAndAnnounce(
+          exerciseTitleRef.current,
           scoreGiven !== null &&
             scoreGiven !== undefined &&
             maxScore !== null &&
@@ -260,7 +302,6 @@ const ExerciseBlock: React.FC<
               })
             : t("answer-submitted-announcement"),
         )
-        exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       },
@@ -290,28 +331,24 @@ const ExerciseBlock: React.FC<
         isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
-      setSubmissionAnnouncement(null)
 
       setAnswers(answers)
 
       // if answers were empty, because page refresh
       if (answers.size === 0 && courseMaterialState.settings?.user_id) {
-        await getCourseMaterialExercise.refetch()
-        const a = new Map()
-        getCourseMaterialExercise.data.current_exercise_slide.exercise_tasks.forEach((et) => {
-          if (et.previous_submission) {
-            a.set(et.id, {
-              valid: true,
-              ...storedAnswerToCapturedAnswerFields(et.previous_submission),
-            })
-          }
-        })
-        setAnswers(a)
+        const refetched = await getCourseMaterialExercise.refetch()
+        const tasks = (refetched.data ?? data).current_exercise_slide.exercise_tasks
+        setAnswers((prev) => mergePreviousSubmissionAnswers(prev, tasks, new Set()))
       }
       makeSureComponentStaysVisibleAfterChangingView(sectionRef)
     },
     {
       notify: false,
+    },
+    {
+      onSuccess: () => {
+        exerciseTitleRef.current?.focus({ preventScroll: true })
+      },
     },
   )
   const exerciseDeadline = useDateStringAsDateNullable(
@@ -429,34 +466,60 @@ const ExerciseBlock: React.FC<
         const reviewingStage = courseMaterialExercise.exercise_status?.reviewing_stage
         const gradingState = courseMaterialExercise.exercise_status?.grading_progress
 
+        const sortedTasks = courseMaterialExercise.current_exercise_slide.exercise_tasks.toSorted(
+          (a, b) => a.order_number - b.order_number,
+        )
+
+        const getTaskBlockerMessages = (task: CourseMaterialExerciseTask): string[] => {
+          const answer = answers.get(task.id)
+          if (answer?.valid) {
+            return []
+          }
+          const answerRequest = t("answer-the-exercise-before-submitting")
+          const showsIframe = showsExerciseTaskIframe({
+            exerciseTask: task,
+            canPostSubmission: courseMaterialExercise.can_post_submission,
+            isChapterLocked: Boolean(isChapterLocked),
+            signedIn: loginState.signedIn,
+          })
+          if (!showsIframe) {
+            return [answerRequest]
+          }
+          const connectionStatus = connectionStatuses.get(task.id)
+          if (connectionStatus === "failed") {
+            return [t("submission-blocked-task-not-loaded")]
+          }
+          if (answer) {
+            return answer.validityMessages?.length ? answer.validityMessages : [answerRequest]
+          }
+          if (connectionStatus === "connected") {
+            return [answerRequest]
+          }
+          return [t("submission-blocked-task-loading")]
+        }
+
         // Already-localized reasons the submit button is disabled, shown next to it so students
         // understand why (course-improvements-issues#161). Answer-specific reasons come from the
         // exercise iframe (e.g. a Timeline duplicate); host-side ones (deadline, language version,
         // cannot post) are added here.
-        const taskCount = postThisStateToIFrame?.length ?? 0
-        const answerValues = Array.from(answers.values())
-        const answersIncomplete = answers.size < taskCount || answerValues.some((a) => !a.valid)
-        const answerValidityMessages = answerValues.flatMap((a) => a.validityMessages ?? [])
-        const submissionBlockers: string[] = []
-        if (answersIncomplete) {
-          if (answerValidityMessages.length > 0) {
-            submissionBlockers.push(...answerValidityMessages)
-          } else {
-            submissionBlockers.push(t("answer-the-exercise-before-submitting"))
-          }
-        }
+        const submissionBlockers: SubmissionBlocker[] = sortedTasks.flatMap((task) =>
+          getTaskBlockerMessages(task).map((message) => ({
+            message,
+            show: () => taskHandlesRef.current.get(task.id)?.focusFirstInvalid(),
+          })),
+        )
         if (exerciseDeadline && exerciseDeadline.getTime() < Date.now()) {
-          submissionBlockers.push(
-            t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
-          )
+          submissionBlockers.push({
+            message: t("submission-blocked-deadline-passed", { deadline: deadlineAsString }),
+          })
         }
         if (userOnWrongLanguageVersion) {
-          submissionBlockers.push(t("submission-blocked-wrong-language"))
+          submissionBlockers.push({ message: t("submission-blocked-wrong-language") })
         }
         if (!courseMaterialExercise.can_post_submission) {
-          submissionBlockers.push(t("submission-blocked-cannot-submit"))
+          submissionBlockers.push({ message: t("submission-blocked-cannot-submit") })
         }
-        const uniqueSubmissionBlockers = [...new Set(submissionBlockers)]
+        const uniqueSubmissionBlockers = uniqBy(submissionBlockers, (blocker) => blocker.message)
 
         return (
           <ExerciseCardWrapper
@@ -567,13 +630,6 @@ const ExerciseBlock: React.FC<
               }
             />
 
-            <VisuallyHidden>
-              {/* oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=status live region; <output> drops the VisuallyHidden styling */}
-              <div role="status" aria-live="polite">
-                {submissionAnnouncement}
-              </div>
-            </VisuallyHidden>
-
             {chapterLockingEnabled &&
               courseMaterialExercise &&
               !isChapterLocked &&
@@ -649,24 +705,35 @@ const ExerciseBlock: React.FC<
               {/* Reviewing stage seems to be undefined at least for exams */}
               {reviewingStage !== "PeerReview" &&
                 reviewingStage !== "SelfReview" &&
-                courseMaterialExercise.current_exercise_slide.exercise_tasks
-                  .toSorted((a, b) => a.order_number - b.order_number)
-                  .map((task) => (
-                    <ExerciseTask
-                      key={task.id}
-                      exerciseTask={task}
-                      isExam={isExam}
-                      setAnswer={(answer) =>
-                        setAnswers((prev) => new Map([...prev, [task.id, answer]]))
+                sortedTasks.map((task) => (
+                  <ExerciseTask
+                    key={task.id}
+                    ref={(handle) => {
+                      if (handle) {
+                        taskHandlesRef.current.set(task.id, handle)
+                      } else {
+                        taskHandlesRef.current.delete(task.id)
                       }
-                      postThisStateToIFrame={postThisStateToIFrame?.find(
-                        (x) => x.exercise_task_id === task.id,
-                      )}
-                      canPostSubmission={courseMaterialExercise.can_post_submission}
-                      exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
-                      isChapterLocked={Boolean(isChapterLocked)}
-                    />
-                  ))}
+                    }}
+                    onConnectionStateChange={({ status }) =>
+                      setConnectionStatuses((prev) =>
+                        prev.get(task.id) === status ? prev : new Map(prev).set(task.id, status),
+                      )
+                    }
+                    exerciseTask={task}
+                    isExam={isExam}
+                    setAnswer={(answer) =>
+                      setAnswers((prev) => new Map([...prev, [task.id, answer]]))
+                    }
+                    postThisStateToIFrame={postThisStateToIFrame?.find(
+                      (x) => x.exercise_task_id === task.id,
+                    )}
+                    canPostSubmission={courseMaterialExercise.can_post_submission}
+                    exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}
+                    exerciseName={courseMaterialExercise.exercise.name}
+                    isChapterLocked={Boolean(isChapterLocked)}
+                  />
+                ))}
               {reviewingStage === "PeerReview" && (
                 <PeerOrSelfReviewView
                   exerciseNumber={courseMaterialExercise.exercise.order_number ?? 0}

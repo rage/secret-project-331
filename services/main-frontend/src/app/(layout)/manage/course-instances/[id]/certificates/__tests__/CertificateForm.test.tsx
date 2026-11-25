@@ -47,7 +47,8 @@ describe("CertificateForm", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "button-text-save" }))
 
-    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("required-field"))
+    await waitFor(() => expect(screen.getByText("required-field")).toBeInTheDocument())
+    expect(screen.queryByRole("alert")).toBeNull()
     expect(onClickSave).not.toHaveBeenCalled()
   })
 })

@@ -16,7 +16,7 @@ import {
 import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { omitUndefined } from "@/shared-module/common/utils/nullability"
 import {
   Button,
@@ -199,10 +199,18 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
             announce={ERROR_ANNOUNCEMENT}
           />
         )}
-        <h5 className="heading">
+        <div className="heading">
           <Gear size={16} weight="bold" aria-hidden="true" />
-          {t("configure-threshold")}
-        </h5>
+          <h2
+            className={css`
+              margin: 0;
+              font-size: ${typography.h6};
+              font-weight: inherit;
+            `}
+          >
+            {t("configure-threshold")}
+          </h2>
+        </div>
         <p className="description">{t("configure-threshold-description")}</p>
         {thresholdsQuery.isError ? (
           // A thresholds failure should not block the table: it can be rendered from the course
@@ -248,13 +256,15 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
       const isInvalid =
         durationSeconds !== undefined &&
         (durationSeconds < minimumSeconds || durationSeconds > MAX_DURATION_SECONDS)
-      const errorMessage = !isInvalid
-        ? undefined
-        : durationSeconds !== undefined && durationSeconds > MAX_DURATION_SECONDS
-          ? t("threshold-too-large")
-          : minimumSeconds > 0
-            ? t("threshold-must-be-at-least-3-hours")
-            : t("threshold-must-be-non-negative")
+      // Shown only once the teacher has edited the field, so nothing is announced on load.
+      const errorMessage =
+        !isInvalid || !isEdited
+          ? undefined
+          : durationSeconds !== undefined && durationSeconds > MAX_DURATION_SECONDS
+            ? t("threshold-too-large")
+            : minimumSeconds > 0
+              ? t("threshold-must-be-at-least-3-hours")
+              : t("threshold-must-be-non-negative")
       // A small (exempt) module with an effective threshold of 0 has its duration check
       // turned off; surface that explicitly so saving 0 is never a silent no-op.
       const disablesCheck =

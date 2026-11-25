@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import ExerciseRepositories from "@/components/exercise-repositories/ExerciseRepositories"
 import {
   getExamOptions,
   getOrganizationExamByExamIdOptions,
@@ -343,6 +344,18 @@ const ManageExam: React.FC = () => {
             >
               {t("add-course")}
             </Button>
+            <h2
+              className={css`
+                font-family: ${headingFont};
+                font-size: ${typography.h5};
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
+                margin: 1.5rem 0 0.5rem 0;
+              `}
+            >
+              {t("manage-exercise-repositories")}
+            </h2>
+            <ExerciseRepositories courseId={null} examId={data.id} />
             {/* notify:true already announces these errors via the toast; the banners are just the persistent copy */}
             {setCourseMutation.isError && (
               // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text

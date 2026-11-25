@@ -9,6 +9,7 @@ import type { CourseMaterialExercise } from "@/generated/course-material-api/typ
 import { baseTheme } from "@/shared-module/common/styles"
 
 import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
+import { getPeerReviewHeadingId } from "./peerReviewFocus"
 
 export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number
@@ -29,6 +30,8 @@ const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewVie
   return (
     <div id={getPeerReviewBeginningScrollingId(props.exerciseId)}>
       <h3
+        id={getPeerReviewHeadingId(props.exerciseId)}
+        tabIndex={-1}
         className={css`
           font-weight: 600;
           font-size: 36px;

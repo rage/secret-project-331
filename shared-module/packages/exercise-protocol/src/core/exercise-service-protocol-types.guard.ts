@@ -2,7 +2,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, DownloadFileMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerFileRef, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import type { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, DownloadFileMessage, FileUploadMessage, FileUploadResultEntry, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, FocusFirstInvalidMessage, UserInformation, UserVariablesMap, AnswerFileRef, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
@@ -35,6 +35,9 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
             typedObj["private_spec_files"].every((e: any) =>
                 typeof e === "string"
             )) &&
+        (typeof typedObj["repository_exercise_id"] === "undefined" ||
+            typedObj["repository_exercise_id"] === null ||
+            typeof typedObj["repository_exercise_id"] === "string") &&
         typeof typedObj["valid"] === "boolean" &&
         (typeof typedObj["validityMessages"] === "undefined" ||
             Array.isArray(typedObj["validityMessages"]) &&
@@ -199,7 +202,8 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
             typeof typedObj["error"] === "string" ||
             isRepositoryExercisesMessage(typedObj) as boolean ||
             isTestResultsMessage(typedObj) as boolean ||
-            isDialogResponseMessage(typedObj) as boolean)
+            isDialogResponseMessage(typedObj) as boolean ||
+            isFocusFirstInvalidMessage(typedObj) as boolean)
     )
 }
 
@@ -314,6 +318,16 @@ export function isDialogResponseMessage(obj: unknown): obj is DialogResponseMess
         typedObj["message"] === "dialog-response" &&
         typeof typedObj["requestId"] === "string" &&
         typeof typedObj["confirmed"] === "boolean"
+    )
+}
+
+export function isFocusFirstInvalidMessage(obj: unknown): obj is FocusFirstInvalidMessage {
+    const typedObj = obj as FocusFirstInvalidMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "focus-first-invalid"
     )
 }
 
@@ -528,6 +542,20 @@ export function isNonGenericGradingRequest(obj: unknown): obj is NonGenericGradi
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["grading_update_url"] === "string" &&
+        (typeof typedObj["repository_exercise"] === "undefined" ||
+            (typedObj["repository_exercise"] !== null &&
+                typeof typedObj["repository_exercise"] === "object" ||
+                typeof typedObj["repository_exercise"] === "function") &&
+            typeof typedObj["repository_exercise"]["id"] === "string" &&
+            typeof typedObj["repository_exercise"]["repository_id"] === "string" &&
+            typeof typedObj["repository_exercise"]["part"] === "string" &&
+            typeof typedObj["repository_exercise"]["name"] === "string" &&
+            typeof typedObj["repository_exercise"]["repository_url"] === "string" &&
+            Array.isArray(typedObj["repository_exercise"]["checksum"]) &&
+            typedObj["repository_exercise"]["checksum"].every((e: any) =>
+                typeof e === "number"
+            ) &&
+            typeof typedObj["repository_exercise"]["download_url"] === "string") &&
         Array.isArray(typedObj["submission_files"]) &&
         typedObj["submission_files"].every((e: any) =>
             (e !== null &&

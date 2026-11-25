@@ -32,7 +32,7 @@ const FlaggedPeerReviewAccordion: React.FC<FlaggedPeerReviewAccordionProps> = ({
     <Disclosure
       title={
         <>
-          {title}
+          {title}{" "}
           <span
             className={css`
               background: ${baseTheme.colors.green[400]};

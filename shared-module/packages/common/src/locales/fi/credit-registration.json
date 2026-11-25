@@ -1465,6 +1465,7 @@
   "credit-registration-you-told-us-you-enrolled-open-university": "Kerroit ilmoittautuneesi Avoimeen yliopistoon {{date}}.",
   "credit-registration-you-told-us-you-enrolled-sisu": "Kerroit ilmoittautuneesi Sisussa {{date}}.",
   "duration-seconds": "{{seconds}} s",
+  "edit-module-named": "Muokkaa moduulia {{name}}",
   "grade-fail": "Hylätty",
   "grade-pass": "Hyväksytty",
   "heading-credit-registration-config-problem": "Tämä moduuli ei voi kirjata opintopisteitä nykyisillä asetuksilla.",

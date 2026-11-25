@@ -38,6 +38,7 @@ import {
   exerciseDefinitionsCsvHref,
 } from "@/utils/exportDownloadUrls"
 
+import AnswerShareList from "./AnswerShareList"
 import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 type ExportMode = "definitions" | "answers"
@@ -160,14 +161,14 @@ const SubmissionsPage: React.FC = () => {
           margin-bottom: 1rem;
         `}
       >
-        <h3
+        <h1
           className={css`
             font-weight: ${fontWeights.medium};
             margin: 0;
           `}
         >
           {t("header-submissions")}
-        </h3>
+        </h1>
         {exerciseSubmissionsQuery.isSuccess && (
           <DebugModal
             variant="minimal"
@@ -250,6 +251,7 @@ const SubmissionsPage: React.FC = () => {
                 itemsPerPage={paginationInfo.limit}
                 onItemsPerPageChange={paginationInfo.setLimit}
               />
+              <AnswerShareList exerciseId={id} courseId={exercise.course_id} />
             </>
           ) : null
         }

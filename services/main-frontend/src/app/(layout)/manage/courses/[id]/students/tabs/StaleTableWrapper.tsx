@@ -2,6 +2,9 @@
 
 import { cx } from "@emotion/css"
 import React from "react"
+import { useTranslation } from "react-i18next"
+
+import { ScrollRegion } from "@/shared-module/components"
 
 import { staleTableCss, tableScrollCss } from "../studentsTableStyles"
 
@@ -15,8 +18,15 @@ import { staleTableCss, tableScrollCss } from "../studentsTableStyles"
 export const StaleTableWrapper: React.FC<{ isStale: boolean; children: React.ReactNode }> = ({
   isStale,
   children,
-}) => (
-  <div className={cx(tableScrollCss, isStale && staleTableCss)} data-students-horizontal-scroll>
-    {children}
-  </div>
-)
+}) => {
+  const { t } = useTranslation()
+  return (
+    <ScrollRegion
+      className={cx(tableScrollCss, isStale && staleTableCss)}
+      data-students-horizontal-scroll
+      label={t("label-students")}
+    >
+      {children}
+    </ScrollRegion>
+  )
+}

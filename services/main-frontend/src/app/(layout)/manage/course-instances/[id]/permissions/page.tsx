@@ -14,9 +14,12 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
+import { useCourseInstancePageTitle } from "../useCourseInstancePageTitle"
+
 const CourseInstancePermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
+  useCourseInstancePageTitle(id, t("link-permissions"))
 
   const courseInstance = useQuery({
     ...getCourseInstanceOptions({

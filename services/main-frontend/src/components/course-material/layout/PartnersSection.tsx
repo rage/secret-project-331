@@ -7,7 +7,16 @@ import React from "react"
 import { getCourseMaterialPartnersBlock } from "@/generated/course-material-api/sdk.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 
+import { OpensInNewTabNotice } from "../ContentRenderer/util/links"
 import DynamicSvg from "./DynamicSvg"
+
+const hostOf = (href: string | undefined): string | undefined => {
+  try {
+    return href ? new URL(href).hostname : undefined
+  } catch {
+    return undefined
+  }
+}
 
 interface PartnersBlockProps {
   courseId: string | null
@@ -54,13 +63,14 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
 
             figure {
               margin: 0;
+            }
 
-              img {
-                width: 12rem;
-                aspect-ratio: auto;
-                margin: 0 !important;
-                pointer-events: none;
-              }
+            figure img,
+            a > img {
+              width: 12rem;
+              aspect-ratio: auto;
+              margin: 0 !important;
+              pointer-events: none;
             }
           `}
         >
@@ -72,6 +82,9 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               // oxlint-disable-next-line i18next/no-literal-string
               const formattedLink = href && !/^https?:\/\//i.test(href) ? `https://${href}` : href
               const isSvgUrl = url.endsWith(".svg")
+              // A linked logo always needs a name: the CMS alt, else the link's host.
+              const name =
+                alt?.trim() || (linkDestination === "custom" ? hostOf(formattedLink) : "")
 
               // Conditionally return image wrapped in a link or just the image based on whether 'link' is available
               return linkDestination === "custom" ? (
@@ -81,16 +94,12 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {isSvgUrl ? (
-                    <DynamicSvg src={url} />
-                  ) : (
-                    <figure>
-                      <img src={url} alt={alt} />
-                    </figure>
-                  )}
+                  {isSvgUrl ? <DynamicSvg src={url} label={name} /> : <img src={url} alt={name} />}
+                  {/* oxlint-disable-next-line i18next/no-literal-string */}
+                  <OpensInNewTabNotice linkTarget="_blank" />
                 </a>
               ) : isSvgUrl ? (
-                <DynamicSvg src={url} key={`partner-svg-${block.clientId}-${url}`} />
+                <DynamicSvg src={url} label={name} key={`partner-svg-${block.clientId}-${url}`} />
               ) : (
                 <figure key={`partner-img-${block.clientId}-${url}`}>
                   <img src={url} alt={alt} />

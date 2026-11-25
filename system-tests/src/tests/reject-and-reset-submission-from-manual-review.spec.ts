@@ -2,7 +2,10 @@ import type { BrowserContext, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
 import { getExerciseRegion, selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
-import { waitForExerciseServiceIframeToBeStable } from "@/utils/iframeLocators"
+import {
+  waitForExerciseServiceIframeToBeStable,
+  getExerciseTaskFrame,
+} from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -54,8 +57,7 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await getExerciseRegion(student1Page, EXERCISE_NAME)
-      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
+    await getExerciseTaskFrame(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "3" })
       .click()
 
@@ -77,8 +79,7 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student2Page)
-    await getExerciseRegion(student2Page, EXERCISE_NAME)
-      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
+    await getExerciseTaskFrame(getExerciseRegion(student2Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
 
@@ -97,8 +98,7 @@ test("Reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(teacherPage)
-    await getExerciseRegion(teacherPage, EXERCISE_NAME)
-      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
+    await getExerciseTaskFrame(getExerciseRegion(teacherPage, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
     await getExerciseRegion(teacherPage, EXERCISE_NAME)
@@ -223,8 +223,7 @@ test("Reject and reset submission", async () => {
     await expect(
       getExerciseRegion(student1Page, EXERCISE_NAME).getByText(teacherFeedbackText),
     ).toBeVisible()
-    await getExerciseRegion(student1Page, EXERCISE_NAME)
-      .frameLocator('iframe[title="Exercise 1, task 1 content"]')
+    await getExerciseTaskFrame(getExerciseRegion(student1Page, EXERCISE_NAME), 1)
       .getByRole("checkbox", { name: "4" })
       .click()
     await getExerciseRegion(student1Page, EXERCISE_NAME)

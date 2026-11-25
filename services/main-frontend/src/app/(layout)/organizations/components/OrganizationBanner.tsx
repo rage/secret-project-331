@@ -125,6 +125,9 @@ const OrganizationBanner: React.FC<Props> = ({ organization }) => {
             styledAsButton
             variant="secondary"
             size="medium"
+            aria-label={t("select-organization-named", {
+              name: organization.name || organization.slug,
+            })}
           >
             {t("label-select")}
           </Link>

@@ -17,37 +17,24 @@ import type { ModelSolutionQuizItemMultiplechoice } from "../../../../../types/q
 import type { PublicSpecQuizItemMultiplechoice } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
 import ParsedText from "../../../ParsedText"
-
-const gradingOption = css`
-  align-items: center;
-  background: ${quizTheme.quizItemBackground};
-  border: none;
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 0.3rem 0;
-  padding: 0 1rem;
-  border-radius: 0.375rem;
-  font-size: 1.125rem;
-  color: #4c5868;
-  border: 0.125rem solid #d8d8d8;
-`
-
-const gradingOptionWrongAndSelected = css`
-  background: #fbeef0;
-  border: 0.125rem solid #f5d0d3;
-`
-
-const gradingOptionSelected = css`
-  background: #f4f4f4;
-  border: 0.125rem solid #d8d8d8;
-`
-
-const gradingOptionCorrectAndSelected = css`
-  background: ${quizTheme.gradingCorrectItemBackground};
-  border: 0.125rem solid #69af8a;
-`
+import {
+  AnswerSummary,
+  SUMMARY_MODE,
+  buildSummary,
+  resolveLine2Label,
+  toSummaryOption,
+} from "../AnswerSummary"
+import {
+  CHIP,
+  OptionChip,
+  OptionMarker,
+  optionBoxStyles,
+  optionLabelStyles,
+  optionStateStyles,
+  optionTextStyles,
+  resolveOptionCorrectness,
+  resolveSelectedOptionCorrectness,
+} from "../OptionStatus"
 
 const MultipleChoiceSubmission: React.FC<
   React.PropsWithChildren<
@@ -77,175 +64,178 @@ const MultipleChoiceSubmission: React.FC<
     quiz_options = orderArrayWithId(quiz_options, user_information.pseudonymous_id)
   }
 
+  const isSelected = (id: string) => user_quiz_item_answer.selectedOptionIds?.includes(id) ?? false
+  const feedbackFor = (id: string) =>
+    quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find((f) => f.option_id === id)
+  const multi = public_quiz_item.allowSelectingMultipleOptions
+  const summaryLines = quiz_item_model_solution ? buildSummaryLines() : []
+
+  function buildSummaryLines() {
+    const keyFor = (id: string) => modelSolution.options.find((x) => x.id === id) ?? null
+    const text = (qo: (typeof quiz_options)[number]) => toSummaryOption(qo, true)
+    const chosen = quiz_options.filter((qo) => isSelected(qo.id))
+    const chosenCorrect = chosen.filter((qo) => keyFor(qo.id)?.correct === true).length
+    return buildSummary({
+      chosen: chosen.map((qo) => ({
+        ...text(qo),
+        correct: multi
+          ? resolveOptionCorrectness(keyFor(qo.id), feedbackFor(qo.id))
+          : resolveSelectedOptionCorrectness(
+              keyFor(qo.id),
+              feedbackFor(qo.id),
+              quiz_item_answer_feedback,
+            ),
+      })),
+      unselectedCorrect: quiz_options
+        .filter((qo) => !isSelected(qo.id) && keyFor(qo.id)?.correct === true)
+        .map((qo) => text(qo)),
+      incorrect: quiz_options
+        .filter((qo) => keyFor(qo.id)?.correct === false)
+        .map((qo) => text(qo)),
+      line2Label: resolveLine2Label({
+        mode: multi ? SUMMARY_MODE.multi : SUMMARY_MODE.single,
+        lenient:
+          public_quiz_item.multipleChoiceMultipleOptionsGradingPolicy ===
+          "some-correct-none-incorrect",
+        chosenCorrect,
+        totalCorrect: modelSolution.options.filter((o) => o.correct === true).length,
+      }),
+    })
+  }
+
   return (
-    <div
-      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
-      role="group"
-      aria-labelledby={titleId}
-      className={css`
-        margin: 0.5rem 0;
-      `}
-    >
+    <>
       <div
-        id={titleId}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=group on a styled div; fieldset alters layout
+        role="group"
+        aria-labelledby={titleId}
         className={css`
-          font-weight: 500;
-          color: #4c5868;
-          font-family: ${primaryFont};
-          font-size: 1.25rem;
-          margin-bottom: 1rem;
-        `}
-      >
-        <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
-      </div>
-      <div
-        className={css`
-          color: ${quizTheme.quizBodyColor};
-          font-size: ${quizTheme.quizBodyFontSize};
           margin: 0.5rem 0;
         `}
       >
-        {public_quiz_item.body && (
-          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
-        )}
-      </div>
-      <div
-        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=list on a styled flex div; <ul> alters layout
-        role="list"
-        className={css`
-          display: flex;
-          flex-direction: column;
+        <div
+          id={titleId}
+          className={css`
+            font-weight: 500;
+            color: #4c5868;
+            font-family: ${primaryFont};
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+          `}
+        >
+          <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.title} />
+        </div>
+        <div
+          className={css`
+            color: ${quizTheme.quizBodyColor};
+            font-size: ${quizTheme.quizBodyFontSize};
+            margin: 0.5rem 0;
+          `}
+        >
+          {public_quiz_item.body && (
+            <ParsedText inline parseLatex parseMarkdown text={public_quiz_item.body} />
+          )}
+        </div>
+        <div
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=list on a styled flex div; <ul> alters layout
+          role="list"
+          className={css`
+            display: flex;
+            flex-direction: column;
 
-          ${respondToOrLarger.sm} {
-            flex-direction: ${direction};
-            ${
-              public_quiz_item.optionDisplayDirection === "horizontal" &&
-              `
+            ${respondToOrLarger.sm} {
+              flex-direction: ${direction};
+              ${
+                public_quiz_item.optionDisplayDirection === "horizontal" &&
+                `
                 flex-wrap: wrap;
               `
+              }
             }
-          }
-        `}
-      >
-        {quiz_options.map((qo) => {
-          const answerSelectedThisOption =
-            user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
-          const modelSolutionForThisOption =
-            modelSolution?.options.find((x) => x.id === qo.id) ?? null
-          // If correctAnswer is null we don't know whether this option was correct or not
-          let correctAnswer = modelSolutionForThisOption?.correct ?? null
-          const feedbackForThisOption = quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
-            (f) => f.option_id === qo.id,
-          )
-          // if we have received feedback for this option, use that
-          // However, if the model solution thinks this option is correct and the feedback says it's not, we'll trust the model solution
-          if (
-            feedbackForThisOption &&
-            feedbackForThisOption.this_option_was_correct !== null &&
-            !correctAnswer
-          ) {
-            correctAnswer = feedbackForThisOption.this_option_was_correct
-          }
-          let feedBackForOption: string | null = null
-          if (answerSelectedThisOption) {
-            feedBackForOption = resolveDisplayedFeedback(
-              feedbackForThisOption?.option_feedback,
-              modelSolutionForThisOption?.messagesOnModelSolution,
-            )
-          }
-          return (
-            <div
-              key={qo.id}
-              // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=listitem on a styled div; <li> needs a <ul> parent
-              role="listitem"
-            >
+          `}
+        >
+          {quiz_options.map((qo) => {
+            const answerSelectedThisOption =
+              user_quiz_item_answer.selectedOptionIds?.includes(qo.id) ?? false
+            const modelSolutionForThisOption =
+              modelSolution?.options.find((x) => x.id === qo.id) ?? null
+            const feedbackForThisOption =
+              quiz_item_answer_feedback?.quiz_item_option_feedbacks?.find(
+                (f) => f.option_id === qo.id,
+              )
+            // null means we don't know whether this option was correct
+            // Item score only says something about one option when a single option is selected.
+            const correctAnswer =
+              answerSelectedThisOption && !multi
+                ? resolveSelectedOptionCorrectness(
+                    modelSolutionForThisOption,
+                    feedbackForThisOption,
+                    quiz_item_answer_feedback,
+                  )
+                : resolveOptionCorrectness(modelSolutionForThisOption, feedbackForThisOption)
+            let chip: React.ReactNode = null
+            if (answerSelectedThisOption) {
+              if (correctAnswer === true) {
+                chip = <OptionChip kind={CHIP.correct}>{t("option-result-correct")}</OptionChip>
+              } else if (correctAnswer === false) {
+                chip = <OptionChip kind={CHIP.incorrect}>{t("option-result-incorrect")}</OptionChip>
+              }
+            }
+            let prefix: string | null = null
+            if (answerSelectedThisOption) {
+              prefix = t("option-selected")
+            } else if (multi) {
+              prefix = t("option-not-selected")
+            }
+            let feedBackForOption: string | null = null
+            if (answerSelectedThisOption) {
+              feedBackForOption = resolveDisplayedFeedback(
+                feedbackForThisOption?.option_feedback,
+                modelSolutionForThisOption?.messagesOnModelSolution,
+              )
+            }
+            return (
               <div
-                className={cx(
-                  gradingOption,
-                  answerSelectedThisOption && gradingOptionSelected,
-                  answerSelectedThisOption &&
-                    correctAnswer === false &&
-                    gradingOptionWrongAndSelected,
-                  answerSelectedThisOption &&
-                    correctAnswer === true &&
-                    gradingOptionCorrectAndSelected,
-                )}
+                key={qo.id}
+                // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- role=listitem on a styled div; <li> needs a <ul> parent
+                role="listitem"
               >
                 <div
-                  className={css`
-                    padding: 0.8rem 0;
-                    max-width: 50ch;
-                  `}
-                >
-                  <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
-                  {answerSelectedThisOption && (
-                    <VisuallyHidden>{t("you-selected-this-option")}</VisuallyHidden>
+                  className={cx(
+                    optionBoxStyles,
+                    optionLabelStyles,
+                    answerSelectedThisOption && optionStateStyles(correctAnswer),
                   )}
-                </div>
-                <div>
-                  <div
-                    className={css`
-                      display: flex;
-                      flex-direction: ${sanitizeFlexDirection(
-                        public_quiz_item.optionDisplayDirection,
-                        "row",
-                      )};
-                      ${
-                        public_quiz_item.optionDisplayDirection === "horizontal" &&
-                        `
-                            padding-left: 0.635rem;
-                          `
-                      }
-                    `}
-                  >
-                    {correctAnswer === true && (
-                      <div
-                        className={css`
-                          background: #9dc7b1;
-                          font-size: 0.625rem;
-                          text-transform: uppercase;
-                          font-weight: bold;
-                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                          border-radius: 0.125rem;
-                          color: #14261c;
-                        `}
-                      >
-                        {t("correct-option")}
-                      </div>
-                    )}
-                    {correctAnswer === false && (
-                      <div
-                        className={css`
-                          background: #eedbdd;
-                          font-size: 0.625rem;
-                          text-transform: uppercase;
-                          font-weight: bold;
-                          padding: 0.3125rem 0.375rem 0.25rem 0.375rem;
-                          border-radius: 0.125rem;
-                          color: #b12632;
-                        `}
-                      >
-                        {t("incorrect-option")}
-                      </div>
-                    )}
+                >
+                  <div className={optionLabelStyles}>
+                    <OptionMarker selected={answerSelectedThisOption} multi={multi} />
+                    <div className={optionTextStyles}>
+                      {prefix && <VisuallyHidden>{prefix}</VisuallyHidden>}
+                      <ParsedText
+                        inline
+                        parseMarkdown
+                        parseLatex
+                        text={qo.title || qo.body || ""}
+                      />
+                    </div>
                   </div>
+                  {chip}
                 </div>
+                <RowSubmissionFeedback correct={correctAnswer} feedback={feedBackForOption} />
               </div>
-              <RowSubmissionFeedback
-                correct={correctAnswer ?? false}
-                feedback={feedBackForOption}
-              />
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
-    </div>
+      {/* Sibling of the item group: nested groups are read as "out of grouping" twice. */}
+      <AnswerSummary lines={summaryLines} />
+    </>
   )
 }
 
 interface RowSubmissionFeedbackProps {
   feedback: string | null | undefined
-  correct: boolean
+  correct: boolean | null
 }
 
 const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedbackProps>> = ({
@@ -259,11 +249,14 @@ const RowSubmissionFeedback: React.FC<React.PropsWithChildren<RowSubmissionFeedb
         display: flex;
         color: #4c5868;
         font-size: 1.125rem;
-        border-left: ${
-          correct
-            ? `0.375rem solid ${quizTheme.gradingCorrectItemBorderColor}`
-            : `0.375rem solid #ebcbcd`
-        };
+        border-left: 0.375rem solid
+          ${
+            correct === null
+              ? "#b8b8c8"
+              : correct
+                ? quizTheme.gradingCorrectItemBorderColor
+                : "#ebcbcd"
+          };
         box-sizing: border-box;
         background: ${quizTheme.feedbackBackground};
         padding: 0.5rem 0px 0.5rem 0.5rem;

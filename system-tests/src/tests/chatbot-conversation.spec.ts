@@ -1,7 +1,7 @@
 import type { BrowserContext, Locator, Page } from "@playwright/test"
 import { expect, test } from "@playwright/test"
 
-import accessibilityCheck from "@/utils/accessibilityCheck"
+import accessibilityCheck, { NO_H1 } from "@/utils/accessibilityCheck"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import expectScreenshotsToMatchSnapshots, { waitToBeStable } from "@/utils/screenshot"
 import { scrollElementContainerToTop, scrollToYCoordinate } from "@/utils/scrollUtils"
@@ -164,10 +164,10 @@ test.describe("Test chatbot chat box", () => {
 
     await test.step("agree to terms", async () => {
       await expect(student1Page.getByText("About the chatbot")).toBeVisible()
-      await accessibilityCheck(student1Page, "Block Chatbot Agree / View", [])
+      await accessibilityCheck(student1Page, "Block Chatbot Agree / View", [NO_H1])
       await student1Page.getByRole("button", { name: "Agree" }).click()
       await waitForAnimationsToEnd(student1Page.getByText("Haiii xD"))
-      await accessibilityCheck(student1Page, "Block Chatbot New Conversation / View", [])
+      await accessibilityCheck(student1Page, "Block Chatbot New Conversation / View", [NO_H1])
       await expect(student1Page.getByText("Chatbots can make mistakes.")).toBeVisible()
     })
 
@@ -176,12 +176,14 @@ test.describe("Test chatbot chat box", () => {
       await student1Page.getByPlaceholder("Message").fill("Hello, pls help me!")
       await student1Page.getByRole("button", { name: "Send" }).click()
       await student1Page.getByText("Hello! How can I assist you today?").waitFor()
-      await accessibilityCheck(student1Page, "Block Chatbot Ongoing Conversation / View", [])
+      await accessibilityCheck(student1Page, "Block Chatbot Ongoing Conversation / View", [NO_H1])
     })
 
     await test.step("look at references", async () => {
       await showReferences(student1Page)
-      await accessibilityCheck(student1Page, "Block Chatbot Conversation With Citations / View", [])
+      await accessibilityCheck(student1Page, "Block Chatbot Conversation With Citations / View", [
+        NO_H1,
+      ])
 
       await student1Page.getByLabel("Citation 1").first().click()
       await waitForAnimationsToEnd(
@@ -190,7 +192,7 @@ test.describe("Test chatbot chat box", () => {
       await accessibilityCheck(
         student1Page,
         "Block Chatbot Conversation With Citation Popover / View",
-        [],
+        [NO_H1],
       )
       await expect(
         student1Page.getByText(
@@ -236,7 +238,7 @@ test.describe("Test chatbot chat box", () => {
       await accessibilityCheck(
         studentPage,
         "Block Chatbot with Suggestions New Conversation / View",
-        [],
+        [NO_H1],
       )
     })
 
@@ -259,6 +261,7 @@ test.describe("Test chatbot chat box", () => {
       // oxlint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
       await expectScreenshotsToMatchSnapshots({
+        axeSkip: [NO_H1],
         screenshotTarget: studentPage,
         headless,
         testInfo,

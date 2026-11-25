@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_tasks\nSET deleted_at = now()\nWHERE exercise_slide_id = ANY($1)\nAND deleted_at IS NULL\nRETURNING id,\n  private_spec,\n  public_spec,\n  model_solution_spec,\n  repository_exercise_id,\n  repository_exercise_checksum;\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "private_spec",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "private_spec"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "public_spec",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "public_spec"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "model_solution_spec",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "model_solution_spec"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "repository_exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "repository_exercise_checksum",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_checksum"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "7eb500dc095a59d12f51884a0df25f61bbee110767767e4bd9cf8c28b2f4a1d0"
+}

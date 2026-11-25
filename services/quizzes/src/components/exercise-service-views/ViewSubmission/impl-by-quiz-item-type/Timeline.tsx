@@ -49,10 +49,18 @@ const container = css`
     position: relative;
   }
 
+  /* Single column so content fits a 320px wide viewport. */
   @media (max-width: 767.98px) {
     width: 100%;
-    padding-left: 7.5rem;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
+
+    .date {
+      position: static;
+      display: block;
+      text-align: left;
+      margin-bottom: 0.25rem;
+    }
   }
 `
 const left = css`
@@ -60,21 +68,11 @@ const left = css`
 
   .date {
     right: -4.688rem;
-    @media (max-width: 767.98px) {
-      right: auto;
-      left: 0.938rem;
-    }
-  }
-
-  &::after {
-    @media (max-width: 767.98px) {
-      left: 4.063rem;
-    }
   }
 
   .content {
     @media (max-width: 767.98px) {
-      padding: 1.875rem 0 1.875rem 0.625rem;
+      padding: 0 0 1rem 0;
     }
   }
 `
@@ -87,24 +85,17 @@ const right = css`
 
   .date {
     left: -4.688rem;
-    @media (max-width: 767.98px) {
-      right: auto;
-      left: 0.938rem;
-    }
   }
 
   .content {
     padding: 1.875rem;
     @media (max-width: 767.98px) {
-      padding: 1.875rem 0 1.875rem 0.625rem;
+      padding: 0 0 1rem 0;
     }
   }
 
   &::after {
     left: -0.938rem;
-    @media (max-width: 767.98px) {
-      left: 4.063rem;
-    }
   }
 `
 
@@ -177,6 +168,10 @@ const Timeline: React.FunctionComponent<
                   border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;
+
+                  @media (max-width: 767.98px) {
+                    display: none;
+                  }
                 }
 
                 .select-wrapper {
@@ -198,7 +193,7 @@ const Timeline: React.FunctionComponent<
                   border-radius: 6.188rem;
                   margin-left: 0.375rem;
                   @media (max-width: 767.98px) {
-                    left: 80px;
+                    display: none;
                   }
                 }
               `}`}
@@ -224,15 +219,17 @@ const Timeline: React.FunctionComponent<
                         className={css`
                           padding: 8px 2px 8px 17px;
                           width: 100%;
+                          min-width: 0;
+                          overflow-wrap: anywhere;
                         `}
                       >
                         {selectedTimelineEventDetails?.name ?? t("deleted-option")}
                       </p>
                       <div
                         className={css`
-                          padding: 0.5rem 1rem;
+                          padding: 0.5rem;
                           color: ${whatWasChosenWasCorrect ? "#246F46" : "#D75861"};
-                          width: 50px;
+                          flex-shrink: 0;
                           display: flex;
                           align-items: center;
                           justify-content: center;
@@ -272,7 +269,7 @@ const Timeline: React.FunctionComponent<
                           className={css`
                             font-family: ${headingFont};
                             color: ${baseTheme.colors.clear[100]};
-                            background-color: ${baseTheme.colors.green[400]};
+                            background-color: ${baseTheme.colors.green[700]};
                             width: fit-content;
                             margin-bottom: 0.4rem;
                             line-height: 100%;

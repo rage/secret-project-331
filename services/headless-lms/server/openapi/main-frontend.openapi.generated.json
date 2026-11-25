@@ -605,6 +605,36 @@
         }
       }
     },
+    "/api/v0/main-frontend/certificates/{certificate_verification_id}/details": {
+      "get": {
+        "tags": ["certificates"],
+        "summary": "GET `/api/v0/main-frontend/certificates/{certificate_verification_id}/details`\n\nThe certificate's holder, course, module, completion date and printed grade as JSON.",
+        "operationId": "getCertificateDetailsByVerificationId",
+        "parameters": [
+          {
+            "name": "certificate_verification_id",
+            "in": "path",
+            "description": "Certificate verification id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CertificateDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chapters": {
       "post": {
         "tags": ["chapters"],
@@ -5110,8 +5140,8 @@
     },
     "/api/v0/main-frontend/courses/{course_id}/language-versions": {
       "get": {
-        "tags": ["courses"],
-        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.\n\n# Example\n\nRequest:\n```http\nGET /api/v0/main-frontend/courses/fd484707-25b6-4c51-a4ff-32d8259e3e47/language-versions HTTP/1.1\nContent-Type: application/json\n```",
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions` - Returns all language versions of the same course.",
         "operationId": "getCourseLanguageVersions",
         "parameters": [
           {
@@ -5135,6 +5165,595 @@
                   "items": {
                     "$ref": "#/components/schemas/Course"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/counterparts": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/counterparts` - Copies a page into another language version and links the copy.",
+        "operationId": "postLanguageVersionCounterpart",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCounterpartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Counterpart created and linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCounterpartResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/dismissals": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/dismissals` - Marks a problem as intended.",
+        "operationId": "postLanguageVersionProblemDismissal",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewProblemDismissal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Problem marked as intended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDismissal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["course-language-versions"],
+        "summary": "DELETE `/api/v0/main-frontend/courses/:id/language-versions/dismissals?problem_key=...` - Reports a dismissed problem again.",
+        "operationId": "deleteLanguageVersionProblemDismissal",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "problem_key",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dismissal removed"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-counterparts": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/exercise-counterparts` - Which exercises of this course lack counterparts.",
+        "operationId": "getLanguageVersionExerciseCounterparts",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Missing exercise counterparts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseCounterparts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-links": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/exercise-links` - Links or unlinks exercises across the language versions.",
+        "operationId": "postLanguageVersionExerciseLinks",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounterpartLinksRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Links changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CounterpartLinksResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/join": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/join` - Joins a course into the language versions, moving its students' data.",
+        "operationId": "postLanguageVersionJoin",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinLanguageVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Course joined",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinLanguageVersionResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/join-candidates": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/join-candidates` - Courses that could join the language versions.\n\nOnly courses the user can edit are returned.",
+        "operationId": "getLanguageVersionJoinCandidates",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Name or slug; without it, only courses that look like translations are returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Join candidates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JoinCandidate"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/join-preview/{joined_course_id}": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/join-preview/:joined_course_id` - What joining the course would change.",
+        "operationId": "getLanguageVersionJoinPreview",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "joined_course_id",
+            "in": "path",
+            "description": "Course to join into the language versions",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Join preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinLanguageVersionPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/page-links": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/page-links` - Links or unlinks pages across the language versions.",
+        "operationId": "postLanguageVersionPageLinks",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounterpartLinksRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Links changed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CounterpartLinksResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/remove-leftover-links": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/remove-leftover-links` - Removes links to deleted pages and exercises.",
+        "operationId": "postLanguageVersionRemoveLeftoverLinks",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RemoveLeftoverLinksRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Leftover links removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RemoveLeftoverLinksResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/report": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/report` - Checks the language versions for problems.\n\nNeeds `Edit` on this course only; `can_edit` per course tells which fixes the user may apply.",
+        "operationId": "getLanguageVersionReport",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Problems found in the language versions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageVersionReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/split": {
+      "post": {
+        "tags": ["course-language-versions"],
+        "summary": "POST `/api/v0/main-frontend/courses/:id/language-versions/split` - Removes a course from the language versions, moving its students' data with it.",
+        "operationId": "postLanguageVersionSplit",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SplitLanguageVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Course split off",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SplitLanguageVersionResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/split-preview/{split_course_id}": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/split-preview/:split_course_id` - What removing the course from the language versions would change.",
+        "operationId": "getLanguageVersionSplitPreview",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "split_course_id",
+            "in": "path",
+            "description": "Course to remove from the language versions",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Split preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SplitLanguageVersionPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/structure": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/structure` - The language versions' chapters, pages and exercises side by side.",
+        "operationId": "getLanguageVersionStructure",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Structure comparison",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LanguageVersionStructure"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/language-versions/suggestions": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/courses/:id/language-versions/suggestions` - Suggested counterparts for this course's pages and exercises.\n\nCandidate courses outside the language versions need `Edit` too. Heuristic only; see\n`/api/v0/main-frontend/language-version-ai-suggestions/:id` for AI picks.",
+        "operationId": "getLanguageVersionSuggestions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_number",
+            "in": "query",
+            "description": "Only this chapter number; all chapters when absent.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "candidate_course_ids",
+            "in": "query",
+            "description": "Courses outside the language versions to include, for matching before a join.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggested links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkSuggestions"
                 }
               }
             }
@@ -5169,6 +5788,76 @@
                   "items": {
                     "$ref": "#/components/schemas/LinkableExam"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/model-solution-settings": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals\nmodel solutions to students who have neither solved the exercise nor used up its tries.",
+        "operationId": "getCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["courses"],
+        "summary": "PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals\nmodel solutions to every student.",
+        "operationId": "updateCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseModelSolutionSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
                 }
               }
             }
@@ -11873,6 +12562,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercise-repositories/{id}/sync": {
+      "post": {
+        "tags": ["exercise_repositories"],
+        "summary": "POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's\nexercises from its current contents.",
+        "operationId": "syncExerciseRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise repository id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync queued",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercise-services/": {
       "get": {
         "tags": ["exercise_services"],
@@ -12231,6 +12951,40 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of\nthe exercise's answers, including the pastes students made from the editor, so staff can find them.",
+        "operationId": "getExerciseAnswerShares",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exercise's live answer shares, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseAnswerShare"
+                  }
                 }
               }
             }
@@ -13026,6 +13780,60 @@
           },
           "403": {
             "description": "User is not allowed to manage glossary terms"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/language-version-ai-suggestions/{course_id}": {
+      "get": {
+        "tags": ["course-language-versions"],
+        "summary": "GET `/api/v0/main-frontend/language-version-ai-suggestions/:id` - Like the language versions' `/suggestions`, with AI picks from titles, names and content.\n\nOutside `/courses` so that the ingress can give it a longer timeout: it waits for the AI. When the\nAI is unavailable, the heuristic suggestions come back with `ai_status` saying so.",
+        "operationId": "getLanguageVersionAiSuggestions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_number",
+            "in": "query",
+            "description": "Only this chapter number; all chapters when absent.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "candidate_course_ids",
+            "in": "query",
+            "description": "Courses outside the language versions to include, for matching before a join.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Suggested links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkSuggestions"
+                }
+              }
+            }
           }
         }
       }
@@ -15329,7 +16137,7 @@
     "/api/v0/main-frontend/shared-submissions/{token}": {
       "get": {
         "tags": ["shared_submissions"],
-        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Who may open it\nfollows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff\nalways; any logged-in user while the student has not passed the exercise; once they have, only\nusers who have passed it themselves.",
         "operationId": "getSharedSubmissionInfo",
         "parameters": [
           {
@@ -15353,6 +16161,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "The shared answer passed the exercise and the viewer has not passed it themselves"
           }
         }
       },
@@ -16188,6 +16999,34 @@
         }
       }
     },
+    "/api/v0/main-frontend/users/request-password-reset": {
+      "post": {
+        "tags": ["users"],
+        "operationId": "sendResetPasswordEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Reset password email accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/users/reset-password": {
       "post": {
         "tags": ["users"],
@@ -16233,34 +17072,6 @@
         "responses": {
           "200": {
             "description": "Reset password token validity",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/users/send-reset-password-email": {
-      "post": {
-        "tags": ["users"],
-        "operationId": "sendResetPasswordEmail",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EmailData"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Reset password email accepted",
             "content": {
               "text/plain": {
                 "schema": {
@@ -19342,6 +20153,11 @@
           }
         }
       },
+      "AiSuggestionStatus": {
+        "type": "string",
+        "description": "Whether AI picks went into the suggestions.",
+        "enum": ["not_requested", "used", "partly_unavailable", "unavailable"]
+      },
       "AnalysisCourseType": {
         "type": "string",
         "enum": ["compulsory", "elective"]
@@ -20079,6 +20895,41 @@
           }
         }
       },
+      "CertificateDetails": {
+        "type": "object",
+        "description": "The text a certificate image shows, for readers who cannot see the image.",
+        "required": ["name_on_certificate", "course_name", "completion_date", "verification_id"],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_module_name": {
+            "type": ["string", "null"],
+            "description": "`None` for a course's default module."
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "grade": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CertificateGrade",
+                "description": "`None` unless the certificate configuration prints the grade."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name_on_certificate": {
+            "type": "string"
+          },
+          "verification_id": {
+            "type": "string"
+          }
+        }
+      },
       "CertificateGenerationRequest": {
         "type": "object",
         "required": ["certificate_configuration_id", "name_on_certificate"],
@@ -20092,6 +20943,19 @@
           },
           "name_on_certificate": {
             "type": "string"
+          }
+        }
+      },
+      "CertificateGrade": {
+        "type": "object",
+        "required": ["passed"],
+        "properties": {
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "passed": {
+            "type": "boolean"
           }
         }
       },
@@ -21375,6 +22239,11 @@
               "format": "uuid"
             },
             "description": "The stored files this task's private spec references, as the exercise service declared them\nin the editor. The host cannot read the spec, so this list is the only thing keeping the\nfiles from being reclaimed as abandoned uploads — and the CMS round-trips it through a block\nattribute, so a load that leaves it empty makes the next save drop the references.\n\nOnly the private spec's. Each derived spec declares its own files in the response of the\nendpoint that produced it, since a derivation may upload files of its own."
+          },
+          "repository_exercise_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The repository exercise the exercise editor picked, as it reported it beside the spec."
           }
         }
       },
@@ -21998,6 +22867,72 @@
             "type": ["string", "null"],
             "format": "date-time",
             "description": "The start of the time period (e.g., day, week, month) associated with this count.\nFor overall totals, this will be `None`."
+          }
+        }
+      },
+      "CounterpartLinkChange": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Makes exactly these pages (or exercises), at most one per language version, counterparts of\neach other. Their previous counterparts that are not listed stay linked to one another.",
+            "required": ["ids", "action"],
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": ["link"]
+              },
+              "ids": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Leaves the page (or exercise) without counterparts. Content does not change.",
+            "required": ["id", "action"],
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": ["unlink"]
+              },
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "description": "One change to page or exercise links."
+      },
+      "CounterpartLinksRequest": {
+        "type": "object",
+        "description": "Body of POST /page-links and /exercise-links. Applied in one transaction, in order.",
+        "required": ["changes"],
+        "properties": {
+          "changes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CounterpartLinkChange"
+            }
+          }
+        }
+      },
+      "CounterpartLinksResult": {
+        "type": "object",
+        "description": "What POST /page-links or /exercise-links changed.",
+        "required": ["linked_count", "unlinked_count"],
+        "properties": {
+          "linked_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unlinked_count": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -23780,6 +24715,22 @@
           }
         }
       },
+      "CourseModelSolutionSettings": {
+        "type": "object",
+        "description": "A course's model-solution reveal settings. A course without stored settings uses\n[`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.",
+        "required": ["reveal_after_deadline"],
+        "properties": {
+          "reveal_after_deadline": {
+            "type": "boolean",
+            "description": "Reveal an exercise's model solution to everyone once its deadline (its own, else its\nchapter's) has passed."
+          },
+          "reveal_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Reveal every model solution to everyone from this moment on."
+          }
+        }
+      },
       "CourseModule": {
         "type": "object",
         "description": "Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into\n`completion_policy`.",
@@ -24472,6 +25423,48 @@
           },
           "skip_azure_stuff": {
             "type": "boolean"
+          }
+        }
+      },
+      "CreateCounterpartRequest": {
+        "type": "object",
+        "description": "Body of POST /counterparts: copies a page into another language version and links the copy.",
+        "required": ["source_page_id", "target_course_id", "title"],
+        "properties": {
+          "insert_after_page_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` puts the page first."
+          },
+          "source_page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "target_chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "`None` puts the page outside chapters."
+          },
+          "target_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCounterpartResult": {
+        "type": "object",
+        "required": ["page", "copied_exercise_count"],
+        "properties": {
+          "copied_exercise_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Exercises copied and linked to the source page's exercises."
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
           }
         }
       },
@@ -27160,8 +28153,12 @@
       },
       "EmailData": {
         "type": "object",
-        "required": ["email", "language"],
+        "required": ["email", "language", "altcha"],
         "properties": {
+          "altcha": {
+            "type": "string",
+            "description": "The solved proof-of-work challenge, see [`crate::domain::proof_of_work`]."
+          },
           "email": {
             "type": "string"
           },
@@ -27935,6 +28932,31 @@
           }
         }
       },
+      "ExerciseAnswerShare": {
+        "type": "object",
+        "description": "A live share of an answer to an exercise, as listed to the course's staff.",
+        "required": ["share_id", "user_id", "created_at", "is_graded"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_graded": {
+            "type": "boolean",
+            "description": "`false` for a paste, which is never graded."
+          },
+          "share_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The token the shared view takes."
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The student whose answer it is."
+          }
+        }
+      },
       "ExerciseAnswersInCourseRequiringAttentionCount": {
         "type": "object",
         "required": ["id", "name", "page_id", "order_number"],
@@ -27994,6 +29016,34 @@
         ],
         "description": "A consequence of an exercise change the reviewer should know of. Never makes the change risky."
       },
+      "ExerciseCounterparts": {
+        "type": "object",
+        "description": "Which exercises of this course lack counterparts (GET /exercise-counterparts).",
+        "required": ["language_codes", "missing_language_codes_by_exercise_id"],
+        "properties": {
+          "language_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Languages of the other language versions."
+          },
+          "missing_language_codes_by_exercise_id": {
+            "type": "object",
+            "description": "Exercises lacking a counterpart in at least one of them, with the missing language codes.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "propertyNames": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
       "ExerciseCsvExportTaskOption": {
         "type": "object",
         "required": [
@@ -28047,10 +29097,37 @@
           }
         }
       },
+      "ExerciseLinkSuggestion": {
+        "type": "object",
+        "description": "An exercise of this course and its counterpart in each other course.",
+        "required": ["reference", "counterparts"],
+        "properties": {
+          "counterparts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedExerciseCounterpart"
+            }
+          },
+          "reference": {
+            "$ref": "#/components/schemas/LanguageVersionExercise"
+          }
+        }
+      },
       "ExerciseRepository": {
         "type": "object",
-        "required": ["id", "url", "status"],
+        "description": "A repository as teachers see it. Never carries the deploy key.",
+        "required": [
+          "id",
+          "url",
+          "status",
+          "has_deploy_key",
+          "sync_attempts",
+          "exercise_task_count"
+        ],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -28062,12 +29139,42 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
+          "exercise_task_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live exercise tasks that use one of the repository's exercises."
+          },
+          "has_deploy_key": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
+          "last_sync_report": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExerciseRepositorySyncReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_synced_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "status": {
             "$ref": "#/components/schemas/ExerciseRepositoryStatus"
+          },
+          "sync_attempts": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Syncs started since the last request or success, the running one included."
           },
           "url": {
             "type": "string"
@@ -28078,10 +29185,76 @@
         "type": "string",
         "enum": ["Pending", "Success", "Failure"]
       },
+      "ExerciseRepositorySyncReport": {
+        "type": "object",
+        "description": "What a sync changed. Exercises are named `part/name`.",
+        "required": [
+          "added",
+          "updated",
+          "renamed",
+          "removed",
+          "missing_but_in_use",
+          "refreshed_exercise_task_count",
+          "failed_exercise_tasks"
+        ],
+        "properties": {
+          "added": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed_exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FailedExerciseTaskRefresh"
+            }
+          },
+          "missing_but_in_use": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gone from the repository but kept, because exercise tasks still use them."
+          },
+          "refreshed_exercise_task_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "removed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "renamed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenamedRepositoryExercise"
+            }
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ExerciseRepositoryUpdate": {
         "type": "object",
         "required": ["url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
+          "deploy_key": {
+            "type": ["string", "null"],
+            "description": "Replaces the stored key pair when set; the stored pair is kept otherwise."
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "url": {
             "type": "string"
           }
@@ -28988,6 +30161,23 @@
         "description": "How querying an external platform for the user's courses went.",
         "enum": ["loaded", "not_queried", "unavailable"]
       },
+      "FailedExerciseTaskRefresh": {
+        "type": "object",
+        "description": "An exercise task whose specs could not be derived again; it keeps its previous version.",
+        "required": ["exercise_task_id", "repository_exercise", "error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "repository_exercise": {
+            "type": "string"
+          }
+        }
+      },
       "Feedback": {
         "type": "object",
         "required": [
@@ -29673,12 +30863,823 @@
           }
         }
       },
+      "JoinBlockedReason": {
+        "type": "string",
+        "description": "Why a course can't join the language versions.",
+        "enum": ["already_language_version", "language_already_present"]
+      },
+      "JoinCandidate": {
+        "type": "object",
+        "description": "A course that could join this course's language versions (GET /join-candidates).",
+        "required": ["course", "reasons"],
+        "properties": {
+          "blocked_reason": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/JoinBlockedReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "course": {
+            "$ref": "#/components/schemas/LanguageVersionCourse"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JoinCandidateReason"
+            },
+            "description": "Empty for plain search hits that don't look like translations."
+          }
+        }
+      },
+      "JoinCandidateReason": {
+        "type": "string",
+        "description": "Why a course looks like a translation of this course.",
+        "enum": [
+          "copied_from_this_course",
+          "copied_from_same_course",
+          "same_chapter_and_page_counts",
+          "same_teachers",
+          "created_on_same_day",
+          "similar_name"
+        ]
+      },
       "JoinCourseWithJoinCodePayload": {
         "type": "object",
         "required": ["join_code"],
         "properties": {
           "join_code": {
             "type": "string"
+          }
+        }
+      },
+      "JoinLanguageVersionPreview": {
+        "type": "object",
+        "description": "What joining a course into this course's language versions would change\n(GET /join-preview/{joined_course_id}). Changes nothing.",
+        "required": [
+          "course",
+          "language_versions",
+          "left_language_versions",
+          "unlinked_page_count",
+          "unlinked_exercise_count",
+          "expected_student_count",
+          "moved_data",
+          "students_in_both_count"
+        ],
+        "properties": {
+          "blocked_reason": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/JoinBlockedReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "course": {
+            "$ref": "#/components/schemas/LanguageVersionCourse"
+          },
+          "expected_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Students whose data moves; send back in [JoinLanguageVersionRequest]."
+          },
+          "language_versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            }
+          },
+          "left_language_versions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            },
+            "description": "The joined course's current other language versions, which it leaves. They stay language\nversions of each other and keep their students."
+          },
+          "moved_data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentDataCount"
+            }
+          },
+          "students_in_both_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Students enrolled both in the joined course and in a current version. Each keeps the\nversion with the latest activity; the other enrolment setting is removed and logged."
+          },
+          "unlinked_exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unlinked_page_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Pages and exercises of the joined course whose links to `left_language_versions` are\nremoved."
+          }
+        }
+      },
+      "JoinLanguageVersionRequest": {
+        "type": "object",
+        "description": "Body of POST /join.",
+        "required": ["course_id", "expected_student_count"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "From the preview; the join is refused if the number changed meanwhile."
+          }
+        }
+      },
+      "JoinLanguageVersionResult": {
+        "type": "object",
+        "required": ["course_language_group_id", "moved_data", "removed_enrolment_settings_count"],
+        "properties": {
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "moved_data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentDataCount"
+            }
+          },
+          "removed_enrolment_settings_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Enrolment settings of students in both that were removed (and logged)."
+          }
+        }
+      },
+      "LanguageVersionChapter": {
+        "type": "object",
+        "description": "A chapter of one language version. Chapters have no link of their own; they correspond by number.",
+        "required": ["id", "course_id", "chapter_number", "name", "page_count"],
+        "properties": {
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "LanguageVersionCourse": {
+        "type": "object",
+        "description": "A course in, or a candidate for, a course language group, with the counts the tool shows.",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "language_code",
+          "course_language_group_id",
+          "is_draft",
+          "created_at",
+          "chapter_count",
+          "page_count",
+          "exercise_count",
+          "can_edit"
+        ],
+        "properties": {
+          "can_edit": {
+            "type": "boolean",
+            "description": "Whether the requesting user may edit this course; fixes involving it are disabled otherwise."
+          },
+          "chapter_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live chapters, pages and exercises."
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "student_count": {
+            "type": ["integer", "null"],
+            "format": "int64",
+            "description": "Users whose enrolment settings point at this course. Counted only where the tool shows it:\nthe report, join candidates and join and split previews."
+          }
+        }
+      },
+      "LanguageVersionExercise": {
+        "type": "object",
+        "description": "An exercise as the tool shows and matches it. Deleted exercises appear only in leftover links.",
+        "required": [
+          "id",
+          "course_id",
+          "language_code",
+          "name",
+          "page_id",
+          "page_title",
+          "position",
+          "exercise_types",
+          "is_deleted"
+        ],
+        "properties": {
+          "chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_language_group_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Distinct exercise service slugs of the exercise's tasks, e.g. `quizzes`."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_deleted": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "page_title": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1-based position among the live exercises of the page."
+          }
+        }
+      },
+      "LanguageVersionPage": {
+        "type": "object",
+        "description": "A page as the tool shows and matches it. Deleted pages appear only in leftover links.",
+        "required": [
+          "id",
+          "course_id",
+          "language_code",
+          "title",
+          "url_path",
+          "position",
+          "is_chapter_front_page",
+          "exercise_count",
+          "is_deleted"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "chapter_name": {
+            "type": ["string", "null"]
+          },
+          "chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` for pages outside chapters (e.g. the course front page)."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_chapter_front_page": {
+            "type": "boolean"
+          },
+          "is_deleted": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "page_language_group_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "position": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1-based position among the live pages of the chapter (or of the pages outside chapters)."
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "LanguageVersionProblem": {
+        "type": "object",
+        "description": "One detected problem in a course language group.",
+        "required": ["key", "fingerprint", "severity", "kind"],
+        "properties": {
+          "dismissal": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ProblemDismissal",
+                "description": "Set when the teacher marked this problem, in its current state, as intended."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "Changes whenever the rows behind the problem change, so a dismissed problem comes back."
+          },
+          "key": {
+            "type": "string",
+            "description": "Stable identity of the problem across checks, used for dismissals."
+          },
+          "kind": {
+            "$ref": "#/components/schemas/LanguageVersionProblemKind"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/LanguageVersionProblemSeverity"
+          }
+        }
+      },
+      "LanguageVersionProblemKind": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Pages of `course_id` with no counterpart in `counterpart_course_id`.",
+            "required": ["course_id", "counterpart_course_id", "pages", "kind"],
+            "properties": {
+              "counterpart_course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["missing_page_counterpart"]
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionPage"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Several pages of `course_id` are linked to the same pages, so the switcher picks one at random.",
+            "required": ["course_id", "pages", "linked_pages", "kind"],
+            "properties": {
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_pages_in_group"]
+              },
+              "linked_pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionPage"
+                },
+                "description": "Their counterparts in the other language versions."
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionPage"
+                },
+                "description": "The competing pages of `course_id`."
+              },
+              "suggested_page_id": {
+                "type": ["string", "null"],
+                "format": "uuid",
+                "description": "The page to keep linked, if one stands out."
+              },
+              "suggestion_reason": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/SuggestionReason"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "A page is also linked to a page of a course outside the language versions; students never use it.",
+            "required": ["page", "foreign_page", "foreign_course_name", "linked_pages", "kind"],
+            "properties": {
+              "foreign_course_name": {
+                "type": "string"
+              },
+              "foreign_page": {
+                "$ref": "#/components/schemas/LanguageVersionPage"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["foreign_course_link"]
+              },
+              "linked_pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionPage"
+                },
+                "description": "Counterparts within the language versions, which stay linked after the fix."
+              },
+              "page": {
+                "$ref": "#/components/schemas/LanguageVersionPage"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "An exercise's counterpart is not on the counterpart of the exercise's page.",
+            "required": ["exercise", "counterpart", "kind"],
+            "properties": {
+              "counterpart": {
+                "$ref": "#/components/schemas/LanguageVersionExercise"
+              },
+              "exercise": {
+                "$ref": "#/components/schemas/LanguageVersionExercise"
+              },
+              "expected_page": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/LanguageVersionPage",
+                    "description": "The counterpart of the exercise's page in the counterpart's course, if linked."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["exercise_counterpart_on_other_page"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Exercises of `course_id` with no counterpart in any language.",
+            "required": ["course_id", "exercise_count", "suggestion_count", "kind"],
+            "properties": {
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "exercise_count": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["unlinked_exercises"]
+              },
+              "suggestion_count": {
+                "type": "integer",
+                "format": "int64",
+                "description": "How many of them have a suggested counterpart (GET /suggestions)."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Links whose other end is a deleted page or exercise.",
+            "required": ["pages", "exercises", "kind"],
+            "properties": {
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LeftoverExerciseLink"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["leftover_links"]
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LeftoverPageLink"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Several exercises of `course_id` are linked to the same exercises.",
+            "required": ["course_id", "exercises", "linked_exercises", "kind"],
+            "properties": {
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionExercise"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_exercises_in_group"]
+              },
+              "linked_exercises": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionExercise"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Courses outside the language versions that look like translations of this course.",
+            "required": ["candidates", "kind"],
+            "properties": {
+              "candidates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/JoinCandidate"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["likely_separate_language_versions"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Linked pages are in a different order in `course_id` than in the other language versions.",
+            "required": ["course_id", "chapter_number", "chapter_name", "pages", "kind"],
+            "properties": {
+              "chapter_name": {
+                "type": "string"
+              },
+              "chapter_number": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["page_order_differs"]
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PagePositionDifference"
+                },
+                "description": "Only the pages whose position differs."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Some language versions lack chapter numbers that others have.",
+            "required": ["missing_chapters", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["chapter_count_differs"]
+              },
+              "missing_chapters": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MissingChapterNumbers"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Linked pages sit in chapters with different numbers.",
+            "required": ["course_id", "counterpart_course_id", "pages", "kind"],
+            "properties": {
+              "counterpart_course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["page_in_other_chapter_number"]
+              },
+              "pages": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LinkedPagePair"
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Exercises of `course_id` that are linked in some languages but have no counterpart in\n`counterpart_course_id`. Exercises linked to nothing are [Self::UnlinkedExercises].",
+            "required": ["course_id", "counterpart_course_id", "exercises", "kind"],
+            "properties": {
+              "counterpart_course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "course_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/LanguageVersionExercise"
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["missing_exercise_counterparts"]
+              }
+            }
+          }
+        ],
+        "description": "What is wrong, with the rows the fix dialog shows."
+      },
+      "LanguageVersionProblemSeverity": {
+        "type": "string",
+        "description": "How urgent a problem is; the report groups problems by this.",
+        "enum": ["affects_students", "should_fix", "check_intended"]
+      },
+      "LanguageVersionReport": {
+        "type": "object",
+        "description": "The result of checking a course language group (GET /report).",
+        "required": [
+          "course_language_group_id",
+          "courses",
+          "can_edit_all_courses",
+          "problems",
+          "courses_with_open_agent_changesets",
+          "checked_at"
+        ],
+        "properties": {
+          "can_edit_all_courses": {
+            "type": "boolean",
+            "description": "False when the user lacks edit rights on some course; the UI then shows the report read-only."
+          },
+          "checked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            }
+          },
+          "courses_with_open_agent_changesets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Courses with an open agent changeset, whose staged changes the fixes don't see."
+          },
+          "problems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionProblem"
+            },
+            "description": "Dismissed problems are included with `dismissal` set."
+          }
+        }
+      },
+      "LanguageVersionStructure": {
+        "type": "object",
+        "description": "The language versions side by side, chapters matched by number and pages by their links\n(GET /structure).",
+        "required": ["courses", "chapters"],
+        "properties": {
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructureChapterRow"
+            },
+            "description": "Ordered by chapter number; pages outside chapters come first."
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            }
+          }
+        }
+      },
+      "LeftoverExerciseLink": {
+        "type": "object",
+        "description": "A live exercise still linked to a deleted exercise.",
+        "required": ["exercise", "deleted_exercise"],
+        "properties": {
+          "deleted_exercise": {
+            "$ref": "#/components/schemas/LanguageVersionExercise"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/LanguageVersionExercise"
+          }
+        }
+      },
+      "LeftoverPageLink": {
+        "type": "object",
+        "description": "A live page still linked to a deleted page.",
+        "required": ["page", "deleted_page"],
+        "properties": {
+          "deleted_page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
           }
         }
       },
@@ -29754,6 +31755,57 @@
           }
         }
       },
+      "LinkSuggestions": {
+        "type": "object",
+        "description": "Suggested counterparts for this course's pages and exercises (GET /suggestions).",
+        "required": [
+          "courses",
+          "pages",
+          "exercises",
+          "unmatched_pages",
+          "unmatched_exercises",
+          "ai_status"
+        ],
+        "properties": {
+          "ai_status": {
+            "$ref": "#/components/schemas/AiSuggestionStatus"
+          },
+          "courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            },
+            "description": "The courses the suggestions cover: the language versions plus any requested candidates."
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseLinkSuggestion"
+            },
+            "description": "One row per exercise of this course. Matched within linked or suggested page pairs, so a\nrow whose page pair the teacher changes may need a manual pick."
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageLinkSuggestion"
+            },
+            "description": "One row per page of this course, in structure order."
+          },
+          "unmatched_exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionExercise"
+            }
+          },
+          "unmatched_pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionPage"
+            },
+            "description": "Pages of the other courses that no row links or suggests."
+          }
+        }
+      },
       "LinkableExam": {
         "type": "object",
         "description": "An exam of the course's organization that the module editor offers to link to the course.",
@@ -29817,6 +31869,19 @@
           "starts_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          }
+        }
+      },
+      "LinkedPagePair": {
+        "type": "object",
+        "description": "Two linked pages.",
+        "required": ["page", "counterpart"],
+        "properties": {
+          "counterpart": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
           }
         }
       },
@@ -29997,6 +32062,24 @@
       "MessageRole": {
         "type": "string",
         "enum": ["assistant", "user", "developer", "system"]
+      },
+      "MissingChapterNumbers": {
+        "type": "object",
+        "description": "Chapter numbers a language version lacks.",
+        "required": ["course_id", "chapter_numbers"],
+        "properties": {
+          "chapter_numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "ModelType": {
         "type": "string",
@@ -31285,8 +33368,11 @@
       },
       "NewExerciseRepository": {
         "type": "object",
-        "required": ["git_url"],
+        "required": ["url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -31298,11 +33384,11 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "git_url": {
-            "type": "string"
-          },
           "public_key": {
             "type": ["string", "null"]
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -31450,6 +33536,19 @@
             "type": "string"
           },
           "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "NewProblemDismissal": {
+        "type": "object",
+        "description": "Body of POST /dismissals: marks a problem, as reported, as intended.",
+        "required": ["problem_key", "fingerprint"],
+        "properties": {
+          "fingerprint": {
+            "type": "string"
+          },
+          "problem_key": {
             "type": "string"
           }
         }
@@ -31958,6 +34057,38 @@
           },
           "page_title": {
             "type": "string"
+          }
+        }
+      },
+      "PageLinkSuggestion": {
+        "type": "object",
+        "description": "A page of this course and its counterpart in each other course.",
+        "required": ["reference", "counterparts"],
+        "properties": {
+          "counterparts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuggestedPageCounterpart"
+            },
+            "description": "One entry per other course."
+          },
+          "reference": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          }
+        }
+      },
+      "PagePositionDifference": {
+        "type": "object",
+        "description": "A page whose position differs from its counterparts' position.",
+        "required": ["page", "reference_position"],
+        "properties": {
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          },
+          "reference_position": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The position its counterparts have in the other language versions."
           }
         }
       },
@@ -33739,6 +35870,27 @@
           }
         }
       },
+      "ProblemDismissal": {
+        "type": "object",
+        "description": "A problem the teacher marked as intended.",
+        "required": ["problem_key", "fingerprint", "created_by", "created_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fingerprint": {
+            "type": "string"
+          },
+          "problem_key": {
+            "type": "string"
+          }
+        }
+      },
       "ProgressByPlatform": {
         "allOf": [
           {
@@ -34319,6 +36471,49 @@
           }
         }
       },
+      "RemoveLeftoverLinksRequest": {
+        "type": "object",
+        "description": "Body of POST /remove-leftover-links: the deleted pages and exercises whose links to remove.",
+        "required": ["deleted_page_ids", "deleted_exercise_ids"],
+        "properties": {
+          "deleted_exercise_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "deleted_page_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "RemoveLeftoverLinksResult": {
+        "type": "object",
+        "required": ["removed_count"],
+        "properties": {
+          "removed_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "RenamedRepositoryExercise": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          }
+        }
+      },
       "ReportReason": {
         "type": "string",
         "enum": ["Spam", "HarmfulContent", "AiGenerated"]
@@ -34335,7 +36530,7 @@
       },
       "RequestEmailVerificationOutcome": {
         "type": "string",
-        "enum": ["queued", "already_verified", "recently_sent"]
+        "enum": ["queued", "already_verified", "recently_sent", "daily_limit_reached"]
       },
       "RequestEmailVerificationPayload": {
         "type": "object",
@@ -35310,6 +37505,82 @@
           }
         }
       },
+      "SplitLanguageVersionPreview": {
+        "type": "object",
+        "description": "What removing a course from the language versions would change\n(GET /split-preview/{split_course_id}). Changes nothing.",
+        "required": [
+          "course",
+          "remaining_courses",
+          "expected_student_count",
+          "moved_data",
+          "unlinked_page_count",
+          "unlinked_exercise_count"
+        ],
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/LanguageVersionCourse"
+          },
+          "expected_student_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Students whose data moves with the course; send back in [SplitLanguageVersionRequest]."
+          },
+          "moved_data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentDataCount"
+            }
+          },
+          "remaining_courses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionCourse"
+            }
+          },
+          "unlinked_exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unlinked_page_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SplitLanguageVersionRequest": {
+        "type": "object",
+        "description": "Body of POST /split.",
+        "required": ["course_id", "expected_student_count"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expected_student_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "SplitLanguageVersionResult": {
+        "type": "object",
+        "required": ["course_language_group_id", "unlinked_page_count", "unlinked_exercise_count"],
+        "properties": {
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The new group of the split-off course."
+          },
+          "unlinked_exercise_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unlinked_page_count": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "StreamEventError": {
         "type": "object",
         "required": ["message"],
@@ -35319,6 +37590,167 @@
           },
           "message": {
             "type": "string"
+          }
+        }
+      },
+      "StructureChapterRow": {
+        "type": "object",
+        "description": "One chapter number across the language versions.",
+        "required": ["chapters", "rows"],
+        "properties": {
+          "chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "`None` for the pages outside chapters."
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionChapter"
+            },
+            "description": "The chapter of each language version that has this number."
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructurePageRow"
+            },
+            "description": "Ordered by the position in this course, then the others."
+          }
+        }
+      },
+      "StructureExercise": {
+        "type": "object",
+        "description": "An exercise in the structure comparison.",
+        "required": ["exercise", "is_on_other_page"],
+        "properties": {
+          "exercise": {
+            "$ref": "#/components/schemas/LanguageVersionExercise"
+          },
+          "is_on_other_page": {
+            "type": "boolean",
+            "description": "Whether it is on another page than the row's page of its course."
+          }
+        }
+      },
+      "StructureExerciseRow": {
+        "type": "object",
+        "description": "Linked exercises, at most one per language version.",
+        "required": ["exercises"],
+        "properties": {
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructureExercise"
+            }
+          }
+        }
+      },
+      "StructureNote": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["reference_position", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["different_position"]
+              },
+              "reference_position": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["reference_chapter_number", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["in_other_chapter_number"]
+              },
+              "reference_chapter_number": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Linked to the same pages as `other_page_id` of the same course; shown on its own row.",
+            "required": ["other_page_id", "kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["duplicate_in_group"]
+              },
+              "other_page_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["foreign_course_link"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["exercise_count", "kind"],
+            "properties": {
+              "exercise_count": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "kind": {
+                "type": "string",
+                "enum": ["exercises_on_other_page"]
+              }
+            }
+          }
+        ],
+        "description": "Something the structure comparison highlights on a page."
+      },
+      "StructurePage": {
+        "type": "object",
+        "description": "A page in the structure comparison.",
+        "required": ["page", "notes"],
+        "properties": {
+          "notes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructureNote"
+            }
+          },
+          "page": {
+            "$ref": "#/components/schemas/LanguageVersionPage"
+          }
+        }
+      },
+      "StructurePageRow": {
+        "type": "object",
+        "description": "Linked pages, at most one per language version. A course without a page here has none.",
+        "required": ["pages", "exercise_rows"],
+        "properties": {
+          "exercise_rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructureExerciseRow"
+            },
+            "description": "Exercises of these pages, linked ones on the same row."
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StructurePage"
+            }
           }
         }
       },
@@ -35349,6 +37781,32 @@
             "format": "int64"
           }
         }
+      },
+      "StudentDataCount": {
+        "type": "object",
+        "required": ["kind", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/StudentDataKind"
+          }
+        }
+      },
+      "StudentDataKind": {
+        "type": "string",
+        "description": "Kinds of per-course-group student data that join and split move.",
+        "enum": [
+          "enrolment_settings",
+          "hidden_from_my_courses",
+          "completions",
+          "marketing_consents",
+          "ai_notice_acknowledgements",
+          "mailing_list_access_tokens",
+          "mailchimp_tags"
+        ]
       },
       "StudentFacingCreditRegistrationStatus": {
         "type": "string",
@@ -35571,6 +38029,132 @@
             "format": "uuid"
           }
         }
+      },
+      "SuggestedExerciseCounterpart": {
+        "type": "object",
+        "description": "The current or suggested counterpart of an exercise in one course.",
+        "required": ["course_id", "is_linked", "is_on_other_page", "alternatives"],
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionExercise"
+            },
+            "description": "Other exercises on the counterpart page, for \"Choose another exercise\"."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LanguageVersionExercise"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "is_linked": {
+            "type": "boolean"
+          },
+          "is_on_other_page": {
+            "type": "boolean",
+            "description": "The linked exercise is not on the counterpart of the reference's page."
+          },
+          "reason": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SuggestionReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sureness": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SuggestionSureness"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SuggestedPageCounterpart": {
+        "type": "object",
+        "description": "The current or suggested counterpart of a page in one course.",
+        "required": ["course_id", "is_linked", "alternatives"],
+        "properties": {
+          "alternatives": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LanguageVersionPage"
+            },
+            "description": "Other pages of the course in the same chapter number, for \"Choose another page\"."
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_linked": {
+            "type": "boolean",
+            "description": "Already linked; nothing to accept."
+          },
+          "page": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/LanguageVersionPage",
+                "description": "`None` when there is neither a link nor a suggestion."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SuggestionReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sureness": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SuggestionSureness"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SuggestionReason": {
+        "type": "string",
+        "description": "Why the tool suggests a counterpart.",
+        "enum": [
+          "already_linked",
+          "copy_history",
+          "same_position_and_exercise_count",
+          "same_position",
+          "same_position_and_exercise_types",
+          "ai",
+          "ai_and_position"
+        ]
+      },
+      "SuggestionSureness": {
+        "type": "string",
+        "description": "How sure a suggestion is.",
+        "enum": ["very_sure", "likely", "unsure", "ai_suggestion"]
       },
       "SuotarAnswer": {
         "type": "string",

@@ -1346,6 +1346,11 @@ export type AgentPreviewLink = {
   preview_path: string
 }
 
+/**
+ * Whether AI picks went into the suggestions.
+ */
+export type AiSuggestionStatus = "not_requested" | "used" | "partly_unavailable" | "unavailable"
+
 export type AnalysisCourseType = "compulsory" | "elective"
 
 /**
@@ -1600,10 +1605,30 @@ export type CertificateConfigurationUpdate = {
   render_certificate_grade: boolean
 }
 
+/**
+ * The text a certificate image shows, for readers who cannot see the image.
+ */
+export type CertificateDetails = {
+  completion_date: string
+  /**
+   * `None` for a course's default module.
+   */
+  course_module_name?: string | null
+  course_name: string
+  grade?: CertificateGrade | null
+  name_on_certificate: string
+  verification_id: string
+}
+
 export type CertificateGenerationRequest = {
   certificate_configuration_id: string
   grade?: string | null
   name_on_certificate: string
+}
+
+export type CertificateGrade = {
+  grade?: number | null
+  passed: boolean
 }
 
 export type CertificateGridRow = {
@@ -2086,6 +2111,10 @@ export type CmsPageExerciseTask = {
    * endpoint that produced it, since a derivation may upload files of its own.
    */
   private_spec_files?: Array<string>
+  /**
+   * The repository exercise the exercise editor picked, as it reported it beside the spec.
+   */
+  repository_exercise_id?: string | null
 }
 
 export type CmsPeerOrSelfReviewConfig = {
@@ -2350,6 +2379,34 @@ export type CountResult = {
    * For overall totals, this will be `None`.
    */
   period?: string | null
+}
+
+/**
+ * One change to page or exercise links.
+ */
+export type CounterpartLinkChange =
+  | {
+      action: "link"
+      ids: Array<string>
+    }
+  | {
+      action: "unlink"
+      id: string
+    }
+
+/**
+ * Body of POST /page-links and /exercise-links. Applied in one transaction, in order.
+ */
+export type CounterpartLinksRequest = {
+  changes: Array<CounterpartLinkChange>
+}
+
+/**
+ * What POST /page-links or /exercise-links changed.
+ */
+export type CounterpartLinksResult = {
+  linked_count: number
+  unlinked_count: number
 }
 
 export type Course = {
@@ -2966,6 +3023,22 @@ export type CourseMetadataUpdate = {
 }
 
 /**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export type CourseModelSolutionSettings = {
+  /**
+   * Reveal an exercise's model solution to everyone once its deadline (its own, else its
+   * chapter's) has passed.
+   */
+  reveal_after_deadline: boolean
+  /**
+   * Reveal every model solution to everyone from this moment on.
+   */
+  reveal_at?: string | null
+}
+
+/**
  * Like [CourseModulesSchema], but the completion method and its thresholds are collapsed into
  * `completion_policy`.
  */
@@ -3275,6 +3348,31 @@ export type CreateChatbotRequest = {
   name: string
   purpose: string
   skip_azure_stuff: boolean
+}
+
+/**
+ * Body of POST /counterparts: copies a page into another language version and links the copy.
+ */
+export type CreateCounterpartRequest = {
+  /**
+   * `None` puts the page first.
+   */
+  insert_after_page_id?: string | null
+  source_page_id: string
+  /**
+   * `None` puts the page outside chapters.
+   */
+  target_chapter_id?: string | null
+  target_course_id: string
+  title: string
+}
+
+export type CreateCounterpartResult = {
+  /**
+   * Exercises copied and linked to the source page's exercises.
+   */
+  copied_exercise_count: number
+  page: LanguageVersionPage
 }
 
 export type CreateCourseDesignerPlanRequest = {
@@ -4574,6 +4672,10 @@ export type EditedBlockStillExistsData = {
 }
 
 export type EmailData = {
+  /**
+   * The solved proof-of-work challenge, see [`crate::domain::proof_of_work`].
+   */
+  altcha: string
   email: string
   language: string
 }
@@ -4933,6 +5035,25 @@ export type Exercise = {
   use_course_default_peer_or_self_review_config: boolean
 }
 
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export type ExerciseAnswerShare = {
+  created_at: string
+  /**
+   * `false` for a paste, which is never graded.
+   */
+  is_graded: boolean
+  /**
+   * The token the shared view takes.
+   */
+  share_id: string
+  /**
+   * The student whose answer it is.
+   */
+  user_id: string
+}
+
 export type ExerciseAnswersInCourseRequiringAttentionCount = {
   chapter_id?: string | null
   count?: number | null
@@ -4952,6 +5073,22 @@ export type ExerciseChangeWarning = {
   kind: "review_config_switched_with_reviews"
   review_count: number
   to: ReviewConfigKind
+}
+
+/**
+ * Which exercises of this course lack counterparts (GET /exercise-counterparts).
+ */
+export type ExerciseCounterparts = {
+  /**
+   * Languages of the other language versions.
+   */
+  language_codes: Array<string>
+  /**
+   * Exercises lacking a counterpart in at least one of them, with the missing language codes.
+   */
+  missing_language_codes_by_exercise_id: {
+    [key: string]: Array<string>
+  }
 }
 
 export type ExerciseCsvExportTaskOption = {
@@ -4978,18 +5115,64 @@ export type ExerciseFieldOwner = {
   task_id?: string | null
 }
 
+/**
+ * An exercise of this course and its counterpart in each other course.
+ */
+export type ExerciseLinkSuggestion = {
+  counterparts: Array<SuggestedExerciseCounterpart>
+  reference: LanguageVersionExercise
+}
+
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
 export type ExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   error_message?: string | null
   exam_id?: string | null
+  /**
+   * Live exercise tasks that use one of the repository's exercises.
+   */
+  exercise_task_count: number
+  has_deploy_key: boolean
   id: string
+  last_sync_report?: ExerciseRepositorySyncReport | null
+  last_synced_at?: string | null
+  public_key?: string | null
   status: ExerciseRepositoryStatus
+  /**
+   * Syncs started since the last request or success, the running one included.
+   */
+  sync_attempts: number
   url: string
 }
 
 export type ExerciseRepositoryStatus = "Pending" | "Success" | "Failure"
 
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export type ExerciseRepositorySyncReport = {
+  added: Array<string>
+  failed_exercise_tasks: Array<FailedExerciseTaskRefresh>
+  /**
+   * Gone from the repository but kept, because exercise tasks still use them.
+   */
+  missing_but_in_use: Array<string>
+  refreshed_exercise_task_count: number
+  removed: Array<string>
+  renamed: Array<RenamedRepositoryExercise>
+  updated: Array<string>
+}
+
 export type ExerciseRepositoryUpdate = {
+  branch?: string | null
+  /**
+   * Replaces the stored key pair when set; the stored pair is kept otherwise.
+   */
+  deploy_key?: string | null
+  public_key?: string | null
   url: string
 }
 
@@ -5293,6 +5476,15 @@ export type ExternalGrading = "pass_fail" | "numeric"
  */
 export type ExternalPlatformStatus = "loaded" | "not_queried" | "unavailable"
 
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export type FailedExerciseTaskRefresh = {
+  error: string
+  exercise_task_id: string
+  repository_exercise: string
+}
+
 export type Feedback = {
   blocks: Array<FeedbackBlock>
   course_id: string
@@ -5509,8 +5701,339 @@ export type JobInfo = {
   succeeded?: number | null
 }
 
+/**
+ * Why a course can't join the language versions.
+ */
+export type JoinBlockedReason = "already_language_version" | "language_already_present"
+
+/**
+ * A course that could join this course's language versions (GET /join-candidates).
+ */
+export type JoinCandidate = {
+  blocked_reason?: JoinBlockedReason | null
+  course: LanguageVersionCourse
+  /**
+   * Empty for plain search hits that don't look like translations.
+   */
+  reasons: Array<JoinCandidateReason>
+}
+
+/**
+ * Why a course looks like a translation of this course.
+ */
+export type JoinCandidateReason =
+  | "copied_from_this_course"
+  | "copied_from_same_course"
+  | "same_chapter_and_page_counts"
+  | "same_teachers"
+  | "created_on_same_day"
+  | "similar_name"
+
 export type JoinCourseWithJoinCodePayload = {
   join_code: string
+}
+
+/**
+ * What joining a course into this course's language versions would change
+ * (GET /join-preview/{joined_course_id}). Changes nothing.
+ */
+export type JoinLanguageVersionPreview = {
+  blocked_reason?: JoinBlockedReason | null
+  course: LanguageVersionCourse
+  /**
+   * Students whose data moves; send back in [JoinLanguageVersionRequest].
+   */
+  expected_student_count: number
+  language_versions: Array<LanguageVersionCourse>
+  /**
+   * The joined course's current other language versions, which it leaves. They stay language
+   * versions of each other and keep their students.
+   */
+  left_language_versions: Array<LanguageVersionCourse>
+  moved_data: Array<StudentDataCount>
+  /**
+   * Students enrolled both in the joined course and in a current version. Each keeps the
+   * version with the latest activity; the other enrolment setting is removed and logged.
+   */
+  students_in_both_count: number
+  unlinked_exercise_count: number
+  /**
+   * Pages and exercises of the joined course whose links to `left_language_versions` are
+   * removed.
+   */
+  unlinked_page_count: number
+}
+
+/**
+ * Body of POST /join.
+ */
+export type JoinLanguageVersionRequest = {
+  course_id: string
+  /**
+   * From the preview; the join is refused if the number changed meanwhile.
+   */
+  expected_student_count: number
+}
+
+export type JoinLanguageVersionResult = {
+  course_language_group_id: string
+  moved_data: Array<StudentDataCount>
+  /**
+   * Enrolment settings of students in both that were removed (and logged).
+   */
+  removed_enrolment_settings_count: number
+}
+
+/**
+ * A chapter of one language version. Chapters have no link of their own; they correspond by number.
+ */
+export type LanguageVersionChapter = {
+  chapter_number: number
+  course_id: string
+  id: string
+  name: string
+  page_count: number
+}
+
+/**
+ * A course in, or a candidate for, a course language group, with the counts the tool shows.
+ */
+export type LanguageVersionCourse = {
+  /**
+   * Whether the requesting user may edit this course; fixes involving it are disabled otherwise.
+   */
+  can_edit: boolean
+  /**
+   * Live chapters, pages and exercises.
+   */
+  chapter_count: number
+  course_language_group_id: string
+  created_at: string
+  exercise_count: number
+  id: string
+  is_draft: boolean
+  language_code: string
+  name: string
+  page_count: number
+  slug: string
+  /**
+   * Users whose enrolment settings point at this course. Counted only where the tool shows it:
+   * the report, join candidates and join and split previews.
+   */
+  student_count?: number | null
+}
+
+/**
+ * An exercise as the tool shows and matches it. Deleted exercises appear only in leftover links.
+ */
+export type LanguageVersionExercise = {
+  chapter_number?: number | null
+  course_id: string
+  exercise_language_group_id?: string | null
+  /**
+   * Distinct exercise service slugs of the exercise's tasks, e.g. `quizzes`.
+   */
+  exercise_types: Array<string>
+  id: string
+  is_deleted: boolean
+  language_code: string
+  name: string
+  page_id: string
+  page_title: string
+  /**
+   * 1-based position among the live exercises of the page.
+   */
+  position: number
+}
+
+/**
+ * A page as the tool shows and matches it. Deleted pages appear only in leftover links.
+ */
+export type LanguageVersionPage = {
+  chapter_id?: string | null
+  chapter_name?: string | null
+  /**
+   * `None` for pages outside chapters (e.g. the course front page).
+   */
+  chapter_number?: number | null
+  course_id: string
+  exercise_count: number
+  id: string
+  is_chapter_front_page: boolean
+  is_deleted: boolean
+  language_code: string
+  page_language_group_id?: string | null
+  /**
+   * 1-based position among the live pages of the chapter (or of the pages outside chapters).
+   */
+  position: number
+  title: string
+  url_path: string
+}
+
+/**
+ * One detected problem in a course language group.
+ */
+export type LanguageVersionProblem = {
+  dismissal?: ProblemDismissal | null
+  /**
+   * Changes whenever the rows behind the problem change, so a dismissed problem comes back.
+   */
+  fingerprint: string
+  /**
+   * Stable identity of the problem across checks, used for dismissals.
+   */
+  key: string
+  kind: LanguageVersionProblemKind
+  severity: LanguageVersionProblemSeverity
+}
+
+/**
+ * What is wrong, with the rows the fix dialog shows.
+ */
+export type LanguageVersionProblemKind =
+  | {
+      counterpart_course_id: string
+      course_id: string
+      kind: "missing_page_counterpart"
+      pages: Array<LanguageVersionPage>
+    }
+  | {
+      course_id: string
+      kind: "duplicate_pages_in_group"
+      /**
+       * Their counterparts in the other language versions.
+       */
+      linked_pages: Array<LanguageVersionPage>
+      /**
+       * The competing pages of `course_id`.
+       */
+      pages: Array<LanguageVersionPage>
+      /**
+       * The page to keep linked, if one stands out.
+       */
+      suggested_page_id?: string | null
+      suggestion_reason?: SuggestionReason | null
+    }
+  | {
+      foreign_course_name: string
+      foreign_page: LanguageVersionPage
+      kind: "foreign_course_link"
+      /**
+       * Counterparts within the language versions, which stay linked after the fix.
+       */
+      linked_pages: Array<LanguageVersionPage>
+      page: LanguageVersionPage
+    }
+  | {
+      counterpart: LanguageVersionExercise
+      exercise: LanguageVersionExercise
+      expected_page?: LanguageVersionPage | null
+      kind: "exercise_counterpart_on_other_page"
+    }
+  | {
+      course_id: string
+      exercise_count: number
+      kind: "unlinked_exercises"
+      /**
+       * How many of them have a suggested counterpart (GET /suggestions).
+       */
+      suggestion_count: number
+    }
+  | {
+      exercises: Array<LeftoverExerciseLink>
+      kind: "leftover_links"
+      pages: Array<LeftoverPageLink>
+    }
+  | {
+      course_id: string
+      exercises: Array<LanguageVersionExercise>
+      kind: "duplicate_exercises_in_group"
+      linked_exercises: Array<LanguageVersionExercise>
+    }
+  | {
+      candidates: Array<JoinCandidate>
+      kind: "likely_separate_language_versions"
+    }
+  | {
+      chapter_name: string
+      chapter_number: number
+      course_id: string
+      kind: "page_order_differs"
+      /**
+       * Only the pages whose position differs.
+       */
+      pages: Array<PagePositionDifference>
+    }
+  | {
+      kind: "chapter_count_differs"
+      missing_chapters: Array<MissingChapterNumbers>
+    }
+  | {
+      counterpart_course_id: string
+      course_id: string
+      kind: "page_in_other_chapter_number"
+      pages: Array<LinkedPagePair>
+    }
+  | {
+      counterpart_course_id: string
+      course_id: string
+      exercises: Array<LanguageVersionExercise>
+      kind: "missing_exercise_counterparts"
+    }
+
+/**
+ * How urgent a problem is; the report groups problems by this.
+ */
+export type LanguageVersionProblemSeverity = "affects_students" | "should_fix" | "check_intended"
+
+/**
+ * The result of checking a course language group (GET /report).
+ */
+export type LanguageVersionReport = {
+  /**
+   * False when the user lacks edit rights on some course; the UI then shows the report read-only.
+   */
+  can_edit_all_courses: boolean
+  checked_at: string
+  course_language_group_id: string
+  courses: Array<LanguageVersionCourse>
+  /**
+   * Courses with an open agent changeset, whose staged changes the fixes don't see.
+   */
+  courses_with_open_agent_changesets: Array<string>
+  /**
+   * Dismissed problems are included with `dismissal` set.
+   */
+  problems: Array<LanguageVersionProblem>
+}
+
+/**
+ * The language versions side by side, chapters matched by number and pages by their links
+ * (GET /structure).
+ */
+export type LanguageVersionStructure = {
+  /**
+   * Ordered by chapter number; pages outside chapters come first.
+   */
+  chapters: Array<StructureChapterRow>
+  courses: Array<LanguageVersionCourse>
+}
+
+/**
+ * A live exercise still linked to a deleted exercise.
+ */
+export type LeftoverExerciseLink = {
+  deleted_exercise: LanguageVersionExercise
+  exercise: LanguageVersionExercise
+}
+
+/**
+ * A live page still linked to a deleted page.
+ */
+export type LeftoverPageLink = {
+  deleted_page: LanguageVersionPage
+  page: LanguageVersionPage
 }
 
 /**
@@ -5550,6 +6073,31 @@ export type LegacyLedgerDivergenceRow = {
 }
 
 /**
+ * Suggested counterparts for this course's pages and exercises (GET /suggestions).
+ */
+export type LinkSuggestions = {
+  ai_status: AiSuggestionStatus
+  /**
+   * The courses the suggestions cover: the language versions plus any requested candidates.
+   */
+  courses: Array<LanguageVersionCourse>
+  /**
+   * One row per exercise of this course. Matched within linked or suggested page pairs, so a
+   * row whose page pair the teacher changes may need a manual pick.
+   */
+  exercises: Array<ExerciseLinkSuggestion>
+  /**
+   * One row per page of this course, in structure order.
+   */
+  pages: Array<PageLinkSuggestion>
+  unmatched_exercises: Array<LanguageVersionExercise>
+  /**
+   * Pages of the other courses that no row links or suggests.
+   */
+  unmatched_pages: Array<LanguageVersionPage>
+}
+
+/**
  * An exam of the course's organization that the module editor offers to link to the course.
  */
 export type LinkableExam = {
@@ -5585,6 +6133,14 @@ export type LinkedExam = {
    */
   pass_mark?: number | null
   starts_at?: string | null
+}
+
+/**
+ * Two linked pages.
+ */
+export type LinkedPagePair = {
+  counterpart: LanguageVersionPage
+  page: LanguageVersionPage
 }
 
 /**
@@ -5662,6 +6218,14 @@ export type Message =
   | ChatbotConversationMessageReasoning
 
 export type MessageRole = "assistant" | "user" | "developer" | "system"
+
+/**
+ * Chapter numbers a language version lacks.
+ */
+export type MissingChapterNumbers = {
+  chapter_numbers: Array<number>
+  course_id: string
+}
 
 export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
@@ -6261,11 +6825,12 @@ export type NewExam = {
 }
 
 export type NewExerciseRepository = {
+  branch?: string | null
   course_id?: string | null
   deploy_key?: string | null
   exam_id?: string | null
-  git_url: string
   public_key?: string | null
+  url: string
 }
 
 export type NewExternalCourse = {
@@ -6315,6 +6880,14 @@ export type NewPage = {
   hidden: boolean
   title: string
   url_path: string
+}
+
+/**
+ * Body of POST /dismissals: marks a problem, as reported, as intended.
+ */
+export type NewProblemDismissal = {
+  fingerprint: string
+  problem_key: string
 }
 
 export type NewRegrading = {
@@ -6509,6 +7082,28 @@ export type PageInfo = {
   organization_slug?: string | null
   page_id: string
   page_title: string
+}
+
+/**
+ * A page of this course and its counterpart in each other course.
+ */
+export type PageLinkSuggestion = {
+  /**
+   * One entry per other course.
+   */
+  counterparts: Array<SuggestedPageCounterpart>
+  reference: LanguageVersionPage
+}
+
+/**
+ * A page whose position differs from its counterparts' position.
+ */
+export type PagePositionDifference = {
+  page: LanguageVersionPage
+  /**
+   * The position its counterparts have in the other language versions.
+   */
+  reference_position: number
 }
 
 /**
@@ -7147,6 +7742,16 @@ export type PreviewReference = {
 }
 
 /**
+ * A problem the teacher marked as intended.
+ */
+export type ProblemDismissal = {
+  created_at: string
+  created_by: string
+  fingerprint: string
+  problem_key: string
+}
+
+/**
  * The user's courses grouped by platform. Every course appears once: a tmc.mooc.fi course that
  * reports to an old mooc.fi course is listed under that mooc.fi course.
  */
@@ -7327,6 +7932,23 @@ export type RegradingSubmissionInfo = {
   grading_before_regrading: ExerciseTaskGrading
 }
 
+/**
+ * Body of POST /remove-leftover-links: the deleted pages and exercises whose links to remove.
+ */
+export type RemoveLeftoverLinksRequest = {
+  deleted_exercise_ids: Array<string>
+  deleted_page_ids: Array<string>
+}
+
+export type RemoveLeftoverLinksResult = {
+  removed_count: number
+}
+
+export type RenamedRepositoryExercise = {
+  from: string
+  to: string
+}
+
 export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
 
 export type RequestCreditRegistrationEnrolmentRecheckResult = {
@@ -7336,7 +7958,11 @@ export type RequestCreditRegistrationEnrolmentRecheckResult = {
   recheck_started: boolean
 }
 
-export type RequestEmailVerificationOutcome = "queued" | "already_verified" | "recently_sent"
+export type RequestEmailVerificationOutcome =
+  | "queued"
+  | "already_verified"
+  | "recently_sent"
+  | "daily_limit_reached"
 
 export type RequestEmailVerificationPayload = {
   /**
@@ -7743,9 +8369,121 @@ export type SisuDescriptionResponse = {
   modules: Array<Module>
 }
 
+/**
+ * What removing a course from the language versions would change
+ * (GET /split-preview/{split_course_id}). Changes nothing.
+ */
+export type SplitLanguageVersionPreview = {
+  course: LanguageVersionCourse
+  /**
+   * Students whose data moves with the course; send back in [SplitLanguageVersionRequest].
+   */
+  expected_student_count: number
+  moved_data: Array<StudentDataCount>
+  remaining_courses: Array<LanguageVersionCourse>
+  unlinked_exercise_count: number
+  unlinked_page_count: number
+}
+
+/**
+ * Body of POST /split.
+ */
+export type SplitLanguageVersionRequest = {
+  course_id: string
+  expected_student_count: number
+}
+
+export type SplitLanguageVersionResult = {
+  /**
+   * The new group of the split-off course.
+   */
+  course_language_group_id: string
+  unlinked_exercise_count: number
+  unlinked_page_count: number
+}
+
 export type StreamEventError = {
   details?: string | null
   message: string
+}
+
+/**
+ * One chapter number across the language versions.
+ */
+export type StructureChapterRow = {
+  /**
+   * `None` for the pages outside chapters.
+   */
+  chapter_number?: number | null
+  /**
+   * The chapter of each language version that has this number.
+   */
+  chapters: Array<LanguageVersionChapter>
+  /**
+   * Ordered by the position in this course, then the others.
+   */
+  rows: Array<StructurePageRow>
+}
+
+/**
+ * An exercise in the structure comparison.
+ */
+export type StructureExercise = {
+  exercise: LanguageVersionExercise
+  /**
+   * Whether it is on another page than the row's page of its course.
+   */
+  is_on_other_page: boolean
+}
+
+/**
+ * Linked exercises, at most one per language version.
+ */
+export type StructureExerciseRow = {
+  exercises: Array<StructureExercise>
+}
+
+/**
+ * Something the structure comparison highlights on a page.
+ */
+export type StructureNote =
+  | {
+      kind: "different_position"
+      reference_position: number
+    }
+  | {
+      kind: "in_other_chapter_number"
+      reference_chapter_number: number
+    }
+  | {
+      kind: "duplicate_in_group"
+      other_page_id: string
+    }
+  | {
+      kind: "foreign_course_link"
+    }
+  | {
+      exercise_count: number
+      kind: "exercises_on_other_page"
+    }
+
+/**
+ * A page in the structure comparison.
+ */
+export type StructurePage = {
+  notes: Array<StructureNote>
+  page: LanguageVersionPage
+}
+
+/**
+ * Linked pages, at most one per language version. A course without a page here has none.
+ */
+export type StructurePageRow = {
+  /**
+   * Exercises of these pages, linked ones on the same row.
+   */
+  exercise_rows: Array<StructureExerciseRow>
+  pages: Array<StructurePage>
 }
 
 /**
@@ -7760,6 +8498,23 @@ export type StuckThresholds = {
   stuck_ready_to_submit_secs: number
   stuck_submitting_secs: number
 }
+
+export type StudentDataCount = {
+  count: number
+  kind: StudentDataKind
+}
+
+/**
+ * Kinds of per-course-group student data that join and split move.
+ */
+export type StudentDataKind =
+  | "enrolment_settings"
+  | "hidden_from_my_courses"
+  | "completions"
+  | "marketing_consents"
+  | "ai_notice_acknowledgements"
+  | "mailing_list_access_tokens"
+  | "mailchimp_tags"
 
 /**
  * The stage a student sees.
@@ -7884,6 +8639,60 @@ export type StudyRegistryStudentNumberConflict = {
   user_email?: string | null
   user_id: string
 }
+
+/**
+ * The current or suggested counterpart of an exercise in one course.
+ */
+export type SuggestedExerciseCounterpart = {
+  /**
+   * Other exercises on the counterpart page, for "Choose another exercise".
+   */
+  alternatives: Array<LanguageVersionExercise>
+  course_id: string
+  exercise?: LanguageVersionExercise | null
+  is_linked: boolean
+  /**
+   * The linked exercise is not on the counterpart of the reference's page.
+   */
+  is_on_other_page: boolean
+  reason?: SuggestionReason | null
+  sureness?: SuggestionSureness | null
+}
+
+/**
+ * The current or suggested counterpart of a page in one course.
+ */
+export type SuggestedPageCounterpart = {
+  /**
+   * Other pages of the course in the same chapter number, for "Choose another page".
+   */
+  alternatives: Array<LanguageVersionPage>
+  course_id: string
+  /**
+   * Already linked; nothing to accept.
+   */
+  is_linked: boolean
+  page?: LanguageVersionPage | null
+  reason?: SuggestionReason | null
+  sureness?: SuggestionSureness | null
+}
+
+/**
+ * Why the tool suggests a counterpart.
+ */
+export type SuggestionReason =
+  | "already_linked"
+  | "copy_history"
+  | "same_position_and_exercise_count"
+  | "same_position"
+  | "same_position_and_exercise_types"
+  | "ai"
+  | "ai_and_position"
+
+/**
+ * How sure a suggestion is.
+ */
+export type SuggestionSureness = "very_sure" | "likely" | "unsure" | "ai_suggestion"
 
 /**
  * What Suotar did with one row of a request.
@@ -8873,6 +9682,28 @@ export type GetCertificateByVerificationIdResponses = {
    */
   200: unknown
 }
+
+export type GetCertificateDetailsByVerificationIdData = {
+  body?: never
+  path: {
+    /**
+     * Certificate verification id
+     */
+    certificate_verification_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/certificates/{certificate_verification_id}/details"
+}
+
+export type GetCertificateDetailsByVerificationIdResponses = {
+  /**
+   * Certificate details
+   */
+  200: CertificateDetails
+}
+
+export type GetCertificateDetailsByVerificationIdResponse =
+  GetCertificateDetailsByVerificationIdResponses[keyof GetCertificateDetailsByVerificationIdResponses]
 
 export type CreateChapterData = {
   body: NewChapter
@@ -11757,6 +12588,357 @@ export type GetCourseLanguageVersionsResponses = {
 export type GetCourseLanguageVersionsResponse =
   GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
 
+export type PostLanguageVersionCounterpartData = {
+  body: CreateCounterpartRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/counterparts"
+}
+
+export type PostLanguageVersionCounterpartResponses = {
+  /**
+   * Counterpart created and linked
+   */
+  200: CreateCounterpartResult
+}
+
+export type PostLanguageVersionCounterpartResponse =
+  PostLanguageVersionCounterpartResponses[keyof PostLanguageVersionCounterpartResponses]
+
+export type DeleteLanguageVersionProblemDismissalData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query: {
+    problem_key: string
+  }
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/dismissals"
+}
+
+export type DeleteLanguageVersionProblemDismissalResponses = {
+  /**
+   * Dismissal removed
+   */
+  200: unknown
+}
+
+export type PostLanguageVersionProblemDismissalData = {
+  body: NewProblemDismissal
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/dismissals"
+}
+
+export type PostLanguageVersionProblemDismissalResponses = {
+  /**
+   * Problem marked as intended
+   */
+  200: ProblemDismissal
+}
+
+export type PostLanguageVersionProblemDismissalResponse =
+  PostLanguageVersionProblemDismissalResponses[keyof PostLanguageVersionProblemDismissalResponses]
+
+export type GetLanguageVersionExerciseCounterpartsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-counterparts"
+}
+
+export type GetLanguageVersionExerciseCounterpartsResponses = {
+  /**
+   * Missing exercise counterparts
+   */
+  200: ExerciseCounterparts
+}
+
+export type GetLanguageVersionExerciseCounterpartsResponse =
+  GetLanguageVersionExerciseCounterpartsResponses[keyof GetLanguageVersionExerciseCounterpartsResponses]
+
+export type PostLanguageVersionExerciseLinksData = {
+  body: CounterpartLinksRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/exercise-links"
+}
+
+export type PostLanguageVersionExerciseLinksResponses = {
+  /**
+   * Links changed
+   */
+  200: CounterpartLinksResult
+}
+
+export type PostLanguageVersionExerciseLinksResponse =
+  PostLanguageVersionExerciseLinksResponses[keyof PostLanguageVersionExerciseLinksResponses]
+
+export type PostLanguageVersionJoinData = {
+  body: JoinLanguageVersionRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join"
+}
+
+export type PostLanguageVersionJoinResponses = {
+  /**
+   * Course joined
+   */
+  200: JoinLanguageVersionResult
+}
+
+export type PostLanguageVersionJoinResponse =
+  PostLanguageVersionJoinResponses[keyof PostLanguageVersionJoinResponses]
+
+export type GetLanguageVersionJoinCandidatesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: {
+    /**
+     * Name or slug; without it, only courses that look like translations are returned.
+     */
+    search?: string
+  }
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join-candidates"
+}
+
+export type GetLanguageVersionJoinCandidatesResponses = {
+  /**
+   * Join candidates
+   */
+  200: Array<JoinCandidate>
+}
+
+export type GetLanguageVersionJoinCandidatesResponse =
+  GetLanguageVersionJoinCandidatesResponses[keyof GetLanguageVersionJoinCandidatesResponses]
+
+export type GetLanguageVersionJoinPreviewData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Course to join into the language versions
+     */
+    joined_course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/join-preview/{joined_course_id}"
+}
+
+export type GetLanguageVersionJoinPreviewResponses = {
+  /**
+   * Join preview
+   */
+  200: JoinLanguageVersionPreview
+}
+
+export type GetLanguageVersionJoinPreviewResponse =
+  GetLanguageVersionJoinPreviewResponses[keyof GetLanguageVersionJoinPreviewResponses]
+
+export type PostLanguageVersionPageLinksData = {
+  body: CounterpartLinksRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/page-links"
+}
+
+export type PostLanguageVersionPageLinksResponses = {
+  /**
+   * Links changed
+   */
+  200: CounterpartLinksResult
+}
+
+export type PostLanguageVersionPageLinksResponse =
+  PostLanguageVersionPageLinksResponses[keyof PostLanguageVersionPageLinksResponses]
+
+export type PostLanguageVersionRemoveLeftoverLinksData = {
+  body: RemoveLeftoverLinksRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/remove-leftover-links"
+}
+
+export type PostLanguageVersionRemoveLeftoverLinksResponses = {
+  /**
+   * Leftover links removed
+   */
+  200: RemoveLeftoverLinksResult
+}
+
+export type PostLanguageVersionRemoveLeftoverLinksResponse =
+  PostLanguageVersionRemoveLeftoverLinksResponses[keyof PostLanguageVersionRemoveLeftoverLinksResponses]
+
+export type GetLanguageVersionReportData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/report"
+}
+
+export type GetLanguageVersionReportResponses = {
+  /**
+   * Problems found in the language versions
+   */
+  200: LanguageVersionReport
+}
+
+export type GetLanguageVersionReportResponse =
+  GetLanguageVersionReportResponses[keyof GetLanguageVersionReportResponses]
+
+export type PostLanguageVersionSplitData = {
+  body: SplitLanguageVersionRequest
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/split"
+}
+
+export type PostLanguageVersionSplitResponses = {
+  /**
+   * Course split off
+   */
+  200: SplitLanguageVersionResult
+}
+
+export type PostLanguageVersionSplitResponse =
+  PostLanguageVersionSplitResponses[keyof PostLanguageVersionSplitResponses]
+
+export type GetLanguageVersionSplitPreviewData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Course to remove from the language versions
+     */
+    split_course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/split-preview/{split_course_id}"
+}
+
+export type GetLanguageVersionSplitPreviewResponses = {
+  /**
+   * Split preview
+   */
+  200: SplitLanguageVersionPreview
+}
+
+export type GetLanguageVersionSplitPreviewResponse =
+  GetLanguageVersionSplitPreviewResponses[keyof GetLanguageVersionSplitPreviewResponses]
+
+export type GetLanguageVersionStructureData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/structure"
+}
+
+export type GetLanguageVersionStructureResponses = {
+  /**
+   * Structure comparison
+   */
+  200: LanguageVersionStructure
+}
+
+export type GetLanguageVersionStructureResponse =
+  GetLanguageVersionStructureResponses[keyof GetLanguageVersionStructureResponses]
+
+export type GetLanguageVersionSuggestionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: {
+    /**
+     * Only this chapter number; all chapters when absent.
+     */
+    chapter_number?: number
+    /**
+     * Courses outside the language versions to include, for matching before a join.
+     */
+    candidate_course_ids?: Array<string>
+  }
+  url: "/api/v0/main-frontend/courses/{course_id}/language-versions/suggestions"
+}
+
+export type GetLanguageVersionSuggestionsResponses = {
+  /**
+   * Suggested links
+   */
+  200: LinkSuggestions
+}
+
+export type GetLanguageVersionSuggestionsResponse =
+  GetLanguageVersionSuggestionsResponses[keyof GetLanguageVersionSuggestionsResponses]
+
 export type GetCourseLinkableExamsData = {
   body?: never
   path: {
@@ -11778,6 +12960,50 @@ export type GetCourseLinkableExamsResponses = {
 
 export type GetCourseLinkableExamsResponse =
   GetCourseLinkableExamsResponses[keyof GetCourseLinkableExamsResponses]
+
+export type GetCourseModelSolutionSettingsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type GetCourseModelSolutionSettingsResponses = {
+  /**
+   * The course's model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type GetCourseModelSolutionSettingsResponse =
+  GetCourseModelSolutionSettingsResponses[keyof GetCourseModelSolutionSettingsResponses]
+
+export type UpdateCourseModelSolutionSettingsData = {
+  body: CourseModelSolutionSettings
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/model-solution-settings"
+}
+
+export type UpdateCourseModelSolutionSettingsResponses = {
+  /**
+   * The stored model solution settings
+   */
+  200: CourseModelSolutionSettings
+}
+
+export type UpdateCourseModelSolutionSettingsResponse =
+  UpdateCourseModelSolutionSettingsResponses[keyof UpdateCourseModelSolutionSettingsResponses]
 
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>
@@ -16006,6 +17232,28 @@ export type UpdateExerciseRepositoryResponses = {
 export type UpdateExerciseRepositoryResponse =
   UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses]
 
+export type SyncExerciseRepositoryData = {
+  body?: never
+  path: {
+    /**
+     * Exercise repository id
+     */
+    id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercise-repositories/{id}/sync"
+}
+
+export type SyncExerciseRepositoryResponses = {
+  /**
+   * Sync queued
+   */
+  200: boolean
+}
+
+export type SyncExerciseRepositoryResponse =
+  SyncExerciseRepositoryResponses[keyof SyncExerciseRepositoryResponses]
+
 export type GetExerciseServicesData = {
   body?: never
   path?: never
@@ -16240,6 +17488,28 @@ export type GetExerciseResponses = {
 }
 
 export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses]
+
+export type GetExerciseAnswerSharesData = {
+  body?: never
+  path: {
+    /**
+     * Exercise id
+     */
+    exercise_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares"
+}
+
+export type GetExerciseAnswerSharesResponses = {
+  /**
+   * The exercise's live answer shares, newest first
+   */
+  200: Array<ExerciseAnswerShare>
+}
+
+export type GetExerciseAnswerSharesResponse =
+  GetExerciseAnswerSharesResponses[keyof GetExerciseAnswerSharesResponses]
 
 export type GetExerciseAnswersRequiringAttentionData = {
   body?: never
@@ -16761,6 +18031,37 @@ export type UpdateGlossaryTermResponses = {
    */
   200: unknown
 }
+
+export type GetLanguageVersionAiSuggestionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: {
+    /**
+     * Only this chapter number; all chapters when absent.
+     */
+    chapter_number?: number
+    /**
+     * Courses outside the language versions to include, for matching before a join.
+     */
+    candidate_course_ids?: Array<string>
+  }
+  url: "/api/v0/main-frontend/language-version-ai-suggestions/{course_id}"
+}
+
+export type GetLanguageVersionAiSuggestionsResponses = {
+  /**
+   * Suggested links
+   */
+  200: LinkSuggestions
+}
+
+export type GetLanguageVersionAiSuggestionsResponse =
+  GetLanguageVersionAiSuggestionsResponses[keyof GetLanguageVersionAiSuggestionsResponses]
 
 export type GetMyMoocfiCreditRegistrationsData = {
   body?: never
@@ -18260,6 +19561,13 @@ export type GetSharedSubmissionInfoData = {
   url: "/api/v0/main-frontend/shared-submissions/{token}"
 }
 
+export type GetSharedSubmissionInfoErrors = {
+  /**
+   * The shared answer passed the exercise and the viewer has not passed it themselves
+   */
+  403: unknown
+}
+
 export type GetSharedSubmissionInfoResponses = {
   /**
    * Data needed to render the shared submission or snapshot
@@ -18831,6 +20139,23 @@ export type GetMyStudiesResponses = {
 
 export type GetMyStudiesResponse = GetMyStudiesResponses[keyof GetMyStudiesResponses]
 
+export type SendResetPasswordEmailData = {
+  body: EmailData
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/users/request-password-reset"
+}
+
+export type SendResetPasswordEmailResponses = {
+  /**
+   * Reset password email accepted
+   */
+  200: boolean
+}
+
+export type SendResetPasswordEmailResponse =
+  SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
+
 export type ResetUserPasswordData = {
   body: ResetPasswordData
   path?: never
@@ -18863,23 +20188,6 @@ export type GetResetPasswordTokenStatusResponses = {
 
 export type GetResetPasswordTokenStatusResponse =
   GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses]
-
-export type SendResetPasswordEmailData = {
-  body: EmailData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/send-reset-password-email"
-}
-
-export type SendResetPasswordEmailResponses = {
-  /**
-   * Reset password email accepted
-   */
-  200: boolean
-}
-
-export type SendResetPasswordEmailResponse =
-  SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
 
 export type CreateUserResearchConsentData = {
   body: ConsentData

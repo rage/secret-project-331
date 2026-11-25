@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
 
 import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
@@ -136,9 +137,10 @@ export const useUserDetails = (
 export const useBulkUserDetails = (
   courseId: string | null | undefined,
   userIds: string[] | null | undefined,
+  options?: { keepPreviousData?: boolean },
 ) => {
-  return useQuery(
-    optionalGeneratedQueryOptions({
+  return useQuery({
+    ...optionalGeneratedQueryOptions({
       value: courseId && userIds ? { courseId, userIds } : null,
       isReady: (
         value,
@@ -149,7 +151,29 @@ export const useBulkUserDetails = (
       build: ({ courseId: readyCourseId, userIds: readyUserIds }) =>
         getBulkUserDetailsQueryOptions(readyCourseId, readyUserIds),
     }),
-  )
+    ...(options?.keepPreviousData ? { placeholderData: keepPreviousData } : {}),
+  })
+}
+
+/** Display names of the given course users, from one request; "" while loading or unknown. */
+export const useUserNames = (
+  courseId: string,
+  userIds: (string | null | undefined)[] | undefined,
+): ((userId: string | null | undefined) => string) => {
+  const lookup = useUserDetailsLookup(courseId, userIds)
+  return (userId) => formatUserName(lookup(userId))
+}
+
+/** Looks up course users' details by id, from one request; undefined while loading or unknown. */
+export const useUserDetailsLookup = (
+  courseId: string,
+  userIds: (string | null | undefined)[] | undefined,
+): ((userId: string | null | undefined) => UserDetail | undefined) => {
+  const ids = [...new Set((userIds ?? []).filter((id): id is string => Boolean(id)))].toSorted()
+  // Previous list's users stay shown while a changed list loads, so the layout doesn't jump.
+  const users = useBulkUserDetails(courseId, ids, { keepPreviousData: true }).data
+  const byId = useMemo(() => new Map((users ?? []).map((user) => [user.user_id, user])), [users])
+  return (userId) => (userId ? byId.get(userId) : undefined)
 }
 
 type UseUserDetailsResult = UserDetailsResult

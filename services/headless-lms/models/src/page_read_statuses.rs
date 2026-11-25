@@ -69,7 +69,7 @@ VALUES (
     $3,
     CASE WHEN $3 THEN NOW() ELSE NULL END
 )
-ON CONFLICT (user_id, page_id)
+ON CONFLICT (user_id, page_id, deleted_at)
 DO UPDATE SET
     page_read = EXCLUDED.page_read,
     read_at = CASE
@@ -119,7 +119,7 @@ VALUES (
         false,
         $3
 )
-ON CONFLICT (user_id, page_id)
+ON CONFLICT (user_id, page_id, deleted_at)
 DO UPDATE SET
         block_statuses = (
                 SELECT jsonb_object_agg(

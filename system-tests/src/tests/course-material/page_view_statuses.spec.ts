@@ -4,7 +4,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
-  storageState: "src/states/student1@example.com.json",
+  storageState: "src/states/user@example.com.json",
 })
 
 test("Can mark page as read", async ({ page }) => {

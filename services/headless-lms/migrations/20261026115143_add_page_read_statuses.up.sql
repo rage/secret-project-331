@@ -8,7 +8,7 @@ CREATE TABLE page_read_statuses (
   page_read BOOLEAN NOT NULL DEFAULT FALSE,
   read_at TIMESTAMPTZ,
   block_statuses JSONB,
-  UNIQUE NULLS NOT DISTINCT(user_id, page_id)
+  UNIQUE NULLS NOT DISTINCT(user_id, page_id, deleted_at)
 );
 
 CREATE TRIGGER set_timestamp BEFORE

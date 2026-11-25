@@ -248,6 +248,32 @@ ORDER BY ec.completion_date DESC,
     Ok(res)
 }
 
+/// The live rows of one user's mooc.fi completion, one per code, lowest minimum tier first.
+pub async fn get_by_user_and_moocfi_completion_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_completion_id: Uuid,
+) -> ModelResult<Vec<ExternalCompletion>> {
+    let res = sqlx::query_as!(
+        ExternalCompletion,
+        r#"
+SELECT ec.*
+FROM external_completions ec
+  JOIN external_credit_target_codes code ON code.id = ec.external_credit_target_code_id
+WHERE ec.user_id = $1
+  AND ec.moocfi_completion_id = $2
+  AND ec.deleted_at IS NULL
+ORDER BY code.minimum_tier NULLS FIRST,
+  code.uh_course_code
+        "#,
+        user_id,
+        moocfi_completion_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// One student's completions of one mooc.fi course as the lookup just returned them, for
 /// [`sync_from_upstream`].
 #[derive(Debug, Clone, Copy)]

@@ -11260,16 +11260,16 @@
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}": {
       "get": {
         "tags": ["credit-registrations"],
-        "summary": "GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}` -\nThe signed-in account's registration for one mooc.fi completion, or null when the pipeline has not\ncreated one yet.",
-        "operationId": "getMyCreditRegistrationForExternalCompletion",
+        "summary": "GET `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}` - The\ncaller's registration of one mooc.fi completion under each course code courses registers it under,\nwith their enrolment answers.",
+        "operationId": "getMyMoocfiCompletionRegistration",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11279,35 +11279,31 @@
         ],
         "responses": {
           "200": {
-            "description": "The caller's registration for the mooc.fi completion",
+            "description": "The caller's registration of the mooc.fi completion",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/MyCreditRegistrationForSubject"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/MyMoocfiCompletionRegistration"
                 }
               }
             }
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/credit-justification": {
       "put": {
         "tags": ["credit-registrations"],
-        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification`\n- [`set_my_credit_justification`] for a mooc.fi completion.\n\nStored against the mooc.fi completion rather than this row, so the answer survives a tier change\nthat replaces the row.",
-        "operationId": "setMyExternalCompletionCreditJustification",
+        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/credit-justification`\n- [`set_my_credit_justification`] for a mooc.fi completion.\n\nStored against the mooc.fi completion rather than a code's row, so the answer survives a tier change\nthat replaces the rows.",
+        "operationId": "setMyMoocfiCompletionCreditJustification",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11342,16 +11338,16 @@
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-page-visit": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit`\n- [`record_my_enrolment_page_visit`] for a mooc.fi completion.",
-        "operationId": "recordMyExternalCompletionEnrolmentPageVisit",
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-page-visit`\n- [`record_my_enrolment_page_visit`] for a mooc.fi completion, under every code whose enrolment\nhas not been found.",
+        "operationId": "recordMyMoocfiCompletionEnrolmentPageVisit",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11364,50 +11360,21 @@
             "description": "The visit is recorded"
           },
           "404": {
-            "description": "No such mooc.fi completion of the caller's"
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route": {
-      "get": {
-        "tags": ["credit-registrations"],
-        "summary": "GET `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`\n- What the caller said about where they enrol for this mooc.fi completion.",
-        "operationId": "getMyExternalCompletionEnrolmentRoute",
-        "parameters": [
-          {
-            "name": "external_completion_id",
-            "in": "path",
-            "description": "External completion id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "The caller's answer for the mooc.fi completion",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route": {
       "put": {
         "tags": ["credit-registrations"],
-        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route`\n- [`set_my_enrolment_route`] for a mooc.fi completion.",
-        "operationId": "setMyExternalCompletionEnrolmentRoute",
+        "summary": "PUT `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route`\n- [`set_my_enrolment_route`] for a mooc.fi completion, under every code whose answers can still\nchange.",
+        "operationId": "setMyMoocfiCompletionEnrolmentRoute",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11427,28 +11394,24 @@
         },
         "responses": {
           "200": {
-            "description": "The stored answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
+            "description": "The answers are stored"
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/certificate-choice": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`\n- [`choose_my_certificate`] for a mooc.fi completion.",
-        "operationId": "chooseMyExternalCompletionCertificate",
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/certificate-choice`\n- [`choose_my_certificate`] for a mooc.fi completion.",
+        "operationId": "chooseMyMoocfiCompletionCertificate",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11458,26 +11421,22 @@
         ],
         "responses": {
           "200": {
-            "description": "The stored answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
+            "description": "The answer is stored"
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       },
       "delete": {
         "tags": ["credit-registrations"],
-        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice`\n- [`withdraw_my_certificate_choice`] for a mooc.fi completion.",
-        "operationId": "withdrawMyExternalCompletionCertificateChoice",
+        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/certificate-choice`\n- [`withdraw_my_certificate_choice`] for a mooc.fi completion.",
+        "operationId": "withdrawMyMoocfiCompletionCertificateChoice",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11487,28 +11446,24 @@
         ],
         "responses": {
           "200": {
-            "description": "The stored answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
+            "description": "The answer is stored"
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/confirm": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`\n- [`confirm_my_enrolment`] for a mooc.fi completion.",
-        "operationId": "confirmMyExternalCompletionEnrolment",
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/confirm`\n- [`confirm_my_enrolment`] for a mooc.fi completion.",
+        "operationId": "confirmMyMoocfiCompletionEnrolment",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11518,26 +11473,22 @@
         ],
         "responses": {
           "200": {
-            "description": "The stored answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
+            "description": "The answer is stored"
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       },
       "delete": {
         "tags": ["credit-registrations"],
-        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm`\n- [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.",
-        "operationId": "withdrawMyExternalCompletionEnrolmentConfirmation",
+        "summary": "DELETE `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/confirm`\n- [`withdraw_my_enrolment_confirmation`] for a mooc.fi completion.",
+        "operationId": "withdrawMyMoocfiCompletionEnrolmentConfirmation",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -11547,28 +11498,24 @@
         ],
         "responses": {
           "200": {
-            "description": "The stored answer",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MyEnrolmentRoute"
-                }
-              }
-            }
+            "description": "The answer is stored"
+          },
+          "404": {
+            "description": "No mooc.fi completion of the caller's that courses registers"
           }
         }
       }
     },
-    "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff": {
+    "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/moocfi-handoff": {
       "post": {
         "tags": ["credit-registrations"],
-        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. Only from the IP that\nminted it.",
+        "summary": "POST `/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/moocfi-handoff`\n- Mints a single-use handoff that signs the caller in on mooc.fi and sends them to `destination`.\n\nmooc.fi's backend redeems it through [`crate::controllers::moocfi::outbound_handoffs`], learning the\nstudent and the course from the stored completion, never from this request. Only from the IP that\nminted it.",
         "operationId": "createMyMoocfiHandoff",
         "parameters": [
           {
-            "name": "external_completion_id",
+            "name": "moocfi_completion_id",
             "in": "path",
-            "description": "External completion id",
+            "description": "mooc.fi completion id",
             "required": true,
             "schema": {
               "type": "string",
@@ -32467,6 +32414,17 @@
             "type": "boolean",
             "description": "Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's\nanswer is unknown: its certificate page copes with a course that has none."
           },
+          "student_facing_status": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/StudentFacingCreditRegistrationStatus",
+                "description": "Where the completion as a whole stands: that of its first code courses registers that is not\nregistered yet, else of its first. `None` until such a code has a ledger row."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "tier": {
             "type": ["integer", "null"],
             "format": "int32"
@@ -32554,11 +32512,6 @@
             "type": "string",
             "description": "The name students see for these credits."
           },
-          "prerequisite_code_id": {
-            "type": ["string", "null"],
-            "format": "uuid",
-            "description": "A code of the same completion that must be registered before this one is sent to Sisu."
-          },
           "uh_course_code": {
             "type": "string"
           }
@@ -32581,6 +32534,10 @@
             "type": ["string", "null"],
             "format": "uuid",
             "description": "Set once courses has taken the completion up under this code."
+          },
+          "prerequisite_name": {
+            "type": ["string", "null"],
+            "description": "The name of the code that must be registered before this one is sent to Sisu."
           },
           "status": {
             "$ref": "#/components/schemas/MoocfiCompletionStatus"
@@ -32903,6 +32860,72 @@
             "type": "string",
             "format": "uuid",
             "description": "The course module completion or mooc.fi completion the answer is for."
+          }
+        }
+      },
+      "MyMoocfiCodeRegistration": {
+        "type": "object",
+        "description": "One course code of the caller's mooc.fi completion.",
+        "required": ["external_completion_id", "enrolment_route"],
+        "properties": {
+          "enrolment_route": {
+            "$ref": "#/components/schemas/MyEnrolmentRoute",
+            "description": "The code's own copy of the answers; a write goes to every code whose answers can still\nchange."
+          },
+          "external_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registration": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MyCreditRegistration",
+                "description": "`None` before the pipeline has created it."
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "MyMoocfiCompletionRegistration": {
+        "type": "object",
+        "description": "The caller's registration of one mooc.fi completion under every course code it registers\nunder, which the registration page reads as one.",
+        "required": ["moocfi_completion_id", "enrolment_route", "codes", "earlier_attempts"],
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyMoocfiCodeRegistration"
+            },
+            "description": "One per code the completion registers under, lowest minimum tier first."
+          },
+          "earlier_attempts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyCreditRegistration"
+            },
+            "description": "The replaced attempts under every code."
+          },
+          "enrolment_route": {
+            "$ref": "#/components/schemas/MyEnrolmentRoute",
+            "description": "The answers the steps show: the first code's whose answers can still change, else the first\ncode's."
+          },
+          "moocfi_completion_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registration": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/MyCreditRegistration",
+                "description": "The registration the student's own steps are about: one the study registry has listed the\nstudent for, else the one of the code `enrolment_route` is from. `None` before the pipeline\nhas created it."
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         }
       },

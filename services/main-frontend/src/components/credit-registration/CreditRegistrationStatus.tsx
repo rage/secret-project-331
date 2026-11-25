@@ -1,6 +1,6 @@
 "use client"
 
-import { queryOptions, useQueries, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,11 +9,9 @@ import {
   registrationGradeLabel,
   registrationStatusLabel,
 } from "@/components/credit-registration/creditRegistrationCopy"
-import {
-  type CertificateOffer,
-  type CreditRegistrationSubject,
-  myEnrolmentRouteOptions,
-  myRegistrationForSubjectOptions,
+import type {
+  CertificateOffer,
+  CreditRegistrationSubject,
 } from "@/components/credit-registration/creditRegistrationSubject"
 import { RegistrationStepper } from "@/components/credit-registration/stepper/RegistrationStepper"
 import type {
@@ -28,13 +26,17 @@ import {
   sectionsCss,
   subheadingCss,
 } from "@/components/credit-registration/styles"
-import { getMyVerifiedStudentNumberOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getMyCreditRegistrationForCourseModuleOptions,
+  getMyEnrolmentRouteOptions,
+  getMyMoocfiCompletionRegistrationOptions,
+  getMyVerifiedStudentNumberOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type {
   MyCreditRegistration,
-  MyCreditRegistrationForSubject,
   StudentFacingCreditRegistrationStatus,
 } from "@/generated/api/types.generated"
-import { type QueryTuple, QueryResults } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
 export interface CreditRegistrationStatusProps {
   subject: CreditRegistrationSubject
@@ -53,11 +55,7 @@ export interface CreditRegistrationStatusProps {
   enrolmentLink: string | null | undefined
   /** Shown in the title band when the page signed the student in on their behalf. */
   signedInEmail?: string | undefined
-  /**
-   * Every course of a completion that earns several, each registered on its own; `subject` and the
-   * single-course props above are then the first course's. Leave out for a completion that earns
-   * one course.
-   */
+  /** Every course a mooc.fi completion registers under; leave out for a module's. */
   courses?: readonly CreditCourse[]
 }
 
@@ -67,14 +65,13 @@ const WAITING_FOR_SISU_REFETCH_INTERVAL_MS = 60_000
 /** A waiting row changes only once a check finds the enrolment; a minute is soon enough. */
 const WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS = 60_000
 
-/** How often to poll a registration, as `refetchInterval` takes it. */
+/** How often one registration needs polling; `null` before the pipeline has created it. */
 const registrationRefetchInterval = (
   isRegistrationComing: boolean,
-  latest: { data: MyCreditRegistrationForSubject | null | undefined; status: string },
+  registration: MyCreditRegistration | null,
 ): number | false => {
-  const registration = latest.data?.registration
   if (!registration) {
-    return isRegistrationComing && latest.status === "success" ? MOVING_REFETCH_INTERVAL_MS : false
+    return isRegistrationComing ? MOVING_REFETCH_INTERVAL_MS : false
   }
   if (registration.student_facing_status === "needs_enrolment") {
     return WAITING_FOR_ENROLMENT_REFETCH_INTERVAL_MS
@@ -87,33 +84,31 @@ const registrationRefetchInterval = (
     : MOVING_REFETCH_INTERVAL_MS
 }
 
-/** The student's registration for `subject`, polled while it moves and on returning to the tab. */
-const polledRegistrationOptions = (
-  subject: CreditRegistrationSubject,
+/** How often to poll registrations read together, as `refetchInterval` takes it. */
+const refetchInterval = (
   isRegistrationComing: boolean,
-) =>
-  queryOptions({
-    ...myRegistrationForSubjectOptions(subject),
-    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
-    refetchOnWindowFocus: true,
-    refetchInterval: (latestQuery) =>
-      registrationRefetchInterval(isRegistrationComing, latestQuery.state),
-  })
-
-/** The student's answers for `subject`, refetched on returning to the tab. */
-const enrolmentRouteOptions = (subject: CreditRegistrationSubject) =>
-  queryOptions({ ...myEnrolmentRouteOptions(subject), refetchOnWindowFocus: true })
+  registrations: readonly (MyCreditRegistration | null)[],
+  status: string,
+): number | false => {
+  const intervals = registrations
+    .map((registration) =>
+      registrationRefetchInterval(isRegistrationComing && status === "success", registration),
+    )
+    .filter((interval) => interval !== false)
+  return intervals.length === 0 ? false : Math.min(...intervals)
+}
 
 /** The stepper for one completion, with its earlier attempts; the page around it is the caller's. */
 const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = (props) =>
-  props.courses && props.courses.length > 1 ? (
-    <SeveralCoursesStatus {...props} courses={props.courses} />
+  props.subject.kind === "course_module" ? (
+    <ModuleStatus {...props} courseModuleId={props.subject.courseModuleId} />
   ) : (
-    <OneCourseStatus {...props} />
+    <MoocfiStatus {...props} moocfiCompletionId={props.subject.moocfiCompletionId} />
   )
 
-const OneCourseStatus: React.FC<CreditRegistrationStatusProps> = ({
+const ModuleStatus: React.FC<CreditRegistrationStatusProps & { courseModuleId: string }> = ({
   subject,
+  courseModuleId,
   courseName,
   moduleName,
   ectsCredits,
@@ -124,8 +119,22 @@ const OneCourseStatus: React.FC<CreditRegistrationStatusProps> = ({
   signedInEmail,
 }) => {
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
-  const query = useQuery(polledRegistrationOptions(subject, isRegistrationComing))
-  const routeQuery = useQuery(enrolmentRouteOptions(subject))
+  const path = { course_module_id: courseModuleId }
+  const query = useQuery({
+    ...getMyCreditRegistrationForCourseModuleOptions({ path }),
+    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
+    refetchOnWindowFocus: true,
+    refetchInterval: (latest) =>
+      refetchInterval(
+        isRegistrationComing,
+        latest.state.data === undefined ? [] : [latest.state.data?.registration ?? null],
+        latest.state.status,
+      ),
+  })
+  const routeQuery = useQuery({
+    ...getMyEnrolmentRouteOptions({ path }),
+    refetchOnWindowFocus: true,
+  })
   const numberQuery = useQuery({
     ...getMyVerifiedStudentNumberOptions(),
     refetchOnWindowFocus: true,
@@ -170,63 +179,54 @@ const OneCourseStatus: React.FC<CreditRegistrationStatusProps> = ({
   )
 }
 
-/**
- * The stepper for a completion that earns several courses: each course's registration and answers
- * are read on their own, and the stepper shows them together.
- */
-const SeveralCoursesStatus: React.FC<
-  CreditRegistrationStatusProps & { courses: readonly CreditCourse[] }
-> = ({
+/** The stepper for a mooc.fi completion, which reads every course code's registration at once. */
+const MoocfiStatus: React.FC<CreditRegistrationStatusProps & { moocfiCompletionId: string }> = ({
+  subject,
+  moocfiCompletionId,
   courseName,
   ectsCredits,
   statusBeforeRegistration,
   certificate,
+  uhCourseCode,
+  enrolmentLink,
   signedInEmail,
-  courses,
+  courses = [],
 }) => {
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
-  const registrationQueries = useQueries({
-    queries: courses.map((course) =>
-      polledRegistrationOptions(course.subject, isRegistrationComing),
-    ),
-  })
-  const routeQueries = useQueries({
-    queries: courses.map((course) => enrolmentRouteOptions(course.subject)),
+  const query = useQuery({
+    ...getMyMoocfiCompletionRegistrationOptions({
+      path: { moocfi_completion_id: moocfiCompletionId },
+    }),
+    refetchOnWindowFocus: true,
+    refetchInterval: (latest) =>
+      refetchInterval(
+        isRegistrationComing,
+        latest.state.data?.codes.map((code) => code.registration ?? null) ?? [],
+        latest.state.status,
+      ),
   })
   const numberQuery = useQuery({
     ...getMyVerifiedStudentNumberOptions(),
     refetchOnWindowFocus: true,
   })
-  const checkedAt = latestUpdate(registrationQueries.map((query) => query.dataUpdatedAt))
+  const checkedAt = query.dataUpdatedAt === 0 ? null : new Date(query.dataUpdatedAt).toISOString()
 
   return (
     <QueryResults
-      queries={([] as QueryTuple).concat(registrationQueries, routeQueries, [numberQuery])}
+      queries={[query, numberQuery] as const}
       treatEmptyAsData
       refreshIndicator={QUIET_REFRESH}
       contentClassName={sectionsCss}
-      renderData={() => {
-        const stepperCourses: StepperCourse[] = courses.map((course, index) => ({
+      renderData={([data, verifiedNumber]) => {
+        const codes = new Map(data.codes.map((code) => [code.external_completion_id, code]))
+        const stepperCourses: StepperCourse[] = courses.map((course) => ({
           ...course,
-          registration: registrationQueries[index]?.data?.registration ?? null,
-          enrolmentRoute: routeQueries[index]?.data ?? null,
+          registration: codes.get(course.key)?.registration ?? null,
+          enrolmentRoute: codes.get(course.key)?.enrolment_route ?? null,
         }))
-        // The answers shown are those of a course that can still change them, which every save
-        // writes to; once every enrolment has been seen, any course's will do.
-        const answerSource =
-          stepperCourses.find((course) => course.enrolmentRoute?.can_change !== false) ??
-          stepperCourses[0]
-        // The registry listing any course is what ends the student's steps.
-        const shownRegistration =
-          stepperCourses.find((course) => course.registration?.linking_email)?.registration ??
-          answerSource?.registration ??
-          null
-        if (!answerSource) {
-          return null
-        }
         return (
           <RegistrationStepper
-            subject={answerSource.subject}
+            subject={subject}
             heading={
               <CardHeading
                 courseName={courseName}
@@ -238,29 +238,22 @@ const SeveralCoursesStatus: React.FC<
             courseName={courseName}
             moduleName={null}
             ectsCredits={ectsCredits}
-            registration={shownRegistration}
+            registration={data.registration ?? null}
             statusBeforeRegistration={statusBeforeRegistration}
-            enrolmentRoute={answerSource.enrolmentRoute}
-            verifiedNumber={numberQuery.data ?? null}
+            enrolmentRoute={data.enrolment_route}
+            verifiedNumber={verifiedNumber ?? null}
             certificate={certificate}
-            uhCourseCode={answerSource.uhCourseCode}
-            enrolmentLink={answerSource.enrolmentLink}
+            uhCourseCode={uhCourseCode}
+            enrolmentLink={enrolmentLink}
             checkedAt={checkedAt}
             courses={stepperCourses}
           >
-            <EarlierAttempts
-              attempts={registrationQueries.flatMap((query) => query.data?.earlier_attempts ?? [])}
-            />
+            <EarlierAttempts attempts={data.earlier_attempts} />
           </RegistrationStepper>
         )
       }}
     />
   )
-}
-
-const latestUpdate = (updatedAts: number[]): string | null => {
-  const latest = Math.max(0, ...updatedAts)
-  return latest === 0 ? null : new Date(latest).toISOString()
 }
 
 /** The card's title band: which credits the page is about. An empty `courseName` leaves it out. */

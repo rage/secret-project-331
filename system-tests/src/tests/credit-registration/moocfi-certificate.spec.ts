@@ -140,14 +140,12 @@ test("The certificate is on mooc.fi, and a reason for needing the credits is kep
     await myMoocfiCreditRegistrations(page.request, MOOCFI_COURSE)
   ).completions.find((row) => row.moocfi_completion_id === COMPLETION_ID)
   expect(completion?.credit_justification).toBe(REASON)
-  const externalCompletionId = completion?.credit_units[0]?.external_completion_id ?? ""
-  expect(externalCompletionId).not.toBe("")
+  const completionApi = `${MAIN_FRONTEND_API}/credit-registrations/my/by-moocfi-completion/${COMPLETION_ID}`
 
   await test.step("Another account gets a not-found for the completion", async () => {
     const other = await playwright.request.newContext({
       storageState: "src/states/user@example.com.json",
     })
-    const completionApi = `${MAIN_FRONTEND_API}/credit-registrations/my/by-external-completion/${externalCompletionId}`
     expect(
       (
         await other.put(`${completionApi}/credit-justification`, {
@@ -166,10 +164,9 @@ test("The certificate is on mooc.fi, and a reason for needing the credits is kep
   })
 
   await test.step("A redeem from another IP is refused and leaves the token unspent", async () => {
-    const minted = await page.request.post(
-      `${MAIN_FRONTEND_API}/credit-registrations/my/by-external-completion/${externalCompletionId}${HANDOFF_PATH}`,
-      { data: { destination: "certificate", ui_language: "en" } },
-    )
+    const minted = await page.request.post(`${completionApi}${HANDOFF_PATH}`, {
+      data: { destination: "certificate", ui_language: "en" },
+    })
     expect(minted.status()).toBe(200)
     const { redirect_url: freshUrl } = (await minted.json()) as { redirect_url: string }
     const freshToken = new URL(freshUrl).hash.replace("#token=", "")

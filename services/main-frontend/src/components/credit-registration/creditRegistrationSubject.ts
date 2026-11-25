@@ -1,36 +1,32 @@
-import { type QueryClient, queryOptions } from "@tanstack/react-query"
+import type { QueryClient } from "@tanstack/react-query"
 
 import {
   getCourseModuleUserCompletionQueryKey,
-  getMyCreditRegistrationForCourseModuleQueryKey,
-  getMyCreditRegistrationForExternalCompletionQueryKey,
   getMyEnrolmentRouteQueryKey,
-  getMyExternalCompletionEnrolmentRouteQueryKey,
+  getMyMoocfiCompletionRegistrationQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import {
   chooseMyCertificate,
-  chooseMyExternalCompletionCertificate,
+  chooseMyMoocfiCompletionCertificate,
   confirmMyEnrolment,
-  confirmMyExternalCompletionEnrolment,
+  confirmMyMoocfiCompletionEnrolment,
   createMyMoocfiHandoff,
-  getMyCreditRegistrationForCourseModule,
-  getMyCreditRegistrationForExternalCompletion,
-  getMyEnrolmentRoute,
-  getMyExternalCompletionEnrolmentRoute,
   recordMyEnrolmentPageVisit,
-  recordMyExternalCompletionEnrolmentPageVisit,
+  recordMyMoocfiCompletionEnrolmentPageVisit,
   setMyCreditJustification,
   setMyEnrolmentRoute,
-  setMyExternalCompletionCreditJustification,
-  setMyExternalCompletionEnrolmentRoute,
+  setMyMoocfiCompletionCreditJustification,
+  setMyMoocfiCompletionEnrolmentRoute,
   withdrawMyCertificateChoice,
   withdrawMyEnrolmentConfirmation,
-  withdrawMyExternalCompletionCertificateChoice,
-  withdrawMyExternalCompletionEnrolmentConfirmation,
+  withdrawMyMoocfiCompletionCertificateChoice,
+  withdrawMyMoocfiCompletionEnrolmentConfirmation,
 } from "@/generated/api/sdk.generated"
 import type {
   MoocfiCreditRegistrations,
   MyCreditRegistration,
+  MyEnrolmentRoute,
+  MyMoocfiCompletionRegistration,
   SetEnrolmentRoutePayload,
 } from "@/generated/api/types.generated"
 import {
@@ -39,26 +35,26 @@ import {
 } from "@/shared-module/common/utils/routes"
 
 /**
- * The completion a student status view is about: a course module's, or a mooc.fi one. Picks the
- * endpoint family every per-completion request goes to.
+ * The completion a student status view is about: a course module's, or a mooc.fi one under every
+ * course code it registers under. Picks the endpoint family every per-completion request goes to.
  */
 export type CreditRegistrationSubject =
   | { kind: "course_module"; courseModuleId: string }
-  | { kind: "mooc_fi"; externalCompletionId: string }
+  | { kind: "mooc_fi"; moocfiCompletionId: string }
 
 export const courseModuleSubject = (courseModuleId: string): CreditRegistrationSubject => ({
   kind: "course_module",
   courseModuleId,
 })
 
-export const moocfiSubject = (externalCompletionId: string): CreditRegistrationSubject => ({
+export const moocfiSubject = (moocfiCompletionId: string): CreditRegistrationSubject => ({
   kind: "mooc_fi",
-  externalCompletionId,
+  moocfiCompletionId,
 })
 
-/** The id of the module or completion `subject` names; the two id spaces do not overlap. */
+/** The id of the module or mooc.fi completion `subject` names; the two id spaces do not overlap. */
 export const subjectId = (subject: CreditRegistrationSubject): string =>
-  subject.kind === "course_module" ? subject.courseModuleId : subject.externalCompletionId
+  subject.kind === "course_module" ? subject.courseModuleId : subject.moocfiCompletionId
 
 /**
  * A certificate the student can take instead of registering, which is what turns on the Open
@@ -76,7 +72,7 @@ export interface ModuleCertificateOffer {
 
 export interface MoocfiCertificateOffer {
   kind: "mooc_fi"
-  externalCompletionId: string
+  moocfiCompletionId: string
   creditJustification: string | null | undefined
 }
 
@@ -92,29 +88,23 @@ export const moduleCertificateOffer = (
 
 /** The mooc.fi completion's certificate offer, or `null` when mooc.fi says there is none. */
 export const moocfiCertificateOffer = (
-  externalCompletionId: string,
+  moocfiCompletionId: string,
   offersCertificate: boolean,
   creditJustification: string | null | undefined,
 ): MoocfiCertificateOffer | null =>
-  offersCertificate ? { kind: "mooc_fi", externalCompletionId, creditJustification } : null
+  offersCertificate ? { kind: "mooc_fi", moocfiCompletionId, creditJustification } : null
 
 /** The completion whose credit justification the offer's detour asks for. */
 export const certificateOfferSubject = (certificate: CertificateOffer): CreditRegistrationSubject =>
   certificate.kind === "course_module"
     ? courseModuleSubject(certificate.courseModuleId)
-    : moocfiSubject(certificate.externalCompletionId)
+    : moocfiSubject(certificate.moocfiCompletionId)
 
-/** Every per-completion request, for the endpoint family `subject` belongs to. */
-const endpointsFor = (subject: CreditRegistrationSubject) => {
+/** Every per-completion write, for the endpoint family `subject` belongs to. */
+const writesFor = (subject: CreditRegistrationSubject) => {
   if (subject.kind === "course_module") {
     const path = { course_module_id: subject.courseModuleId }
     return {
-      registrationQueryKey: getMyCreditRegistrationForCourseModuleQueryKey({ path }),
-      getRegistration: (signal: AbortSignal) =>
-        getMyCreditRegistrationForCourseModule({ path, signal, throwOnError: true }),
-      enrolmentRouteQueryKey: getMyEnrolmentRouteQueryKey({ path }),
-      getEnrolmentRoute: (signal: AbortSignal) =>
-        getMyEnrolmentRoute({ path, signal, throwOnError: true }),
       setEnrolmentRoute: (answers: SetEnrolmentRoutePayload) =>
         setMyEnrolmentRoute({ path, body: answers }),
       confirmEnrolment: () => confirmMyEnrolment({ path }),
@@ -126,86 +116,93 @@ const endpointsFor = (subject: CreditRegistrationSubject) => {
         setMyCreditJustification({ path, body: { justification } }),
     }
   }
-  const path = { external_completion_id: subject.externalCompletionId }
+  const path = { moocfi_completion_id: subject.moocfiCompletionId }
   return {
-    registrationQueryKey: getMyCreditRegistrationForExternalCompletionQueryKey({ path }),
-    getRegistration: (signal: AbortSignal) =>
-      getMyCreditRegistrationForExternalCompletion({ path, signal, throwOnError: true }),
-    enrolmentRouteQueryKey: getMyExternalCompletionEnrolmentRouteQueryKey({ path }),
-    getEnrolmentRoute: (signal: AbortSignal) =>
-      getMyExternalCompletionEnrolmentRoute({ path, signal, throwOnError: true }),
     setEnrolmentRoute: (answers: SetEnrolmentRoutePayload) =>
-      setMyExternalCompletionEnrolmentRoute({ path, body: answers }),
-    confirmEnrolment: () => confirmMyExternalCompletionEnrolment({ path }),
-    withdrawEnrolmentConfirmation: () =>
-      withdrawMyExternalCompletionEnrolmentConfirmation({ path }),
-    chooseCertificate: () => chooseMyExternalCompletionCertificate({ path }),
-    withdrawCertificateChoice: () => withdrawMyExternalCompletionCertificateChoice({ path }),
-    recordEnrolmentPageVisit: () => recordMyExternalCompletionEnrolmentPageVisit({ path }),
+      setMyMoocfiCompletionEnrolmentRoute({ path, body: answers }),
+    confirmEnrolment: () => confirmMyMoocfiCompletionEnrolment({ path }),
+    withdrawEnrolmentConfirmation: () => withdrawMyMoocfiCompletionEnrolmentConfirmation({ path }),
+    chooseCertificate: () => chooseMyMoocfiCompletionCertificate({ path }),
+    withdrawCertificateChoice: () => withdrawMyMoocfiCompletionCertificateChoice({ path }),
+    recordEnrolmentPageVisit: () => recordMyMoocfiCompletionEnrolmentPageVisit({ path }),
     setCreditJustification: (justification: string) =>
-      setMyExternalCompletionCreditJustification({ path, body: { justification } }),
+      setMyMoocfiCompletionCreditJustification({ path, body: { justification } }),
   }
 }
 
-// Built here rather than picked from the generated options: `useQuery` cannot take a union of the
-// two. The keys stay the generated ones, which invalidation matches on.
-export const myRegistrationForSubjectOptions = (subject: CreditRegistrationSubject) => {
-  const endpoints = endpointsFor(subject)
-  return queryOptions({
-    queryKey: endpoints.registrationQueryKey,
-    queryFn: async ({ signal }) => await endpoints.getRegistration(signal),
-  })
-}
-
-export const myEnrolmentRouteQueryKey = (subject: CreditRegistrationSubject) =>
-  endpointsFor(subject).enrolmentRouteQueryKey
-
-export const myEnrolmentRouteOptions = (subject: CreditRegistrationSubject) => {
-  const endpoints = endpointsFor(subject)
-  return queryOptions({
-    queryKey: endpoints.enrolmentRouteQueryKey,
-    queryFn: async ({ signal }) => await endpoints.getEnrolmentRoute(signal),
-  })
+/**
+ * The cached query `subject`'s enrolment answers are read from, and that query's data with
+ * `answers` saved: the module's answers, or every mooc.fi code's that can still change.
+ */
+export const enrolmentAnswersCache = (subject: CreditRegistrationSubject) => {
+  if (subject.kind === "course_module") {
+    return {
+      queryKey: getMyEnrolmentRouteQueryKey({
+        path: { course_module_id: subject.courseModuleId },
+      }),
+      withAnswers: (cached: unknown, answers: SetEnrolmentRoutePayload): unknown => {
+        const route = cached as MyEnrolmentRoute
+        return { ...route, ...answers }
+      },
+    }
+  }
+  return {
+    queryKey: getMyMoocfiCompletionRegistrationQueryKey({
+      path: { moocfi_completion_id: subject.moocfiCompletionId },
+    }),
+    withAnswers: (cached: unknown, answers: SetEnrolmentRoutePayload): unknown => {
+      const completion = cached as MyMoocfiCompletionRegistration
+      return {
+        ...completion,
+        enrolment_route: { ...completion.enrolment_route, ...answers },
+        codes: completion.codes.map((code) =>
+          code.enrolment_route.can_change
+            ? { ...code, enrolment_route: { ...code.enrolment_route, ...answers } }
+            : code,
+        ),
+      }
+    },
+  }
 }
 
 export const setEnrolmentRoute = async (
   subject: CreditRegistrationSubject,
   answers: SetEnrolmentRoutePayload,
 ): Promise<void> => {
-  await endpointsFor(subject).setEnrolmentRoute(answers)
+  await writesFor(subject).setEnrolmentRoute(answers)
 }
 
 export const confirmEnrolment = async (subject: CreditRegistrationSubject): Promise<void> => {
-  await endpointsFor(subject).confirmEnrolment()
+  await writesFor(subject).confirmEnrolment()
 }
 
 export const withdrawEnrolmentConfirmation = async (
   subject: CreditRegistrationSubject,
 ): Promise<void> => {
-  await endpointsFor(subject).withdrawEnrolmentConfirmation()
+  await writesFor(subject).withdrawEnrolmentConfirmation()
 }
 
 export const chooseCertificate = async (subject: CreditRegistrationSubject): Promise<void> => {
-  await endpointsFor(subject).chooseCertificate()
+  await writesFor(subject).chooseCertificate()
 }
 
 export const withdrawCertificateChoice = async (
   subject: CreditRegistrationSubject,
 ): Promise<void> => {
-  await endpointsFor(subject).withdrawCertificateChoice()
+  await writesFor(subject).withdrawCertificateChoice()
 }
 
 export const recordEnrolmentPageVisit = async (
   subject: CreditRegistrationSubject,
 ): Promise<void> => {
-  await endpointsFor(subject).recordEnrolmentPageVisit()
+  await writesFor(subject).recordEnrolmentPageVisit()
 }
 
 export const setCreditJustification = async (
   subject: CreditRegistrationSubject,
   justification: string,
 ): Promise<void> => {
-  await endpointsFor(subject).setCreditJustification(justification)
+  await writesFor(subject).setCreditJustification(justification)
 }
 
 /** Shows a just-saved justification wherever the page reads it back from. */
@@ -230,9 +227,7 @@ export const showSavedCreditJustification = async (
       registrations && {
         ...registrations,
         completions: registrations.completions.map((completion) =>
-          completion.credit_units.some(
-            (unit) => unit.external_completion_id === subject.externalCompletionId,
-          )
+          completion.moocfi_completion_id === subject.moocfiCompletionId
             ? { ...completion, credit_justification: justification }
             : completion,
         ),
@@ -249,7 +244,7 @@ export const goToMoocfiCertificate = async (
   uiLanguage: string,
 ): Promise<void> => {
   const { redirect_url } = await createMyMoocfiHandoff({
-    path: { external_completion_id: certificate.externalCompletionId },
+    path: { moocfi_completion_id: certificate.moocfiCompletionId },
     body: { destination: "certificate", ui_language: uiLanguage },
   })
   window.location.assign(redirect_url)

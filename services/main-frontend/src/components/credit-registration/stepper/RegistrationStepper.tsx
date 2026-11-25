@@ -21,11 +21,7 @@ import {
   UNIVERSITY_OF_HELSINKI,
 } from "../constants"
 import { enrolmentConfirmedSentence, myRegistrationStatusLabel } from "../creditRegistrationCopy"
-import {
-  type CertificateOffer,
-  type CreditRegistrationSubject,
-  subjectId,
-} from "../creditRegistrationSubject"
+import type { CertificateOffer, CreditRegistrationSubject } from "../creditRegistrationSubject"
 import { useRecordEnrolmentPageVisitOnce } from "../enrolmentActions"
 import { EnrolmentCheck } from "../EnrolmentCheck"
 import { missingSisuCourseCodeSupportMail } from "../studentSupportMail"
@@ -128,8 +124,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const [hasSavedJustificationHere, setHasSavedJustificationHere] = useState(false)
   const multiCourse = courses && courses.length > 1 ? courses : null
-  const answerSubjects = answerSubjectsOf(subject, multiCourse)
-  const actions = useEnrolmentAnswers(answerSubjects, registration?.course_id ?? null)
+  const actions = useEnrolmentAnswers(subject, registration?.course_id ?? null)
   const { requestedPage, goTo } = useStepParam()
 
   const hasLinkedStudentNumber = verifiedNumber !== null
@@ -154,7 +149,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
   const courseCode = (registration?.uh_course_code ?? uhCourseCode)?.trim() || null
   const supportCourse = { courseName, moduleName }
 
-  useRecordEnrolmentPageVisitOnce(answerSubjects, ENROLLING_PAGES.includes(page))
+  useRecordEnrolmentPageVisitOnce(subject, ENROLLING_PAGES.includes(page))
 
   // A page change moves focus to its heading, so a screen reader reads where the student now is.
   const pageRef = useRef<HTMLElement>(null)
@@ -214,11 +209,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
       <p className={captionCss}>{t("credit-registration-open-university-acceptance-takes-days")}</p>
     ) : null
 
-  const canWithdraw = multiCourse
-    ? canWithdrawEnrolmentConfirmation(input) &&
-      multiCourse.every((course) => !wasListedByTheRegistry(course.registration))
-    : canWithdrawEnrolmentConfirmation(input)
-  const wayBack = canWithdraw ? (
+  const wayBack = canWithdrawEnrolmentConfirmation(input) ? (
     <p className={captionCss}>
       {t("credit-registration-not-enrolled-after-all")}{" "}
       <Button
@@ -391,24 +382,6 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
       />
     </>
   )
-}
-
-/**
- * Where the answers are saved: every course whose answers can still change, so each course's
- * enrolment check reads the same answers. `subject` alone for a completion that earns one course.
- */
-const answerSubjectsOf = (
-  subject: CreditRegistrationSubject,
-  courses: readonly StepperCourse[] | null,
-): [CreditRegistrationSubject, ...CreditRegistrationSubject[]] => {
-  const others = (courses ?? [])
-    .filter(
-      (course) =>
-        subjectId(course.subject) !== subjectId(subject) &&
-        course.enrolmentRoute?.can_change !== false,
-    )
-    .map((course) => course.subject)
-  return [subject, ...others]
 }
 
 const FAQ_WHILE_ENROLLING: StatusPageKind = "waiting"

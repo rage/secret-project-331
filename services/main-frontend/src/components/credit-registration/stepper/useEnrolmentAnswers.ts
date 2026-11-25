@@ -9,7 +9,7 @@ import {
   chooseCertificate as chooseCertificateFor,
   confirmEnrolment as confirmEnrolmentFor,
   type CreditRegistrationSubject,
-  myEnrolmentRouteQueryKey,
+  enrolmentAnswersCache,
   setEnrolmentRoute,
   subjectId,
   withdrawCertificateChoice as withdrawCertificateChoiceFor,
@@ -36,26 +36,20 @@ export const storedAnswersOf = (enrolmentRoute: MyEnrolmentRoute): EnrolmentAnsw
 /**
  * Saving the answers and the student's word on enrolling or on taking the certificate.
  *
- * Every write goes to each of `subjects`: a completion that earns several courses keeps a copy of
- * the answers per course, and each course's enrolment check reads its own. The first subject's
- * answers are the ones shown.
- *
  * Answers are written into the cache before the request, so the next question opens under the
  * click instead of after a round trip; a failed save puts the old answers back. `courseId` is
  * `null` before the pipeline has created the registration.
  */
 export const useEnrolmentAnswers = (
-  subjects: readonly [CreditRegistrationSubject, ...CreditRegistrationSubject[]],
+  subject: CreditRegistrationSubject,
   courseId: string | null,
 ) => {
   const queryClient = useQueryClient()
-  const routeQueryKeys = subjects.map((subject) => myEnrolmentRouteQueryKey(subject))
-  const forEachSubject = async (write: (subject: CreditRegistrationSubject) => Promise<void>) => {
-    await Promise.all(subjects.map((subject) => write(subject)))
-  }
+  const answersCache = enrolmentAnswersCache(subject)
+  const routeQueryKey = answersCache.queryKey
 
   const invalidateRoute = async () => {
-    await Promise.all(routeQueryKeys.map((queryKey) => queryClient.invalidateQueries({ queryKey })))
+    await queryClient.invalidateQueries({ queryKey: routeQueryKey })
   }
   // Confirming brings the next enrolment check forward, so the registration has moved too.
   const invalidateEverything = async () => {
@@ -63,39 +57,26 @@ export const useEnrolmentAnswers = (
   }
 
   // Each save replaces every answer, so saves run in order and only the last one refetches.
-  const saveScopeId = `enrolment-answers-${subjectId(subjects[0])}`
-  const saveAnswers = useToastMutation<
-    void,
-    unknown,
-    EnrolmentAnswers,
-    { previous: (MyEnrolmentRoute | null | undefined)[] }
-  >(
+  const saveScopeId = `enrolment-answers-${subjectId(subject)}`
+  const saveAnswers = useToastMutation<void, unknown, EnrolmentAnswers, { previous: unknown }>(
     async (answers) => {
-      await forEachSubject((subject) => setEnrolmentRoute(subject, answers))
+      await setEnrolmentRoute(subject, answers)
     },
     { notify: false },
     {
       scope: { id: saveScopeId },
       onMutate: async (answers) => {
-        const previous = await Promise.all(
-          routeQueryKeys.map(async (queryKey) => {
-            await queryClient.cancelQueries({ queryKey })
-            const stored = queryClient.getQueryData<MyEnrolmentRoute | null>(queryKey)
-            if (stored) {
-              queryClient.setQueryData<MyEnrolmentRoute>(queryKey, { ...stored, ...answers })
-            }
-            return stored
-          }),
-        )
+        await queryClient.cancelQueries({ queryKey: routeQueryKey })
+        const previous = queryClient.getQueryData(routeQueryKey)
+        if (previous) {
+          queryClient.setQueryData(routeQueryKey, answersCache.withAnswers(previous, answers))
+        }
         return { previous }
       },
       onError: (_error, _answers, context) => {
-        context?.previous.forEach((stored, index) => {
-          const queryKey = routeQueryKeys[index]
-          if (stored !== undefined && queryKey) {
-            queryClient.setQueryData(queryKey, stored)
-          }
-        })
+        if (context?.previous !== undefined) {
+          queryClient.setQueryData(routeQueryKey, context.previous)
+        }
       },
       onSettled: async () => {
         const pendingSaves = queryClient.isMutating({
@@ -110,7 +91,7 @@ export const useEnrolmentAnswers = (
 
   const confirmEnrolment = useToastMutation<void, unknown, void>(
     async () => {
-      await forEachSubject(confirmEnrolmentFor)
+      await confirmEnrolmentFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateEverything },
@@ -118,7 +99,7 @@ export const useEnrolmentAnswers = (
 
   const withdrawEnrolmentConfirmation = useToastMutation<void, unknown, void>(
     async () => {
-      await forEachSubject(withdrawEnrolmentConfirmationFor)
+      await withdrawEnrolmentConfirmationFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateEverything },
@@ -126,7 +107,7 @@ export const useEnrolmentAnswers = (
 
   const chooseCertificate = useToastMutation<void, unknown, void>(
     async () => {
-      await forEachSubject(chooseCertificateFor)
+      await chooseCertificateFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateRoute },
@@ -134,7 +115,7 @@ export const useEnrolmentAnswers = (
 
   const withdrawCertificateChoice = useToastMutation<void, unknown, void>(
     async () => {
-      await forEachSubject(withdrawCertificateChoiceFor)
+      await withdrawCertificateChoiceFor(subject)
     },
     { notify: false },
     { onSuccess: invalidateRoute },

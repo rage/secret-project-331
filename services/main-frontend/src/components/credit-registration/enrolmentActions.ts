@@ -23,7 +23,7 @@ import {
 // family is invalidated by query id rather than by the one key the caller happens to know.
 const PER_SUBJECT_REGISTRATION_QUERY_IDS: ReadonlySet<string> = new Set([
   "getMyCreditRegistrationForCourseModule",
-  "getMyCreditRegistrationForExternalCompletion",
+  "getMyMoocfiCompletionRegistration",
 ])
 
 /**
@@ -94,15 +94,14 @@ const useRecordEnrolmentPageVisit = () =>
   })
 
 /**
- * Tells the backend the student is looking at the enrolment instructions of `subjects`, at most
- * once per mount.
+ * Tells the backend the student is looking at the enrolment instructions, at most once per mount.
  *
  * The page polls its registration every 10 s; a `useRef` guard, not the polled data, is what keeps
  * a 10-minute visit from firing the request sixty times. Silent on failure: this is a scheduling
  * nudge, not something the student needs to know about.
  */
 export const useRecordEnrolmentPageVisitOnce = (
-  subjects: readonly CreditRegistrationSubject[],
+  subject: CreditRegistrationSubject,
   shouldRecord: boolean,
 ): void => {
   const { mutate: recordVisit } = useRecordEnrolmentPageVisit()
@@ -110,7 +109,7 @@ export const useRecordEnrolmentPageVisitOnce = (
   useEffect(() => {
     if (shouldRecord && !hasRecordedRef.current) {
       hasRecordedRef.current = true
-      subjects.forEach((subject) => recordVisit(subject))
+      recordVisit(subject)
     }
-  }, [shouldRecord, subjects, recordVisit])
+  }, [shouldRecord, subject, recordVisit])
 }

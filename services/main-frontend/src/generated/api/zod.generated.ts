@@ -4934,7 +4934,6 @@ export const zMoocfiCreditUnit = z.object({
   enrolment_link: z.string().nullish(),
   external_credit_target_code_id: z.uuid(),
   name: z.string(),
-  prerequisite_code_id: z.uuid().nullish(),
   uh_course_code: z.string(),
 })
 
@@ -7408,6 +7407,7 @@ export const zMoocfiCreditUnitRegistration = z.object({
   credit_registration_id: z.uuid().nullish(),
   credit_unit: zMoocfiCreditUnit,
   external_completion_id: z.uuid().nullish(),
+  prerequisite_name: z.string().nullish(),
   status: zMoocfiCompletionStatus,
   student_facing_status: zStudentFacingCreditRegistrationStatus.nullish(),
 })
@@ -7421,6 +7421,7 @@ export const zMoocfiCompletionRegistration = z.object({
   credit_units: z.array(zMoocfiCreditUnitRegistration),
   moocfi_completion_id: z.uuid(),
   offers_certificate: z.boolean(),
+  student_facing_status: zStudentFacingCreditRegistrationStatus.nullish(),
   tier: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -7646,6 +7647,27 @@ export const zMyCreditRegistration = z.object({
 export const zMyCreditRegistrationForSubject = z.object({
   earlier_attempts: z.array(zMyCreditRegistration),
   registration: zMyCreditRegistration,
+})
+
+/**
+ * One course code of the caller's mooc.fi completion.
+ */
+export const zMyMoocfiCodeRegistration = z.object({
+  enrolment_route: zMyEnrolmentRoute,
+  external_completion_id: z.uuid(),
+  registration: zMyCreditRegistration.nullish(),
+})
+
+/**
+ * The caller's registration of one mooc.fi completion under every course code it registers
+ * under, which the registration page reads as one.
+ */
+export const zMyMoocfiCompletionRegistration = z.object({
+  codes: z.array(zMyMoocfiCodeRegistration),
+  earlier_attempts: z.array(zMyCreditRegistration),
+  enrolment_route: zMyEnrolmentRoute,
+  moocfi_completion_id: z.uuid(),
+  registration: zMyCreditRegistration.nullish(),
 })
 
 export const zStudentsByCountryTotalsResult = z.object({
@@ -12679,91 +12701,56 @@ export const zConfirmMyEnrolmentPath = z.object({
  */
 export const zConfirmMyEnrolmentResponse = zMyEnrolmentRoute
 
-export const zGetMyCreditRegistrationForExternalCompletionPath = z.object({
-  external_completion_id: z.uuid(),
+export const zGetMyMoocfiCompletionRegistrationPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
 /**
- * The caller's registration for the mooc.fi completion
+ * The caller's registration of the mooc.fi completion
  */
-export const zGetMyCreditRegistrationForExternalCompletionResponse =
-  zMyCreditRegistrationForSubject.nullable()
+export const zGetMyMoocfiCompletionRegistrationResponse = zMyMoocfiCompletionRegistration
 
-export const zSetMyExternalCompletionCreditJustificationBody = zSetCreditJustificationPayload
+export const zSetMyMoocfiCompletionCreditJustificationBody = zSetCreditJustificationPayload
 
-export const zSetMyExternalCompletionCreditJustificationPath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-/**
- * The stored answer
- */
-export const zSetMyExternalCompletionCreditJustificationResponse = zMyCreditJustification
-
-export const zRecordMyExternalCompletionEnrolmentPageVisitPath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-export const zGetMyExternalCompletionEnrolmentRoutePath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-/**
- * The caller's answer for the mooc.fi completion
- */
-export const zGetMyExternalCompletionEnrolmentRouteResponse = zMyEnrolmentRoute
-
-export const zSetMyExternalCompletionEnrolmentRouteBody = zSetEnrolmentRoutePayload
-
-export const zSetMyExternalCompletionEnrolmentRoutePath = z.object({
-  external_completion_id: z.uuid(),
+export const zSetMyMoocfiCompletionCreditJustificationPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
 /**
  * The stored answer
  */
-export const zSetMyExternalCompletionEnrolmentRouteResponse = zMyEnrolmentRoute
+export const zSetMyMoocfiCompletionCreditJustificationResponse = zMyCreditJustification
 
-export const zWithdrawMyExternalCompletionCertificateChoicePath = z.object({
-  external_completion_id: z.uuid(),
+export const zRecordMyMoocfiCompletionEnrolmentPageVisitPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zWithdrawMyExternalCompletionCertificateChoiceResponse = zMyEnrolmentRoute
+export const zSetMyMoocfiCompletionEnrolmentRouteBody = zSetEnrolmentRoutePayload
 
-export const zChooseMyExternalCompletionCertificatePath = z.object({
-  external_completion_id: z.uuid(),
+export const zSetMyMoocfiCompletionEnrolmentRoutePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zChooseMyExternalCompletionCertificateResponse = zMyEnrolmentRoute
-
-export const zWithdrawMyExternalCompletionEnrolmentConfirmationPath = z.object({
-  external_completion_id: z.uuid(),
+export const zWithdrawMyMoocfiCompletionCertificateChoicePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zWithdrawMyExternalCompletionEnrolmentConfirmationResponse = zMyEnrolmentRoute
-
-export const zConfirmMyExternalCompletionEnrolmentPath = z.object({
-  external_completion_id: z.uuid(),
+export const zChooseMyMoocfiCompletionCertificatePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zConfirmMyExternalCompletionEnrolmentResponse = zMyEnrolmentRoute
+export const zWithdrawMyMoocfiCompletionEnrolmentConfirmationPath = z.object({
+  moocfi_completion_id: z.uuid(),
+})
+
+export const zConfirmMyMoocfiCompletionEnrolmentPath = z.object({
+  moocfi_completion_id: z.uuid(),
+})
 
 export const zCreateMyMoocfiHandoffBody = zCreateMoocfiHandoffPayload
 
 export const zCreateMyMoocfiHandoffPath = z.object({
-  external_completion_id: z.uuid(),
+  moocfi_completion_id: z.uuid(),
 })
 
 /**

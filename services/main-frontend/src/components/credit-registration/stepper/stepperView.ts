@@ -5,7 +5,6 @@ import type {
 } from "@/generated/api/types.generated"
 
 import { OPEN_UNIVERSITY, UNIVERSITY_OF_HELSINKI } from "../constants"
-import type { CreditRegistrationSubject } from "../creditRegistrationSubject"
 import { wasListedByTheRegistry } from "../trackerView"
 
 /** Where the student's answers send them. */
@@ -218,7 +217,8 @@ export const isStepperPage = (value: string | null): value is StepperPage =>
 
 /** One Sisu course of a completion that earns several, with where its registration stands. */
 export interface StepperCourse {
-  subject: CreditRegistrationSubject
+  /** Distinct among the completion's courses. */
+  key: string
   name: string
   uhCourseCode: string
   ectsCredits: number
@@ -227,7 +227,7 @@ export interface StepperCourse {
   prerequisiteName: string | null
   /** `null` before the pipeline has created a ledger row for the course. */
   registration: MyCreditRegistration | null
-  /** The course's own copy of the answers: answers are saved to every course that can change. */
+  /** The course's own copy of the answers: a save goes to every course that can still change. */
   enrolmentRoute: MyEnrolmentRoute | null
 }
 

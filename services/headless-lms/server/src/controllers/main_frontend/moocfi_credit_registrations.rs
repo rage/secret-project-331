@@ -6,7 +6,7 @@ read from mooc.fi on every load. Per-registration detail is behind the routes ke
 completion's `external_completion_id`, which only completions courses registers have.
 */
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap, HashSet, hash_map::Entry};
 
 use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::{
@@ -59,6 +59,9 @@ pub struct MoocfiCompletionRegistration {
     /// Empty when the tier earns none. A code the tier no longer earns, or one since deleted, is
     /// listed while it has a ledger row, so credits already registered do not vanish.
     pub credit_units: Vec<MoocfiCreditUnitRegistration>,
+    /// Where the completion as a whole stands: that of its first code courses registers that is not
+    /// registered yet, else of its first. `None` until such a code has a ledger row.
+    pub student_facing_status: Option<StudentFacingCreditRegistrationStatus>,
     /// Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
     /// answer is unknown: its certificate page copes with a course that has none.
     pub offers_certificate: bool,
@@ -76,6 +79,8 @@ pub struct MoocfiCreditUnitRegistration {
     /// The live ledger row, once the pipeline has created one.
     pub credit_registration_id: Option<Uuid>,
     pub student_facing_status: Option<StudentFacingCreditRegistrationStatus>,
+    /// The name of the code that must be registered before this one is sent to Sisu.
+    pub prerequisite_name: Option<String>,
 }
 
 /// Why a completion is or is not registered under a code through courses.
@@ -108,8 +113,6 @@ pub struct MoocfiCreditUnit {
     pub ects_credits: f32,
     /// Where an Open University student enrols.
     pub enrolment_link: Option<String>,
-    /// A code of the same completion that must be registered before this one is sent to Sisu.
-    pub prerequisite_code_id: Option<Uuid>,
 }
 
 impl From<&ExternalCreditTargetCode> for MoocfiCreditUnit {
@@ -120,7 +123,6 @@ impl From<&ExternalCreditTargetCode> for MoocfiCreditUnit {
             uh_course_code: code.uh_course_code.clone(),
             ects_credits: code.ects_credits,
             enrolment_link: code.enrolment_link.clone(),
-            prerequisite_code_id: code.prerequisite_code_id,
         }
     }
 }
@@ -276,6 +278,10 @@ pub async fn get_my_moocfi_credit_registrations(
         &registered_code_ids,
     )
     .await?;
+    let code_names: HashMap<Uuid, &str> = codes
+        .iter()
+        .map(|code| (code.id, code.name.as_str()))
+        .collect();
     let registered_equivalents = external_completions::get_registered_equivalents(
         &mut conn,
         &stored.iter().map(|row| row.id).collect::<Vec<_>>(),
@@ -378,12 +384,17 @@ pub async fn get_my_moocfi_credit_registrations(
                 credit_registration_id: registration_state
                     .map(|state| state.credit_registration_id),
                 student_facing_status,
+                prerequisite_name: code
+                    .prerequisite_code_id
+                    .and_then(|id| code_names.get(&id))
+                    .map(|name| name.to_string()),
             });
         }
         completions.push(MoocfiCompletionRegistration {
             moocfi_completion_id,
             completion_date,
             tier,
+            student_facing_status: completion_status(&credit_units),
             credit_units,
             offers_certificate,
             credit_justification: justifications.remove(&moocfi_completion_id),
@@ -499,6 +510,79 @@ enum Lookup<'a> {
     NothingToLookUp,
     /// mooc.fi did not answer, or delegation is not configured.
     Unavailable,
+}
+
+/// See [`MoocfiCompletionRegistration::student_facing_status`].
+fn completion_status(
+    credit_units: &[MoocfiCreditUnitRegistration],
+) -> Option<StudentFacingCreditRegistrationStatus> {
+    let registering: Vec<StudentFacingCreditRegistrationStatus> = credit_units
+        .iter()
+        .filter(|unit| unit.status == MoocfiCompletionStatus::RegisteringOnCourses)
+        .filter_map(|unit| unit.student_facing_status)
+        .collect();
+    registering
+        .iter()
+        .find(|status| **status != StudentFacingCreditRegistrationStatus::Registered)
+        .or(registering.first())
+        .copied()
+}
+
+/// The caller's rows of one mooc.fi completion, one per code, lowest minimum tier first. Someone
+/// else's completion is a not-found.
+pub(crate) async fn my_moocfi_completion_rows(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_completion_id: Uuid,
+) -> Result<Vec<ExternalCompletion>, ControllerError> {
+    let rows = external_completions::get_by_user_and_moocfi_completion_id(
+        conn,
+        user_id,
+        moocfi_completion_id,
+    )
+    .await?;
+    if rows.is_empty() {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
+    Ok(rows)
+}
+
+/// [`my_moocfi_completion_rows`] that courses registers, the ones the registration page lists as
+/// [`MoocfiCompletionStatus::RegisteringOnCourses`] whether or not the target is paused.
+pub(crate) async fn my_registering_moocfi_rows(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    moocfi_completion_id: Uuid,
+) -> Result<Vec<ExternalCompletion>, ControllerError> {
+    let rows = my_moocfi_completion_rows(conn, user_id, moocfi_completion_id).await?;
+    let mut targets: HashMap<Uuid, ExternalCreditTarget> = HashMap::new();
+    for row in &rows {
+        if let Entry::Vacant(entry) = targets.entry(row.external_credit_target_id) {
+            entry.insert(
+                external_credit_targets::get_by_id(conn, row.external_credit_target_id).await?,
+            );
+        }
+    }
+    let registered_equivalents = external_completions::get_registered_equivalents(
+        conn,
+        &rows.iter().map(|row| row.id).collect::<Vec<_>>(),
+    )
+    .await?;
+    let registering: Vec<ExternalCompletion> = rows
+        .into_iter()
+        .filter(|row| {
+            targets
+                .get(&row.external_credit_target_id)
+                .is_some_and(|target| {
+                    stored_status(row, target, registered_equivalents.contains_key(&row.id))
+                        == MoocfiCompletionStatus::RegisteringOnCourses
+                })
+        })
+        .collect();
+    if registering.is_empty() {
+        return Err(controller_err!(NotFound, "Not found.".to_string()));
+    }
+    Ok(registering)
 }
 
 /// Mirrors the order in which the subjects view withdraws a stored row.

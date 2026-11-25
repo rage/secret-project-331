@@ -6396,6 +6396,7 @@ export type MoocfiCompletionRegistration = {
    * answer is unknown: its certificate page copes with a course that has none.
    */
   offers_certificate: boolean
+  student_facing_status?: StudentFacingCreditRegistrationStatus | null
   tier?: number | null
 }
 
@@ -6464,10 +6465,6 @@ export type MoocfiCreditUnit = {
    * The name students see for these credits.
    */
   name: string
-  /**
-   * A code of the same completion that must be registered before this one is sent to Sisu.
-   */
-  prerequisite_code_id?: string | null
   uh_course_code: string
 }
 
@@ -6484,6 +6481,10 @@ export type MoocfiCreditUnitRegistration = {
    * Set once courses has taken the completion up under this code.
    */
   external_completion_id?: string | null
+  /**
+   * The name of the code that must be registered before this one is sent to Sisu.
+   */
+  prerequisite_name?: string | null
   status: MoocfiCompletionStatus
   student_facing_status?: StudentFacingCreditRegistrationStatus | null
 }
@@ -6635,6 +6636,41 @@ export type MyEnrolmentRoute = {
    * The course module completion or mooc.fi completion the answer is for.
    */
   subject_id: string
+}
+
+/**
+ * One course code of the caller's mooc.fi completion.
+ */
+export type MyMoocfiCodeRegistration = {
+  /**
+   * The code's own copy of the answers; a write goes to every code whose answers can still
+   * change.
+   */
+  enrolment_route: MyEnrolmentRoute
+  external_completion_id: string
+  registration?: MyCreditRegistration | null
+}
+
+/**
+ * The caller's registration of one mooc.fi completion under every course code it registers
+ * under, which the registration page reads as one.
+ */
+export type MyMoocfiCompletionRegistration = {
+  /**
+   * One per code the completion registers under, lowest minimum tier first.
+   */
+  codes: Array<MyMoocfiCodeRegistration>
+  /**
+   * The replaced attempts under every code.
+   */
+  earlier_attempts: Array<MyCreditRegistration>
+  /**
+   * The answers the steps show: the first code's whose answers can still change, else the first
+   * code's.
+   */
+  enrolment_route: MyEnrolmentRoute
+  moocfi_completion_id: string
+  registration?: MyCreditRegistration | null
 }
 
 export type MyStudies = {
@@ -16434,225 +16470,230 @@ export type ConfirmMyEnrolmentResponses = {
 export type ConfirmMyEnrolmentResponse =
   ConfirmMyEnrolmentResponses[keyof ConfirmMyEnrolmentResponses]
 
-export type GetMyCreditRegistrationForExternalCompletionData = {
+export type GetMyMoocfiCompletionRegistrationData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}"
 }
 
-export type GetMyCreditRegistrationForExternalCompletionResponses = {
+export type GetMyMoocfiCompletionRegistrationErrors = {
   /**
-   * The caller's registration for the mooc.fi completion
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyCreditRegistrationForSubject | null
+  404: unknown
 }
 
-export type GetMyCreditRegistrationForExternalCompletionResponse =
-  GetMyCreditRegistrationForExternalCompletionResponses[keyof GetMyCreditRegistrationForExternalCompletionResponses]
+export type GetMyMoocfiCompletionRegistrationResponses = {
+  /**
+   * The caller's registration of the mooc.fi completion
+   */
+  200: MyMoocfiCompletionRegistration
+}
 
-export type SetMyExternalCompletionCreditJustificationData = {
+export type GetMyMoocfiCompletionRegistrationResponse =
+  GetMyMoocfiCompletionRegistrationResponses[keyof GetMyMoocfiCompletionRegistrationResponses]
+
+export type SetMyMoocfiCompletionCreditJustificationData = {
   body: SetCreditJustificationPayload
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/credit-justification"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/credit-justification"
 }
 
-export type SetMyExternalCompletionCreditJustificationErrors = {
+export type SetMyMoocfiCompletionCreditJustificationErrors = {
   /**
    * No such mooc.fi completion of the caller's
    */
   404: unknown
 }
 
-export type SetMyExternalCompletionCreditJustificationResponses = {
+export type SetMyMoocfiCompletionCreditJustificationResponses = {
   /**
    * The stored answer
    */
   200: MyCreditJustification
 }
 
-export type SetMyExternalCompletionCreditJustificationResponse =
-  SetMyExternalCompletionCreditJustificationResponses[keyof SetMyExternalCompletionCreditJustificationResponses]
+export type SetMyMoocfiCompletionCreditJustificationResponse =
+  SetMyMoocfiCompletionCreditJustificationResponses[keyof SetMyMoocfiCompletionCreditJustificationResponses]
 
-export type RecordMyExternalCompletionEnrolmentPageVisitData = {
+export type RecordMyMoocfiCompletionEnrolmentPageVisitData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-page-visit"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-page-visit"
 }
 
-export type RecordMyExternalCompletionEnrolmentPageVisitErrors = {
+export type RecordMyMoocfiCompletionEnrolmentPageVisitErrors = {
   /**
-   * No such mooc.fi completion of the caller's
+   * No mooc.fi completion of the caller's that courses registers
    */
   404: unknown
 }
 
-export type RecordMyExternalCompletionEnrolmentPageVisitResponses = {
+export type RecordMyMoocfiCompletionEnrolmentPageVisitResponses = {
   /**
    * The visit is recorded
    */
   200: unknown
 }
 
-export type GetMyExternalCompletionEnrolmentRouteData = {
-  body?: never
-  path: {
-    /**
-     * External completion id
-     */
-    external_completion_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
-}
-
-export type GetMyExternalCompletionEnrolmentRouteResponses = {
-  /**
-   * The caller's answer for the mooc.fi completion
-   */
-  200: MyEnrolmentRoute
-}
-
-export type GetMyExternalCompletionEnrolmentRouteResponse =
-  GetMyExternalCompletionEnrolmentRouteResponses[keyof GetMyExternalCompletionEnrolmentRouteResponses]
-
-export type SetMyExternalCompletionEnrolmentRouteData = {
+export type SetMyMoocfiCompletionEnrolmentRouteData = {
   body: SetEnrolmentRoutePayload
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route"
 }
 
-export type SetMyExternalCompletionEnrolmentRouteResponses = {
+export type SetMyMoocfiCompletionEnrolmentRouteErrors = {
   /**
-   * The stored answer
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyEnrolmentRoute
+  404: unknown
 }
 
-export type SetMyExternalCompletionEnrolmentRouteResponse =
-  SetMyExternalCompletionEnrolmentRouteResponses[keyof SetMyExternalCompletionEnrolmentRouteResponses]
+export type SetMyMoocfiCompletionEnrolmentRouteResponses = {
+  /**
+   * The answers are stored
+   */
+  200: unknown
+}
 
-export type WithdrawMyExternalCompletionCertificateChoiceData = {
+export type WithdrawMyMoocfiCompletionCertificateChoiceData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/certificate-choice"
 }
 
-export type WithdrawMyExternalCompletionCertificateChoiceResponses = {
+export type WithdrawMyMoocfiCompletionCertificateChoiceErrors = {
   /**
-   * The stored answer
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyEnrolmentRoute
+  404: unknown
 }
 
-export type WithdrawMyExternalCompletionCertificateChoiceResponse =
-  WithdrawMyExternalCompletionCertificateChoiceResponses[keyof WithdrawMyExternalCompletionCertificateChoiceResponses]
+export type WithdrawMyMoocfiCompletionCertificateChoiceResponses = {
+  /**
+   * The answer is stored
+   */
+  200: unknown
+}
 
-export type ChooseMyExternalCompletionCertificateData = {
+export type ChooseMyMoocfiCompletionCertificateData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/certificate-choice"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/certificate-choice"
 }
 
-export type ChooseMyExternalCompletionCertificateResponses = {
+export type ChooseMyMoocfiCompletionCertificateErrors = {
   /**
-   * The stored answer
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyEnrolmentRoute
+  404: unknown
 }
 
-export type ChooseMyExternalCompletionCertificateResponse =
-  ChooseMyExternalCompletionCertificateResponses[keyof ChooseMyExternalCompletionCertificateResponses]
+export type ChooseMyMoocfiCompletionCertificateResponses = {
+  /**
+   * The answer is stored
+   */
+  200: unknown
+}
 
-export type WithdrawMyExternalCompletionEnrolmentConfirmationData = {
+export type WithdrawMyMoocfiCompletionEnrolmentConfirmationData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/confirm"
 }
 
-export type WithdrawMyExternalCompletionEnrolmentConfirmationResponses = {
+export type WithdrawMyMoocfiCompletionEnrolmentConfirmationErrors = {
   /**
-   * The stored answer
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyEnrolmentRoute
+  404: unknown
 }
 
-export type WithdrawMyExternalCompletionEnrolmentConfirmationResponse =
-  WithdrawMyExternalCompletionEnrolmentConfirmationResponses[keyof WithdrawMyExternalCompletionEnrolmentConfirmationResponses]
+export type WithdrawMyMoocfiCompletionEnrolmentConfirmationResponses = {
+  /**
+   * The answer is stored
+   */
+  200: unknown
+}
 
-export type ConfirmMyExternalCompletionEnrolmentData = {
+export type ConfirmMyMoocfiCompletionEnrolmentData = {
   body?: never
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/enrolment-route/confirm"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/enrolment-route/confirm"
 }
 
-export type ConfirmMyExternalCompletionEnrolmentResponses = {
+export type ConfirmMyMoocfiCompletionEnrolmentErrors = {
   /**
-   * The stored answer
+   * No mooc.fi completion of the caller's that courses registers
    */
-  200: MyEnrolmentRoute
+  404: unknown
 }
 
-export type ConfirmMyExternalCompletionEnrolmentResponse =
-  ConfirmMyExternalCompletionEnrolmentResponses[keyof ConfirmMyExternalCompletionEnrolmentResponses]
+export type ConfirmMyMoocfiCompletionEnrolmentResponses = {
+  /**
+   * The answer is stored
+   */
+  200: unknown
+}
 
 export type CreateMyMoocfiHandoffData = {
   body: CreateMoocfiHandoffPayload
   path: {
     /**
-     * External completion id
+     * mooc.fi completion id
      */
-    external_completion_id: string
+    moocfi_completion_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/credit-registrations/my/by-external-completion/{external_completion_id}/moocfi-handoff"
+  url: "/api/v0/main-frontend/credit-registrations/my/by-moocfi-completion/{moocfi_completion_id}/moocfi-handoff"
 }
 
 export type CreateMyMoocfiHandoffErrors = {

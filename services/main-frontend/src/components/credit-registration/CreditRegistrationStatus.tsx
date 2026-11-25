@@ -1,6 +1,6 @@
 "use client"
 
-import { useQueries, useQuery } from "@tanstack/react-query"
+import { queryOptions, useQueries, useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -87,6 +87,23 @@ const registrationRefetchInterval = (
     : MOVING_REFETCH_INTERVAL_MS
 }
 
+/** The student's registration for `subject`, polled while it moves and on returning to the tab. */
+const polledRegistrationOptions = (
+  subject: CreditRegistrationSubject,
+  isRegistrationComing: boolean,
+) =>
+  queryOptions({
+    ...myRegistrationForSubjectOptions(subject),
+    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
+    refetchOnWindowFocus: true,
+    refetchInterval: (latestQuery) =>
+      registrationRefetchInterval(isRegistrationComing, latestQuery.state),
+  })
+
+/** The student's answers for `subject`, refetched on returning to the tab. */
+const enrolmentRouteOptions = (subject: CreditRegistrationSubject) =>
+  queryOptions({ ...myEnrolmentRouteOptions(subject), refetchOnWindowFocus: true })
+
 /** The stepper for one completion, with its earlier attempts; the page around it is the caller's. */
 const CreditRegistrationStatus: React.FC<CreditRegistrationStatusProps> = (props) =>
   props.courses && props.courses.length > 1 ? (
@@ -107,17 +124,8 @@ const OneCourseStatus: React.FC<CreditRegistrationStatusProps> = ({
   signedInEmail,
 }) => {
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
-  const query = useQuery({
-    ...myRegistrationForSubjectOptions(subject),
-    // Returning to the tab, say after enrolling elsewhere, shows where things stand now.
-    refetchOnWindowFocus: true,
-    refetchInterval: (latestQuery) =>
-      registrationRefetchInterval(isRegistrationComing, latestQuery.state),
-  })
-  const routeQuery = useQuery({
-    ...myEnrolmentRouteOptions(subject),
-    refetchOnWindowFocus: true,
-  })
+  const query = useQuery(polledRegistrationOptions(subject, isRegistrationComing))
+  const routeQuery = useQuery(enrolmentRouteOptions(subject))
   const numberQuery = useQuery({
     ...getMyVerifiedStudentNumberOptions(),
     refetchOnWindowFocus: true,
@@ -178,19 +186,12 @@ const SeveralCoursesStatus: React.FC<
 }) => {
   const isRegistrationComing = statusBeforeRegistration !== "not_registering"
   const registrationQueries = useQueries({
-    queries: courses.map((course) => ({
-      ...myRegistrationForSubjectOptions(course.subject),
-      refetchOnWindowFocus: true,
-      refetchInterval: (latestQuery: {
-        state: { data: MyCreditRegistrationForSubject | null | undefined; status: string }
-      }) => registrationRefetchInterval(isRegistrationComing, latestQuery.state),
-    })),
+    queries: courses.map((course) =>
+      polledRegistrationOptions(course.subject, isRegistrationComing),
+    ),
   })
   const routeQueries = useQueries({
-    queries: courses.map((course) => ({
-      ...myEnrolmentRouteOptions(course.subject),
-      refetchOnWindowFocus: true,
-    })),
+    queries: courses.map((course) => enrolmentRouteOptions(course.subject)),
   })
   const numberQuery = useQuery({
     ...getMyVerifiedStudentNumberOptions(),

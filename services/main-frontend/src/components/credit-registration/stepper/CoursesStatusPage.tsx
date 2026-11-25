@@ -5,15 +5,15 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import type { StudentFacingCreditRegistrationStatus } from "@/generated/api/types.generated"
-import { Infobox, Link, RelativeTime, Spinner, TransLink } from "@/shared-module/components"
+import { Infobox, Link, RelativeTime, Spinner } from "@/shared-module/components"
 import { CheckIcon } from "@/shared-module/components/components/primitives/CheckIcon"
 import { httpsUrlOrNull } from "@/utils/httpsUrl"
+import { formatConjunctionList } from "@/utils/listFormat"
 
 import {
   BUTTON_PRIMARY,
   CREDIT_REGISTRATION_NS,
   ICON_AT_END,
-  openUniversityEnrolmentInfoUrl,
   TIME_DATE,
   TIME_IN_TITLE,
   TONE,
@@ -22,6 +22,7 @@ import { registrationExplanation } from "../creditRegistrationCopy"
 import { NotificationEmailLine } from "../EmailStatusLine"
 import { SisuCourseCode } from "../SisuCourseCode"
 import { StudentRegistrationExplanation } from "../StudentRegistrationExplanation"
+import { OpenUniversityIdentificationCaption } from "./EnrolmentPage"
 import {
   LastChecked,
   omaOpintopolkuLink,
@@ -46,7 +47,12 @@ import {
   statusMarkWaitingCss,
   underCourseMarkCss,
 } from "./stepperStyles"
-import type { CourseStage, StepperCourse } from "./stepperView"
+import {
+  type CourseStage,
+  isEnrollingStage,
+  isRegisteringStage,
+  type StepperCourse,
+} from "./stepperView"
 
 const ICON_SIZE = 22
 const COURSE_ICON_SIZE = 15
@@ -55,9 +61,6 @@ const EXTERNAL_ICON_SIZE = 16
 const NEEDS_ENROLMENT: CourseStage = "needs-enrolment"
 const AWAITING_ENROLMENT: CourseStage = "awaiting-enrolment"
 const NOT_REGISTERING: StudentFacingCreditRegistrationStatus = "not_registering"
-
-/** The stages in which the course's enrolment is still to be seen. */
-const ENROLLING_STAGES: readonly CourseStage[] = ["needs-enrolment", "awaiting-enrolment"]
 
 export interface CoursesStatusPageProps {
   /** `waiting` while no course has moved on and the student said they enrolled. */
@@ -84,9 +87,7 @@ export const CoursesStatusPage: React.FC<CoursesStatusPageProps> = ({
   children,
 }) => {
   const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
-  const listNames = (names: string[]) =>
-    // oxlint-disable-next-line i18next/no-literal-string
-    new Intl.ListFormat(i18n.language, { type: "conjunction" }).format(names)
+  const listNames = (names: string[]) => formatConjunctionList(i18n.language, names)
   const rows = courses.map((course, index) => ({
     course,
     stage: stages[index] ?? NEEDS_ENROLMENT,
@@ -131,13 +132,11 @@ export const CoursesStatusPage: React.FC<CoursesStatusPageProps> = ({
     )
   }
 
-  const enrolling = rows.filter(({ stage }) => ENROLLING_STAGES.includes(stage))
+  const enrolling = rows.filter(({ stage }) => isEnrollingStage(stage))
   const registered = rows.filter(({ stage }) => stage === "registered")
   const isAllRegistered = registered.length === rows.length
   const stopped = rows.find(({ stage }) => stage === "stopped")
-  const isRegistering = rows.some(
-    ({ stage }) => stage === "registering" || stage === "waiting-for-prerequisite",
-  )
+  const registering = rows.filter(({ stage }) => isRegisteringStage(stage))
   // A course with no answers of its own was added after the student went through the steps: the
   // completion's tier went up.
   const isNewlyEarned =
@@ -195,16 +194,9 @@ export const CoursesStatusPage: React.FC<CoursesStatusPageProps> = ({
             </Infobox>
           ) : (
             <p>
-              {isRegistering && studentNumber
+              {registering.length > 0 && studentNumber
                 ? `${t("credit-registration-courses-registering-others", {
-                    courses: listNames(
-                      rows
-                        .filter(
-                          ({ stage }) =>
-                            stage === "registering" || stage === "waiting-for-prerequisite",
-                        )
-                        .map(({ course }) => course.name),
-                    ),
+                    courses: listNames(registering.map(({ course }) => course.name)),
                     studentNumber,
                   })} `
                 : null}
@@ -396,7 +388,7 @@ const EnrolToContinue: React.FC<{
   isDegreeStudent: boolean
   showsIdentification: boolean
 }> = ({ course, isDegreeStudent, showsIdentification }) => {
-  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const enrolmentLink = httpsUrlOrNull(course.enrolmentLink)
   const courseCode = { courseCode: <SisuCourseCode code={course.uhCourseCode} /> }
   return (
@@ -428,23 +420,7 @@ const EnrolToContinue: React.FC<{
           </Link>
         </div>
       ) : null}
-      {!isDegreeStudent && showsIdentification ? (
-        <p className={captionCss}>
-          <Trans
-            t={t}
-            i18nKey="credit-registration-open-university-identification-caption"
-            components={{
-              openUniversityInfoLink: (
-                <TransLink
-                  href={openUniversityEnrolmentInfoUrl(i18n.language)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                />
-              ),
-            }}
-          />
-        </p>
-      ) : null}
+      {!isDegreeStudent && showsIdentification ? <OpenUniversityIdentificationCaption /> : null}
       <p className={captionCss}>
         {isDegreeStudent
           ? t("credit-registration-course-already-enrolled-sisu")

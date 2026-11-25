@@ -30,6 +30,7 @@ import {
 } from "@/shared-module/components"
 
 import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
+import { translateKey, widenedLookup } from "../labelFrom"
 import { dialogFormCss } from "../styles"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
@@ -47,10 +48,16 @@ const LOCAL_MINUTE_LENGTH = 16
 /** The database's own check on `external_credit_targets.language_code`. */
 const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/
 
-const COURSE_CODE_TAKEN = "external_credit_target_course_code_taken"
 const MOOCFI_COURSE_FIXED = "external_credit_target_moocfi_course_fixed"
-const PREREQUISITES_CIRCULAR = "external_credit_target_code_prerequisites_circular"
-const PREREQUISITE_TIER_ABOVE = "external_credit_target_code_prerequisite_tier_above"
+
+/** The form-wide message for each refusal the backend names by message key. */
+const ROOT_ERROR_KEYS = {
+  external_credit_target_course_code_taken: "credit-registration-admin-moocfi-course-code-taken",
+  external_credit_target_code_prerequisites_circular:
+    "credit-registration-admin-prerequisites-circular",
+  external_credit_target_code_prerequisite_tier_above:
+    "credit-registration-admin-prerequisite-tier-above",
+} as const
 
 const toCutoffLocal = (at: Date): string =>
   toCalendarDateTime(fromDate(at, CUTOFF_TIME_ZONE)).toString().slice(0, LOCAL_MINUTE_LENGTH)
@@ -146,22 +153,13 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
       onSettled: () => void invalidateCourseStats(),
       onError: (error) => {
         const messageKey = isAppApiError(error) ? error.messageKey : null
+        const rootErrorKey = messageKey ? widenedLookup(ROOT_ERROR_KEYS, messageKey) : undefined
         if (messageKey === MOOCFI_COURSE_FIXED) {
           setError("moocfi_course_id", {
             message: t("credit-registration-admin-moocfi-course-id-fixed"),
           })
-        } else if (messageKey === COURSE_CODE_TAKEN) {
-          setError("root", {
-            message: t("credit-registration-admin-moocfi-course-code-taken"),
-          })
-        } else if (messageKey === PREREQUISITES_CIRCULAR) {
-          setError("root", {
-            message: t("credit-registration-admin-prerequisites-circular"),
-          })
-        } else if (messageKey === PREREQUISITE_TIER_ABOVE) {
-          setError("root", {
-            message: t("credit-registration-admin-prerequisite-tier-above"),
-          })
+        } else if (rootErrorKey) {
+          setError("root", { message: translateKey(t, rootErrorKey) })
         } else {
           setError("root", {
             message: isAppApiError(error) ? (error.userMessage ?? error.message) : String(error),

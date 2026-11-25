@@ -6,6 +6,7 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { dateToString } from "@/shared-module/common/utils/time"
+import { formatConjunctionList } from "@/utils/listFormat"
 
 import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL, SUPPORT_MAIL_INLINE } from "../constants"
 import { SisuCourseCode } from "../SisuCourseCode"
@@ -217,12 +218,7 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
             i18nKey="credit-registration-linking-wrong-course-several"
             components={{
               courseCodes: (
-                <SisuCourseCode
-                  // oxlint-disable-next-line i18next/no-literal-string
-                  code={new Intl.ListFormat(i18n.language, { type: "conjunction" }).format(
-                    courseCodes,
-                  )}
-                />
+                <SisuCourseCode code={formatConjunctionList(i18n.language, courseCodes)} />
               ),
             }}
           />

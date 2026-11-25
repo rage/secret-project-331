@@ -36,7 +36,7 @@ import {
   underNumberedHeadingCss,
   wideActionCss,
 } from "./stepperStyles"
-import type { StepperCourse } from "./stepperView"
+import { laterCoursesOf, type StepperCourse } from "./stepperView"
 
 const EXTERNAL_ICON_SIZE = 16
 
@@ -81,6 +81,28 @@ const NumberedHeading: React.FC<{
     {children}
   </h2>
 )
+
+/** What an Open University student needs to know about identifying themselves when enrolling. */
+export const OpenUniversityIdentificationCaption: React.FC = () => {
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
+  return (
+    <p className={captionCss}>
+      <Trans
+        t={t}
+        i18nKey="credit-registration-open-university-identification-caption"
+        components={{
+          openUniversityInfoLink: (
+            <TransLink
+              href={openUniversityEnrolmentInfoUrl(i18n.language)}
+              target="_blank"
+              rel="noopener noreferrer"
+            />
+          ),
+        }}
+      />
+    </p>
+  )
+}
 
 export interface EnrolmentPageProps {
   isSisu: boolean
@@ -176,28 +198,7 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
       <p>{t("credit-registration-no-enrolment-link-available")}</p>
     )
 
-  const identificationCaption = (
-    <p className={captionCss}>
-      <Trans
-        t={t}
-        i18nKey="credit-registration-open-university-identification-caption"
-        components={{
-          openUniversityInfoLink: (
-            <TransLink
-              href={openUniversityEnrolmentInfoUrl(i18n.language)}
-              target="_blank"
-              rel="noopener noreferrer"
-            />
-          ),
-        }}
-      />
-    </p>
-  )
-
-  const laterCourses = (courses ?? []).flatMap((course) =>
-    course.prerequisiteName ? [course] : [],
-  )
-  const laterCaptions = laterCourses.map((course) => (
+  const laterCaptions = laterCoursesOf(courses ?? []).map((course) => (
     <p key={course.uhCourseCode} className={captionCss}>
       {t("credit-registration-courses-registered-after", {
         course: course.name,
@@ -263,7 +264,7 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
                 </div>
               ))}
               {laterCaptions}
-              {identificationCaption}
+              <OpenUniversityIdentificationCaption />
             </>
           )}
         </div>
@@ -361,7 +362,7 @@ export const EnrolmentPage: React.FC<EnrolmentPageProps> = ({
               </p>
             ) : null}
             {enrolButton(enrolmentLink, t("credit-registration-action-enrol"))}
-            {identificationCaption}
+            <OpenUniversityIdentificationCaption />
           </div>
         </>
       )}

@@ -242,6 +242,7 @@ export type CourseStage =
   /** Failed, on hold or not registering: told in the status's own words. */
   | "stopped"
 
+/** Where `course` stands, read the way the single-course stepper reads one registration. */
 export const courseStageOf = (
   course: StepperCourse,
   shared: Omit<StepperInput, "registration" | "enrolmentRoute">,
@@ -278,14 +279,27 @@ export const courseStageOf = (
 export const coursesStatusPageOf = (
   stages: readonly CourseStage[],
 ): "waiting" | "courses" | null => {
-  const hasMovedOn = stages.some(
-    (stage) => stage !== "needs-enrolment" && stage !== "awaiting-enrolment",
-  )
-  if (hasMovedOn) {
+  if (stages.some((stage) => !isEnrollingStage(stage))) {
     return "courses"
   }
   return stages.includes("awaiting-enrolment") ? "waiting" : null
 }
+
+/** Whether the course's enrolment is still to be seen. */
+export const isEnrollingStage = (stage: CourseStage): boolean =>
+  stage === "needs-enrolment" || stage === "awaiting-enrolment"
+
+/** Whether the course is on its way to Sisu, a wait for its prerequisite included. */
+export const isRegisteringStage = (stage: CourseStage): boolean =>
+  stage === "registering" || stage === "waiting-for-prerequisite"
+
+/** The courses that wait for another course of the completion before they go to Sisu. */
+export const laterCoursesOf = <Course extends { prerequisiteName: string | null }>(
+  courses: readonly Course[],
+): (Course & { prerequisiteName: string })[] =>
+  courses.flatMap((course) =>
+    course.prerequisiteName ? [{ ...course, prerequisiteName: course.prerequisiteName }] : [],
+  )
 
 /** A course of a completion that earns several, as configured, before its registration is read. */
 export type CreditCourse = Omit<StepperCourse, "registration" | "enrolmentRoute">

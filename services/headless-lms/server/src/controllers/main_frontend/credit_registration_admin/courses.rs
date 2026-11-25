@@ -742,7 +742,7 @@ pub async fn admin_update_external_credit_target(
     let configuration = target_configuration(&payload, Some(&before))?;
     // Moving the cutoff of a target with registrations is a hand-run procedure on both platforms.
     if configuration.delegated_at != before.delegated_at
-        && external_credit_target_codes::has_credit_registrations(&mut tx, id).await?
+        && external_credit_targets::has_credit_registrations(&mut tx, id).await?
     {
         return Err(controller_err!(
             BadRequest,
@@ -751,7 +751,7 @@ pub async fn admin_update_external_credit_target(
     }
     // Its completions and their ledger rows were read from the old course.
     if configuration.moocfi_course_id != before.moocfi_course_id
-        && external_credit_target_codes::has_completions(&mut tx, id, None).await?
+        && external_credit_targets::has_completions(&mut tx, id).await?
     {
         return Err(bad_request_with_reason(
             BadRequestReason::ExternalCreditTargetMoocfiCourseFixed,
@@ -1145,13 +1145,6 @@ fn require_valid_prerequisites(
 fn code_configuration(
     payload: &AdminExternalCreditTargetCodePayload,
 ) -> Result<ExternalCreditTargetCodeConfiguration, ControllerError> {
-    let required = |value: &str, field: &str| -> Result<String, ControllerError> {
-        let trimmed = value.trim();
-        if trimmed.is_empty() {
-            return Err(controller_err!(BadRequest, format!("{field} is required.")));
-        }
-        Ok(trimmed.to_string())
-    };
     if !(payload.ects_credits.is_finite() && payload.ects_credits > 0.0) {
         return Err(controller_err!(
             BadRequest,
@@ -1164,7 +1157,7 @@ fn code_configuration(
             "The minimum tier cannot be negative.".to_string()
         ));
     }
-    let uh_course_code = required(&payload.uh_course_code, "The course code")?;
+    let uh_course_code = required_text(&payload.uh_course_code, "The course code")?;
     let mut equivalent_course_codes: Vec<String> = Vec::new();
     for equivalent in &payload.equivalent_course_codes {
         let equivalent = equivalent.trim();
@@ -1179,7 +1172,7 @@ fn code_configuration(
         equivalent_course_codes.push(equivalent.to_string());
     }
     Ok(ExternalCreditTargetCodeConfiguration {
-        name: required(&payload.name, "The name")?,
+        name: required_text(&payload.name, "The name")?,
         uh_course_code,
         minimum_tier: payload.minimum_tier,
         ects_credits: payload.ects_credits,
@@ -1188,6 +1181,15 @@ fn code_configuration(
         prerequisite_code_id: payload.prerequisite_code_id,
         equivalent_course_codes,
     })
+}
+
+/// `value` trimmed; refused when blank, naming `field` in the error.
+fn required_text(value: &str, field: &str) -> Result<String, ControllerError> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return Err(controller_err!(BadRequest, format!("{field} is required.")));
+    }
+    Ok(trimmed.to_string())
 }
 
 /// The link trimmed, `None` when blank. Students open it as a link, where a `javascript:` URL
@@ -1211,21 +1213,14 @@ fn target_configuration(
     payload: &AdminExternalCreditTargetPayload,
     existing: Option<&ExternalCreditTarget>,
 ) -> Result<ExternalCreditTargetConfiguration, ControllerError> {
-    let required = |value: &str, field: &str| -> Result<String, ControllerError> {
-        let trimmed = value.trim();
-        if trimmed.is_empty() {
-            return Err(controller_err!(BadRequest, format!("{field} is required.")));
-        }
-        Ok(trimmed.to_string())
-    };
-    let language_code = required(&payload.language_code, "The language")?;
+    let language_code = required_text(&payload.language_code, "The language")?;
     if !is_ietf_language_code_like(&language_code) {
         return Err(controller_err!(
             BadRequest,
             "The language must be a language code such as fi or en-US.".to_string()
         ));
     }
-    let moocfi_course_slug = required(&payload.moocfi_course_slug, "The mooc.fi course slug")?;
+    let moocfi_course_slug = required_text(&payload.moocfi_course_slug, "The mooc.fi course slug")?;
     if !is_plain_slug(&moocfi_course_slug) {
         return Err(controller_err!(
             BadRequest,
@@ -1235,7 +1230,7 @@ fn target_configuration(
     Ok(ExternalCreditTargetConfiguration {
         moocfi_course_id: payload.moocfi_course_id,
         moocfi_course_slug,
-        name: required(&payload.name, "The name")?,
+        name: required_text(&payload.name, "The name")?,
         language_code,
         delegated_at: payload.delegated_at,
         enabled_at: payload.enabled.then(|| {

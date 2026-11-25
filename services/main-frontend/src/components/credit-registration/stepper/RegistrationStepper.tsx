@@ -47,8 +47,10 @@ import {
   courseStageOf,
   coursesStatusPageOf,
   detourRoute,
+  isEnrollingStage,
   isReachable,
   landingPage,
+  laterCoursesOf,
   PAGE,
   type StatusPage as StatusPageKind,
   type CourseStage,
@@ -385,11 +387,7 @@ export const RegistrationStepper: React.FC<RegistrationStepperProps> = ({
         page={faqPageOf(page, courseStages)}
         isSisu={isSisu}
         courseName={courseName}
-        laterCourses={(multiCourse ?? []).flatMap((course) =>
-          course.prerequisiteName
-            ? [{ name: course.name, prerequisiteName: course.prerequisiteName }]
-            : [],
-        )}
+        laterCourses={laterCoursesOf(multiCourse ?? [])}
       />
     </>
   )
@@ -424,8 +422,7 @@ const faqPageOf = (
   if (page !== "courses" || !stages) {
     return page
   }
-  const isEnrolling = stages.some(
-    (stage) => stage === "needs-enrolment" || stage === "awaiting-enrolment",
-  )
-  return isEnrolling ? FAQ_WHILE_ENROLLING : FAQ_WHILE_REGISTERING
+  return stages.some((stage) => isEnrollingStage(stage))
+    ? FAQ_WHILE_ENROLLING
+    : FAQ_WHILE_REGISTERING
 }

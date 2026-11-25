@@ -3,8 +3,6 @@ import { atom } from "jotai"
 import { updateBlockStatus } from "@/generated/api/sdk.generated"
 import { sendWithBeacon } from "@/shared-module/common/utils/sendWithBeacon"
 
-export const blockIntersectionObserverAtom = atom<IntersectionObserver | null>(null)
-
 interface ActiveBlock {
   pageId: string
   startedAt: number
@@ -30,6 +28,13 @@ export const SendBlockStatuses = async (
     keepalive,
   })
 }
+
+interface BlockTracker {
+  observer: IntersectionObserver
+  unregister: (clientId: string) => void
+}
+
+export const blockIntersectionObserverAtom = atom<BlockTracker | null>(null)
 
 blockIntersectionObserverAtom.onMount = (setAtom) => {
   const visibleBlocks = new Set<string>()
@@ -75,14 +80,44 @@ blockIntersectionObserverAtom.onMount = (setAtom) => {
     }
   }
 
+  const unregister = (clientId: string) => {
+    visibleBlocks.delete(clientId)
+    updateTime(clientId, true)
+  }
+
+  const requeueStatuses = (pageId: string, statuses: Record<string, BlockViewStatus>) => {
+    const pending = viewStatuses.get(pageId) ?? {}
+    for (const [clientId, status] of Object.entries(statuses)) {
+      const existing = pending[clientId]
+      if (existing) {
+        existing.read_units += status.read_units
+        existing.last_seen =
+          status.last_seen > existing.last_seen ? status.last_seen : existing.last_seen
+      } else {
+        pending[clientId] = status
+      }
+    }
+    viewStatuses.set(pageId, pending)
+  }
+
   const flushStatuses = async () => {
     activeBlocks.forEach((_value, clientId) => {
       updateTime(clientId)
     })
 
-    for (const [pageId, statuses] of viewStatuses) {
-      await SendBlockStatuses(pageId, statuses)
+    for (const pageId of viewStatuses.keys()) {
+      const statuses = viewStatuses.get(pageId)
+      if (!statuses) {
+        continue
+      }
       viewStatuses.delete(pageId)
+
+      try {
+        await SendBlockStatuses(pageId, statuses)
+      } catch (error) {
+        requeueStatuses(pageId, statuses)
+        throw error
+      }
     }
   }
 
@@ -91,22 +126,26 @@ blockIntersectionObserverAtom.onMount = (setAtom) => {
       updateTime(clientId, true)
     })
 
-    for (const [pageId, statuses] of viewStatuses) {
-      const body = JSON.stringify({
-        block_statuses: statuses,
-      })
-      const url = `http://project-331.local/api/v0/main-frontend/pages/${pageId}/update-block-status`
-      const sent = sendWithBeacon(url, body)
-
-      if (sent) {
-        viewStatuses.delete(pageId)
+    for (const pageId of viewStatuses.keys()) {
+      const statuses = viewStatuses.get(pageId)
+      if (!statuses) {
         continue
       }
 
-      SendBlockStatuses(pageId, statuses, true).then((success) => {
-        if (success) {
-          viewStatuses.delete(pageId)
-        }
+      viewStatuses.delete(pageId)
+
+      const body = JSON.stringify({
+        block_statuses: statuses,
+      })
+      const url = `/api/v0/main-frontend/pages/${pageId}/update-block-status`
+      const sent = sendWithBeacon(url, body)
+
+      if (sent) {
+        continue
+      }
+
+      SendBlockStatuses(pageId, statuses, true).catch(() => {
+        requeueStatuses(pageId, statuses)
       })
     }
   }
@@ -161,7 +200,7 @@ blockIntersectionObserverAtom.onMount = (setAtom) => {
   document.addEventListener("visibilitychange", handleVisibilityChange)
   window.addEventListener("pagehide", flushOnPageExit)
 
-  setAtom(observer)
+  setAtom({ observer, unregister })
 
   return () => {
     activeBlocks.forEach((_value, clientId) => {

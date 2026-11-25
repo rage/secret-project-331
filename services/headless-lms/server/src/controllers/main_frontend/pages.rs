@@ -384,7 +384,7 @@ async fn update_page_read_status(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
 
     let status = PageReadStatusUpdate {
         page_read: payload.page_read,
@@ -421,7 +421,7 @@ async fn update_block_status(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
 
-    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
+    let token = authorize(&mut conn, Act::View, Some(user.id), Res::Page(*page_id)).await?;
 
     let status = payload.0;
 

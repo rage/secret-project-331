@@ -7,34 +7,42 @@ import { blockIntersectionObserverAtom } from "@/state/blockIntersectionObserver
 import { currentPageIdAtom } from "@/state/course-material/selectors"
 
 export function useBlockIntersectionObserver() {
-  const observer = useAtomValue(blockIntersectionObserverAtom)
+  const tracker = useAtomValue(blockIntersectionObserverAtom)
   const pageId = useAtomValue(currentPageIdAtom)
 
   const targetRef = useRef<Element | null>(null)
 
   const ref = useCallback(
     (node: Element | null) => {
-      if (targetRef.current && observer) {
-        observer.unobserve(targetRef.current)
+      const previousNode = targetRef.current
+
+      if (previousNode) {
+        tracker?.unregister(previousNode.id)
+        tracker?.observer.unobserve(previousNode)
       }
+
       targetRef.current = node
-      if (observer && node && pageId) {
+
+      if (tracker && node && pageId) {
         node.setAttribute("data-page-id", pageId)
-        observer.observe(node)
+        tracker.observer.observe(node)
       }
     },
-    [observer, pageId],
+    [tracker, pageId],
   )
 
   useEffect(() => {
     const node = targetRef.current
-    if (!observer || !node) {
+
+    if (!tracker || !node) {
       return
     }
+
     return () => {
-      observer.unobserve(node)
+      tracker.unregister(node.id)
+      tracker.observer.unobserve(node)
     }
-  }, [observer])
+  }, [tracker])
 
   return ref
 }

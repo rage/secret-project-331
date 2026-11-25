@@ -4,7 +4,7 @@ import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
-  storageState: "src/states/admin@example.com.json",
+  storageState: "src/states/student1@example.com.json",
 })
 
 test("Can mark page as read", async ({ page }) => {
@@ -21,5 +21,5 @@ test("Can mark page as read", async ({ page }) => {
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Mark the page as read" }).click()
   })
-  await expect(page.getByRole("button", { name: "Mark the page as unread" })).toBeVisible
+  await expect(page.getByRole("button", { name: "Mark the page as unread" })).toBeVisible()
 })

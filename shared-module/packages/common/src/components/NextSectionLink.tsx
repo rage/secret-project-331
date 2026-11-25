@@ -28,7 +28,7 @@ export interface NextSectionLinkProps {
   previousTitle?: string
   chapterFrontPageURL?: string
   currentPageRead: boolean
-  onPageReadChange: (checked: boolean) => void
+  onPageReadChange: (checked: boolean) => Promise<void>
   isUpdatingPageReadStatus: boolean
 }
 
@@ -137,10 +137,14 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
         <Button
           variant="tertiary"
           icon={pageRead ? <StrikedBook /> : <OpenBook />}
-          onPress={() => {
+          onPress={async () => {
             const checked = !pageRead
             setPageRead(checked)
-            onPageReadChange(checked)
+            try {
+              await onPageReadChange(checked)
+            } catch {
+              setPageRead(currentPageRead)
+            }
           }}
           isLoading={isUpdatingPageReadStatus}
         >

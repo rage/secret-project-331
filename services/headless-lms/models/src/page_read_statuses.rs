@@ -98,6 +98,12 @@ pub async fn upsert_block_statuses(
     block_statuses: BlockStatusUpdate,
 ) -> ModelResult<PageReadStatus> {
     let blocks = serde_json::to_value(block_statuses.block_statuses)?;
+    if !blocks.is_object() {
+        return Err(model_err!(
+            Json,
+            format!("Input must be a valid JSON object.")
+        ));
+    }
     let res = sqlx::query_as!(
         PageReadStatus,
         r#"

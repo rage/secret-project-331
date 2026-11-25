@@ -8,8 +8,11 @@ CREATE TABLE page_read_statuses (
   page_read BOOLEAN NOT NULL DEFAULT FALSE,
   read_at TIMESTAMPTZ,
   block_statuses JSONB,
-  UNIQUE(user_id, page_id)
+  UNIQUE NULLS NOT DISTINCT(user_id, page_id)
 );
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON page_read_statuses FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 COMMENT ON TABLE page_read_statuses IS 'Page read status tells whether a student has read a page. This can be used to track a students progress and tell them where they left off.';
 COMMENT ON COLUMN page_read_statuses.id IS 'A unique, stable identifier for the record.';

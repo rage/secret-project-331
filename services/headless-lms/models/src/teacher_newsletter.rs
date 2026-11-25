@@ -135,3 +135,52 @@ WHERE course_id = ANY($1)
     .await?;
     Ok(res)
 }
+
+pub async fn save_teacher_newsletter_delivery(
+    conn: &mut PgConnection,
+    delivery_id: Uuid,
+    period_start: DateTime<Utc>,
+    period_end: DateTime<Utc>,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+INSERT INTO teacher_newsletter_delivery (
+    delivery_id,
+    period_start,
+    period_end
+  )
+VALUES ($1, $2, $3)
+        ",
+        delivery_id,
+        period_start,
+        period_end
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct TeacherNewsletterPeriod {
+    pub period_start: DateTime<Utc>,
+    pub period_end: DateTime<Utc>,
+}
+
+pub async fn get_teacher_newsletter_period_by_email_delivery_id(
+    conn: &mut PgConnection,
+    email_delivery_id: Uuid,
+) -> ModelResult<TeacherNewsletterPeriod> {
+    let res = sqlx::query_as!(
+        TeacherNewsletterPeriod,
+        "
+SELECT period_start,
+  period_end
+FROM teacher_newsletter_delivery
+WHERE delivery_id = $1
+        ",
+        email_delivery_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}

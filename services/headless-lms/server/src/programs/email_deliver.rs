@@ -2,7 +2,6 @@ use std::{error::Error as StdError, time::Duration};
 
 use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
-use crate::programs::teacher_newsletter::get_newsletter_period;
 use crate::programs::teacher_newsletter::newsletter_item::TeacherNewsletterItem;
 use crate::setup_tracing;
 use anyhow::{Context, Result};
@@ -215,7 +214,7 @@ pub async fn send_message(
     let rendered = match email.template_type {
         Some(EmailTemplateType::TeacherNewsletter) => {
             let teacher_newsletter_email_content =
-                build_teacher_newsletter(&mut conn, email.user_id).await?;
+                build_teacher_newsletter(&mut conn, email.user_id, email.id).await?;
             email_processor::render_newsletter(
                 EmailRenderInput {
                     layout_html: layout.html,
@@ -435,6 +434,7 @@ fn placeholder_bag_replacements(
 async fn build_teacher_newsletter(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
+    email_delivery_id: Uuid,
 ) -> Result<TeacherNewsletterContent> {
     let courses =
         headless_lms_models::courses::all_courses_with_role_teacher_for_user(conn, user_id).await?;
@@ -448,10 +448,18 @@ async fn build_teacher_newsletter(
 
     let course_ids: Vec<Uuid> = courses.iter().map(|course| course.id).collect();
 
-    let (period_start, period_end) = get_newsletter_period();
+    let period =
+        headless_lms_models::teacher_newsletter::get_teacher_newsletter_period_by_email_delivery_id(
+            conn,
+            email_delivery_id,
+        )
+        .await?;
+
+    let period_start = period.period_start;
+    let period_end = period.period_end;
 
     let newsletter_items =
-        get_newsletter_items(conn, &course_ids, &period_start, &period_end).await?;
+        get_newsletter_items(conn, &course_ids, period_start, period_end).await?;
 
     let (html, text): (String, String) = newsletter_items
         .iter()

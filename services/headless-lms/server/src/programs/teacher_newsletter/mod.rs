@@ -18,7 +18,7 @@ use models::library::course_stats::{
     get_total_users_started_course_custom_time_period,
 };
 use models::teacher_newsletter::{create_newsletter_item, get_teacher_newsletter_subscriptions};
-use sqlx::{PgConnection, PgPool};
+use sqlx::{Connection, PgConnection, PgPool};
 
 pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
@@ -57,14 +57,27 @@ pub async fn main() -> anyhow::Result<()> {
 
     create_newsletter_items(&mut conn, courses, period_start, period_end).await?;
 
+    let mut tx = conn.begin().await?;
+
     for teacher in teachers {
-        models::email_deliveries::insert_email_delivery(
-            &mut conn,
+        let delivery_id = models::email_deliveries::insert_email_delivery(
+            &mut tx,
             teacher,
             teacher_newsletter_template.id,
         )
         .await?;
+
+        models::teacher_newsletter::save_teacher_newsletter_delivery(
+            &mut tx,
+            delivery_id,
+            period_start,
+            period_end,
+        )
+        .await?;
     }
+
+    tx.commit().await?;
+
     info!("Emails successfully inserted");
     Ok(())
 }
@@ -96,8 +109,8 @@ async fn create_newsletter_items(
     period_end: DateTime<Utc>,
 ) -> anyhow::Result<()> {
     // DECIDE WHAT TO DO WITH THESE
-    let period_start_str = period_start.to_rfc3339();
-    let period_end_str = period_end.to_rfc3339();
+    let period_start_str = period_start.format("%Y-%m-%d").to_string();
+    let period_end_str = period_end.format("%Y-%m-%d").to_string();
     for course in courses {
         let returned_exercises_count = get_total_users_returned_exercises_custom_time_period(
             conn,

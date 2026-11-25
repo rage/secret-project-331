@@ -62,5 +62,27 @@ COMMENT ON COLUMN teacher_newsletter_subscriptions.deleted_at IS 'Timestamp when
 COMMENT ON COLUMN teacher_newsletter_subscriptions.user_id IS 'The user whose subscription status is tracked.';
 COMMENT ON COLUMN teacher_newsletter_subscriptions.subscribed IS 'True if subscribed to the newsletter, false otherwise.';
 
+CREATE TABLE teacher_newsletter_delivery (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW (),
+  deleted_at TIMESTAMP WITH TIME ZONE,
+  delivery_id UUID NOT NULL,
+  period_start TIMESTAMP WITH TIME ZONE NOT NULL,
+  period_end TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+COMMENT ON TABLE teacher_newsletter_delivery IS '';
+COMMENT ON COLUMN teacher_newsletter_delivery.id IS 'A unique, stable identified for the record.';
+COMMENT ON COLUMN teacher_newsletter_delivery.created_at IS 'Timestamp when the record was created.';
+COMMENT ON COLUMN teacher_newsletter_delivery.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
+COMMENT ON COLUMN teacher_newsletter_delivery.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
+COMMENT ON COLUMN teacher_newsletter_delivery.delivery_id IS 'A unique, stable identified for the record.';
+COMMENT ON COLUMN teacher_newsletter_delivery.period_start IS 'Start date of the period that the newsletter represents.';
+COMMENT ON COLUMN teacher_newsletter_delivery.period_end IS 'End date of the period that the newsletter represents.';
+
+CREATE TRIGGER set_timestamp BEFORE
+UPDATE ON teacher_newsletter_delivery FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
 ALTER TYPE email_template_type
 ADD VALUE 'teacher_newsletter';

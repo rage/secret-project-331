@@ -41,3 +41,4 @@ RENAME TO email_template_type;
 
 DROP TABLE teacher_newsletter_items;
 DROP TABLE teacher_newsletter_subscriptions;
+DROP TABLE teacher_newsletter_delivery;

@@ -23,3 +23,21 @@ Run `bin/tmc-langs-update {version}` in the project root directory, for example 
 ```
 
 upload url: post project-331.local/api/v0/files/upload
+
+## Sandbox images
+
+Submissions are tested in a pod running the image tmc-langs picks for the exercise (`prepare-submission` returns it). The images are built outside this repository.
+
+| Exercise type      | Default image                                       |
+| ------------------ | --------------------------------------------------- |
+| Python 3, no-tests | `eu.gcr.io/moocfi-public/tmc-sandbox-python:latest` |
+| Java (Maven, Ant)  | `eu.gcr.io/moocfi-public/tmc-sandbox-java:latest`   |
+| C (make)           | `eu.gcr.io/moocfi-public/tmc-sandbox-make:latest`   |
+| C#                 | `eu.gcr.io/moocfi-public/tmc-sandbox-csharp:latest` |
+| R                  | `eu.gcr.io/moocfi-public/tmc-sandbox-r:latest`      |
+
+An exercise overrides its image with `sandbox_image` in its `.tmcproject.yml`, for example `sandbox_image: eu.gcr.io/moocfi-public/tmc-sandbox-csharp:latest`.
+
+A C# exercise builds with the .NET SDK in its image, so its target framework (for example an old `netcoreapp`) must be one that SDK supports; otherwise the build fails and the submission gets a compile or generic error. Point `sandbox_image` at an image with the SDK the exercise needs.
+
+The time a test run may take is the exercise's `tests_timeout_ms` (tmc-langs' default when unset) plus build overhead, at most 15 minutes.

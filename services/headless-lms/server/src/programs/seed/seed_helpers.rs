@@ -352,6 +352,7 @@ pub fn example_exercise_flexible(
                     private_spec: Some(spec),
                     order_number,
                     private_spec_files: vec![],
+                    repository_exercise_id: None,
                 }
             },
         )
@@ -433,6 +434,7 @@ pub fn quizzes_exercise(
         private_spec: Some(serde_json::json!(private_spec)),
         order_number: 0,
         private_spec_files: vec![],
+        repository_exercise_id: None,
     };
     (block, exercise, exercise_slide, exercise_task)
 }
@@ -493,6 +495,7 @@ pub fn tmc_exercise(
         private_spec: Some(serde_json::json!(private_spec)),
         order_number: 0,
         private_spec_files: vec![],
+        repository_exercise_id: None,
     };
     (block, exercise, exercise_slide, exercise_task)
 }

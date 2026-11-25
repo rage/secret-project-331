@@ -15,6 +15,7 @@ function getImpl() {
     supports_native_client: true,
     produces_file_answers: true,
     declares_spec_files: true,
+    repository_preparation_endpoint_path: `${prefix}/api/prepare-repository`,
   })
 }
 

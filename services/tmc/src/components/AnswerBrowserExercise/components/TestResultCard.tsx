@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 
 import { TestResultCard as StyledCard, TestResultHeader, TestResultMessage } from "../styles"
 
@@ -9,17 +10,20 @@ interface TestResultCardProps {
   exception?: string[]
 }
 
-export const TestResultCard: React.FC<TestResultCardProps> = (p) => (
-  <StyledCard passed={p.passed} data-cy="test-result">
-    <TestResultHeader passed={p.passed}>
-      {p.passed ? "PASS" : "FAIL"}: {p.name}
-    </TestResultHeader>
-    {(p.message || (p.exception && p.exception.length > 0)) && (
-      <TestResultMessage>
-        {p.message}
-        {/* oxlint-disable-next-line i18next/no-literal-string -- raw test exception output */}
-        {p.exception && p.exception.length > 0 ? `\n${p.exception.join("\n")}` : ""}
-      </TestResultMessage>
-    )}
-  </StyledCard>
-)
+export const TestResultCard: React.FC<TestResultCardProps> = (p) => {
+  const { t } = useTranslation()
+  return (
+    <StyledCard passed={p.passed} data-cy="test-result">
+      <TestResultHeader passed={p.passed}>
+        {p.passed ? t("test-result-passed") : t("test-result-failed")}: {p.name}
+      </TestResultHeader>
+      {(p.message || (p.exception && p.exception.length > 0)) && (
+        <TestResultMessage>
+          {p.message}
+          {/* oxlint-disable-next-line i18next/no-literal-string -- raw test exception output */}
+          {p.exception && p.exception.length > 0 ? `\n${p.exception.join("\n")}` : ""}
+        </TestResultMessage>
+      )}
+    </StyledCard>
+  )
+}

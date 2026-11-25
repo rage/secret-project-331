@@ -75,6 +75,7 @@ fn a_preview_shows_assignments_in_slide_and_task_order_but_no_specs() {
         private_spec: Some(json!("answers")),
         order_number: 0,
         private_spec_files: Vec::new(),
+        repository_exercise_id: None,
     });
     let preview = PreviewPage::from(page);
     assert_eq!(

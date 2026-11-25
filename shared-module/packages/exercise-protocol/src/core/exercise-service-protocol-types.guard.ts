@@ -35,6 +35,9 @@ export function isCurrentStateMessage(obj: unknown): obj is CurrentStateMessage 
             typedObj["private_spec_files"].every((e: any) =>
                 typeof e === "string"
             )) &&
+        (typeof typedObj["repository_exercise_id"] === "undefined" ||
+            typedObj["repository_exercise_id"] === null ||
+            typeof typedObj["repository_exercise_id"] === "string") &&
         typeof typedObj["valid"] === "boolean" &&
         (typeof typedObj["validityMessages"] === "undefined" ||
             Array.isArray(typedObj["validityMessages"]) &&
@@ -539,6 +542,20 @@ export function isNonGenericGradingRequest(obj: unknown): obj is NonGenericGradi
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typeof typedObj["grading_update_url"] === "string" &&
+        (typeof typedObj["repository_exercise"] === "undefined" ||
+            (typedObj["repository_exercise"] !== null &&
+                typeof typedObj["repository_exercise"] === "object" ||
+                typeof typedObj["repository_exercise"] === "function") &&
+            typeof typedObj["repository_exercise"]["id"] === "string" &&
+            typeof typedObj["repository_exercise"]["repository_id"] === "string" &&
+            typeof typedObj["repository_exercise"]["part"] === "string" &&
+            typeof typedObj["repository_exercise"]["name"] === "string" &&
+            typeof typedObj["repository_exercise"]["repository_url"] === "string" &&
+            Array.isArray(typedObj["repository_exercise"]["checksum"]) &&
+            typedObj["repository_exercise"]["checksum"].every((e: any) =>
+                typeof e === "number"
+            ) &&
+            typeof typedObj["repository_exercise"]["download_url"] === "string") &&
         Array.isArray(typedObj["submission_files"]) &&
         typedObj["submission_files"].every((e: any) =>
             (e !== null &&

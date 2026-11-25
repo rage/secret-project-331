@@ -312,7 +312,7 @@ pub async fn update_email_for_user_by_id(
     Ok(())
 }
 
-/// Soft-deletes the user and takes their OAuth credentials down with the account.
+/// Soft-deletes the user and takes their OAuth credentials and share links down with the account.
 ///
 /// Returns the digests of the deleted access tokens so a caller holding the exercise-services
 /// token cache can evict them; otherwise a deleted account keeps authenticating that API from a
@@ -339,6 +339,12 @@ pub async fn delete_user(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<D
     .await?;
     sqlx::query!(
         "UPDATE roles set deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL",
+        id,
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "UPDATE exercise_slide_submission_shares SET deleted_at = now() WHERE created_by = $1 AND deleted_at IS NULL",
         id,
     )
     .execute(&mut *tx)

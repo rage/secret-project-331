@@ -84,8 +84,9 @@ pub struct TokenGrantResult {
 }
 
 /// RFC 9700 §4.14.2: presenting a refresh token that has already been revoked — by a rotation
-/// that superseded it, or by `/revoke` — is evidence the token leaked, so the whole (user, client)
-/// family is taken down instead of only this request failing. Without that, an attacker who
+/// that superseded it, or by `/revoke` — is evidence the token leaked, so its whole family (the
+/// login it descends from) is taken down instead of only this request failing. The user's other
+/// logins, on other computers, are left alone. Without that, an attacker who
 /// redeems a stolen token first keeps a self-renewing family alive while the victim silently
 /// re-logs-in into a new one.
 ///
@@ -116,9 +117,9 @@ async fn revoke_family_on_refresh_token_reuse(
     tracing::warn!(
         user_id = %token.user_id,
         client_id = %client.id,
-        "OAuth token: reuse of a revoked refresh token; revoking the whole (user, client) token family"
+        "OAuth token: reuse of a revoked refresh token; revoking its token family"
     );
-    let revoked_access_digests = OAuthRefreshTokens::revoke_grant(conn, token.user_id, client.id)
+    let revoked_access_digests = OAuthRefreshTokens::revoke_family(conn, token.family_id)
         .await
         .map_err(|e| TokenGrantError::ServerError(format!("{}", e)))?;
     invalidate_cached_users(cache, &revoked_access_digests, token_hmac_key).await;
@@ -870,7 +871,7 @@ mod tests {
     }
 
     /// Refresh tokens are single-use, and reuse is treated as a leak: presenting a superseded
-    /// token fails as `invalid_grant` *and* takes down the whole (user, client) family, including
+    /// token fails as `invalid_grant` *and* takes down the whole family of that login, including
     /// the successor the legitimate holder is still using (RFC 9700 §4.14.2). Anything less lets
     /// an attacker who redeemed the stolen token first keep renewing forever.
     #[actix_web::test]
@@ -938,6 +939,64 @@ mod tests {
                 .is_err(),
             "the access token from the rotated pair must be revoked with the family"
         );
+
+        tx.rollback().await;
+    }
+
+    /// A student logged in on two computers: a reuse detected on one ends only that login.
+    #[actix_web::test]
+    async fn refresh_reuse_ends_only_the_login_it_happened_in() {
+        let mut conn = Conn::init().await;
+        let mut tx = conn.begin().await;
+        let key = hmac_key();
+
+        let user = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "two-computers@example.com",
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let client = insert_device_client(tx.as_mut()).await;
+        let home = insert_refresh_token(tx.as_mut(), user, client.id).await;
+        let lab = insert_refresh_token(tx.as_mut(), user, client.id).await;
+
+        let home_rotated = generate_token_pair(&key);
+        let home_grant = refresh_grant(&home);
+        process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&home_grant, &client, &key, home_rotated),
+        )
+        .await
+        .expect("rotating one login");
+        assert!(
+            OAuthRefreshTokens::find_valid(tx.as_mut(), token_digest_sha256(&lab, &key))
+                .await
+                .is_ok(),
+            "rotating one login must not revoke the other"
+        );
+
+        let replay = refresh_grant(&home);
+        process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&replay, &client, &key, generate_token_pair(&key)),
+        )
+        .await
+        .expect_err("a replayed token fails");
+
+        let lab_rotated = generate_token_pair(&key);
+        let lab_grant = refresh_grant(&lab);
+        process_token_grant(
+            tx.as_mut(),
+            &test_cache(),
+            build_request_with_pair(&lab_grant, &client, &key, lab_rotated),
+        )
+        .await
+        .expect("the other login survives a reuse in the first");
 
         tx.rollback().await;
     }

@@ -134,6 +134,28 @@
             "name": "order_number"
           }
         }
+      },
+      {
+        "ordinal": 12,
+        "name": "repository_exercise_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_id"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "repository_exercise_checksum",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_checksum"
+          }
+        }
       }
     ],
     "parameters": {
@@ -153,7 +175,9 @@
       true,
       true,
       false,
-      false
+      false,
+      true,
+      true
     ]
   },
   "hash": "ffdcee66fc7df1125bb7f1fe5e05367efcef5525207938af4b7d69fc784f2396"

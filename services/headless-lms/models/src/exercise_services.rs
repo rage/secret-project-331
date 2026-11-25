@@ -169,6 +169,30 @@ pub fn get_exercise_service_internally_preferred_baseurl(
     Ok(url)
 }
 
+/// Where to send a cloned exercise repository to find its exercises: the endpoint of the one
+/// exercise service whose cached service info declares one. Errors when no service or more than
+/// one does.
+pub async fn get_internal_repository_preparation_url(conn: &mut PgConnection) -> ModelResult<Url> {
+    let mut declaring = vec![];
+    for (service, info) in get_all_exercise_services_by_type(conn).await?.into_values() {
+        if let Some(path) = info.repository_preparation_endpoint_path {
+            declaring.push((service, path));
+        }
+    }
+    let [(service, path)] = <[_; 1]>::try_from(declaring).map_err(|declaring| {
+        model_err!(
+            PreconditionFailed,
+            format!(
+                "Exercise repositories need exactly one exercise service to prepare them, but {} declare it.",
+                declaring.len()
+            )
+        )
+    })?;
+    let mut url = get_exercise_service_internally_preferred_baseurl(&service)?;
+    url.set_path(&path);
+    Ok(url)
+}
+
 /// Where course material loads the service's user interface in an iframe.
 pub fn get_exercise_iframe_url(
     exercise_service: &ExerciseService,
@@ -413,6 +437,7 @@ mod test {
                 has_custom_view: Some(false),
                 csv_export_definitions_endpoint_path: None,
                 csv_export_answers_endpoint_path: None,
+                repository_preparation_endpoint_path: None,
                 supports_native_client: true,
                 produces_file_answers: false,
                 declares_spec_files: false,

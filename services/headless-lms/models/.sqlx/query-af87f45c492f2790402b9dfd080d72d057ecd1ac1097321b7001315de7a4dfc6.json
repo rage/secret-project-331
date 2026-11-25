@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT exam_id\nFROM exam_enrollments\nWHERE user_id = $1\n  AND (ended_at IS NULL OR is_teacher_testing)\n  AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exam_enrollments",
+            "name": "exam_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "af87f45c492f2790402b9dfd080d72d057ecd1ac1097321b7001315de7a4dfc6"
+}

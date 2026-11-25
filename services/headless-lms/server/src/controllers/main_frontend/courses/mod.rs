@@ -74,6 +74,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
 #[openapi(
     paths(
         get_course,
+        get_model_solution_settings,
+        update_model_solution_settings,
         get_course_breadcrumb_info,
         get_all_exercise_statuses_by_course_id,
         get_all_course_module_completions_for_user_by_course_id,
@@ -321,6 +323,73 @@ async fn get_user_progress_for_course(
     )
     .await?;
     token.authorized_ok(web::Json(user_course_progress))
+}
+
+/**
+GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals
+model solutions to students who have neither solved the exercise nor used up its tries.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/model-solution-settings",
+    operation_id = "getCourseModelSolutionSettings",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "The course's model solution settings", body = models::course_model_solution_settings::CourseModelSolutionSettings)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_model_solution_settings(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>>
+{
+    let mut conn = pool.acquire().await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(*course_id),
+    )
+    .await?;
+    let settings = models::course_model_solution_settings::get(&mut conn, *course_id).await?;
+    token.authorized_ok(web::Json(settings))
+}
+
+/**
+PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals
+model solutions to every student.
+*/
+#[utoipa::path(
+    put,
+    path = "/{course_id}/model-solution-settings",
+    operation_id = "updateCourseModelSolutionSettings",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = models::course_model_solution_settings::CourseModelSolutionSettings,
+    responses(
+        (status = 200, description = "The stored model solution settings", body = models::course_model_solution_settings::CourseModelSolutionSettings)
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_model_solution_settings(
+    course_id: web::Path<Uuid>,
+    settings: web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<models::course_model_solution_settings::CourseModelSolutionSettings>>
+{
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let settings =
+        models::course_model_solution_settings::upsert(&mut conn, *course_id, &settings).await?;
+    token.authorized_ok(web::Json(settings))
 }
 
 /**
@@ -3064,6 +3133,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::scope("/{course_id}/language-versions").configure(language_versions::_add_routes),
         )
         .route("/{course_id}", web::get().to(get_course))
+        .route(
+            "/{course_id}/model-solution-settings",
+            web::get().to(get_model_solution_settings),
+        )
+        .route(
+            "/{course_id}/model-solution-settings",
+            web::put().to(update_model_solution_settings),
+        )
         .route("", web::post().to(post_new_course))
         .route("/{course_id}", web::put().to(update_course))
         .route("/{course_id}", web::delete().to(delete_course))

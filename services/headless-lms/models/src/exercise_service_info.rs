@@ -27,6 +27,7 @@ pub struct ExerciseServiceInfo {
     pub supports_native_client: bool,
     pub produces_file_answers: bool,
     pub declares_spec_files: bool,
+    pub repository_preparation_endpoint_path: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -80,6 +81,10 @@ pub struct ExerciseServiceInfoApi {
     /// has no evidence that a file is unused.
     #[serde(default)]
     pub declares_spec_files: bool,
+    /// Where the host sends a cloned exercise repository for the service to find its exercises.
+    /// Exercise repositories need exactly one service to declare it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub repository_preparation_endpoint_path: Option<String>,
 }
 
 pub async fn insert(
@@ -164,9 +169,10 @@ INSERT INTO exercise_service_info(
     csv_export_answers_endpoint_path,
     supports_native_client,
     produces_file_answers,
-    declares_spec_files
+    declares_spec_files,
+    repository_preparation_endpoint_path
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 ON CONFLICT(exercise_service_id) DO UPDATE
 SET user_interface_iframe_path = $2,
   grade_endpoint_path = $3,
@@ -177,7 +183,8 @@ SET user_interface_iframe_path = $2,
   csv_export_answers_endpoint_path = $8,
   supports_native_client = $9,
   produces_file_answers = $10,
-  declares_spec_files = $11
+  declares_spec_files = $11,
+  repository_preparation_endpoint_path = $12
 RETURNING *
     "#,
         exercise_service_id,
@@ -190,7 +197,8 @@ RETURNING *
         update.csv_export_answers_endpoint_path.as_deref(),
         update.supports_native_client,
         update.produces_file_answers,
-        update.declares_spec_files
+        update.declares_spec_files,
+        update.repository_preparation_endpoint_path.as_deref()
     )
     .fetch_one(conn)
     .await?;

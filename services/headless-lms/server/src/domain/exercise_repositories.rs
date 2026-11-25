@@ -1,37 +1,58 @@
 use anyhow::Context;
 use base64::{Engine as _, engine::general_purpose::STANDARD_NO_PAD};
-use blake3::Hash;
+use futures::future::BoxFuture;
 use git2::{
     CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, RemoteRedirect,
     build::RepoBuilder, cert::Cert,
 };
-use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::{config::ApplicationConfiguration, jwt::JwtKey};
 use headless_lms_models::{
-    exercise_repositories, exercise_repository_ssh_host_keys,
-    exercise_repository_ssh_host_keys::ExerciseRepositorySshHostKey, repository_exercises,
+    ModelResult, SpecFetcher,
+    exercise_repositories::{
+        self, ExerciseRepositorySyncJob, ExerciseRepositorySyncReport, FailedExerciseTaskRefresh,
+        RenamedRepositoryExercise,
+    },
+    exercise_repository_ssh_host_keys,
+    exercise_repository_ssh_host_keys::ExerciseRepositorySshHostKey,
+    exercise_service_info::{self, ExerciseServiceInfo, ExerciseServiceInfoApi},
+    exercise_services::{self, ExerciseService},
+    exercise_task_spec_files::{self, SpecKind},
+    pages::{DerivedSpec, parse_derived_spec},
+    repository_exercises::{
+        self, OutdatedExerciseTask, RepositoryExercise, RepositoryExerciseVersion,
+    },
 };
 use headless_lms_utils::{
     file_store::{self, FileStore},
     folder_checksum,
+    periodic_worker::{PeriodicWorkerConfig, run_periodic_worker},
+    prelude::{BackendError, UtilErrorType},
 };
+use itertools::Itertools;
 use secrecy::{ExposeSecret, SecretString};
-use sqlx::{Acquire, PgConnection};
+use serde::Deserialize;
+use sqlx::{Acquire, PgConnection, PgPool};
 use std::{
     cell::Cell,
-    collections::HashMap,
-    io::Cursor,
-    path::{Path, PathBuf},
+    collections::{HashMap, HashSet},
+    io::{Cursor, Seek, SeekFrom},
+    path::{Component, Path, PathBuf},
+    sync::Arc,
+    time::Duration,
 };
+use url::Url;
 use uuid::Uuid;
-use walkdir::{DirEntry, WalkDir};
+
+use crate::domain::models_requests;
 
 mod pinned_stream;
 
 /// Accepts a clone URL only over https or ssh (`ssh://` or `git@host:path`) to a host that
 /// currently resolves to public addresses, so a teacher gets a clear error when saving the URL.
 /// This is an early check, not the enforcement: the clone's own connections go through
-/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then.
-pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
+/// [`pinned_stream`], which refuses private addresses whatever DNS answers by then. Returns the
+/// URL's host and port.
+pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<(String, u16)> {
     let (host, port) = clone_url_host_and_port(url)
         .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let addresses: Vec<_> = tokio::net::lookup_host((host.as_str(), port))
@@ -39,7 +60,7 @@ pub async fn ensure_clone_url_is_allowed(url: &str) -> anyhow::Result<()> {
         .with_context(|| format!("Could not resolve {host}"))?
         .collect();
     pinned_stream::public_addresses(&host, addresses)?;
-    Ok(())
+    Ok((host, port))
 }
 
 /// SHA-256 host key fingerprints of git hosts whose keys are known in advance, as printed by
@@ -110,19 +131,18 @@ fn check_ssh_host_key(
     }
 }
 
-/// Clones `url` into `target`, verifying the server the way [`check_ssh_host_key`] describes and
-/// remembering a first-seen ssh host key once the clone succeeds. TLS certificates are left to
-/// libgit2's own validation.
+/// Clones `branch`, or the default branch, of `url` into `target`, verifying the server the way
+/// [`check_ssh_host_key`] describes and remembering a first-seen ssh host key once the clone
+/// succeeds. TLS certificates are left to libgit2's own validation.
 async fn clone_repository(
     conn: &mut PgConnection,
     url: &str,
+    branch: Option<&str>,
     deploy_key: Option<(Option<&str>, &SecretString)>,
     target: &Path,
 ) -> anyhow::Result<()> {
-    ensure_clone_url_is_allowed(url).await?;
+    let (host, port) = ensure_clone_url_is_allowed(url).await?;
     pinned_stream::register()?;
-    let (host, port) = clone_url_host_and_port(url)
-        .ok_or_else(|| anyhow::anyhow!("Use an https:// or ssh:// URL, or git@host:path."))?;
     let remembered = exercise_repository_ssh_host_keys::get(conn, &host, port).await?;
     let first_seen = Cell::new(None);
     // libgit2 replaces a rejecting callback's error with a generic one.
@@ -170,11 +190,15 @@ async fn clone_repository(
     let mut fetch_opts = FetchOptions::new();
     // The clone must come from the URL the teacher saved, not from wherever that server redirects.
     fetch_opts.follow_redirects(RemoteRedirect::None);
+    // A sync reads only the working tree.
+    fetch_opts.depth(1);
     fetch_opts.remote_callbacks(remote_cbs);
-    if let Err(error) = RepoBuilder::new()
-        .fetch_options(fetch_opts)
-        .clone(url, target)
-    {
+    let mut builder = RepoBuilder::new();
+    builder.fetch_options(fetch_opts);
+    if let Some(branch) = branch {
+        builder.branch(branch);
+    }
+    if let Err(error) = builder.clone(url, target) {
         return Err(rejection
             .take()
             .map_or_else(|| error.into(), |message| anyhow::anyhow!(message)));
@@ -232,484 +256,656 @@ fn canonical_host(host: &str) -> Option<String> {
     (!host.is_empty()).then(|| host.to_ascii_lowercase())
 }
 
-pub struct StoredRepositoryExercise {
-    pub url: String,
-}
-
-/// Processes an exercise repository, creating a repository exercise for each exercise in it.
-/// Each exercise is compressed and uploaded to file storage.
-pub async fn process(
-    conn: &mut PgConnection,
-    repository_id: Uuid,
-    url: &str,
-    public_key: Option<&str>,
-    deploy_key: Option<&SecretString>,
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
-    let mut stored_files = vec![];
-    match process_inner(InnerArgs {
-        conn,
-        repository_id,
-        url,
-        public_key,
-        deploy_key,
-        file_store,
-        stored_files: &mut stored_files,
-        app_conf,
-    })
-    .await
-    {
-        Ok(res) => {
-            exercise_repositories::mark_success(conn, repository_id).await?;
-            Ok(res)
-        }
-        Err(err) => {
-            if !stored_files.is_empty() {
-                warn!(
-                    "Failed while creating new exercise repository, cleaning files that were uploaded"
-                );
-                for file in stored_files {
-                    if let Err(err) = file_store.delete(&file).await {
-                        error!("Failed to clean file {}: {err}", file.display());
-                    }
-                }
-            }
-            exercise_repositories::mark_failure(conn, repository_id, &err.to_string()).await?;
-            Err(err)
-        }
+/// Accepts a branch name git would accept for `refs/heads/<branch>`.
+pub fn ensure_branch_name_is_valid(branch: &str) -> anyhow::Result<()> {
+    if branch.starts_with('-') || !git2::Reference::is_valid_name(&format!("refs/heads/{branch}")) {
+        anyhow::bail!("{branch} is not a valid git branch name.");
     }
-}
-
-struct InnerArgs<'a> {
-    conn: &'a mut PgConnection,
-    repository_id: Uuid,
-    url: &'a str,
-    public_key: Option<&'a str>,
-    deploy_key: Option<&'a SecretString>,
-    file_store: &'a dyn FileStore,
-    stored_files: &'a mut Vec<PathBuf>,
-    app_conf: &'a ApplicationConfiguration,
-}
-
-// implements the logic for process so that we can conveniently handle all errors in process
-async fn process_inner(
-    InnerArgs {
-        conn,
-        repository_id,
-        url,
-        public_key,
-        deploy_key,
-        file_store,
-        stored_files,
-        app_conf,
-    }: InnerArgs<'_>,
-) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
-    // clone repo to temp dir
-    let temp = tempfile::tempdir()?;
-    info!("Cloning {url} to {:?}", temp.path());
-    // Outside the transaction: a first-seen host key must outlive a failed processing, and must not
-    // lock out other clones of the host while processing runs.
-    clone_repository(
-        conn,
-        url,
-        deploy_key.map(|deploy_key| (public_key, deploy_key)),
-        temp.path(),
-    )
-    .await?;
-    info!("Finished cloning {url} to {:?}", temp.path());
-    let mut tx = conn.begin().await?;
-
-    // create exercises in db and store them in file store
-    let found_exercises = find_exercise_directories(temp.path()).await?;
-    let mut repository_exercises = vec![];
-    // (part, name) => exercise
-    let existing_exercises =
-        repository_exercises::get_for_repository(&mut tx, repository_id).await?;
-
-    // we try both the path and the checksum to find existing exercises
-    // these are the only attributes found in the exercise repositories, so if both
-    // the path and checksum change there's no way to detect that it's supposed to be an updated old exercise
-    // rather than a new one
-    // this way we can accommodate both renaming/relocating exercises and changing them, though not at the same time...
-    let existing_exercises_path_map = existing_exercises
-        .iter()
-        .map(|ex| ((&ex.part, &ex.name), ex))
-        .collect::<HashMap<_, _>>();
-    let existing_exercises_checksum_map = existing_exercises
-        .iter()
-        .map(|ex| (ex.checksum.as_slice(), ex))
-        .collect::<HashMap<_, _>>();
-    for fe in &found_exercises {
-        // check if the exercise is new
-        match (
-            existing_exercises_path_map.get(&(&fe.part, &fe.name)),
-            existing_exercises_checksum_map.get(fe.checksum.as_bytes().as_slice()),
-        ) {
-            (Some(_), Some(_)) => {
-                // both the path and checksum are unchanged, no-op
-            }
-            (Some(existing_exercise_by_path), None) => {
-                // found exercise by path but the checksum has changed, exercise has been updated
-                let path = update_exercise(
-                    &mut tx,
-                    repository_id,
-                    existing_exercise_by_path.id,
-                    fe,
-                    file_store,
-                    app_conf,
-                )
-                .await?;
-                stored_files.push(path.clone());
-                let url = file_store.get_direct_download_url(&path).await?;
-                repository_exercises.push(StoredRepositoryExercise { url });
-                repository_exercises::update_checksum(
-                    &mut tx,
-                    existing_exercise_by_path.id,
-                    fe.checksum.as_bytes(),
-                )
-                .await?;
-                // todo: uploaded files get cleaned up on an error, which means that if the refreshing fails
-                // the exercise data will be missing entirely...
-            }
-            (None, Some(existing_exercise_by_checksum)) => {
-                // found exercise by checksum but the path has changed, update path
-                repository_exercises::update_part_and_name(
-                    &mut tx,
-                    existing_exercise_by_checksum.id,
-                    &fe.part,
-                    &fe.name,
-                )
-                .await?;
-            }
-            (None, None) => {
-                // new exercise
-                let new_exercise_id = uuid::Uuid::new_v4();
-                let path = create_and_upload_exercise(
-                    &mut tx,
-                    repository_id,
-                    new_exercise_id,
-                    fe,
-                    file_store,
-                    app_conf,
-                )
-                .await?;
-                stored_files.push(path.clone());
-                let url = file_store.get_direct_download_url(&path).await?;
-                repository_exercises.push(StoredRepositoryExercise { url });
-            }
-        }
-    }
-
-    tx.commit().await?;
-    Ok(repository_exercises)
-}
-
-/// Updates the given repository using the given url.
-/// Exercises with a known checksum but changed part or name are updated to reflect the new part or name.
-/// Exercises with a known part and name but changed checksum are updated in the file store and the checksum updated.
-/// Errors may leave some exercises updated and others not, since there's no mechanism for rolling back any file store updates.
-/// However, these inconsistencies will be fixed after a successful retry.
-pub async fn update(
-    conn: &mut PgConnection,
-    repository: Uuid,
-    url: &str,
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
-    let mut new_stored_files = vec![];
-    match update_inner(
-        conn,
-        repository,
-        url,
-        file_store,
-        &mut new_stored_files,
-        app_conf,
-    )
-    .await
-    {
-        Ok(res) => Ok(res),
-        Err(err) => {
-            if !new_stored_files.is_empty() {
-                debug!(
-                    "Failed while updating exercise repository, cleaning new exercises that were uploaded"
-                );
-                for file in new_stored_files {
-                    if let Err(err) = file_store.delete(&file).await {
-                        error!("Failed to clean file {}: {err}", file.display());
-                    }
-                }
-            }
-            Err(err)
-        }
-    }
-}
-
-async fn update_inner(
-    conn: &mut PgConnection,
-    repository: Uuid,
-    url: &str,
-    file_store: &dyn FileStore,
-    new_stored_files: &mut Vec<PathBuf>,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<()> {
-    let temp = tempfile::tempdir()?;
-    clone_repository(conn, url, None, temp.path()).await?;
-    let mut tx = conn.begin().await?;
-
-    let repository_exercises = find_exercise_directories(temp.path()).await?;
-    let current_exercises = repository_exercises::get_for_repository(&mut tx, repository).await?;
-
-    let mut by_name = HashMap::new();
-    let mut by_checksum = HashMap::new();
-    for ex in &current_exercises {
-        by_name.insert((&ex.part, &ex.name), ex);
-        by_checksum.insert(ex.checksum.as_slice(), ex);
-    }
-    for ex in repository_exercises {
-        if let Some(&current) = by_name.get(&(&ex.part, &ex.name)) {
-            // found known exercise by part and name
-            if current.checksum != ex.checksum.as_bytes() {
-                // checksum changed, update files and checksum
-                create_and_upload_exercise(
-                    &mut tx, repository, current.id, &ex, file_store, app_conf,
-                )
-                .await?;
-                repository_exercises::update_checksum(&mut tx, current.id, ex.checksum.as_bytes())
-                    .await?;
-            }
-        } else if let Some(&current) = by_checksum.get(ex.checksum.as_bytes().as_slice()) {
-            // found known exercise by checksum
-            if current.part != ex.part || current.name != ex.name {
-                // part and/or name changed
-                repository_exercises::update_part_and_name(&mut tx, current.id, &ex.part, &ex.name)
-                    .await?;
-            }
-        } else {
-            // unknown part/name and checksum, assume new exercise
-            let path = create_and_upload_exercise(
-                &mut tx,
-                repository,
-                Uuid::new_v4(),
-                &ex,
-                file_store,
-                app_conf,
-            )
-            .await?;
-            new_stored_files.push(path);
-        }
-    }
-
-    tx.commit().await?;
     Ok(())
 }
 
-/// Marks the exercises and repository as deleted and removes the associated files from the file store.
-/// Only returns the last error if there are multiple errors when trying to remove the files.
+/// Syncs started for a repository before it is marked failed.
+const MAX_SYNC_ATTEMPTS: i32 = 3;
+/// A sync running longer than this is assumed dead, for example with the server that ran it.
+/// A live sync taken for dead runs twice at once, so this leaves room for the clone and uploads
+/// around the preparation.
+const SYNC_TIMEOUT: Duration = Duration::from_secs(2 * 60 * 60);
+const _: () = assert!(
+    SYNC_TIMEOUT.as_secs() >= 3 * models_requests::REPOSITORY_PREPARATION_TIMEOUT.as_secs()
+);
+const SYNC_WORKER_TICK: Duration = Duration::from_secs(10);
+
+/// Runs queued repository syncs until the process exits. Every server process runs one; they share
+/// the queue in the database.
+pub async fn run_sync_worker(
+    pool: PgPool,
+    file_store: Arc<dyn FileStore + Send + Sync>,
+    app_conf: ApplicationConfiguration,
+    jwt_key: Arc<JwtKey>,
+) -> anyhow::Result<()> {
+    run_periodic_worker(
+        PeriodicWorkerConfig {
+            tick_interval: SYNC_WORKER_TICK,
+            still_running: None,
+            delay_missed_ticks: true,
+        },
+        async || {
+            // An error is logged and retried on the next tick: the worker must outlive it.
+            let result = async {
+                let mut conn = pool.acquire().await?;
+                sync_queued(
+                    &mut conn,
+                    file_store.as_ref(),
+                    &app_conf,
+                    &models_requests::make_spec_fetcher(
+                        app_conf.base_url.clone(),
+                        Uuid::new_v4(),
+                        Arc::clone(&jwt_key),
+                    ),
+                    models_requests::fetch_service_info,
+                    models_requests::prepare_repository,
+                )
+                .await
+            }
+            .await;
+            if let Err(err) = result {
+                error!("Exercise repository sync worker failed: {err:#}");
+            }
+            Ok(())
+        },
+    )
+    .await
+}
+
+/// Runs every queued sync once.
+pub async fn sync_queued(
+    conn: &mut PgConnection,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    prepare_repository: impl RepositoryPreparer,
+) -> anyhow::Result<()> {
+    let timeout = chrono::Duration::from_std(SYNC_TIMEOUT)?;
+    let mut started = vec![];
+    while let Some(job) =
+        exercise_repositories::start_next_sync(conn, timeout, MAX_SYNC_ATTEMPTS, &started).await?
+    {
+        started.push(job.id);
+        info!("Syncing exercise repository {}", job.id);
+        match sync(
+            conn,
+            &job,
+            file_store,
+            app_conf,
+            &spec_fetcher,
+            &fetch_service_info,
+            &prepare_repository,
+        )
+        .await
+        {
+            Ok(report) => exercise_repositories::finish_sync(conn, &job, &report).await?,
+            Err(err) => {
+                warn!("Syncing exercise repository {} failed: {err:#}", job.id);
+                exercise_repositories::fail_sync(
+                    conn,
+                    &job,
+                    &format!("{err:#}"),
+                    MAX_SYNC_ATTEMPTS,
+                )
+                .await?;
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Clones the repository, updates its exercises from the clone, refreshes the exercise tasks that
+/// use them and removes the archives nothing needs any more.
+async fn sync(
+    conn: &mut PgConnection,
+    job: &ExerciseRepositorySyncJob,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    prepare_repository: impl RepositoryPreparer,
+) -> anyhow::Result<ExerciseRepositorySyncReport> {
+    let checkout = tempfile::tempdir()?;
+    clone_repository(
+        conn,
+        &job.url,
+        job.branch.as_deref(),
+        job.deploy_key
+            .as_ref()
+            .map(|deploy_key| (job.public_key.as_deref(), deploy_key)),
+        checkout.path(),
+    )
+    .await?;
+    let found = find_exercises(
+        conn,
+        job.id,
+        checkout.path(),
+        file_store,
+        app_conf,
+        prepare_repository,
+    )
+    .await?;
+    let mut report = sync_checkout(conn, job.id, found, file_store, app_conf).await?;
+    refresh_exercise_tasks(conn, job.id, spec_fetcher, fetch_service_info, &mut report).await?;
+    remove_unused_archives(conn, job.id, file_store).await;
+    Ok(report)
+}
+
+/// Sends the repository's exercise service a checkout to find its exercises in, the way
+/// [`models_requests::prepare_repository`] does.
+pub trait RepositoryPreparer:
+    Fn(Url, String) -> BoxFuture<'static, ModelResult<PreparedRepository>>
+{
+}
+
+impl<T: Fn(Url, String) -> BoxFuture<'static, ModelResult<PreparedRepository>>> RepositoryPreparer
+    for T
+{
+}
+
+/// The exercises an exercise service found in a repository checkout.
+#[derive(Debug, Deserialize)]
+pub struct PreparedRepository {
+    pub exercises: Vec<PreparedRepositoryExercise>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PreparedRepositoryExercise {
+    pub part: String,
+    pub name: String,
+    /// The exercise directory, relative to the checkout root.
+    pub path: String,
+    /// Files to write into the exercise directory before archiving it, relative to it.
+    pub files: Vec<PreparedFile>,
+    pub details: serde_json::Value,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PreparedFile {
+    pub path: String,
+    pub contents: String,
+}
+
+/// An exercise directory of the checkout, ready to archive.
+#[derive(Debug)]
+struct FoundExercise {
+    part: String,
+    name: String,
+    checksum: blake3::Hash,
+    path: PathBuf,
+    details: serde_json::Value,
+}
+
+/// Has the repository's exercise service find the checkout's exercises, then writes the files it
+/// rewrote into the checkout. The checkout reaches the service through a file store object that
+/// lives only for the call.
+async fn find_exercises(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    checkout: &Path,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+    prepare_repository: impl RepositoryPreparer,
+) -> anyhow::Result<Vec<FoundExercise>> {
+    let url = exercise_services::get_internal_repository_preparation_url(conn).await?;
+    let archive_path = file_store::repository_checkout_archive_path(repository_id, Uuid::new_v4());
+    file_store
+        .upload_stream(
+            &archive_path,
+            file_store::file_utils::file_to_payload(archive_checkout(checkout)?),
+            "application/zstd",
+        )
+        .await?;
+    let prepared =
+        prepare_repository(url, file_store.get_download_url(&archive_path, app_conf)).await;
+    if let Err(err) = file_store.delete(&archive_path).await {
+        error!("Failed to remove the checkout archive {archive_path:?}: {err}");
+    }
+    apply_prepared_exercises(checkout, prepared?.exercises).await
+}
+
+/// The checkout as a `.tar.zst` in a temporary file, without its `.git` directory.
+fn archive_checkout(checkout: &Path) -> anyhow::Result<std::fs::File> {
+    let mut tar = tar::Builder::new(zstd::Encoder::new(tempfile::tempfile()?, 0)?);
+    // The repository is teacher-controlled; following its symlinks would archive server files.
+    tar.follow_symlinks(false);
+    for entry in std::fs::read_dir(checkout)? {
+        let entry = entry?;
+        let name = entry.file_name();
+        if name == ".git" {
+            continue;
+        }
+        if entry.file_type()?.is_dir() {
+            tar.append_dir_all(&name, entry.path())?;
+        } else {
+            tar.append_path_with_name(entry.path(), &name)?;
+        }
+    }
+    let mut archive = tar.into_inner()?.finish()?;
+    archive.seek(SeekFrom::Start(0))?;
+    Ok(archive)
+}
+
+/// Writes the prepared exercises' files into the checkout and checksums each exercise directory.
+/// Refuses paths that lead out of the checkout, also through the repository's symlinks.
+async fn apply_prepared_exercises(
+    checkout: &Path,
+    exercises: Vec<PreparedRepositoryExercise>,
+) -> anyhow::Result<Vec<FoundExercise>> {
+    let checkout = checkout.canonicalize()?;
+    let mut names = HashSet::new();
+    let mut found = vec![];
+    for exercise in exercises {
+        if !names.insert((exercise.part.clone(), exercise.name.clone())) {
+            anyhow::bail!(
+                "Two exercise directories are both named {}; rename one of them.",
+                display_name(&exercise.part, &exercise.name)
+            );
+        }
+        let path = resolve_inside(&checkout, &checkout.join(plain_path(&exercise.path)?))?;
+        if !path.is_dir() {
+            anyhow::bail!("The exercise directory {} does not exist", exercise.path);
+        }
+        for file in &exercise.files {
+            let file_path = path.join(plain_path(&file.path)?);
+            let parent = file_path.parent().unwrap_or(&path);
+            let file_path =
+                resolve_inside(&checkout, parent)?.join(file_path.file_name().unwrap_or_default());
+            // A symlink in its place is replaced, not written through.
+            if std::fs::symlink_metadata(&file_path).is_ok_and(|meta| !meta.is_dir()) {
+                std::fs::remove_file(&file_path)?;
+            }
+            std::fs::write(&file_path, &file.contents)?;
+        }
+        found.push(FoundExercise {
+            checksum: folder_checksum::hash_folder(&path).await?,
+            part: exercise.part,
+            name: exercise.name,
+            path,
+            details: exercise.details,
+        });
+    }
+    Ok(found)
+}
+
+/// `relative` if it is made of plain names, so it cannot climb out of the directory it is joined to.
+fn plain_path(relative: &str) -> anyhow::Result<&Path> {
+    let path = Path::new(relative);
+    if path.as_os_str().is_empty()
+        || !path
+            .components()
+            .all(|component| matches!(component, Component::Normal(_)))
+    {
+        anyhow::bail!("The exercise service named a path outside the checkout: {relative}");
+    }
+    Ok(path)
+}
+
+/// `path` with its symlinks resolved, refused unless that is inside the canonical `checkout`.
+fn resolve_inside(checkout: &Path, path: &Path) -> anyhow::Result<PathBuf> {
+    let resolved = path
+        .canonicalize()
+        .with_context(|| format!("{} does not exist", path.display()))?;
+    if !resolved.starts_with(checkout) {
+        anyhow::bail!("{} leads outside the checkout", path.display());
+    }
+    Ok(resolved)
+}
+
+/// Updates the repository's exercises to match `found`, keeping each exercise's id: one found
+/// at the same part and name is the same exercise, and failing that one with the same checksum.
+/// Each new version gets an archive at a new path; the replaced archives are retired, not
+/// deleted, since copies of the course may still use them. On error, nothing is
+/// changed and the new archives are removed.
+async fn sync_checkout(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    found: Vec<FoundExercise>,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> anyhow::Result<ExerciseRepositorySyncReport> {
+    let mut unmatched =
+        repository_exercises::get_stored_for_repository(conn, repository_id).await?;
+    let mut matched = vec![];
+    let mut at_new_paths = vec![];
+    // Paths first: an unchanged copy of an exercise must not take the original's id.
+    for exercise in found {
+        match unmatched
+            .iter()
+            .position(|s| s.part == exercise.part && s.name == exercise.name)
+        {
+            Some(index) => matched.push((unmatched.swap_remove(index), exercise)),
+            None => at_new_paths.push(exercise),
+        }
+    }
+    let mut added = vec![];
+    for exercise in at_new_paths {
+        match unmatched
+            .iter()
+            .position(|s| s.checksum == exercise.checksum.as_bytes())
+        {
+            Some(index) => matched.push((unmatched.swap_remove(index), exercise)),
+            None => added.push(exercise),
+        }
+    }
+
+    let mut uploaded = vec![];
+    let result = async {
+        let mut report = ExerciseRepositorySyncReport::default();
+        let mut tx = conn.begin().await?;
+        for exercise in &added {
+            let id = Uuid::new_v4();
+            let (archive_path, download_url) =
+                upload_archive(repository_id, id, exercise, file_store, app_conf).await?;
+            uploaded.push(archive_path.clone());
+            repository_exercises::insert(
+                &mut tx,
+                id,
+                repository_id,
+                &version(exercise, &archive_path, &download_url),
+            )
+            .await?;
+            report
+                .added
+                .push(display_name(&exercise.part, &exercise.name));
+        }
+        for (stored, exercise) in &matched {
+            let renamed = stored.part != exercise.part || stored.name != exercise.name;
+            if renamed {
+                report.renamed.push(RenamedRepositoryExercise {
+                    from: display_name(&stored.part, &stored.name),
+                    to: display_name(&exercise.part, &exercise.name),
+                });
+            }
+            if stored.checksum == exercise.checksum.as_bytes() {
+                if renamed || stored.details.as_ref() != Some(&exercise.details) {
+                    repository_exercises::update(
+                        &mut tx,
+                        stored.id,
+                        &version(exercise, &stored.archive_path, &stored.download_url),
+                    )
+                    .await?;
+                }
+                continue;
+            }
+            let (archive_path, download_url) =
+                upload_archive(repository_id, stored.id, exercise, file_store, app_conf).await?;
+            uploaded.push(archive_path.clone());
+            repository_exercises::update(
+                &mut tx,
+                stored.id,
+                &version(exercise, &archive_path, &download_url),
+            )
+            .await?;
+            exercise_repositories::retire_archive(&mut tx, repository_id, &stored.archive())
+                .await?;
+            report
+                .updated
+                .push(display_name(&exercise.part, &exercise.name));
+        }
+        let removed_ids: Vec<Uuid> = unmatched.iter().map(|s| s.id).collect();
+        let in_use = repository_exercises::get_ids_in_use(&mut tx, &removed_ids).await?;
+        for stored in &unmatched {
+            let name = display_name(&stored.part, &stored.name);
+            if in_use.contains(&stored.id) {
+                report.missing_but_in_use.push(name);
+            } else {
+                repository_exercises::delete(&mut tx, stored.id).await?;
+                exercise_repositories::retire_archive(&mut tx, repository_id, &stored.archive())
+                    .await?;
+                report.removed.push(name);
+            }
+        }
+        tx.commit().await?;
+        anyhow::Ok(report)
+    }
+    .await;
+    if result.is_err() {
+        for path in uploaded {
+            if let Err(err) = file_store.delete(Path::new(&path)).await {
+                error!("Failed to remove the new archive {path}: {err}");
+            }
+        }
+    }
+    result
+}
+
+fn display_name(part: &str, name: &str) -> String {
+    if part.is_empty() {
+        name.to_string()
+    } else {
+        format!("{part}/{name}")
+    }
+}
+
+fn version<'a>(
+    exercise: &'a FoundExercise,
+    archive_path: &'a str,
+    download_url: &'a str,
+) -> RepositoryExerciseVersion<'a> {
+    RepositoryExerciseVersion {
+        part: &exercise.part,
+        name: &exercise.name,
+        checksum: exercise.checksum.as_bytes(),
+        archive_path,
+        download_url,
+        details: &exercise.details,
+    }
+}
+
+/// Archives the exercise directory to a new path, returning the path and its download URL.
+async fn upload_archive(
+    repository_id: Uuid,
+    repository_exercise_id: Uuid,
+    exercise: &FoundExercise,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> anyhow::Result<(String, String)> {
+    let mut tar = tar::Builder::new(Cursor::new(vec![]));
+    // The repository is teacher-controlled; following its symlinks would archive server files.
+    tar.follow_symlinks(false);
+    tar.append_dir_all(".", &exercise.path)?;
+    let mut tar = tar.into_inner()?;
+    tar.set_position(0);
+    let tar_zstd = zstd::encode_all(tar, 0)?;
+
+    let path = file_store::repository_exercise_archive_path(
+        repository_id,
+        repository_exercise_id,
+        Uuid::new_v4(),
+    );
+    file_store
+        .upload(&path, tar_zstd, "application/zstd")
+        .await?;
+    let download_url = file_store.get_download_url(&path, app_conf);
+    let path = path
+        .to_str()
+        .context("Archive paths are built from uuids")?
+        .to_string();
+    Ok((path, download_url))
+}
+
+/// Re-derives the public and model solution specs of every live exercise task whose specs come
+/// from an older version of one of the repository's exercises. A task whose specs cannot be
+/// derived keeps its previous ones and is retried on the next sync.
+async fn refresh_exercise_tasks(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+    report: &mut ExerciseRepositorySyncReport,
+) -> anyhow::Result<()> {
+    let outdated = repository_exercises::get_outdated_exercise_tasks(conn, repository_id).await?;
+    if outdated.is_empty() {
+        return Ok(());
+    }
+    let current: HashMap<Uuid, RepositoryExercise> =
+        repository_exercises::get_for_repository(conn, repository_id)
+            .await?
+            .into_iter()
+            .map(|exercise| (exercise.id, exercise))
+            .collect();
+    let exercise_types: Vec<String> = outdated
+        .iter()
+        .map(|task| task.exercise_type.clone())
+        .unique()
+        .collect();
+    let services = exercise_service_info::get_selected_exercise_services_by_type(
+        conn,
+        &exercise_types,
+        fetch_service_info,
+    )
+    .await?;
+    for task in outdated {
+        let Some(exercise) = current.get(&task.repository_exercise_id) else {
+            continue;
+        };
+        match refresh_exercise_task(conn, &task, exercise, &services, &spec_fetcher).await {
+            Ok(true) => report.refreshed_exercise_task_count += 1,
+            // The teacher saved the task meanwhile, which derived its specs anew.
+            Ok(false) => {}
+            Err(err) => report
+                .failed_exercise_tasks
+                .push(FailedExerciseTaskRefresh {
+                    exercise_task_id: task.id,
+                    repository_exercise: display_name(&exercise.part, &exercise.name),
+                    error: err.to_string(),
+                }),
+        }
+    }
+    Ok(())
+}
+
+async fn derive_spec(
+    spec_fetcher: &impl SpecFetcher,
+    url: Url,
+    task: &OutdatedExerciseTask,
+    exercise: &RepositoryExercise,
+    declares_spec_files: bool,
+) -> anyhow::Result<DerivedSpec> {
+    let response = spec_fetcher(
+        url,
+        &task.exercise_type,
+        task.private_spec.as_ref(),
+        Some(exercise),
+    )
+    .await?;
+    parse_derived_spec(response, declares_spec_files)
+        .context("The exercise service declares spec files but did not answer with them")
+}
+
+async fn refresh_exercise_task(
+    conn: &mut PgConnection,
+    task: &OutdatedExerciseTask,
+    exercise: &RepositoryExercise,
+    services: &HashMap<String, (ExerciseService, ExerciseServiceInfo)>,
+    spec_fetcher: &impl SpecFetcher,
+) -> anyhow::Result<bool> {
+    let (service, info) = services
+        .get(&task.exercise_type)
+        .with_context(|| format!("No exercise service for {}", task.exercise_type))?;
+    let (public, model_solution) = futures::try_join!(
+        derive_spec(
+            spec_fetcher,
+            exercise_services::get_internal_public_spec_url(service, info)?,
+            task,
+            exercise,
+            info.declares_spec_files,
+        ),
+        derive_spec(
+            spec_fetcher,
+            exercise_services::get_model_solution_url(service, info)?,
+            task,
+            exercise,
+            info.declares_spec_files,
+        ),
+    )?;
+    let mut tx = conn.begin().await?;
+    let updated = repository_exercises::update_exercise_task_specs(
+        &mut tx,
+        task,
+        &exercise.checksum,
+        public.spec.as_ref(),
+        model_solution.spec.as_ref(),
+    )
+    .await?;
+    if updated {
+        for (kind, declared) in [
+            (SpecKind::Public, public.declared_files),
+            (SpecKind::ModelSolution, model_solution.declared_files),
+        ] {
+            if let Some(declared) = declared {
+                exercise_task_spec_files::replace_for_exercise_task(
+                    &mut tx, task.id, kind, &declared,
+                )
+                .await?;
+            }
+        }
+    }
+    tx.commit().await?;
+    Ok(updated)
+}
+
+/// Removes the repository's retired archives that nothing refers to any more. Failures are only
+/// logged; the archives are tried again after the next sync.
+async fn remove_unused_archives(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    file_store: &dyn FileStore,
+) {
+    let archives =
+        match exercise_repositories::get_unused_retired_archives(conn, repository_id).await {
+            Ok(archives) => archives,
+            Err(err) => {
+                error!("Failed to list the retired archives of {repository_id}: {err}");
+                return;
+            }
+        };
+    for archive in archives {
+        match file_store.delete(Path::new(&archive.archive_path)).await {
+            Ok(()) => {}
+            Err(err) if matches!(err.error_type(), UtilErrorType::FileNotFound) => {}
+            Err(err) => {
+                error!(
+                    "Failed to remove the retired archive {}: {err}",
+                    archive.archive_path
+                );
+                continue;
+            }
+        }
+        if let Err(err) =
+            exercise_repositories::mark_retired_archive_removed(conn, &archive.archive_path).await
+        {
+            error!(
+                "Failed to record the removal of {}: {err}",
+                archive.archive_path
+            );
+        }
+    }
+}
+
+/// Deletes the repository and its exercises. Their archives are removed unless exercise tasks or
+/// copies of the course still use them.
 pub async fn delete(
     conn: &mut PgConnection,
     repository_id: Uuid,
     file_store: &dyn FileStore,
 ) -> anyhow::Result<()> {
     let mut tx = conn.begin().await?;
-
-    let mut latest_error = None;
-    let exercises = repository_exercises::delete_for_repository(&mut tx, repository_id).await?;
+    let archives = repository_exercises::delete_for_repository(&mut tx, repository_id).await?;
     exercise_repositories::delete(&mut tx, repository_id).await?;
-    for exercise in exercises {
-        let path = file_store::repository_exercise_path(repository_id, exercise);
-        if let Err(err) = file_store.delete(&path).await {
-            error!(
-                "Failed to delete file while deleting repository {}: {err}",
-                path.display()
-            );
-            latest_error = Some(err);
-        }
+    for archive in &archives {
+        exercise_repositories::retire_archive(&mut tx, repository_id, archive).await?;
     }
-
-    match latest_error {
-        Some(latest_error) => Err(latest_error.into()),
-        _ => {
-            tx.commit().await?;
-            Ok(())
-        }
-    }
-}
-
-async fn create_and_upload_exercise(
-    conn: &mut PgConnection,
-    repository: Uuid,
-    exercise_id: Uuid,
-    exercise: &FoundExercise,
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<PathBuf> {
-    // archive and compress
-    let cursor = Cursor::new(vec![]);
-    let mut tar = tar::Builder::new(cursor);
-    // The repository is teacher-controlled; following its symlinks would archive server files.
-    tar.follow_symlinks(false);
-    tar.append_dir_all(".", &exercise.path)?;
-    let mut tar = tar.into_inner()?;
-    // rewind cursor back to the beginning
-    tar.set_position(0);
-    let tar_zstd = zstd::encode_all(tar, 0)?;
-
-    // upload
-    let path = file_store::repository_exercise_path(repository, exercise_id);
-    file_store
-        .upload(&path, tar_zstd, "application/zstd")
-        .await?;
-    let url = file_store.get_download_url(&path, app_conf);
-
-    // create
-    repository_exercises::new(
-        conn,
-        exercise_id,
-        repository,
-        &exercise.part,
-        &exercise.name,
-        exercise.checksum.as_bytes(),
-        &url,
-    )
-    .await?;
-    Ok(path)
-}
-
-async fn update_exercise(
-    conn: &mut PgConnection,
-    repository: Uuid,
-    exercise_id: Uuid,
-    exercise: &FoundExercise,
-    file_store: &dyn FileStore,
-    app_conf: &ApplicationConfiguration,
-) -> anyhow::Result<PathBuf> {
-    // archive and compress
-    let cursor = Cursor::new(vec![]);
-    let mut tar = tar::Builder::new(cursor);
-    // The repository is teacher-controlled; following its symlinks would archive server files.
-    tar.follow_symlinks(false);
-    tar.append_dir_all(".", &exercise.path)?;
-    let mut tar = tar.into_inner()?;
-    // rewind cursor back to the beginning
-    tar.set_position(0);
-    let tar_zstd = zstd::encode_all(tar, 0)?;
-
-    // upload
-    let path = file_store::repository_exercise_path(repository, exercise_id);
-    file_store
-        .upload(&path, tar_zstd, "application/zstd")
-        .await?;
-    let url = file_store.get_download_url(&path, app_conf);
-
-    // create
-    repository_exercises::new(
-        conn,
-        exercise_id,
-        repository,
-        &exercise.part,
-        &exercise.name,
-        exercise.checksum.as_bytes(),
-        &url,
-    )
-    .await?;
-    Ok(path)
-}
-
-#[derive(Debug)]
-struct FoundExercise {
-    part: String,
-    name: String,
-    checksum: Hash,
-    path: PathBuf,
-}
-
-async fn find_exercise_directories(clone_path: &Path) -> anyhow::Result<Vec<FoundExercise>> {
-    info!("finding exercise directories in {}", clone_path.display());
-
-    let mut exercises = vec![];
-    // exercises in repositories are in subdirs like
-    // part01/01_exercise
-    // part01/02_exercise
-    // part02/01_exercise
-    for entry in WalkDir::new(clone_path)
-        .min_depth(2)
-        .max_depth(2)
-        .into_iter()
-        .filter_entry(|e| {
-            e.file_type().is_dir()
-                && e.file_name() != "private"
-                && !is_hidden_dir(e)
-                && !contains_tmcignore(e)
-                && !is_in_git_dir(e.path())
-        })
-    {
-        let entry = entry?;
-        let checksum = folder_checksum::hash_folder(entry.path()).await?;
-
-        let path = entry.into_path().canonicalize()?;
-        let part = path
-            .parent()
-            .ok_or_else(|| anyhow::anyhow!("Path should be in a subdirectory: {}", path.display()))?
-            .file_name()
-            .ok_or_else(|| {
-                anyhow::anyhow!("The parent file name cannot be missing: {}", path.display())
-            })?
-            .to_str()
-            .context("Invalid directory name in repository")?
-            .to_string();
-        let name = path
-            .file_name()
-            .ok_or_else(|| anyhow::anyhow!("Path should be a directory: {}", path.display()))?
-            .to_str()
-            .context("Invalid directory name in repository")?
-            .to_string();
-        exercises.push(FoundExercise {
-            part,
-            name,
-            checksum,
-            path,
-        });
-    }
-    Ok(exercises)
-}
-
-// Filter for hidden directories (directories with names starting with '.')
-fn is_hidden_dir(entry: &DirEntry) -> bool {
-    let skip = entry.metadata().map(|e| e.is_dir()).unwrap_or_default()
-        && entry
-            .file_name()
-            .to_str()
-            .map(|s| s.starts_with('.'))
-            .unwrap_or_default();
-    if skip {
-        debug!("is hidden dir: {}", entry.path().display());
-    }
-    skip
-}
-
-// Filter for .git directory
-fn is_in_git_dir(path: &Path) -> bool {
-    let skip = path.parent().map(|p| p.ends_with(".git")).unwrap_or(false);
-    if skip {
-        debug!("is in git dir: {}", path.display());
-    }
-    skip
-}
-
-fn contains_tmcignore(entry: &DirEntry) -> bool {
-    for entry in WalkDir::new(entry.path())
-        .max_depth(1)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        let is_file = entry.metadata().map(|e| e.is_file()).unwrap_or_default();
-        if is_file && entry.file_name() == ".tmcignore" {
-            debug!("contains .tmcignore: {}", entry.path().display());
-            return true;
-        }
-    }
-    false
+    tx.commit().await?;
+    remove_unused_archives(conn, repository_id, file_store).await;
+    Ok(())
 }
 
 #[cfg(test)]
@@ -768,7 +964,6 @@ mod test {
     }
 
     use super::*;
-    use std::{fs::Permissions, os::unix::prelude::PermissionsExt, str::FromStr};
 
     fn remembered_key(sha256_fingerprint: &str) -> ExerciseRepositorySshHostKey {
         ExerciseRepositorySshHostKey {
@@ -780,55 +975,6 @@ mod test {
             port: 22,
             sha256_fingerprint: sha256_fingerprint.to_string(),
         }
-    }
-
-    #[tokio::test]
-    async fn finds_exercise_dirs() {
-        let repo = tempfile::tempdir().unwrap();
-
-        std::fs::create_dir_all(repo.path().join("part01/01_exercise")).unwrap();
-        std::fs::write(repo.path().join("part01/01_exercise/file"), "1234").unwrap();
-
-        std::fs::create_dir_all(repo.path().join("part01/02_exercise")).unwrap();
-        std::fs::write(repo.path().join("part01/02_exercise/file"), "1234").unwrap();
-
-        std::fs::create_dir_all(repo.path().join("part02/01_exercise")).unwrap();
-        std::fs::write(repo.path().join("part02/01_exercise/file"), "1234").unwrap();
-
-        // Make sure permissions are the same on all systems. Some systems have different default permissions in the temp folder.
-        let file_paths = vec![
-            repo.path().join("part01/01_exercise/file"),
-            repo.path().join("part01/02_exercise/file"),
-            repo.path().join("part02/01_exercise/file"),
-        ];
-        let folder_paths = vec![
-            repo.path().join("part01/01_exercise"),
-            repo.path().join("part01/02_exercise"),
-            repo.path().join("part02/01_exercise"),
-            repo.path().to_path_buf(),
-        ];
-        for path in file_paths {
-            std::fs::set_permissions(path, Permissions::from_mode(0o644)).unwrap();
-        }
-        for path in folder_paths {
-            std::fs::set_permissions(path, Permissions::from_mode(0o755)).unwrap();
-        }
-
-        let mut paths = find_exercise_directories(repo.path()).await.unwrap();
-        paths.sort_by(|a, b| a.path.cmp(&b.path));
-        assert_eq!(paths.len(), 3);
-
-        assert_eq!(&paths[0].path, &repo.path().join("part01/01_exercise"));
-        assert_eq!(&paths[0].part, "part01");
-        assert_eq!(&paths[0].name, "01_exercise");
-        assert_eq!(
-            paths[0].checksum,
-            Hash::from_str("3a01c5d9a407deec294c4ac561cdeea1a7507464193e06387083853e3ca71c3a")
-                .unwrap()
-        );
-
-        assert_eq!(&paths[1].name, "02_exercise");
-        assert_eq!(&paths[2].name, "01_exercise");
     }
 
     // git2 builds libgit2 without any network transport unless asked, so a dependency bump that
@@ -880,11 +1026,545 @@ mod test {
         assert!(check_ssh_host_key("git.example.org", 22, None, None).is_err());
     }
 
+    fn prepared(path: &str, files: &[(&str, &str)]) -> PreparedRepositoryExercise {
+        PreparedRepositoryExercise {
+            part: "part01".to_string(),
+            name: path.rsplit('/').next().unwrap().to_string(),
+            path: path.to_string(),
+            files: files
+                .iter()
+                .map(|(path, contents)| PreparedFile {
+                    path: path.to_string(),
+                    contents: contents.to_string(),
+                })
+                .collect(),
+            details: serde_json::json!({ "plugin": "python3" }),
+        }
+    }
+
+    #[tokio::test]
+    async fn prepared_files_replace_what_the_checkout_had() {
+        let checkout = tempfile::tempdir().unwrap();
+        let exercise = checkout.path().join("part01/ex");
+        std::fs::create_dir_all(&exercise).unwrap();
+        let outside = tempfile::NamedTempFile::new().unwrap();
+        std::os::unix::fs::symlink(outside.path(), exercise.join(".tmcproject.yml")).unwrap();
+
+        let found = apply_prepared_exercises(
+            checkout.path(),
+            vec![prepared(
+                "part01/ex",
+                &[(".tmcproject.yml", "tests_timeout_ms: 1\n")],
+            )],
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            std::fs::read_to_string(exercise.join(".tmcproject.yml")).unwrap(),
+            "tests_timeout_ms: 1\n"
+        );
+        assert_eq!(std::fs::read_to_string(outside.path()).unwrap(), "");
+        assert_eq!(
+            found[0].checksum,
+            folder_checksum::hash_folder(&exercise).await.unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn prepared_paths_cannot_leave_the_checkout() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        let outside = tempfile::tempdir().unwrap();
+        std::os::unix::fs::symlink(outside.path(), checkout.path().join("linked")).unwrap();
+        for exercise in [
+            prepared("../ex", &[]),
+            prepared("/tmp", &[]),
+            prepared("part01/../../ex", &[]),
+            prepared("linked", &[]),
+            prepared("part01/ex", &[("../escape", "")]),
+        ] {
+            assert!(
+                apply_prepared_exercises(checkout.path(), vec![exercise])
+                    .await
+                    .is_err()
+            );
+        }
+        assert!(std::fs::read_dir(outside.path()).unwrap().next().is_none());
+    }
+
+    #[tokio::test]
+    async fn two_prepared_exercises_with_one_name_are_refused() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        let result = apply_prepared_exercises(
+            checkout.path(),
+            vec![prepared("part01/ex", &[]), prepared("part01/ex", &[])],
+        )
+        .await;
+        assert!(result.unwrap_err().to_string().contains("part01/ex"));
+    }
+
     #[test]
-    fn filters_git() {
-        assert!(is_in_git_dir(Path::new("something/.git/something")));
-        assert!(!is_in_git_dir(Path::new(
-            "something/.git/something/something"
-        )));
+    fn a_checkout_is_archived_without_its_git_directory() {
+        let checkout = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(checkout.path().join(".git/objects")).unwrap();
+        std::fs::create_dir_all(checkout.path().join("part01/ex")).unwrap();
+        std::fs::write(checkout.path().join("part01/ex/setup.py"), "").unwrap();
+
+        let archive = zstd::decode_all(archive_checkout(checkout.path()).unwrap()).unwrap();
+        let names: Vec<String> = tar::Archive::new(Cursor::new(archive))
+            .entries()
+            .unwrap()
+            .map(|entry| entry.unwrap().path().unwrap().display().to_string())
+            .collect();
+        assert!(
+            names.iter().any(|name| name == "part01/ex/setup.py"),
+            "{names:?}"
+        );
+        assert!(
+            !names.iter().any(|name| name.starts_with(".git")),
+            "{names:?}"
+        );
+    }
+
+    mod sync {
+        use super::super::*;
+        use crate::test_helper::*;
+        use futures::FutureExt;
+        use headless_lms_models::{
+            CourseOrExamId, PKeyPolicy,
+            exercise_service_info::PathInfo,
+            exercise_services::ExerciseServiceNewOrUpdate,
+            exercise_tasks::{self, NewExerciseTask},
+        };
+        use std::fs;
+
+        fn write(root: &Path, relative: &str, contents: &str) {
+            let path = root.join(relative);
+            fs::create_dir_all(path.parent().unwrap()).unwrap();
+            fs::write(path, contents).unwrap();
+        }
+
+        /// The directories under `root` that hold a `setup.py`, as an exercise service would
+        /// report them.
+        async fn found(root: &Path) -> Vec<FoundExercise> {
+            let mut found = vec![];
+            for entry in walkdir::WalkDir::new(root).min_depth(1) {
+                let entry = entry.unwrap();
+                if !entry.path().join("setup.py").is_file() {
+                    continue;
+                }
+                let relative = entry.path().strip_prefix(root).unwrap();
+                let part = relative
+                    .parent()
+                    .unwrap()
+                    .iter()
+                    .map(|c| c.to_str().unwrap())
+                    .collect::<Vec<_>>()
+                    .join("-");
+                found.push(FoundExercise {
+                    part,
+                    name: entry.file_name().to_str().unwrap().to_string(),
+                    checksum: folder_checksum::hash_folder(entry.path()).await.unwrap(),
+                    path: entry.path().to_path_buf(),
+                    details: serde_json::json!({ "plugin": "python3" }),
+                });
+            }
+            found
+        }
+
+        async fn insert_repository(conn: &mut PgConnection, course_id: Uuid) -> Uuid {
+            let id = Uuid::new_v4();
+            exercise_repositories::new(
+                conn,
+                id,
+                CourseOrExamId::Course(course_id),
+                "https://example.com/repo.git",
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+            id
+        }
+
+        async fn insert_exercise_service(conn: &mut PgConnection) -> String {
+            let slug = format!("repository-sync-{}", Uuid::new_v4());
+            let service = exercise_services::insert_exercise_service(
+                conn,
+                &ExerciseServiceNewOrUpdate {
+                    name: slug.clone(),
+                    slug: slug.clone(),
+                    public_url: "https://example.com".to_string(),
+                    internal_url: None,
+                    max_reprocessing_submissions_at_once: 1,
+                    is_global_admin_only: false,
+                    is_experimental: false,
+                },
+            )
+            .await
+            .unwrap();
+            exercise_service_info::insert(
+                conn,
+                &PathInfo {
+                    exercise_service_id: service.id,
+                    user_interface_iframe_path: "/iframe".to_string(),
+                    grade_endpoint_path: "/grade".to_string(),
+                    public_spec_endpoint_path: "/public-spec".to_string(),
+                    model_solution_spec_endpoint_path: "/model-solution".to_string(),
+                    has_custom_view: false,
+                    supports_native_client: false,
+                    produces_file_answers: false,
+                    declares_spec_files: false,
+                },
+            )
+            .await
+            .unwrap();
+            slug
+        }
+
+        fn derive_from_download_url<'a>(
+            url: Url,
+            _: &'a str,
+            _: Option<&'a serde_json::Value>,
+            repository_exercise: Option<&'a RepositoryExercise>,
+        ) -> BoxFuture<'a, ModelResult<serde_json::Value>> {
+            let spec = serde_json::json!({
+                "endpoint": url.path(),
+                "derived_from": repository_exercise.unwrap().download_url,
+            });
+            async move { Ok(spec) }.boxed()
+        }
+
+        fn unused_spec_fetcher<'a>(
+            _: Url,
+            _: &'a str,
+            _: Option<&'a serde_json::Value>,
+            _: Option<&'a RepositoryExercise>,
+        ) -> BoxFuture<'a, ModelResult<serde_json::Value>> {
+            unreachable!("nothing is outdated")
+        }
+
+        fn unused_service_info_fetcher(
+            _url: Url,
+        ) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>> {
+            unreachable!("the service info is stored")
+        }
+
+        /// Points the task at the repository exercise, as if the editor had picked its current
+        /// version.
+        async fn use_repository_exercise(
+            conn: &mut PgConnection,
+            task_id: Uuid,
+            exercise: &RepositoryExercise,
+        ) {
+            sqlx::query(
+                "UPDATE exercise_tasks SET repository_exercise_id = $1, repository_exercise_checksum = $2 WHERE id = $3",
+            )
+            .bind(exercise.id)
+            .bind(&exercise.checksum)
+            .bind(task_id)
+            .execute(conn)
+            .await
+            .unwrap();
+        }
+
+        async fn exercise_named(
+            conn: &mut PgConnection,
+            repository_id: Uuid,
+            name: &str,
+        ) -> RepositoryExercise {
+            repository_exercises::get_for_repository(conn, repository_id)
+                .await
+                .unwrap()
+                .into_iter()
+                .find(|e| e.name == name)
+                .unwrap()
+        }
+
+        #[actix_web::test]
+        async fn an_unchanged_copy_does_not_take_the_original_id() {
+            insert_data!(:tx, :user, :org, :course);
+            let file_store = temp_file_store();
+            let app_conf = init_app_conf().unwrap();
+            let repository_id = insert_repository(tx.as_mut(), course).await;
+            let checkout = tempfile::tempdir().unwrap();
+            let root = checkout.path();
+            write(root, "part01/original/setup.py", "same");
+            sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+            let original = exercise_named(tx.as_mut(), repository_id, "original").await;
+
+            write(root, "part01/a_copy/setup.py", "same");
+            let report = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(report.added, vec!["part01/a_copy"]);
+            assert!(report.renamed.is_empty());
+            let original_now = exercise_named(tx.as_mut(), repository_id, "original").await;
+            assert_eq!(original_now.id, original.id);
+        }
+
+        #[actix_web::test]
+        async fn a_resync_updates_exercises_in_place_and_reports_the_changes() {
+            insert_data!(:tx, :user, :org, :course);
+            let file_store = temp_file_store();
+            let app_conf = init_app_conf().unwrap();
+            let repository_id = insert_repository(tx.as_mut(), course).await;
+            let checkout = tempfile::tempdir().unwrap();
+            let root = checkout.path();
+            write(root, "part01/changed/setup.py", "v1");
+            write(root, "part01/moved/setup.py", "same");
+            write(root, "part01/dropped/setup.py", "dropped");
+            write(root, "part01/kept_in_use/setup.py", "in use");
+
+            let first = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+            assert_eq!(first.added.len(), 4);
+            let changed = exercise_named(tx.as_mut(), repository_id, "changed").await;
+            let moved = exercise_named(tx.as_mut(), repository_id, "moved").await;
+            let in_use = exercise_named(tx.as_mut(), repository_id, "kept_in_use").await;
+            insert_data!(tx: tx, user: user, org: org, course: course; instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide);
+            let task_id = exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    exercise_slide_id: slide,
+                    exercise_type: "tmc".to_string(),
+                    assignment: vec![],
+                    public_spec: None,
+                    private_spec: Some(serde_json::json!({
+                        "type": "browser",
+                        "repository_exercise": in_use,
+                    })),
+                    model_solution_spec: None,
+                    order_number: 0,
+                },
+            )
+            .await
+            .unwrap();
+            use_repository_exercise(tx.as_mut(), task_id, &in_use).await;
+
+            write(root, "part01/changed/setup.py", "v2");
+            fs::rename(root.join("part01/moved"), root.join("part02-moved")).unwrap();
+            fs::remove_dir_all(root.join("part01/dropped")).unwrap();
+            fs::remove_dir_all(root.join("part01/kept_in_use")).unwrap();
+            write(root, "part03/new/setup.py", "new");
+            let second = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(root).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(second.added, vec!["part03/new"]);
+            assert_eq!(second.updated, vec!["part01/changed"]);
+            assert_eq!(
+                second.renamed,
+                vec![RenamedRepositoryExercise {
+                    from: "part01/moved".to_string(),
+                    to: "part02-moved".to_string(),
+                }]
+            );
+            assert_eq!(second.removed, vec!["part01/dropped"]);
+            assert_eq!(second.missing_but_in_use, vec!["part01/kept_in_use"]);
+
+            let changed_now = exercise_named(tx.as_mut(), repository_id, "changed").await;
+            assert_eq!(changed_now.id, changed.id);
+            assert_ne!(changed_now.checksum, changed.checksum);
+            assert_ne!(changed_now.download_url, changed.download_url);
+            let moved_now = exercise_named(tx.as_mut(), repository_id, "part02-moved").await;
+            assert_eq!(moved_now.id, moved.id);
+            assert_eq!(moved_now.part, "");
+            assert_eq!(moved_now.download_url, moved.download_url);
+            assert_eq!(
+                exercise_named(tx.as_mut(), repository_id, "kept_in_use")
+                    .await
+                    .id,
+                in_use.id
+            );
+
+            // The previous archive outlives the update until nothing refers to it.
+            let old_path = changed.download_url.split("/api/v0/files/").nth(1).unwrap();
+            assert!(file_store.0.path().join(old_path).exists());
+            remove_unused_archives(tx.as_mut(), repository_id, &file_store).await;
+            assert!(!file_store.0.path().join(old_path).exists());
+            let in_use_path = in_use.download_url.split("/api/v0/files/").nth(1).unwrap();
+            assert!(file_store.0.path().join(in_use_path).exists());
+        }
+
+        #[actix_web::test]
+        async fn a_failed_sync_changes_nothing_and_removes_its_uploads() {
+            insert_data!(:tx, :user, :org, :course);
+            let file_store = temp_file_store();
+            let app_conf = init_app_conf().unwrap();
+            let repository_id = insert_repository(tx.as_mut(), course).await;
+            let checkout = tempfile::tempdir().unwrap();
+            write(checkout.path(), "part01/ex/setup.py", "v1");
+            sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(checkout.path()).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+            let before = exercise_named(tx.as_mut(), repository_id, "ex").await;
+
+            write(checkout.path(), "part01/ex/setup.py", "v2");
+            write(checkout.path(), "part01/other/setup.py", "");
+            // A part longer than the column allows fails the transaction after uploading.
+            let long_dir = "x".repeat(100);
+            write(
+                checkout.path(),
+                &format!("{long_dir}/{long_dir}/{long_dir}/ex2/setup.py"),
+                "",
+            );
+            assert!(
+                sync_checkout(
+                    tx.as_mut(),
+                    repository_id,
+                    found(checkout.path()).await,
+                    &file_store,
+                    &app_conf
+                )
+                .await
+                .is_err()
+            );
+
+            let after = exercise_named(tx.as_mut(), repository_id, "ex").await;
+            assert_eq!(after, before);
+            let stored: Vec<_> = walkdir::WalkDir::new(file_store.0.path())
+                .into_iter()
+                .filter_map(Result::ok)
+                .filter(|e| e.file_type().is_file())
+                .collect();
+            assert_eq!(stored.len(), 1, "{stored:?}");
+        }
+
+        #[actix_web::test]
+        async fn refreshes_the_tasks_derived_from_an_outdated_exercise() {
+            insert_data!(:tx, :user, :org, :course, instance: _instance, course_module: _course_module, :chapter, :page, :exercise, :slide);
+            let file_store = temp_file_store();
+            let app_conf = init_app_conf().unwrap();
+            let slug = insert_exercise_service(tx.as_mut()).await;
+            let repository_id = insert_repository(tx.as_mut(), course).await;
+            let checkout = tempfile::tempdir().unwrap();
+            write(checkout.path(), "part01/ex/setup.py", "v1");
+            sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(checkout.path()).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+            let picked = exercise_named(tx.as_mut(), repository_id, "ex").await;
+            let private_spec = serde_json::json!({
+                "type": "editor",
+                "repository_exercise": picked,
+            });
+            let task_id = exercise_tasks::insert(
+                tx.as_mut(),
+                PKeyPolicy::Generate,
+                NewExerciseTask {
+                    exercise_slide_id: slide,
+                    exercise_type: slug.clone(),
+                    assignment: vec![],
+                    public_spec: Some(serde_json::json!({ "checksum": "old" })),
+                    private_spec: Some(private_spec.clone()),
+                    model_solution_spec: None,
+                    order_number: 0,
+                },
+            )
+            .await
+            .unwrap();
+            use_repository_exercise(tx.as_mut(), task_id, &picked).await;
+
+            write(checkout.path(), "part01/ex/setup.py", "v2");
+            let mut report = sync_checkout(
+                tx.as_mut(),
+                repository_id,
+                found(checkout.path()).await,
+                &file_store,
+                &app_conf,
+            )
+            .await
+            .unwrap();
+            refresh_exercise_tasks(
+                tx.as_mut(),
+                repository_id,
+                derive_from_download_url,
+                unused_service_info_fetcher,
+                &mut report,
+            )
+            .await
+            .unwrap();
+
+            assert_eq!(report.refreshed_exercise_task_count, 1);
+            assert!(report.failed_exercise_tasks.is_empty());
+            let current = exercise_named(tx.as_mut(), repository_id, "ex").await;
+            let task = exercise_tasks::get_exercise_task_by_id(tx.as_mut(), task_id)
+                .await
+                .unwrap();
+            assert_eq!(task.private_spec, Some(private_spec));
+            assert_eq!(
+                task.repository_exercise_checksum,
+                Some(current.checksum.clone())
+            );
+            assert_eq!(
+                task.public_spec.unwrap(),
+                serde_json::json!({
+                    "endpoint": "/public-spec",
+                    "derived_from": current.download_url,
+                })
+            );
+            assert_eq!(
+                task.model_solution_spec.unwrap(),
+                serde_json::json!({
+                    "endpoint": "/model-solution",
+                    "derived_from": current.download_url,
+                })
+            );
+
+            // An up-to-date task is left alone.
+            refresh_exercise_tasks(
+                tx.as_mut(),
+                repository_id,
+                unused_spec_fetcher,
+                unused_service_info_fetcher,
+                &mut ExerciseRepositorySyncReport::default(),
+            )
+            .await
+            .unwrap();
+        }
     }
 }

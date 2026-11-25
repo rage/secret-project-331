@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_exercise_states\nSET reviewing_stage = 'not_started'\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n  AND reviewing_stage = 'not_answered_and_locked'\n  AND exercise_id IN (\n    SELECT id\n    FROM exercises\n    WHERE chapter_id = $3\n      AND deleted_at IS NULL\n  )\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1fc58a63fc459a0a91fd5d36c474a78b82764cb3fecf81dead3517907f889f8b"
+}

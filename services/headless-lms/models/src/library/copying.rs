@@ -331,6 +331,7 @@ RETURNING *
 
     copy_exercise_slides(&mut *tx, copied_exam.id, parent_exam.id).await?;
     copy_exercise_tasks(&mut *tx, copied_exam.id, parent_exam.id).await?;
+    copy_exercise_repositories(&mut *tx, copied_exam.id, parent_exam.id).await?;
     copy_page_audio_files(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
     let copied_page_ids = page_contents.keys().copied().collect::<Vec<_>>();
@@ -1334,7 +1335,9 @@ INSERT INTO exercise_tasks (
     public_spec,
     model_solution_spec,
     order_number,
-    copied_from
+    copied_from,
+    repository_exercise_id,
+    repository_exercise_checksum
   )
 SELECT uuid_generate_v5($1, t.id::text),
   copied_slide.id,
@@ -1344,7 +1347,9 @@ SELECT uuid_generate_v5($1, t.id::text),
   t.public_spec,
   t.model_solution_spec,
   t.order_number,
-  t.id
+  t.id,
+  t.repository_exercise_id,
+  t.repository_exercise_checksum
 FROM exercise_tasks t
   JOIN exercise_slides s ON s.id = t.exercise_slide_id
   JOIN exercises e ON e.id = s.exercise_id
@@ -1814,35 +1819,112 @@ WHERE course_id = $2
     Ok(())
 }
 
+/// Copies the repositories with their exercises, which share the source's archives, and points the
+/// copied tasks at the copied exercises, so the copy can sync its repositories on its own.
+/// Must run after [`copy_exercise_tasks`].
 async fn copy_exercise_repositories(
     tx: &mut PgConnection,
-    new_course_id: Uuid,
-    old_course_id: Uuid,
+    namespace_id: Uuid,
+    parent_id: Uuid,
 ) -> ModelResult<()> {
     sqlx::query!(
         "
 INSERT INTO exercise_repositories (
     id,
     course_id,
+    exam_id,
     url,
+    branch,
     deploy_key,
     public_key,
-    STATUS,
-    error_message
+    status,
+    error_message,
+    last_synced_at
   )
 SELECT uuid_generate_v5($1, id::text),
-  $1,
+  CASE
+    WHEN course_id IS NOT NULL THEN $1
+  END,
+  CASE
+    WHEN exam_id IS NOT NULL THEN $1
+  END,
   url,
+  branch,
   deploy_key,
   public_key,
-  STATUS,
-  error_message
+  status,
+  error_message,
+  last_synced_at
 FROM exercise_repositories
-WHERE course_id = $2
+WHERE (
+    course_id = $2
+    OR exam_id = $2
+  )
   AND deleted_at IS NULL;
         ",
-        new_course_id,
-        old_course_id
+        namespace_id,
+        parent_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+INSERT INTO repository_exercises (
+    id,
+    repository_id,
+    part,
+    name,
+    checksum,
+    archive_path,
+    download_url,
+    details
+  )
+SELECT uuid_generate_v5($1, re.id::text),
+  uuid_generate_v5($1, re.repository_id::text),
+  re.part,
+  re.name,
+  re.checksum,
+  re.archive_path,
+  re.download_url,
+  re.details
+FROM repository_exercises re
+  JOIN exercise_repositories er ON er.id = re.repository_id
+WHERE (
+    er.course_id = $2
+    OR er.exam_id = $2
+  )
+  AND er.deleted_at IS NULL
+  AND re.deleted_at IS NULL;
+        ",
+        namespace_id,
+        parent_id
+    )
+    .execute(&mut *tx)
+    .await?;
+    sqlx::query!(
+        "
+UPDATE exercise_tasks copied_task
+SET repository_exercise_id = uuid_generate_v5($1, re.id::text)
+FROM repository_exercises re
+  JOIN exercise_repositories er ON er.id = re.repository_id
+WHERE copied_task.repository_exercise_id = re.id
+  AND (
+    er.course_id = $2
+    OR er.exam_id = $2
+  )
+  AND er.deleted_at IS NULL
+  AND re.deleted_at IS NULL
+  AND copied_task.id IN (
+    SELECT uuid_generate_v5($1, t.id::text)
+    FROM exercise_tasks t
+      JOIN exercise_slides s ON s.id = t.exercise_slide_id
+      JOIN exercises e ON e.id = s.exercise_id
+    WHERE e.course_id = $2
+      OR e.exam_id = $2
+  );
+        ",
+        namespace_id,
+        parent_id
     )
     .execute(&mut *tx)
     .await?;
@@ -2573,6 +2655,84 @@ mod tests {
                 assert_ne!(original_chapter.id, copied_exercise.id);
             }
         }
+    }
+
+    #[tokio::test]
+    async fn copies_repositories_with_their_exercises_and_points_tasks_at_the_copies() {
+        insert_data!(:tx, :user, :org, :course, instance: _i, course_module: _m,
+                     :chapter, :page, :exercise, :slide, task: task);
+        let repository_id = Uuid::new_v4();
+        crate::exercise_repositories::new(
+            tx.as_mut(),
+            repository_id,
+            CourseOrExamId::Course(course),
+            "https://example.com/repo.git",
+            Some("main"),
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+        let exercise_id = Uuid::new_v4();
+        crate::repository_exercises::insert(
+            tx.as_mut(),
+            exercise_id,
+            repository_id,
+            &crate::repository_exercises::RepositoryExerciseVersion {
+                part: "part01",
+                name: "ex",
+                checksum: &[1, 2],
+                archive_path: "repository_exercises/a/b-c.tar.zst",
+                download_url: "http://example.com/api/v0/files/repository_exercises/a/b-c.tar.zst",
+                details: &serde_json::json!({ "plugin": "python3" }),
+            },
+        )
+        .await
+        .unwrap();
+        let picked = crate::repository_exercises::get_for_repository(tx.as_mut(), repository_id)
+            .await
+            .unwrap()
+            .remove(0);
+        sqlx::query("UPDATE exercise_tasks SET repository_exercise_id = $2 WHERE id = $1")
+            .bind(task)
+            .bind(picked.id)
+            .execute(&mut **tx.as_mut())
+            .await
+            .unwrap();
+
+        let new_course = create_new_course(org, "fi-SV".into());
+        let copied_course = copy_course(tx.as_mut(), course, &new_course, true, user)
+            .await
+            .unwrap();
+
+        let copied_repositories = crate::exercise_repositories::get_for_course_or_exam(
+            tx.as_mut(),
+            CourseOrExamId::Course(copied_course.id),
+        )
+        .await
+        .unwrap();
+        assert_eq!(copied_repositories.len(), 1);
+        assert_eq!(copied_repositories[0].branch.as_deref(), Some("main"));
+        assert_eq!(copied_repositories[0].exercise_task_count, 1);
+        let copied_exercises = crate::repository_exercises::get_for_course_or_exam(
+            tx.as_mut(),
+            CourseOrExamId::Course(copied_course.id),
+        )
+        .await
+        .unwrap();
+        assert_eq!(copied_exercises.len(), 1);
+        let copied_exercise = &copied_exercises[0];
+        assert_ne!(copied_exercise.id, picked.id);
+        assert_eq!(copied_exercise.download_url, picked.download_url);
+
+        let copied_task_exercise: Option<Uuid> = sqlx::query_scalar(
+            "SELECT repository_exercise_id FROM exercise_tasks WHERE copied_from = $1",
+        )
+        .bind(task)
+        .fetch_one(&mut **tx.as_mut())
+        .await
+        .unwrap();
+        assert_eq!(copied_task_exercise, Some(copied_exercise.id));
     }
 
     /// A copied course's specs name the same stored files as the originals, so the copy has to

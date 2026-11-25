@@ -12,7 +12,7 @@ import { createScopedLogger } from "@/util/logger"
 import type { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 import type { ParsedSpecRequest } from "./requestSchemas"
-import { privateSpecSchema, specRequestSchema } from "./requestSchemas"
+import { currentRepositoryExercise, privateSpecSchema, specRequestSchema } from "./requestSchemas"
 import { uploadArchive } from "./uploadArchive"
 
 async function postImpl(request: Request): Promise<Response> {
@@ -65,11 +65,12 @@ const processModelSolution = async (
       return badRequest("Invalid private spec")
     }
     const privateSpec = privateSpecResult.data
+    const repositoryExercise = currentRepositoryExercise(specRequest, privateSpec)
 
     debug("downloading template")
     const templateArchive = temporaryFile()
     tempPaths.push(templateArchive)
-    await downloadStream(privateSpec.repository_exercise.download_url, templateArchive)
+    await downloadStream(repositoryExercise.download_url, templateArchive)
 
     debug("extracting template")
     const extractedProjectDir = temporaryDirectory()
@@ -87,7 +88,7 @@ const processModelSolution = async (
       debug,
       solutionDir,
       privateSpec.type,
-      privateSpec.repository_exercise,
+      repositoryExercise,
       upload_url,
       uploadClaim,
     )

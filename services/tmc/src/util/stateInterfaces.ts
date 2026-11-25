@@ -15,6 +15,12 @@ export interface ExerciseEditorState {
   exercise_task_id: string
   repository_exercises: RepositoryExercise[] | null
   private_spec: PrivateSpec | null
+  /**
+   * The repository exercise the teacher picked in this editor session. Unset until they pick one:
+   * a copied course's private spec still names the source course's exercise, which must not
+   * replace the host's own record of the task's exercise.
+   */
+  picked_repository_exercise_id?: string
 }
 
 export interface AnswerExerciseState {

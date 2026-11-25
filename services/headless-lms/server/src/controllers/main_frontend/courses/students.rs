@@ -475,6 +475,13 @@ async fn teacher_unlock_student_chapter(
         course_id,
     )
     .await?;
+    models::user_exercise_states::reopen_unanswered_locked_in_chapter(
+        &mut tx,
+        target_user_id,
+        course_id,
+        chapter_id,
+    )
+    .await?;
     chapter_lock_action_logs::insert(
         &mut tx,
         Some(user.id),

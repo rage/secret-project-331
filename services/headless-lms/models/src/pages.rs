@@ -485,6 +485,7 @@ pub struct NormalizedCmsExerciseTask {
     pub exercise_type: String,
     pub assignment: serde_json::Value,
     pub private_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -1548,6 +1549,9 @@ pub struct CmsPageExerciseTask {
     /// endpoint that produced it, since a derivation may upload files of its own.
     #[serde(default)]
     pub private_spec_files: Vec<Uuid>,
+    /// The repository exercise the exercise editor picked, as it reported it beside the spec.
+    #[serde(default)]
+    pub repository_exercise_id: Option<Uuid>,
 }
 
 impl CmsPageExerciseTask {
@@ -1563,6 +1567,7 @@ impl CmsPageExerciseTask {
             private_spec: task.private_spec,
             order_number: task.order_number,
             private_spec_files,
+            repository_exercise_id: task.repository_exercise_id,
         }
     }
 }
@@ -2083,7 +2088,9 @@ AND deleted_at IS NULL
 RETURNING id,
   private_spec,
   public_spec,
-  model_solution_spec;
+  model_solution_spec,
+  repository_exercise_id,
+  repository_exercise_checksum;
         ",
         &existing_exercise_slide_ids,
     )
@@ -2095,6 +2102,7 @@ RETURNING id,
         &existing_exercise_task_specs,
         &cms_page_update.exercise_tasks,
         page_update.retain_ids,
+        CourseOrExamId::from_course_and_exam_ids(page.course_id, page.exam_id)?,
         &spec_fetcher,
         fetch_service_info,
     )
@@ -2498,12 +2506,14 @@ RETURNING id,
 }
 
 /// Remaps ids from updates to exercise tasks that may have their ids changed.
+#[allow(clippy::too_many_arguments)]
 async fn upsert_exercise_tasks(
     conn: &mut PgConnection,
     remapped_slides: &HashMap<Uuid, CmsPageExerciseSlide>,
     existing_task_specs: &[ExerciseTaskIdAndSpec],
     task_updates: &[CmsPageExerciseTask],
     retain_exercise_ids: bool,
+    course_or_exam_id: CourseOrExamId,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Vec<CmsPageExerciseTask>> {
@@ -2550,6 +2560,40 @@ async fn upsert_exercise_tasks(
             assignment: task_update.assignment.clone(),
             exercise_type: task_update.exercise_type.clone(),
             private_spec: task_update.private_spec.clone(),
+            repository_exercise_id: task_update.repository_exercise_id,
+        };
+        // A task keeps a repository exercise it already uses: courses copied before repositories
+        // were copied along still use their source course's. Picking one takes it from this
+        // course's or exam's own repositories.
+        let keeps_repository_exercise = existing_exercise_task.is_some_and(|existing| {
+            existing.repository_exercise_id == task_update.repository_exercise_id
+        });
+        let repository_exercise = match task_update.repository_exercise_id {
+            Some(id) if keeps_repository_exercise => {
+                Some(crate::repository_exercises::get_by_id(&mut *conn, id).await?)
+            }
+            Some(id) => Some(
+                crate::repository_exercises::get_in_course_or_exam(&mut *conn, id, course_or_exam_id)
+                    .await?
+                    .ok_or_else(|| {
+                        model_err!(
+                            PreconditionFailedWithCMSAnchorBlockId {
+                                id: task_update.id,
+                                description: "The exercise task uses a removed repository exercise or one of another course or exam.",
+                            },
+                            "The exercise task uses a removed repository exercise or one of another course or exam.".to_string()
+                        )
+                    })?,
+            ),
+            None => None,
+        };
+        let repository_exercise_checksum = match existing_exercise_task {
+            Some(existing) if existing.has_same_spec_input(&normalized_task) => {
+                existing.repository_exercise_checksum.clone()
+            }
+            _ => repository_exercise
+                .as_ref()
+                .map(|exercise| exercise.checksum.clone()),
         };
         let declares_spec_files = exercise_service_hashmap
             .get(&task_update.exercise_type)
@@ -2557,6 +2601,7 @@ async fn upsert_exercise_tasks(
         let model_solution = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
+            repository_exercise.as_ref(),
             &model_solution_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.model_solution_spec.clone()),
@@ -2567,6 +2612,7 @@ async fn upsert_exercise_tasks(
         let public = fetch_derived_spec(
             existing_exercise_task,
             &normalized_task,
+            repository_exercise.as_ref(),
             &public_spec_urls_by_exercise_type,
             &spec_fetcher,
             existing_exercise_task.and_then(|value| value.public_spec.clone()),
@@ -2597,9 +2643,11 @@ INSERT INTO exercise_tasks(
     public_spec,
     private_spec,
     model_solution_spec,
-    order_number
+    order_number,
+    repository_exercise_id,
+    repository_exercise_checksum
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (id) DO
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO
 UPDATE
 SET exercise_slide_id = $2,
   exercise_type = $3,
@@ -2608,13 +2656,16 @@ SET exercise_slide_id = $2,
   private_spec = $6,
   model_solution_spec = $7,
   order_number = $8,
+  repository_exercise_id = $9,
+  repository_exercise_checksum = $10,
   deleted_at = NULL
 RETURNING id,
   exercise_slide_id,
   assignment,
   exercise_type,
   private_spec,
-  order_number
+  order_number,
+  repository_exercise_id
                 ",
             safe_for_db_exercise_task_id,
             safe_for_db_exercise_slide_id,
@@ -2624,6 +2675,8 @@ RETURNING id,
             task_update.private_spec,
             model_solution_spec,
             task_update.order_number,
+            task_update.repository_exercise_id,
+            repository_exercise_checksum,
         )
         .fetch_one(&mut *conn)
         .await?;
@@ -2664,6 +2717,7 @@ RETURNING id,
             private_spec: upserted.private_spec,
             order_number: upserted.order_number,
             private_spec_files: task_update.private_spec_files.clone(),
+            repository_exercise_id: upserted.repository_exercise_id,
         })
     }
     Ok(remapped_exercise_tasks)
@@ -2956,17 +3010,49 @@ struct ExerciseTaskIdAndSpec {
     pub private_spec: Option<serde_json::Value>,
     pub public_spec: Option<serde_json::Value>,
     pub model_solution_spec: Option<serde_json::Value>,
+    pub repository_exercise_id: Option<Uuid>,
+    pub repository_exercise_checksum: Option<Vec<u8>>,
+}
+
+impl ExerciseTaskIdAndSpec {
+    /// Whether a save of `task_update` would derive this task's specs from the same input again.
+    fn has_same_spec_input(&self, task_update: &NormalizedCmsExerciseTask) -> bool {
+        self.private_spec == task_update.private_spec
+            && self.repository_exercise_id == task_update.repository_exercise_id
+    }
 }
 
 /// A derived spec, with the stored files the exercise service declared it references.
 #[derive(Debug)]
-struct DerivedSpec {
-    spec: Option<serde_json::Value>,
+pub struct DerivedSpec {
+    pub spec: Option<serde_json::Value>,
     /// `None` when this save declared nothing about the spec: either it was not re-derived, so the
     /// stored declarations still stand, or the service does not declare its spec files at all.
     /// Distinct from `Some(vec![])`, which says the spec references no files and releases whatever
     /// it referenced before.
-    declared_files: Option<Vec<Uuid>>,
+    pub declared_files: Option<Vec<Uuid>>,
+}
+
+/// Reads what an exercise service's public-spec or model-solution endpoint answered: the bare spec,
+/// or the spec and its files when the service declares its spec files.
+pub fn parse_derived_spec(
+    response: serde_json::Value,
+    declares_spec_files: bool,
+) -> Result<DerivedSpec, serde_json::Error> {
+    if !declares_spec_files {
+        return Ok(DerivedSpec {
+            spec: Some(response),
+            declared_files: None,
+        });
+    }
+    let response: DerivedSpecResponse = serde_json::from_value(response)?;
+    Ok(DerivedSpec {
+        spec: match response.spec {
+            serde_json::Value::Null => None,
+            spec => Some(spec),
+        },
+        declared_files: Some(response.files),
+    })
 }
 
 /// The body a service that declares its spec files returns from the public-spec and
@@ -2982,9 +3068,11 @@ struct DerivedSpecResponse {
     files: Vec<Uuid>,
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn fetch_derived_spec(
     existing_exercise_task: Option<&ExerciseTaskIdAndSpec>,
     task_update: &NormalizedCmsExerciseTask,
+    repository_exercise: Option<&crate::repository_exercises::RepositoryExercise>,
     urls_by_exercise_type: &HashMap<&String, Url>,
     spec_fetcher: impl SpecFetcher,
     previous_spec: Option<serde_json::Value>,
@@ -2992,13 +3080,10 @@ async fn fetch_derived_spec(
     declares_spec_files: bool,
 ) -> Result<DerivedSpec, ModelError> {
     match existing_exercise_task {
-        Some(exercise_task) if exercise_task.private_spec == task_update.private_spec => {
-            // Skip generating public spec for an existing exercise again if private spec is still the same.
-            Ok(DerivedSpec {
-                spec: previous_spec,
-                declared_files: None,
-            })
-        }
+        Some(exercise_task) if exercise_task.has_same_spec_input(task_update) => Ok(DerivedSpec {
+            spec: previous_spec,
+            declared_files: None,
+        }),
         _ => {
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
@@ -3016,17 +3101,12 @@ async fn fetch_derived_spec(
                 url,
                 &task_update.exercise_type,
                 task_update.private_spec.as_ref(),
+                repository_exercise,
             )
             .await?;
-            if !declares_spec_files {
-                return Ok(DerivedSpec {
-                    spec: Some(res),
-                    declared_files: None,
-                });
-            }
             // A declaring service answers with an envelope, so the same body cannot be read both
             // ways: failing loudly beats storing an envelope as if it were the spec.
-            let response: DerivedSpecResponse = serde_json::from_value(res).map_err(|err| {
+            parse_derived_spec(res, declares_spec_files).map_err(|err| {
                 model_err!(
                     PreconditionFailedWithCMSAnchorBlockId {
                         id: cms_block_id,
@@ -3037,13 +3117,6 @@ async fn fetch_derived_spec(
                         task_update.exercise_type
                     )
                 )
-            })?;
-            Ok(DerivedSpec {
-                spec: match response.spec {
-                    serde_json::Value::Null => None,
-                    spec => Some(spec),
-                },
-                declared_files: Some(response.files),
             })
         }
     }
@@ -5121,7 +5194,7 @@ mod test {
             tx.as_mut(),
             new_page("/chapter-1/як", "Raw"),
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5133,7 +5206,7 @@ mod test {
             tx.as_mut(),
             new_page("/chapter-1/іспит", "Legacy"),
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5225,7 +5298,7 @@ mod test {
                 hidden: false,
             },
             user,
-            |_, _, _| unimplemented!(),
+            |_, _, _, _| unimplemented!(),
             |_| unimplemented!(),
         )
         .await
@@ -5264,6 +5337,7 @@ mod test {
             private_spec: None,
             order_number: 1,
             private_spec_files: vec![],
+            repository_exercise_id: None,
         };
 
         // Works without exercises
@@ -5759,6 +5833,7 @@ mod test {
             assignment: serde_json::Value::Null,
             exercise_type: "declaring-service".to_string(),
             private_spec: Some(serde_json::json!({ "prompt": "hi" })),
+            repository_exercise_id: None,
         }
     }
 
@@ -5772,8 +5847,9 @@ mod test {
         fetch_derived_spec(
             None,
             &declaring_task(),
+            None,
             &urls,
-            move |_url, _slug, _spec| {
+            move |_url, _slug, _spec, _repository_exercise| {
                 let body = body.clone();
                 Box::pin(async move { Ok(body) })
             },

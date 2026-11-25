@@ -2,6 +2,8 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { feedbackMessage } from "@/util/gradingFeedback"
+
 import { ActionButtons, EditorSection, OutputPanel, ResetConfirmDialog } from "./components"
 import { useEditorState, useRunOutput, useTestRun } from "./hooks"
 import { Card } from "./styles"
@@ -23,6 +25,7 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
     grading !== undefined &&
     grading.score_given >= grading.score_maximum &&
     grading.score_maximum > 0
+  const feedbackText = grading ? feedbackMessage(t, grading) : null
 
   const { editorFiles, editorKey, setEditorState, resetToInitial } = useEditorState(
     initialState,
@@ -101,13 +104,13 @@ const AnswerBrowserExercise: React.FC<React.PropsWithChildren<AnswerBrowserExerc
                 score: grading.score_given,
                 max: grading.score_maximum,
               })}
-          {grading.feedback_text !== null && grading.feedback_text.trim() !== "" && (
+          {feedbackText !== null && (
             <div
               className={css`
                 margin-top: 0.5rem;
               `}
             >
-              {grading.feedback_text}
+              {feedbackText}
             </div>
           )}
         </div>

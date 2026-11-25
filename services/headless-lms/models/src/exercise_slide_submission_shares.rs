@@ -77,16 +77,60 @@ pub async fn get_by_id(
     let row = sqlx::query_as!(
         ExerciseSlideSubmissionShare,
         r#"
-SELECT *
-FROM exercise_slide_submission_shares
-WHERE id = $1
-  AND deleted_at IS NULL
+SELECT s.*
+FROM exercise_slide_submission_shares AS s
+  JOIN users AS u ON u.id = s.created_by
+WHERE s.id = $1
+  AND s.deleted_at IS NULL
+  AND u.deleted_at IS NULL
         "#,
         id,
     )
     .fetch_one(conn)
     .await?;
     Ok(row)
+}
+
+/// A live share of an answer to an exercise, as listed to the course's staff.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, utoipa::ToSchema)]
+pub struct ExerciseAnswerShare {
+    /// The token the shared view takes.
+    pub share_id: Uuid,
+    /// The student whose answer it is.
+    pub user_id: Uuid,
+    pub created_at: DateTime<Utc>,
+    /// `false` for a paste, which is never graded.
+    pub is_graded: bool,
+}
+
+/// The live shares of answers to the exercise, pastes and shared submissions alike, newest first.
+pub async fn list_for_exercise(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+) -> ModelResult<Vec<ExerciseAnswerShare>> {
+    let rows = sqlx::query_as!(
+        ExerciseAnswerShare,
+        r#"
+SELECT s.id AS share_id,
+  s.created_by AS user_id,
+  s.created_at,
+  (s.exercise_slide_submission_id IS NOT NULL) AS "is_graded!"
+FROM exercise_slide_submission_shares AS s
+  LEFT JOIN exercise_slide_submissions AS ess ON ess.id = s.exercise_slide_submission_id
+  LEFT JOIN exercise_answer_snapshots AS eas ON eas.id = s.exercise_answer_snapshot_id
+WHERE s.deleted_at IS NULL
+  AND (
+    ess.exercise_id = $1
+    OR eas.exercise_id = $1
+  )
+ORDER BY s.created_at DESC,
+  s.id DESC
+        "#,
+        exercise_id,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(rows)
 }
 
 /// The shares the user has minted, newest first, so they can be reviewed and withdrawn.
@@ -293,6 +337,20 @@ mod test {
             !revoke(tx.as_mut(), share.id, user_id).await.unwrap(),
             "revoking twice must be a no-op, not a second success"
         );
+        tx.rollback().await;
+    }
+
+    #[tokio::test]
+    async fn deleting_the_account_ends_its_share_links() {
+        insert_data!(:tx, user:user_id, :org, course:course_id, instance:_instance, course_module:_cm, chapter:_chapter, page:_page, exercise:exercise_id, slide:slide_id, task:_task);
+        let submission_id =
+            insert_submission(tx.as_mut(), course_id, user_id, exercise_id, slide_id).await;
+        let share = insert(tx.as_mut(), submission_id, user_id).await.unwrap();
+
+        crate::users::delete_user(tx.as_mut(), user_id)
+            .await
+            .unwrap();
+        assert!(get_by_id(tx.as_mut(), share.id).await.is_err());
         tx.rollback().await;
     }
 

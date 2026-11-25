@@ -8633,7 +8633,8 @@ export const zCreditRegistrationStepCount = z.object({
 })
 
 /**
- * One row of the Courses tab: a course module or a mooc.fi code.
+ * One row of the Courses tab: a course module, a mooc.fi code, or a mooc.fi target with no live
+ * codes.
  */
 export const zCreditRegistrationCourseStats = z.object({
   already_in_sisu_count: z.coerce

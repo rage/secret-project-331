@@ -26466,7 +26466,7 @@
       },
       "CreditRegistrationCourseStats": {
         "type": "object",
-        "description": "One row of the Courses tab: a course module or a mooc.fi code.",
+        "description": "One row of the Courses tab: a course module, a mooc.fi code, or a mooc.fi target with no live\ncodes.",
         "required": [
           "credit_unit_id",
           "course_or_target_id",
@@ -26522,7 +26522,7 @@
           "credit_unit_id": {
             "type": "string",
             "format": "uuid",
-            "description": "The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter\ntakes."
+            "description": "The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter\ntakes; a codeless target's own id."
           },
           "ects_credits": {
             "type": ["number", "null"],
@@ -26552,7 +26552,7 @@
             "oneOf": [
               {
                 "$ref": "#/components/schemas/ExternalCreditTargetCode",
-                "description": "The code's configuration, for a mooc.fi code only."
+                "description": "The code's configuration; `None` on a module and on a target with no live codes."
               },
               {
                 "type": "null"

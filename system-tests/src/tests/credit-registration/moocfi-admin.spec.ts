@@ -3,8 +3,10 @@ import { randomUUID } from "crypto"
 import type { Locator, Page } from "@playwright/test"
 
 import accessibilityCheck from "@/utils/accessibilityCheck"
+import { Select } from "@/utils/components/Select"
 import { ORIGIN } from "@/utils/creditRegistration"
 import {
+  ADMIN_EXTERNAL_CREDIT_TARGETS_URL,
   type AdminExternalCreditTarget,
   adminExternalCreditTargetUrl,
   creditRegistrationCourseStats,
@@ -33,37 +35,58 @@ const REGISTRATIONS_URL = `${DASHBOARD_URL}/registrations`
 const COURSES_TABLE = "Modules with credit registration on"
 const REASON = "System test"
 
+/** Not the rows' "Name shown to students". */
+const TARGET_NAME_LABEL = /^Name(?! shown)/
+
 /** The cutoff the form is given, typed into its year segment onwards: 2025-01-01 02:00 in Helsinki. */
 const CUTOFF_SEGMENTS = "202501010200"
 
 interface TargetFields {
   moocfiCourseId: string
   name: string
+}
+
+interface SisuCourseFields {
+  name: string
   courseCode: string
-  lowestTier: number
-  highestTier: number
+  minimumTier: number
 }
 
 const coursesTable = (page: Page): Locator => page.getByRole("table", { name: COURSES_TABLE })
 
-const targetRow = (page: Page, name: string): Locator =>
+/** Every row of the target, one per Sisu course code. */
+const targetRows = (page: Page, name: string): Locator =>
   coursesTable(page)
     .getByRole("row")
     .filter({ hasText: `mooc.fi: ${name}` })
+
+const courseCodeRow = (page: Page, name: string, courseCode: string): Locator =>
+  targetRows(page, name).filter({ hasText: courseCode })
+
+const sisuCourseRows = (dialog: Locator): Locator =>
+  dialog.getByRole("group").filter({ has: dialog.getByRole("button", { name: "Remove course" }) })
+
+const fillSisuCourse = async (
+  dialog: Locator,
+  index: number,
+  fields: SisuCourseFields,
+): Promise<void> => {
+  const row = sisuCourseRows(dialog).nth(index)
+  await row
+    .getByRole("textbox", { name: "University of Helsinki course code" })
+    .fill(fields.courseCode)
+  await row.getByRole("textbox", { name: "Name shown to students" }).fill(fields.name)
+  await row.getByRole("textbox", { name: "Minimum tier" }).fill(String(fields.minimumTier))
+  await row.getByRole("textbox", { name: "ECTS credits" }).fill("5")
+}
 
 const openAddDialog = async (page: Page, fields: TargetFields): Promise<Locator> => {
   await page.getByRole("button", { name: "Add mooc.fi course" }).click()
   const dialog = page.getByRole("dialog")
   await dialog.getByRole("textbox", { name: "mooc.fi course id" }).fill(fields.moocfiCourseId)
   await dialog.getByRole("textbox", { name: "mooc.fi course slug" }).fill("system-test-course")
-  await dialog.getByRole("textbox", { name: "Name" }).fill(fields.name)
+  await dialog.getByRole("textbox", { name: TARGET_NAME_LABEL }).fill(fields.name)
   await dialog.getByRole("textbox", { name: "Language code" }).fill("fi-FI")
-  await dialog
-    .getByRole("textbox", { name: "University of Helsinki course code" })
-    .fill(fields.courseCode)
-  await dialog.getByRole("textbox", { name: "ECTS credits" }).fill("5")
-  await dialog.getByRole("textbox", { name: "Lowest tier" }).fill(String(fields.lowestTier))
-  await dialog.getByRole("textbox", { name: "Highest tier" }).fill(String(fields.highestTier))
   // Every target of one mooc.fi course must share the cutoff, so the form's default of now will not do.
   // Focused, not clicked: a click opens the calendar, which then takes the typing.
   await dialog.getByRole("spinbutton", { name: "year, Cutoff (Helsinki time)" }).focus()
@@ -83,106 +106,180 @@ const pausedTarget = async (page: Page): Promise<AdminExternalCreditTarget> => {
 }
 
 const openRowAction = async (page: Page, name: string, action: string): Promise<void> => {
-  await targetRow(page, name)
+  await targetRows(page, name)
+    .first()
     .getByRole("button", { name: `Actions for mooc.fi: ${name}` })
     .click()
   await page.getByRole("menuitem", { name: action }).click()
 }
 
-test("A mooc.fi course is added, edited, paused, resumed and deleted on the Courses tab", async ({
+test("A mooc.fi course and its Sisu courses are added, edited, paused, resumed and deleted on the Courses tab", async ({
   page,
 }) => {
   const moocfiCourseId = randomUUID()
   const suffix = moocfiCourseId.slice(0, 8)
-  const intermediate = `System test intermediate ${suffix}`
-  const advanced = `System test advanced ${suffix}`
-  const courseCode = `CRS-SYSTEST-${suffix}`
+  const targetName = `System test course ${suffix}`
+  const intermediate: SisuCourseFields = {
+    name: `System test intermediate ${suffix}`,
+    courseCode: `CRS-SYSTEST-${suffix}`,
+    minimumTier: 2,
+  }
+  const advanced: SisuCourseFields = {
+    name: `System test advanced ${suffix}`,
+    courseCode: `CRS-SYSTEST-${suffix}-ADV`,
+    minimumTier: 3,
+  }
+  const extra: SisuCourseFields = {
+    name: `System test extra ${suffix}`,
+    courseCode: `CRS-SYSTEST-${suffix}-EXTRA`,
+    minimumTier: 4,
+  }
+  const olderEquivalent = `AY-SYSTEST-${suffix}`
 
   await page.goto(COURSES_URL)
   await expect(coursesTable(page)).toBeVisible()
 
-  await test.step("Adding a target puts it in the table, off until enabled", async () => {
-    const dialog = await openAddDialog(page, {
-      moocfiCourseId,
-      name: intermediate,
-      courseCode,
-      lowestTier: 2,
-      highestTier: 2,
-    })
+  await test.step("Adding a target with two Sisu courses puts a row for each in the table, off until enabled", async () => {
+    const dialog = await openAddDialog(page, { moocfiCourseId, name: targetName })
+    await fillSisuCourse(dialog, 0, intermediate)
+    await dialog.getByRole("button", { name: "Add a Sisu course" }).click()
+    await fillSisuCourse(dialog, 1, advanced)
+    await Select.labelled(page, "Requires", sisuCourseRows(dialog).nth(1)).chooseOption(
+      `${intermediate.courseCode}, ${intermediate.name}`,
+    )
     await accessibilityCheck(page, "Add mooc.fi course dialog")
     await dialog.getByRole("button", { name: "Save" }).click()
     await expect(dialog).toHaveCount(0)
-    await expect(targetRow(page, intermediate)).toBeVisible()
-    await expect(targetRow(page, intermediate).getByText("Off", { exact: true })).toBeVisible()
-  })
 
-  await test.step("Overlapping tiers are a field error, and fixing them saves", async () => {
-    const dialog = await openAddDialog(page, {
-      moocfiCourseId,
-      name: advanced,
-      courseCode: `${courseCode}-ADV`,
-      lowestTier: 2,
-      highestTier: 3,
-    })
-    await dialog.getByRole("button", { name: "Save" }).click()
+    await expect(targetRows(page, targetName)).toHaveCount(2)
+    const intermediateRow = courseCodeRow(page, targetName, intermediate.courseCode)
+    await expect(intermediateRow.getByText("From tier 2", { exact: true })).toBeVisible()
+    await expect(intermediateRow.getByText("Off", { exact: true })).toBeVisible()
     await expect(
-      dialog.getByText("These tiers overlap another target of the same mooc.fi course."),
+      courseCodeRow(page, targetName, advanced.courseCode).getByText(
+        `From tier 3, requires ${intermediate.courseCode}`,
+      ),
     ).toBeVisible()
-
-    await dialog.getByRole("textbox", { name: "Lowest tier" }).fill("3")
-    await dialog.getByRole("button", { name: "Save" }).click()
-    await expect(dialog).toHaveCount(0)
-    await expect(targetRow(page, advanced)).toBeVisible()
   })
 
-  await test.step("A course code the mooc.fi course already registers is a field error", async () => {
-    const dialog = await openAddDialog(page, {
-      moocfiCourseId,
-      name: `System test duplicate ${suffix}`,
-      courseCode,
-      lowestTier: 4,
-      highestTier: 4,
-    })
-    await dialog.getByRole("button", { name: "Save" }).click()
-    await expect(
-      dialog.getByText("This mooc.fi course already has a target with this course code."),
-    ).toBeVisible()
-    await dialog.getByRole("button", { name: "Close" }).click()
-    await expect(dialog).toHaveCount(0)
-  })
-
-  const renamed = `${intermediate} renamed`
-
-  await test.step("Editing saves the new configuration", async () => {
-    await openRowAction(page, intermediate, "Edit")
+  await test.step("A course code used twice is a field error, and fixing it saves", async () => {
+    await openRowAction(page, targetName, "Edit")
     const dialog = page.getByRole("dialog")
-    await dialog.getByRole("textbox", { name: "Name" }).fill(renamed)
+    await dialog.getByRole("button", { name: "Add a Sisu course" }).click()
+    await fillSisuCourse(dialog, 2, { ...extra, courseCode: intermediate.courseCode })
+    await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
+    await dialog.getByRole("button", { name: "Save" }).click()
+    await expect(
+      dialog.getByText("This mooc.fi course already has a target with this course code.").first(),
+    ).toBeVisible()
+
+    await sisuCourseRows(dialog)
+      .nth(2)
+      .getByRole("textbox", { name: "University of Helsinki course code" })
+      .fill(extra.courseCode)
+    await dialog.getByRole("button", { name: "Save" }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(targetRows(page, targetName)).toHaveCount(3)
+  })
+
+  await test.step("An older equivalent code is added as a chip and kept", async () => {
+    await openRowAction(page, targetName, "Edit")
+    const dialog = page.getByRole("dialog")
+    const row = sisuCourseRows(dialog).nth(0)
+    await row.getByRole("textbox", { name: "Add a code" }).fill(olderEquivalent)
+    await row.getByRole("button", { name: "Add", exact: true }).click()
+    await expect(row.getByRole("button", { name: `Remove ${olderEquivalent}` })).toBeVisible()
     await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
     await dialog.getByRole("button", { name: "Save" }).click()
     await expect(dialog).toHaveCount(0)
-    await expect(targetRow(page, renamed)).toBeVisible()
+
+    await openRowAction(page, targetName, "Edit")
+    await expect(
+      page.getByRole("dialog").getByRole("button", { name: `Remove ${olderEquivalent}` }),
+    ).toBeVisible()
+    await page.keyboard.press("Escape")
   })
 
-  await test.step("Pausing and resuming show on the row", async () => {
+  await test.step("Removing a Sisu course takes its row out of the table", async () => {
+    await openRowAction(page, targetName, "Edit")
+    const dialog = page.getByRole("dialog")
+    await sisuCourseRows(dialog).nth(2).getByRole("button", { name: "Remove course" }).click()
+    await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
+    await dialog.getByRole("button", { name: "Save" }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(targetRows(page, targetName)).toHaveCount(2)
+    await expect(courseCodeRow(page, targetName, extra.courseCode)).toHaveCount(0)
+  })
+
+  const renamed = `${targetName} renamed`
+
+  await test.step("Editing saves the new configuration", async () => {
+    await openRowAction(page, targetName, "Edit")
+    const dialog = page.getByRole("dialog")
+    await dialog.getByRole("textbox", { name: TARGET_NAME_LABEL }).fill(renamed)
+    await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
+    await dialog.getByRole("button", { name: "Save" }).click()
+    await expect(dialog).toHaveCount(0)
+    await expect(targetRows(page, renamed)).toHaveCount(2)
+  })
+
+  await test.step("Pausing and resuming show on the rows", async () => {
     await openRowAction(page, renamed, "Pause")
     const dialog = page.getByRole("dialog")
     await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
     await dialog.getByRole("button", { name: "Pause" }).click()
-    await expect(targetRow(page, renamed).getByText("Paused", { exact: true })).toBeVisible()
+    await expect(
+      courseCodeRow(page, renamed, intermediate.courseCode).getByText("Paused", { exact: true }),
+    ).toBeVisible()
 
     await openRowAction(page, renamed, "Resume")
     await page.getByRole("button", { name: "Yes" }).click()
-    await expect(targetRow(page, renamed).getByText("Paused", { exact: true })).toHaveCount(0)
+    await expect(
+      courseCodeRow(page, renamed, intermediate.courseCode).getByText("Paused", { exact: true }),
+    ).toHaveCount(0)
   })
 
   await test.step("Deleting takes the target out of the table", async () => {
-    await openRowAction(page, advanced, "Delete")
+    await openRowAction(page, renamed, "Delete")
     const dialog = page.getByRole("dialog")
     await dialog.getByRole("textbox", { name: "Reason" }).fill(REASON)
     await dialog.getByRole("button", { name: "Delete" }).click()
-    await expect(targetRow(page, advanced)).toHaveCount(0)
-    await expect(targetRow(page, renamed)).toBeVisible()
+    await expect(targetRows(page, renamed)).toHaveCount(0)
   })
+})
+
+test("A mooc.fi course with no Sisu courses stays in the table so some can be added", async ({
+  page,
+}) => {
+  const suffix = randomUUID().slice(0, 8)
+  const name = `System test empty course ${suffix}`
+  const created = await page.request.post(ADMIN_EXTERNAL_CREDIT_TARGETS_URL, {
+    data: {
+      moocfi_course_id: randomUUID(),
+      moocfi_course_slug: "system-test-empty-course",
+      name,
+      language_code: "fi-FI",
+      delegated_at: "2025-01-01T00:00:00Z",
+      enabled: false,
+      reason: REASON,
+    },
+  })
+  expect(created.ok()).toBe(true)
+
+  await page.goto(COURSES_URL)
+  const row = targetRows(page, name)
+  await expect(row).toHaveCount(1)
+  await expect(row.getByText("Add a Sisu course to this course in the edit dialog.")).toBeVisible()
+
+  await openRowAction(page, name, "Edit")
+  const dialog = page.getByRole("dialog")
+  await expect(sisuCourseRows(dialog)).toHaveCount(0)
+  await page.keyboard.press("Escape")
+
+  await openRowAction(page, name, "Delete")
+  await page.getByRole("dialog").getByRole("textbox", { name: "Reason" }).fill(REASON)
+  await page.getByRole("dialog").getByRole("button", { name: "Delete" }).click()
+  await expect(targetRows(page, name)).toHaveCount(0)
 })
 
 test("The cutoff of a target with registrations cannot change", async ({ page }) => {

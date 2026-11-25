@@ -3821,7 +3821,8 @@ export type CreditRegistrationCourseConfigCheck = {
 }
 
 /**
- * One row of the Courses tab: a course module or a mooc.fi code.
+ * One row of the Courses tab: a course module, a mooc.fi code, or a mooc.fi target with no live
+ * codes.
  */
 export type CreditRegistrationCourseStats = {
   /**
@@ -3857,7 +3858,7 @@ export type CreditRegistrationCourseStats = {
   course_or_target_id: string
   /**
    * The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter
-   * takes.
+   * takes; a codeless target's own id.
    */
   credit_unit_id: string
   ects_credits?: number | null

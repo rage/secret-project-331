@@ -58,11 +58,12 @@ pub struct CreditRegistrationCourseConfigCheck {
     pub message: Option<String>,
 }
 
-/// One row of the Courses tab: a course module or a mooc.fi code.
+/// One row of the Courses tab: a course module, a mooc.fi code, or a mooc.fi target with no live
+/// codes.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CreditRegistrationCourseStats {
     /// The module's or mooc.fi code's id, which the Registrations list's `course_module_id` filter
-    /// takes.
+    /// takes; a codeless target's own id.
     pub credit_unit_id: Uuid,
     /// The course, or the mooc.fi target.
     pub course_or_target_id: Uuid,
@@ -75,7 +76,7 @@ pub struct CreditRegistrationCourseStats {
     pub course_module_name: Option<String>,
     /// The target's configuration, for a mooc.fi code only.
     pub external_credit_target: Option<ExternalCreditTarget>,
-    /// The code's configuration, for a mooc.fi code only.
+    /// The code's configuration; `None` on a module and on a target with no live codes.
     pub external_credit_target_code: Option<ExternalCreditTargetCode>,
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
@@ -364,7 +365,9 @@ pub async fn get_credit_registration_stats_by_course(
         .into_iter()
         .map(|target| (target.id, target))
         .collect();
+    let mut codeless_targets = targets.clone();
     for code in external_credit_target_codes::get_all(&mut conn).await? {
+        codeless_targets.remove(&code.external_credit_target_id);
         let Some(target) = targets.get(&code.external_credit_target_id) else {
             continue;
         };
@@ -379,6 +382,14 @@ pub async fn get_credit_registration_stats_by_course(
         unit_stats(&mut stats, &mut needs_attention);
         credit_units.push(stats);
     }
+    // Listed so a target whose codes are all gone can still be opened to add one.
+    let mut codeless_targets: Vec<_> = codeless_targets.into_values().collect();
+    codeless_targets.sort_by(|a, b| a.name.cmp(&b.name));
+    credit_units.extend(
+        codeless_targets
+            .into_iter()
+            .map(codeless_target_course_stats),
+    );
 
     token.authorized_ok(web::Json(CreditRegistrationStatsByCourse {
         misconfigured_count: credit_units
@@ -606,6 +617,40 @@ fn target_code_course_stats(
         top_error_code: totals.top_error_code,
         external_credit_target: Some(target),
         external_credit_target_code: Some(code),
+    }
+}
+
+/// A Courses tab row for a mooc.fi target with no live codes, under the target's own id.
+fn codeless_target_course_stats(target: ExternalCreditTarget) -> CreditRegistrationCourseStats {
+    CreditRegistrationCourseStats {
+        credit_unit_id: target.id,
+        course_or_target_id: target.id,
+        course_id: None,
+        course_name: target.display_name(),
+        course_module_id: None,
+        course_module_name: None,
+        uh_course_code: None,
+        ects_credits: None,
+        enrolment_link: None,
+        paused_at: target.paused_at,
+        pause_reason: target.pause_reason.clone(),
+        last_listed_at: None,
+        check: NO_CHECK,
+        config_checked_at: None,
+        stored_config_check_message: None,
+        eligible_completion_count: 0,
+        registration_count: 0,
+        success_count: 0,
+        registered_count: 0,
+        already_in_sisu_count: 0,
+        in_flight_count: 0,
+        failed_count: 0,
+        needs_attention_count: 0,
+        where_registrations_stand: Vec::new(),
+        last_registered_at: None,
+        top_error_code: None,
+        external_credit_target: Some(target),
+        external_credit_target_code: None,
     }
 }
 

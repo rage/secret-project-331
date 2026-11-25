@@ -70,6 +70,7 @@ WITH wanted AS (
       prerequisite.uh_course_code::text || prerequisite.equivalent_course_codes
     ) AS prerequisite_code
   WHERE cr.state = 'checking_enrolment'
+    AND code.prerequisite_code_id IS NOT NULL
     AND cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
     AND NOT credit_registration_prerequisite_met(cr)
@@ -127,24 +128,36 @@ LIMIT $1
         .collect())
 }
 
-/// Records Sisu's answer about one student and code. `attained_at` is kept once set.
-pub async fn record(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    course_code: &str,
-    is_attained: bool,
-) -> ModelResult<()> {
+/// Sisu's answer about one student and course code, for [`record_all`].
+#[derive(Debug, Clone)]
+pub struct SisuCodeAnswer {
+    pub user_id: Uuid,
+    pub course_code: String,
+    pub is_attained: bool,
+}
+
+/// Records Sisu's answers. `attained_at` is kept once set.
+pub async fn record_all(conn: &mut PgConnection, answers: &[SisuCodeAnswer]) -> ModelResult<()> {
+    let user_ids: Vec<Uuid> = answers.iter().map(|answer| answer.user_id).collect();
+    let course_codes: Vec<String> = answers
+        .iter()
+        .map(|answer| answer.course_code.clone())
+        .collect();
+    let is_attained: Vec<bool> = answers.iter().map(|answer| answer.is_attained).collect();
     sqlx::query!(
         r#"
 INSERT INTO credit_registration_sisu_code_checks (user_id, course_code, checked_at, attained_at)
-VALUES (
-    $1,
-    UPPER(TRIM($2)),
-    now(),
-    CASE
-      WHEN $3 THEN now()
-    END
-  ) ON CONFLICT (user_id, course_code, deleted_at) DO
+-- ON CONFLICT cannot update one row twice, so a pair answered twice keeps the attained answer.
+SELECT DISTINCT ON (answer.user_id, UPPER(TRIM(answer.course_code))) answer.user_id,
+  UPPER(TRIM(answer.course_code)),
+  now(),
+  CASE
+    WHEN answer.is_attained THEN now()
+  END
+FROM UNNEST($1::uuid [], $2::text [], $3::boolean []) AS answer(user_id, course_code, is_attained)
+ORDER BY answer.user_id,
+  UPPER(TRIM(answer.course_code)),
+  answer.is_attained DESC ON CONFLICT (user_id, course_code, deleted_at) DO
 UPDATE
 SET checked_at = EXCLUDED.checked_at,
   attained_at = COALESCE(
@@ -152,9 +165,9 @@ SET checked_at = EXCLUDED.checked_at,
     EXCLUDED.attained_at
   )
         "#,
-        user_id,
-        course_code,
-        is_attained,
+        &user_ids,
+        &course_codes,
+        &is_attained,
     )
     .execute(conn)
     .await?;

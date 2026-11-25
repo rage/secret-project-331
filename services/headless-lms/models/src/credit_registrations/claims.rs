@@ -350,7 +350,6 @@ WITH due AS (
               WHERE ec.id = cr.external_completion_id
                 AND ec.upstream_checked_at > now() - $14::interval
             )
-            AND credit_registration_prerequisite_met(cr)
           )
         )
         AND NOT EXISTS (
@@ -377,6 +376,10 @@ WITH due AS (
               holder.state = ANY($10::credit_registration_state [])
               OR holder.state = ANY($11::credit_registration_state [])
             )
+        )
+        AND (
+          cr.external_completion_id IS NULL
+          OR credit_registration_prerequisite_met(cr)
         )
       )
     )

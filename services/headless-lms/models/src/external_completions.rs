@@ -283,8 +283,6 @@ pub async fn sync_from_upstream(
         None => Vec::new(),
     };
     let stored = get_stored_rows(&mut tx, upstream.user_id, upstream.moocfi_course_id).await?;
-    let our_reports =
-        get_our_report_codes(&mut tx, upstream.user_id, upstream.moocfi_course_id).await?;
 
     for completion in upstream.completions {
         let earned: Vec<&ExternalCreditTargetCode> = codes
@@ -297,8 +295,7 @@ pub async fn sync_from_upstream(
                 row.moocfi_completion_id == completion.id
                     && row.external_credit_target_code_id == code.id
             });
-            let registrations =
-                registrations_under(completion, code.id, &code.uh_course_code, &our_reports);
+            let registrations = registrations_under(completion, &code.uh_course_code);
             let is_new_and_ours = completion.eligible_for_ects == Some(true)
                 && completion.effective_date() >= target.delegated_at;
             if (has_row || is_new_and_ours || !registrations.is_empty())
@@ -332,12 +329,7 @@ pub async fn sync_from_upstream(
                     .iter()
                     .any(|code| code.id == row.external_credit_target_code_id)
         }) {
-            let registrations = registrations_under(
-                completion,
-                row.external_credit_target_code_id,
-                &row.uh_course_code,
-                &our_reports,
-            );
+            let registrations = registrations_under(completion, &row.uh_course_code);
             upsert(
                 &mut tx,
                 &completion_facts(&upstream, completion, row.clone(), &registrations),
@@ -492,65 +484,24 @@ WHERE ec.user_id = $1
     Ok(res)
 }
 
-/// A registration we reported to mooc.fi, and the code it was for.
-struct OurReport {
-    moocfi_completion_id: Uuid,
-    registration_date: DateTime<Utc>,
-    external_credit_target_code_id: Uuid,
-}
-
-async fn get_our_report_codes(
-    conn: &mut PgConnection,
-    user_id: Uuid,
-    moocfi_course_id: Uuid,
-) -> ModelResult<Vec<OurReport>> {
-    let res = sqlx::query_as!(
-        OurReport,
-        r#"
-SELECT report.moocfi_completion_id,
-  report.registration_date,
-  ec.external_credit_target_code_id
-FROM moocfi_registration_reports report
-  JOIN credit_registrations cr ON cr.id = report.credit_registration_id
-  JOIN external_completions ec ON ec.id = cr.external_completion_id
-  JOIN external_credit_targets t ON t.id = ec.external_credit_target_id
-WHERE ec.user_id = $1
-  AND t.moocfi_course_id = $2
-  AND report.deleted_at IS NULL
-        "#,
-        user_id,
-        moocfi_course_id,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// The registrations of `completion` on mooc.fi under one code: those naming its course code, and
-/// those naming none unless they are our report of another code. A registration from before mooc.fi
-/// kept codes is taken to cover every code.
+/// The registrations of `completion` on mooc.fi under one course code: those naming it, and those
+/// naming none, which predate mooc.fi keeping codes and are taken to cover every code.
 fn registrations_under<'a>(
     completion: &'a DelegatedCompletion,
-    external_credit_target_code_id: Uuid,
     uh_course_code: &str,
-    our_reports: &[OurReport],
 ) -> Vec<&'a DelegatedCompletionRegistration> {
     completion
         .registrations
         .iter()
-        .filter(|registration| match &registration.course_code {
-            Some(course_code) => course_code
-                .trim()
-                .eq_ignore_ascii_case(uh_course_code.trim()),
-            None => our_reports
-                .iter()
-                .find(|report| {
-                    report.moocfi_completion_id == completion.id
-                        && Some(report.registration_date) == registration.registration_date
+        .filter(|registration| {
+            registration
+                .course_code
+                .as_deref()
+                .is_none_or(|course_code| {
+                    course_code
+                        .trim()
+                        .eq_ignore_ascii_case(uh_course_code.trim())
                 })
-                .is_none_or(|report| {
-                    report.external_credit_target_code_id == external_credit_target_code_id
-                }),
         })
         .collect()
 }

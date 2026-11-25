@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM external_credit_target_codes\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT *\nFROM external_credit_target_codes\nWHERE (\n    external_credit_target_id = $1\n    AND deleted_at IS NULL\n  )\n  OR id = ANY($2)\nORDER BY minimum_tier NULLS FIRST,\n  uh_course_code\n        ",
   "describe": {
     "columns": [
       {
@@ -289,7 +289,8 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -317,5 +318,5 @@
       false
     ]
   },
-  "hash": "dff1403c15988dbfa09dff59dc3e9d6730b33583d6bbad4e23e611d7278d3814"
+  "hash": "21626a5ff511b6837253f15ba44a84d22c3eef7e84d3aa176a77e60fd8480e21"
 }

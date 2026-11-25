@@ -29,8 +29,12 @@ import {
   TextField,
 } from "@/shared-module/components"
 
-import { BUTTON_PRIMARY, CREDIT_REGISTRATION_NS, TONE } from "../constants"
-import { translateKey, widenedLookup } from "../labelFrom"
+import {
+  BUTTON_PRIMARY,
+  CREDIT_REGISTRATION_NS,
+  type CreditRegistrationTFunction,
+  TONE,
+} from "../constants"
 import { dialogFormCss } from "../styles"
 import type { DialogOpenState } from "./AdminActionDialog"
 import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
@@ -50,14 +54,22 @@ const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/
 
 const MOOCFI_COURSE_FIXED = "external_credit_target_moocfi_course_fixed"
 
-/** The form-wide message for each refusal the backend names by message key. */
-const ROOT_ERROR_KEYS = {
-  external_credit_target_course_code_taken: "credit-registration-admin-moocfi-course-code-taken",
-  external_credit_target_code_prerequisites_circular:
-    "credit-registration-admin-prerequisites-circular",
-  external_credit_target_code_prerequisite_tier_above:
-    "credit-registration-admin-prerequisite-tier-above",
-} as const
+/** The form-wide message for a refusal the backend names by message key, if it names one. */
+const rootErrorMessage = (
+  t: CreditRegistrationTFunction,
+  messageKey: string | null,
+): string | null => {
+  switch (messageKey) {
+    case "external_credit_target_course_code_taken":
+      return t("credit-registration-admin-moocfi-course-code-taken")
+    case "external_credit_target_code_prerequisites_circular":
+      return t("credit-registration-admin-prerequisites-circular")
+    case "external_credit_target_code_prerequisite_tier_above":
+      return t("credit-registration-admin-prerequisite-tier-above")
+    default:
+      return null
+  }
+}
 
 const toCutoffLocal = (at: Date): string =>
   toCalendarDateTime(fromDate(at, CUTOFF_TIME_ZONE)).toString().slice(0, LOCAL_MINUTE_LENGTH)
@@ -97,17 +109,9 @@ interface Props extends DialogOpenState {
   hasRegistrations: boolean
 }
 
-interface FormProps extends Props {
-  codes: readonly ExternalCreditTargetCode[]
-}
-
-const ExternalCreditTargetForm: React.FC<FormProps> = ({
-  isOpen,
-  onClose,
-  target,
-  codes,
-  hasRegistrations,
-}) => {
+const ExternalCreditTargetForm: React.FC<
+  Props & { codes: readonly ExternalCreditTargetCode[] }
+> = ({ isOpen, onClose, target, codes, hasRegistrations }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const invalidateCourseStats = useInvalidateCourseStats()
   const initial = initialFields(target, codes)
@@ -153,13 +157,13 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
       onSettled: () => void invalidateCourseStats(),
       onError: (error) => {
         const messageKey = isAppApiError(error) ? error.messageKey : null
-        const rootErrorKey = messageKey ? widenedLookup(ROOT_ERROR_KEYS, messageKey) : undefined
+        const rootError = rootErrorMessage(t, messageKey)
         if (messageKey === MOOCFI_COURSE_FIXED) {
           setError("moocfi_course_id", {
             message: t("credit-registration-admin-moocfi-course-id-fixed"),
           })
-        } else if (rootErrorKey) {
-          setError("root", { message: translateKey(t, rootErrorKey) })
+        } else if (rootError) {
+          setError("root", { message: rootError })
         } else {
           setError("root", {
             message: isAppApiError(error) ? (error.userMessage ?? error.message) : String(error),

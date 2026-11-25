@@ -54,14 +54,32 @@ pub struct ExternalCreditTargetCode {
     pub consecutive_listing_failures: i32,
 }
 
+/// Whether a completion of `tier` earns a code of `minimum_tier`. An untiered completion earns
+/// only a code without a minimum tier.
+pub fn is_tier_earned(minimum_tier: Option<i32>, tier: Option<i32>) -> bool {
+    match (minimum_tier, tier) {
+        (None, _) => true,
+        (Some(minimum_tier), Some(tier)) => tier >= minimum_tier,
+        (Some(_), None) => false,
+    }
+}
+
 impl ExternalCreditTargetCode {
-    /// Whether a completion of `tier` earns the code. An untiered completion earns only a code
-    /// without a minimum tier.
+    /// [`is_tier_earned`] for this code.
     pub fn is_earned_by(&self, tier: Option<i32>) -> bool {
-        match (self.minimum_tier, tier) {
-            (None, _) => true,
-            (Some(minimum_tier), Some(tier)) => tier >= minimum_tier,
-            (Some(_), None) => false,
+        is_tier_earned(self.minimum_tier, tier)
+    }
+
+    /// What the configuration check reads about the code, as
+    /// [`get_config_facts_for_enabled_targets`] returns it.
+    pub fn config_facts(&self) -> ExternalCreditTargetCodeConfigFacts {
+        let is_current =
+            self.checked_course_code.as_deref() == Some(sql_trim(&self.uh_course_code));
+        ExternalCreditTargetCodeConfigFacts {
+            external_credit_target_code_id: self.id,
+            uh_course_code: self.uh_course_code.clone(),
+            stored_course_code_allowed: self.course_code_allowed.filter(|_| is_current),
+            stored_course_code_rejection: self.course_code_rejection.clone().filter(|_| is_current),
         }
     }
 
@@ -78,6 +96,11 @@ impl ExternalCreditTargetCode {
             equivalent_course_codes: self.equivalent_course_codes.clone(),
         }
     }
+}
+
+/// `value` trimmed of spaces as SQL `TRIM` does it, which leaves other whitespace.
+fn sql_trim(value: &str) -> &str {
+    value.trim_matches(' ')
 }
 
 /// What an admin configures on a code, for [`insert`] and [`update`].
@@ -209,23 +232,6 @@ RETURNING id
     Ok(())
 }
 
-/// A live code by id.
-pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExternalCreditTargetCode> {
-    let res = sqlx::query_as!(
-        ExternalCreditTargetCode,
-        r#"
-SELECT *
-FROM external_credit_target_codes
-WHERE id = $1
-  AND deleted_at IS NULL
-        "#,
-        id,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(res)
-}
-
 /// The live codes of one target, lowest minimum tier first.
 pub async fn get_by_target_id(
     conn: &mut PgConnection,
@@ -264,6 +270,34 @@ ORDER BY minimum_tier NULLS FIRST,
   uh_course_code
         "#,
         ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+/// The live codes of a target, and the codes of `referenced_ids` even when deleted, lowest minimum
+/// tier first: what a student's completions are listed under.
+pub async fn get_by_target_id_including_referenced(
+    conn: &mut PgConnection,
+    external_credit_target_id: Option<Uuid>,
+    referenced_ids: &[Uuid],
+) -> ModelResult<Vec<ExternalCreditTargetCode>> {
+    let res = sqlx::query_as!(
+        ExternalCreditTargetCode,
+        r#"
+SELECT *
+FROM external_credit_target_codes
+WHERE (
+    external_credit_target_id = $1
+    AND deleted_at IS NULL
+  )
+  OR id = ANY($2)
+ORDER BY minimum_tier NULLS FIRST,
+  uh_course_code
+        "#,
+        external_credit_target_id,
+        referenced_ids,
     )
     .fetch_all(conn)
     .await?;

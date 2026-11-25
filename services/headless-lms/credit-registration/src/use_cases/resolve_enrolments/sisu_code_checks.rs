@@ -4,7 +4,7 @@
 //! for it, with that code's equivalents. Runs after the enrolment lookup, which takes up a row it
 //! skipped for unasked equivalents on a later tick.
 
-use headless_lms_models::credit_registration_sisu_code_checks::{self, get_due};
+use headless_lms_models::credit_registration_sisu_code_checks::{self, SisuCodeAnswer, get_due};
 use headless_lms_models::library::credit_registration::enrolment_selection::attained_candidates;
 use secrecy::ExposeSecret;
 use uuid::Uuid;
@@ -75,22 +75,20 @@ pub(super) async fn run<R: StudyRegistry>(
         // Unrecorded, so the same pairs are due again next tick.
         return Ok(Counts::default());
     };
-    let mut conn = ctx.pool.acquire().await?;
-    let mut recorded = 0;
-    for row in rows {
+    let answers: Vec<SisuCodeAnswer> = rows
+        .into_iter()
         // Any answer settles the question for now, a refusal such as an unknown old code included.
-        let Some(answer) = row.answer else {
-            continue;
-        };
-        let is_attained = !attained_candidates(&answer.existing_attainments).is_empty();
-        credit_registration_sisu_code_checks::record(
-            &mut conn,
-            row.row.user_id,
-            &row.row.course_code,
-            is_attained,
-        )
-        .await?;
-        recorded += 1;
-    }
+        .filter_map(|row| {
+            let answer = row.answer?;
+            Some(SisuCodeAnswer {
+                user_id: row.row.user_id,
+                course_code: row.row.course_code,
+                is_attained: !attained_candidates(&answer.existing_attainments).is_empty(),
+            })
+        })
+        .collect();
+    let recorded = i64::try_from(answers.len()).unwrap_or(i64::MAX);
+    let mut conn = ctx.pool.acquire().await?;
+    credit_registration_sisu_code_checks::record_all(&mut conn, &answers).await?;
     Ok(Counts::processed(recorded))
 }

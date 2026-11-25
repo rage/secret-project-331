@@ -714,6 +714,14 @@ SELECT NOT EXISTS (
     SELECT 1
     FROM external_credit_target_codes code
       JOIN external_credit_target_codes prerequisite ON prerequisite.id = code.prerequisite_code_id
+      CROSS JOIN LATERAL (
+        SELECT ARRAY(
+            SELECT UPPER(TRIM(equivalent))
+            FROM UNNEST(
+                prerequisite.uh_course_code::text || prerequisite.equivalent_course_codes
+              ) AS equivalent
+          ) AS course_codes
+      ) held_as
     WHERE code.id = registration.external_credit_target_code_id
       AND NOT EXISTS (
         SELECT 1
@@ -721,12 +729,7 @@ SELECT NOT EXISTS (
         WHERE held.user_id = registration.user_id
           AND held.deleted_at IS NULL
           AND held.attained_at IS NOT NULL
-          AND held.course_code IN (
-            SELECT UPPER(TRIM(equivalent))
-            FROM UNNEST(
-                prerequisite.uh_course_code::text || prerequisite.equivalent_course_codes
-              ) AS equivalent
-          )
+          AND held.course_code = ANY(held_as.course_codes)
       )
       AND NOT EXISTS (
         SELECT 1
@@ -741,12 +744,7 @@ SELECT NOT EXISTS (
           )
           AND (
             done.external_credit_target_code_id = prerequisite.id
-            OR UPPER(TRIM(done.uh_course_code)) IN (
-              SELECT UPPER(TRIM(equivalent))
-              FROM UNNEST(
-                  prerequisite.uh_course_code::text || prerequisite.equivalent_course_codes
-                ) AS equivalent
-            )
+            OR UPPER(TRIM(done.uh_course_code)) = ANY(held_as.course_codes)
           )
       )
       AND NOT EXISTS (

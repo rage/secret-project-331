@@ -1,3 +1,5 @@
+import { v4 } from "uuid"
+
 import { adminSaveExternalCreditTargetCodes } from "@/generated/api/sdk.generated"
 import type {
   AdminExternalCreditTargetCodePayload,
@@ -5,66 +7,72 @@ import type {
   ExternalGrading,
 } from "@/generated/api/types.generated"
 
+/** The prerequisite select's value for a code without one. */
 export const NO_PREREQUISITE = "none"
 
 /** One Sisu course row of the dialog. */
 export interface CodeFields {
   /** The code's id: a saved code's, or a new one under which the save adds the code. */
-  key: string
+  id: string
   name: string
   uh_course_code: string
   minimum_tier: number | null
   ects_credits: number | null
   grading: ExternalGrading
   enrolment_link: string
-  /** The `key` of another row, or `NO_PREREQUISITE`. */
-  prerequisite_key: string
+  /** The `id` of another row, or `NO_PREREQUISITE`. */
+  prerequisite_code_id: string
   equivalent_course_codes: string[]
   equivalent_draft: string
 }
 
 export const emptyCodeFields = (): CodeFields => ({
-  key: crypto.randomUUID(),
+  id: v4(),
   name: "",
   uh_course_code: "",
   minimum_tier: null,
   ects_credits: null,
   grading: "pass_fail",
   enrolment_link: "",
-  prerequisite_key: NO_PREREQUISITE,
+  prerequisite_code_id: NO_PREREQUISITE,
   equivalent_course_codes: [],
   equivalent_draft: "",
 })
 
 export const codeFieldsFrom = (code: ExternalCreditTargetCode): CodeFields => ({
-  key: code.id,
+  id: code.id,
   name: code.name,
   uh_course_code: code.uh_course_code,
   minimum_tier: code.minimum_tier ?? null,
   ects_credits: code.ects_credits,
   grading: code.grading,
   enrolment_link: code.enrolment_link ?? "",
-  prerequisite_key: code.prerequisite_code_id ?? NO_PREREQUISITE,
+  prerequisite_code_id: code.prerequisite_code_id ?? NO_PREREQUISITE,
   equivalent_course_codes: code.equivalent_course_codes,
   equivalent_draft: "",
 })
 
-const toPayload = (row: CodeFields): AdminExternalCreditTargetCodePayload => {
+/** `row`'s equivalent codes with its unsaved draft added, unless it is blank or already listed. */
+export const withDraftEquivalent = (row: CodeFields): string[] => {
   const draft = row.equivalent_draft.trim()
-  const equivalents =
-    draft === "" || row.equivalent_course_codes.includes(draft)
-      ? row.equivalent_course_codes
-      : [...row.equivalent_course_codes, draft]
+  return draft === "" || row.equivalent_course_codes.includes(draft)
+    ? row.equivalent_course_codes
+    : [...row.equivalent_course_codes, draft]
+}
+
+const toPayload = (row: CodeFields): AdminExternalCreditTargetCodePayload => {
+  const enrolmentLink = row.enrolment_link.trim()
   return {
-    id: row.key,
+    id: row.id,
     name: row.name,
     uh_course_code: row.uh_course_code.trim(),
     minimum_tier: row.minimum_tier,
     ects_credits: row.ects_credits ?? 0,
     grading: row.grading,
-    enrolment_link: row.enrolment_link.trim() === "" ? null : row.enrolment_link.trim(),
-    equivalent_course_codes: equivalents,
-    prerequisite_code_id: row.prerequisite_key === NO_PREREQUISITE ? null : row.prerequisite_key,
+    enrolment_link: enrolmentLink === "" ? null : enrolmentLink,
+    equivalent_course_codes: withDraftEquivalent(row),
+    prerequisite_code_id:
+      row.prerequisite_code_id === NO_PREREQUISITE ? null : row.prerequisite_code_id,
   }
 }
 

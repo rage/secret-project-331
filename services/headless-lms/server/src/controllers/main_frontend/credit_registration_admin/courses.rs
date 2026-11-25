@@ -1,19 +1,20 @@
 //! The Courses tab: one row per course module with a course code and per mooc.fi code, with its
 //! configuration validated, and the configuration of the mooc.fi targets and their codes.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::course_module_suotar_configurations::SuotarConfigCheck;
 use headless_lms_models::course_module_suotar_configurations::{
     self, SuotarModuleOverview, get_config_facts_for_modules_with_course_code,
 };
+use headless_lms_models::course_modules::CourseModule;
 use headless_lms_models::credit_registration_admin_actions::{
     CreditRegistrationAdminAction, CreditRegistrationAdminActionTarget, GLOBAL_ADMIN_ROLE,
     NewCreditRegistrationAdminAction,
 };
 use headless_lms_models::credit_registrations::{
-    self, AttentionStanding, CreditRegistrationErrorCode,
+    self, AttentionStanding, CreditRegistrationErrorCode, StepCount,
 };
 use headless_lms_models::external_credit_target_codes::{
     self, ExternalCreditTargetCode, ExternalCreditTargetCodeConfiguration, ExternalGrading,
@@ -201,6 +202,26 @@ pub struct AdminCreditUnitCourseCode {
     pub uh_course_code: Option<String>,
 }
 
+impl From<&CourseModule> for AdminCreditUnitCourseCode {
+    fn from(module: &CourseModule) -> Self {
+        Self {
+            credit_unit_id: module.id,
+            course_module_name: module.name.clone(),
+            uh_course_code: module.uh_course_code.clone(),
+        }
+    }
+}
+
+impl From<&ExternalCreditTargetCode> for AdminCreditUnitCourseCode {
+    fn from(code: &ExternalCreditTargetCode) -> Self {
+        Self {
+            credit_unit_id: code.id,
+            course_module_name: Some(code.name.clone()),
+            uh_course_code: Some(code.uh_course_code.clone()),
+        }
+    }
+}
+
 /// A course's or mooc.fi target's name and course codes.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AdminCreditRegistrationCourseSummary {
@@ -241,18 +262,14 @@ pub async fn get_credit_registration_course_summary(
         CourseOrTarget::Course(course) => {
             let credit_units = models::course_modules::get_by_course_id(&mut conn, course.id)
                 .await?
-                .into_iter()
+                .iter()
                 .filter(|module| {
                     models::course_modules::registers_credits(
                         module.uh_course_code.as_deref(),
                         module.credit_registration_route,
                     )
                 })
-                .map(|module| AdminCreditUnitCourseCode {
-                    credit_unit_id: module.id,
-                    course_module_name: module.name,
-                    uh_course_code: module.uh_course_code,
-                })
+                .map(AdminCreditUnitCourseCode::from)
                 .collect();
             AdminCreditRegistrationCourseSummary {
                 course_id: Some(course.id),
@@ -265,12 +282,8 @@ pub async fn get_credit_registration_course_summary(
             course_name: target.display_name(),
             credit_units: external_credit_target_codes::get_by_target_id(&mut conn, target.id)
                 .await?
-                .into_iter()
-                .map(|code| AdminCreditUnitCourseCode {
-                    credit_unit_id: code.id,
-                    course_module_name: Some(code.name),
-                    uh_course_code: Some(code.uh_course_code),
-                })
+                .iter()
+                .map(AdminCreditUnitCourseCode::from)
                 .collect(),
         },
     };
@@ -324,20 +337,20 @@ pub async fn get_credit_registration_stats_by_course(
             *needs_attention.entry(row.credit_unit_id).or_insert(0) += 1;
         }
     }
-    let step_counts = credit_registrations::count_by_step_and_engagement(
+    let mut step_counts: HashMap<Uuid, Vec<StepCount>> = HashMap::new();
+    for row in credit_registrations::count_by_step_and_engagement(
         &mut conn,
         app_conf.suotar_configuration.account_linking_since,
     )
-    .await?;
+    .await?
+    {
+        step_counts.entry(row.credit_unit_id).or_default().push(row);
+    }
 
-    let unit_stats = |stats: &mut CreditRegistrationCourseStats,
-                      needs_attention: &mut HashMap<Uuid, i64>| {
+    let mut unit_stats = |stats: &mut CreditRegistrationCourseStats| {
         stats.needs_attention_count = needs_attention.remove(&stats.credit_unit_id).unwrap_or(0);
-        stats.where_registrations_stand = sum_step_counts(
-            step_counts
-                .iter()
-                .filter(|row| row.credit_unit_id == stats.credit_unit_id),
-        );
+        stats.where_registrations_stand =
+            sum_step_counts(step_counts.remove(&stats.credit_unit_id).iter().flatten());
     };
 
     let mut credit_units: Vec<CreditRegistrationCourseStats> = overviews
@@ -349,26 +362,11 @@ pub async fn get_credit_registration_stats_by_course(
                 checks.remove(&module_id).unwrap_or(NO_CHECK),
                 totals.remove(&module_id),
             );
-            unit_stats(&mut stats, &mut needs_attention);
+            unit_stats(&mut stats);
             stats
         })
         .collect();
 
-    let mut code_checks: HashMap<Uuid, CreditRegistrationCourseConfigCheck> =
-        external_credit_target_codes::get_config_facts_for_enabled_targets(&mut conn, None)
-            .await?
-            .into_iter()
-            .map(|facts| {
-                let check = check_target_code_config(
-                    &facts,
-                    CourseCodeVerdict::stored_for_target_code(&facts).as_ref(),
-                );
-                (
-                    facts.external_credit_target_code_id,
-                    config_check_stats(check),
-                )
-            })
-            .collect();
     let mut eligible_counts =
         external_credit_target_codes::count_eligible_completions_by_code(&mut conn).await?;
     let targets: HashMap<Uuid, ExternalCreditTarget> = external_credit_targets::get_all(&mut conn)
@@ -376,25 +374,41 @@ pub async fn get_credit_registration_stats_by_course(
         .into_iter()
         .map(|target| (target.id, target))
         .collect();
-    let mut codeless_targets = targets.clone();
-    for code in external_credit_target_codes::get_all(&mut conn).await? {
-        codeless_targets.remove(&code.external_credit_target_id);
+    let codes = external_credit_target_codes::get_all(&mut conn).await?;
+    let targets_with_codes: HashSet<Uuid> = codes
+        .iter()
+        .map(|code| code.external_credit_target_id)
+        .collect();
+    for code in codes {
         let Some(target) = targets.get(&code.external_credit_target_id) else {
             continue;
+        };
+        // As the config-validation phase does, only codes of enabled targets are checked.
+        let check = if target.enabled_at.is_some() {
+            let facts = code.config_facts();
+            config_check_stats(check_target_code_config(
+                &facts,
+                CourseCodeVerdict::stored_for_target_code(&facts).as_ref(),
+            ))
+        } else {
+            NO_CHECK
         };
         let id = code.id;
         let mut stats = target_code_course_stats(
             target.clone(),
             code,
-            code_checks.remove(&id).unwrap_or(NO_CHECK),
+            check,
             eligible_counts.remove(&id).unwrap_or(0),
             totals.remove(&id),
         );
-        unit_stats(&mut stats, &mut needs_attention);
+        unit_stats(&mut stats);
         credit_units.push(stats);
     }
     // Listed so a target whose codes are all gone can still be opened to add one.
-    let mut codeless_targets: Vec<_> = codeless_targets.into_values().collect();
+    let mut codeless_targets: Vec<ExternalCreditTarget> = targets
+        .into_values()
+        .filter(|target| !targets_with_codes.contains(&target.id))
+        .collect();
     codeless_targets.sort_by(|a, b| a.name.cmp(&b.name));
     credit_units.extend(
         codeless_targets
@@ -987,10 +1001,16 @@ pub async fn admin_save_external_credit_target_codes(
     let mut tx = conn.begin().await?;
     external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
     let live = external_credit_target_codes::get_by_target_id(&mut tx, target_id).await?;
+    let live_by_id: HashMap<Uuid, &ExternalCreditTargetCode> =
+        live.iter().map(|code| (code.id, code)).collect();
+    let wanted: HashMap<Uuid, &ExternalCreditTargetCodeConfiguration> = codes
+        .iter()
+        .map(|(id, configuration)| (*id, configuration))
+        .collect();
     let new_ids: Vec<Uuid> = codes
         .iter()
         .map(|(id, _)| *id)
-        .filter(|id| !live.iter().any(|code| code.id == *id))
+        .filter(|id| !live_by_id.contains_key(id))
         .collect();
     if !external_credit_target_codes::get_by_ids_including_deleted(&mut tx, &new_ids)
         .await?
@@ -1005,59 +1025,42 @@ pub async fn admin_save_external_credit_target_codes(
     // Prerequisites that change are cleared first and set last, so no write in between sees a
     // cycle, a dependent of a deleted code, or a prerequisite not added yet.
     for code in &live {
-        let wanted = codes.iter().find(|(id, _)| *id == code.id);
-        let wanted_prerequisite =
-            wanted.and_then(|(_, configuration)| configuration.prerequisite_code_id);
+        let wanted_prerequisite = wanted
+            .get(&code.id)
+            .and_then(|configuration| configuration.prerequisite_code_id);
         if code.prerequisite_code_id.is_some() && code.prerequisite_code_id != wanted_prerequisite {
             external_credit_target_codes::clear_prerequisite(&mut tx, code.id).await?;
         }
     }
-    for code in live
-        .iter()
-        .filter(|code| !codes.iter().any(|(id, _)| *id == code.id))
-    {
+    let audit = AuditCodeChange {
+        target_id,
+        actor_user_id: user.id,
+        reason,
+    };
+    for code in live.iter().filter(|code| !wanted.contains_key(&code.id)) {
         external_credit_target_codes::delete(&mut tx, code.id).await?;
-        record_target_action(
-            &mut tx,
-            CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-            target_id,
-            user.id,
-            Some(reason),
-            Some(serde_json::json!({
-                "change": "delete_code",
-                "external_credit_target_code_id": code.id,
-                "before": code,
-            })),
-        )
-        .await?;
+        audit
+            .record(&mut tx, serde_json::json!({ "change": "delete_code", "external_credit_target_code_id": code.id, "before": code }))
+            .await?;
     }
     for (id, configuration) in codes.iter().filter(|(id, _)| new_ids.contains(id)) {
+        let without_prerequisite = ExternalCreditTargetCodeConfiguration {
+            prerequisite_code_id: None,
+            ..configuration.clone()
+        };
         external_credit_target_codes::insert(
             &mut tx,
             PKeyPolicy::Fixed(*id),
             target_id,
-            &ExternalCreditTargetCodeConfiguration {
-                prerequisite_code_id: None,
-                ..configuration.clone()
-            },
+            &without_prerequisite,
         )
         .await?;
-        record_target_action(
-            &mut tx,
-            CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-            target_id,
-            user.id,
-            Some(reason),
-            Some(serde_json::json!({
-                "change": "create_code",
-                "external_credit_target_code_id": id,
-                "after": configuration,
-            })),
-        )
-        .await?;
+        audit
+            .record(&mut tx, serde_json::json!({ "change": "create_code", "external_credit_target_code_id": id, "after": configuration }))
+            .await?;
     }
     for (id, configuration) in &codes {
-        let before = live.iter().find(|code| code.id == *id);
+        let before = live_by_id.get(id);
         let is_new = before.is_none();
         if before.is_some_and(|code| code.configuration() == *configuration)
             || (is_new && configuration.prerequisite_code_id.is_none())
@@ -1066,25 +1069,39 @@ pub async fn admin_save_external_credit_target_codes(
         }
         external_credit_target_codes::update(&mut tx, *id, configuration).await?;
         if let Some(before) = before {
-            record_target_action(
-                &mut tx,
-                CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-                target_id,
-                user.id,
-                Some(reason),
-                Some(serde_json::json!({
-                    "change": "update_code",
-                    "external_credit_target_code_id": id,
-                    "before": before,
-                    "after": configuration,
-                })),
-            )
-            .await?;
+            audit
+                .record(&mut tx, serde_json::json!({ "change": "update_code", "external_credit_target_code_id": id, "before": before, "after": configuration }))
+                .await?;
         }
     }
     tx.commit().await?;
 
     token.authorized_ok(web::Json(true))
+}
+
+/// The audit record of one code change in [`admin_save_external_credit_target_codes`].
+struct AuditCodeChange<'a> {
+    target_id: Uuid,
+    actor_user_id: Uuid,
+    reason: &'a str,
+}
+
+impl AuditCodeChange<'_> {
+    async fn record(
+        &self,
+        tx: &mut PgConnection,
+        details: serde_json::Value,
+    ) -> Result<(), ControllerError> {
+        record_target_action(
+            tx,
+            CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+            self.target_id,
+            self.actor_user_id,
+            Some(self.reason),
+            Some(details),
+        )
+        .await
+    }
 }
 
 /// Refuses a code sent twice, and a prerequisite that is not another of `codes`, that a completion
@@ -1111,12 +1128,11 @@ fn require_valid_prerequisites(
                 "The prerequisite must be another code of the same course.".to_string()
             ));
         };
-        let is_tier_above = match (prerequisite.minimum_tier, configuration.minimum_tier) {
-            (None, _) => false,
-            (Some(_), None) => true,
-            (Some(prerequisite_tier), Some(tier)) => prerequisite_tier > tier,
-        };
-        if is_tier_above {
+        // A completion that earns the dependent must be able to earn the prerequisite too.
+        if !external_credit_target_codes::is_tier_earned(
+            prerequisite.minimum_tier,
+            configuration.minimum_tier,
+        ) {
             return Err(bad_request_with_reason(
                 BadRequestReason::ExternalCreditTargetCodePrerequisiteTierAbove,
                 "A prerequisite cannot need a higher tier than the code that waits for it."

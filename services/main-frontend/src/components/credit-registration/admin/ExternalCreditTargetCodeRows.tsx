@@ -10,7 +10,7 @@ import { Button, Chip, NumberField, Select, TextField } from "@/shared-module/co
 
 import { BUTTON_SECONDARY, BUTTON_TERTIARY, CREDIT_REGISTRATION_NS } from "../constants"
 import { noteCss, subheadingCss } from "../styles"
-import { emptyCodeFields, NO_PREREQUISITE } from "./externalCreditTargetCodes"
+import { emptyCodeFields, NO_PREREQUISITE, withDraftEquivalent } from "./externalCreditTargetCodes"
 import type { CodeFields } from "./externalCreditTargetCodes"
 
 export const fieldRowCss = css`
@@ -73,20 +73,19 @@ const ExternalCreditTargetCodeRows: React.FC = () => {
   const rows = watch("codes")
 
   useEffect(() => {
-    const keys = new Set(rows.map((row) => row.key))
+    const ids = new Set(rows.map((row) => row.id))
     rows.forEach((row, index) => {
-      if (row.prerequisite_key !== NO_PREREQUISITE && !keys.has(row.prerequisite_key)) {
-        setValue(`codes.${index}.prerequisite_key`, NO_PREREQUISITE)
+      if (row.prerequisite_code_id !== NO_PREREQUISITE && !ids.has(row.prerequisite_code_id)) {
+        setValue(`codes.${index}.prerequisite_code_id`, NO_PREREQUISITE)
       }
     })
   }, [rows, setValue])
 
   const addEquivalentCode = (index: number) => {
-    const row = getValues(`codes.${index}`)
-    const code = row.equivalent_draft.trim()
-    if (code !== "" && !row.equivalent_course_codes.includes(code)) {
-      setValue(`codes.${index}.equivalent_course_codes`, [...row.equivalent_course_codes, code])
-    }
+    setValue(
+      `codes.${index}.equivalent_course_codes`,
+      withDraftEquivalent(getValues(`codes.${index}`)),
+    )
     setValue(`codes.${index}.equivalent_draft`, "")
   }
 
@@ -113,9 +112,9 @@ const ExternalCreditTargetCodeRows: React.FC = () => {
             label: t("credit-registration-admin-prerequisite-none"),
           },
           ...rows
-            .filter((other) => other.key !== row.key)
+            .filter((other) => other.id !== row.id)
             .map((other) => ({
-              value: other.key,
+              value: other.id,
               label: t("credit-registration-admin-prerequisite-option", {
                 code: other.uh_course_code,
                 name: other.name,
@@ -203,7 +202,7 @@ const ExternalCreditTargetCodeRows: React.FC = () => {
             />
             <div className={fieldRowCss}>
               <Select
-                name={`codes.${index}.prerequisite_key`}
+                name={`codes.${index}.prerequisite_code_id`}
                 control={control}
                 label={t("label-prerequisite")}
                 description={t("credit-registration-admin-prerequisite-description")}

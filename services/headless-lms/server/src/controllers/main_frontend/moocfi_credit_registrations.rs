@@ -6,10 +6,14 @@ read from mooc.fi on every load. Per-registration detail is behind the routes ke
 completion's `external_completion_id`, which only completions courses registers have.
 */
 
+use std::collections::{HashMap, HashSet};
+
 use headless_lms_base::config::MoocfiDelegationConfiguration;
 use headless_lms_models::{
     completion_registration_credit_justifications,
-    external_completions::{self, ExternalCompletion, UpstreamCompletions},
+    external_completions::{
+        self, ExternalCompletion, ExternalCompletionRegistrationState, UpstreamCompletions,
+    },
     external_credit_target_codes::{self, ExternalCreditTargetCode},
     external_credit_targets::{self, ExternalCreditTarget},
     library::credit_registration::{PendingPreconditions, StudentFacingCreditRegistrationStatus},
@@ -159,12 +163,6 @@ pub async fn get_my_moocfi_credit_registrations(
         .email;
     let target =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, moocfi_course_id).await?;
-    let mut codes = match &target {
-        Some(target) => {
-            external_credit_target_codes::get_by_target_id(&mut conn, target.id).await?
-        }
-        None => Vec::new(),
-    };
     // Not held across the lookup, which may take its whole 10 s timeout.
     drop(conn);
 
@@ -257,34 +255,27 @@ pub async fn get_my_moocfi_credit_registrations(
     let stored =
         external_completions::get_by_user_and_moocfi_course(&mut conn, user.id, moocfi_course_id)
             .await?;
-    let registration_states =
+    let registration_states: HashMap<Uuid, ExternalCompletionRegistrationState> =
         external_completions::get_registration_states_by_user_and_moocfi_course(
             &mut conn,
             user.id,
             moocfi_course_id,
         )
-        .await?;
-    let deleted_code_ids: Vec<Uuid> = stored
+        .await?
+        .into_iter()
+        .map(|state| (state.external_completion_id, state))
+        .collect();
+    let registered_code_ids: Vec<Uuid> = stored
         .iter()
-        .filter(|row| {
-            !codes
-                .iter()
-                .any(|code| code.id == row.external_credit_target_code_id)
-                && registration_states
-                    .iter()
-                    .any(|state| state.external_completion_id == row.id)
-        })
+        .filter(|row| registration_states.contains_key(&row.id))
         .map(|row| row.external_credit_target_code_id)
         .collect();
-    if !deleted_code_ids.is_empty() {
-        codes.extend(
-            external_credit_target_codes::get_by_ids_including_deleted(
-                &mut conn,
-                &deleted_code_ids,
-            )
-            .await?,
-        );
-    }
+    let codes = external_credit_target_codes::get_by_target_id_including_referenced(
+        &mut conn,
+        target.as_ref().map(|target| target.id),
+        &registered_code_ids,
+    )
+    .await?;
     let registered_equivalents = external_completions::get_registered_equivalents(
         &mut conn,
         &stored.iter().map(|row| row.id).collect::<Vec<_>>(),
@@ -292,19 +283,16 @@ pub async fn get_my_moocfi_credit_registrations(
     .await?;
     let moocfi_completion_ids: Vec<Uuid> =
         stored.iter().map(|row| row.moocfi_completion_id).collect();
-    let justifications =
+    let mut justifications: HashMap<Uuid, String> =
         completion_registration_credit_justifications::get_by_user_and_moocfi_completion_ids(
             &mut conn,
             user.id,
             &moocfi_completion_ids,
         )
-        .await?;
-    let justification_of = |moocfi_completion_id: Uuid| {
-        justifications
-            .iter()
-            .find(|row| row.moocfi_completion_id == Some(moocfi_completion_id))
-            .map(|row| row.justification.clone())
-    };
+        .await?
+        .into_iter()
+        .filter_map(|row| Some((row.moocfi_completion_id?, row.justification)))
+        .collect();
     let offers_certificate = has_certificate != Some(false);
 
     let fetched = match &lookup {
@@ -318,41 +306,44 @@ pub async fn get_my_moocfi_credit_registrations(
         )),
         _ => None,
     };
-    let mut moocfi_completion_ids: Vec<Uuid> = fetched
-        .map(|(completions, _)| completions.iter().map(|completion| completion.id).collect())
-        .unwrap_or_default();
+    let mut first_rows: HashMap<Uuid, &ExternalCompletion> = HashMap::new();
+    let mut rows_by_code: HashMap<(Uuid, Uuid), &ExternalCompletion> = HashMap::new();
     for row in &stored {
-        if !moocfi_completion_ids.contains(&row.moocfi_completion_id) {
+        first_rows.entry(row.moocfi_completion_id).or_insert(row);
+        rows_by_code.insert(
+            (row.moocfi_completion_id, row.external_credit_target_code_id),
+            row,
+        );
+    }
+    let upstream_completions: HashMap<Uuid, &DelegatedCompletion> = fetched
+        .into_iter()
+        .flat_map(|(completions, _)| completions)
+        .map(|completion| (completion.id, completion))
+        .collect();
+    let mut moocfi_completion_ids: Vec<Uuid> = fetched
+        .into_iter()
+        .flat_map(|(completions, _)| completions)
+        .map(|completion| completion.id)
+        .collect();
+    let mut seen: HashSet<Uuid> = moocfi_completion_ids.iter().copied().collect();
+    for row in &stored {
+        if seen.insert(row.moocfi_completion_id) {
             moocfi_completion_ids.push(row.moocfi_completion_id);
         }
     }
 
     let mut completions = Vec::new();
     for moocfi_completion_id in moocfi_completion_ids {
-        let upstream = fetched.and_then(|(completions, _)| {
-            completions
-                .iter()
-                .find(|completion| completion.id == moocfi_completion_id)
-        });
-        let rows: Vec<&ExternalCompletion> = stored
-            .iter()
-            .filter(|row| row.moocfi_completion_id == moocfi_completion_id)
-            .collect();
-        let (completion_date, tier) = match (upstream, rows.first()) {
+        let upstream = upstream_completions.get(&moocfi_completion_id).copied();
+        let (completion_date, tier) = match (upstream, first_rows.get(&moocfi_completion_id)) {
             (Some(completion), _) => (completion.effective_date(), completion.tier),
             (None, Some(row)) => (row.completion_date, row.tier),
             (None, None) => continue,
         };
         let mut credit_units = Vec::new();
         for code in &codes {
-            let row = rows
-                .iter()
-                .find(|row| row.external_credit_target_code_id == code.id);
-            let registration_state = row.and_then(|row| {
-                registration_states
-                    .iter()
-                    .find(|state| state.external_completion_id == row.id)
-            });
+            let row = rows_by_code.get(&(moocfi_completion_id, code.id)).copied();
+            let registration_state = row.and_then(|row| registration_states.get(&row.id));
             if !code.is_earned_by(tier) && registration_state.is_none() {
                 continue;
             }
@@ -395,7 +386,7 @@ pub async fn get_my_moocfi_credit_registrations(
             tier,
             credit_units,
             offers_certificate,
-            credit_justification: justification_of(moocfi_completion_id),
+            credit_justification: justifications.remove(&moocfi_completion_id),
         });
     }
     completions.sort_by_key(|completion| std::cmp::Reverse(completion.completion_date));

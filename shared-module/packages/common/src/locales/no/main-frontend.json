@@ -3048,6 +3048,8 @@
   "submission": "Innlevering",
   "submission-blocked-cannot-submit": "Du kan ikke levere denne oppgaven akkurat nå.",
   "submission-blocked-deadline-passed": "Fristen er utløpt ({{deadline}}).",
+  "submission-blocked-task-loading": "Oppgaven lastes fortsatt inn.",
+  "submission-blocked-task-not-loaded": "En del av oppgaven ble ikke lastet inn.",
   "submission-blocked-wrong-language": "Du ser en annen språkversjon av dette kurset. Bytt til din egen språkversjon for å levere.",
   "submission-created": "Innlevering opprettet",
   "submission-details": "Innleveringsdetaljer",

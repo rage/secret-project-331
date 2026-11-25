@@ -86,6 +86,7 @@ use utoipa::OpenApi;
         (path = "/feedback", api = feedback::MainFrontendFeedbackApiDoc),
         (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
         (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
+        (path = "/language-version-ai-suggestions", api = courses::language_versions::MainFrontendLanguageVersionAiSuggestionsApiDoc),
         (path = "/moocfi-credit-registrations", api = moocfi_credit_registrations::MainFrontendMoocfiCreditRegistrationsApiDoc),
         (path = "/moocfi-handoffs", api = moocfi_handoffs::MainFrontendMoocfiHandoffsApiDoc),
         (path = "/oauth", api = oauth::MainFrontendOauthApiDoc),
@@ -152,6 +153,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/users").configure(users::_add_routes))
         .service(web::scope("/exams").configure(exams::_add_routes))
         .service(web::scope("/glossary").configure(glossary::_add_routes))
+        .service(
+            web::scope("/language-version-ai-suggestions")
+                .configure(courses::language_versions::_add_ai_suggestion_routes),
+        )
         .service(web::scope("/roles").configure(roles::_add_routes))
         .service(web::scope("/exercise-repositories").configure(exercise_repositories::_add_routes))
         .service(web::scope("/regradings").configure(regradings::_add_routes))

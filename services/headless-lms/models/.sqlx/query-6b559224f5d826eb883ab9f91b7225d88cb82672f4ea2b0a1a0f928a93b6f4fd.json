@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM marketing_mailing_list_access_tokens\n    WHERE course_language_group_id = $1\n      AND deleted_at IS NULL\n  ) AS \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "6b559224f5d826eb883ab9f91b7225d88cb82672f4ea2b0a1a0f928a93b6f4fd"
+}

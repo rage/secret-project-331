@@ -32,3 +32,10 @@ spec:
                 name: headless-lms
                 port:
                   number: 3001
+          - path: /api/v0/main-frontend/language-version-ai-suggestions
+            pathType: Prefix
+            backend:
+              service:
+                name: headless-lms
+                port:
+                  number: 3001

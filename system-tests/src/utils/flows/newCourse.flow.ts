@@ -89,7 +89,7 @@ export async function createCourseLanguageVersion(
   courseName: string,
   options: NewCourseOptions,
 ): Promise<void> {
-  await page.getByRole("button", { name: "New", exact: true }).click()
+  await page.getByRole("button", { name: "New language version", exact: true }).click()
 
   const dialog = page.getByRole("dialog", { name: `Create new language version of ${courseName}` })
   await dialog.waitFor()

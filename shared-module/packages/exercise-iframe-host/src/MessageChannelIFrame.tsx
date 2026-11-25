@@ -2,12 +2,20 @@
 
 import { css } from "@emotion/css"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { useTranslation } from "react-i18next"
 
 import type {
   DialogResponseMessage,
   ExtendedIframeState,
+  FocusFirstInvalidMessage,
   MessageFromIframe,
   SetLanguageMessage,
   SetStateMessage,
@@ -41,6 +49,43 @@ type BreakFromCenteredProps = NoSidebar | WithSidebar
 
 export type { ExerciseDialogApi }
 
+/** Deadlines of not-loaded detection (`detectLoadFailure`), in milliseconds. */
+export const EXERCISE_IFRAME_LOAD_TIMING = {
+  /** After the iframe's `load` event without a `ready`, reload it once. */
+  autoReloadAfterLoadWithoutReadyMs: 4000,
+  /** Without a connection by then, show the error with the reload button. */
+  failureMs: 10000,
+} as const
+
+const CONNECTION_STAGES = ["mounted", "document-loaded", "ready-received", "port-sent"] as const
+
+/**
+ * Progress of the iframe's handshake, reported through `onConnectionStateChange`.
+ *
+ * `stage` is the furthest step reached in the current load. `elapsedMs` counts from the start of
+ * the load: mount, `url` change, or any reload except the automatic one, which shares the deadline
+ * of the load it retries. `reloadCount` counts iframe reloads since mount or the last `url` change.
+ */
+export interface IframeConnectionState {
+  status: "loading" | "connected" | "failed"
+  stage: (typeof CONNECTION_STAGES)[number]
+  elapsedMs: number
+  reloadCount: number
+}
+
+type ConnectionStage = IframeConnectionState["stage"]
+
+type IframeLoadError = "reload-exhausted" | "not-loaded"
+
+/** Imperative API of `MessageChannelIFrame`, passed through its `ref` prop. */
+export interface MessageChannelIFrameHandle {
+  /**
+   * Moves focus to the iframe and, once it has connected, asks it to focus its first invalid
+   * field. While the load has failed, focuses the reload button instead. Does not scroll.
+   */
+  focusFirstInvalid: () => void
+}
+
 interface MessageChannelIFrameProps {
   url: string
   postThisStateToIFrame: ExtendedIframeState | null
@@ -50,6 +95,7 @@ interface MessageChannelIFrameProps {
   showBorders?: boolean
   disableSandbox?: boolean
   headingBeforeIframe?: string
+  /** Called when the iframe connects (sends `ready` or any port message), again after each reload. */
   onReady?: () => void
   /**
    * Host-provided dialog controller used to answer the iframe's `open-dialog` requests and to confirm
@@ -67,6 +113,23 @@ interface MessageChannelIFrameProps {
    * never used. Leave it unset to keep it, which is what someone looking at their own files wants.
    */
   overrideDownloadFilename?: (url: string) => string
+  /**
+   * Treats an iframe that hasn't connected (sent `ready` or any port message) within
+   * `EXERCISE_IFRAME_LOAD_TIMING` as broken: reloads it once, then shows an error with a button that
+   * reloads only this iframe. Enable only where the embedded view always sends `ready`; some
+   * view-submission and custom views never message the parent.
+   */
+  detectLoadFailure?: boolean
+  /** Called with `loading` on mount, every reload and `url` change, then on each status change. */
+  onConnectionStateChange?: (state: IframeConnectionState) => void
+  /** Called when the iframe sends `request-iframe-reload`, which plugins send after a crash. */
+  onReloadRequested?: () => void
+  /**
+   * Returns the task's last captured answer, sent as `answer_draft` in the first `answer-exercise`
+   * `set-state` after the iframe reloads. Return `undefined` to send none.
+   */
+  getAnswerDraft?: () => unknown
+  ref?: React.Ref<MessageChannelIFrameHandle>
 }
 
 const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
@@ -102,6 +165,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   onReady,
   dialog,
   overrideDownloadFilename,
+  detectLoadFailure = false,
+  onConnectionStateChange,
+  onReloadRequested,
+  getAnswerDraft,
+  ref,
 }) => {
   const { t, i18n } = useTranslation()
   const { openLinkOnRequest, downloadFileOnRequest } = useIframeLinkRequests(
@@ -122,7 +190,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const lastThingPostedRef = useRef<unknown>(null)
 
   const [reloadNonce, setReloadNonce] = useState(0)
-  const [reloadExhausted, setReloadExhausted] = useState(false)
+  const [loadError, setLoadError] = useState<IframeLoadError | null>(null)
 
   const [messageChannel, recreateMessageChannel] = useMessageChannel()
   const portSentRef = useRef(false)
@@ -131,11 +199,75 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const readyMessageQueueRef = useRef<MessageEvent[]>([])
   const reloadAttemptsRef = useRef(0)
   const reloadTimeoutRef = useRef<number | null>(null)
+  const shouldSendAnswerDraftRef = useRef(false)
+  const didLastSetStateCarryDraftRef = useRef(false)
+
+  const isConnectedRef = useRef(false)
+  // oxlint-disable-next-line i18next/no-literal-string
+  const connectionStageRef = useRef<ConnectionStage>("mounted")
+  const loadStartedAtRef = useRef(Date.now())
+  const shouldKeepLoadStartRef = useRef(false)
+  const hasAutoReloadedRef = useRef(false)
+  const autoReloadTimeoutRef = useRef<number | null>(null)
+  const failureTimeoutRef = useRef<number | null>(null)
 
   const MAX_RECOVERY_ATTEMPTS = 3
   const RECOVERY_TIMEOUT_MS = 5000
   const MAX_RELOAD_ATTEMPTS = 4
   const INITIAL_RELOAD_DELAY_MS = 250
+
+  const reportConnectionState = useEventCallback((status: IframeConnectionState["status"]) => {
+    onConnectionStateChange?.({
+      status,
+      stage: connectionStageRef.current,
+      elapsedMs: Date.now() - loadStartedAtRef.current,
+      reloadCount: reloadNonce,
+    })
+  })
+
+  const advanceConnectionStage = useCallback((stage: ConnectionStage) => {
+    if (CONNECTION_STAGES.indexOf(stage) > CONNECTION_STAGES.indexOf(connectionStageRef.current)) {
+      connectionStageRef.current = stage
+    }
+  }, [])
+
+  const clearLoadTimers = useCallback(() => {
+    if (autoReloadTimeoutRef.current !== null) {
+      clearTimeout(autoReloadTimeoutRef.current)
+      autoReloadTimeoutRef.current = null
+    }
+    if (failureTimeoutRef.current !== null) {
+      clearTimeout(failureTimeoutRef.current)
+      failureTimeoutRef.current = null
+    }
+  }, [])
+
+  const failLoad = useEventCallback((error: IframeLoadError) => {
+    clearLoadTimers()
+    setLoadError(error)
+    // oxlint-disable-next-line i18next/no-literal-string
+    reportConnectionState("failed")
+  })
+
+  const markConnected = useEventCallback(() => {
+    if (isConnectedRef.current) {
+      return
+    }
+    isConnectedRef.current = true
+    clearLoadTimers()
+    // An automatic or button reload may still be pending; the document it would replace works.
+    if (reloadTimeoutRef.current !== null) {
+      clearTimeout(reloadTimeoutRef.current)
+      reloadTimeoutRef.current = null
+      shouldKeepLoadStartRef.current = false
+    }
+    // oxlint-disable-next-line i18next/no-literal-string
+    advanceConnectionStage("ready-received")
+    setLoadError((current) => (current === "not-loaded" ? null : current))
+    // oxlint-disable-next-line i18next/no-literal-string
+    reportConnectionState("connected")
+    onReady?.()
+  })
 
   const resetIframeConnectionState = useCallback(
     ({
@@ -175,9 +307,12 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
 
     resetIframeConnectionState()
     reloadAttemptsRef.current = 0
+    shouldSendAnswerDraftRef.current = false
+    didLastSetStateCarryDraftRef.current = false
+    shouldKeepLoadStartRef.current = false
     clearReloadTimeout()
     setReloadNonce(0)
-    setReloadExhausted(false)
+    setLoadError(null)
 
     return clearReloadTimeout
   }, [resetIframeConnectionState, url])
@@ -196,7 +331,8 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       console.error(
         `[MessageChannelIFrame] Max iframe reload attempts (${MAX_RELOAD_ATTEMPTS}) reached. Giving up.`,
       )
-      setReloadExhausted(true)
+      // oxlint-disable-next-line i18next/no-literal-string
+      failLoad("reload-exhausted")
       return
     }
 
@@ -210,36 +346,115 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     reloadTimeoutRef.current = window.setTimeout(() => {
       reloadTimeoutRef.current = null
       resetIframeConnectionState({ recreateChannel: true })
+      shouldSendAnswerDraftRef.current = true
       setReloadNonce((prev) => prev + 1)
     }, delay)
-  }, [resetIframeConnectionState])
+  }, [failLoad, resetIframeConnectionState])
 
-  const sendPortToIframe = useCallback((channel: MessageChannel, isRecovery = false) => {
-    if (portSentRef.current && !isRecovery) {
-      return
+  // Runs for every iframe document: on mount, after each reload and on `url` change.
+  useEffect(() => {
+    if (!shouldKeepLoadStartRef.current) {
+      loadStartedAtRef.current = Date.now()
+      hasAutoReloadedRef.current = false
     }
-
-    if (!iframeRef.current) {
-      return
-    }
-
-    const contentWindow = iframeRef.current.contentWindow
-    if (!contentWindow) {
-      return
-    }
-
+    shouldKeepLoadStartRef.current = false
+    isConnectedRef.current = false
     // oxlint-disable-next-line i18next/no-literal-string
-    const recoveryMessage = isRecovery ? " (recovery attempt)" : ""
-    console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
-    try {
-      // The iframe will use port 2 for communication
-      contentWindow.postMessage("communication-port", "*", [channel.port2])
-      portSentRef.current = true
-      portSentTimestampRef.current = Date.now()
-    } catch (e) {
-      console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
+    connectionStageRef.current = "mounted"
+    // oxlint-disable-next-line i18next/no-literal-string
+    reportConnectionState("loading")
+    return clearLoadTimers
+  }, [url, reloadNonce, clearLoadTimers, reportConnectionState])
+
+  // Separate from the effect above so turning detection on for a connected document (e.g. try
+  // again switches to answer-exercise) doesn't reset its connection.
+  useEffect(() => {
+    if (!detectLoadFailure || isConnectedRef.current) {
+      return
     }
-  }, [])
+    const elapsedMs = Date.now() - loadStartedAtRef.current
+    const timeoutId = window.setTimeout(
+      () => {
+        failureTimeoutRef.current = null
+        if (!isConnectedRef.current) {
+          console.error("[MessageChannelIFrame] Iframe did not connect in time")
+          failLoad("not-loaded")
+        }
+      },
+      Math.max(0, EXERCISE_IFRAME_LOAD_TIMING.failureMs - elapsedMs),
+    )
+    failureTimeoutRef.current = timeoutId
+    return () => {
+      clearTimeout(timeoutId)
+      if (failureTimeoutRef.current === timeoutId) {
+        failureTimeoutRef.current = null
+      }
+    }
+  }, [url, reloadNonce, detectLoadFailure, failLoad])
+
+  // A document that loaded without sending `ready` has likely lost a script and holds no answer
+  // yet, so one reload is safe. A load still in progress is left alone; it may just be slow.
+  const handleIframeLoad = useEventCallback(() => {
+    // oxlint-disable-next-line i18next/no-literal-string
+    advanceConnectionStage("document-loaded")
+    if (
+      !detectLoadFailure ||
+      isConnectedRef.current ||
+      hasAutoReloadedRef.current ||
+      autoReloadTimeoutRef.current !== null
+    ) {
+      return
+    }
+    autoReloadTimeoutRef.current = window.setTimeout(() => {
+      autoReloadTimeoutRef.current = null
+      if (isConnectedRef.current) {
+        return
+      }
+      console.warn("[MessageChannelIFrame] Iframe loaded but sent no ready, reloading it")
+      hasAutoReloadedRef.current = true
+      shouldKeepLoadStartRef.current = true
+      scheduleIframeReload()
+    }, EXERCISE_IFRAME_LOAD_TIMING.autoReloadAfterLoadWithoutReadyMs)
+  })
+
+  const reloadAfterLoadError = () => {
+    reloadAttemptsRef.current = 0
+    shouldKeepLoadStartRef.current = false
+    setLoadError(null)
+    scheduleIframeReload()
+  }
+
+  const sendPortToIframe = useCallback(
+    (channel: MessageChannel, isRecovery = false) => {
+      if (portSentRef.current && !isRecovery) {
+        return
+      }
+
+      if (!iframeRef.current) {
+        return
+      }
+
+      const contentWindow = iframeRef.current.contentWindow
+      if (!contentWindow) {
+        return
+      }
+
+      // oxlint-disable-next-line i18next/no-literal-string
+      const recoveryMessage = isRecovery ? " (recovery attempt)" : ""
+      console.info(`[MessageChannelIFrame] Parent posting message port to iframe${recoveryMessage}`)
+      try {
+        // The iframe will use port 2 for communication
+        contentWindow.postMessage("communication-port", "*", [channel.port2])
+        portSentRef.current = true
+        portSentTimestampRef.current = Date.now()
+        // oxlint-disable-next-line i18next/no-literal-string
+        advanceConnectionStage("port-sent")
+      } catch (e) {
+        console.error("[MessageChannelIFrame] Posting communication port to iframe failed", e)
+      }
+    },
+    [advanceConnectionStage],
+  )
 
   // An exercise inside the iframe can ask us (the parent) to show a dialog and report back the
   // user's choice, and to open a link or download a file on its behalf. All three go through the
@@ -248,6 +463,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   // no reply, so nothing in the iframe waits on them.
   const handlePortMessage = useEventCallback(
     (message: WindowEventMap["message"], currentMessageChannel: MessageChannel) => {
+      markConnected()
       const data = message?.data
       if (data?.message) {
         console.groupCollapsed(`Parent page: received message ${data.message} from iframe`)
@@ -272,6 +488,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.info(`The iframe wants to download a file: ${data.url}`)
         downloadFileOnRequest(data.url, data.filename)
       } else if (isRequestIframeReloadMessage(data)) {
+        onReloadRequested?.()
         scheduleIframeReload()
       } else if (isOpenDialogMessage(data)) {
         const responsePort = currentMessageChannel.port1
@@ -346,7 +563,6 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
             clearTimeout(reloadTimeoutRef.current)
             reloadTimeoutRef.current = null
           }
-          onReady?.()
         }
         try {
           onMessageFromIframe(data, currentMessageChannel.port1)
@@ -411,6 +627,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     if (e.data !== "ready") {
       return
     }
+    markConnected()
 
     if (portSentRef.current && portSentTimestampRef.current) {
       const timeSinceSent = Date.now() - portSentTimestampRef.current
@@ -422,6 +639,8 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
           recoveryAttemptsRef.current += 1
 
           resetIframeConnectionState({ resetRecoveryAttempts: false })
+          // The reposted set-state replaces one the iframe may never have received.
+          shouldSendAnswerDraftRef.current = didLastSetStateCarryDraftRef.current
           readyMessageQueueRef.current.push(e)
           recreateMessageChannel()
           return
@@ -429,6 +648,10 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         console.error(
           `[MessageChannelIFrame] Max recovery attempts (${MAX_RECOVERY_ATTEMPTS}) reached. Giving up.`,
         )
+        if (loadError === null) {
+          // oxlint-disable-next-line i18next/no-literal-string
+          failLoad("reload-exhausted")
+        }
       }
       return
     }
@@ -451,6 +674,28 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       removeEventListener("message", temporaryEventHandler)
     }
   }, [handleInitialReadyMessage])
+
+  const readAnswerDraft = useEventCallback(() => getAnswerDraft?.())
+
+  const reloadButtonRef = useRef<HTMLButtonElement>(null)
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusFirstInvalid: () => {
+        if (reloadButtonRef.current) {
+          reloadButtonRef.current.focus({ preventScroll: true })
+          return
+        }
+        iframeRef.current?.focus({ preventScroll: true })
+        if (isConnectedRef.current && messageChannel) {
+          // oxlint-disable-next-line i18next/no-literal-string
+          const message: FocusFirstInvalidMessage = { message: "focus-first-invalid" }
+          messageChannel.port1.postMessage(message)
+        }
+      },
+    }),
+    [messageChannel],
+  )
 
   // Keep the iframe informed of the current user interface language
   useEffect(() => {
@@ -479,6 +724,16 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       ...postThisStateToIFrame,
       message: "set-state",
     }
+    let hasAnswerDraft = false
+    if (shouldSendAnswerDraftRef.current && postData.view_type === "answer-exercise") {
+      const answerDraft = readAnswerDraft()
+      if (answerDraft !== undefined) {
+        postData.answer_draft = answerDraft
+        hasAnswerDraft = true
+      }
+    }
+    shouldSendAnswerDraftRef.current = false
+    didLastSetStateCarryDraftRef.current = hasAnswerDraft
 
     console.groupCollapsed(`Parent posting set-state message to iframe`)
     console.info(JSON.stringify(postData, undefined, 2))
@@ -489,7 +744,7 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
       iframeRef.current.dataset.stateSent = "true"
     }
     lastThingPostedRef.current = postThisStateToIFrame
-  }, [messageChannel, postThisStateToIFrame])
+  }, [messageChannel, postThisStateToIFrame, readAnswerDraft])
 
   if (!messageChannel) {
     return null
@@ -539,9 +794,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         key={reloadNonce}
         ref={iframeRef}
         src={url}
+        onLoad={handleIframeLoad}
       />
-      {reloadExhausted && (
+      {loadError && (
         <div
+          role="alert"
           className={css`
             margin-top: 0.75rem;
             padding: 0.75rem 1rem;
@@ -554,7 +811,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
             gap: 0.75rem;
           `}
         >
-          <span>{t("exercise-iframe-reload-exhausted-message")}</span>
+          <span>
+            {loadError === "not-loaded"
+              ? t("exercise-iframe-not-loaded-message")
+              : t("exercise-iframe-reload-exhausted-message")}
+          </span>
           <button
             type="button"
             className={css`
@@ -568,13 +829,12 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
               color: #fff;
               white-space: nowrap;
             `}
-            onClick={() => {
-              reloadAttemptsRef.current = 0
-              setReloadExhausted(false)
-              scheduleIframeReload()
-            }}
+            ref={reloadButtonRef}
+            onClick={reloadAfterLoadError}
           >
-            {t("exercise-iframe-reload-exhausted-reload-button")}
+            {loadError === "not-loaded"
+              ? t("exercise-iframe-not-loaded-reload-button")
+              : t("exercise-iframe-reload-exhausted-reload-button")}
           </button>
         </div>
       )}

@@ -80,6 +80,7 @@ void i18next.use(initReactI18next).init({
         "queryResult.loading": "Loading",
         "queryResult.refreshing": "Refreshing",
         "queryResult.retry": "Retry",
+        "stepper.completed": "completed",
         "table.collapseRow": "Show less",
         "table.detailsColumn": "Details",
         "table.expandRow": "Show more",

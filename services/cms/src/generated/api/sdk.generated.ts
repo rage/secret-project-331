@@ -50,6 +50,8 @@ import type {
   GetCmsPageData,
   GetCmsPageInfoData,
   GetCmsPageInfoResponses,
+  GetCmsPageLanguageVersionsData,
+  GetCmsPageLanguageVersionsResponses,
   GetCmsPageNavigationData,
   GetCmsPageNavigationResponses,
   GetCmsPagePendingAgentChangesData,
@@ -59,6 +61,8 @@ import type {
   GetCmsRepositoryExercisesForCourseResponses,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponses,
+  LinkCmsPageCounterpartData,
+  LinkCmsPageCounterpartResponses,
   PreviewCmsEmailTemplateData,
   PreviewCmsEmailTemplateResponses,
   RequestChartSpecGenerationData,
@@ -107,11 +111,13 @@ import {
   zGetCmsExamInstructionsResponse,
   zGetCmsExerciseServicesResponse,
   zGetCmsPageInfoResponse,
+  zGetCmsPageLanguageVersionsResponse,
   zGetCmsPageNavigationResponse,
   zGetCmsPagePendingAgentChangesResponse,
   zGetCmsPageResponse,
   zGetCmsRepositoryExercisesForCourseResponse,
   zGetExercisesWithSubmissionsResponse,
+  zLinkCmsPageCounterpartResponse,
   zPreviewCmsEmailTemplateResponse,
   zRequestChartSpecGenerationResponse,
   zRequestParagraphSuggestionsResponse,
@@ -757,6 +763,41 @@ export const getCmsPageInfo = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/cms/pages/{page_id}/info",
     ...options,
+  })
+
+/**
+ * GET `/api/v0/cms/pages/:page_id/language-versions` - The page's counterparts in the course's other language versions.
+ */
+export const getCmsPageLanguageVersions = <ThrowOnError extends boolean = true>(
+  options: Options<GetCmsPageLanguageVersionsData, ThrowOnError>,
+): RequestResult<GetCmsPageLanguageVersionsResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCmsPageLanguageVersionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetCmsPageLanguageVersionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions",
+    ...options,
+  })
+
+/**
+ * POST `/api/v0/cms/pages/:page_id/language-versions/link` - Links an existing page of another language version as the page's counterpart.
+ */
+export const linkCmsPageCounterpart = <ThrowOnError extends boolean = true>(
+  options: Options<LinkCmsPageCounterpartData, ThrowOnError>,
+): RequestResult<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).post<LinkCmsPageCounterpartResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zLinkCmsPageCounterpartResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/cms/pages/{page_id}/language-versions/link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

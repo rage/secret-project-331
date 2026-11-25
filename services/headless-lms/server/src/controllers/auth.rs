@@ -1751,7 +1751,11 @@ pub fn changes_session(path: &str) -> bool {
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.service(
+    cfg.route(
+        "/signup",
+        web::post().to(domain::removed_routes::log_removed_route_request),
+    )
+    .service(
         web::resource("/create-account")
             .wrap(RateLimit::new(RateLimitConfig {
                 per_minute: Some(15),

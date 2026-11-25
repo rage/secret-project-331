@@ -6,9 +6,12 @@ require 'securerandom'
 require 'rest-client'
 
 base_url = ENV.fetch('BASE_URL').sub(%r{/$}, '')
-material_dir = ENV.fetch('MATERIAL_DIR').sub(%r{/$}, '')
+output_dir = ENV.fetch('MIGRATION_OUTPUT_DIR').sub(%r{/$}, '')
 course_id = ENV.fetch('COURSE_ID')
 session_cookie = ENV.fetch('UPLOAD_AUTH_COOKIE')
+# Continues an interrupted import: reuses chapters whose front page exists and skips pages whose
+# url_path already exists, so only what failed last time is uploaded.
+resume = ENV['MIGRATION_RESUME'] == '1'
 
 headers = {
   cookie: "session=#{session_cookie}",
@@ -48,22 +51,23 @@ def block_contains_name?(blocks, name)
   end
 end
 
-markdown_files = Dir.glob(File.join(material_dir, '**', '*.md')).sort
+# "osa-2/..." before "osa-10/..." and "2-x" before "10-x".
+def natural_sort_key(path)
+  path.split(/(\d+)/).map { |part| part.match?(/\A\d+\z/) ? part.to_i : part }
+end
+
+json_files = Dir.glob(File.join(output_dir, 'pages', '**', '*.json')).sort_by { |file| natural_sort_key(file) }
 page_entries = []
 chapter_entries = {}
 information_page_entries = []
 home_page_entry = nil
 
-markdown_files.each do |markdown_file|
-  json_file = markdown_file.sub(/\.md\z/, '.json')
-  next unless File.exist?(json_file)
-
+json_files.each do |json_file|
   page_data = JSON.parse(File.read(json_file))
   chapter_slug = page_data['chapter_slug']
   chapter_number = page_data['chapter_number']
   is_front_page = page_data['is_front_page']
   entry = {
-    markdown_file: markdown_file,
     json_file: json_file,
     data: page_data,
   }
@@ -94,7 +98,23 @@ created_chapter_front_page_ids = {}
 # Collect per-item failures instead of letting the first error abort the whole import.
 failures = []
 
+existing_pages_by_path = {}
+if resume
+  request_json(method: :get, url: "#{base_url}/api/v0/cms/courses/#{course_id}/pages", headers: headers).each do |page|
+    existing_pages_by_path[page['url_path']] = page
+  end
+  puts "Resuming: #{existing_pages_by_path.size} existing page(s) are kept and skipped"
+end
+
 chapter_entries.values.sort_by { |chapter| [chapter[:chapter_number] || 0, chapter[:chapter_slug]] }.each do |chapter|
+  existing_front_page = existing_pages_by_path["/#{chapter[:chapter_slug]}"]
+  if existing_front_page && existing_front_page['chapter_id']
+    puts "Reusing chapter #{chapter[:chapter_slug]}"
+    created_chapter_ids[chapter[:chapter_slug]] = existing_front_page['chapter_id']
+    created_chapter_front_page_ids[chapter[:chapter_slug]] = existing_front_page['id']
+    next
+  end
+
   payload = {
     name: chapter[:chapter_title] || chapter[:chapter_slug].tr('-', ' ').split.map(&:capitalize).join(' '),
     course_id: course_id,
@@ -121,7 +141,7 @@ end
 # Import chapter front pages before content pages so each chapter's landing page and its
 # url_path (e.g. /part-1) exist regardless of whether individual content pages fail below.
 sorted_page_entries = page_entries.sort_by do |entry|
-  [entry[:data]['is_front_page'] ? 0 : 1, entry[:markdown_file]]
+  [entry[:data]['is_front_page'] ? 0 : 1, natural_sort_key(entry[:json_file])]
 end
 
 sorted_page_entries.each do |entry|
@@ -175,6 +195,8 @@ sorted_page_entries.each do |entry|
         payload: update_payload,
         headers: headers,
       )
+    elsif existing_pages_by_path.key?(data['url_path'])
+      puts "Skipping existing page #{data['url_path']}"
     else
       page_payload[:url_path] = data['url_path']
 
@@ -192,8 +214,12 @@ sorted_page_entries.each do |entry|
   end
 end
 
-information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
+information_page_entries.each do |entry|
   data = entry[:data]
+  if existing_pages_by_path.key?(data['url_path'])
+    puts "Skipping existing information page #{data['url_path']}"
+    next
+  end
 
   page_payload = {
     content: data['content'].dup,
@@ -235,8 +261,9 @@ if home_page_entry
 
   if course_front_page
     # These blocks are LMS-specific and should be preserved from the existing frontpage.
-    # They handle course progress display, information pages, and completion congratulations.
+    # They render the chapter grid, information pages, completion congratulations and progress.
     lms_skeleton_block_names = %w[
+      moocfi/course-chapter-grid
       moocfi/top-level-pages
       moocfi/congratulations
       moocfi/course-progress
@@ -249,12 +276,14 @@ if home_page_entry
     preserved_blocks = existing_content.select do |block|
       lms_skeleton_block_names.include?(block['name'])
     end
+    # The platform won't publish a course front page without its title section.
+    hero_blocks = existing_content.select { |block| block['name'] == 'moocfi/landing-page-hero-section' }
 
     # The moocfi/hero-section block from frontmatter is a chapter-level block and
     # doesn't belong on the course frontpage — filter it out from the migrated content.
     migrated_blocks = data['content'].reject { |block| block['name'] == 'moocfi/hero-section' }
 
-    new_content = migrated_blocks + preserved_blocks
+    new_content = hero_blocks + migrated_blocks + preserved_blocks
 
     update_payload = {
       content: new_content,
@@ -307,11 +336,10 @@ else
   failures.each { |failure| warn "  - #{failure}" }
   warn <<~MSG
 
-    The course is now PARTIALLY migrated. There is no way to migrate individual pages
-    afterwards, so do not fix the result by hand. Instead:
+    The course is now PARTIALLY migrated. Don't fix the result by hand. Instead:
       1. Fix the cause of each failure listed above.
-      2. Delete the partially migrated course (or create a fresh one).
-      3. Re-run this script against the clean course.
+      2. Re-run with MIGRATION_RESUME=1 into the same course: existing chapters are reused and
+         existing pages skipped (chapter and course front pages are overwritten again).
   MSG
   # Non-zero exit so the wrapper script / CI surfaces partial failures, while still having
   # imported everything that did succeed (including the chapter front pages).

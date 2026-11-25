@@ -1,10 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
 import { groupBy, mapValues } from "lodash"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import MissingLanguageChips from "@/components/language-versions/MissingLanguageChips"
+import { getLanguageVersionExerciseCounterpartsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseExercisesAndCountAnswersRequitingAttentionQuery from "@/hooks/useCourseExercisesAndCountAnswersRequitingAttentionQuery"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import { baseTheme, fontWeights, monospaceFont, primaryFont } from "@/shared-module/common/styles"
@@ -20,6 +23,12 @@ export interface ExerciseListProps {
 
 const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ courseId }) => {
   const { t } = useTranslation()
+  const counterparts = useQuery(
+    getLanguageVersionExerciseCounterpartsOptions({
+      path: { course_id: courseId },
+    }),
+  )
+  const hasOtherLanguageVersions = (counterparts.data?.language_codes.length ?? 0) > 0
   const getCourseExercises = useCourseExercisesAndCountAnswersRequitingAttentionQuery(courseId)
   const courseStructure = useCourseStructure(courseId)
 
@@ -184,6 +193,16 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
                                     </Link>
                                   )}
                                 </div>
+                                {hasOtherLanguageVersions && (
+                                  <MissingLanguageChips
+                                    courseId={courseId}
+                                    languageCodes={
+                                      counterparts.data?.missing_language_codes_by_exercise_id[
+                                        exercise.id
+                                      ] ?? []
+                                    }
+                                  />
+                                )}
                               </li>
                             ))}
                         </ul>

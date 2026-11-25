@@ -3286,6 +3286,8 @@
   "submission": "التقديم",
   "submission-blocked-cannot-submit": "لا يمكنك إرسال هذا التمرين الآن.",
   "submission-blocked-deadline-passed": "انتهى الموعد النهائي ({{deadline}}).",
+  "submission-blocked-task-loading": "لا يزال التمرين قيد التحميل.",
+  "submission-blocked-task-not-loaded": "لم يتم تحميل جزء من التمرين.",
   "submission-blocked-wrong-language": "أنت تعرض إصدارًا لغويًا مختلفًا من هذه الدورة. انتقل إلى إصدار لغتك للإرسال.",
   "submission-created": "تم إنشاء التقديم",
   "submission-details": "تفاصيل التقديم",

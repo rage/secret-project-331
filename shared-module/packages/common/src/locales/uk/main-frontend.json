@@ -3175,6 +3175,8 @@
   "submission": "Подання",
   "submission-blocked-cannot-submit": "Зараз ви не можете надіслати цю вправу.",
   "submission-blocked-deadline-passed": "Кінцевий термін минув ({{deadline}}).",
+  "submission-blocked-task-loading": "Вправа ще завантажується.",
+  "submission-blocked-task-not-loaded": "Частина вправи не завантажилася.",
   "submission-blocked-wrong-language": "Ви переглядаєте іншу мовну версію цього курсу. Щоб надіслати вправу, перейдіть на свою мовну версію.",
   "submission-created": "Подання створено",
   "submission-details": "Деталі подання",

@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT e.id,\n  e.exercise_language_group_id AS \"previous_group_id!\",\n  (e.deleted_at IS NULL) AS \"is_live!\"\nFROM exercises e\nWHERE e.course_id = $1\n  AND EXISTS (\n    SELECT 1\n    FROM exercises o\n      JOIN courses oc ON oc.id = o.course_id\n    WHERE o.exercise_language_group_id = e.exercise_language_group_id\n      AND o.deleted_at IS NULL\n      AND oc.deleted_at IS NULL\n      AND o.course_id <> ALL($2)\n  )\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "previous_group_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercises",
+            "name": "exercise_language_group_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "is_live!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      null
+    ]
+  },
+  "hash": "3f9dce504dafe5c95c463ce97b33418d878ec70a64df99613b63ad5329296591"
+}

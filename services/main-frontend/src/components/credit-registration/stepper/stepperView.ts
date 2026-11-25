@@ -5,6 +5,7 @@ import type {
 } from "@/generated/api/types.generated"
 
 import { OPEN_UNIVERSITY, UNIVERSITY_OF_HELSINKI } from "../constants"
+import type { CreditRegistrationSubject } from "../creditRegistrationSubject"
 import { wasListedByTheRegistry } from "../trackerView"
 
 /** Where the student's answers send them. */
@@ -37,6 +38,8 @@ export type StatusPage =
   | "failed"
   | "course-setup"
   | "not-registering"
+  /** Every course of a completion that earns several, once any of them has moved on. */
+  | "courses"
 
 /** The numbered steps shown in the step bar. */
 export type Step = "questions" | "enrolment" | "linking"
@@ -100,7 +103,7 @@ export const detourRoute = (
 }
 
 /** The page that replaces the stepper once the registration is past what the student drives. */
-export const statusPageOf = (input: StepperInput): StatusPage | null => {
+export const statusPageOf = (input: StepperInput): Exclude<StatusPage, "courses"> | null => {
   const { registration, statusBeforeRegistration, enrolmentRoute } = input
   if (registration === null) {
     if (statusBeforeRegistration === "not_registering") {
@@ -122,6 +125,7 @@ export const statusPageOf = (input: StepperInput): StatusPage | null => {
       return "course-setup"
     case "sending":
     case "waiting_for_sisu":
+    case "waiting_for_prerequisite":
       return "registering"
     case "looking_for_enrolment":
     case "needs_enrolment":
@@ -211,3 +215,77 @@ export const stepOf = (page: StepperPage): Step | null => {
 
 export const isStepperPage = (value: string | null): value is StepperPage =>
   STEPPER_PAGES.some((page) => page === value)
+
+/** One Sisu course of a completion that earns several, with where its registration stands. */
+export interface StepperCourse {
+  subject: CreditRegistrationSubject
+  name: string
+  uhCourseCode: string
+  ectsCredits: number
+  enrolmentLink: string | null | undefined
+  /** The course that has to be registered before this one is sent to Sisu. */
+  prerequisiteName: string | null
+  /** `null` before the pipeline has created a ledger row for the course. */
+  registration: MyCreditRegistration | null
+  /** The course's own copy of the answers: answers are saved to every course that can change. */
+  enrolmentRoute: MyEnrolmentRoute | null
+}
+
+/** Where one course of several stands, which decides the block shown for it. */
+export type CourseStage =
+  | "registered"
+  | "registering"
+  | "waiting-for-prerequisite"
+  /** The student said they enrolled, and the enrolment has not been seen yet. */
+  | "awaiting-enrolment"
+  | "needs-enrolment"
+  /** Failed, on hold or not registering: told in the status's own words. */
+  | "stopped"
+
+export const courseStageOf = (
+  course: StepperCourse,
+  shared: Omit<StepperInput, "registration" | "enrolmentRoute">,
+): CourseStage => {
+  if (course.registration?.student_facing_status === "waiting_for_prerequisite") {
+    return "waiting-for-prerequisite"
+  }
+  const page = statusPageOf({
+    ...shared,
+    registration: course.registration,
+    enrolmentRoute: course.enrolmentRoute,
+  })
+  switch (page) {
+    case "registered":
+      return "registered"
+    case "registering":
+      return "registering"
+    case "waiting":
+      return "awaiting-enrolment"
+    case null:
+      return "needs-enrolment"
+    case "failed":
+    case "course-setup":
+    case "not-registering":
+      return "stopped"
+  }
+}
+
+/**
+ * The page for a completion that earns several courses, or `null` while every course still waits
+ * on the student's steps. Once any course has moved on, one page shows every course, and a course
+ * whose enrolment has not been seen asks for it there.
+ */
+export const coursesStatusPageOf = (
+  stages: readonly CourseStage[],
+): "waiting" | "courses" | null => {
+  const hasMovedOn = stages.some(
+    (stage) => stage !== "needs-enrolment" && stage !== "awaiting-enrolment",
+  )
+  if (hasMovedOn) {
+    return "courses"
+  }
+  return stages.includes("awaiting-enrolment") ? "waiting" : null
+}
+
+/** A course of a completion that earns several, as configured, before its registration is read. */
+export type CreditCourse = Omit<StepperCourse, "registration" | "enrolmentRoute">

@@ -12,11 +12,12 @@ import {
   MOOCFI_GRADED_TARGET_ID,
   MOOCFI_STUDENT_4,
   MOOCFI_TARGET_ID,
-  MOOCFI_TIER_2_TARGET_ID,
+  MOOCFI_TIERED_TARGET_ID,
   MOOCFI_TIERED_COURSE,
   myMoocfiCreditRegistrations,
   openRegistrationFromMoocfi,
   seedMockMoocfiCompletions,
+  unitStatusesOf,
 } from "@/utils/mockMoocfi"
 import { expect, testThatCanFail as test } from "@/utils/nonBlockingTest"
 import { runMaterializeTick } from "@/utils/suotarControl"
@@ -101,10 +102,10 @@ test("A completion from before the cutoff stays with mooc.fi and only the later 
   const after = completions.find(
     (completion) => completion.moocfi_completion_id === AFTER_CUTOFF_ID,
   )
-  expect(before?.status).toBe("before_cutoff")
-  expect(before?.external_completion_id ?? null).toBeNull()
-  expect(after?.status).toBe("registering_on_courses")
-  expect(after?.external_completion_id).toBeTruthy()
+  expect(before?.credit_units.map((unit) => unit.status)).toStrictEqual(["before_cutoff"])
+  expect(before?.credit_units[0]?.external_completion_id ?? null).toBeNull()
+  expect(after?.credit_units.map((unit) => unit.status)).toStrictEqual(["registering_on_courses"])
+  expect(after?.credit_units[0]?.external_completion_id).toBeTruthy()
 
   await runMaterializeTick(request, {
     externalCreditTargetId: MOOCFI_TARGET_ID,
@@ -150,9 +151,9 @@ test("A later completion with the same grade and tier as a registered one is not
   ).toBeVisible()
   await expect(page.getByRole("button", { name: "Start" })).toHaveCount(0)
 
-  const { completions } = await myMoocfiCreditRegistrations(page.request, MOOCFI_COURSE)
-  const repeat = completions.find((completion) => completion.moocfi_completion_id === repeatId)
-  expect(repeat?.status).toBe("equivalent_registered")
+  expect(
+    unitStatusesOf(await myMoocfiCreditRegistrations(page.request, MOOCFI_COURSE), repeatId),
+  ).toStrictEqual(["equivalent_registered"])
 
   await runMaterializeTick(request, {
     externalCreditTargetId: MOOCFI_TARGET_ID,
@@ -199,13 +200,12 @@ test("A different grade or tier, or an earlier completion not registered, leaves
   for (const [course, targetId, laterId] of [
     [MOOCFI_GRADED_COURSE, MOOCFI_GRADED_TARGET_ID, higherGradeId],
     [MOOCFI_COURSE, MOOCFI_TARGET_ID, untieredId],
-    [MOOCFI_TIERED_COURSE, MOOCFI_TIER_2_TARGET_ID, afterUnregisteredId],
+    [MOOCFI_TIERED_COURSE, MOOCFI_TIERED_TARGET_ID, afterUnregisteredId],
   ] as const) {
     await test.step(`${laterId} registers on ${course.slug}`, async () => {
-      const { completions } = await myMoocfiCreditRegistrations(page.request, course)
       expect(
-        completions.find((completion) => completion.moocfi_completion_id === laterId)?.status,
-      ).toBe("registering_on_courses")
+        unitStatusesOf(await myMoocfiCreditRegistrations(page.request, course), laterId),
+      ).toStrictEqual(["registering_on_courses"])
       await runMaterializeTick(request, {
         externalCreditTargetId: targetId,
         userEmail: STUDENT.email,

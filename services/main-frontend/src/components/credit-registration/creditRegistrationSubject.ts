@@ -230,7 +230,9 @@ export const showSavedCreditJustification = async (
       registrations && {
         ...registrations,
         completions: registrations.completions.map((completion) =>
-          completion.external_completion_id === subject.externalCompletionId
+          completion.credit_units.some(
+            (unit) => unit.external_completion_id === subject.externalCompletionId,
+          )
             ? { ...completion, credit_justification: justification }
             : completion,
         ),

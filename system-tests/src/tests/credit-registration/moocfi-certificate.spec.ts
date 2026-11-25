@@ -140,7 +140,7 @@ test("The certificate is on mooc.fi, and a reason for needing the credits is kep
     await myMoocfiCreditRegistrations(page.request, MOOCFI_COURSE)
   ).completions.find((row) => row.moocfi_completion_id === COMPLETION_ID)
   expect(completion?.credit_justification).toBe(REASON)
-  const externalCompletionId = completion?.external_completion_id ?? ""
+  const externalCompletionId = completion?.credit_units[0]?.external_completion_id ?? ""
   expect(externalCompletionId).not.toBe("")
 
   await test.step("Another account gets a not-found for the completion", async () => {

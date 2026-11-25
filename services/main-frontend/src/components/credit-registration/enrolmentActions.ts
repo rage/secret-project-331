@@ -94,14 +94,15 @@ const useRecordEnrolmentPageVisit = () =>
   })
 
 /**
- * Tells the backend the student is looking at the enrolment instructions, at most once per mount.
+ * Tells the backend the student is looking at the enrolment instructions of `subjects`, at most
+ * once per mount.
  *
  * The page polls its registration every 10 s; a `useRef` guard, not the polled data, is what keeps
  * a 10-minute visit from firing the request sixty times. Silent on failure: this is a scheduling
  * nudge, not something the student needs to know about.
  */
 export const useRecordEnrolmentPageVisitOnce = (
-  subject: CreditRegistrationSubject,
+  subjects: readonly CreditRegistrationSubject[],
   shouldRecord: boolean,
 ): void => {
   const { mutate: recordVisit } = useRecordEnrolmentPageVisit()
@@ -109,7 +110,7 @@ export const useRecordEnrolmentPageVisitOnce = (
   useEffect(() => {
     if (shouldRecord && !hasRecordedRef.current) {
       hasRecordedRef.current = true
-      recordVisit(subject)
+      subjects.forEach((subject) => recordVisit(subject))
     }
-  }, [shouldRecord, subject, recordVisit])
+  }, [shouldRecord, subjects, recordVisit])
 }

@@ -24,6 +24,7 @@ const STATUS_STATES = {
   waiting_for_completion: "upcoming",
   needs_student_number: "action-needed",
   looking_for_enrolment: "current",
+  waiting_for_prerequisite: "current",
   sending: "current",
   needs_enrolment: "action-needed",
   waiting_for_course_setup: "upcoming",
@@ -37,6 +38,7 @@ const STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-status-waiting-for-completion",
   needs_student_number: "credit-registration-status-needs-student-number",
   looking_for_enrolment: "credit-registration-status-looking-for-enrolment",
+  waiting_for_prerequisite: "credit-registration-status-waiting-for-prerequisite",
   sending: "credit-registration-status-sending",
   needs_enrolment: "credit-registration-status-needs-enrolment",
   waiting_for_course_setup: "credit-registration-status-waiting-for-course-setup",
@@ -53,6 +55,7 @@ const TEACHER_STATUS_LABEL_KEYS = {
   waiting_for_completion: "credit-registration-teacher-status-waiting-for-completion",
   needs_student_number: "credit-registration-teacher-status-needs-student-number",
   looking_for_enrolment: "credit-registration-teacher-status-looking-for-enrolment",
+  waiting_for_prerequisite: "credit-registration-teacher-status-waiting-for-prerequisite",
   sending: "credit-registration-teacher-status-sending",
   needs_enrolment: "credit-registration-teacher-status-needs-enrolment",
   waiting_for_course_setup: "credit-registration-teacher-status-waiting-for-course-setup",
@@ -68,6 +71,7 @@ const STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-explanation-waiting-for-completion",
   needs_student_number: "credit-registration-explanation-needs-student-number",
   looking_for_enrolment: "credit-registration-explanation-looking-for-enrolment",
+  waiting_for_prerequisite: "credit-registration-explanation-waiting-for-prerequisite",
   sending: "credit-registration-explanation-sending",
   needs_enrolment: "credit-registration-explanation-needs-enrolment",
   waiting_for_course_setup: "credit-registration-explanation-waiting-for-course-setup",
@@ -81,6 +85,7 @@ const TEACHER_STATUS_EXPLANATION_KEYS = {
   waiting_for_completion: "credit-registration-teacher-explanation-waiting-for-completion",
   needs_student_number: "credit-registration-teacher-explanation-needs-student-number",
   looking_for_enrolment: "credit-registration-teacher-explanation-looking-for-enrolment",
+  waiting_for_prerequisite: "credit-registration-teacher-explanation-waiting-for-prerequisite",
   sending: "credit-registration-teacher-explanation-sending",
   needs_enrolment: "credit-registration-teacher-explanation-needs-enrolment",
   waiting_for_course_setup: "credit-registration-teacher-explanation-waiting-for-course-setup",
@@ -438,10 +443,6 @@ const MOOCFI_COMPLETION_STATUS_KEYS = {
     heading: "credit-registration-moocfi-registered-on-moocfi-heading",
     body: "credit-registration-moocfi-equivalent-registered",
   },
-  no_credit_unit: {
-    heading: "credit-registration-moocfi-no-credit-unit-heading",
-    body: "credit-registration-moocfi-no-credit-unit",
-  },
   removed_from_moocfi: {
     heading: "credit-registration-moocfi-removed-heading",
     body: "credit-registration-moocfi-removed",
@@ -455,6 +456,6 @@ export const moocfiCompletionStatusCopy = (
 ): { heading: string; body: string } => {
   const keys =
     widenedLookup(MOOCFI_COMPLETION_STATUS_KEYS, status) ??
-    MOOCFI_COMPLETION_STATUS_KEYS.no_credit_unit
+    MOOCFI_COMPLETION_STATUS_KEYS.not_eligible
   return { heading: translateKey(t, keys.heading), body: translateKey(t, keys.body) }
 }

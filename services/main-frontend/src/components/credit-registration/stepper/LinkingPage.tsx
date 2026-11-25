@@ -73,7 +73,8 @@ export interface LinkingPageProps {
   band: StudentNumberLinkBand | null
   isSisu: boolean
   courseName: string
-  courseCode: string | null
+  /** Every course code the completion is registered under: the only enrolments we see. */
+  courseCodes: readonly string[]
   /** What follows the explanation: the enrolment check box, the recheck lever, the way back. */
   children?: React.ReactNode
 }
@@ -86,10 +87,10 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
   band,
   isSisu,
   courseName,
-  courseCode,
+  courseCodes,
   children,
 }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const supportMail = missingLinkingEmailSupportMail(t, courseName)
   const missingEmailSupportLink = (
@@ -200,12 +201,30 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
       </h2>
       {facts}
       <p className={captionCss}>{t("credit-registration-link-only-once")}</p>
-      {courseCode ? (
+      {courseCodes.length === 1 && courseCodes[0] ? (
         <p className={noteBoxCss}>
           <Trans
             t={t}
             i18nKey="credit-registration-linking-wrong-course"
-            components={{ courseCode: <SisuCourseCode code={courseCode} /> }}
+            components={{ courseCode: <SisuCourseCode code={courseCodes[0]} /> }}
+          />
+        </p>
+      ) : null}
+      {courseCodes.length > 1 ? (
+        <p className={noteBoxCss}>
+          <Trans
+            t={t}
+            i18nKey="credit-registration-linking-wrong-course-several"
+            components={{
+              courseCodes: (
+                <SisuCourseCode
+                  // oxlint-disable-next-line i18next/no-literal-string
+                  code={new Intl.ListFormat(i18n.language, { type: "conjunction" }).format(
+                    courseCodes,
+                  )}
+                />
+              ),
+            }}
           />
         </p>
       ) : null}

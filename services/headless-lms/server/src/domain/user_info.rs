@@ -20,7 +20,6 @@ pub struct UserInfoPayload {
     pub country: String,
     pub email_communication_consent: bool,
     /// The form's opaque report about the browser, for the account form log.
-    #[serde(default)]
     pub client_info: Option<String>,
 }
 

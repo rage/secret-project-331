@@ -3,16 +3,19 @@
 //! submission's action as `action`, e.g. `"signup"`. A list rule matches the address, mailbox,
 //! account or domain the submission is about.
 
+use std::cell::OnceCell;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, LazyLock, Mutex, PoisonError};
 use std::time::Duration;
 
 use cel::{Context, Deadline, Env, Program, RuntimeOptions, Value as CelValue};
-use headless_lms_models::account_form_decisions::{AccountFormAction, AccountFormOutcome};
+use headless_lms_models::account_form_decisions::{
+    AccountFormAction, AccountFormDecision, AccountFormOutcome,
+};
 use headless_lms_models::account_form_rules::{AccountFormListKind, AccountFormRule};
 
 use super::signals::Signals;
-use super::{address_digest, mailbox_digest};
+use super::{address_digest, domain_of, mailbox_digest};
 use crate::prelude::*;
 
 const MAX_ITERATIONS: u64 = 10_000;
@@ -29,14 +32,45 @@ pub fn compile(expression: &str) -> Result<Program, String> {
     ENV.compile(expression).map_err(|e| e.to_string())
 }
 
-/// Whether `program` matches the submission. Errors when the expression fails, e.g. on a signal
-/// the submission lacks, or yields no boolean.
-pub fn evaluate(
-    program: &Program,
+/// A submission's variables as expressions see them, built on first use so every rule of the
+/// submission shares one.
+pub struct ExpressionContext<'a> {
+    action: AccountFormAction,
+    signals: &'a Signals,
+    context: OnceCell<Result<Context<'static, 'static>, String>>,
+}
+
+impl<'a> ExpressionContext<'a> {
+    pub fn new(action: AccountFormAction, signals: &'a Signals) -> Self {
+        Self {
+            action,
+            signals,
+            context: OnceCell::new(),
+        }
+    }
+
+    /// Whether `program` matches the submission. Errors when the expression fails, e.g. on a
+    /// signal the submission lacks, or yields no boolean.
+    pub fn evaluate(&self, program: &Program) -> Result<bool, String> {
+        let context = self
+            .context
+            .get_or_init(|| build_context(self.action, self.signals))
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let deadline = Deadline::after(EVALUATION_TIMEOUT);
+        let mut scope = context.new_inner_scope();
+        scope.set_interrupt(&deadline);
+        match program.execute(&scope).map_err(|e| e.to_string())? {
+            CelValue::Bool(matched) => Ok(matched),
+            other => Err(format!("expected a boolean, got {other:?}")),
+        }
+    }
+}
+
+fn build_context(
     action: AccountFormAction,
     signals: &Signals,
-) -> Result<bool, String> {
-    let deadline = Deadline::after(EVALUATION_TIMEOUT);
+) -> Result<Context<'static, 'static>, String> {
     let mut context = Context::with_env(ENV.clone());
     for (namespace, values) in signals.namespaces() {
         let value = cel::to_value(values).map_err(|e| e.to_string())?;
@@ -44,11 +78,7 @@ pub fn evaluate(
     }
     let action = serde_json::to_value(action).map_err(|e| e.to_string())?;
     context.add_variable_from_value("action", cel::to_value(&action).map_err(|e| e.to_string())?);
-    context.set_interrupt(&deadline);
-    match program.execute(&context).map_err(|e| e.to_string())? {
-        CelValue::Bool(matched) => Ok(matched),
-        other => Err(format!("expected a boolean, got {other:?}")),
-    }
+    Ok(context)
 }
 
 /// What a submission is about, in the forms the log keeps, so a list rule matches logged
@@ -60,6 +90,29 @@ pub struct RuleSubject {
     pub user_id: Option<Uuid>,
     /// Lowercased.
     pub domain: Option<String>,
+}
+
+impl RuleSubject {
+    /// The subject of a submission that would mail `email`. `user_id` is its account, if any.
+    pub fn new(email: Option<&str>, user_id: Option<Uuid>) -> Self {
+        Self {
+            address_digest: email.map(address_digest),
+            mailbox_digest: email.map(mailbox_digest),
+            user_id,
+            domain: email.and_then(domain_of),
+        }
+    }
+}
+
+impl From<&AccountFormDecision> for RuleSubject {
+    fn from(decision: &AccountFormDecision) -> Self {
+        Self {
+            address_digest: decision.address_digest.clone(),
+            mailbox_digest: decision.mailbox_digest.clone(),
+            user_id: decision.user_id,
+            domain: decision.recipient_domain.clone(),
+        }
+    }
 }
 
 /// A list rule's entries in the forms [`RuleSubject`] holds. Build it once per evaluation of many
@@ -143,6 +196,26 @@ pub fn normalize_list_entry(kind: AccountFormListKind, entry: &str) -> Option<St
     }
 }
 
+/// What a rule matches by: an expression or a list, never both.
+pub enum MatcherKind<'a> {
+    Expression(&'a str),
+    List(AccountFormListKind),
+}
+
+impl<'a> MatcherKind<'a> {
+    /// Errors unless exactly one of `expression` and `list_kind` is set.
+    pub fn new(
+        expression: Option<&'a str>,
+        list_kind: Option<AccountFormListKind>,
+    ) -> Result<Self, String> {
+        match (expression, list_kind) {
+            (Some(expression), None) => Ok(Self::Expression(expression)),
+            (None, Some(kind)) => Ok(Self::List(kind)),
+            _ => Err("A rule has either an expression or a list.".to_string()),
+        }
+    }
+}
+
 /// A rule's expression or list, ready to evaluate.
 pub enum RuleMatcher {
     Expression(Program),
@@ -150,28 +223,27 @@ pub enum RuleMatcher {
 }
 
 impl RuleMatcher {
-    /// Errors when the expression does not parse or the rule has neither an expression nor a list.
+    /// Errors when the expression does not parse or the rule does not have exactly one of an
+    /// expression and a list.
     pub fn new(
         expression: Option<&str>,
         list_kind: Option<AccountFormListKind>,
         list_entries: &[String],
     ) -> Result<Self, String> {
-        match (expression, list_kind) {
-            (Some(expression), _) => compile(expression).map(Self::Expression),
-            (None, Some(kind)) => Ok(Self::List(ListMatcher::new(kind, list_entries))),
-            (None, None) => Err("the rule has neither an expression nor a list".to_string()),
+        match MatcherKind::new(expression, list_kind)? {
+            MatcherKind::Expression(expression) => compile(expression).map(Self::Expression),
+            MatcherKind::List(kind) => Ok(Self::List(ListMatcher::new(kind, list_entries))),
         }
     }
 
     /// Whether the submission matches. Errors when the expression cannot be evaluated.
     pub fn matches(
         &self,
-        action: AccountFormAction,
-        signals: &Signals,
+        context: &ExpressionContext<'_>,
         subject: &RuleSubject,
     ) -> Result<bool, String> {
         match self {
-            Self::Expression(program) => evaluate(program, action, signals),
+            Self::Expression(program) => context.evaluate(program),
             Self::List(list) => Ok(list.matches(subject)),
         }
     }
@@ -185,7 +257,7 @@ type MatcherCache = HashMap<Uuid, (DateTime<Utc>, CachedMatcher)>;
 static MATCHERS: LazyLock<Mutex<MatcherCache>> = LazyLock::new(Default::default);
 
 /// The matchers of `rules`, in the same order, rebuilt only for rules saved since the last call.
-fn matchers(rules: &[&AccountFormRule]) -> Vec<CachedMatcher> {
+fn matchers(rules: &[AccountFormRule]) -> Vec<CachedMatcher> {
     let mut cache = MATCHERS.lock().unwrap_or_else(PoisonError::into_inner);
     cache.retain(|id, _| rules.iter().any(|rule| rule.id == *id));
     rules
@@ -213,9 +285,9 @@ pub struct Decision {
     pub matched_rule_ids: Vec<Uuid>,
 }
 
-/// Evaluates the enabled `rules` on a submission. Only enforced rules, those not log-only while
-/// `rules_log_only` is off, decide the outcome, and an allow among them wins. A rule that fails to
-/// evaluate does not match.
+/// Evaluates `rules`, which must be the enabled ones, on a submission. Only enforced rules, those
+/// not log-only while `rules_log_only` is off, decide the outcome, and an allow among them wins. A
+/// rule that fails to evaluate does not match.
 pub fn decide(
     rules: &[AccountFormRule],
     action: AccountFormAction,
@@ -225,10 +297,10 @@ pub fn decide(
 ) -> Decision {
     let mut matched_rule_ids = Vec::new();
     let mut enforced = Vec::new();
-    let rules: Vec<&AccountFormRule> = rules.iter().filter(|rule| rule.enabled).collect();
-    for (rule, matcher) in rules.iter().zip(matchers(&rules)) {
+    let context = ExpressionContext::new(action, signals);
+    for (rule, matcher) in rules.iter().zip(matchers(rules)) {
         let matched = match matcher.as_ref() {
-            Ok(matcher) => matcher.matches(action, signals, subject),
+            Ok(matcher) => matcher.matches(&context, subject),
             Err(e) => Err(e.clone()),
         };
         match matched {

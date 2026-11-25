@@ -242,6 +242,30 @@ fn normalized_entries(
     Ok(normalized)
 }
 
+/// A rule's matcher as submitted, with the expression compiled or the list entries normalised.
+enum ValidatedMatcher {
+    Expression(cel::Program),
+    List(AccountFormListKind, Vec<String>),
+}
+
+fn validated_matcher(
+    expression: Option<&str>,
+    list_kind: Option<AccountFormListKind>,
+    list_entries: &[String],
+) -> Result<ValidatedMatcher, ControllerError> {
+    match rules::MatcherKind::new(expression, list_kind)
+        .map_err(|e| controller_err!(BadRequest, e))?
+    {
+        rules::MatcherKind::Expression(expression) => Ok(ValidatedMatcher::Expression(
+            compile_expression(expression)?,
+        )),
+        rules::MatcherKind::List(kind) => Ok(ValidatedMatcher::List(
+            kind,
+            normalized_entries(kind, list_entries)?,
+        )),
+    }
+}
+
 fn validated_rule(rule: AccountFormRuleUpdate) -> Result<AccountFormRuleUpdate, ControllerError> {
     let name = rule.name.trim().to_string();
     if name.is_empty() {
@@ -250,27 +274,16 @@ fn validated_rule(rule: AccountFormRuleUpdate) -> Result<AccountFormRuleUpdate, 
             "The rule needs a name.".to_string()
         ));
     }
-    let (expression, list_kind, list_entries) = match (rule.expression, rule.list_kind) {
-        (Some(expression), None) => {
-            compile_expression(&expression)?;
-            (Some(expression), None, Vec::new())
-        }
-        (None, Some(kind)) => (
-            None,
-            Some(kind),
-            normalized_entries(kind, &rule.list_entries)?,
-        ),
-        _ => {
-            return Err(controller_err!(
-                BadRequest,
-                "A rule has either an expression or a list.".to_string()
-            ));
-        }
+    let list_entries = match validated_matcher(
+        rule.expression.as_deref(),
+        rule.list_kind,
+        &rule.list_entries,
+    )? {
+        ValidatedMatcher::Expression(_) => Vec::new(),
+        ValidatedMatcher::List(_, entries) => entries,
     };
     Ok(AccountFormRuleUpdate {
         name,
-        expression,
-        list_kind,
         list_entries,
         ..rule
     })
@@ -444,22 +457,17 @@ async fn dry_run_rule(
         Res::GlobalPermissions,
     )
     .await?;
-    let matcher = match (&payload.expression, payload.list_kind) {
-        (Some(expression), None) => rules::RuleMatcher::Expression(compile_expression(expression)?),
-        (None, Some(kind)) => {
-            let entries = normalized_entries(kind, &payload.list_entries)?;
-            rules::RuleMatcher::List(
-                tokio::task::spawn_blocking(move || rules::ListMatcher::new(kind, &entries))
-                    .await
-                    .context("Building the list failed")?,
-            )
-        }
-        _ => {
-            return Err(controller_err!(
-                BadRequest,
-                "A rule has either an expression or a list.".to_string()
-            ));
-        }
+    let matcher = match validated_matcher(
+        payload.expression.as_deref(),
+        payload.list_kind,
+        &payload.list_entries,
+    )? {
+        ValidatedMatcher::Expression(program) => rules::RuleMatcher::Expression(program),
+        ValidatedMatcher::List(kind, entries) => rules::RuleMatcher::List(
+            tokio::task::spawn_blocking(move || rules::ListMatcher::new(kind, &entries))
+                .await
+                .context("Building the list failed")?,
+        ),
     };
     let decisions = account_form_decisions::list(&mut conn, None, DRY_RUN_DECISION_LIMIT).await?;
     let result = tokio::task::spawn_blocking(move || dry_run(&matcher, decisions))
@@ -478,16 +486,10 @@ fn dry_run(matcher: &rules::RuleMatcher, decisions: Vec<AccountFormDecision>) ->
     };
     for decision in decisions {
         result.evaluated += 1;
-        let subject = RuleSubject {
-            address_digest: decision.address_digest.clone(),
-            mailbox_digest: decision.mailbox_digest.clone(),
-            user_id: decision.user_id,
-            domain: decision.recipient_domain.clone(),
-        };
+        let signals = Signals::from_json(&decision.signals);
         match matcher.matches(
-            decision.action,
-            &Signals::from_json(&decision.signals),
-            &subject,
+            &rules::ExpressionContext::new(decision.action, &signals),
+            &RuleSubject::from(&decision),
         ) {
             Ok(true) => {
                 result.matched += 1;

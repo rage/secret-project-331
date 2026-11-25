@@ -101,59 +101,112 @@ RETURNING id
     Ok(id)
 }
 
-/// Which logged submissions [`count_since`] counts. Unset fields match anything.
-#[derive(Debug, Default, Clone)]
-pub struct DecisionFilter<'a> {
-    pub action: Option<AccountFormAction>,
-    pub address_digest: Option<&'a [u8]>,
-    pub recipient_domain: Option<&'a str>,
-    pub profile_digest: Option<&'a [u8]>,
+/// What [`count_recent`] counts logged submissions by.
+#[derive(Debug, Clone, Copy)]
+pub enum DecisionKey<'a> {
     /// A network in CIDR notation.
-    pub network_prefix: Option<&'a str>,
+    NetworkPrefix(&'a str),
+    AddressDigest(&'a [u8]),
+    RecipientDomain(&'a str),
+    /// Signups only.
+    SignupProfileDigest(&'a [u8]),
 }
 
-/// How many logged submissions since `since` match `filter`.
-pub async fn count_since(
+/// Logged submissions counted over two windows that end now.
+#[derive(Debug, Clone, Copy)]
+pub struct RecentCounts {
+    pub total: i64,
+    pub recent: i64,
+}
+
+/// How many logged submissions with `key` came after `since`, and how many of those after
+/// `recent_since`, which must not be earlier than `since`.
+pub async fn count_recent(
     conn: &mut PgConnection,
+    key: DecisionKey<'_>,
     since: DateTime<Utc>,
-    filter: &DecisionFilter<'_>,
-) -> ModelResult<i64> {
-    let count = sqlx::query_scalar!(
-        r#"
-SELECT count(*) AS "count!"
+    recent_since: DateTime<Utc>,
+) -> ModelResult<RecentCounts> {
+    let counts = match key {
+        DecisionKey::NetworkPrefix(network_prefix) => {
+            sqlx::query_as!(
+                RecentCounts,
+                r#"
+SELECT count(*) AS "total!",
+  count(*) FILTER (
+    WHERE created_at > $3
+  ) AS "recent!"
 FROM account_form_decisions
-WHERE created_at > $1
-  AND (
-    $2::account_form_action IS NULL
-    OR action = $2
-  )
-  AND (
-    $3::bytea IS NULL
-    OR address_digest = $3
-  )
-  AND (
-    $4::text IS NULL
-    OR recipient_domain = $4
-  )
-  AND (
-    $5::bytea IS NULL
-    OR profile_digest = $5
-  )
-  AND (
-    $6::text IS NULL
-    OR network_prefix = $6::text::cidr
-  )
+WHERE network_prefix = $1::text::cidr
+  AND created_at > $2
 "#,
-        since,
-        filter.action as Option<AccountFormAction>,
-        filter.address_digest,
-        filter.recipient_domain,
-        filter.profile_digest,
-        filter.network_prefix,
-    )
-    .fetch_one(conn)
-    .await?;
-    Ok(count)
+                network_prefix,
+                since,
+                recent_since,
+            )
+            .fetch_one(conn)
+            .await?
+        }
+        DecisionKey::AddressDigest(address_digest) => {
+            sqlx::query_as!(
+                RecentCounts,
+                r#"
+SELECT count(*) AS "total!",
+  count(*) FILTER (
+    WHERE created_at > $3
+  ) AS "recent!"
+FROM account_form_decisions
+WHERE address_digest = $1
+  AND created_at > $2
+"#,
+                address_digest,
+                since,
+                recent_since,
+            )
+            .fetch_one(conn)
+            .await?
+        }
+        DecisionKey::RecipientDomain(recipient_domain) => {
+            sqlx::query_as!(
+                RecentCounts,
+                r#"
+SELECT count(*) AS "total!",
+  count(*) FILTER (
+    WHERE created_at > $3
+  ) AS "recent!"
+FROM account_form_decisions
+WHERE recipient_domain = $1
+  AND created_at > $2
+"#,
+                recipient_domain,
+                since,
+                recent_since,
+            )
+            .fetch_one(conn)
+            .await?
+        }
+        DecisionKey::SignupProfileDigest(profile_digest) => {
+            sqlx::query_as!(
+                RecentCounts,
+                r#"
+SELECT count(*) AS "total!",
+  count(*) FILTER (
+    WHERE created_at > $3
+  ) AS "recent!"
+FROM account_form_decisions
+WHERE profile_digest = $1
+  AND action = 'signup'
+  AND created_at > $2
+"#,
+                profile_digest,
+                since,
+                recent_since,
+            )
+            .fetch_one(conn)
+            .await?
+        }
+    };
+    Ok(counts)
 }
 
 /// When the latest `action` about the address was logged, if since `since`.

@@ -13,10 +13,9 @@ use std::sync::LazyLock;
 use chrono::Duration;
 use headless_lms_models::{
     account_form_decisions::{
-        self, AccountFormAction, AccountFormOutcome, DecisionFilter, NewAccountFormDecision,
+        self, AccountFormAction, AccountFormOutcome, DecisionKey, NewAccountFormDecision,
     },
     account_form_rules, account_form_settings, email_address_mail_budgets,
-    error::TryToOptional,
 };
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
 use regex::Regex;
@@ -52,7 +51,7 @@ pub struct Submission<'a> {
     pub client_report: Option<&'a str>,
     /// The address the form would mail.
     pub email: Option<&'a str>,
-    /// The account the form is about, when the handler knows it. Otherwise looked up by `email`.
+    /// The account the form is about, or `None` when `email` has none.
     pub user_id: Option<Uuid>,
     pub profile: Option<Profile<'a>>,
 }
@@ -80,20 +79,7 @@ async fn try_assess(
 ) -> anyhow::Result<AccountFormOutcome> {
     let settings = account_form_settings::get(conn).await?;
     let enabled_rules = account_form_rules::get_enabled(conn).await?;
-    let user_id = match (submission.user_id, submission.email) {
-        (Some(id), _) => Some(id),
-        (None, Some(email)) => models::users::get_by_email(conn, email)
-            .await
-            .optional()?
-            .map(|user| user.id),
-        (None, None) => None,
-    };
-    let subject = RuleSubject {
-        address_digest: submission.email.map(address_digest),
-        mailbox_digest: submission.email.map(mailbox_digest),
-        user_id,
-        domain: submission.email.and_then(domain_of),
-    };
+    let subject = RuleSubject::new(submission.email, submission.user_id);
     let mut signals = Signals::default();
     let profile_digest =
         add_signals(conn, ip_to_country, submission, &subject, &mut signals).await?;
@@ -145,23 +131,22 @@ async fn add_signals(
         },
     );
 
-    let since_hour = Utc::now() - Duration::hours(1);
     let since_day = Utc::now() - Duration::days(1);
 
     let country = ip.and_then(|ip| ip_to_country.map_ip_to_country(&ip).map(str::to_string));
     signals.set("network", "country", country.clone().map(Value::from));
     if let Some(ip) = ip {
         let network = prefix(ip);
-        signals.set("network", "prefix", Value::from(network.clone()));
-        let same_prefix = DecisionFilter {
-            network_prefix: Some(&network),
-            ..Default::default()
-        };
-        signals.set(
+        set_request_counts(
+            conn,
+            signals,
             "network",
-            "prefix_requests_1h",
-            requests_since(conn, since_hour, &same_prefix).await?,
-        );
+            "prefix_requests",
+            DecisionKey::NetworkPrefix(&network),
+            false,
+        )
+        .await?;
+        signals.set("network", "prefix", Value::from(network));
     }
 
     if let (Some(domain), Some(digest)) = (&subject.domain, &subject.address_digest) {
@@ -171,29 +156,24 @@ async fn add_signals(
             "has_account",
             Value::from(subject.user_id.is_some()),
         );
-        let same_address = DecisionFilter {
-            address_digest: Some(digest),
-            ..Default::default()
-        };
-        signals.set(
+        set_request_counts(
+            conn,
+            signals,
             "recipient",
-            "address_requests_1h",
-            requests_since(conn, since_hour, &same_address).await?,
-        );
-        signals.set(
+            "address_requests",
+            DecisionKey::AddressDigest(digest),
+            true,
+        )
+        .await?;
+        set_request_counts(
+            conn,
+            signals,
             "recipient",
-            "address_requests_24h",
-            requests_since(conn, since_day, &same_address).await?,
-        );
-        let same_domain = DecisionFilter {
-            recipient_domain: Some(domain),
-            ..Default::default()
-        };
-        signals.set(
-            "recipient",
-            "domain_requests_1h",
-            requests_since(conn, since_hour, &same_domain).await?,
-        );
+            "domain_requests",
+            DecisionKey::RecipientDomain(domain),
+            false,
+        )
+        .await?;
         if submission.action != AccountFormAction::Signup {
             let last_signup = account_form_decisions::latest_for_address(
                 conn,
@@ -241,33 +221,41 @@ async fn add_signals(
             .as_deref()
             .map(|country| Value::from(country.eq_ignore_ascii_case(profile.country))),
     );
-    let same_profile = DecisionFilter {
-        profile_digest: Some(&digest),
-        action: Some(AccountFormAction::Signup),
-        ..Default::default()
-    };
-    signals.set(
+    set_request_counts(
+        conn,
+        signals,
         "profile",
-        "same_values_1h",
-        requests_since(conn, since_hour, &same_profile).await?,
-    );
-    signals.set(
-        "profile",
-        "same_values_24h",
-        requests_since(conn, since_day, &same_profile).await?,
-    );
+        "same_values",
+        DecisionKey::SignupProfileDigest(&digest),
+        true,
+    )
+    .await?;
     Ok(Some(digest))
 }
 
-/// How many logged submissions since `since` match `filter`, as a signal value.
-async fn requests_since(
+/// Sets the signal `{namespace}.{name}_1h` to how many logged submissions in the last hour share
+/// `key`, and with `with_day` also `{name}_24h` for the last day.
+async fn set_request_counts(
     conn: &mut PgConnection,
-    since: DateTime<Utc>,
-    filter: &DecisionFilter<'_>,
-) -> ModelResult<Option<Value>> {
-    Ok(count(
-        account_form_decisions::count_since(conn, since, filter).await?,
-    ))
+    signals: &mut Signals,
+    namespace: &str,
+    name: &str,
+    key: DecisionKey<'_>,
+    with_day: bool,
+) -> ModelResult<()> {
+    let now = Utc::now();
+    let since_hour = now - Duration::hours(1);
+    let since = if with_day {
+        now - Duration::days(1)
+    } else {
+        since_hour
+    };
+    let counts = account_form_decisions::count_recent(conn, key, since, since_hour).await?;
+    signals.set(namespace, &format!("{name}_1h"), count(counts.recent));
+    if with_day {
+        signals.set(namespace, &format!("{name}_24h"), count(counts.total));
+    }
+    Ok(())
 }
 
 /// The key the log stores `email` under.

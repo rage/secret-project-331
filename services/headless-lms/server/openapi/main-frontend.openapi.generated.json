@@ -9635,70 +9635,15 @@
           }
         }
       },
-      "post": {
-        "tags": ["credit-registration-admin"],
-        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`\n- Adds a course code to a mooc.fi target.",
-        "operationId": "adminCreateExternalCreditTargetCode",
-        "parameters": [
-          {
-            "name": "external_credit_target_id",
-            "in": "path",
-            "description": "mooc.fi target id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminExternalCreditTargetCodePayload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "The new code's id",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "string",
-                  "format": "uuid"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target"
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}": {
       "put": {
         "tags": ["credit-registration-admin"],
-        "summary": "PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`\n- Replaces the configuration of one course code of a mooc.fi target.",
-        "operationId": "adminUpdateExternalCreditTargetCode",
+        "summary": "PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`\n- Replaces the course codes of a mooc.fi target in one transaction: adds, updates and deletes\ncodes so the target has exactly the ones sent. Deleting a code withdraws its completions not yet\nsubmitted.",
+        "operationId": "adminSaveExternalCreditTargetCodes",
         "parameters": [
           {
             "name": "external_credit_target_id",
             "in": "path",
             "description": "mooc.fi target id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "external_credit_target_code_id",
-            "in": "path",
-            "description": "Code id",
             "required": true,
             "schema": {
               "type": "string",
@@ -9710,7 +9655,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminExternalCreditTargetCodePayload"
+                "$ref": "#/components/schemas/AdminExternalCreditTargetCodesPayload"
               }
             }
           },
@@ -9721,54 +9666,7 @@
             "description": "Saved"
           },
           "422": {
-            "description": "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target or leads back to this one"
-          }
-        }
-      }
-    },
-    "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete": {
-      "post": {
-        "tags": ["credit-registration-admin"],
-        "summary": "POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`\n- Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet\nsubmitted.",
-        "operationId": "adminDeleteExternalCreditTargetCode",
-        "parameters": [
-          {
-            "name": "external_credit_target_id",
-            "in": "path",
-            "description": "mooc.fi target id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "external_credit_target_code_id",
-            "in": "path",
-            "description": "Code id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminDeleteExternalCreditTargetPayload"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Deleted"
-          },
-          "422": {
-            "description": "No reason given, or the code is another live code's prerequisite"
+            "description": "No reason given, an invalid configuration, a course code twice, or a prerequisite that is not another code sent, has a higher minimum tier, or leads round in a circle"
           }
         }
       }
@@ -19283,8 +19181,8 @@
       },
       "AdminExternalCreditTargetCodePayload": {
         "type": "object",
-        "description": "One course code of a mooc.fi target as the admin form sends it, with the audit reason.",
-        "required": ["name", "uh_course_code", "ects_credits", "grading", "reason"],
+        "description": "One course code of a mooc.fi target as the admin form sends it.",
+        "required": ["id", "name", "uh_course_code", "ects_credits", "grading"],
         "properties": {
           "ects_credits": {
             "type": "number",
@@ -19303,6 +19201,11 @@
           "grading": {
             "$ref": "#/components/schemas/ExternalGrading"
           },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "A live code's id updates that code. Any other id adds a code with it, so a new code can be\nanother one's prerequisite in the same save; it must not be an id any code ever had."
+          },
           "minimum_tier": {
             "type": ["integer", "null"],
             "format": "int32",
@@ -19315,10 +19218,7 @@
           "prerequisite_code_id": {
             "type": ["string", "null"],
             "format": "uuid",
-            "description": "Another live code of the same target that must be in Sisu first. Must not lead back to\nthis code."
-          },
-          "reason": {
-            "type": "string"
+            "description": "The id of another code in the payload that must be in Sisu first. Its minimum tier must\nnot be above this code's, and the prerequisites must not go round in a circle."
           },
           "uh_course_code": {
             "type": "string",
@@ -19326,9 +19226,26 @@
           }
         }
       },
+      "AdminExternalCreditTargetCodesPayload": {
+        "type": "object",
+        "description": "Every course code a mooc.fi target is to have, as the admin form sends them, with the audit\nreason.",
+        "required": ["codes", "reason"],
+        "properties": {
+          "codes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminExternalCreditTargetCodePayload"
+            },
+            "description": "A live code of the target left out is deleted."
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
       "AdminExternalCreditTargetPayload": {
         "type": "object",
-        "description": "A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course\ncodes are configured apart; see [`AdminExternalCreditTargetCodePayload`].",
+        "description": "A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course\ncodes are configured apart; see [`AdminExternalCreditTargetCodesPayload`].",
         "required": [
           "moocfi_course_id",
           "moocfi_course_slug",
@@ -32540,7 +32457,7 @@
             "items": {
               "$ref": "#/components/schemas/MoocfiCreditUnitRegistration"
             },
-            "description": "One per course code the tier earns, lowest minimum tier first, each registered on its own.\nEmpty when the tier earns none. A code the tier no longer earns is listed while it has a\nledger row, so credits already registered do not vanish."
+            "description": "One per course code the tier earns, lowest minimum tier first, each registered on its own.\nEmpty when the tier earns none. A code the tier no longer earns, or one since deleted, is\nlisted while it has a ledger row, so credits already registered do not vanish."
           },
           "moocfi_completion_id": {
             "type": "string",

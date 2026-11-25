@@ -741,6 +741,7 @@
   "credit-registration-admin-prerequisite-description": "Курс Sisu з цього списку, який має бути зареєстрований або вже бути в Sisu, перш ніж цей буде надіслано. Його мінімальний рівень має бути таким самим або нижчим.",
   "credit-registration-admin-prerequisite-none": "Нічого",
   "credit-registration-admin-prerequisite-option": "{{code}}, {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "Курс не може потребувати курс із вищим мінімальним рівнем, ніж у нього самого. Знизьте цей мінімальний рівень або змініть, що потрібно.",
   "credit-registration-admin-prerequisites-circular": "Курси потребують один одного по колу. Змініть, що потребує один із них.",
   "credit-registration-admin-presser-fetch-failing": "Отримання списку записаних на цей код курсу постійно не вдається.",
   "credit-registration-admin-presser-next-fetch": "Очікування наступного отримання списку записаних: {{time}}.",

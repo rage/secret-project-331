@@ -820,7 +820,7 @@ export type AdminDismissStudyRegistryConflictPayload = {
 }
 
 /**
- * One course code of a mooc.fi target as the admin form sends it, with the audit reason.
+ * One course code of a mooc.fi target as the admin form sends it.
  */
 export type AdminExternalCreditTargetCodePayload = {
   ects_credits: number
@@ -831,6 +831,11 @@ export type AdminExternalCreditTargetCodePayload = {
   equivalent_course_codes?: Array<string>
   grading: ExternalGrading
   /**
+   * A live code's id updates that code. Any other id adds a code with it, so a new code can be
+   * another one's prerequisite in the same save; it must not be an id any code ever had.
+   */
+  id: string
+  /**
    * The lowest completion tier that earns the code; higher tiers earn it too. `None` for a code
    * every completion earns, tiered or not.
    */
@@ -840,11 +845,10 @@ export type AdminExternalCreditTargetCodePayload = {
    */
   name: string
   /**
-   * Another live code of the same target that must be in Sisu first. Must not lead back to
-   * this code.
+   * The id of another code in the payload that must be in Sisu first. Its minimum tier must
+   * not be above this code's, and the prerequisites must not go round in a circle.
    */
   prerequisite_code_id?: string | null
-  reason: string
   /**
    * Unique among the target's live codes.
    */
@@ -852,8 +856,20 @@ export type AdminExternalCreditTargetCodePayload = {
 }
 
 /**
+ * Every course code a mooc.fi target is to have, as the admin form sends them, with the audit
+ * reason.
+ */
+export type AdminExternalCreditTargetCodesPayload = {
+  /**
+   * A live code of the target left out is deleted.
+   */
+  codes: Array<AdminExternalCreditTargetCodePayload>
+  reason: string
+}
+
+/**
  * A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course
- * codes are configured apart; see [`AdminExternalCreditTargetCodePayload`].
+ * codes are configured apart; see [`AdminExternalCreditTargetCodesPayload`].
  */
 export type AdminExternalCreditTargetPayload = {
   /**
@@ -6370,8 +6386,8 @@ export type MoocfiCompletionRegistration = {
   credit_justification?: string | null
   /**
    * One per course code the tier earns, lowest minimum tier first, each registered on its own.
-   * Empty when the tier earns none. A code the tier no longer earns is listed while it has a
-   * ledger row, so credits already registered do not vanish.
+   * Empty when the tier earns none. A code the tier no longer earns, or one since deleted, is
+   * listed while it has a ledger row, so credits already registered do not vanish.
    */
   credit_units: Array<MoocfiCreditUnitRegistration>
   moocfi_completion_id: string
@@ -15341,8 +15357,8 @@ export type AdminGetExternalCreditTargetCodesResponses = {
 export type AdminGetExternalCreditTargetCodesResponse =
   AdminGetExternalCreditTargetCodesResponses[keyof AdminGetExternalCreditTargetCodesResponses]
 
-export type AdminCreateExternalCreditTargetCodeData = {
-  body: AdminExternalCreditTargetCodePayload
+export type AdminSaveExternalCreditTargetCodesData = {
+  body: AdminExternalCreditTargetCodesPayload
   path: {
     /**
      * mooc.fi target id
@@ -15353,79 +15369,16 @@ export type AdminCreateExternalCreditTargetCodeData = {
   url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes"
 }
 
-export type AdminCreateExternalCreditTargetCodeErrors = {
+export type AdminSaveExternalCreditTargetCodesErrors = {
   /**
-   * Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target
+   * No reason given, an invalid configuration, a course code twice, or a prerequisite that is not another code sent, has a higher minimum tier, or leads round in a circle
    */
   422: unknown
 }
 
-export type AdminCreateExternalCreditTargetCodeResponses = {
-  /**
-   * The new code's id
-   */
-  200: string
-}
-
-export type AdminCreateExternalCreditTargetCodeResponse =
-  AdminCreateExternalCreditTargetCodeResponses[keyof AdminCreateExternalCreditTargetCodeResponses]
-
-export type AdminUpdateExternalCreditTargetCodeData = {
-  body: AdminExternalCreditTargetCodePayload
-  path: {
-    /**
-     * mooc.fi target id
-     */
-    external_credit_target_id: string
-    /**
-     * Code id
-     */
-    external_credit_target_code_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}"
-}
-
-export type AdminUpdateExternalCreditTargetCodeErrors = {
-  /**
-   * Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target or leads back to this one
-   */
-  422: unknown
-}
-
-export type AdminUpdateExternalCreditTargetCodeResponses = {
+export type AdminSaveExternalCreditTargetCodesResponses = {
   /**
    * Saved
-   */
-  200: unknown
-}
-
-export type AdminDeleteExternalCreditTargetCodeData = {
-  body: AdminDeleteExternalCreditTargetPayload
-  path: {
-    /**
-     * mooc.fi target id
-     */
-    external_credit_target_id: string
-    /**
-     * Code id
-     */
-    external_credit_target_code_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete"
-}
-
-export type AdminDeleteExternalCreditTargetCodeErrors = {
-  /**
-   * No reason given, or the code is another live code's prerequisite
-   */
-  422: unknown
-}
-
-export type AdminDeleteExternalCreditTargetCodeResponses = {
-  /**
-   * Deleted
    */
   200: unknown
 }

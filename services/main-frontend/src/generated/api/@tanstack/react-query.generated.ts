@@ -21,9 +21,7 @@ import {
   adminAddCreditRegistrationNote,
   adminBulkTransitionCreditRegistrations,
   adminCreateExternalCreditTarget,
-  adminCreateExternalCreditTargetCode,
   adminDeleteExternalCreditTarget,
-  adminDeleteExternalCreditTargetCode,
   adminDismissCreditRegistrationAttention,
   adminDismissStudyRegistryConflict,
   adminGetExternalCreditTargetCodes,
@@ -40,10 +38,10 @@ import {
   adminResumeExternalCreditTarget,
   adminResumePhase,
   adminRunPhaseNow,
+  adminSaveExternalCreditTargetCodes,
   adminTransitionCreditRegistration,
   adminUnlinkStudentNumber,
   adminUpdateExternalCreditTarget,
-  adminUpdateExternalCreditTargetCode,
   advanceCourseDesignerStage,
   approveOauthConsent,
   approveOauthDeviceVerification,
@@ -509,11 +507,8 @@ import type {
   AdminAddCreditRegistrationNoteData,
   AdminBulkTransitionCreditRegistrationsData,
   AdminBulkTransitionCreditRegistrationsResponse,
-  AdminCreateExternalCreditTargetCodeData,
-  AdminCreateExternalCreditTargetCodeResponse,
   AdminCreateExternalCreditTargetData,
   AdminCreateExternalCreditTargetResponse,
-  AdminDeleteExternalCreditTargetCodeData,
   AdminDeleteExternalCreditTargetData,
   AdminDismissCreditRegistrationAttentionData,
   AdminDismissCreditRegistrationAttentionResponse,
@@ -542,11 +537,11 @@ import type {
   AdminResumePhaseResponse,
   AdminRunPhaseNowData,
   AdminRunPhaseNowResponse,
+  AdminSaveExternalCreditTargetCodesData,
   AdminTransitionCreditRegistrationData,
   AdminTransitionCreditRegistrationResponse,
   AdminUnlinkStudentNumberData,
   AdminUnlinkStudentNumberResponse,
-  AdminUpdateExternalCreditTargetCodeData,
   AdminUpdateExternalCreditTargetData,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
@@ -8184,68 +8179,21 @@ export const adminGetExternalCreditTargetCodesOptions = (
   })
 
 /**
- * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
- * - Adds a course code to a mooc.fi target.
- */
-export const adminCreateExternalCreditTargetCodeMutation = (
-  options?: Partial<Options<AdminCreateExternalCreditTargetCodeData>>,
-): UseMutationOptions<
-  AdminCreateExternalCreditTargetCodeResponse,
-  DefaultError,
-  Options<AdminCreateExternalCreditTargetCodeData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    AdminCreateExternalCreditTargetCodeResponse,
-    DefaultError,
-    Options<AdminCreateExternalCreditTargetCodeData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await adminCreateExternalCreditTargetCode({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`
- * - Replaces the configuration of one course code of a mooc.fi target.
- */
-export const adminUpdateExternalCreditTargetCodeMutation = (
-  options?: Partial<Options<AdminUpdateExternalCreditTargetCodeData>>,
-): UseMutationOptions<unknown, DefaultError, Options<AdminUpdateExternalCreditTargetCodeData>> => {
-  const mutationOptions: UseMutationOptions<
-    unknown,
-    DefaultError,
-    Options<AdminUpdateExternalCreditTargetCodeData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await adminUpdateExternalCreditTargetCode({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- * POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`
- * - Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet
+ * PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+ * - Replaces the course codes of a mooc.fi target in one transaction: adds, updates and deletes
+ * codes so the target has exactly the ones sent. Deleting a code withdraws its completions not yet
  * submitted.
  */
-export const adminDeleteExternalCreditTargetCodeMutation = (
-  options?: Partial<Options<AdminDeleteExternalCreditTargetCodeData>>,
-): UseMutationOptions<unknown, DefaultError, Options<AdminDeleteExternalCreditTargetCodeData>> => {
+export const adminSaveExternalCreditTargetCodesMutation = (
+  options?: Partial<Options<AdminSaveExternalCreditTargetCodesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<AdminSaveExternalCreditTargetCodesData>> => {
   const mutationOptions: UseMutationOptions<
     unknown,
     DefaultError,
-    Options<AdminDeleteExternalCreditTargetCodeData>
+    Options<AdminSaveExternalCreditTargetCodesData>
   > = {
     mutationFn: async (fnOptions) =>
-      await adminDeleteExternalCreditTargetCode({
+      await adminSaveExternalCreditTargetCodes({
         ...options,
         ...fnOptions,
         throwOnError: true,

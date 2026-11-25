@@ -65,13 +65,8 @@ interface FormShape {
   codes: CodeFields[]
 }
 
-interface Props {
-  /** Called with the id of a saved row the admin removes, to delete on save. */
-  onRemoveSaved: (id: string) => void
-}
-
 /** The Sisu course rows of a mooc.fi target, edited together with the target's own fields. */
-const ExternalCreditTargetCodeRows: React.FC<Props> = ({ onRemoveSaved }) => {
+const ExternalCreditTargetCodeRows: React.FC = () => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const { control, watch, setValue, getValues } = useFormContext<FormShape>()
   const { fields, append, remove } = useFieldArray({ control, name: "codes" })
@@ -100,14 +95,6 @@ const ExternalCreditTargetCodeRows: React.FC<Props> = ({ onRemoveSaved }) => {
       `codes.${index}.equivalent_course_codes`,
       getValues(`codes.${index}.equivalent_course_codes`).filter((other) => other !== code),
     )
-
-  const removeRow = (index: number) => {
-    const savedId = getValues(`codes.${index}.savedId`)
-    if (savedId) {
-      onRemoveSaved(savedId)
-    }
-    remove(index)
-  }
 
   return (
     <section className={sectionCss}>
@@ -143,7 +130,7 @@ const ExternalCreditTargetCodeRows: React.FC<Props> = ({ onRemoveSaved }) => {
           <div key={field.id} role="group" aria-label={title} className={rowCardCss}>
             <div className={rowHeaderCss}>
               <span>{title}</span>
-              <Button variant={BUTTON_TERTIARY} size="small" onPress={() => removeRow(index)}>
+              <Button variant={BUTTON_TERTIARY} size="small" onPress={() => remove(index)}>
                 {t("credit-registration-admin-code-remove")}
               </Button>
             </div>

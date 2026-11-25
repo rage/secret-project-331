@@ -36,12 +36,7 @@ import { useInvalidateCourseStats } from "./adminCreditRegistrationHooks"
 import { AUDIT_ACTION } from "./auditActions"
 import ExternalCreditTargetCodeRows, { fieldRowCss } from "./ExternalCreditTargetCodeRows"
 import type { CodeFields } from "./externalCreditTargetCodes"
-import {
-  CircularPrerequisitesError,
-  codeFieldsFrom,
-  emptyCodeFields,
-  saveTargetCodes,
-} from "./externalCreditTargetCodes"
+import { codeFieldsFrom, emptyCodeFields, saveTargetCodes } from "./externalCreditTargetCodes"
 import { ReasonField } from "./ReasonConfirmDialog"
 
 /** mooc.fi and its admins keep the cutoff in Helsinki time. */
@@ -54,6 +49,8 @@ const LANGUAGE_CODE_PATTERN = /^[a-z]{2,3}(-[A-Z][a-z]{3})?(-[A-Z]{2})?$/
 
 const COURSE_CODE_TAKEN = "external_credit_target_course_code_taken"
 const MOOCFI_COURSE_FIXED = "external_credit_target_moocfi_course_fixed"
+const PREREQUISITES_CIRCULAR = "external_credit_target_code_prerequisites_circular"
+const PREREQUISITE_TIER_ABOVE = "external_credit_target_code_prerequisite_tier_above"
 
 const toCutoffLocal = (at: Date): string =>
   toCalendarDateTime(fromDate(at, CUTOFF_TIME_ZONE)).toString().slice(0, LOCAL_MINUTE_LENGTH)
@@ -111,13 +108,10 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
   const {
     control,
     handleSubmit,
-    getValues,
-    setValue,
     setError,
     formState: { errors },
   } = form
   const createdTargetId = useRef<string | null>(null)
-  const removedCodeIds = useRef<string[]>([])
 
   const mutation = useToastMutation(
     async (fields: Fields) => {
@@ -144,19 +138,7 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
         targetId = await adminCreateExternalCreditTarget({ body })
         createdTargetId.current = targetId
       }
-      await saveTargetCodes({
-        targetId,
-        rows: fields.codes,
-        removedIds: removedCodeIds.current,
-        reason: fields.reason,
-        onCreated: (key, id) => {
-          const index = getValues("codes").findIndex((row) => row.key === key)
-          setValue(`codes.${index}.savedId`, id)
-        },
-        onDeleted: (id) => {
-          removedCodeIds.current = removedCodeIds.current.filter((other) => other !== id)
-        },
-      })
+      await saveTargetCodes(targetId, fields.codes, fields.reason)
     },
     { notify: false },
     {
@@ -172,9 +154,13 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
           setError("root", {
             message: t("credit-registration-admin-moocfi-course-code-taken"),
           })
-        } else if (error instanceof CircularPrerequisitesError) {
+        } else if (messageKey === PREREQUISITES_CIRCULAR) {
           setError("root", {
             message: t("credit-registration-admin-prerequisites-circular"),
+          })
+        } else if (messageKey === PREREQUISITE_TIER_ABOVE) {
+          setError("root", {
+            message: t("credit-registration-admin-prerequisite-tier-above"),
           })
         } else {
           setError("root", {
@@ -264,11 +250,7 @@ const ExternalCreditTargetForm: React.FC<FormProps> = ({
               }}
             />
           </div>
-          <ExternalCreditTargetCodeRows
-            onRemoveSaved={(id) => {
-              removedCodeIds.current = [...removedCodeIds.current, id]
-            }}
-          />
+          <ExternalCreditTargetCodeRows />
           <DateTimeLocalField
             name="delegated_at"
             control={control}

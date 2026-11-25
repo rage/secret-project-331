@@ -24,8 +24,9 @@ pub struct DueCodeCheck {
 }
 
 /// Up to `limit` student and code pairs whose answer is missing or older than [`CHECK_MAX_AGE`]
-/// without an attainment: the equivalent codes of mooc.fi rows on their way to or parked in a
-/// resolve, and the prerequisite and its equivalents of rows held in `checking_enrolment` by
+/// without an attainment: the equivalent codes of mooc.fi rows due a resolve, first or parked
+/// (as [`claim_due_for_resolve`](crate::credit_registrations::claim_due_for_resolve) takes them),
+/// and the prerequisite and its equivalents of rows held in `checking_enrolment` by
 /// `credit_registration_prerequisite_met`. Only students with a verified student number.
 pub async fn get_due(
     conn: &mut PgConnection,
@@ -45,6 +46,11 @@ WITH wanted AS (
   WHERE cr.state IN ('ready_to_submit', 'no_usable_enrolment')
     AND cr.deleted_at IS NULL
     AND cr.superseded_by_id IS NULL
+    AND cr.next_attempt_at <= now()
+    AND (
+      cr.enrolment_check_claimed_until IS NULL
+      OR cr.enrolment_check_claimed_until <= now()
+    )
     AND ($2::uuid IS NULL OR cr.external_credit_target_id = $2)
     AND ($3::uuid IS NULL OR cr.user_id = $3)
     AND (

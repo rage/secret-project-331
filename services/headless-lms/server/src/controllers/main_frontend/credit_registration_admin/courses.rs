@@ -138,7 +138,7 @@ pub struct AdminResumeCourseModulePayload {
 }
 
 /// A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course
-/// codes are configured apart; see [`AdminExternalCreditTargetCodePayload`].
+/// codes are configured apart; see [`AdminExternalCreditTargetCodesPayload`].
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminExternalCreditTargetPayload {
     /// The handler course on mooc.fi, which the completions are stored on. One live target each.
@@ -159,9 +159,21 @@ pub struct AdminDeleteExternalCreditTargetPayload {
     pub reason: String,
 }
 
-/// One course code of a mooc.fi target as the admin form sends it, with the audit reason.
+/// Every course code a mooc.fi target is to have, as the admin form sends them, with the audit
+/// reason.
+#[derive(Debug, Deserialize, ToSchema)]
+pub struct AdminExternalCreditTargetCodesPayload {
+    /// A live code of the target left out is deleted.
+    pub codes: Vec<AdminExternalCreditTargetCodePayload>,
+    pub reason: String,
+}
+
+/// One course code of a mooc.fi target as the admin form sends it.
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct AdminExternalCreditTargetCodePayload {
+    /// A live code's id updates that code. Any other id adds a code with it, so a new code can be
+    /// another one's prerequisite in the same save; it must not be an id any code ever had.
+    pub id: Uuid,
     /// The name students see for these credits, such as "Building AI, intermediate".
     pub name: String,
     /// Unique among the target's live codes.
@@ -172,13 +184,12 @@ pub struct AdminExternalCreditTargetCodePayload {
     pub ects_credits: f32,
     pub grading: ExternalGrading,
     pub enrolment_link: Option<String>,
-    /// Another live code of the same target that must be in Sisu first. Must not lead back to
-    /// this code.
+    /// The id of another code in the payload that must be in Sisu first. Its minimum tier must
+    /// not be above this code's, and the prerequisites must not go round in a circle.
     pub prerequisite_code_id: Option<Uuid>,
     /// Older course codes an attainment of which counts as holding this one.
     #[serde(default)]
     pub equivalent_course_codes: Vec<String>,
-    pub reason: String,
 }
 
 /// One module that registers credits, or a mooc.fi code, with its course code.
@@ -937,241 +948,197 @@ pub async fn admin_get_external_credit_target_codes(
 }
 
 /**
-POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
-- Adds a course code to a mooc.fi target.
+PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes`
+- Replaces the course codes of a mooc.fi target in one transaction: adds, updates and deletes
+codes so the target has exactly the ones sent. Deleting a code withdraws its completions not yet
+submitted.
 */
 #[instrument(skip(pool, payload))]
 #[utoipa::path(
-    post,
+    put,
     path = "/courses/external-targets/{external_credit_target_id}/codes",
-    operation_id = "adminCreateExternalCreditTargetCode",
+    operation_id = "adminSaveExternalCreditTargetCodes",
     tag = "credit-registration-admin",
     params(("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id")),
-    request_body = AdminExternalCreditTargetCodePayload,
+    request_body = AdminExternalCreditTargetCodesPayload,
     responses(
-        (status = 200, description = "The new code's id", body = Uuid),
-        (status = 422, description = "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target")
+        (status = 200, description = "Saved"),
+        (status = 422, description = "No reason given, an invalid configuration, a course code twice, or a prerequisite that is not another code sent, has a higher minimum tier, or leads round in a circle")
     )
 )]
-pub async fn admin_create_external_credit_target_code(
+pub async fn admin_save_external_credit_target_codes(
     user: AuthUser,
     pool: web::Data<PgPool>,
     external_credit_target_id: web::Path<Uuid>,
-    payload: web::Json<AdminExternalCreditTargetCodePayload>,
-) -> ControllerResult<web::Json<Uuid>> {
+    payload: web::Json<AdminExternalCreditTargetCodesPayload>,
+) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
 
     let reason = required_reason(&payload.reason)?;
     let target_id = *external_credit_target_id;
-    let configuration = code_configuration(&payload)?;
+    let codes = payload
+        .codes
+        .iter()
+        .map(|code| Ok((code.id, code_configuration(code)?)))
+        .collect::<Result<Vec<_>, ControllerError>>()?;
+    require_valid_prerequisites(&codes)?;
 
     let mut tx = conn.begin().await?;
     external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
-    require_valid_prerequisite(&mut tx, target_id, None, configuration.prerequisite_code_id)
-        .await?;
-    let id = external_credit_target_codes::insert(
-        &mut tx,
-        PKeyPolicy::Generate,
-        target_id,
-        &configuration,
-    )
-    .await?;
-    record_target_action(
-        &mut tx,
-        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-        target_id,
-        user.id,
-        Some(reason),
-        Some(serde_json::json!({
-            "change": "create_code",
-            "external_credit_target_code_id": id,
-            "after": configuration,
-        })),
-    )
-    .await?;
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(id))
-}
-
-/**
-PUT `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}`
-- Replaces the configuration of one course code of a mooc.fi target.
-*/
-#[instrument(skip(pool, payload))]
-#[utoipa::path(
-    put,
-    path = "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}",
-    operation_id = "adminUpdateExternalCreditTargetCode",
-    tag = "credit-registration-admin",
-    params(
-        ("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id"),
-        ("external_credit_target_code_id" = Uuid, Path, description = "Code id")
-    ),
-    request_body = AdminExternalCreditTargetCodePayload,
-    responses(
-        (status = 200, description = "Saved"),
-        (status = 422, description = "Invalid configuration, a course code the target already has, or a prerequisite that is not another code of the target or leads back to this one")
-    )
-)]
-pub async fn admin_update_external_credit_target_code(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-    path: web::Path<(Uuid, Uuid)>,
-    payload: web::Json<AdminExternalCreditTargetCodePayload>,
-) -> ControllerResult<web::Json<bool>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-
-    let reason = required_reason(&payload.reason)?;
-    let (target_id, id) = path.into_inner();
-    let configuration = code_configuration(&payload)?;
-
-    let mut tx = conn.begin().await?;
-    external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
-    let before = target_code(&mut tx, target_id, id).await?;
-    require_valid_prerequisite(
-        &mut tx,
-        target_id,
-        Some(id),
-        configuration.prerequisite_code_id,
-    )
-    .await?;
-    external_credit_target_codes::update(&mut tx, id, &configuration).await?;
-    record_target_action(
-        &mut tx,
-        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-        target_id,
-        user.id,
-        Some(reason),
-        Some(serde_json::json!({
-            "change": "update_code",
-            "external_credit_target_code_id": id,
-            "before": before,
-            "after": configuration,
-        })),
-    )
-    .await?;
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(true))
-}
-
-/**
-POST `/api/v0/main-frontend/credit-registration-admin/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete`
-- Soft-deletes one course code of a mooc.fi target, which withdraws its completions not yet
-submitted.
-*/
-#[instrument(skip(pool, payload))]
-#[utoipa::path(
-    post,
-    path = "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete",
-    operation_id = "adminDeleteExternalCreditTargetCode",
-    tag = "credit-registration-admin",
-    params(
-        ("external_credit_target_id" = Uuid, Path, description = "mooc.fi target id"),
-        ("external_credit_target_code_id" = Uuid, Path, description = "Code id")
-    ),
-    request_body = AdminDeleteExternalCreditTargetPayload,
-    responses(
-        (status = 200, description = "Deleted"),
-        (status = 422, description = "No reason given, or the code is another live code's prerequisite")
-    )
-)]
-pub async fn admin_delete_external_credit_target_code(
-    user: AuthUser,
-    pool: web::Data<PgPool>,
-    path: web::Path<(Uuid, Uuid)>,
-    payload: web::Json<AdminDeleteExternalCreditTargetPayload>,
-) -> ControllerResult<web::Json<bool>> {
-    let mut conn = pool.acquire().await?;
-    let token = authorize_credit_registration_admin(&mut conn, user.id).await?;
-
-    let reason = required_reason(&payload.reason)?;
-    let (target_id, id) = path.into_inner();
-
-    let mut tx = conn.begin().await?;
-    external_credit_targets::get_by_id_for_update(&mut tx, target_id).await?;
-    let before = target_code(&mut tx, target_id, id).await?;
-    if !external_credit_target_codes::get_dependent_codes(&mut tx, id)
+    let live = external_credit_target_codes::get_by_target_id(&mut tx, target_id).await?;
+    let new_ids: Vec<Uuid> = codes
+        .iter()
+        .map(|(id, _)| *id)
+        .filter(|id| !live.iter().any(|code| code.id == *id))
+        .collect();
+    if !external_credit_target_codes::get_by_ids_including_deleted(&mut tx, &new_ids)
         .await?
         .is_empty()
     {
         return Err(controller_err!(
             BadRequest,
-            "Another code has this one as its prerequisite. Change that code first.".to_string()
+            "A code sent belongs to another course or has been deleted.".to_string()
         ));
     }
-    external_credit_target_codes::delete(&mut tx, id).await?;
-    record_target_action(
-        &mut tx,
-        CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
-        target_id,
-        user.id,
-        Some(reason),
-        Some(serde_json::json!({
-            "change": "delete_code",
-            "external_credit_target_code_id": id,
-            "before": before,
-        })),
-    )
-    .await?;
+
+    // Prerequisites that change are cleared first and set last, so no write in between sees a
+    // cycle, a dependent of a deleted code, or a prerequisite not added yet.
+    for code in &live {
+        let wanted = codes.iter().find(|(id, _)| *id == code.id);
+        let wanted_prerequisite =
+            wanted.and_then(|(_, configuration)| configuration.prerequisite_code_id);
+        if code.prerequisite_code_id.is_some() && code.prerequisite_code_id != wanted_prerequisite {
+            external_credit_target_codes::clear_prerequisite(&mut tx, code.id).await?;
+        }
+    }
+    for code in live
+        .iter()
+        .filter(|code| !codes.iter().any(|(id, _)| *id == code.id))
+    {
+        external_credit_target_codes::delete(&mut tx, code.id).await?;
+        record_target_action(
+            &mut tx,
+            CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+            target_id,
+            user.id,
+            Some(reason),
+            Some(serde_json::json!({
+                "change": "delete_code",
+                "external_credit_target_code_id": code.id,
+                "before": code,
+            })),
+        )
+        .await?;
+    }
+    for (id, configuration) in codes.iter().filter(|(id, _)| new_ids.contains(id)) {
+        external_credit_target_codes::insert(
+            &mut tx,
+            PKeyPolicy::Fixed(*id),
+            target_id,
+            &ExternalCreditTargetCodeConfiguration {
+                prerequisite_code_id: None,
+                ..configuration.clone()
+            },
+        )
+        .await?;
+        record_target_action(
+            &mut tx,
+            CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+            target_id,
+            user.id,
+            Some(reason),
+            Some(serde_json::json!({
+                "change": "create_code",
+                "external_credit_target_code_id": id,
+                "after": configuration,
+            })),
+        )
+        .await?;
+    }
+    for (id, configuration) in &codes {
+        let before = live.iter().find(|code| code.id == *id);
+        let is_new = before.is_none();
+        if before.is_some_and(|code| code.configuration() == *configuration)
+            || (is_new && configuration.prerequisite_code_id.is_none())
+        {
+            continue;
+        }
+        external_credit_target_codes::update(&mut tx, *id, configuration).await?;
+        if let Some(before) = before {
+            record_target_action(
+                &mut tx,
+                CreditRegistrationAdminAction::ConfigureExternalCreditTarget,
+                target_id,
+                user.id,
+                Some(reason),
+                Some(serde_json::json!({
+                    "change": "update_code",
+                    "external_credit_target_code_id": id,
+                    "before": before,
+                    "after": configuration,
+                })),
+            )
+            .await?;
+        }
+    }
     tx.commit().await?;
 
     token.authorized_ok(web::Json(true))
 }
 
-/// A live code of the target; not found when the code belongs to another target.
-async fn target_code(
-    conn: &mut PgConnection,
-    target_id: Uuid,
-    id: Uuid,
-) -> Result<ExternalCreditTargetCode, ControllerError> {
-    let code = external_credit_target_codes::get_by_id(conn, id).await?;
-    if code.external_credit_target_id != target_id {
-        return Err(controller_err!(NotFound, "No such code.".to_string()));
-    }
-    Ok(code)
-}
-
-/// Refuses a prerequisite that is not a live code of the target, or whose own chain of
-/// prerequisites leads back to `own_id`. The target row must be locked, so the chain cannot change
-/// meanwhile.
-async fn require_valid_prerequisite(
-    conn: &mut PgConnection,
-    target_id: Uuid,
-    own_id: Option<Uuid>,
-    prerequisite_code_id: Option<Uuid>,
+/// Refuses a code sent twice, and a prerequisite that is not another of `codes`, that a completion
+/// earning the dependent may not earn, or that leads round in a circle.
+fn require_valid_prerequisites(
+    codes: &[(Uuid, ExternalCreditTargetCodeConfiguration)],
 ) -> Result<(), ControllerError> {
-    let Some(prerequisite_code_id) = prerequisite_code_id else {
-        return Ok(());
-    };
-    let codes = external_credit_target_codes::get_by_target_id(conn, target_id).await?;
-    let mut next = Some(prerequisite_code_id);
-    // At most one step per code: a longer walk has gone round a cycle.
-    for _ in 0..=codes.len() {
-        let Some(id) = next else {
-            return Ok(());
-        };
-        if Some(id) == own_id {
+    let find = |id: Uuid| codes.iter().find(|(other, _)| *other == id);
+    for (index, (id, configuration)) in codes.iter().enumerate() {
+        if codes[..index].iter().any(|(other, _)| other == id) {
             return Err(controller_err!(
                 BadRequest,
-                "The prerequisite leads back to this code.".to_string()
+                "The same code was sent twice.".to_string()
             ));
         }
-        let Some(code) = codes.iter().find(|code| code.id == id) else {
+        let Some(prerequisite_code_id) = configuration.prerequisite_code_id else {
+            continue;
+        };
+        let Some((_, prerequisite)) =
+            find(prerequisite_code_id).filter(|_| prerequisite_code_id != *id)
+        else {
             return Err(controller_err!(
                 BadRequest,
                 "The prerequisite must be another code of the same course.".to_string()
             ));
         };
-        next = code.prerequisite_code_id;
+        let is_tier_above = match (prerequisite.minimum_tier, configuration.minimum_tier) {
+            (None, _) => false,
+            (Some(_), None) => true,
+            (Some(prerequisite_tier), Some(tier)) => prerequisite_tier > tier,
+        };
+        if is_tier_above {
+            return Err(bad_request_with_reason(
+                BadRequestReason::ExternalCreditTargetCodePrerequisiteTierAbove,
+                "A prerequisite cannot need a higher tier than the code that waits for it."
+                    .to_string(),
+            ));
+        }
+        let mut next = Some(prerequisite_code_id);
+        // Bounded: a cycle that misses this code is refused when one of its own codes is checked.
+        for _ in 0..=codes.len() {
+            let Some(step) = next else {
+                break;
+            };
+            if step == *id {
+                return Err(bad_request_with_reason(
+                    BadRequestReason::ExternalCreditTargetCodePrerequisitesCircular,
+                    "The prerequisites of this course go round in a circle.".to_string(),
+                ));
+            }
+            next = find(step).and_then(|(_, code)| code.prerequisite_code_id);
+        }
     }
-    Err(controller_err!(
-        BadRequest,
-        "The prerequisites of this course go round in a circle.".to_string()
-    ))
+    Ok(())
 }
 
 /// The payload as a code configuration to store, trimmed and checked.
@@ -1377,14 +1344,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
     )
     .route(
         "/courses/external-targets/{external_credit_target_id}/codes",
-        web::post().to(admin_create_external_credit_target_code),
-    )
-    .route(
-        "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}",
-        web::put().to(admin_update_external_credit_target_code),
-    )
-    .route(
-        "/courses/external-targets/{external_credit_target_id}/codes/{external_credit_target_code_id}/delete",
-        web::post().to(admin_delete_external_credit_target_code),
+        web::put().to(admin_save_external_credit_target_codes),
     );
 }

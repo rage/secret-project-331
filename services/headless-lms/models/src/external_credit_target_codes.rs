@@ -66,6 +66,22 @@ impl ExternalCreditTargetCode {
     }
 }
 
+impl ExternalCreditTargetCode {
+    /// The code as an admin configured it, to compare with a new configuration.
+    pub fn configuration(&self) -> ExternalCreditTargetCodeConfiguration {
+        ExternalCreditTargetCodeConfiguration {
+            name: self.name.clone(),
+            uh_course_code: self.uh_course_code.clone(),
+            minimum_tier: self.minimum_tier,
+            ects_credits: self.ects_credits,
+            grading: self.grading,
+            enrolment_link: self.enrolment_link.clone(),
+            prerequisite_code_id: self.prerequisite_code_id,
+            equivalent_course_codes: self.equivalent_course_codes.clone(),
+        }
+    }
+}
+
 /// What an admin configures on a code, for [`insert`] and [`update`].
 #[derive(Debug, Serialize, Clone, PartialEq)]
 pub struct ExternalCreditTargetCodeConfiguration {
@@ -159,8 +175,26 @@ RETURNING id
     Ok(())
 }
 
-/// Soft-deletes a code, which withdraws its completions not yet submitted. The caller must refuse
-/// a code that is a live code's prerequisite; see [`get_dependent_codes`].
+/// Removes a live code's prerequisite, so the codes of a target can be rearranged one write at a
+/// time without passing through a cycle.
+pub async fn clear_prerequisite(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
+    sqlx::query!(
+        r#"
+UPDATE external_credit_target_codes
+SET prerequisite_code_id = NULL
+WHERE id = $1
+  AND deleted_at IS NULL
+RETURNING id
+        "#,
+        id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(())
+}
+
+/// Soft-deletes a code, which withdraws its completions not yet submitted. The caller must first
+/// clear the prerequisite of any live code that has this one as it.
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -258,6 +292,49 @@ ORDER BY minimum_tier NULLS FIRST,
     Ok(res)
 }
 
+/// Codes by id, soft-deleted or not, lowest minimum tier first: for showing what was registered
+/// under a code that has since been deleted.
+pub async fn get_by_ids_including_deleted(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<ExternalCreditTargetCode>> {
+    let res = sqlx::query_as!(
+        ExternalCreditTargetCode,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  external_credit_target_id,
+  name,
+  uh_course_code,
+  minimum_tier,
+  ects_credits,
+  grading AS "grading: ExternalGrading",
+  enrolment_link,
+  prerequisite_code_id,
+  equivalent_course_codes,
+  config_checked_at,
+  checked_course_code,
+  course_code_allowed,
+  course_code_rejection,
+  config_check_message,
+  last_listing_attempted_at,
+  last_listed_at,
+  last_listing_error AS "last_listing_error: CreditRegistrationErrorCode",
+  consecutive_listing_failures
+FROM external_credit_target_codes
+WHERE id = ANY($1)
+ORDER BY minimum_tier NULLS FIRST,
+  uh_course_code
+        "#,
+        ids,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 /// Every live code of a live target, enabled or not, for the admin Courses tab.
 pub async fn get_all(conn: &mut PgConnection) -> ModelResult<Vec<ExternalCreditTargetCode>> {
     let res = sqlx::query_as!(
@@ -293,22 +370,6 @@ ORDER BY t.name,
   code.minimum_tier NULLS FIRST,
   code.uh_course_code
         "#,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
-/// The live codes whose prerequisite is `id`.
-pub async fn get_dependent_codes(conn: &mut PgConnection, id: Uuid) -> ModelResult<Vec<Uuid>> {
-    let res = sqlx::query_scalar!(
-        r#"
-SELECT id
-FROM external_credit_target_codes
-WHERE prerequisite_code_id = $1
-  AND deleted_at IS NULL
-        "#,
-        id,
     )
     .fetch_all(conn)
     .await?;

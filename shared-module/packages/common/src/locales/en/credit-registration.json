@@ -659,6 +659,7 @@
   "credit-registration-admin-prerequisite-description": "A Sisu course in this list that must be registered, or already be in Sisu, before this one is sent. Its minimum tier must be the same or lower.",
   "credit-registration-admin-prerequisite-none": "Nothing",
   "credit-registration-admin-prerequisite-option": "{{code}}, {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "A course cannot require a course with a higher minimum tier. Lower that course's minimum tier, or change what this one requires.",
   "credit-registration-admin-prerequisites-circular": "These courses require each other in a circle. Change what one of them requires.",
   "credit-registration-admin-presser-fetch-failing": "Fetching this course code's enrolment list keeps failing.",
   "credit-registration-admin-presser-next-fetch": "Waiting for the next enrolment list fetch at {{time}}.",

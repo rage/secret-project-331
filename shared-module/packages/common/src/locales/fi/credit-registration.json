@@ -659,6 +659,7 @@
   "credit-registration-admin-prerequisite-description": "Tämän listan Sisu-kurssi, joka on kirjattu tai jo Sisussa ennen kuin tämä lähetetään. Sen vähimmäistason on oltava sama tai pienempi.",
   "credit-registration-admin-prerequisite-none": "Ei mitään",
   "credit-registration-admin-prerequisite-option": "{{code}}, {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "Kurssi ei voi edellyttää kurssia, jonka vähimmäistaso on sen omaa korkeampi. Laske vähimmäistasoa tai muuta edellytystä.",
   "credit-registration-admin-prerequisites-circular": "Kurssit edellyttävät toisiaan kehässä. Muuta jonkin kurssin edellytystä.",
   "credit-registration-admin-presser-fetch-failing": "Tämän kurssikoodin ilmoittautumislistan haku epäonnistuu toistuvasti.",
   "credit-registration-admin-presser-next-fetch": "Odottaa seuraavaa ilmoittautumislistan hakua {{time}}.",

@@ -659,6 +659,7 @@
   "credit-registration-admin-prerequisite-description": "En Sisu-kurs i listan som måste vara registrerad, eller redan finnas i Sisu, innan den här skickas. Dess lägsta nivå måste vara densamma eller lägre.",
   "credit-registration-admin-prerequisite-none": "Ingenting",
   "credit-registration-admin-prerequisite-option": "{{code}}, {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "En kurs kan inte kräva en kurs med högre lägsta nivå än sin egen. Sänk den lägsta nivån eller ändra vad som krävs.",
   "credit-registration-admin-prerequisites-circular": "Kurserna kräver varandra i en ring. Ändra vad en av dem kräver.",
   "credit-registration-admin-presser-fetch-failing": "Hämtningen av den här kurskodens anmälningslista misslyckas gång på gång.",
   "credit-registration-admin-presser-next-fetch": "Väntar på nästa hämtning av anmälningslistan {{time}}.",

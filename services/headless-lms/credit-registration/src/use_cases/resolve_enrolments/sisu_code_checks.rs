@@ -1,8 +1,8 @@
 //! Asks Sisu, through the enrolment lookup's existing attainments, whether students hold course
 //! codes no ledger row of theirs is under: the equivalent older codes of a mooc.fi row's code,
 //! which the enrolment lookup then settles the row against, and the prerequisite of a row waiting
-//! for it, with that code's equivalents. Runs before the enrolment lookup, which leaves a row
-//! whose equivalents are unasked for a later tick.
+//! for it, with that code's equivalents. Runs after the enrolment lookup, which takes up a row it
+//! skipped for unasked equivalents on a later tick.
 
 use headless_lms_models::credit_registration_sisu_code_checks::{self, get_due};
 use headless_lms_models::library::credit_registration::enrolment_selection::attained_candidates;

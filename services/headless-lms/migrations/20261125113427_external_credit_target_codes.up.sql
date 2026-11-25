@@ -33,9 +33,6 @@ CREATE TABLE external_credit_target_codes (
 CREATE TRIGGER set_timestamp BEFORE
 UPDATE ON external_credit_target_codes FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
-CREATE UNIQUE INDEX uq_external_credit_target_codes_course_code ON external_credit_target_codes (external_credit_target_id, UPPER(TRIM(uh_course_code)))
-WHERE deleted_at IS NULL;
-
 COMMENT ON TABLE external_credit_target_codes IS 'A University of Helsinki course code a mooc.fi target registers credits under: the credit unit of a mooc.fi ledger row, as a course module is of a native one. A completion gets a ledger row for every live code of its target whose minimum tier it reaches, each with its own enrolment check and registration.';
 COMMENT ON COLUMN external_credit_target_codes.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN external_credit_target_codes.created_at IS 'Timestamp when the record was created.';
@@ -114,6 +111,25 @@ UPDATE external_completions ec
 SET external_credit_target_code_id = code.id
 FROM external_credit_target_codes code
 WHERE code.external_credit_target_id = ec.external_credit_target_id;
+-- Reporting used to set reported_at on all of a completion's rows, and it now blocks each row's own
+-- code. A row without a report of its own gets it back from the next mooc.fi sync if mooc.fi lists
+-- our registration under its code.
+UPDATE external_completions ec
+SET reported_at = NULL
+WHERE ec.reported_at IS NOT NULL
+  AND EXISTS (
+    SELECT 1
+    FROM external_completions sibling
+    WHERE sibling.moocfi_completion_id = ec.moocfi_completion_id
+      AND sibling.id <> ec.id
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM credit_registrations cr
+      JOIN moocfi_registration_reports report ON report.credit_registration_id = cr.id
+    WHERE cr.external_completion_id = ec.id
+      AND report.reported_at IS NOT NULL
+  );
 
 DROP INDEX uq_external_completions_completion_target;
 CREATE UNIQUE INDEX uq_external_completions_completion_code ON external_completions (moocfi_completion_id, external_credit_target_code_id)
@@ -181,12 +197,123 @@ UPDATE credit_registration_account_linking_emails e
 SET external_credit_target_id = m.parent_id
 FROM merged_external_credit_targets m
 WHERE e.external_credit_target_id = m.merged_id;
+-- The codes of a switched-off or paused target would start registering under a live parent. A
+-- pause must name an admin; with none on record, the parent is switched off instead.
+UPDATE external_credit_targets parent
+SET paused_at = now(),
+  paused_by_user_id = stopped.user_id,
+  pause_reason = 'Paused when the targets of this mooc.fi course were merged, as one of them was switched off or paused.'
+FROM (
+    SELECT DISTINCT ON (parent_id) parent_id,
+      user_id
+    FROM (
+        SELECT m.parent_id,
+          COALESCE(
+            t.paused_by_user_id,
+            (
+              SELECT a.actor_user_id
+              FROM credit_registration_admin_actions a
+              WHERE a.target_kind = 'external_credit_target'
+                AND a.target_id IN (t.id, m.parent_id)
+                AND a.deleted_at IS NULL
+              ORDER BY a.created_at DESC
+              LIMIT 1
+            )
+          ) AS user_id
+        FROM merged_external_credit_targets m
+          JOIN external_credit_targets t ON t.id = m.merged_id
+        WHERE t.enabled_at IS NULL
+          OR t.paused_at IS NOT NULL
+      ) stopped_sibling
+    ORDER BY parent_id,
+      user_id NULLS LAST
+  ) stopped
+WHERE parent.id = stopped.parent_id
+  AND stopped.user_id IS NOT NULL
+  AND parent.enabled_at IS NOT NULL
+  AND parent.paused_at IS NULL;
+UPDATE external_credit_targets parent
+SET enabled_at = NULL
+WHERE parent.enabled_at IS NOT NULL
+  AND parent.paused_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM merged_external_credit_targets m
+      JOIN external_credit_targets t ON t.id = m.merged_id
+    WHERE m.parent_id = parent.id
+      AND (
+        t.enabled_at IS NULL
+        OR t.paused_at IS NOT NULL
+      )
+  );
 UPDATE external_credit_targets t
 SET deleted_at = now()
 FROM merged_external_credit_targets m
 WHERE t.id = m.merged_id;
 
 DROP TABLE merged_external_credit_targets;
+
+-- The old index compared course codes exactly, so merged targets may hold the same code in another
+-- case or spacing. The earliest code row stays, earning from the lowest tier any of them did; a
+-- completion's row under a later one moves to it unless it already has one there.
+CREATE TEMPORARY TABLE duplicate_external_credit_target_codes ON COMMIT DROP AS
+SELECT code.id AS duplicate_id,
+  kept.id AS kept_id
+FROM external_credit_target_codes code
+  CROSS JOIN LATERAL (
+    SELECT k.id
+    FROM external_credit_target_codes k
+    WHERE k.external_credit_target_id = code.external_credit_target_id
+      AND UPPER(TRIM(k.uh_course_code)) = UPPER(TRIM(code.uh_course_code))
+      AND k.deleted_at IS NULL
+    ORDER BY k.created_at,
+      k.id
+    LIMIT 1
+  ) kept
+WHERE code.deleted_at IS NULL
+  AND kept.id <> code.id;
+
+UPDATE external_credit_target_codes kept
+SET minimum_tier = NULL
+FROM duplicate_external_credit_target_codes d
+  JOIN external_credit_target_codes duplicate ON duplicate.id = d.duplicate_id
+WHERE kept.id = d.kept_id
+  AND duplicate.minimum_tier IS NULL;
+UPDATE external_credit_target_codes kept
+SET minimum_tier = lowest.minimum_tier
+FROM (
+    SELECT d.kept_id,
+      MIN(duplicate.minimum_tier) AS minimum_tier
+    FROM duplicate_external_credit_target_codes d
+      JOIN external_credit_target_codes duplicate ON duplicate.id = d.duplicate_id
+    GROUP BY d.kept_id
+  ) lowest
+WHERE kept.id = lowest.kept_id
+  AND kept.minimum_tier > lowest.minimum_tier;
+UPDATE external_completions ec
+SET external_credit_target_code_id = d.kept_id
+FROM duplicate_external_credit_target_codes d
+WHERE ec.external_credit_target_code_id = d.duplicate_id
+  AND (
+    ec.deleted_at IS NOT NULL
+    OR NOT EXISTS (
+      SELECT 1
+      FROM external_completions other
+      WHERE other.moocfi_completion_id = ec.moocfi_completion_id
+        AND other.external_credit_target_code_id = d.kept_id
+        AND other.deleted_at IS NULL
+    )
+  );
+UPDATE external_credit_target_codes code
+SET deleted_at = now()
+FROM duplicate_external_credit_target_codes d
+WHERE code.id = d.duplicate_id
+  AND code.deleted_at IS NULL;
+
+DROP TABLE duplicate_external_credit_target_codes;
+
+CREATE UNIQUE INDEX uq_external_credit_target_codes_course_code ON external_credit_target_codes (external_credit_target_id, UPPER(TRIM(uh_course_code)))
+WHERE deleted_at IS NULL;
 
 ALTER TABLE external_completions
 ALTER COLUMN external_credit_target_code_id

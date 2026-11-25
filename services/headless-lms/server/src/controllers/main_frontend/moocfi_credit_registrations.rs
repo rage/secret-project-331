@@ -52,8 +52,8 @@ pub struct MoocfiCompletionRegistration {
     pub completion_date: DateTime<Utc>,
     pub tier: Option<i32>,
     /// One per course code the tier earns, lowest minimum tier first, each registered on its own.
-    /// Empty when the tier earns none. A code the tier no longer earns is listed while it has a
-    /// ledger row, so credits already registered do not vanish.
+    /// Empty when the tier earns none. A code the tier no longer earns, or one since deleted, is
+    /// listed while it has a ledger row, so credits already registered do not vanish.
     pub credit_units: Vec<MoocfiCreditUnitRegistration>,
     /// Whether the student may take mooc.fi's certificate instead of credits. True while mooc.fi's
     /// answer is unknown: its certificate page copes with a course that has none.
@@ -159,7 +159,7 @@ pub async fn get_my_moocfi_credit_registrations(
         .email;
     let target =
         external_credit_targets::get_by_moocfi_course_id(&mut conn, moocfi_course_id).await?;
-    let codes = match &target {
+    let mut codes = match &target {
         Some(target) => {
             external_credit_target_codes::get_by_target_id(&mut conn, target.id).await?
         }
@@ -264,6 +264,27 @@ pub async fn get_my_moocfi_credit_registrations(
             moocfi_course_id,
         )
         .await?;
+    let deleted_code_ids: Vec<Uuid> = stored
+        .iter()
+        .filter(|row| {
+            !codes
+                .iter()
+                .any(|code| code.id == row.external_credit_target_code_id)
+                && registration_states
+                    .iter()
+                    .any(|state| state.external_completion_id == row.id)
+        })
+        .map(|row| row.external_credit_target_code_id)
+        .collect();
+    if !deleted_code_ids.is_empty() {
+        codes.extend(
+            external_credit_target_codes::get_by_ids_including_deleted(
+                &mut conn,
+                &deleted_code_ids,
+            )
+            .await?,
+        );
+    }
     let registered_equivalents = external_completions::get_registered_equivalents(
         &mut conn,
         &stored.iter().map(|row| row.id).collect::<Vec<_>>(),

@@ -823,6 +823,7 @@
   "credit-registration-admin-prerequisite-description": "مقرر Sisu من هذه القائمة يجب أن يكون مسجلًا أو موجودًا في Sisu قبل إرسال هذا المقرر. يجب أن يكون مستواه الأدنى مساويًا أو أقل.",
   "credit-registration-admin-prerequisite-none": "لا شيء",
   "credit-registration-admin-prerequisite-option": "{{code}}، {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "لا يمكن لمقرر أن يتطلب مقررًا مستواه الأدنى أعلى من مستواه. اخفض ذلك المستوى الأدنى أو غيّر ما هو مطلوب.",
   "credit-registration-admin-prerequisites-circular": "المقررات تتطلب بعضها بعضًا في حلقة. غيّر ما يتطلبه أحدها.",
   "credit-registration-admin-presser-fetch-failing": "يتكرر فشل جلب قائمة الالتحاق لرمز المقرر هذا.",
   "credit-registration-admin-presser-next-fetch": "في انتظار الجلب التالي لقائمة الالتحاق في {{time}}.",

@@ -364,7 +364,7 @@ export const zAdminDismissStudyRegistryConflictPayload = z.object({
 
 /**
  * A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course
- * codes are configured apart; see [`AdminExternalCreditTargetCodePayload`].
+ * codes are configured apart; see [`AdminExternalCreditTargetCodesPayload`].
  */
 export const zAdminExternalCreditTargetPayload = z.object({
   delegated_at: z.iso.datetime(),
@@ -4068,13 +4068,14 @@ export const zExternalCreditTarget = z.object({
 export const zExternalGrading = z.enum(["pass_fail", "numeric"])
 
 /**
- * One course code of a mooc.fi target as the admin form sends it, with the audit reason.
+ * One course code of a mooc.fi target as the admin form sends it.
  */
 export const zAdminExternalCreditTargetCodePayload = z.object({
   ects_credits: z.number(),
   enrolment_link: z.string().nullish(),
   equivalent_course_codes: z.array(z.string()).optional(),
   grading: zExternalGrading,
+  id: z.uuid(),
   minimum_tier: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -4082,8 +4083,16 @@ export const zAdminExternalCreditTargetCodePayload = z.object({
     .nullish(),
   name: z.string(),
   prerequisite_code_id: z.uuid().nullish(),
-  reason: z.string(),
   uh_course_code: z.string(),
+})
+
+/**
+ * Every course code a mooc.fi target is to have, as the admin form sends them, with the audit
+ * reason.
+ */
+export const zAdminExternalCreditTargetCodesPayload = z.object({
+  codes: z.array(zAdminExternalCreditTargetCodePayload),
+  reason: z.string(),
 })
 
 /**
@@ -12265,29 +12274,10 @@ export const zAdminGetExternalCreditTargetCodesPath = z.object({
  */
 export const zAdminGetExternalCreditTargetCodesResponse = z.array(zExternalCreditTargetCode)
 
-export const zAdminCreateExternalCreditTargetCodeBody = zAdminExternalCreditTargetCodePayload
+export const zAdminSaveExternalCreditTargetCodesBody = zAdminExternalCreditTargetCodesPayload
 
-export const zAdminCreateExternalCreditTargetCodePath = z.object({
+export const zAdminSaveExternalCreditTargetCodesPath = z.object({
   external_credit_target_id: z.uuid(),
-})
-
-/**
- * The new code's id
- */
-export const zAdminCreateExternalCreditTargetCodeResponse = z.uuid()
-
-export const zAdminUpdateExternalCreditTargetCodeBody = zAdminExternalCreditTargetCodePayload
-
-export const zAdminUpdateExternalCreditTargetCodePath = z.object({
-  external_credit_target_id: z.uuid(),
-  external_credit_target_code_id: z.uuid(),
-})
-
-export const zAdminDeleteExternalCreditTargetCodeBody = zAdminDeleteExternalCreditTargetPayload
-
-export const zAdminDeleteExternalCreditTargetCodePath = z.object({
-  external_credit_target_id: z.uuid(),
-  external_credit_target_code_id: z.uuid(),
 })
 
 export const zAdminDeleteExternalCreditTargetBody = zAdminDeleteExternalCreditTargetPayload

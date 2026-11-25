@@ -659,6 +659,7 @@
   "credit-registration-admin-prerequisite-description": "Et Sisu-kurs i listen som må være registrert, eller allerede ligge i Sisu, før dette sendes. Minstenivået må være det samme eller lavere.",
   "credit-registration-admin-prerequisite-none": "Ingenting",
   "credit-registration-admin-prerequisite-option": "{{code}}, {{name}}",
+  "credit-registration-admin-prerequisite-tier-above": "Et kurs kan ikke kreve et kurs med høyere minstenivå enn sitt eget. Senk minstenivået eller endre hva som kreves.",
   "credit-registration-admin-prerequisites-circular": "Kursene krever hverandre i en ring. Endre hva ett av dem krever.",
   "credit-registration-admin-presser-fetch-failing": "Henting av påmeldingslisten for denne emnekoden mislykkes stadig.",
   "credit-registration-admin-presser-next-fetch": "Venter på neste henting av påmeldingslisten {{time}}.",

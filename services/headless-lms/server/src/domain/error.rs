@@ -200,6 +200,12 @@ pub enum BadRequestReason {
     /// A mooc.fi target with completions cannot be moved to another mooc.fi course.
     #[display("mooc.fi course fixed")]
     ExternalCreditTargetMoocfiCourseFixed,
+    /// A code's prerequisite needs a higher completion tier than the code itself.
+    #[display("Prerequisite tier above")]
+    ExternalCreditTargetCodePrerequisiteTierAbove,
+    /// The prerequisites of a mooc.fi target's codes lead round in a circle.
+    #[display("Prerequisites circular")]
+    ExternalCreditTargetCodePrerequisitesCircular,
     /// A save named a version of the record that is no longer the latest.
     #[display("Stale version")]
     StaleVersion,
@@ -227,6 +233,12 @@ impl BadRequestReason {
             Self::ExternalCreditTargetCourseCodeTaken => "external_credit_target_course_code_taken",
             Self::ExternalCreditTargetMoocfiCourseFixed => {
                 "external_credit_target_moocfi_course_fixed"
+            }
+            Self::ExternalCreditTargetCodePrerequisiteTierAbove => {
+                "external_credit_target_code_prerequisite_tier_above"
+            }
+            Self::ExternalCreditTargetCodePrerequisitesCircular => {
+                "external_credit_target_code_prerequisites_circular"
             }
             Self::StaleVersion => "stale_version",
             Self::FormVerificationFailed => "form_verification_failed",

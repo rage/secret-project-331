@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ch.course_id AS \"course_id!\",\n  ch.id AS chapter_id,\n  ch.name,\n  ch.chapter_number\nFROM chapters ch\nWHERE ch.course_id = ANY($1)\n  AND ch.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM exercises e\n    WHERE e.chapter_id = ch.id\n      AND e.deleted_at IS NULL\n  )\nORDER BY ch.chapter_number\n",
+  "query": "\nSELECT ch.course_id AS \"course_id!\",\n  ch.id AS chapter_id,\n  ch.name,\n  ch.chapter_number,\n  EXISTS (\n    SELECT 1\n    FROM exercises e\n    WHERE e.chapter_id = ch.id\n      AND e.deleted_at IS NULL\n  ) AS \"has_exercises!\"\nFROM chapters ch\nWHERE ch.course_id = ANY($1)\n  AND ch.deleted_at IS NULL\nORDER BY ch.chapter_number\n",
   "describe": {
     "columns": [
       {
@@ -46,6 +46,12 @@
             "name": "chapter_number"
           }
         }
+      },
+      {
+        "ordinal": 4,
+        "name": "has_exercises!",
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -57,8 +63,9 @@
       false,
       false,
       false,
-      false
+      false,
+      null
     ]
   },
-  "hash": "b345e1b536e2f59b91bae53c9390bc5f27d430057d7a29eeb694f98174edc817"
+  "hash": "b5c496e7dfa68a5ac91e5f3930d6aaa493d8dfd4b419d8ba7a972b34f1d07c93"
 }

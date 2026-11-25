@@ -110,6 +110,14 @@ pub fn nullable_string_property(description: Option<&str>) -> SchemaPropertyType
     })
 }
 
+/// A plain string property that `description` explains to the LLM.
+pub fn string_property(description: &str) -> SchemaPropertyType {
+    SchemaPropertyType::Item(JsonItem {
+        type_field: JSONType::String,
+        description: Some(description.to_string()),
+    })
+}
+
 /// An array of plain strings, the one composite property that tool parameter and structured output
 /// schemas keep asking for. `description` explains the array to the LLM; the items carry none of
 /// their own.

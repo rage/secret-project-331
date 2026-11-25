@@ -24,7 +24,7 @@ use crate::{
     courses::{Course, NewCourse},
     exercise_service_info::ExerciseServiceInfoApi,
     library::{
-        content_management,
+        content_management::{self, NewCourseContent},
         course_designer_course_content::{self as course_content, CourseCopy},
         course_designer_course_status::{self, CourseDesignerCourseStatus},
     },
@@ -36,8 +36,6 @@ use crate::{
 const MAX_COURSE_NAME_CHARS: usize = 255;
 const MAX_SLUG_CHARS: usize = 80;
 const FALLBACK_LANGUAGE_CODE: &str = "en";
-/// Default module credits when the Analysis form gives none.
-const FALLBACK_ECTS_CREDITS: f32 = 5.0;
 
 /// What the person creating a course from a plan chose in the dialog. Blank or missing values fall
 /// back to the plan's Analysis form.
@@ -120,7 +118,7 @@ pub struct ChapterDraft {
 }
 
 /// What a topic page should cover: headings with points, not prose.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TopicOutline {
     pub sections: Vec<TopicOutlineSection>,
 }
@@ -203,41 +201,33 @@ async fn ensure_course_can_be_created(
     conn: &mut PgConnection,
     plan: &CourseDesignerPlan,
 ) -> ModelResult<()> {
-    let has_live_course = match plan.created_course_id {
-        Some(course_id) => {
-            sqlx::query_scalar!(
-                r#"
-SELECT EXISTS (
-  SELECT 1 FROM courses WHERE id = $1 AND deleted_at IS NULL
-) AS "exists!"
+    let row = sqlx::query!(
+        r#"
+SELECT (c.id IS NOT NULL) AS "has_live_course!",
+  (
+    SELECT s.status
+    FROM course_designer_plan_stages s
+    WHERE s.course_designer_plan_id = p.id
+      AND s.stage = 'design'
+      AND s.deleted_at IS NULL
+  ) AS "design_status: CourseDesignerPlanStageStatus"
+FROM course_designer_plans p
+  LEFT JOIN courses c ON c.id = p.created_course_id
+  AND c.deleted_at IS NULL
+WHERE p.id = $1
 "#,
-                course_id
-            )
-            .fetch_one(&mut *conn)
-            .await?
-        }
-        None => false,
-    };
-    if has_live_course {
+        plan.id
+    )
+    .fetch_one(conn)
+    .await?;
+    if row.has_live_course {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "A course has already been created from this plan.".to_string(),
             None,
         ));
     }
-    let design_status = sqlx::query_scalar!(
-        r#"
-SELECT status AS "status: CourseDesignerPlanStageStatus"
-FROM course_designer_plan_stages
-WHERE course_designer_plan_id = $1
-  AND stage = 'design'
-  AND deleted_at IS NULL
-"#,
-        plan.id
-    )
-    .fetch_optional(conn)
-    .await?;
-    if design_status != Some(CourseDesignerPlanStageStatus::Completed) {
+    if row.design_status != Some(CourseDesignerPlanStageStatus::Completed) {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "The course can be created once the Design phase is done.".to_string(),
@@ -319,7 +309,7 @@ pub async fn create_course_from_plan(
     let ects_credits = analysis
         .credits
         .filter(|credits| *credits > 0.0)
-        .map_or(FALLBACK_ECTS_CREDITS, |credits| credits as f32);
+        .map(|credits| credits as f32);
     let (course, _front_page, _instance, default_module) =
         content_management::create_new_course_with_content(
             &mut tx,
@@ -327,13 +317,15 @@ pub async fn create_course_from_plan(
             PKeyPolicy::Generate,
             new_course,
             user_id,
-            course_content::front_page_content(
-                copy,
-                &source.course_name,
-                &source.learning_goals(),
-                &drafts.course,
-            ),
-            ects_credits,
+            NewCourseContent {
+                front_page_content: Some(course_content::front_page_content(
+                    copy,
+                    &source.course_name,
+                    &source.learning_goals(),
+                    &drafts.course,
+                )),
+                default_module_ects_credits: ects_credits,
+            },
             &spec_fetcher,
             fetch_service_info,
         )
@@ -360,7 +352,13 @@ pub async fn create_course_from_plan(
     }
 
     let chapter_colors = course_content::chapter_colors(&design.style_guide.colour_palette);
-    let empty_outline = TopicOutline { sections: vec![] };
+    if drafts.chapters.len() != design.chapters.len() {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "The drafts must have one chapter draft per planned chapter.".to_string(),
+            None,
+        ));
+    }
     for (index, planned_chapter) in design.chapters.iter().enumerate() {
         let chapter_number = i32::try_from(index + 1).map_err(|_| {
             ModelError::new(
@@ -399,22 +397,20 @@ pub async fn create_course_from_plan(
         )
         .await?;
 
-        let chapter_draft = drafts.chapters.get(index);
+        let chapter_draft = &drafts.chapters[index];
         let topic_titles = chapter_topic_titles(planned_chapter);
         let mut pages_to_insert = Vec::with_capacity(topic_titles.len() + 2);
-        if let Some(chapter_draft) = chapter_draft {
-            pages_to_insert.push((
-                copy.introduction_title,
-                course_content::introduction_content(copy, chapter_draft),
-            ));
-        } else {
-            pages_to_insert.push((copy.introduction_title, vec![]));
-        }
+        pages_to_insert.push((
+            copy.introduction_title,
+            course_content::introduction_content(copy, chapter_draft),
+        ));
         for (topic_index, title) in topic_titles.iter().enumerate() {
             let outline = chapter_draft
-                .and_then(|draft| draft.topic_outlines.get(topic_index))
-                .unwrap_or(&empty_outline);
-            pages_to_insert.push((*title, course_content::topic_content(copy, title, outline)));
+                .topic_outlines
+                .get(topic_index)
+                .cloned()
+                .unwrap_or_default();
+            pages_to_insert.push((*title, course_content::topic_content(copy, title, &outline)));
         }
         pages_to_insert.push((
             copy.conclusion_title,
@@ -814,13 +810,10 @@ WHERE course_designer_plan_id = $1
         tasks_completed_since,
         task_count: task_counts.task_count,
         completed_task_count: task_counts.completed_task_count
-            + task_counts
-                .automatic_checks
-                .iter()
-                .filter(|check| {
-                    course_designer_course_status::is_check_passed(course_status.as_ref(), **check)
-                })
-                .count() as i64,
+            + course_designer_course_status::count_passed_checks(
+                course_status.as_ref(),
+                &task_counts.automatic_checks,
+            ),
         course_status,
         language_code: language_code_from_analysis(analysis_language.as_deref()),
     })

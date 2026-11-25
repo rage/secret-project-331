@@ -1,12 +1,12 @@
 use indexmap::IndexMap;
 
 use headless_lms_models::{course_designer_plan_members, course_designer_plans};
-use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::json_schema_types::{Schema, string_property};
 use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
     authorized_plan_id, parse_raw_arguments, plan_proposal_items, plan_tool_declaration_items,
-    text_property, updated_plan_payload, verify_current_value,
+    updated_plan_payload, verify_current_value,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -44,8 +44,8 @@ impl ChatbotToolDeclaration for ProposeVisionEditTool {
             description: "Propose new text for the team's vision of what would make this MOOC great (great_mooc_vision on the plan overview). The user applies or discards it; nothing is saved before that.".to_string(),
             parameters: Schema::strict_object(
                 IndexMap::from([
-                    ("current_vision".to_string(), text_property("The current vision exactly as get_course_plan returned it; empty string for none. Checked before anything is saved.")),
-                    ("proposed_vision".to_string(), text_property("The whole new text, in the user's language. Empty string clears it.")),
+                    ("current_vision".to_string(), string_property("The current vision exactly as get_course_plan returned it; empty string for none. Checked before anything is saved.")),
+                    ("proposed_vision".to_string(), string_property("The whole new text, in the user's language. Empty string clears it.")),
                 ]),
                 None,
             ),

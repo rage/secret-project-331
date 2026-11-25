@@ -2,12 +2,12 @@ use indexmap::IndexMap;
 
 use headless_lms_models::course_designer_plan_members;
 use headless_lms_models::course_designer_plans::CourseDesignerStage;
-use headless_lms_utils::json_schema_types::Schema;
+use headless_lms_utils::json_schema_types::{Schema, string_property};
 use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
     authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
-    plan_tool_declaration_items, resolve_member_by_name, text_property, updated_plan_payload,
+    plan_tool_declaration_items, resolve_member_by_name, updated_plan_payload,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -51,19 +51,19 @@ impl ChatbotToolDeclaration for ProposeAddTaskTool {
                 IndexMap::from([
                     (
                         "stage".to_string(),
-                        text_property("analysis, design, development, implementation or evaluation."),
+                        string_property("analysis, design, development, implementation or evaluation."),
                     ),
                     (
                         "title".to_string(),
-                        text_property("Short task title in the user's language."),
+                        string_property("Short task title in the user's language."),
                     ),
                     (
                         "description".to_string(),
-                        text_property("Optional details; empty string for none."),
+                        string_property("Optional details; empty string for none."),
                     ),
                     (
                         "assignee_name".to_string(),
-                        text_property("Optional: the member to assign, by name exactly as get_course_plan lists them; empty string to leave it unassigned."),
+                        string_property("Optional: the member to assign, by name exactly as get_course_plan lists them; empty string to leave it unassigned."),
                     ),
                 ]),
                 None,

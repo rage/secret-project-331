@@ -9,9 +9,10 @@ import {
   manageCoursePagesRoute,
 } from "@/shared-module/common/utils/routes"
 
-/** Why an automatic task is or is not done, from the course's current state. */
+/** Why an automatic task is or is not done. `isCompleted` is the server's verdict; the course status only supplies counts. */
 export function automaticTaskReason(
   check: CourseDesignerAutomaticCheck,
+  isCompleted: boolean,
   courseStatus: CourseDesignerCourseStatus | null | undefined,
   t: TFunction,
 ): string {
@@ -19,25 +20,25 @@ export function automaticTaskReason(
     return t("course-plans-task-reason-no-course")
   }
   switch (check) {
-    case "ContentFilled": {
-      const count = courseStatus.unfilled_pages.length
-      return count === 0
+    case "ContentFilled":
+      return isCompleted
         ? t("course-plans-task-reason-content-filled-done")
-        : t("course-plans-task-reason-content-filled-open", { count })
-    }
-    case "ExercisesExist": {
-      if (courseStatus.chapter_count === 0) {
-        return t("course-plans-course-status-no-chapters")
+        : t("course-plans-task-reason-content-filled-open", {
+            count: courseStatus.unfilled_pages.length,
+          })
+    case "ExercisesExist":
+      if (isCompleted) {
+        return t("course-plans-task-reason-exercises-done")
       }
-      const count = courseStatus.chapters_without_exercises.length
-      return count === 0
-        ? t("course-plans-task-reason-exercises-done")
-        : t("course-plans-task-reason-exercises-open", { count })
-    }
+      return courseStatus.chapter_count === 0
+        ? t("course-plans-course-status-no-chapters")
+        : t("course-plans-task-reason-exercises-open", {
+            count: courseStatus.chapters_without_exercises.length,
+          })
     case "CoursePublished":
-      return courseStatus.is_draft
-        ? t("course-plans-task-reason-published-open")
-        : t("course-plans-task-reason-published-done")
+      return isCompleted
+        ? t("course-plans-task-reason-published-done")
+        : t("course-plans-task-reason-published-open")
   }
 }
 

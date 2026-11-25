@@ -4,14 +4,13 @@ use indexmap::IndexMap;
 
 use headless_lms_models::course_designer_plan_members;
 use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
+    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType, string_property,
 };
 use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
     authorized_plan_id, parse_raw_arguments, plan_proposal_items, plan_tool_declaration_items,
-    resolve_member_by_name, stale_proposal_error, text_property, updated_plan_payload,
-    verify_current_value,
+    resolve_member_by_name, stale_proposal_error, updated_plan_payload, verify_current_value,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -73,17 +72,17 @@ impl ChatbotToolDeclaration for ProposeUpdateTaskTool {
             description: "Propose changing an existing task: rename it, change or clear its description, mark it done or not done (not automatic tasks, which tick themselves from the course), or assign it to a member. The user applies or discards the changes; nothing is saved before that.".to_string(),
             parameters: Schema::strict_object(
                 IndexMap::from([
-                    ("task_id".to_string(), text_property("The task's id from get_course_plan.")),
-                    ("task_title".to_string(), text_property("The task's current title, exactly as get_course_plan returned it. Shown to the user and checked before anything is saved.")),
+                    ("task_id".to_string(), string_property("The task's id from get_course_plan.")),
+                    ("task_title".to_string(), string_property("The task's current title, exactly as get_course_plan returned it. Shown to the user and checked before anything is saved.")),
                     (
                         "changes".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
                             items: ArrayItem::Schema(Schema::strict_object(
                                 IndexMap::from([
-                                    ("field".to_string(), text_property("title, description, is_completed or assignee.")),
-                                    ("current_value".to_string(), text_property("The field's current value from get_course_plan: text for title and description, 'true' or 'false' for is_completed, the member's name for assignee. Empty string for none.")),
-                                    ("proposed_value".to_string(), text_property("The new value in the same form. Empty string clears the description or unassigns the task; a title cannot be empty.")),
+                                    ("field".to_string(), string_property("title, description, is_completed or assignee.")),
+                                    ("current_value".to_string(), string_property("The field's current value from get_course_plan: text for title and description, 'true' or 'false' for is_completed, the member's name for assignee. Empty string for none.")),
+                                    ("proposed_value".to_string(), string_property("The new value in the same form. Empty string clears the description or unassigns the task; a title cannot be empty.")),
                                 ]),
                                 None,
                             )),

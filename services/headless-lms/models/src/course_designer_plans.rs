@@ -188,8 +188,7 @@ impl CourseDesignerPlanStageTask {
     /// Replaces an automatic task's stored completion with the result of its check on the course.
     pub fn apply_course_status(&mut self, course_status: Option<&CourseDesignerCourseStatus>) {
         if let Some(check) = self.automatic_check {
-            self.is_completed =
-                course_designer_course_status::is_check_passed(course_status, check);
+            self.is_completed = course_status.is_some_and(|status| status.passes(check));
             self.completed_at = None;
             self.completed_by_user_id = None;
         }
@@ -918,13 +917,10 @@ ORDER BY
     for row in stage_rows {
         if let Some(&index) = index_by_plan.get(&row.course_designer_plan_id) {
             let course_status = course_statuses.get(&row.course_designer_plan_id);
-            let passed_check_count = row
-                .automatic_checks
-                .iter()
-                .filter(|check| {
-                    course_designer_course_status::is_check_passed(course_status, **check)
-                })
-                .count() as i64;
+            let passed_check_count = course_designer_course_status::count_passed_checks(
+                course_status,
+                &row.automatic_checks,
+            );
             support_plans[index]
                 .stages
                 .push(CourseDesignerSupportStage {

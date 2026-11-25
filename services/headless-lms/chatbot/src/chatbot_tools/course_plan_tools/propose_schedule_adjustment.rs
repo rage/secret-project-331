@@ -6,13 +6,13 @@ use headless_lms_models::course_designer_plans::{
     CourseDesignerScheduleStageInput, validate_schedule_input,
 };
 use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
+    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType, string_property,
 };
 use headless_lms_utils::strings::non_empty_trimmed;
 
 use super::{
     authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
-    plan_tool_declaration_items, stale_proposal_error, text_property,
+    plan_tool_declaration_items, stale_proposal_error,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -54,15 +54,15 @@ fn schedule_property(description: &str) -> SchemaPropertyType {
             IndexMap::from([
                 (
                     "stage".to_string(),
-                    text_property("analysis, design, development, implementation or evaluation."),
+                    string_property("analysis, design, development, implementation or evaluation."),
                 ),
                 (
                     "starts_on".to_string(),
-                    text_property("First day of the stage, YYYY-MM-DD."),
+                    string_property("First day of the stage, YYYY-MM-DD."),
                 ),
                 (
                     "ends_on".to_string(),
-                    text_property("Last day of the stage, YYYY-MM-DD."),
+                    string_property("Last day of the stage, YYYY-MM-DD."),
                 ),
             ]),
             None,
@@ -116,7 +116,7 @@ impl ChatbotToolDeclaration for ProposeScheduleAdjustmentTool {
             description: "Propose new planned dates for the stages of a plan that is in progress. Give the whole schedule, all five stages in order, both as it is now and as proposed. Stages must follow each other without gaps or overlaps (each starts the day after the previous one ends), and completed stages must keep their dates, so when you move one stage, shift the later ones too. The user applies or discards it; nothing is saved before that.".to_string(),
             parameters: Schema::strict_object(
                 IndexMap::from([
-                    ("reason".to_string(), text_property("One short sentence in the user's language on why the schedule changes. Shown on the card.")),
+                    ("reason".to_string(), string_property("One short sentence in the user's language on why the schedule changes. Shown on the card.")),
                     ("current_schedule".to_string(), schedule_property("The five stages' dates now, copied from get_course_plan. Checked before anything is saved.")),
                     ("proposed_schedule".to_string(), schedule_property("The five stages' new dates.")),
                 ]),

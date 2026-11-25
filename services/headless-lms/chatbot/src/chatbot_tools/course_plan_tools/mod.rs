@@ -7,7 +7,6 @@
 use headless_lms_models::course_designer_plans::{
     self, CourseDesignerStage, PlanMemberWithDetails,
 };
-use headless_lms_utils::json_schema_types::{JSONType, JsonItem, SchemaPropertyType};
 use serde::de::DeserializeOwned;
 
 use crate::chatbot_tools::tool_authorization::{ToolAuthorization, ToolRequirement};
@@ -173,11 +172,4 @@ pub(crate) fn outcome_instructions(applied: bool) -> String {
     } else {
         "Acknowledge briefly in the user's language. Never claim the change was made.".to_string()
     }
-}
-
-pub(crate) fn text_property(description: &str) -> SchemaPropertyType {
-    SchemaPropertyType::Item(JsonItem {
-        type_field: JSONType::String,
-        description: Some(description.to_string()),
-    })
 }

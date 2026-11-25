@@ -3,6 +3,7 @@
 use headless_lms_utils::{
     attributes,
     document_schema_processor::{GutenbergBlock, suffix_duplicate_heading_anchors},
+    language_tags::primary_language,
     strings::{escape_html_text, non_empty_trimmed},
 };
 
@@ -94,12 +95,7 @@ const SWEDISH_COPY: CourseCopy = CourseCopy {
 impl CourseCopy {
     /// The copy for an IETF language code; English for languages without their own.
     pub fn for_language(language_code: &str) -> &'static CourseCopy {
-        let language = language_code
-            .split(['-', '_'])
-            .next()
-            .unwrap_or_default()
-            .to_lowercase();
-        match language.as_str() {
+        match primary_language(language_code).to_lowercase().as_str() {
             "fi" => &FINNISH_COPY,
             "sv" => &SWEDISH_COPY,
             _ => &ENGLISH_COPY,

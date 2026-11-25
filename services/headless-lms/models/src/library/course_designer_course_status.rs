@@ -74,12 +74,14 @@ impl CourseDesignerCourseStatus {
     }
 }
 
-/// Whether an automatic task with `check` is done; never before the plan has a course.
-pub fn is_check_passed(
+/// How many of `checks` pass; none do before the plan has a course.
+pub fn count_passed_checks(
     course_status: Option<&CourseDesignerCourseStatus>,
-    check: CourseDesignerAutomaticCheck,
-) -> bool {
-    course_status.is_some_and(|status| status.passes(check))
+    checks: &[CourseDesignerAutomaticCheck],
+) -> i64 {
+    course_status.map_or(0, |status| {
+        checks.iter().filter(|check| status.passes(**check)).count() as i64
+    })
 }
 
 /// The status of the course a plan created, or `None` when it has none or the course was deleted.
@@ -137,34 +139,21 @@ ORDER BY ch.chapter_number NULLS FIRST,
     )
     .fetch_all(&mut *conn)
     .await?;
-    let chapter_counts = sqlx::query!(
-        r#"
-SELECT course_id AS "course_id!",
-  COUNT(*)::BIGINT AS "count!"
-FROM chapters
-WHERE course_id = ANY($1)
-  AND deleted_at IS NULL
-GROUP BY course_id
-"#,
-        &course_ids
-    )
-    .fetch_all(&mut *conn)
-    .await?;
-    let chapters_without_exercises = sqlx::query!(
+    let chapter_rows = sqlx::query!(
         r#"
 SELECT ch.course_id AS "course_id!",
   ch.id AS chapter_id,
   ch.name,
-  ch.chapter_number
-FROM chapters ch
-WHERE ch.course_id = ANY($1)
-  AND ch.deleted_at IS NULL
-  AND NOT EXISTS (
+  ch.chapter_number,
+  EXISTS (
     SELECT 1
     FROM exercises e
     WHERE e.chapter_id = ch.id
       AND e.deleted_at IS NULL
-  )
+  ) AS "has_exercises!"
+FROM chapters ch
+WHERE ch.course_id = ANY($1)
+  AND ch.deleted_at IS NULL
 ORDER BY ch.chapter_number
 "#,
         &course_ids
@@ -172,22 +161,49 @@ ORDER BY ch.chapter_number
     .fetch_all(&mut *conn)
     .await?;
 
+    let mut pages_by_course: HashMap<Uuid, Vec<_>> = HashMap::new();
+    for page in page_rows {
+        pages_by_course
+            .entry(page.course_id)
+            .or_default()
+            .push(page);
+    }
+    let mut chapters_by_course: HashMap<Uuid, Vec<_>> = HashMap::new();
+    for chapter in chapter_rows {
+        chapters_by_course
+            .entry(chapter.course_id)
+            .or_default()
+            .push(chapter);
+    }
+
     let mut statuses = HashMap::new();
     for course in courses {
-        let mut page_count = 0;
-        let mut unfilled_pages = vec![];
-        for page in page_rows.iter().filter(|page| page.course_id == course.id) {
-            page_count += 1;
-            if let Some(reason) = unfilled_reason(&page.content) {
-                unfilled_pages.push(CourseDesignerUnfilledPage {
+        let pages = pages_by_course.remove(&course.id).unwrap_or_default();
+        let chapters = chapters_by_course.remove(&course.id).unwrap_or_default();
+        let page_count = pages.len() as i64;
+        let unfilled_pages = pages
+            .into_iter()
+            .filter_map(|page| {
+                let reason = unfilled_reason(&page.content)?;
+                Some(CourseDesignerUnfilledPage {
                     page_id: page.id,
-                    title: page.title.clone(),
-                    url_path: page.url_path.clone(),
+                    title: page.title,
+                    url_path: page.url_path,
                     chapter_id: page.chapter_id,
                     reason,
-                });
-            }
-        }
+                })
+            })
+            .collect();
+        let chapter_count = chapters.len() as i64;
+        let chapters_without_exercises = chapters
+            .into_iter()
+            .filter(|chapter| !chapter.has_exercises)
+            .map(|chapter| CourseDesignerChapterWithoutExercises {
+                chapter_id: chapter.chapter_id,
+                name: chapter.name,
+                chapter_number: chapter.chapter_number,
+            })
+            .collect();
         statuses.insert(
             course.plan_id,
             CourseDesignerCourseStatus {
@@ -195,21 +211,10 @@ ORDER BY ch.chapter_number
                 name: course.name,
                 slug: course.slug,
                 is_draft: course.is_draft,
-                chapter_count: chapter_counts
-                    .iter()
-                    .find(|row| row.course_id == course.id)
-                    .map_or(0, |row| row.count),
+                chapter_count,
                 page_count,
                 unfilled_pages,
-                chapters_without_exercises: chapters_without_exercises
-                    .iter()
-                    .filter(|row| row.course_id == course.id)
-                    .map(|row| CourseDesignerChapterWithoutExercises {
-                        chapter_id: row.chapter_id,
-                        name: row.name.clone(),
-                        chapter_number: row.chapter_number,
-                    })
-                    .collect(),
+                chapters_without_exercises,
             },
         );
     }

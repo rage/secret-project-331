@@ -179,6 +179,32 @@ interface WorkspaceTaskRowProps {
   isReadOnly: boolean
 }
 
+/** An automatic task's reason and the link to fix it; renders nothing for other tasks. */
+function AutomaticTaskReason({
+  task,
+  courseStatus,
+}: {
+  task: CourseDesignerPlanStageTask
+  courseStatus: CourseDesignerCourseStatus | null
+}) {
+  const { t } = useTranslation()
+  if (!task.automatic_check) {
+    return null
+  }
+  const link = courseStatus && automaticTaskLink(task.automatic_check, courseStatus.course_id, t)
+  return (
+    <p className={automaticReasonStyles}>
+      {automaticTaskReason(task.automatic_check, task.is_completed, courseStatus, t)}
+      {link && (
+        <>
+          {" "}
+          <Link href={link.href}>{link.label}</Link>
+        </>
+      )}
+    </p>
+  )
+}
+
 /** One task: completion checkbox, details, and an inline editor for title, description and assignee. */
 export default function WorkspaceTaskRow({
   task,
@@ -196,12 +222,7 @@ export default function WorkspaceTaskRow({
     task.is_completed,
     onToggle,
   )
-  const automaticCheck = task.automatic_check ?? null
-  const isAutomatic = automaticCheck !== null
-  const automaticLink =
-    automaticCheck !== null && courseStatus !== null
-      ? automaticTaskLink(automaticCheck, courseStatus.course_id, t)
-      : null
+  const isAutomatic = Boolean(task.automatic_check)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const editButtonRef = useRef<HTMLButtonElement>(null)
@@ -371,17 +392,7 @@ export default function WorkspaceTaskRow({
           {task.title}
         </span>
         {task.description && <p className={taskDescriptionStyles}>{task.description}</p>}
-        {automaticCheck !== null && (
-          <p className={automaticReasonStyles}>
-            {automaticTaskReason(automaticCheck, courseStatus, t)}
-            {automaticLink !== null && (
-              <>
-                {" "}
-                <Link href={automaticLink.href}>{automaticLink.label}</Link>
-              </>
-            )}
-          </p>
-        )}
+        <AutomaticTaskReason task={task} courseStatus={courseStatus} />
         {(assignee !== null || task.is_auto_generated || isAutomatic) && (
           <div className={taskMetaStyles}>
             {assignee !== null && (

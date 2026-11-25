@@ -10,14 +10,18 @@ use headless_lms_models::{
     chatbot_configurations::ReasoningEffortLevel,
     chatbot_conversation_message_messages::MessageRole,
     course_designer_stage_workspace::DesignChapter,
-    library::course_designer::{
-        ChapterDraft, CourseDraft, CourseFromPlanDrafts, CourseFromPlanSource, chapter_topic_titles,
+    library::{
+        course_designer::{
+            ChapterDraft, CourseDraft, CourseFromPlanDrafts, CourseFromPlanSource,
+            chapter_topic_titles,
+        },
+        course_designer_course_content::learning_objectives,
     },
 };
 use headless_lms_utils::{
     json_schema_types::{
-        ArrayItem, ArrayProperty, JSONType, JsonItem, Schema, SchemaPropertyType,
-        string_array_property,
+        ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType, string_array_property,
+        string_property,
     },
     strings::non_empty_trimmed,
 };
@@ -147,11 +151,7 @@ async fn draft_chapter(
         "{plan_text}\n## This chapter\nTitle: {}\nLearning objectives:\n",
         chapter.title.trim()
     );
-    for objective in chapter
-        .learning_objectives
-        .iter()
-        .filter_map(|o| non_empty_trimmed(o))
-    {
+    for objective in learning_objectives(chapter) {
         let _ = writeln!(prompt, "{LIST_ITEM_PREFIX}{objective}");
     }
     let _ = writeln!(prompt, "\n{TOPICS_HEADING}");
@@ -362,13 +362,6 @@ fn plan_text(source: &CourseFromPlanSource) -> String {
         }
     }
     text
-}
-
-fn string_property(description: &str) -> SchemaPropertyType {
-    SchemaPropertyType::Item(JsonItem {
-        type_field: JSONType::String,
-        description: Some(description.to_string()),
-    })
 }
 
 /// Mirrors [`CourseDraft`]; `chatbot` is asked for only when the course plans one.

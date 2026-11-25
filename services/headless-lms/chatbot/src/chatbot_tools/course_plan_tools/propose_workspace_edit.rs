@@ -8,13 +8,13 @@ use headless_lms_models::course_designer_stage_workspace::{
     AnalysisWorkspaceV1, CourseDesignerStageWorkspace, DesignWorkspaceV1,
 };
 use headless_lms_utils::json_schema_types::{
-    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType,
+    ArrayItem, ArrayProperty, JSONType, Schema, SchemaPropertyType, string_property,
 };
 
 use super::workspace_json::{fill_ids, keeps_proposed, resolve_field, same_content};
 use super::{
     authorized_plan_id, parse_raw_arguments, parse_stage, plan_proposal_items,
-    plan_tool_declaration_items, stale_proposal_error, text_property, updated_plan_payload,
+    plan_tool_declaration_items, stale_proposal_error, updated_plan_payload,
 };
 use crate::{
     azure_chatbot::azure::tools::{AzureLLMFunctionToolDefinition, LLMToolType},
@@ -71,11 +71,11 @@ impl ChatbotToolDeclaration for ProposeWorkspaceEditTool {
                 IndexMap::from([
                     (
                         "stage".to_string(),
-                        text_property("'analysis' or 'design'."),
+                        string_property("'analysis' or 'design'."),
                     ),
                     (
                         "summary".to_string(),
-                        text_property("One short sentence in the user's language saying what the changes do. Shown as the card's heading."),
+                        string_property("One short sentence in the user's language saying what the changes do. Shown as the card's heading."),
                     ),
                     (
                         "changes".to_string(),
@@ -85,15 +85,15 @@ impl ChatbotToolDeclaration for ProposeWorkspaceEditTool {
                                 IndexMap::from([
                                     (
                                         "field".to_string(),
-                                        text_property("Path of the field, e.g. style_guide.font or chapters.<chapter id>.topics."),
+                                        string_property("Path of the field, e.g. style_guide.font or chapters.<chapter id>.topics."),
                                     ),
                                     (
                                         "current_value_json".to_string(),
-                                        text_property("The field's current value as JSON, copied from get_course_plan (e.g. \"\\\"Old text\\\"\", \"[]\", \"null\"). Checked against the plan before anything is saved."),
+                                        string_property("The field's current value as JSON, copied from get_course_plan (e.g. \"\\\"Old text\\\"\", \"[]\", \"null\"). Checked against the plan before anything is saved."),
                                     ),
                                     (
                                         "proposed_value_json".to_string(),
-                                        text_property("The new value as JSON of the same type, e.g. \"\\\"New text\\\"\", \"true\", \"[\\\"Goal 1\\\", \\\"Goal 2\\\"]\"."),
+                                        string_property("The new value as JSON of the same type, e.g. \"\\\"New text\\\"\", \"true\", \"[\\\"Goal 1\\\", \\\"Goal 2\\\"]\"."),
                                     ),
                                 ]),
                                 None,

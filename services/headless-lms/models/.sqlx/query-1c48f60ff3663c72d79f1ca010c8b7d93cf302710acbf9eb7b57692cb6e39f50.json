@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE oauth_refresh_tokens\n               SET revoked = true\n             WHERE family_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1c48f60ff3663c72d79f1ca010c8b7d93cf302710acbf9eb7b57692cb6e39f50"
+}

@@ -54,33 +54,41 @@ const AltchaWidget: React.FC<AltchaWidgetProps> = ({ ref, purpose }) => {
   const widgetRef = useRef<AltchaWidgetElement>(null)
   const solutionRef = useRef<Solution | null>(null)
   const [isWaiting, setIsWaiting] = useState(false)
+  // Concurrent callers would otherwise await the same in-progress solve and share its one-use payload.
+  const solveQueueRef = useRef<Promise<unknown>>(Promise.resolve())
+
+  const takeSolution = async (): Promise<string> => {
+    if (!window.isSecureContext) {
+      return ""
+    }
+    const widget = widgetRef.current
+    const kept = solutionRef.current
+    let payload = kept && Date.now() - kept.solvedAt < SOLUTION_MAX_AGE_MS ? kept.payload : null
+    solutionRef.current = null
+    if (!payload && widget) {
+      const timer = setTimeout(() => setIsWaiting(true), WAITING_MESSAGE_DELAY_MS)
+      try {
+        payload = await solveNow(widget)
+      } finally {
+        clearTimeout(timer)
+        setIsWaiting(false)
+      }
+      solutionRef.current = null
+    }
+    if (!payload) {
+      throw new Error(tErrors("error-message-key.form_verification_failed.message"))
+    }
+    if (widget) {
+      void solveNow(widget)
+    }
+    return payload
+  }
 
   useImperativeHandle(ref, () => ({
-    solve: async () => {
-      if (!window.isSecureContext) {
-        return ""
-      }
-      const widget = widgetRef.current
-      const kept = solutionRef.current
-      let payload = kept && Date.now() - kept.solvedAt < SOLUTION_MAX_AGE_MS ? kept.payload : null
-      solutionRef.current = null
-      if (!payload && widget) {
-        const timer = setTimeout(() => setIsWaiting(true), WAITING_MESSAGE_DELAY_MS)
-        try {
-          payload = await solveNow(widget)
-        } finally {
-          clearTimeout(timer)
-          setIsWaiting(false)
-        }
-        solutionRef.current = null
-      }
-      if (!payload) {
-        throw new Error(tErrors("error-message-key.form_verification_failed.message"))
-      }
-      if (widget) {
-        void solveNow(widget)
-      }
-      return payload
+    solve: () => {
+      const solution = solveQueueRef.current.then(takeSolution, takeSolution)
+      solveQueueRef.current = solution.catch(() => undefined)
+      return solution
     },
   }))
 

@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use models::{
     CourseOrExamId,
     exercise_repositories::{ExerciseRepository, ExerciseRepositoryUpdate},
@@ -7,10 +5,10 @@ use models::{
 use secrecy::SecretString;
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain, prelude::*};
+use crate::{domain, domain::authorization::AuthorizationToken, prelude::*};
 
 #[derive(OpenApi)]
-#[openapi(paths(new, get_for_course, get_for_exam, delete, update))]
+#[openapi(paths(new, get_for_course, get_for_exam, delete, update, sync))]
 pub(crate) struct MainFrontendExerciseRepositoriesApiDoc;
 
 #[derive(Debug, Deserialize, ToSchema)]
@@ -18,7 +16,8 @@ pub(crate) struct MainFrontendExerciseRepositoriesApiDoc;
 pub struct NewExerciseRepository {
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,
-    git_url: String,
+    url: String,
+    branch: Option<String>,
     public_key: Option<String>,
     #[schema(value_type = Option<String>)]
     deploy_key: Option<SecretString>,
@@ -37,13 +36,11 @@ POST `/api/v0/main-frontend/exercise-repositories/new
         (status = 200, description = "Created exercise repository id", body = Uuid)
     )
 )]
-#[instrument(skip(pool, file_store, app_conf))]
+#[instrument(skip(pool))]
 async fn new(
     pool: web::Data<PgPool>,
-    file_store: web::Data<dyn FileStore>,
     repository: web::Json<NewExerciseRepository>,
     user: AuthUser,
-    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course_or_exam_id =
@@ -55,38 +52,36 @@ async fn new(
         Res::from_course_or_exam_id(course_or_exam_id),
     )
     .await?;
-    domain::exercise_repositories::ensure_clone_url_is_allowed(&repository.git_url)
-        .await
-        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
-    // create pending repository
+    let branch = validate_url_and_branch(&repository.url, repository.branch.as_deref()).await?;
     let new_repository_id = Uuid::new_v4();
+    // The sync worker picks up the new pending repository.
     models::exercise_repositories::new(
         &mut conn,
         new_repository_id,
         course_or_exam_id,
-        &repository.git_url,
+        &repository.url,
+        branch,
         repository.public_key.as_deref(),
         repository.deploy_key.as_ref(),
     )
     .await?;
-    // processing a repository may take a while, so this is done in the background
-    actix_web::rt::spawn(async move {
-        let file_store = file_store;
-        if let Err(err) = domain::exercise_repositories::process(
-            &mut conn,
-            new_repository_id,
-            &repository.git_url,
-            repository.public_key.as_deref(),
-            repository.deploy_key.as_ref(),
-            file_store.as_ref(),
-            app_conf.as_ref(),
-        )
-        .await
-        {
-            tracing::error!("Error while processing repository {new_repository_id}: {err}");
-        }
-    });
     token.authorized_ok(web::Json(new_repository_id))
+}
+
+/// Returns the branch with blank treated as none.
+async fn validate_url_and_branch<'a>(
+    url: &str,
+    branch: Option<&'a str>,
+) -> Result<Option<&'a str>, ControllerError> {
+    domain::exercise_repositories::ensure_clone_url_is_allowed(url)
+        .await
+        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
+    let branch = branch.map(str::trim).filter(|b| !b.is_empty());
+    if let Some(branch) = branch {
+        domain::exercise_repositories::ensure_branch_name_is_valid(branch)
+            .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
+    }
+    Ok(branch)
 }
 
 /**
@@ -166,28 +161,17 @@ DELETE `/api/v0/main-frontend/exercise-repositories/:id`
         (status = 200, description = "Deleted exercise repository", body = bool)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, file_store))]
 async fn delete(
     pool: web::Data<PgPool>,
+    file_store: web::Data<dyn FileStore>,
     id: web::Path<Uuid>,
     user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let repository = models::exercise_repositories::get(&mut conn, *id).await?;
-    let course_or_exam_id =
-        CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        user.map(|u| u.id),
-        Res::from_course_or_exam_id(course_or_exam_id),
-    )
-    .await?;
+    let token = authorize_repository_edit(&mut conn, *id, user.map(|u| u.id)).await?;
 
-    let mut tx = conn.begin().await?;
-    models::repository_exercises::delete_from_repository(&mut tx, *id).await?;
-    models::exercise_repositories::delete(&mut tx, *id).await?;
-    tx.commit().await?;
+    domain::exercise_repositories::delete(&mut conn, *id, file_store.as_ref()).await?;
 
     token.authorized_ok(web::Json(true))
 }
@@ -216,22 +200,59 @@ async fn update(
     update: web::Json<ExerciseRepositoryUpdate>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let repository = models::exercise_repositories::get(&mut conn, *id).await?;
+    let token = authorize_repository_edit(&mut conn, *id, user.map(|u| u.id)).await?;
+    let mut update = update.into_inner();
+    update.branch = validate_url_and_branch(&update.url, update.branch.as_deref())
+        .await?
+        .map(str::to_string);
+    models::exercise_repositories::update(&mut conn, *id, &update).await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
+POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's
+exercises from its current contents.
+*/
+#[utoipa::path(
+    post,
+    path = "/{id}/sync",
+    operation_id = "syncExerciseRepository",
+    tag = "exercise_repositories",
+    params(
+        ("id" = Uuid, Path, description = "Exercise repository id")
+    ),
+    responses(
+        (status = 200, description = "Sync queued", body = bool)
+    )
+)]
+#[instrument(skip(pool))]
+async fn sync(
+    pool: web::Data<PgPool>,
+    id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_repository_edit(&mut conn, *id, Some(user.id)).await?;
+    models::exercise_repositories::request_sync(&mut conn, *id).await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/// Authorizes editing the course or exam the repository belongs to.
+async fn authorize_repository_edit(
+    conn: &mut PgConnection,
+    repository_id: Uuid,
+    user_id: Option<Uuid>,
+) -> Result<AuthorizationToken, ControllerError> {
+    let repository = models::exercise_repositories::get(conn, repository_id).await?;
     let course_or_exam_id =
         CourseOrExamId::from_course_and_exam_ids(repository.course_id, repository.exam_id)?;
-    let token = authorize(
-        &mut conn,
+    Ok(authorize(
+        conn,
         Act::Edit,
-        user.map(|u| u.id),
+        user_id,
         Res::from_course_or_exam_id(course_or_exam_id),
     )
-    .await?;
-    domain::exercise_repositories::ensure_clone_url_is_allowed(&update.url)
-        .await
-        .map_err(|err| controller_err!(BadRequest, err.to_string()))?;
-
-    models::exercise_repositories::update(&mut conn, *id, update.deref()).await?;
-    token.authorized_ok(web::Json(true))
+    .await?)
 }
 
 /**
@@ -246,5 +267,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route("/course/{course_id}", web::get().to(get_for_course))
         .route("/exam/{exam_id}", web::get().to(get_for_exam))
         .route("/{id}", web::delete().to(delete))
-        .route("/{id}", web::put().to(update));
+        .route("/{id}", web::put().to(update))
+        .route("/{id}/sync", web::post().to(sync));
 }

@@ -12,6 +12,10 @@ use std::sync::LazyLock;
 /// not counted, since each one backs a link the user has handed out.
 pub const MAX_BACKUPS_PER_USER_AND_EXERCISE: i64 = 20;
 
+/// Pastes a user may keep of one exercise. Old pastes are never deleted to make room, since each
+/// backs a link the user has handed out, so further pastes are refused instead.
+pub const MAX_PASTES_PER_USER_AND_EXERCISE: i64 = 200;
+
 /// Pastes a user may store of one exercise per minute. Backups need no limit of their own: each
 /// one past [`MAX_BACKUPS_PER_USER_AND_EXERCISE`] deletes the oldest, so their storage stays
 /// bounded.
@@ -60,6 +64,20 @@ pub async fn store_snapshot(
         &answer.file_upload_ids,
     )
     .await?;
+    if answer.purpose == SnapshotPurpose::Paste
+        && models::exercise_answer_snapshots::count_pastes(
+            &mut tx,
+            answer.user_id,
+            answer.exercise_id,
+        )
+        .await?
+            >= MAX_PASTES_PER_USER_AND_EXERCISE
+    {
+        return Err(controller_err!(
+            TooManyRequests(None),
+            "You have stored the maximum number of pastes of this exercise.".to_string()
+        ));
+    }
     // Last before the insert, so that a request refused for another reason uses up no quota.
     if answer.purpose == SnapshotPurpose::Paste
         && let Err(retry_after) =

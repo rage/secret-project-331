@@ -6069,6 +6069,76 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/model-solution-settings": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "GET `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - When the course reveals\nmodel solutions to students who have neither solved the exercise nor used up its tries.",
+        "operationId": "getCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The course's model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["courses"],
+        "summary": "PUT `/api/v0/main-frontend/courses/:course_id/model-solution-settings` - Sets when the course reveals\nmodel solutions to every student.",
+        "operationId": "updateCourseModelSolutionSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseModelSolutionSettings"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The stored model solution settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseModelSolutionSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering": {
       "post": {
         "tags": ["courses"],
@@ -12766,6 +12836,37 @@
         }
       }
     },
+    "/api/v0/main-frontend/exercise-repositories/{id}/sync": {
+      "post": {
+        "tags": ["exercise_repositories"],
+        "summary": "POST `/api/v0/main-frontend/exercise-repositories/:id/sync` - Queues a sync of the repository's\nexercises from its current contents.",
+        "operationId": "syncExerciseRepository",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exercise repository id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sync queued",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exercise-services/": {
       "get": {
         "tags": ["exercise_services"],
@@ -13124,6 +13225,40 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/exercises/{exercise_id}/answer-shares": {
+      "get": {
+        "tags": ["exercises"],
+        "summary": "GET `/api/v0/main-frontend/exercises/:exercise_id/answer-shares` - Lists the live share links of\nthe exercise's answers, including the pastes students made from the editor, so staff can find them.",
+        "operationId": "getExerciseAnswerShares",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The exercise's live answer shares, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseAnswerShare"
+                  }
                 }
               }
             }
@@ -16276,7 +16411,7 @@
     "/api/v0/main-frontend/shared-submissions/{token}": {
       "get": {
         "tags": ["shared_submissions"],
-        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Login is\nrequired, but holding the token is the only capability needed to view the submission —\nno teacher or course role.",
+        "summary": "GET `/api/v0/main-frontend/shared-submissions/{token}` - Returns the data needed to\nrender a shared submission or ungraded snapshot.\n\nThe `token` is the unguessable share id minted by the client share endpoint. Who may open it\nfollows tmc.mooc.fi's default paste visibility: the student who shared it and the course's staff\nalways; any logged-in user while the student has not passed the exercise; once they have, only\nusers who have passed it themselves.",
         "operationId": "getSharedSubmissionInfo",
         "parameters": [
           {
@@ -16300,6 +16435,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "The shared answer passed the exercise and the viewer has not passed it themselves"
           }
         }
       },
@@ -22624,6 +22762,11 @@
               "format": "uuid"
             },
             "description": "The stored files this task's private spec references, as the exercise service declared them\nin the editor. The host cannot read the spec, so this list is the only thing keeping the\nfiles from being reclaimed as abandoned uploads — and the CMS round-trips it through a block\nattribute, so a load that leaves it empty makes the next save drop the references.\n\nOnly the private spec's. Each derived spec declares its own files in the response of the\nendpoint that produced it, since a derivation may upload files of its own."
+          },
+          "repository_exercise_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "The repository exercise the exercise editor picked, as it reported it beside the spec."
           }
         }
       },
@@ -25092,6 +25235,22 @@
             "items": {
               "$ref": "#/components/schemas/EditCoursePrerequisite"
             }
+          }
+        }
+      },
+      "CourseModelSolutionSettings": {
+        "type": "object",
+        "description": "A course's model-solution reveal settings. A course without stored settings uses\n[`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.",
+        "required": ["reveal_after_deadline"],
+        "properties": {
+          "reveal_after_deadline": {
+            "type": "boolean",
+            "description": "Reveal an exercise's model solution to everyone once its deadline (its own, else its\nchapter's) has passed."
+          },
+          "reveal_at": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "Reveal every model solution to everyone from this moment on."
           }
         }
       },
@@ -29309,6 +29468,31 @@
           }
         }
       },
+      "ExerciseAnswerShare": {
+        "type": "object",
+        "description": "A live share of an answer to an exercise, as listed to the course's staff.",
+        "required": ["share_id", "user_id", "created_at", "is_graded"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_graded": {
+            "type": "boolean",
+            "description": "`false` for a paste, which is never graded."
+          },
+          "share_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The token the shared view takes."
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The student whose answer it is."
+          }
+        }
+      },
       "ExerciseAnswersInCourseRequiringAttentionCount": {
         "type": "object",
         "required": ["id", "name", "page_id", "order_number"],
@@ -29467,8 +29651,19 @@
       },
       "ExerciseRepository": {
         "type": "object",
-        "required": ["id", "url", "status"],
+        "description": "A repository as teachers see it. Never carries the deploy key.",
+        "required": [
+          "id",
+          "url",
+          "status",
+          "has_deploy_key",
+          "sync_attempts",
+          "exercise_task_count"
+        ],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -29480,12 +29675,42 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
+          "exercise_task_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Live exercise tasks that use one of the repository's exercises."
+          },
+          "has_deploy_key": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
           },
+          "last_sync_report": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ExerciseRepositorySyncReport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_synced_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "status": {
             "$ref": "#/components/schemas/ExerciseRepositoryStatus"
+          },
+          "sync_attempts": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Syncs started since the last request or success, the running one included."
           },
           "url": {
             "type": "string"
@@ -29496,10 +29721,76 @@
         "type": "string",
         "enum": ["Pending", "Success", "Failure"]
       },
+      "ExerciseRepositorySyncReport": {
+        "type": "object",
+        "description": "What a sync changed. Exercises are named `part/name`.",
+        "required": [
+          "added",
+          "updated",
+          "renamed",
+          "removed",
+          "missing_but_in_use",
+          "refreshed_exercise_task_count",
+          "failed_exercise_tasks"
+        ],
+        "properties": {
+          "added": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "failed_exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FailedExerciseTaskRefresh"
+            }
+          },
+          "missing_but_in_use": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Gone from the repository but kept, because exercise tasks still use them."
+          },
+          "refreshed_exercise_task_count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "removed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "renamed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RenamedRepositoryExercise"
+            }
+          },
+          "updated": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "ExerciseRepositoryUpdate": {
         "type": "object",
         "required": ["url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
+          "deploy_key": {
+            "type": ["string", "null"],
+            "description": "Replaces the stored key pair when set; the stored pair is kept otherwise."
+          },
+          "public_key": {
+            "type": ["string", "null"]
+          },
           "url": {
             "type": "string"
           }
@@ -30405,6 +30696,23 @@
         "type": "string",
         "description": "How querying an external platform for the user's courses went.",
         "enum": ["loaded", "not_queried", "unavailable"]
+      },
+      "FailedExerciseTaskRefresh": {
+        "type": "object",
+        "description": "An exercise task whose specs could not be derived again; it keeps its previous version.",
+        "required": ["exercise_task_id", "repository_exercise", "error"],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "repository_exercise": {
+            "type": "string"
+          }
+        }
       },
       "Feedback": {
         "type": "object",
@@ -33596,8 +33904,11 @@
       },
       "NewExerciseRepository": {
         "type": "object",
-        "required": ["git_url"],
+        "required": ["url"],
         "properties": {
+          "branch": {
+            "type": ["string", "null"]
+          },
           "course_id": {
             "type": ["string", "null"],
             "format": "uuid"
@@ -33609,11 +33920,11 @@
             "type": ["string", "null"],
             "format": "uuid"
           },
-          "git_url": {
-            "type": "string"
-          },
           "public_key": {
             "type": ["string", "null"]
+          },
+          "url": {
+            "type": "string"
           }
         }
       },
@@ -36724,6 +37035,18 @@
           "removed_count": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "RenamedRepositoryExercise": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
           }
         }
       },

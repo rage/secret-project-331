@@ -6,7 +6,7 @@ export const tokensGlobal = injectGlobal`
   :root {
     /* sizing */
     --control-gap: var(--space-3);
-    --control-radius: var(--radius-2);
+    --control-radius: var(--radius-3);
     --surface-radius: var(--radius-3);
 
     --control-height-sm: var(--space-5);
@@ -328,8 +328,11 @@ export const tokensGlobal = injectGlobal`
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);
     --field-border-color: var(--color-gray-400);
-    --field-border-color-focus: var(--color-green-500);
+    --field-border-color-focus: var(--color-green-600);
     --field-border-color-invalid: var(--color-crimson-600);
+    --field-focus-halo: rgb(31 105 100 / 0.16);
+    --field-invalid-halo: rgb(130 38 48 / 0.16);
+    --field-bg-invalid: var(--color-crimson-25);
     --field-text-color: var(--color-gray-800);
     --field-text-color-disabled: var(--color-gray-400);
     --field-label-color: var(--color-gray-500);

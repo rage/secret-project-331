@@ -1,12 +1,23 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { Clock, InboxMailbox } from "@vectopus/atlas-icons-react"
+import { secondsInMinute } from "date-fns/constants"
 import i18n from "i18next"
-import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { type Control, useForm } from "react-hook-form"
+import { Trans, useTranslation } from "react-i18next"
 
+import {
+  AuthCard,
+  AuthCardFooterLink,
+  type AuthCardProps,
+  authCardStackCss,
+} from "@/components/auth/AuthCard"
+import {
+  RESET_EMAIL_RESEND_COOLDOWN_MS,
+  RESET_LINK_LIFETIME_HOURS,
+} from "@/components/auth/passwordReset"
 import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import TooManyAttemptsNotice, { isTooManyAttempts } from "@/components/forms/TooManyAttemptsNotice"
@@ -16,34 +27,188 @@ import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute } from "@/shared-module/common/utils/routes"
 import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { Button, TextField, ErrorNotice } from "@/shared-module/components"
+import {
+  Button,
+  ErrorNotice,
+  focusProgrammatically,
+  TextField,
+  useCooldown,
+} from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface SubmitEmailFormFields {
   email: string
 }
+
+const factsListCss = css`
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-1);
+  line-height: 1.45;
+  color: var(--color-gray-600);
+
+  li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 0.625rem;
+    align-items: start;
+  }
+`
+
+const factIconCss = css`
+  display: inline-flex;
+  margin-top: 2px;
+  color: var(--color-blue-500);
+`
+
+const resendNoteCss = css`
+  margin: 0;
+  text-align: center;
+  font-size: var(--font-size-1);
+  color: var(--color-gray-500);
+  font-variant-numeric: tabular-nums;
+
+  &:not(:empty) {
+    margin-top: 0.5rem;
+  }
+`
+
+interface RequestLinkFormProps {
+  control: Control<SubmitEmailFormFields>
+  onSubmit: React.FormEventHandler<HTMLFormElement>
+  isSending: boolean
+  apiError: React.ReactNode
+  formRef: (form: HTMLFormElement | null) => void
+}
+
+const RequestLinkForm: React.FC<RequestLinkFormProps> = ({
+  control,
+  onSubmit,
+  isSending,
+  apiError,
+  formRef,
+}) => {
+  const { t } = useTranslation()
+  return (
+    <form noValidate ref={formRef} onSubmit={onSubmit} className={authCardStackCss}>
+      {apiError}
+      <TextField
+        name="email"
+        control={control}
+        label={t("email")}
+        type="email"
+        autoComplete="email"
+        isRequired
+        rules={{
+          required: t("required-field"),
+          pattern: {
+            value: EMAIL_PATTERN,
+            message: t("enter-a-valid-email"),
+          },
+        }}
+      />
+      <Button variant="primary" size="large" type="submit" isFullWidth isLoading={isSending}>
+        {t("password-reset-send-link")}
+      </Button>
+    </form>
+  )
+}
+
+interface LinkSentDetailsProps {
+  onResend: () => void
+  isSending: boolean
+  isResent: boolean
+  cooldownSeconds: number
+  apiError: React.ReactNode
+}
+
+const LinkSentDetails: React.FC<LinkSentDetailsProps> = ({
+  onResend,
+  isSending,
+  isResent,
+  cooldownSeconds,
+  apiError,
+}) => {
+  const { t } = useTranslation()
+  const cooldownNote =
+    cooldownSeconds > 0
+      ? t("password-reset-send-again-wait", {
+          minutes: Math.ceil(cooldownSeconds / secondsInMinute),
+        })
+      : undefined
+  return (
+    <>
+      <ul className={factsListCss}>
+        <li>
+          <span className={factIconCss} aria-hidden="true">
+            <Clock size={16} />
+          </span>
+          <span>{t("password-reset-link-valid-for", { count: RESET_LINK_LIFETIME_HOURS })}</span>
+        </li>
+        <li>
+          <span className={factIconCss} aria-hidden="true">
+            <InboxMailbox size={16} />
+          </span>
+          <span>{t("password-reset-check-spam")}</span>
+        </li>
+      </ul>
+      {apiError}
+      <div>
+        <Button
+          variant="secondary"
+          size="large"
+          isFullWidth
+          isLoading={isSending}
+          disabledReason={cooldownNote}
+          onPress={onResend}
+        >
+          {t("password-reset-send-again")}
+        </Button>
+        {/* Stays mounted so screen readers have registered it before the message appears. */}
+        <p className={resendNoteCss} role="status">
+          {isResent && t("password-reset-sent-again")}
+        </p>
+        <p className={resendNoteCss}>{cooldownNote}</p>
+      </div>
+    </>
+  )
+}
+
 const ResetPassword: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("title-reset-password"))
-  const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
-  const [emailSent, setEmailSent] = useState(false)
-  const [sentEmail, setSentEmail] = useState<string>("")
+  const loginHref = loginRoute(validateReturnToRouteOrDefault(uncheckedReturnTo, "/"))
+  const [sentEmail, setSentEmail] = useState<string | null>(null)
+  const [isResent, setIsResent] = useState(false)
+  const [cooldownSeconds, startCooldown] = useCooldown(0)
   const altchaRef = useRef<AltchaWidgetHandle>(null)
   const accountFormReport = useAccountFormReport()
+  const headingRef = useRef<HTMLHeadingElement>(null)
   const { control, handleSubmit, setFocus } = useForm<SubmitEmailFormFields>({
     defaultValues: { email: "" },
   })
 
   useEffect(() => {
+    if (sentEmail !== null && headingRef.current) {
+      return focusProgrammatically(headingRef.current)
+    }
     // oxlint-disable-next-line i18next/no-literal-string
     setFocus("email")
-  }, [setFocus])
+    return undefined
+  }, [sentEmail, setFocus])
+
+  // Bumped by "Use a different email" so a request still in flight can't reopen the sent state.
+  const sendGenerationRef = useRef(0)
 
   const postResetPassword = useToastMutation(
-    async (data: SubmitEmailFormFields) => {
+    async (data: SubmitEmailFormFields & { generation: number }) => {
       const altcha = (await altchaRef.current?.solve()) ?? ""
       return validateGeneratedData(
         await sendResetPasswordEmail({
@@ -57,108 +222,115 @@ const ResetPassword: React.FC = () => {
         isBoolean,
       )
     },
-    { method: "POST", notify: true, isErrorHandledByCaller: isTooManyAttempts },
+    // No toast: the card shows the outcome, and a resend abandoned via "Use a different email" would still toast.
+    { notify: false },
     {
       onSuccess: (_, variables) => {
+        if (variables.generation !== sendGenerationRef.current) {
+          return
+        }
         setSentEmail(variables.email)
-        setEmailSent(true)
+        startCooldown(Date.now() + RESET_EMAIL_RESEND_COOLDOWN_MS)
       },
     },
   )
 
-  if (emailSent) {
-    return (
-      <>
-        <h1>{t("password-reset-email-sent")}</h1>
-        <p>{t("password-reset-email-sent-description", { email: sentEmail })}</p>
-        <Button
-          variant="primary"
-          size="medium"
-          onClick={() => {
-            const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-            router.push(returnTo)
-          }}
-        >
-          {t("button-text-back")}
-        </Button>
-      </>
+  const apiError =
+    postResetPassword.isError &&
+    (isTooManyAttempts(postResetPassword.error) ? (
+      <TooManyAttemptsNotice error={postResetPassword.error} />
+    ) : (
+      // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum value
+      <ErrorNotice error={postResetPassword.error} density="compact" />
+    ))
+
+  const returnToEmailForm = () => {
+    sendGenerationRef.current += 1
+    postResetPassword.reset()
+    setIsResent(false)
+    setSentEmail(null)
+  }
+
+  const resend = (email: string) => {
+    setIsResent(false)
+    postResetPassword.mutate(
+      { email, generation: sendGenerationRef.current },
+      { onSuccess: () => setIsResent(true) },
     )
   }
 
-  return (
-    <>
-      <h1>{t("title-reset-password")}</h1>
-      <p
-        className={css`
-          margin-bottom: 1.5rem;
-        `}
-      >
-        {t("enter-email-for-password-reset-link")}
-      </p>
-      {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
-      {postResetPassword.isError &&
-        (isTooManyAttempts(postResetPassword.error) ? (
-          <TooManyAttemptsNotice error={postResetPassword.error} />
-        ) : (
-          // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-          <ErrorNotice error={postResetPassword.error} announce="off" />
-        ))}
+  const {
+    content,
+    ...cardProps
+  }: Pick<AuthCardProps, "title" | "statusIcon" | "lede"> & {
+    content: React.ReactNode
+  } =
+    sentEmail === null
+      ? {
+          title: t("title-reset-password"),
+          lede: t("enter-email-for-password-reset-link"),
+          content: (
+            <RequestLinkForm
+              control={control}
+              onSubmit={handleSubmit((data) =>
+                postResetPassword.mutate({ ...data, generation: sendGenerationRef.current }),
+              )}
+              isSending={postResetPassword.isPending}
+              apiError={apiError}
+              formRef={accountFormReport.formRef}
+            />
+          ),
+        }
+      : {
+          title: t("password-reset-check-your-email"),
+          // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
+          statusIcon: "mail",
+          lede: (
+            // Escaped then unescaped so a typed address like `a<i>b@x.fi` shows literally, not as markup.
+            <Trans
+              t={t}
+              i18nKey="password-reset-email-sent-to"
+              values={{ email: sentEmail }}
+              tOptions={{ interpolation: { escapeValue: true } }}
+              shouldUnescape
+            />
+          ),
+          content: (
+            <LinkSentDetails
+              onResend={() => resend(sentEmail)}
+              isSending={postResetPassword.isPending}
+              isResent={isResent}
+              cooldownSeconds={cooldownSeconds}
+              apiError={apiError}
+            />
+          ),
+        }
 
-      <form
-        noValidate
-        ref={accountFormReport.formRef}
-        onSubmit={handleSubmit((data) => postResetPassword.mutate(data))}
-        className={css`
-          display: flex;
-          flex-direction: column;
-          gap: 1rem;
-        `}
-      >
-        <TextField
-          name="email"
-          control={control}
-          label={t("email")}
-          type="email"
-          autoComplete="email"
-          isRequired
-          rules={{
-            required: t("required-field"),
-            pattern: {
-              value: EMAIL_PATTERN,
-              message: t("enter-a-valid-email"),
-            },
-          }}
-        />
-        {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
-        <AltchaWidget ref={altchaRef} purpose={"password_reset"} />
-        <div
-          className={css`
-            display: flex;
-            gap: 0.75rem;
-          `}
-        >
-          <Button
-            variant="primary"
-            size="medium"
-            type="submit"
-            isLoading={postResetPassword.isPending}
-          >
-            {t("button-text-send")}
-          </Button>
-          <Button
-            variant="secondary"
-            size="medium"
-            type="button"
-            onClick={() => {
-              const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
-              router.push(returnTo)
-            }}
-          >
-            {t("button-text-cancel")}
-          </Button>
-        </div>
-      </form>
-    </>
+  return (
+    <AuthCard
+      {...cardProps}
+      headingRef={headingRef}
+      footer={
+        <>
+          {sentEmail !== null && (
+            <AuthCardFooterLink
+              prompt={t("password-reset-wrong-address")}
+              onPress={returnToEmailForm}
+            >
+              {t("password-reset-use-different-email")}
+            </AuthCardFooterLink>
+          )}
+          <AuthCardFooterLink prompt={t("remembered-your-password")} href={loginHref}>
+            {t("login")}
+          </AuthCardFooterLink>
+        </>
+      }
+    >
+      {content}
+      {/* Rendered outside both states so its next solve survives the switch to the sent state. */}
+      {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
+      <AltchaWidget ref={altchaRef} purpose={"password_reset"} />
+    </AuthCard>
   )
 }
 

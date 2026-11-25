@@ -52,6 +52,11 @@ pub struct Exercise {
     pub teacher_reviews_answer_after_locking: bool,
 }
 
+/// Whether a score is full points on an exercise worth `score_maximum`, tolerating float rounding.
+pub fn is_full_points(score_given: f32, score_maximum: i32) -> bool {
+    score_given >= score_maximum as f32 || (score_given - score_maximum as f32).abs() < 0.0001
+}
+
 impl Exercise {
     pub fn get_course_id(&self) -> ModelResult<Uuid> {
         self.course_id.ok_or_else(|| {
@@ -61,6 +66,23 @@ impl Exercise {
                 None,
             )
         })
+    }
+
+    /// The per-slide try limit, or `None` when the exercise does not limit tries.
+    pub fn try_limit(&self) -> Option<i64> {
+        self.limit_number_of_tries
+            .then_some(self.max_tries_per_slide)
+            .flatten()
+            .map(i64::from)
+    }
+
+    /// The deadline submissions are refused from: the exercise's own deadline takes precedence
+    /// over its chapter's.
+    pub fn effective_deadline(
+        &self,
+        chapter_deadline: Option<DateTime<Utc>>,
+    ) -> Option<DateTime<Utc>> {
+        self.deadline.or(chapter_deadline)
     }
 }
 
@@ -567,7 +589,7 @@ pub async fn get_course_material_exercise(
         && let Some(chapter_id) = exercise.chapter_id
     {
         let chapter = crate::chapters::get_chapter(conn, chapter_id).await?;
-        exercise.deadline = chapter.deadline;
+        exercise.deadline = exercise.effective_deadline(chapter.deadline);
     }
     let (current_exercise_slide, instance_or_exam_id) = get_or_select_exercise_slide(
         &mut *conn,
@@ -615,8 +637,30 @@ pub async fn get_course_material_exercise(
         None
     };
 
-    let can_post_submission =
-        determine_can_post_submission(&mut *conn, user_id, &exercise, &user_exercise_state).await?;
+    let exercise_slide_submission_counts = if let Some(user_id) = user_id {
+        if let Some(cioreid) = instance_or_exam_id {
+            get_exercise_slide_submission_counts_for_exercise_user(
+                &mut *conn,
+                exercise_id,
+                cioreid,
+                user_id,
+            )
+            .await?
+        } else {
+            HashMap::new()
+        }
+    } else {
+        HashMap::new()
+    };
+
+    let can_post_submission = determine_can_post_submission(
+        &mut *conn,
+        user_id,
+        &exercise,
+        &user_exercise_state,
+        &exercise_slide_submission_counts,
+    )
+    .await?;
 
     let previous_exercise_slide_submission = match user_id {
         Some(user_id) => {
@@ -636,22 +680,6 @@ pub async fn get_course_material_exercise(
         grading_progress: user_exercise_state.grading_progress,
         reviewing_stage: user_exercise_state.reviewing_stage,
     });
-
-    let exercise_slide_submission_counts = if let Some(user_id) = user_id {
-        if let Some(cioreid) = instance_or_exam_id {
-            get_exercise_slide_submission_counts_for_exercise_user(
-                conn,
-                exercise_id,
-                cioreid,
-                user_id,
-            )
-            .await?
-        } else {
-            HashMap::new()
-        }
-    } else {
-        HashMap::new()
-    };
 
     let peer_or_self_review_config = if let Some(course_id) = exercise.course_id {
         if exercise.needs_peer_review || exercise.needs_self_review {
@@ -711,6 +739,7 @@ async fn determine_can_post_submission(
     user_id: Option<Uuid>,
     exercise: &Exercise,
     user_exercise_state: &Option<UserExerciseState>,
+    exercise_slide_submission_counts: &HashMap<Uuid, i64>,
 ) -> Result<bool, ModelError> {
     if let Some(user_exercise_state) = user_exercise_state {
         // Once the user has started peer review or self review, they cannot no longer answer the exercise because they have already seen a model solution in the review instructions and they have seen submissions from other users.
@@ -719,16 +748,27 @@ async fn determine_can_post_submission(
         }
     }
 
-    let can_post_submission = if let Some(user_id) = user_id {
-        if let Some(exam_id) = exercise.exam_id {
-            exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await?
-        } else {
-            true
-        }
-    } else {
-        false
+    let Some(user_id) = user_id else {
+        return Ok(false);
     };
-    Ok(can_post_submission)
+    if let Some(exam_id) = exercise.exam_id {
+        return exams::verify_exam_submission_can_be_made(conn, exam_id, user_id).await;
+    }
+    if let (Some(max_tries), Some(slide_id)) = (
+        exercise.try_limit(),
+        user_exercise_state
+            .as_ref()
+            .and_then(|state| state.selected_exercise_slide_id),
+    ) {
+        let used = exercise_slide_submission_counts
+            .get(&slide_id)
+            .copied()
+            .unwrap_or(0);
+        if used >= max_tries {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }
 
 pub async fn get_or_select_exercise_slide(

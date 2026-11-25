@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE exercise_repositories\nSET status = CASE\n    WHEN sync_attempts >= $4\n    AND sync_requested_at <= sync_started_at THEN 'failure'\n    ELSE 'pending'\n  END::exercise_repository_status,\n  sync_started_at = NULL,\n  error_message = $3\nWHERE id = $1\n  AND sync_started_at = $2\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Timestamptz",
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "75cebd9f541afe6d206dbc450327e8ea775e1f8dee3a38970997ae4d521271b4"
+}

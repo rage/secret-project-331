@@ -5,7 +5,10 @@ import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
 import PageContext from "@/contexts/PageContext"
-import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
+import {
+  getCmsRepositoryExercisesForCourse,
+  getCmsRepositoryExercisesForExam,
+} from "@/generated/api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useMedia from "@/shared-module/common/hooks/useMedia"
 import { useReportExerciseIframeFailure } from "@/shared-module/common/hooks/useReportExerciseIframeFailure"
@@ -35,7 +38,12 @@ const EXAMPLE_EXERCISE_SLUG = "example-exercise"
 interface ExerciseTaskIFrameEditorProps {
   exerciseServiceSlug: string
   exerciseTaskId: string
-  onPrivateSpecChange: (newSpec: string, specFiles: string[] | undefined) => void
+  /** `undefined` arguments leave the previous declaration standing. */
+  onPrivateSpecChange: (
+    newSpec: string,
+    specFiles: string[] | undefined,
+    repositoryExerciseId: string | null | undefined,
+  ) => void
   privateSpec: string | null
   url: string | null | undefined
 }
@@ -50,6 +58,7 @@ const ExerciseTaskIFrameEditor: React.FC<
   const userId = userInfo.data?.user_id || getGuestPseudonymousUserId()
   const page = useContext(PageContext)?.page
   const courseId = page?.course_id
+  const examId = page?.exam_id
   const courseContext = useContext(CourseContext)
 
   const largeScreen = useMedia(respondToOrLarger.xl)
@@ -110,6 +119,7 @@ const ExerciseTaskIFrameEditor: React.FC<
               // forever. Undefined stays undefined — it means "leave the declaration alone", and
               // flattening it to [] would release the files the spec still references.
               messageContainer.private_spec_files?.toSorted(),
+              messageContainer.repository_exercise_id,
             )
           }
           if (messageContainer.message === "file-upload") {
@@ -139,30 +149,18 @@ const ExerciseTaskIFrameEditor: React.FC<
             responsePort.postMessage(response)
           }
           if (messageContainer.message === "request-repository-exercises") {
-            if (courseId) {
-              const repositoryExercises = await getCmsRepositoryExercisesForCourse({
-                path: {
-                  course_id: courseId,
-                },
-              })
-              const message: MessageToIframe = {
-                // oxlint-disable-next-line i18next/no-literal-string
-                message: "repository-exercises",
-                repository_exercises: repositoryExercises,
-              }
-              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
-              responsePort.postMessage(message)
-            } else {
-              console.warn("Missing page context")
-              // todo: handle missing page context properly?
-              const message: MessageToIframe = {
-                // oxlint-disable-next-line i18next/no-literal-string
-                message: "repository-exercises",
-                repository_exercises: [],
-              }
-              // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
-              responsePort.postMessage(message)
+            const repositoryExercises = courseId
+              ? await getCmsRepositoryExercisesForCourse({ path: { course_id: courseId } })
+              : examId
+                ? await getCmsRepositoryExercisesForExam({ path: { exam_id: examId } })
+                : []
+            const message: MessageToIframe = {
+              // oxlint-disable-next-line i18next/no-literal-string
+              message: "repository-exercises",
+              repository_exercises: repositoryExercises,
             }
+            // oxlint-disable-next-line unicorn/require-post-message-target-origin -- postMessage 2nd arg is transferables, not targetOrigin
+            responsePort.postMessage(message)
           }
         } else {
           console.error(UNEXPECTED_MESSAGE_ERROR)

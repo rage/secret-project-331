@@ -13,6 +13,11 @@ use headless_lms_utils::periodic_worker::{
 use models::library::regrading;
 use sqlx::PgPool;
 
+/// How long a grading may wait for its exercise service before it is taken for lost. A tmc grading
+/// can take about 25 minutes once it runs, after waiting its turn behind other gradings. The tmc
+/// service's `HOST_GIVES_UP_AFTER_MS` mirrors this.
+const STALE_GRADING_AFTER: chrono::Duration = chrono::Duration::hours(1);
+
 /**
 Starts a thread that will periodically send regrading submissions to the corresponding exercise services for regrading.
 */
@@ -47,6 +52,16 @@ pub async fn main() -> anyhow::Result<()> {
                     models_requests::fetch_service_info,
                 )
                 .await?;
+            if let Err(err) = models::library::grading::fail_stale_pending_gradings(
+                &mut conn,
+                STALE_GRADING_AFTER,
+                file_store.as_ref(),
+                &app_conf,
+            )
+            .await
+            {
+                tracing::error!("Error failing stale gradings: {}", err);
+            }
             // do not stop the thread on error, report it and try again next tick
             if let Err(err) = regrading::regrade(
                 &mut conn,

@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
 import type { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { ACCEPTED_ARCHIVE_EXTENSIONS } from "@/util/archiveTypes"
 import type { PublicSpec } from "@/util/stateInterfaces"
+
+const VSCODE_EXTENSION_URL =
+  "https://marketplace.visualstudio.com/items?itemName=moocfi.test-my-code"
 
 interface Props {
   publicSpec: PublicSpec
@@ -26,6 +30,12 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
     <>
       <div>{t("solve-in-editor-instructions")}</div>
       <div>
+        {t("install-extension-instructions")}{" "}
+        <a href={VSCODE_EXTENSION_URL} target="_blank" rel="noopener noreferrer">
+          {t("extension-marketplace-link")}
+        </a>
+      </div>
+      <div>
         <a href={publicSpec.stub_download_url}>
           <Button variant={"primary"} size={"small"}>
             {t("download-exercise")}
@@ -40,6 +50,7 @@ const AnswerEditorExercise: React.FC<React.PropsWithChildren<Props>> = ({
         <Button variant="primary" size="medium" aria-label={t("select-file-for-submission")}>
           <input
             type="file"
+            accept={ACCEPTED_ARCHIVE_EXTENSIONS.join(",")}
             ref={inputRef}
             onChange={(ev) => {
               if (ev.target && ev.target.files && ev.target.files.length > 0) {

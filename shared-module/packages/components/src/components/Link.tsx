@@ -96,6 +96,8 @@ interface ButtonLikeStyling {
   size?: ButtonSize
   icon?: React.ReactNode
   iconPosition?: IconPosition
+  /** As `Button`'s `isFullWidth`. */
+  isFullWidth?: boolean
 }
 
 type NextProps = React.ComponentProps<typeof NextLink>
@@ -140,6 +142,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       size,
       icon,
       iconPosition,
+      isFullWidth,
       isLoading: isLoadingProp,
       isDisabled: isDisabledProp,
       loadingLabel: loadingLabelProp,
@@ -246,6 +249,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       ? resolveButtonRootCss({
           size: (styledAsButtonResolved ? size : undefined) ?? "medium",
           variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
+          isFullWidth,
         })
       : cx(
           plainLinkCss[appearance ?? DEFAULT_APPEARANCE],

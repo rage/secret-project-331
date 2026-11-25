@@ -1,14 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
-import styled from "@emotion/styled"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { Envelope } from "@vectopus/atlas-icons-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useRef, useState } from "react"
 import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { AuthCard, AuthCardFooterLink, authCardStackCss } from "@/components/auth/AuthCard"
 import { useAccountFormReport } from "@/components/forms/accountFormReport/useAccountFormReport"
 import AltchaWidget, { type AltchaWidgetHandle } from "@/components/forms/AltchaWidget"
 import { PasswordField } from "@/components/forms/PasswordField"
@@ -22,11 +21,13 @@ import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import "@/shared-module/common/init/registerAuthApiClients"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/common/styles"
 import {
   useCurrentPagePathForReturnTo,
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
+import { loginRoute } from "@/shared-module/common/utils/routes"
+import { EMAIL_PATTERN } from "@/shared-module/common/utils/validation"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import {
   Button,
@@ -34,6 +35,7 @@ import {
   ComboBox,
   ErrorNotice,
   focusProgrammatically,
+  Link,
   TextField,
 } from "@/shared-module/components"
 
@@ -51,66 +53,10 @@ interface FormFields {
   email_communication_consent: boolean
 }
 
-const Wrapper = styled.div`
-  max-width: 1200px;
-  position: relative;
-  margin: 0 auto;
-  display: block;
-  padding: 2rem 2rem;
-  font-family: ${headingFont};
-  border-radius: 4px;
-
-  @media (max-width: 767.98px) {
-    padding: 2rem 0rem;
-  }
-
-  h1 {
-    font-size: clamp(30px, 3vw, 34px);
-    color: ${baseTheme.colors.gray[700]};
-    text-align: center;
-    font-family: ${headingFont};
-    font-weight: 600;
-  }
-
-  .description {
-    font-size: 20px;
-    display: inline-block;
-    text-align: center;
-    margin: 0.5rem 0 2rem 0;
-    a {
-      color: #065853;
-      font-weight: 600;
-      /* Underline links so they are distinguishable by more than colour alone (WCAG 1.4.1). */
-      text-decoration: underline;
-    }
-  }
-
-  fieldset {
-    border: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .submit-button {
-    width: 100%;
-    margin: 1rem 0;
-  }
-
-  .signin-link {
-    display: block;
-    text-align: center;
-    margin: 0 auto;
-
-    a {
-      text-decoration: underline;
-      font-size: 20px;
-      color: ${baseTheme.colors.blue[600]};
-
-      &:hover {
-        color: ${baseTheme.colors.blue[700]};
-      }
-    }
-  }
+const fieldsetCss = css`
+  margin: 0;
+  padding: 0;
+  border: none;
 `
 
 const CreateAccountForm: React.FC = () => {
@@ -164,6 +110,7 @@ const CreateAccountForm: React.FC = () => {
     ? `${pathname}?${searchParams.toString()}`
     : pathname
   const returnToForLinkToLoginPage = useCurrentPagePathForReturnTo(currentAsPath)
+  const loginHref = loginRoute(returnToForLinkToLoginPage)
   const { isSubmitting } = formState
 
   const [confirmEmailPageVisible, setConfirmEmailPageVisible] = useState(false)
@@ -280,39 +227,23 @@ const CreateAccountForm: React.FC = () => {
 
   if (confirmEmailPageVisible) {
     return (
-      <Wrapper>
-        <h1 ref={confirmHeadingRef} tabIndex={-1}>
-          {t("message-please-confirm-your-email-address")}
-        </h1>
-        <div
-          className={css`
-            margin: 2rem 0;
-            padding: 1rem;
-            background-color: ${baseTheme.colors.green[100]};
-            line-height: 1.7;
-            display: flex;
-            align-items: center;
-          `}
-        >
-          <Envelope
-            size={32}
-            className={css`
-              font-size: 2rem;
-              margin-right: 1rem;
-            `}
-          />
-          <div>
-            <p>
-              {t("confirm-email-address-instructions-1")}{" "}
-              <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
-              {t("confirm-email-address-instructions-3")}
-            </p>
-            <p></p>
-          </div>
-        </div>
+      <AuthCard
+        headingRef={confirmHeadingRef}
+        title={t("message-please-confirm-your-email-address")}
+        // oxlint-disable-next-line i18next/no-literal-string -- AuthCard enum value
+        statusIcon="mail"
+        lede={
+          <>
+            {t("confirm-email-address-instructions-1")}{" "}
+            <strong>{t("confirm-email-address-instructions-2")}</strong>{" "}
+            {t("confirm-email-address-instructions-3")}
+          </>
+        }
+      >
         <Button
           variant="primary"
-          size="medium"
+          size="large"
+          isFullWidth
           onClick={() => {
             const returnTo = validateReturnToRouteOrDefault(uncheckedReturnTo, "/")
             router.push(returnTo)
@@ -320,16 +251,25 @@ const CreateAccountForm: React.FC = () => {
         >
           {t("button-text-done")}
         </Button>
-        {<ResearchOnCoursesForm />}
-      </Wrapper>
+        <ResearchOnCoursesForm />
+      </AuthCard>
     )
   }
 
   return (
-    <Wrapper>
-      <h1 id="create-account-heading">{t("create-new-account")}</h1>
-      <span className="description">{t("sign-up-with-mooc-subtitle")}</span>
+    <AuthCard
+      title={t("create-new-account")}
+      // oxlint-disable-next-line i18next/no-literal-string -- element id
+      headingId="create-account-heading"
+      lede={t("sign-up-with-mooc-subtitle")}
+      footer={
+        <AuthCardFooterLink prompt={t("already-have-an-account")} href={loginHref}>
+          {t("login")}
+        </AuthCardFooterLink>
+      }
+    >
       <form
+        className={authCardStackCss}
         noValidate
         ref={accountFormReport.formRef}
         onSubmit={handleSubmit(async (data, event) => {
@@ -365,134 +305,121 @@ const CreateAccountForm: React.FC = () => {
       >
         <p
           className={css`
-            margin-bottom: 1rem;
+            margin: 0;
           `}
         >
           {t("all-text-fields-required")}
         </p>
-        <fieldset disabled={isSubmitting} aria-labelledby="create-account-heading">
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-            `}
+        <fieldset
+          className={cx(fieldsetCss, authCardStackCss)}
+          disabled={isSubmitting}
+          aria-labelledby="create-account-heading"
+        >
+          <TextField
+            name="first_name"
+            control={control}
+            label={t("first-name")}
+            autoComplete="given-name"
+            isRequired
+            rules={{
+              required: t("required-field"),
+            }}
+          />
+
+          <TextField
+            name="last_name"
+            control={control}
+            label={t("last-name")}
+            autoComplete="family-name"
+            isRequired
+            rules={{
+              required: t("required-field"),
+            }}
+          />
+
+          <ComboBox
+            name="country"
+            autoComplete="country-name"
+            control={control}
+            label={t("enter-country-question")}
+            items={countriesNames}
+            getItemKey={(item) => item.value}
+            getItemTextValue={(item) => item.label}
+            isRequired
+            rules={{ required: t("required-field") }}
           >
-            <TextField
-              name="first_name"
-              control={control}
-              label={t("first-name")}
-              autoComplete="given-name"
-              isRequired
-              rules={{
-                required: t("required-field"),
-              }}
-            />
+            {(item) => item.label}
+          </ComboBox>
 
-            <TextField
-              name="last_name"
-              control={control}
-              label={t("last-name")}
-              autoComplete="family-name"
-              isRequired
-              rules={{
-                required: t("required-field"),
-              }}
-            />
+          <TextField
+            name="email"
+            control={control}
+            label={t("email")}
+            type="email"
+            autoComplete="email"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              pattern: {
+                value: EMAIL_PATTERN,
+                message: t("enter-a-valid-email"),
+              },
+            }}
+          />
+          <PasswordField
+            name="password"
+            control={control}
+            label={t("password")}
+            autoComplete="new-password"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+            }}
+          />
 
-            <ComboBox
-              name="country"
-              autoComplete="country-name"
-              control={control}
-              label={t("enter-country-question")}
-              items={countriesNames}
-              getItemKey={(item) => item.value}
-              getItemTextValue={(item) => item.label}
-              isRequired
-              rules={{ required: t("required-field") }}
-            >
-              {(item) => item.label}
-            </ComboBox>
+          <PasswordField
+            name="password_confirmation"
+            control={control}
+            label={t("confirm-password")}
+            autoComplete="new-password"
+            isRequired
+            rules={{
+              required: t("required-field"),
+              minLength: {
+                value: 8,
+                message: t("password-must-have-at-least-8-characters"),
+              },
+              validate: {
+                passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
+              },
+            }}
+          />
 
-            <TextField
-              name="email"
-              control={control}
-              label={t("email")}
-              type="email"
-              autoComplete="email"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                validate: {
-                  isValidEmail: (value) =>
-                    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || t("enter-a-valid-email"),
-                },
-              }}
-            />
-            <PasswordField
-              name="password"
-              control={control}
-              label={t("password")}
-              autoComplete="new-password"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-              }}
-            />
-
-            <PasswordField
-              name="password_confirmation"
-              control={control}
-              label={t("confirm-password")}
-              autoComplete="new-password"
-              isRequired
-              rules={{
-                required: t("required-field"),
-                minLength: {
-                  value: 8,
-                  message: t("password-must-have-at-least-8-characters"),
-                },
-                validate: {
-                  passwordMatch: (value: string) => value === password || t("passwords-dont-match"),
-                },
-              }}
-            />
-
-            <Checkbox
-              className={css`
-                margin-top: 1rem;
-              `}
-              name="email_communication_consent"
-              control={control}
-              label={t("email-communication-consent-checkbox-text")}
-            />
-          </div>
+          <Checkbox
+            name="email_communication_consent"
+            control={control}
+            label={t("email-communication-consent-checkbox-text")}
+          />
         </fieldset>
         {/* oxlint-disable-next-line i18next/no-literal-string -- API value */}
         <AltchaWidget ref={altchaRef} purpose={"signup"} />
         <Button
-          className="submit-button"
           variant="primary"
-          size="medium"
+          size="large"
           type="submit"
+          isFullWidth
           isLoading={createAccountMutation.isPending}
         >
           {t("create-an-account")}
         </Button>
       </form>
-      <span className="signin-link">
-        <a href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}>
-          {t("sign-in-if-you-have-an-account")}
-        </a>
-      </span>
       {emailAlreadyTakenError && (
         <div
           className={css`
-            margin: 1rem 0;
             padding: 1rem;
             background-color: ${baseTheme.colors.red[100]};
             border-left: 4px solid ${baseTheme.colors.red[500]};
@@ -508,18 +435,16 @@ const CreateAccountForm: React.FC = () => {
           >
             {emailAlreadyTakenError}
           </p>
-          <a
-            href={`/login?return_to=${encodeURIComponent(returnToForLinkToLoginPage)}`}
+          <Link
+            href={loginHref}
             className={css`
               display: inline-block;
               margin-top: 0.5rem;
-              color: ${baseTheme.colors.blue[600]};
-              text-decoration: underline;
               font-weight: 500;
             `}
           >
             {t("sign-in-if-you-have-an-account")}
-          </a>
+          </Link>
         </div>
       )}
       {/* notify:true already announces this error via the toast; the banner is just the persistent copy */}
@@ -528,11 +453,11 @@ const CreateAccountForm: React.FC = () => {
           <TooManyAttemptsNotice error={createAccountMutation.error} />
         ) : (
           !emailAlreadyTakenError && (
-            // oxlint-disable-next-line i18next/no-literal-string -- "off" is an ErrorNoticeAnnouncement enum value, not UI text
-            <ErrorNotice error={createAccountMutation.error} announce="off" />
+            // oxlint-disable-next-line i18next/no-literal-string -- ErrorNotice enum values, not UI text
+            <ErrorNotice error={createAccountMutation.error} announce="off" density="compact" />
           )
         ))}
-    </Wrapper>
+    </AuthCard>
   )
 }
 

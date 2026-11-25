@@ -204,6 +204,29 @@ ORDER BY sf.order_number
     Ok(res)
 }
 
+/// How many pastes of the exercise the user keeps.
+pub async fn count_pastes(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM exercise_answer_snapshots
+WHERE user_id = $1
+  AND exercise_id = $2
+  AND purpose = 'paste'
+  AND deleted_at IS NULL
+"#,
+        user_id,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
+}
+
 /// Deletes the user's backups of the exercise beyond the newest `keep`, with their file rows, and
 /// returns how many backups were deleted. Pastes are never pruned. The deleted backups' uploads
 /// become reapable.

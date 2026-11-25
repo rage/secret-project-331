@@ -132,6 +132,12 @@ pub enum ForbiddenReason {
     /// The user's exercise state takes no more answers, though the chapter may be open again.
     #[display("Exercise locked")]
     ExerciseLocked,
+    /// The access token does not grant the scope the route needs.
+    #[display("Insufficient scope")]
+    InsufficientScope,
+    /// The user may not view the course, exercise or submission.
+    #[display("No access")]
+    NoAccess,
 }
 
 impl ForbiddenReason {
@@ -142,6 +148,8 @@ impl ForbiddenReason {
             Self::ChapterNotUnlockedYet => "chapter_not_unlocked_yet",
             Self::ChapterCompletedAndLocked => "chapter_completed_and_locked",
             Self::ExerciseLocked => "exercise_locked",
+            Self::InsufficientScope => "insufficient_scope",
+            Self::NoAccess => "no_access",
         }
     }
 }
@@ -640,6 +648,14 @@ impl ControllerError {
 }
 
 impl ControllerError {
+    /// Gives a plain `403` the `reason`'s message key; any other error is returned unchanged.
+    pub fn with_forbidden_reason(mut self, reason: ForbiddenReason) -> Self {
+        if matches!(self.error_type, ControllerErrorType::Forbidden) {
+            self.error_type = ControllerErrorType::ForbiddenWithReason(reason);
+        }
+        self
+    }
+
     /// Adds the authorization server's issuer to an OAuth error that redirects to the client.
     pub fn with_oauth_issuer(mut self, issuer: String) -> Self {
         if let ControllerErrorType::OAuthError(data) = &mut self.error_type

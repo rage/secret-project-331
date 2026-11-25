@@ -1,4 +1,5 @@
 import { keepPreviousData, queryOptions, useQuery } from "@tanstack/react-query"
+import { useMemo } from "react"
 
 import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
@@ -159,10 +160,20 @@ export const useUserNames = (
   courseId: string,
   userIds: (string | null | undefined)[] | undefined,
 ): ((userId: string | null | undefined) => string) => {
+  const lookup = useUserDetailsLookup(courseId, userIds)
+  return (userId) => formatUserName(lookup(userId))
+}
+
+/** Looks up course users' details by id, from one request; undefined while loading or unknown. */
+export const useUserDetailsLookup = (
+  courseId: string,
+  userIds: (string | null | undefined)[] | undefined,
+): ((userId: string | null | undefined) => UserDetail | undefined) => {
   const ids = [...new Set((userIds ?? []).filter((id): id is string => Boolean(id)))].toSorted()
-  // Previous list's names stay shown while a changed list loads, so the layout doesn't jump.
+  // Previous list's users stay shown while a changed list loads, so the layout doesn't jump.
   const users = useBulkUserDetails(courseId, ids, { keepPreviousData: true }).data
-  return (userId) => formatUserName(users?.find((user) => user.user_id === userId))
+  const byId = useMemo(() => new Map((users ?? []).map((user) => [user.user_id, user])), [users])
+  return (userId) => (userId ? byId.get(userId) : undefined)
 }
 
 type UseUserDetailsResult = UserDetailsResult

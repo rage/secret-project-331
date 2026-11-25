@@ -1153,6 +1153,7 @@ export const zCmsPageExerciseTask = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   private_spec: z.unknown().optional(),
   private_spec_files: z.array(z.uuid()).optional(),
+  repository_exercise_id: z.uuid().nullish(),
 })
 
 export const zCodeGiveaway = z.object({
@@ -1889,6 +1890,15 @@ export const zCourseInstanceForm = z.object({
   support_email: z.string().nullish(),
   teacher_in_charge_email: z.string(),
   teacher_in_charge_name: z.string(),
+})
+
+/**
+ * A course's model-solution reveal settings. A course without stored settings uses
+ * [`CourseModelSolutionSettings::default`], which reveals nothing beyond the progress rule.
+ */
+export const zCourseModelSolutionSettings = z.object({
+  reveal_after_deadline: z.boolean(),
+  reveal_at: z.iso.datetime().nullish(),
 })
 
 export const zCourseModuleCompletion = z.object({
@@ -3862,6 +3872,16 @@ export const zExercise = z.object({
   use_course_default_peer_or_self_review_config: z.boolean(),
 })
 
+/**
+ * A live share of an answer to an exercise, as listed to the course's staff.
+ */
+export const zExerciseAnswerShare = z.object({
+  created_at: z.iso.datetime(),
+  is_graded: z.boolean(),
+  share_id: z.uuid(),
+  user_id: z.uuid(),
+})
+
 export const zExerciseAnswersInCourseRequiringAttentionCount = z.object({
   chapter_id: z.uuid().nullish(),
   count: z
@@ -3909,16 +3929,10 @@ export const zExerciseFieldOwner = z.object({
 
 export const zExerciseRepositoryStatus = z.enum(["Pending", "Success", "Failure"])
 
-export const zExerciseRepository = z.object({
-  course_id: z.uuid().nullish(),
-  error_message: z.string().nullish(),
-  exam_id: z.uuid().nullish(),
-  id: z.uuid(),
-  status: zExerciseRepositoryStatus,
-  url: z.string(),
-})
-
 export const zExerciseRepositoryUpdate = z.object({
+  branch: z.string().nullish(),
+  deploy_key: z.string().nullish(),
+  public_key: z.string().nullish(),
   url: z.string(),
 })
 
@@ -4120,6 +4134,15 @@ export const zExternalGrading = z.enum(["pass_fail", "numeric"])
  * How querying an external platform for the user's courses went.
  */
 export const zExternalPlatformStatus = z.enum(["loaded", "not_queried", "unavailable"])
+
+/**
+ * An exercise task whose specs could not be derived again; it keeps its previous version.
+ */
+export const zFailedExerciseTaskRefresh = z.object({
+  error: z.string(),
+  exercise_task_id: z.uuid(),
+  repository_exercise: z.string(),
+})
 
 export const zFeedbackBlock = z.object({
   id: z.uuid(),
@@ -5158,11 +5181,12 @@ export const zNewExam = z.object({
 })
 
 export const zNewExerciseRepository = z.object({
+  branch: z.string().nullish(),
   course_id: z.uuid().nullish(),
   deploy_key: z.string().nullish(),
   exam_id: z.uuid().nullish(),
-  git_url: z.string(),
   public_key: z.string().nullish(),
+  url: z.string(),
 })
 
 export const zNewExternalCourse = z.object({
@@ -6222,6 +6246,56 @@ export const zRemoveLeftoverLinksResult = z.object({
     .max(BigInt("9223372036854775807"), {
       error: "Invalid value: Expected int64 to be <= 9223372036854775807",
     }),
+})
+
+export const zRenamedRepositoryExercise = z.object({
+  from: z.string(),
+  to: z.string(),
+})
+
+/**
+ * What a sync changed. Exercises are named `part/name`.
+ */
+export const zExerciseRepositorySyncReport = z.object({
+  added: z.array(z.string()),
+  failed_exercise_tasks: z.array(zFailedExerciseTaskRefresh),
+  missing_but_in_use: z.array(z.string()),
+  refreshed_exercise_task_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  removed: z.array(z.string()),
+  renamed: z.array(zRenamedRepositoryExercise),
+  updated: z.array(z.string()),
+})
+
+/**
+ * A repository as teachers see it. Never carries the deploy key.
+ */
+export const zExerciseRepository = z.object({
+  branch: z.string().nullish(),
+  course_id: z.uuid().nullish(),
+  error_message: z.string().nullish(),
+  exam_id: z.uuid().nullish(),
+  exercise_task_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  has_deploy_key: z.boolean(),
+  id: z.uuid(),
+  last_sync_report: zExerciseRepositorySyncReport.nullish(),
+  last_synced_at: z.iso.datetime().nullish(),
+  public_key: z.string().nullish(),
+  status: zExerciseRepositoryStatus,
+  sync_attempts: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  url: z.string(),
 })
 
 export const zReportReason = z.enum(["Spam", "HarmfulContent", "AiGenerated"])
@@ -11422,6 +11496,26 @@ export const zGetCourseLinkableExamsPath = z.object({
  */
 export const zGetCourseLinkableExamsResponse = z.array(zLinkableExam)
 
+export const zGetCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The course's model solution settings
+ */
+export const zGetCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsBody = zCourseModelSolutionSettings
+
+export const zUpdateCourseModelSolutionSettingsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * The stored model solution settings
+ */
+export const zUpdateCourseModelSolutionSettingsResponse = zCourseModelSolutionSettings
+
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 
 export const zUpdateCourseChapterOrderingPath = z.object({
@@ -13099,6 +13193,15 @@ export const zUpdateExerciseRepositoryPath = z.object({
  */
 export const zUpdateExerciseRepositoryResponse = z.boolean()
 
+export const zSyncExerciseRepositoryPath = z.object({
+  id: z.uuid(),
+})
+
+/**
+ * Sync queued
+ */
+export const zSyncExerciseRepositoryResponse = z.boolean()
+
 /**
  * Exercise services
  */
@@ -13201,6 +13304,15 @@ export const zGetExercisePath = z.object({
  * Exercise
  */
 export const zGetExerciseResponse = zExercise
+
+export const zGetExerciseAnswerSharesPath = z.object({
+  exercise_id: z.uuid(),
+})
+
+/**
+ * The exercise's live answer shares, newest first
+ */
+export const zGetExerciseAnswerSharesResponse = z.array(zExerciseAnswerShare)
 
 export const zGetExerciseAnswersRequiringAttentionPath = z.object({
   exercise_id: z.uuid(),

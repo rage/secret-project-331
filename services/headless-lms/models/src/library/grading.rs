@@ -9,7 +9,7 @@ use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
     exercise_slide_submissions::{self, ExerciseSlideSubmission, NewExerciseSlideSubmission},
     exercise_task_gradings::{
-        self, ExerciseTaskGrading, ExerciseTaskGradingResult, UserPointsUpdateStrategy,
+        self, ExerciseTaskGrading, ExerciseTaskGradingResult, TaskToGrade, UserPointsUpdateStrategy,
     },
     exercise_task_regrading_submissions::ExerciseTaskRegradingSubmission,
     exercise_task_submissions::{
@@ -328,6 +328,108 @@ pub async fn apply_grading_update(
     .await
 }
 
+/// What the student is told about a grading that never finished.
+const LOST_GRADING_FEEDBACK: &str = "The grading of this submission did not finish, so it was stopped. It did not use a try; submit again.";
+
+/// Fails the gradings that have waited for their exercise service's result for longer than
+/// `stale_after`, such as one lost when the service restarted. A failed grading uses no try, so the
+/// student can submit again. Returns how many were failed.
+pub async fn fail_stale_pending_gradings(
+    conn: &mut PgConnection,
+    stale_after: chrono::Duration,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> ModelResult<usize> {
+    let stale = sqlx::query!(
+        r#"
+SELECT ets.id AS task_submission_id,
+  etg.id AS grading_id
+FROM exercise_task_gradings AS etg
+  JOIN exercise_task_submissions AS ets ON ets.exercise_task_grading_id = etg.id
+  JOIN exercise_slides AS es ON es.id = ets.exercise_slide_id
+  JOIN exercises AS e ON e.id = es.exercise_id
+WHERE etg.grading_progress = 'pending'
+  AND etg.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+  AND es.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+  AND etg.updated_at < now() - make_interval(secs => $1)
+  -- The regrader re-sends its own lost gradings.
+  AND NOT EXISTS (
+    SELECT 1
+    FROM exercise_task_regrading_submissions AS etrs
+    WHERE etrs.grading_after_regrading = etg.id
+      AND etrs.deleted_at IS NULL
+  )
+ORDER BY etg.updated_at
+"#,
+        stale_after.num_seconds() as f64,
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let failed = ExerciseTaskGradingResult {
+        grading_progress: GradingProgress::Failed,
+        score_given: 0.0,
+        score_maximum: 0,
+        feedback_text: Some(LOST_GRADING_FEEDBACK.to_string()),
+        feedback_json: None,
+        set_user_variables: None,
+    };
+    let mut failed_count = 0;
+    for row in &stale {
+        match fail_grading(
+            conn,
+            row.task_submission_id,
+            row.grading_id,
+            &failed,
+            file_store,
+            app_conf,
+        )
+        .await
+        {
+            Ok(false) => {}
+            Ok(true) => {
+                failed_count += 1;
+                warn!(
+                    grading_id = %row.grading_id,
+                    "Failed a grading that waited for its exercise service for too long"
+                );
+            }
+            Err(err) => error!(
+                grading_id = %row.grading_id,
+                "Could not fail a stale grading: {}", err
+            ),
+        }
+    }
+    Ok(failed_count)
+}
+
+/// Fails the grading unless its result arrived after it was found stale. Returns whether it did.
+async fn fail_grading(
+    conn: &mut PgConnection,
+    task_submission_id: Uuid,
+    grading_id: Uuid,
+    failed: &ExerciseTaskGradingResult,
+    file_store: &dyn FileStore,
+    app_conf: &ApplicationConfiguration,
+) -> ModelResult<bool> {
+    let task_submission =
+        exercise_task_submissions::get_submission(conn, task_submission_id, file_store, app_conf)
+            .await?;
+    let slide =
+        crate::exercise_slides::get_exercise_slide(&mut *conn, task_submission.exercise_slide_id)
+            .await?;
+    let exercise = exercises::get_by_id(&mut *conn, slide.exercise_id).await?;
+    let mut tx = conn.begin().await?;
+    let grading = exercise_task_gradings::get_by_id_for_update(&mut tx, grading_id).await?;
+    if grading.grading_progress != GradingProgress::Pending {
+        return Ok(false);
+    }
+    apply_grading_update(&mut tx, &exercise, &task_submission, &grading, failed).await?;
+    tx.commit().await?;
+    Ok(true)
+}
+
 async fn apply_grading_result_to_user_state(
     conn: &mut PgConnection,
     exercise: &Exercise,
@@ -377,7 +479,7 @@ pub async fn grade_user_submission(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,
@@ -536,7 +638,7 @@ async fn grade_user_submission_task(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
     send_grading_request: impl Fn(
         Url,
-        &ExerciseTask,
+        &TaskToGrade,
         &ExerciseTaskSubmission,
         Uuid,
     ) -> BoxFuture<'static, ModelResult<ExerciseTaskGradingResult>>,

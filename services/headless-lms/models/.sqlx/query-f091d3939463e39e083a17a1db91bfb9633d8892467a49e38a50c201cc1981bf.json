@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT et.repository_exercise_id AS \"id!\"\nFROM exercise_tasks et\n  JOIN exercise_slides es ON es.id = et.exercise_slide_id\n  AND es.deleted_at IS NULL\n  JOIN exercises e ON e.id = es.exercise_id\n  AND e.deleted_at IS NULL\nWHERE et.repository_exercise_id = ANY($1)\n  AND et.deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_tasks",
+            "name": "repository_exercise_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "f091d3939463e39e083a17a1db91bfb9633d8892467a49e38a50c201cc1981bf"
+}

@@ -50,6 +50,7 @@ type OwnedButtonDomKeys =
   | "loadingLabel"
   | "autoFocus"
   | "disabledReason"
+  | "isFullWidth"
 
 export type ButtonDomProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, OwnedButtonDomKeys>
 
@@ -60,6 +61,8 @@ export type ButtonProps = PressHandlers & {
   iconPosition?: IconPosition
   isLoading?: boolean
   loadingLabel?: string
+  /** Stretches the button across its container. Ignored by the `link` variant. */
+  isFullWidth?: boolean
   disabled?: boolean
   /**
    * Disables the button but keeps it focusable (aria-disabled), with this reason as its
@@ -104,6 +107,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       iconPosition = "start",
       isLoading = false,
       loadingLabel: loadingLabelProp,
+      isFullWidth = false,
       disabled = false,
       disabledReason,
       children,
@@ -166,7 +170,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const { buttonProps, isPressed } = useButton(ariaOptions, ref)
 
-    const rootClassName = cx(resolveButtonRootCss({ size, variant }), className)
+    const rootClassName = cx(resolveButtonRootCss({ size, variant, isFullWidth }), className)
 
     const disabledReasonProps: React.ButtonHTMLAttributes<HTMLButtonElement> = hasDisabledReason
       ? {

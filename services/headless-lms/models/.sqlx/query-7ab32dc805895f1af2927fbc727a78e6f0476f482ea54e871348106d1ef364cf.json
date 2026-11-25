@@ -145,6 +145,17 @@
             "name": "declares_spec_files"
           }
         }
+      },
+      {
+        "ordinal": 13,
+        "name": "repository_preparation_endpoint_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "exercise_service_info",
+            "name": "repository_preparation_endpoint_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -173,7 +184,8 @@
       true,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "7ab32dc805895f1af2927fbc727a78e6f0476f482ea54e871348106d1ef364cf"

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO oauth_refresh_tokens\n              (digest, user_id, client_id, scopes, audience, jti, expires_at, revoked, rotated_from, metadata, dpop_jkt, family_id)\n            VALUES\n              ($1,    $2,     $3,        $4,     $5,       gen_random_uuid(), $6,       false,   NULL,          $7,      $8,       $9)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Uuid",
+        "Uuid",
+        "TextArray",
+        "TextArray",
+        "Timestamptz",
+        "Jsonb",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7727a38338342da3bfb77aced403ca53471ac8be6f51ff7e1d5331200f58ee8b"
+}

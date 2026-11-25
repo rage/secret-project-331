@@ -30,6 +30,7 @@ import {
   getCmsPageNavigation,
   getCmsPagePendingAgentChanges,
   getCmsRepositoryExercisesForCourse,
+  getCmsRepositoryExercisesForExam,
   getExercisesWithSubmissions,
   linkCmsPageCounterpart,
   type Options,
@@ -94,6 +95,8 @@ import type {
   GetCmsPageResponse,
   GetCmsRepositoryExercisesForCourseData,
   GetCmsRepositoryExercisesForCourseResponse,
+  GetCmsRepositoryExercisesForExamData,
+  GetCmsRepositoryExercisesForExamResponse,
   GetExercisesWithSubmissionsData,
   GetExercisesWithSubmissionsResponse,
   LinkCmsPageCounterpartData,
@@ -1101,6 +1104,29 @@ export const getCmsPagePendingAgentChangesOptions = (
         throwOnError: true,
       }),
     queryKey: getCmsPagePendingAgentChangesQueryKey(options),
+  })
+
+export const getCmsRepositoryExercisesForExamQueryKey = (
+  options: Options<GetCmsRepositoryExercisesForExamData>,
+) => createQueryKey("getCmsRepositoryExercisesForExam", options)
+
+export const getCmsRepositoryExercisesForExamOptions = (
+  options: Options<GetCmsRepositoryExercisesForExamData>,
+) =>
+  queryOptions<
+    GetCmsRepositoryExercisesForExamResponse,
+    DefaultError,
+    GetCmsRepositoryExercisesForExamResponse,
+    ReturnType<typeof getCmsRepositoryExercisesForExamQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCmsRepositoryExercisesForExam({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCmsRepositoryExercisesForExamQueryKey(options),
   })
 
 export const getCmsRepositoryExercisesForCourseQueryKey = (

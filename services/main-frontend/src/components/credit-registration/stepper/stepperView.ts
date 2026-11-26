@@ -37,6 +37,8 @@ export type StatusPage =
   | "failed"
   | "course-setup"
   | "not-registering"
+  /** Every course of a completion that earns several, once any of them has moved on. */
+  | "courses"
 
 /** The numbered steps shown in the step bar. */
 export type Step = "questions" | "enrolment" | "linking"
@@ -100,7 +102,7 @@ export const detourRoute = (
 }
 
 /** The page that replaces the stepper once the registration is past what the student drives. */
-export const statusPageOf = (input: StepperInput): StatusPage | null => {
+export const statusPageOf = (input: StepperInput): Exclude<StatusPage, "courses"> | null => {
   const { registration, statusBeforeRegistration, enrolmentRoute } = input
   if (registration === null) {
     if (statusBeforeRegistration === "not_registering") {
@@ -122,6 +124,7 @@ export const statusPageOf = (input: StepperInput): StatusPage | null => {
       return "course-setup"
     case "sending":
     case "waiting_for_sisu":
+    case "waiting_for_prerequisite":
       return "registering"
     case "looking_for_enrolment":
     case "needs_enrolment":
@@ -211,3 +214,116 @@ export const stepOf = (page: StepperPage): Step | null => {
 
 export const isStepperPage = (value: string | null): value is StepperPage =>
   STEPPER_PAGES.some((page) => page === value)
+
+/** One Sisu course a completion earns, with where its registration stands. */
+export interface StepperCourse {
+  /** Distinct among the completion's courses. */
+  key: string
+  name: string
+  /** Known before the registration exists; blank or missing when the course has none. */
+  uhCourseCode: string | null | undefined
+  ectsCredits: number | null | undefined
+  /** Where an Open University student enrols, known before the registration exists. */
+  enrolmentLink: string | null | undefined
+  /** The course that has to be registered before this one is sent to Sisu. */
+  prerequisiteName: string | null
+  /** `null` before the pipeline has created a ledger row for the course. */
+  registration: MyCreditRegistration | null
+  /** The course's own copy of the answers: a save goes to every course that can still change. */
+  enrolmentRoute: MyEnrolmentRoute | null
+}
+
+/** Where one course of several stands, which decides the block shown for it. */
+export type CourseStage =
+  | "registered"
+  | "registering"
+  | "waiting-for-prerequisite"
+  /** The student said they enrolled, and the enrolment has not been seen yet. */
+  | "awaiting-enrolment"
+  | "needs-enrolment"
+  /** Failed, on hold or not registering: told in the status's own words. */
+  | "stopped"
+
+/** Where `course` stands among several, read the way a single course's registration is read. */
+export const courseStageOf = (
+  course: StepperCourse,
+  shared: Omit<StepperInput, "registration" | "enrolmentRoute">,
+): CourseStage => {
+  if (course.registration?.student_facing_status === "waiting_for_prerequisite") {
+    return "waiting-for-prerequisite"
+  }
+  const page = statusPageOf({
+    ...shared,
+    registration: course.registration,
+    enrolmentRoute: course.enrolmentRoute,
+  })
+  switch (page) {
+    case "registered":
+      return "registered"
+    case "registering":
+      return "registering"
+    case "waiting":
+      return "awaiting-enrolment"
+    case null:
+      return "needs-enrolment"
+    case "failed":
+    case "course-setup":
+    case "not-registering":
+      return "stopped"
+  }
+}
+
+/**
+ * The page for a completion that earns several courses, or `null` while every course still waits
+ * on the student's steps. Once any course has moved on, one page shows every course, and a course
+ * whose enrolment has not been seen asks for it there.
+ */
+export const coursesStatusPageOf = (
+  stages: readonly CourseStage[],
+): "waiting" | "courses" | null => {
+  if (stages.some((stage) => !isEnrollingStage(stage))) {
+    return "courses"
+  }
+  return stages.includes("awaiting-enrolment") ? "waiting" : null
+}
+
+/** Whether the course's enrolment is still to be seen. */
+export const isEnrollingStage = (stage: CourseStage): boolean =>
+  stage === "needs-enrolment" || stage === "awaiting-enrolment"
+
+/** Whether the course is on its way to Sisu, a wait for its prerequisite included. */
+export const isRegisteringStage = (stage: CourseStage): boolean =>
+  stage === "registering" || stage === "waiting-for-prerequisite"
+
+/** The courses that wait for another course of the completion before they go to Sisu. */
+export const laterCoursesOf = <Course extends { prerequisiteName: string | null }>(
+  courses: readonly Course[],
+): (Course & { prerequisiteName: string })[] =>
+  courses.flatMap((course) =>
+    course.prerequisiteName ? [{ ...course, prerequisiteName: course.prerequisiteName }] : [],
+  )
+
+/** A course a completion earns, as configured, before its registration is read. */
+export type CreditCourse = Omit<StepperCourse, "registration" | "enrolmentRoute">
+
+/** The code to enrol on: the registration's, else the configured one; `null` when blank. */
+export const courseCodeOf = (course: StepperCourse): string | null =>
+  (course.registration?.uh_course_code ?? course.uhCourseCode)?.trim() || null
+
+/** Where an Open University student enrols: the registration's link, else the configured one. */
+export const enrolmentLinkOf = (course: StepperCourse): string | null | undefined =>
+  course.registration?.enrolment_link ?? course.enrolmentLink
+
+/** What the courses are worth together; `null` when any has no credits set. */
+export const ectsCreditsOf = (
+  courses: readonly { ectsCredits: number | null | undefined }[],
+): number | null => {
+  let sum = 0
+  for (const { ectsCredits } of courses) {
+    if (typeof ectsCredits !== "number") {
+      return null
+    }
+    sum += ectsCredits
+  }
+  return sum
+}

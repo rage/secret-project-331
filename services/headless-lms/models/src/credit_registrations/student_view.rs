@@ -11,14 +11,15 @@ use crate::prelude::*;
 #[derive(Debug, Clone)]
 pub struct StudentCreditRegistration {
     pub id: Uuid,
-    /// `None` on a mooc.fi row, as are the slug, module and course module completion.
+    /// `None` on a mooc.fi row, as are the slug, module id and course module completion.
     pub course_id: Option<Uuid>,
     /// The course's name, or "mooc.fi: " and the target's name.
     pub course_name: String,
     pub course_slug: Option<String>,
     pub course_module_id: Option<Uuid>,
+    /// The module's name, or the mooc.fi code's.
     pub course_module_name: Option<String>,
-    /// The module's or target's code now.
+    /// The module's or mooc.fi code's course code now.
     pub uh_course_code: Option<String>,
     pub ects_credits: Option<f32>,
     pub course_module_completion_id: Option<Uuid>,
@@ -70,6 +71,8 @@ pub struct StudentCreditRegistration {
     pub completion_eligible: bool,
     pub has_verified_student_number: bool,
     pub course_code_allowed: bool,
+    /// See `credit_registration_prerequisite_met`.
+    pub prerequisite_met: bool,
 }
 
 impl StudentCreditRegistration {
@@ -137,7 +140,7 @@ SELECT cr.id,
   COALESCE(c.name, 'mooc.fi: ' || t.name) AS "course_name!",
   c.slug AS "course_slug?",
   cr.course_module_id,
-  cm.name AS "course_module_name?",
+  subj.unit_name AS "course_module_name?",
   subj.uh_course_code,
   subj.ects_credits,
   cr.course_module_completion_id,
@@ -176,7 +179,8 @@ SELECT cr.id,
   subj.enrolment_link AS "enrolment_link?",
   p.completion_eligible AS "completion_eligible!",
   p.has_verified_student_number AS "has_verified_student_number!",
-  p.course_code_allowed AS "course_code_allowed!"
+  p.course_code_allowed AS "course_code_allowed!",
+  p.prerequisite_met AS "prerequisite_met!"
 FROM credit_registrations cr
   JOIN credit_registration_subjects subj ON subj.subject_id = cr.subject_id
   LEFT JOIN courses c ON c.id = cr.course_id

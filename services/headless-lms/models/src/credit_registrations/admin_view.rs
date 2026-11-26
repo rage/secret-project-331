@@ -42,7 +42,7 @@ pub struct AdminCreditRegistration {
     pub course_or_target_id: Uuid,
     /// The completion, whichever kind it is.
     pub subject_id: Uuid,
-    /// The module or mooc.fi target, whichever kind it is.
+    /// The module or mooc.fi code, whichever kind it is.
     pub credit_unit_id: Uuid,
     pub completion_date: DateTime<Utc>,
     pub state: CreditRegistrationState,
@@ -61,7 +61,7 @@ pub struct AdminCreditRegistration {
     pub sisu_person_id: Option<DbSecret>,
     /// Frozen with `student_number`; `None` until then.
     pub uh_course_code: Option<String>,
-    /// The module's or mooc.fi target's code now, which a later edit can set apart from
+    /// The module's or mooc.fi code's course code now, which a later edit can set apart from
     /// `uh_course_code`.
     pub current_uh_course_code: Option<String>,
     pub selected_enrolment_id: Option<String>,
@@ -189,7 +189,7 @@ pub struct AdminCreditRegistrationFilters<'a> {
     pub error_codes: Option<&'a [CreditRegistrationErrorCode]>,
     /// A course, or a mooc.fi target, which the course facet lists beside the courses.
     pub course_id: Option<Uuid>,
-    /// A module, or a mooc.fi target.
+    /// A module, or a mooc.fi code.
     pub credit_unit_id: Option<Uuid>,
     pub user_id: Option<Uuid>,
     pub student_number: Option<&'a str>,
@@ -474,7 +474,7 @@ pub struct LatestRegistrationByCode {
     pub user_id: Uuid,
     pub credit_registration_id: Uuid,
     pub created_at: DateTime<Utc>,
-    /// The module's or mooc.fi target's code now, trimmed and upper-cased.
+    /// The module's or mooc.fi code's course code now, trimmed and upper-cased.
     pub uh_course_code: Option<String>,
 }
 
@@ -524,7 +524,7 @@ pub async fn get_admin_facing(
     admin_facing_page(conn, filters, sort, limit, offset).await
 }
 
-/// Live rows of one module or mooc.fi target at one step, with one engagement where the step waits
+/// Live rows of one module or mooc.fi code at one step, with one engagement where the step waits
 /// on the student.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StepCount {
@@ -534,7 +534,7 @@ pub struct StepCount {
     pub count: i64,
 }
 
-/// Live rows per module or mooc.fi target, step and engagement: the overview's "Where registrations
+/// Live rows per module or mooc.fi code, step and engagement: the overview's "Where registrations
 /// stand", the Courses tab's per-unit table and the daily snapshot.
 ///
 /// Counts exactly what [`get_admin_facing`] lists filtered to the same step, engagement and unit,

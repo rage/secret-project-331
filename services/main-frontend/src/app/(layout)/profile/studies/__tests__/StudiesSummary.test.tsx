@@ -18,7 +18,7 @@ describe("StudiesSummary", () => {
   it("leads with the credit total the student came for", () => {
     render(<StudiesSummary totals={{ courses: 4, completions: 6, ects: 27 }} />)
 
-    expect(screen.getByText("ects-n n=27")).toBeInTheDocument()
+    expect(screen.getByText("ects-n count=27 n=27")).toBeInTheDocument()
     expect(screen.getByText("6")).toBeInTheDocument()
   })
 
@@ -31,12 +31,12 @@ describe("StudiesSummary", () => {
   it("does not dress a whole number of credits up as a decimal", () => {
     render(<StudiesSummary totals={{ courses: 1, completions: 1, ects: 5 }} />)
 
-    expect(screen.getByText("ects-n n=5")).toBeInTheDocument()
+    expect(screen.getByText("ects-n count=5 n=5")).toBeInTheDocument()
   })
 
   it("keeps a fractional credit total", () => {
     render(<StudiesSummary totals={{ courses: 1, completions: 1, ects: 7.5 }} />)
 
-    expect(screen.getByText("ects-n n=7.5")).toBeInTheDocument()
+    expect(screen.getByText("ects-n count=7.5 n=7.5")).toBeInTheDocument()
   })
 })

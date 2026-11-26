@@ -141,7 +141,7 @@ const REGISTERED_ROW_KEY = "registered"
 const PROGRESS_STEPS = Object.keys(PROGRESS_STEP_KEYS) as StudentRegistrationProgressStep[]
 
 /** Every step to registered: what is done and when, what is happening now, what is still to come. */
-const ProgressList: React.FC<{ progress: StudentRegistrationProgress }> = ({ progress }) => {
+export const ProgressList: React.FC<{ progress: StudentRegistrationProgress }> = ({ progress }) => {
   const { t } = useTranslation(CREDIT_REGISTRATION_NS)
   const reachedAt = new Map(
     progress.completed_steps.map((completed) => [completed.step, completed.reached_at]),
@@ -203,7 +203,7 @@ export const LastChecked: React.FC<{ checkedAt: string }> = ({ checkedAt }) => {
 }
 
 /** The transcript facts: what was registered, and under which number. */
-const RegistrationFacts: React.FC<{
+export const RegistrationFacts: React.FC<{
   registration: MyCreditRegistration
   moduleEctsCredits: number | null | undefined
 }> = ({ registration, moduleEctsCredits }) => {
@@ -222,7 +222,7 @@ const RegistrationFacts: React.FC<{
       value: registrationGradeLabel(t, registration.grade_id, registration.grade_scale_id),
     },
     ...(typeof credits === "number"
-      ? [{ label: t("label-credits"), value: t("ects-n", { n: credits }) }]
+      ? [{ label: t("label-credits"), value: t("ects-n", { count: credits, n: credits }) }]
       : []),
     ...(registration.student_number
       ? [{ label: t("label-student-number"), value: registration.student_number }]
@@ -250,7 +250,7 @@ const RegistrationFacts: React.FC<{
   )
 }
 
-const StatusHeading: React.FC<{ mark: React.ReactNode; children: React.ReactNode }> = ({
+export const StatusHeading: React.FC<{ mark: React.ReactNode; children: React.ReactNode }> = ({
   mark,
   children,
 }) => (

@@ -111,10 +111,10 @@ pub struct AccountLinkingFailureDomain {
     pub count: i64,
 }
 
-/// A module or mooc.fi target on a course code, which shares the code's enrolment list.
+/// A module or mooc.fi code on a course code, which shares the code's enrolment list.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct AccountLinkingCodeModule {
-    /// The module's or target's id.
+    /// The module's or mooc.fi code's id.
     pub credit_unit_id: Uuid,
     /// The module's course; `None` for a mooc.fi target.
     pub course_id: Option<Uuid>,
@@ -1340,7 +1340,7 @@ Lists the rosters live. Stores nothing beyond the call log row every study regis
     params(("course_or_target_id" = Uuid, Path, description = "Course or mooc.fi target id")),
     responses(
         (status = 200, description = "The people on the enrolment lists", body = AdminCourseEnrolees),
-        (status = 400, description = "No active module or mooc.fi target with a course code"),
+        (status = 400, description = "No active module or mooc.fi code with a course code"),
         (status = 404, description = "No such course or mooc.fi target")
     )
 )]

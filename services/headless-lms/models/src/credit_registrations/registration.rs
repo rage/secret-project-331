@@ -23,12 +23,14 @@ pub struct CreditRegistration {
     pub course_instance_id: Option<Uuid>,
     /// Set on a mooc.fi row; see `subject_id`.
     pub external_completion_id: Option<Uuid>,
-    /// Set on a mooc.fi row only, in place of `course_module_id`.
+    /// Set on a mooc.fi row only, in place of `course_id`.
     pub external_credit_target_id: Option<Uuid>,
     /// The completion being registered, whichever kind of row this is.
     pub subject_id: Uuid,
-    /// The module or mooc.fi target the row registers for, whichever kind of row this is.
+    /// The module or mooc.fi code the row registers for, whichever kind of row this is.
     pub credit_unit_id: Uuid,
+    /// Set on a mooc.fi row only, in place of `course_module_id`.
+    pub external_credit_target_code_id: Option<Uuid>,
     pub state: CreditRegistrationState,
     pub state_entered_at: DateTime<Utc>,
     pub error_code: Option<CreditRegistrationErrorCode>,
@@ -201,6 +203,7 @@ pub enum NewRegistrationSubject {
         course_module_id: Uuid,
         course_instance_id: Uuid,
     },
+    /// The row's code is read from the completion, which has one per code.
     Moocfi {
         external_completion_id: Uuid,
         external_credit_target_id: Uuid,
@@ -318,9 +321,25 @@ INSERT INTO credit_registrations (
     course_instance_id,
     external_completion_id,
     external_credit_target_id,
+    external_credit_target_code_id,
     attempt_number
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5,
+    $6,
+    $7,
+    $8,
+    (
+      SELECT external_credit_target_code_id
+      FROM external_completions
+      WHERE id = $7
+    ),
+    $9
+  )
         "#,
         id,
         course_module_completion_id,

@@ -1,5 +1,5 @@
 //! The other credits of a student's course code that a new attempt is weighed against before it is
-//! sent, whichever module or mooc.fi target they came from: the study registry holds one attainment
+//! sent, whichever module or mooc.fi code they came from: the study registry holds one attainment
 //! per person and course unit.
 
 use super::state::CreditRegistrationState;

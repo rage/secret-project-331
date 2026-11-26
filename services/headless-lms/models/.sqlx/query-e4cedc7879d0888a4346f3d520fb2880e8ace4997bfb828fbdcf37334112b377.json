@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT cr.id,\n  (\n    SELECT MIN(c.course_code)\n    FROM credit_registration_sisu_code_checks c\n    WHERE c.user_id = cr.user_id\n      AND c.deleted_at IS NULL\n      AND c.attained_at IS NOT NULL\n      AND c.course_code IN (\n        SELECT UPPER(TRIM(equivalent))\n        FROM UNNEST(code.equivalent_course_codes) AS equivalent\n      )\n  ) AS held_course_code,\n  EXISTS (\n    SELECT 1\n    FROM UNNEST(code.equivalent_course_codes) AS equivalent\n    WHERE NOT EXISTS (\n        SELECT 1\n        FROM credit_registration_sisu_code_checks c\n        WHERE c.user_id = cr.user_id\n          AND c.deleted_at IS NULL\n          AND c.course_code = UPPER(TRIM(equivalent))\n          AND c.checked_at > now() - $2::interval\n      )\n  ) AS \"has_unchecked!\"\nFROM credit_registrations cr\n  JOIN external_credit_target_codes code ON code.id = cr.external_credit_target_code_id\nWHERE cr.id = ANY($1)\n  AND cardinality(code.equivalent_course_codes) > 0\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "credit_registrations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "held_course_code",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 2,
+        "name": "has_unchecked!",
+        "type_info": "Bool",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "Interval"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      null
+    ]
+  },
+  "hash": "e4cedc7879d0888a4346f3d520fb2880e8ace4997bfb828fbdcf37334112b377"
+}

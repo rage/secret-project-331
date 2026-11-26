@@ -91,7 +91,7 @@ const DEFAULTS: PhaseSpec = PhaseSpec {
 
 const STUDY_REGISTRY: &[BreakerTarget] = &[BreakerTarget::StudyRegistry];
 
-/// These reach their rows through the module or mooc.fi target, which has no user dimension: a
+/// These reach their rows through the module or mooc.fi code, which has no user dimension: a
 /// roster and a configuration are facts about a course, not about one of our accounts.
 const CREDIT_UNITS: ScopeSupport = ScopeSupport {
     course: true,

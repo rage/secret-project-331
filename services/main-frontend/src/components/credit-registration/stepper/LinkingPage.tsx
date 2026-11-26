@@ -6,6 +6,7 @@ import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
 import { dateToString } from "@/shared-module/common/utils/time"
+import { formatConjunctionList } from "@/utils/listFormat"
 
 import { CREDIT_REGISTRATION_NS, SUPPORT_EMAIL, SUPPORT_MAIL_INLINE } from "../constants"
 import { SisuCourseCode } from "../SisuCourseCode"
@@ -73,7 +74,8 @@ export interface LinkingPageProps {
   band: StudentNumberLinkBand | null
   isSisu: boolean
   courseName: string
-  courseCode: string | null
+  /** Every course code the completion is registered under: the only enrolments we see. */
+  courseCodes: readonly string[]
   /** What follows the explanation: the enrolment check box, the recheck lever, the way back. */
   children?: React.ReactNode
 }
@@ -86,10 +88,10 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
   band,
   isSisu,
   courseName,
-  courseCode,
+  courseCodes,
   children,
 }) => {
-  const { t } = useTranslation(CREDIT_REGISTRATION_NS)
+  const { t, i18n } = useTranslation(CREDIT_REGISTRATION_NS)
   const isAccountLinkingEnabled = useIsAccountLinkingEnabled()
   const supportMail = missingLinkingEmailSupportMail(t, courseName)
   const missingEmailSupportLink = (
@@ -200,12 +202,17 @@ export const LinkingPage: React.FC<LinkingPageProps> = ({
       </h2>
       {facts}
       <p className={captionCss}>{t("credit-registration-link-only-once")}</p>
-      {courseCode ? (
+      {courseCodes.length > 0 ? (
         <p className={noteBoxCss}>
           <Trans
             t={t}
             i18nKey="credit-registration-linking-wrong-course"
-            components={{ courseCode: <SisuCourseCode code={courseCode} /> }}
+            count={courseCodes.length}
+            components={{
+              courseCode: (
+                <SisuCourseCode code={formatConjunctionList(i18n.language, courseCodes)} />
+              ),
+            }}
           />
         </p>
       ) : null}

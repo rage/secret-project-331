@@ -1,0 +1,196 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT *\nFROM external_credit_targets\nWHERE moocfi_course_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "moocfi_course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "moocfi_course_slug",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_slug"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "language_code",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "language_code"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "delegated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "delegated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "enabled_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "enabled_at"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "paused_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "paused_at"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "paused_by_user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "paused_by_user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "pause_reason",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "pause_reason"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "moocfi_has_certificate",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_has_certificate"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "moocfi_course_checked_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "external_credit_targets",
+            "name": "moocfi_course_checked_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "9a24a7a67e8192bfadbd9a70d9c2a4943bb487c95521ad17405636f3d7430e1c"
+}

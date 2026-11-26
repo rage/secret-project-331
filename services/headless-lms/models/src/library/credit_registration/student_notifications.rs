@@ -64,7 +64,7 @@ pub struct StudentNotificationToQueue {
     pub kind: CreditRegistrationNotificationKind,
     pub user_id: Uuid,
     pub status_page: RegistrationStatusPage,
-    /// The course's name, or a mooc.fi target's.
+    /// The course's name, or a mooc.fi code's.
     pub course_name: String,
     pub course_language_code: String,
     pub course_module_name: Option<String>,
@@ -95,16 +95,16 @@ SELECT cr.id AS "credit_registration_id!",
   cr.user_id AS "user_id!",
   cr.course_module_id,
   t.moocfi_course_id AS "moocfi_course_id?",
-  COALESCE(c.name, t.name) AS "course_name!",
+  COALESCE(c.name, code.name) AS "course_name!",
   COALESCE(c.language_code, t.language_code) AS "course_language_code!",
   cm.name AS "course_module_name?",
   ud.first_name AS "first_name?",
-  COALESCE(cr.credits, cm.ects_credits, t.ects_credits) AS "credits?",
+  COALESCE(cr.credits, cm.ects_credits, code.ects_credits) AS "credits?",
   NULLIF(
     TRIM(
       COALESCE(
         cm.completion_registration_link_override,
-        t.enrolment_link
+        code.enrolment_link
       )
     ),
     ''
@@ -113,6 +113,7 @@ FROM credit_registrations cr
   LEFT JOIN courses c ON c.id = cr.course_id
   LEFT JOIN course_modules cm ON cm.id = cr.course_module_id
   LEFT JOIN external_credit_targets t ON t.id = cr.external_credit_target_id
+  LEFT JOIN external_credit_target_codes code ON code.id = cr.external_credit_target_code_id
   LEFT JOIN user_details ud ON ud.user_id = cr.user_id
 WHERE cr.deleted_at IS NULL
   AND c.deleted_at IS NULL

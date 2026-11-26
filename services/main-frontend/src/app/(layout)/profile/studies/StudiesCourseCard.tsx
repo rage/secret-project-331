@@ -208,7 +208,9 @@ const StudiesCourseCard: React.FC<StudiesCourseCardProps> = ({
     sameLanguage(course.language_code, i18n.language)
       ? null
       : ietfLanguageTagToHumanReadableName(course.language_code, i18n.language),
-    ectsSaidForWholeCourse && courseEcts > 0 ? t("ects-n", { n: courseEcts }) : null,
+    ectsSaidForWholeCourse && courseEcts > 0
+      ? t("ects-n", { count: courseEcts, n: courseEcts })
+      : null,
     hasSeveralModules
       ? t("completed-of-total", {
           completed: modules.filter((module) => module.completion?.passed).length,
@@ -296,7 +298,7 @@ const ModuleRow: React.FC<{
 
   const ectsLabel =
     showEcts && typeof module.ects_credits === "number"
-      ? t("ects-n", { n: module.ects_credits })
+      ? t("ects-n", { count: module.ects_credits, n: module.ects_credits })
       : null
   const registersOnCompletion = !completion && module.supports_credit_registration
   const registrationStatus =

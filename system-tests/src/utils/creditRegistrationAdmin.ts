@@ -276,6 +276,8 @@ export interface AdminCreditUnitStats {
   course_module_id: string | null
   course_name: string
   external_credit_target: AdminExternalCreditTarget | null
+  /** `null` on a module and on a target with no live codes. */
+  external_credit_target_code: AdminExternalCreditTargetCode | null
   paused_at: string | null
   eligible_completion_count: number
   registration_count: number
@@ -290,18 +292,25 @@ export interface AdminExternalCreditTarget {
   moocfi_course_slug: string
   name: string
   language_code: string
-  tiers: { lowest: number | null; highest: number | null } | null
-  uh_course_code: string
-  ects_credits: number
-  grading: "pass_fail" | "numeric"
-  enrolment_link: string | null
   delegated_at: string
   enabled_at: string | null
   paused_at: string | null
 }
 
+/** The subset of one Sisu course code of a target the admin specs read. */
+export interface AdminExternalCreditTargetCode {
+  id: string
+  name: string
+  uh_course_code: string
+  minimum_tier: number | null
+  prerequisite_code_id: string | null
+  equivalent_course_codes: string[]
+}
+
+export const ADMIN_EXTERNAL_CREDIT_TARGETS_URL = `${CREDIT_REGISTRATION_ADMIN_API}/courses/external-targets`
+
 export const adminExternalCreditTargetUrl = (externalCreditTargetId: string): string =>
-  `${CREDIT_REGISTRATION_ADMIN_API}/courses/external-targets/${externalCreditTargetId}`
+  `${ADMIN_EXTERNAL_CREDIT_TARGETS_URL}/${externalCreditTargetId}`
 
 /** The form's payload for `target` as it stands, for a spec that changes one field of it. */
 export const externalCreditTargetPayload = (target: AdminExternalCreditTarget, reason: string) => ({
@@ -309,11 +318,6 @@ export const externalCreditTargetPayload = (target: AdminExternalCreditTarget, r
   moocfi_course_slug: target.moocfi_course_slug,
   name: target.name,
   language_code: target.language_code,
-  tiers: target.tiers,
-  uh_course_code: target.uh_course_code,
-  ects_credits: target.ects_credits,
-  grading: target.grading,
-  enrolment_link: target.enrolment_link,
   delegated_at: target.delegated_at,
   enabled: target.enabled_at !== null,
   reason,

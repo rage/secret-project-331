@@ -97,11 +97,18 @@ const CompletionRegistrationPage: React.FC<{ courseModuleId: string }> = ({ cour
                 subject={courseModuleSubject(courseModuleId)}
                 courseName={data.course_name}
                 moduleName={data.course_module_name}
-                ectsCredits={data.ects_credits}
+                courses={[
+                  {
+                    key: courseModuleId,
+                    name: data.course_name,
+                    uhCourseCode: data.uh_course_code,
+                    ectsCredits: data.ects_credits,
+                    enrolmentLink: data.enrolment_link,
+                    prerequisiteName: null,
+                  },
+                ]}
                 statusBeforeRegistration={data.status_before_registration}
                 certificate={certificate}
-                uhCourseCode={data.uh_course_code}
-                enrolmentLink={data.enrolment_link}
               />
             </div>
           )

@@ -91,7 +91,12 @@ const EnrolmentBanner: React.FC<{ registration: MyCreditRegistration }> = ({ reg
             })}
           </p>
           {typeof registration.ects_credits === "number" ? (
-            <p>{t("credits-n-ects", { n: registration.ects_credits })}</p>
+            <p>
+              {t("credits-n-ects", {
+                count: registration.ects_credits,
+                n: registration.ects_credits,
+              })}
+            </p>
           ) : null}
           <div className={actionsCss}>
             {enrolmentLink ? (

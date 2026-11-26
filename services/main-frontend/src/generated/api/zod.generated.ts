@@ -38,7 +38,7 @@ export const zAccountLinkingCodeCounters = z.object({
 })
 
 /**
- * A module or mooc.fi target on a course code, which shares the code's enrolment list.
+ * A module or mooc.fi code on a course code, which shares the code's enrolment list.
  */
 export const zAccountLinkingCodeModule = z.object({
   course_id: z.uuid().nullish(),
@@ -333,7 +333,7 @@ export const zAdminBulkTransitionPayload = z.object({
 })
 
 /**
- * One module that registers credits, or a mooc.fi target, with its course code.
+ * One module that registers credits, or a mooc.fi code, with its course code.
  */
 export const zAdminCreditUnitCourseCode = z.object({
   course_module_name: z.string().nullish(),
@@ -359,6 +359,20 @@ export const zAdminDismissAttentionPayload = z.object({
 })
 
 export const zAdminDismissStudyRegistryConflictPayload = z.object({
+  reason: z.string(),
+})
+
+/**
+ * A mooc.fi target's configuration as the admin form sends it, with the audit reason. Its course
+ * codes are configured apart; see [`AdminExternalCreditTargetCodesPayload`].
+ */
+export const zAdminExternalCreditTargetPayload = z.object({
+  delegated_at: z.iso.datetime(),
+  enabled: z.boolean(),
+  language_code: z.string(),
+  moocfi_course_id: z.uuid(),
+  moocfi_course_slug: z.string(),
+  name: z.string(),
   reason: z.string(),
 })
 
@@ -4027,9 +4041,94 @@ export const zExternalCourseOutput = z.object({
 })
 
 /**
- * How a mooc.fi completion with no grade reads on a target.
+ * A mooc.fi course whose completions courses registers, under the course codes of its
+ * [`ExternalCreditTargetCode`](crate::external_credit_target_codes::ExternalCreditTargetCode)s.
+ */
+export const zExternalCreditTarget = z.object({
+  created_at: z.iso.datetime(),
+  delegated_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  enabled_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  language_code: z.string(),
+  moocfi_course_checked_at: z.iso.datetime().nullish(),
+  moocfi_course_id: z.uuid(),
+  moocfi_course_slug: z.string(),
+  moocfi_has_certificate: z.boolean().nullish(),
+  name: z.string(),
+  pause_reason: z.string().nullish(),
+  paused_at: z.iso.datetime().nullish(),
+  paused_by_user_id: z.uuid().nullish(),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * How a mooc.fi completion with no grade reads under a code.
  */
 export const zExternalGrading = z.enum(["pass_fail", "numeric"])
+
+/**
+ * One course code of a mooc.fi target as the admin form sends it.
+ */
+export const zAdminExternalCreditTargetCodePayload = z.object({
+  ects_credits: z.number(),
+  enrolment_link: z.string().nullish(),
+  equivalent_course_codes: z.array(z.string()).optional(),
+  grading: zExternalGrading,
+  id: z.uuid(),
+  minimum_tier: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  name: z.string(),
+  prerequisite_code_id: z.uuid().nullish(),
+  uh_course_code: z.string(),
+})
+
+/**
+ * Every course code a mooc.fi target is to have, as the admin form sends them, with the audit
+ * reason.
+ */
+export const zAdminExternalCreditTargetCodesPayload = z.object({
+  codes: z.array(zAdminExternalCreditTargetCodePayload),
+  reason: z.string(),
+})
+
+/**
+ * One course code of a mooc.fi target, and the completion tiers that earn it.
+ */
+export const zExternalCreditTargetCode = z.object({
+  checked_course_code: z.string().nullish(),
+  config_check_message: z.string().nullish(),
+  config_checked_at: z.iso.datetime().nullish(),
+  consecutive_listing_failures: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_code_allowed: z.boolean().nullish(),
+  course_code_rejection: z.string().nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  ects_credits: z.number(),
+  enrolment_link: z.string().nullish(),
+  equivalent_course_codes: z.array(z.string()),
+  external_credit_target_id: z.uuid(),
+  grading: zExternalGrading,
+  id: z.uuid(),
+  last_listed_at: z.iso.datetime().nullish(),
+  last_listing_attempted_at: z.iso.datetime().nullish(),
+  last_listing_error: zCreditRegistrationErrorCode.nullish(),
+  minimum_tier: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  name: z.string(),
+  prerequisite_code_id: z.uuid().nullish(),
+  uh_course_code: z.string(),
+  updated_at: z.iso.datetime(),
+})
 
 /**
  * How querying an external platform for the user's courses went.
@@ -4807,7 +4906,7 @@ export const zMoocFiMaterialLink = z.object({
 })
 
 /**
- * Why a completion is or is not registered through courses.
+ * Why a completion is or is not registered under a code through courses.
  */
 export const zMoocfiCompletionStatus = z.enum([
   "registering_on_courses",
@@ -4816,7 +4915,6 @@ export const zMoocfiCompletionStatus = z.enum([
   "not_eligible",
   "registered_on_moocfi",
   "equivalent_registered",
-  "no_credit_unit",
   "removed_from_moocfi",
 ])
 
@@ -4829,12 +4927,12 @@ export const zMoocfiCourseLink = z.object({
 })
 
 /**
- * The study-registry course a completion registers as.
+ * A study-registry course a completion registers as.
  */
 export const zMoocfiCreditUnit = z.object({
   ects_credits: z.number(),
   enrolment_link: z.string().nullish(),
-  external_credit_target_id: z.uuid(),
+  external_credit_target_code_id: z.uuid(),
   name: z.string(),
   uh_course_code: z.string(),
 })
@@ -7294,6 +7392,7 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
   "looking_for_enrolment",
   "needs_enrolment",
   "waiting_for_course_setup",
+  "waiting_for_prerequisite",
   "sending",
   "waiting_for_sisu",
   "registered",
@@ -7302,17 +7401,26 @@ export const zStudentFacingCreditRegistrationStatus = z.enum([
 ])
 
 /**
- * One mooc.fi completion and what is happening to its credits.
+ * One course code of a completion and what is happening to its credits.
+ */
+export const zMoocfiCreditUnitRegistration = z.object({
+  credit_registration_id: z.uuid().nullish(),
+  credit_unit: zMoocfiCreditUnit,
+  external_completion_id: z.uuid().nullish(),
+  prerequisite_name: z.string().nullish(),
+  status: zMoocfiCompletionStatus,
+  student_facing_status: zStudentFacingCreditRegistrationStatus.nullish(),
+})
+
+/**
+ * One mooc.fi completion and what is happening to the credits its tier earns.
  */
 export const zMoocfiCompletionRegistration = z.object({
   completion_date: z.iso.datetime(),
   credit_justification: z.string().nullish(),
-  credit_registration_id: z.uuid().nullish(),
-  credit_unit: zMoocfiCreditUnit.nullish(),
-  external_completion_id: z.uuid().nullish(),
+  credit_units: z.array(zMoocfiCreditUnitRegistration),
   moocfi_completion_id: z.uuid(),
   offers_certificate: z.boolean(),
-  status: zMoocfiCompletionStatus,
   student_facing_status: zStudentFacingCreditRegistrationStatus.nullish(),
   tier: z
     .int()
@@ -7539,6 +7647,27 @@ export const zMyCreditRegistration = z.object({
 export const zMyCreditRegistrationForSubject = z.object({
   earlier_attempts: z.array(zMyCreditRegistration),
   registration: zMyCreditRegistration,
+})
+
+/**
+ * One course code of the caller's mooc.fi completion.
+ */
+export const zMyMoocfiCodeRegistration = z.object({
+  enrolment_route: zMyEnrolmentRoute,
+  external_completion_id: z.uuid(),
+  registration: zMyCreditRegistration.nullish(),
+})
+
+/**
+ * The caller's registration of one mooc.fi completion under every course code it registers
+ * under, which the registration page reads as one.
+ */
+export const zMyMoocfiCompletionRegistration = z.object({
+  codes: z.array(zMyMoocfiCodeRegistration),
+  earlier_attempts: z.array(zMyCreditRegistration),
+  enrolment_route: zMyEnrolmentRoute,
+  moocfi_completion_id: z.uuid(),
+  registration: zMyCreditRegistration.nullish(),
 })
 
 export const zStudentsByCountryTotalsResult = z.object({
@@ -8448,79 +8577,6 @@ export const zThresholdData = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
-/**
- * The completion tiers a target registers, both ends inclusive. `None` for an end leaves it open.
- */
-export const zTierRange = z.object({
-  highest: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  lowest: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-})
-
-/**
- * A mooc.fi target's configuration as the admin form sends it, with the audit reason.
- */
-export const zAdminExternalCreditTargetPayload = z.object({
-  delegated_at: z.iso.datetime(),
-  ects_credits: z.number(),
-  enabled: z.boolean(),
-  enrolment_link: z.string().nullish(),
-  grading: zExternalGrading,
-  language_code: z.string(),
-  moocfi_course_id: z.uuid(),
-  moocfi_course_slug: z.string(),
-  name: z.string(),
-  reason: z.string(),
-  tiers: zTierRange.nullish(),
-  uh_course_code: z.string(),
-})
-
-/**
- * A mooc.fi course, or a tier range of one, whose completions courses registers under one course
- * code.
- */
-export const zExternalCreditTarget = z.object({
-  checked_course_code: z.string().nullish(),
-  config_check_message: z.string().nullish(),
-  config_checked_at: z.iso.datetime().nullish(),
-  consecutive_listing_failures: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  course_code_allowed: z.boolean().nullish(),
-  course_code_rejection: z.string().nullish(),
-  created_at: z.iso.datetime(),
-  delegated_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  ects_credits: z.number(),
-  enabled_at: z.iso.datetime().nullish(),
-  enrolment_link: z.string().nullish(),
-  grading: zExternalGrading,
-  id: z.uuid(),
-  language_code: z.string(),
-  last_listed_at: z.iso.datetime().nullish(),
-  last_listing_attempted_at: z.iso.datetime().nullish(),
-  last_listing_error: zCreditRegistrationErrorCode.nullish(),
-  moocfi_course_checked_at: z.iso.datetime().nullish(),
-  moocfi_course_id: z.uuid(),
-  moocfi_course_slug: z.string(),
-  moocfi_has_certificate: z.boolean().nullish(),
-  name: z.string(),
-  pause_reason: z.string().nullish(),
-  paused_at: z.iso.datetime().nullish(),
-  paused_by_user_id: z.uuid().nullish(),
-  tiers: zTierRange.nullish(),
-  uh_course_code: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
 export const zTimeGranularity = z.enum(["Year", "Month", "Day"])
 
 /**
@@ -8608,7 +8664,8 @@ export const zCreditRegistrationStepCount = z.object({
 })
 
 /**
- * One row of the Courses tab: a course module or a mooc.fi target.
+ * One row of the Courses tab: a course module, a mooc.fi code, or a mooc.fi target with no live
+ * codes.
  */
 export const zCreditRegistrationCourseStats = z.object({
   already_in_sisu_count: z.coerce
@@ -8638,6 +8695,7 @@ export const zCreditRegistrationCourseStats = z.object({
     }),
   enrolment_link: z.string().nullish(),
   external_credit_target: zExternalCreditTarget.nullish(),
+  external_credit_target_code: zExternalCreditTargetCode.nullish(),
   failed_count: z.coerce
     .bigint()
     .min(BigInt("-9223372036854775808"), {
@@ -12229,6 +12287,21 @@ export const zAdminUpdateExternalCreditTargetPath = z.object({
   external_credit_target_id: z.uuid(),
 })
 
+export const zAdminGetExternalCreditTargetCodesPath = z.object({
+  external_credit_target_id: z.uuid(),
+})
+
+/**
+ * The target's codes
+ */
+export const zAdminGetExternalCreditTargetCodesResponse = z.array(zExternalCreditTargetCode)
+
+export const zAdminSaveExternalCreditTargetCodesBody = zAdminExternalCreditTargetCodesPayload
+
+export const zAdminSaveExternalCreditTargetCodesPath = z.object({
+  external_credit_target_id: z.uuid(),
+})
+
 export const zAdminDeleteExternalCreditTargetBody = zAdminDeleteExternalCreditTargetPayload
 
 export const zAdminDeleteExternalCreditTargetPath = z.object({
@@ -12628,91 +12701,56 @@ export const zConfirmMyEnrolmentPath = z.object({
  */
 export const zConfirmMyEnrolmentResponse = zMyEnrolmentRoute
 
-export const zGetMyCreditRegistrationForExternalCompletionPath = z.object({
-  external_completion_id: z.uuid(),
+export const zGetMyMoocfiCompletionRegistrationPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
 /**
- * The caller's registration for the mooc.fi completion
+ * The caller's registration of the mooc.fi completion
  */
-export const zGetMyCreditRegistrationForExternalCompletionResponse =
-  zMyCreditRegistrationForSubject.nullable()
+export const zGetMyMoocfiCompletionRegistrationResponse = zMyMoocfiCompletionRegistration
 
-export const zSetMyExternalCompletionCreditJustificationBody = zSetCreditJustificationPayload
+export const zSetMyMoocfiCompletionCreditJustificationBody = zSetCreditJustificationPayload
 
-export const zSetMyExternalCompletionCreditJustificationPath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-/**
- * The stored answer
- */
-export const zSetMyExternalCompletionCreditJustificationResponse = zMyCreditJustification
-
-export const zRecordMyExternalCompletionEnrolmentPageVisitPath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-export const zGetMyExternalCompletionEnrolmentRoutePath = z.object({
-  external_completion_id: z.uuid(),
-})
-
-/**
- * The caller's answer for the mooc.fi completion
- */
-export const zGetMyExternalCompletionEnrolmentRouteResponse = zMyEnrolmentRoute
-
-export const zSetMyExternalCompletionEnrolmentRouteBody = zSetEnrolmentRoutePayload
-
-export const zSetMyExternalCompletionEnrolmentRoutePath = z.object({
-  external_completion_id: z.uuid(),
+export const zSetMyMoocfiCompletionCreditJustificationPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
 /**
  * The stored answer
  */
-export const zSetMyExternalCompletionEnrolmentRouteResponse = zMyEnrolmentRoute
+export const zSetMyMoocfiCompletionCreditJustificationResponse = zMyCreditJustification
 
-export const zWithdrawMyExternalCompletionCertificateChoicePath = z.object({
-  external_completion_id: z.uuid(),
+export const zRecordMyMoocfiCompletionEnrolmentPageVisitPath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zWithdrawMyExternalCompletionCertificateChoiceResponse = zMyEnrolmentRoute
+export const zSetMyMoocfiCompletionEnrolmentRouteBody = zSetEnrolmentRoutePayload
 
-export const zChooseMyExternalCompletionCertificatePath = z.object({
-  external_completion_id: z.uuid(),
+export const zSetMyMoocfiCompletionEnrolmentRoutePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zChooseMyExternalCompletionCertificateResponse = zMyEnrolmentRoute
-
-export const zWithdrawMyExternalCompletionEnrolmentConfirmationPath = z.object({
-  external_completion_id: z.uuid(),
+export const zWithdrawMyMoocfiCompletionCertificateChoicePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zWithdrawMyExternalCompletionEnrolmentConfirmationResponse = zMyEnrolmentRoute
-
-export const zConfirmMyExternalCompletionEnrolmentPath = z.object({
-  external_completion_id: z.uuid(),
+export const zChooseMyMoocfiCompletionCertificatePath = z.object({
+  moocfi_completion_id: z.uuid(),
 })
 
-/**
- * The stored answer
- */
-export const zConfirmMyExternalCompletionEnrolmentResponse = zMyEnrolmentRoute
+export const zWithdrawMyMoocfiCompletionEnrolmentConfirmationPath = z.object({
+  moocfi_completion_id: z.uuid(),
+})
+
+export const zConfirmMyMoocfiCompletionEnrolmentPath = z.object({
+  moocfi_completion_id: z.uuid(),
+})
 
 export const zCreateMyMoocfiHandoffBody = zCreateMoocfiHandoffPayload
 
 export const zCreateMyMoocfiHandoffPath = z.object({
-  external_completion_id: z.uuid(),
+  moocfi_completion_id: z.uuid(),
 })
 
 /**
